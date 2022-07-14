@@ -19,7 +19,6 @@ import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 
-import { ControlledInputAccount } from '@components/Form/ControlledInputAccount';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { ControlledInput } from '@components/Form/ControlledInput';
@@ -245,6 +244,7 @@ export function RegisterTransaction({ navigation }: any) {
           </Fields>
 
           <Button
+            type='secondary'
             title="Cadastrar transação"
             isLoading={buttonIsLoading}
             onPress={handleSubmit(handleTransactionRegister)}
