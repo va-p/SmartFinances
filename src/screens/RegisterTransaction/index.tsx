@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
+import DatePicker from 'react-native-date-picker'
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
@@ -178,91 +179,102 @@ export function RegisterTransaction({ navigation }: any) {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <Container>
-        <Header title='Cadastro de transação' />
+    <Container>
+      <Header title='Cadastro de transação' />
 
-        <Form>
-          <Fields>
-            <ControlledInput
-              type='primary'
-              placeholder='Descrição'
-              autoCapitalize='sentences'
-              autoCorrect={false}
-              name='description'
-              control={control}
-              error={errors.description}
-            />
-
-            <ControlledInput
-              type='primary'
-              placeholder='Valor'
-              keyboardType='numeric'
-              name='amount'
-              control={control}
-              error={errors.amount}
-            />
-
-            <TransactionsTypes>
-              <TransactionTypeButton
-                type='up'
-                title='Entrada'
-                onPress={() => handleTransactionsTypeSelect('income')}
-                isActive={transactionType === 'income'}
-              />
-              <TransactionTypeButton
-                type='down'
-                title='Saída'
-                onPress={() => handleTransactionsTypeSelect('outcome')}
-                isActive={transactionType === 'outcome'}
-              />
-            </TransactionsTypes>
-
-            <SelectDropdown
-              data={accounts}
-              onSelect={(selectedItem) => {
-                setAccountSelected(selectedItem);
-              }}
-              buttonTextAfterSelection={(selectedItem) => {
-                return selectedItem
-              }}
-              rowTextForSelection={(item) => {
-                return item
-              }}
-              defaultButtonText="Selecione a conta"
-              buttonStyle={{
-                width: '100%',
-                marginBottom: 10,
-                backgroundColor: theme.colors.shape
-              }}
-            />
-
-            <CategorySelectButton
-              title={categorySelected.name}
-              onPress={handleOpenSelectCategoryModal}
-            />
-          </Fields>
-
-          <Button
-            type='secondary'
-            title="Cadastrar transação"
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleTransactionRegister)}
+      <Form>
+        <Fields>
+          <ControlledInput
+            type='primary'
+            placeholder='Descrição'
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            name='description'
+            control={control}
+            error={errors.description}
           />
-        </Form>
 
-        <ModalView
-          visible={categoryModalOpen}
-          closeModal={handleCloseSelectCategoryModal}
-          title='Categorias'
-        >
-          <CategorySelect
-            category={categorySelected}
-            setCategory={setCategorySelected}
-            closeSelectCategory={handleCloseSelectCategoryModal}
+          <ControlledInput
+            type='primary'
+            placeholder='Valor'
+            keyboardType='numeric'
+            name='amount'
+            control={control}
+            error={errors.amount}
           />
-        </ModalView>
-      </Container>
-    </TouchableWithoutFeedback>
+
+          <TransactionsTypes>
+            <TransactionTypeButton
+              type='up'
+              title='Entrada'
+              onPress={() => handleTransactionsTypeSelect('income')}
+              isActive={transactionType === 'income'}
+            />
+            <TransactionTypeButton
+              type='down'
+              title='Saída'
+              onPress={() => handleTransactionsTypeSelect('outcome')}
+              isActive={transactionType === 'outcome'}
+            />
+          </TransactionsTypes>
+
+          <DatePicker
+            modal
+            open={dateModalOpen}
+            date={date}
+            onConfirm={(date) => {
+              setDateModalOpen(false)
+              setDate(date)
+            }}
+            onCancel={() => {
+              setDateModalOpen(false)
+            }}
+          />
+
+          <SelectDropdown
+            data={accounts}
+            onSelect={(selectedItem) => {
+              setAccountSelected(selectedItem);
+            }}
+            buttonTextAfterSelection={(selectedItem) => {
+              return selectedItem
+            }}
+            rowTextForSelection={(item) => {
+              return item
+            }}
+            defaultButtonText="Selecione a conta"
+            buttonStyle={{
+              width: '100%',
+              marginBottom: 10,
+              backgroundColor: theme.colors.shape
+            }}
+          />
+
+          <CategorySelectButton
+            title={categorySelected.name}
+            onPress={handleOpenSelectCategoryModal}
+          />
+        </Fields>
+
+        <Button
+          type='secondary'
+          title="Cadastrar transação"
+          isLoading={buttonIsLoading}
+          onPress={handleSubmit(handleTransactionRegister)}
+        />
+      </Form>
+
+      <ModalView
+        visible={categoryModalOpen}
+        closeModal={handleCloseSelectCategoryModal}
+        title='Categorias'
+      >
+        <CategorySelect
+          category={categorySelected}
+          setCategory={setCategorySelected}
+          closeSelectCategory={handleCloseSelectCategoryModal}
+        />
+      </ModalView>
+    </Container>
   );
 }

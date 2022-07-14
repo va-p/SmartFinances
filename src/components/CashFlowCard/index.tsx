@@ -10,9 +10,9 @@ import { Balance } from '../Balance';
 
 interface CashFlowCardProps {
   type?: 'show' | 'hide';
-  amount: string | number;
-  amountIncome: string | number;
-  amountOutcome: string | number;
+  amountIncome: string;
+  amountOutcome: string;
+  amount: string;
   lastTransaction?: string;
 }
 

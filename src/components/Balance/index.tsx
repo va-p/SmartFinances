@@ -10,7 +10,7 @@ import {
 interface Props {
   type: 'up' | 'down' | 'total';
   title: string;
-  amount: string | number;
+  amount: string;
 }
 
 const icon = {

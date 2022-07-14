@@ -19,13 +19,34 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { TransactionListItem, TransactionProps } from '@components/TransactionListItem';
 import { CashFlowCard } from '@components/CashFlowCard';
 import { Load } from '@components/Load';
 
-import { selectUserName, selectUserTenantId } from '@slices/userSlice';
+import {
+  selectUserTenantId,
+  selectUserName
+} from '@slices/userSlice';
+
+import {
+  selectRevenuesBrl,
+  selectExpensesBrl,
+  selectTotalBrl,
+  setRevenuesBrl,
+  setExpensesBrl,
+  setTotalBrl
+} from '@slices/amountBrlSlice';
+
+import {
+  selectExpensesBtc,
+  selectRevenuesBtc,
+  selectTotalBtc,
+  setExpensesBtc,
+  setRevenuesBtc,
+  setTotalBtc
+} from '@slices/amountBtcSlice';
 
 //import { FetchTransactions } from '@services/FetchTransactions';
 
@@ -55,11 +76,20 @@ type HighlightData = {
 export function Dashboard({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState<DataListProps[]>([]);
-  const [highlightDataBrl, setHighlightDataBrl] = useState<HighlightData>({} as HighlightData);
+  //const [highlightDataBrl, setHighlightDataBrl] = useState<HighlightData>({} as HighlightData);
   const [highlightDataBtc, setHighlightDataBtc] = useState<HighlightData>({} as HighlightData);
   const [refreshing, setRefreshing] = useState(true);
   const tenantId = useSelector(selectUserTenantId);
   const userName = useSelector(selectUserName);
+  const revenuesBrl = useSelector(selectRevenuesBrl);
+  const expensesBrl = useSelector(selectExpensesBrl);
+  const totalBrl = useSelector(selectTotalBrl);
+
+  const revenuesBtc = useSelector(selectRevenuesBtc);
+  const expensesBtc = useSelector(selectExpensesBtc);
+  const totalBtc = useSelector(selectTotalBtc);
+
+  const dispatch = useDispatch();
 
   async function fetchTransactions() {
     setLoading(true);
@@ -286,7 +316,6 @@ export function Dashboard({ navigation }: any) {
 
       const jsonHighlightData = await AsyncStorage.getItem(COLLECTION_HIGHLIGHTDATA);
       const currentHighlightData = jsonHighlightData ? JSON.parse(jsonHighlightData) : [];
-      console.log(highlightDataBtc);
 
       const jsonUserHighlightDataFormatted = [
         currentHighlightData,
@@ -294,8 +323,26 @@ export function Dashboard({ navigation }: any) {
         highlightDataBtc
       ];
       await AsyncStorage.setItem(COLLECTION_HIGHLIGHTDATA, JSON.stringify(jsonUserHighlightDataFormatted));
-      setHighlightDataBrl(highlightDataBrl);
-      setHighlightDataBtc(highlightDataBtc);
+      dispatch(
+        setRevenuesBrl(highlightDataBrl.revenues)
+      );
+      dispatch(
+        setExpensesBrl(highlightDataBrl.expenses)
+      );
+      dispatch(
+        setTotalBrl(highlightDataBrl.total)
+      );
+      dispatch(
+        setRevenuesBtc(highlightDataBtc.revenues)
+      );
+      dispatch(
+        setExpensesBtc(highlightDataBtc.expenses)
+      );
+      dispatch(
+        setTotalBtc(highlightDataBtc.total)
+      );
+      /*setHighlightDataBrl(highlightDataBrl);
+      setHighlightDataBtc(highlightDataBtc);*/
 
       /*console.log(
         //highlightDataBrl.revenues,
@@ -305,8 +352,6 @@ export function Dashboard({ navigation }: any) {
       /**
        * Transactions in BTC - End
       */
-
-
 
       setLoading(false);
     } catch (error) {
@@ -347,6 +392,8 @@ export function Dashboard({ navigation }: any) {
     fetchTransactions();
   }, []));
 
+  console.log()
+
   if (loading) {
     return <Load />
   }
@@ -373,15 +420,15 @@ export function Dashboard({ navigation }: any) {
 
       <HighlightCards>
         <CashFlowCard
-          amountIncome={highlightDataBrl.revenues.amount}
-          amountOutcome={highlightDataBrl.expenses.amount}
-          amount={highlightDataBrl.total.amount}
+          amountIncome={revenuesBrl.amount}
+          amountOutcome={expensesBrl.amount}
+          amount={totalBrl.amount}
         />
 
         <CashFlowCard
-          amountIncome={highlightDataBtc.revenues.amount}
-          amountOutcome={highlightDataBtc.expenses.amount}
-          amount={highlightDataBtc.total.amount}
+          amountIncome={revenuesBtc.amount}
+          amountOutcome={expensesBtc.amount}
+          amount={totalBtc.amount}
         />
       </HighlightCards>
 
