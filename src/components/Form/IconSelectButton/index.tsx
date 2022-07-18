@@ -13,7 +13,7 @@ interface Props {
   onPress: () => void;
 }
 
-export function CategorySelectButton({
+export function IconSelectButton({
   title,
   icon,
   onPress
@@ -22,7 +22,7 @@ export function CategorySelectButton({
     <Container onPress={onPress}>
       <Description>
         <Title>{title}</Title>
-        <Icon name={icon}/>
+        <Icon name={icon} />
       </Description>
       <IconChevronDown name='chevron-down-outline' />
     </Container>

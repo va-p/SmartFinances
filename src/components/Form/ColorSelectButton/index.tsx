@@ -4,27 +4,27 @@ import {
   Description,
   Title,
   Icon,
-  IconChevronDown
+  Color
 } from './styles';
 
 interface Props {
   title: string;
-  icon: string;
+  color: string;
   onPress: () => void;
 }
 
-export function CategorySelectButton({
+export function ColorSelectButton({
   title,
-  icon,
+  color,
   onPress
 }: Props) {
   return (
     <Container onPress={onPress}>
       <Description>
         <Title>{title}</Title>
-        <Icon name={icon}/>
+        <Color color={color} />
       </Description>
-      <IconChevronDown name='chevron-down-outline' />
+      <Icon name='chevron-down-outline' />
     </Container>
   )
 }

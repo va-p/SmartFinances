@@ -105,7 +105,7 @@ export function Dashboard({ navigation }: any) {
       */
       const transactionsBrl = data
         .filter((transaction: DataListProps) =>
-          transaction.account.currency === 'BRL'
+          transaction.account?.currency === 'BRL'
         );
 
       let totalRevenuesBrl = 0;
@@ -154,19 +154,19 @@ export function Dashboard({ navigation }: any) {
             amount,
             type: transactionBrl.type,
             account: {
-              id: transactionBrl.account.id,
+              id: transactionBrl.account?.id,
               //created_at: dateAccountBrl,
-              name: transactionBrl.account.name,
-              currency: transactionBrl.account.currency,
-              simbol: transactionBrl.account.simbol,
+              name: transactionBrl.account?.name,
+              currency: transactionBrl.account?.currency,
+              simbol: transactionBrl.account?.simbol,
             },
             category: {
-              id: transactionBrl.category.id,
+              id: transactionBrl.category?.id,
               //created_at: dateCategoryBrl,
-              name: transactionBrl.category.name,
-              icon: transactionBrl.category.icon,
-              color: transactionBrl.category.color,
-              tenantId: transactionBrl.category.tenant_id
+              name: transactionBrl.category?.name,
+              icon: transactionBrl.category?.icon,
+              color: transactionBrl.category?.color,
+              tenantId: transactionBrl.category?.tenant_id
             },
             tenantId: transactionBrl.tenant_id
           }
@@ -204,7 +204,7 @@ export function Dashboard({ navigation }: any) {
       */
       const transactionsBtc = data
         .filter((transaction: DataListProps) =>
-          transaction.account.currency === 'BTC'
+          transaction.account?.currency === 'BTC'
         );
 
       let totalRevenuesBtc = 0;
@@ -386,8 +386,6 @@ export function Dashboard({ navigation }: any) {
   useFocusEffect(useCallback(() => {
     fetchTransactions();
   }, []));
-
-  console.log()
 
   if (loading) {
     return <Load />

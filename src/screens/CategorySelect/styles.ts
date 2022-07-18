@@ -4,9 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
-import theme from '../../global/styles/theme';
-
-interface CategoryProps {
+type CategoryProps = {
   isActive: boolean;
 }
 
@@ -20,7 +18,7 @@ export const Category = styled.TouchableOpacity<CategoryProps>`
   flex-direction: row;
   align-items: center;
   padding: ${RFValue(15)}px;
-  background-color: ${({ isActive }) =>
+  background-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.secondary_light : theme.colors.background
   };
 `;
@@ -33,12 +31,6 @@ export const Icon = styled(Ionicons)`
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
-`;
-
-export const Separator = styled.View`
-  width: 100%;
-  height: 1px;
-  background-color:  ${({ theme }) => theme.colors.text};
 `;
 
 export const Footer = styled.View`

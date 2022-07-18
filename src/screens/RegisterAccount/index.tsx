@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
@@ -7,6 +7,7 @@ import {
 } from './styles';
 
 import SelectDropdown from 'react-native-select-dropdown';
+import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
@@ -68,7 +69,7 @@ export function RegisterAccount({ navigation }: any) {
     }
   };
 
-  async function handleAddAccount(form: FormData) {
+  async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);
 
     if (!currencySelected) {
@@ -120,9 +121,11 @@ export function RegisterAccount({ navigation }: any) {
     }
   };
 
-  useEffect(() => {
-    fetchAccounts();
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      fetchAccounts();
+    }, [])
+  );
 
   if (loading) {
     return <Load />
@@ -189,7 +192,7 @@ export function RegisterAccount({ navigation }: any) {
           type='secondary'
           title='Cadastrar conta'
           isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleAddAccount)}
+          onPress={handleSubmit(handleAccountRegister)}
         />
       </Form>
     </Container>

@@ -8,13 +8,13 @@ type IconProps = {
   icon: string;
 }
 
-export const Container = styled(RectButton).attrs({
-  activeOpacity: 0.7
-})`
+export const Container = styled(RectButton)`
+  height: 58px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding: 18px 16px;
+  margin-top: 10px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;

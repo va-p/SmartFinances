@@ -58,13 +58,6 @@ export function RegisterTransaction({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [transactionType, setTransactionType] = useState('');
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [categorySelected, setCategorySelected] = useState({
-    id: '',
-    name: 'Categoria'
-  } as CategoryProps);
-  const [accounts, setAccounts] = useState([]);
-  const [accountSelected, setAccountSelected] = useState<AccountProps>();
   const [date, setDate] = useState(new Date());
   const [modeDatePicker, setModeDatePicker] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -83,13 +76,24 @@ export function RegisterTransaction({ navigation }: any) {
   const showTimepicker = () => {
     showMode('time');
   };
+  const [accounts, setAccounts] = useState([]);
+  const [accountSelected, setAccountSelected] = useState<AccountProps>();
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [categorySelected, setCategorySelected] = useState({
+    id: '',
+    name: 'Categoria'
+  } as CategoryProps);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema)
-  });
 
   async function fetchAccounts() {
     setLoading(true);
+
     try {
       const { data } = await api.get('account', {
         params: {
@@ -163,6 +167,31 @@ export function RegisterTransaction({ navigation }: any) {
       const { status } = await api.post('transaction', newTransaction);
       if (status === 200) {
         Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Transactions') }]);
+
+        reset();
+        setTransactionType('')
+        setAccountSelected({
+          id: '',
+          name: '',
+          currency: '',
+          simbol: ''
+        });
+        setCategorySelected({
+          id: '',
+          created_at: '',
+          name: 'Categoria',
+          icon: {
+            id: '',
+            title: '',
+            name: '',
+          },
+          color: {
+            id: '',
+            name: '',
+            hex: '',
+          },
+          tenant_id: ''
+        });
       };
 
       const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
@@ -183,6 +212,7 @@ export function RegisterTransaction({ navigation }: any) {
 
   useEffect(() => {
     fetchAccounts();
+    reset();
   }, [])
 
   useFocusEffect(useCallback(() => {
@@ -204,6 +234,7 @@ export function RegisterTransaction({ navigation }: any) {
             placeholder='Descrição'
             autoCapitalize='sentences'
             autoCorrect={false}
+            defaultValue=''
             name='description'
             control={control}
             error={errors.description}
@@ -213,6 +244,7 @@ export function RegisterTransaction({ navigation }: any) {
             type='primary'
             placeholder='Valor'
             keyboardType='numeric'
+            defaultValue=''
             name='amount'
             control={control}
             error={errors.amount}
@@ -272,6 +304,7 @@ export function RegisterTransaction({ navigation }: any) {
 
           <CategorySelectButton
             title={categorySelected.name}
+            icon={categorySelected.icon?.name}
             onPress={handleOpenSelectCategoryModal}
           />
         </Fields>

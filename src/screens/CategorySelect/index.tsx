@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, RefreshControl } from 'react-native';
 import {
   Container,
   Category,
   Icon,
   Name,
-  Separator,
   Footer,
 } from './styles';
 
@@ -13,21 +12,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 
+import { CategoryProps } from '@components/CategoryListItem';
+import { ListSeparator } from '@components/ListSeparator';
 import { Button } from '@components/Form/Button';
+import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
-
-export interface CategoryProps {
-  id: string;
-  created_at: string;
-  key: string;
-  name: string;
-  icon?: string;
-  color?: string;
-  tenant_id: string;
-}
 
 type Props = {
   category: CategoryProps;
@@ -41,12 +33,13 @@ export function CategorySelect({
   closeSelectCategory
 }: Props) {
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(true);
   const tenantId = useSelector(selectUserTenantId);
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
 
   async function fetchCategories() {
     setLoading(true);
+    
     try {
       const { data } = await api.get('category', {
         params: {
@@ -56,6 +49,7 @@ export function CategorySelect({
       if (!data) {
       } else {
         setCategories(data);
+        setRefreshing(false);
       }
       setLoading(false);
     } catch (error) {
@@ -76,28 +70,35 @@ export function CategorySelect({
     fetchCategories();
   }, []));
 
+  if (loading) {
+    return <Load />
+  }
+
   return (
     <Container>
       <FlatList
         data={categories}
-        style={{ flex: 1, width: '100%' }}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <Category
             onPress={() => handleCategorySelect(item)}
             isActive={category.id === item.id}
           >
-            <Icon name={item.icon} />
+            <Icon name={item.icon?.name} />
             <Name>{item.name}</Name>
           </Category>
         )}
-        ItemSeparatorComponent={() => <Separator />}
+        ItemSeparatorComponent={() => <ListSeparator />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
+        }
+        style={{ flex: 1, width: '100%' }}
       />
 
       <Footer>
         <Button
+          type='secondary'
           title="Selecionar"
-          isLoading={buttonIsLoading}
           onPress={closeSelectCategory}
         />
       </Footer>
