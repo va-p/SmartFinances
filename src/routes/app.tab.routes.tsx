@@ -11,23 +11,24 @@ import { Resume } from '@screens/Resume';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
-export function AppTabRoutes(){
+export function AppTabRoutes() {
   const theme = useTheme();
 
-  return(
+  return (
     <Navigator
-      tabBarOptions={{
-        activeTintColor: theme.colors.secondary,
-        inactiveTintColor: theme.colors.text,
-        labelPosition: 'beside-icon',
-        style: {
-          paddingVertical: Platform.OS === 'ios' ? 20 : 0,
-          height: 70
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: theme.colors.secondary,
+        tabBarInactiveTintColor: theme.colors.text,
+        tabBarStyle: {
+          height: 60,
+          paddingTop: 10,
+          paddingBottom: 10
         }
       }}
     >
       <Screen
-        name="Transações"
+        name="Timeline"
         component={Dashboard}
         options={{
           tabBarIcon: (({ size, color }) => (
@@ -55,7 +56,7 @@ export function AppTabRoutes(){
       />
 
       <Screen
-        name="Resumo"
+        name="Gráficos"
         component={Resume}
         options={{
           tabBarIcon: (({ size, color }) => (

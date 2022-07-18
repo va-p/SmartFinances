@@ -1,14 +1,18 @@
 import React from 'react';
+
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { AppTabRoutes } from './app.tab.routes';
+import { AppDrawerRoutes } from './app.drawer.routes';
 import { SignIn } from '@screens/SignIn';
 
 const { Navigator, Screen } = createStackNavigator();
 
 export function AuthRoutes() {
   return (
-    <Navigator headerMode='none'>
+    <Navigator screenOptions={{
+      headerShown: false,
+    }}
+    >
       <Screen
         name="SignIn"
         component={SignIn}
@@ -16,7 +20,7 @@ export function AuthRoutes() {
 
       <Screen
         name="Home"
-        component={AppTabRoutes}
+        component={AppDrawerRoutes}
       />
     </Navigator>
   )
