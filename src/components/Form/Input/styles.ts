@@ -28,8 +28,9 @@ export const Container = styled(TextInput).attrs<Props>(({ theme, type }) => ({
   font-size: ${RFValue(14)}px;
   ${({ theme, type }) => css`
   font-family: ${theme.fonts.regular};
-  border: 1px solid ${theme.colors.shape};
   color: ${type === 'primary' ? theme.colors.title : theme.colors.title};
+  border: 1px solid ${theme.colors.shape};
   `};
   background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: 10px;
 `;

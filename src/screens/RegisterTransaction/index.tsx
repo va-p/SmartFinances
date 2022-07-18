@@ -1,21 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  TouchableWithoutFeedback,
-  Keyboard,
-  Alert
-} from 'react-native';
+import { Alert } from 'react-native';
 import {
   Container,
   Form,
   Fields,
-  TransactionsTypes
+  TransactionsTypes,
 } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
-import DatePicker from 'react-native-date-picker'
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
@@ -23,13 +19,14 @@ import * as Yup from 'yup';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { ControlledInput } from '@components/Form/ControlledInput';
-import { AccountProps } from '@components/TransactionListItem';
+import { CategoryProps } from '@components/CategoryListItem';
+import { AccountProps } from '@components/AccountListItem';
 import { ModalView } from '@components/ModalView';
 import { Button } from '@components/Form/Button';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
-import { CategoryProps, CategorySelect } from '@screens/CategorySelect';
+import { CategorySelect } from '@screens/CategorySelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -59,17 +56,33 @@ const schema = Yup.object().shape({
 
 export function RegisterTransaction({ navigation }: any) {
   const [loading, setLoading] = useState(false);
+  const tenantId = useSelector(selectUserTenantId);
   const [transactionType, setTransactionType] = useState('');
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [categorySelected, setCategorySelected] = useState({
-    key: 'category',
+    id: '',
     name: 'Categoria'
   } as CategoryProps);
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [accountSelected, setAccountSelected] = useState<AccountProps>();
   const [date, setDate] = useState(new Date());
-  const [dateModalOpen, setDateModalOpen] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const [modeDatePicker, setModeDatePicker] = useState('date');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const onChangeDate = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setShowDatePicker(false);
+    setDate(currentDate);
+  };
+  const showMode = (currentMode: string) => {
+    setShowDatePicker(true);
+    setModeDatePicker(currentMode);
+  };
+  const showDatepicker = () => {
+    showMode('date');
+  };
+  const showTimepicker = () => {
+    showMode('time');
+  };
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
@@ -85,7 +98,8 @@ export function RegisterTransaction({ navigation }: any) {
       });
       if (!data) {
       } else {
-        const accountsFormatted = data.map((account: AccountProps) => account.name);
+        const accountsFormatted = data
+          .map((account: AccountProps) => account.name);
         setAccounts(accountsFormatted);
       }
       setLoading(false);
@@ -120,7 +134,7 @@ export function RegisterTransaction({ navigation }: any) {
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
 
-    if (categorySelected.key === 'category')
+    if (categorySelected.id === '')
       return Alert.alert("Cadastro de Transação", "Selecione a categoria da transação", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
@@ -137,6 +151,7 @@ export function RegisterTransaction({ navigation }: any) {
       }
 
       const newTransaction = {
+        created_at: date,
         description: form.description,
         amount: form.amount,
         type: transactionType,
@@ -218,18 +233,21 @@ export function RegisterTransaction({ navigation }: any) {
             />
           </TransactionsTypes>
 
-          <DatePicker
-            modal
-            open={dateModalOpen}
-            date={date}
-            onConfirm={(date) => {
-              setDateModalOpen(false)
-              setDate(date)
-            }}
-            onCancel={() => {
-              setDateModalOpen(false)
-            }}
+          <Button
+            type='primary'
+            title='Selecione a data'
+            onPress={showDatepicker}
           />
+          {showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode={modeDatePicker}
+              is24Hour={true}
+              onChange={onChangeDate}
+              display='spinner'
+            />
+          )}
 
           <SelectDropdown
             data={accounts}
@@ -245,8 +263,10 @@ export function RegisterTransaction({ navigation }: any) {
             defaultButtonText="Selecione a conta"
             buttonStyle={{
               width: '100%',
+              marginTop: 10,
               marginBottom: 10,
-              backgroundColor: theme.colors.shape
+              backgroundColor: theme.colors.shape,
+              borderRadius: 10
             }}
           />
 

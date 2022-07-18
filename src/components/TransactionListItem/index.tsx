@@ -19,16 +19,10 @@ import {
 
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import { CategoryProps } from '@screens/CategorySelect';
 
-export interface AccountProps {
-  id: string;
-  created_at: string;
-  name: string;
-  currency: string;
-  simbol: string;
-  tenantId: string;
-}
+import { AccountProps } from '@components/AccountListItem';
+
+import { CategoryProps } from '@screens/CategorySelect';
 
 export interface TransactionProps {
   created_at: string;

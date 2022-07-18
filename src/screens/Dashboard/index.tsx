@@ -48,8 +48,6 @@ import {
   setTotalBtc
 } from '@slices/amountBtcSlice';
 
-//import { FetchTransactions } from '@services/FetchTransactions';
-
 import {
   COLLECTION_HIGHLIGHTDATA,
   COLLECTION_TRANSACTIONS,
@@ -59,7 +57,7 @@ import {
 
 import api from '@api/api';
 
-export interface DataListProps extends TransactionProps {
+export type DataListProps = TransactionProps & {
   id: string;
 }
 
@@ -76,15 +74,12 @@ type HighlightData = {
 export function Dashboard({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState<DataListProps[]>([]);
-  //const [highlightDataBrl, setHighlightDataBrl] = useState<HighlightData>({} as HighlightData);
-  const [highlightDataBtc, setHighlightDataBtc] = useState<HighlightData>({} as HighlightData);
   const [refreshing, setRefreshing] = useState(true);
   const tenantId = useSelector(selectUserTenantId);
   const userName = useSelector(selectUserName);
   const revenuesBrl = useSelector(selectRevenuesBrl);
   const expensesBrl = useSelector(selectExpensesBrl);
   const totalBrl = useSelector(selectTotalBrl);
-
   const revenuesBtc = useSelector(selectRevenuesBtc);
   const expensesBtc = useSelector(selectExpensesBtc);
   const totalBtc = useSelector(selectTotalBtc);
@@ -140,7 +135,7 @@ export function Dashboard({ navigation }: any) {
             year: 'numeric'
           }).format(new Date(transactionBrl.created_at));
 
-          const dateAccountBrl = Intl.DateTimeFormat('pt-BR', {
+          /*const dateAccountBrl = Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -150,7 +145,7 @@ export function Dashboard({ navigation }: any) {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
-          }).format(new Date(transactionBrl.category.created_at));
+          }).format(new Date(transactionBrl.category.created_at));*/
 
           return {
             id: transactionBrl.id,
@@ -160,14 +155,14 @@ export function Dashboard({ navigation }: any) {
             type: transactionBrl.type,
             account: {
               id: transactionBrl.account.id,
-              created_at: dateAccountBrl,
+              //created_at: dateAccountBrl,
               name: transactionBrl.account.name,
               currency: transactionBrl.account.currency,
               simbol: transactionBrl.account.simbol,
             },
             category: {
               id: transactionBrl.category.id,
-              created_at: dateCategoryBrl,
+              //created_at: dateCategoryBrl,
               name: transactionBrl.category.name,
               icon: transactionBrl.category.icon,
               color: transactionBrl.category.color,
@@ -360,11 +355,11 @@ export function Dashboard({ navigation }: any) {
     }
   };
 
-  async function handleProductSizeSwipeLeft(id: string) {
-    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a transação.", onPress: () => handleDeleteProductSize(id) }])
+  async function handleTransactionSwipeLeft(id: string) {
+    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a transação.", onPress: () => handleDeleteTransaction(id) }])
   };
 
-  async function handleDeleteProductSize(id: string) {
+  async function handleDeleteTransaction(id: string) {
     try {
       await api.delete('delete_transaction', {
         params: {
@@ -441,7 +436,7 @@ export function Dashboard({ navigation }: any) {
           renderItem={({ item }) => (
             <TransactionListItem
               data={item}
-              onSwipeableLeftOpen={() => handleProductSizeSwipeLeft(item.id)}
+              onSwipeableLeftOpen={() => handleTransactionSwipeLeft(item.id)}
             />
           )}
           refreshControl={

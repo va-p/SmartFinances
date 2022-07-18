@@ -20,3 +20,12 @@ export const TransactionsTypes = styled.View`
   margin-top: 8px;
   margin-bottom: 16px;
 `;
+
+export const GroupButtonDateRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+export const GroupButtonDate = styled.View`
+  width: 48%;
+`;

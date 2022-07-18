@@ -15,6 +15,7 @@ export const Container = styled(RectButton) <ContainerProps>`
   padding: 18px;
   margin-top: 10px;
   background-color: ${({ theme, type }) => type === 'primary' ? theme.colors.shape : theme.colors.secondary};
+  border-radius: 10px;
 `;
 
 export const Title = styled.Text <ContainerProps>`
@@ -23,6 +24,6 @@ export const Title = styled.Text <ContainerProps>`
   color: ${({ theme, type }) => type === 'primary' ? theme.colors.text_dark : theme.colors.shape};
 `;
 
-export const Load = styled.ActivityIndicator.attrs(({ theme }) => ({
-  color: theme.colors.text,
+export const Load = styled.ActivityIndicator.attrs<ContainerProps>(({ type, theme }) => ({
+  color: type === 'primary' ? theme.colors.secondary : theme.colors.shape
 }))``;
