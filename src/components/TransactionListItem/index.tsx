@@ -20,9 +20,9 @@ import {
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
+import { CategoryProps } from '@components/CategoryListItem';
 import { AccountProps } from '@components/AccountListItem';
 
-import { CategoryProps } from '@screens/CategorySelect';
 
 export interface TransactionProps {
   created_at: string;
@@ -90,13 +90,13 @@ export function TransactionListItem({
 
           <Footer>
             <Details>
-              <Icon name={data.category.icon} />
+              <Icon name={data.category.icon?.name} />
               <CategoryName>
-                {data.category.name}
+                {data.category?.name}
                 {' | '}
               </CategoryName>
               <Account>
-                {data.account.name}
+                {data.account?.name}
               </Account>
             </Details>
             <Date>

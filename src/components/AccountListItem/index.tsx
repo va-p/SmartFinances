@@ -17,9 +17,11 @@ import { RectButtonProps, Swipeable } from 'react-native-gesture-handler';
 
 export interface AccountProps {
   id: string;
+  created_at: string;
   name: string;
   currency: string;
   simbol: string;
+  tenant_id: string;
 }
 
 type Props = RectButtonProps & {
