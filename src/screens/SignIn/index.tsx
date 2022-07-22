@@ -188,7 +188,7 @@ export function SignIn({ navigation }: any) {
           <Title>
             Controle suas {'\n'}
             finanças de forma {'\n'}
-            muito simples
+            simples e precisa.
           </Title>
         </TitleWrapper>
 

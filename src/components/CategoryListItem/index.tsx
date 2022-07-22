@@ -15,7 +15,7 @@ import { RectButtonProps, Swipeable } from 'react-native-gesture-handler';
 
 export interface IconProps {
   id: string;
-  title: string;
+  title: string | undefined;
   name: string;
 }
 

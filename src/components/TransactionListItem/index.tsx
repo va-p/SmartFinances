@@ -25,6 +25,7 @@ import { AccountProps } from '@components/AccountListItem';
 
 
 export interface TransactionProps {
+  id: string;
   created_at: string;
   description: string;
   amount: string | number;
@@ -90,13 +91,13 @@ export function TransactionListItem({
 
           <Footer>
             <Details>
-              <Icon name={data.category.icon?.name} />
+              <Icon name={data.category.icon.name} />
               <CategoryName>
-                {data.category?.name}
+                {data.category.name}
                 {' | '}
               </CategoryName>
               <Account>
-                {data.account?.name}
+                {data.account.name}
               </Account>
             </Details>
             <Date>

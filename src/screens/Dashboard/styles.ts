@@ -19,7 +19,7 @@ export const Header = styled.View`
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  padding-left: ${RFPercentage(5)}px;
+  padding-left: ${RFPercentage(1)}px;
   background-color: ${({ theme }) => theme.colors.primary};
 `;
 

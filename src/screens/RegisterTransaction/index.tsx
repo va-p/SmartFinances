@@ -171,10 +171,12 @@ export function RegisterTransaction({ navigation }: any) {
         reset();
         setTransactionType('')
         setAccountSelected({
+          created_at: '',
           id: '',
           name: '',
           currency: '',
-          simbol: ''
+          simbol: '',
+          tenant_id: ''
         });
         setCategorySelected({
           id: '',

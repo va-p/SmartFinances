@@ -57,10 +57,6 @@ import {
 
 import api from '@api/api';
 
-export type DataListProps = TransactionProps & {
-  id: string;
-}
-
 interface HighlightProps {
   amount: string | number;
 }
@@ -73,7 +69,7 @@ type HighlightData = {
 
 export function Dashboard({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const [transactions, setTransactions] = useState<DataListProps[]>([]);
+  const [transactions, setTransactions] = useState<TransactionProps>();
   const [refreshing, setRefreshing] = useState(true);
   const tenantId = useSelector(selectUserTenantId);
   const userName = useSelector(selectUserName);
@@ -83,11 +79,11 @@ export function Dashboard({ navigation }: any) {
   const revenuesBtc = useSelector(selectRevenuesBtc);
   const expensesBtc = useSelector(selectExpensesBtc);
   const totalBtc = useSelector(selectTotalBtc);
-
   const dispatch = useDispatch();
 
   async function fetchTransactions() {
     setLoading(true);
+    await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
 
     try {
       const { data } = await api.get('transaction', {
@@ -104,15 +100,15 @@ export function Dashboard({ navigation }: any) {
        * Transactions in BRL - Start
       */
       const transactionsBrl = data
-        .filter((transaction: DataListProps) =>
+        .filter((transaction: TransactionProps) =>
           transaction.account?.currency === 'BRL'
         );
 
       let totalRevenuesBrl = 0;
       let totalExpensesBrl = 0;
 
-      const transactionsFormattedBrl: DataListProps[] = transactionsBrl
-        .map((transactionBrl: DataListProps) => {
+      const transactionsFormattedBrl: TransactionProps = transactionsBrl
+        .map((transactionBrl: TransactionProps) => {
           switch (transactionBrl.type) {
             case 'income':
               totalRevenuesBrl += Number(transactionBrl.amount);
@@ -159,16 +155,26 @@ export function Dashboard({ navigation }: any) {
               name: transactionBrl.account?.name,
               currency: transactionBrl.account?.currency,
               simbol: transactionBrl.account?.simbol,
+              amount: transactionBrl.account?.amount,
+              tenant_id: transactionBrl.account?.tenant_id
             },
             category: {
               id: transactionBrl.category?.id,
               //created_at: dateCategoryBrl,
               name: transactionBrl.category?.name,
-              icon: transactionBrl.category?.icon,
-              color: transactionBrl.category?.color,
-              tenantId: transactionBrl.category?.tenant_id
+              icon: {
+                id: transactionBrl.category?.icon.id,
+                title: transactionBrl.category?.icon.title,
+                name: transactionBrl.category?.icon.name,
+              },
+              color: {
+                id: transactionBrl.category.color.id,
+                name: transactionBrl.category.color.name,
+                hex: transactionBrl.category.color.hex,
+              },
+              tenant_id: transactionBrl.category?.tenant_id
             },
-            tenantId: transactionBrl.tenant_id
+            tenant_id: transactionBrl.tenant_id
           }
         });
 
@@ -203,15 +209,15 @@ export function Dashboard({ navigation }: any) {
        * Transactions in BTC - Start
       */
       const transactionsBtc = data
-        .filter((transaction: DataListProps) =>
+        .filter((transaction: TransactionProps) =>
           transaction.account?.currency === 'BTC'
         );
 
       let totalRevenuesBtc = 0;
       let totalExpensesBtc = 0;
 
-      const transactionsFormattedBtc: DataListProps[] = transactionsBtc
-        .map((transactionBtc: DataListProps) => {
+      const transactionsFormattedBtc: TransactionProps = transactionsBtc
+        .map((transactionBtc: TransactionProps) => {
           switch (transactionBtc.type) {
             case 'income':
               totalRevenuesBtc += Number(transactionBtc.amount);
@@ -235,7 +241,7 @@ export function Dashboard({ navigation }: any) {
             year: 'numeric'
           }).format(new Date(transactionBtc.created_at));
 
-          const dateAccountBtc = Intl.DateTimeFormat('pt-BR', {
+          /*const dateAccountBtc = Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
@@ -245,7 +251,7 @@ export function Dashboard({ navigation }: any) {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
-          }).format(new Date(transactionBtc.category.created_at));
+          }).format(new Date(transactionBtc.category.created_at));*/
 
           return {
             id: transactionBtc.id,
@@ -255,20 +261,28 @@ export function Dashboard({ navigation }: any) {
             type: transactionBtc.type,
             account: {
               id: transactionBtc.account.id,
-              created_at: dateAccountBtc,
+              //created_at: dateAccountBtc,
               name: transactionBtc.account.name,
               currency: transactionBtc.account.currency,
               simbol: transactionBtc.account.simbol,
             },
             category: {
               id: transactionBtc.category.id,
-              created_at: dateCategoryBtc,
+              //created_at: dateCategoryBtc,
               name: transactionBtc.category.name,
-              icon: transactionBtc.category.icon,
-              color: transactionBtc.category.color,
-              tenantId: transactionBtc.category.tenant_id
+              icon: {
+                id: transactionBtc.category?.icon.id,
+                title: transactionBtc.category?.icon.title,
+                name: transactionBtc.category?.icon.name,
+              },
+              color: {
+                id: transactionBtc.category.color.id,
+                name: transactionBtc.category.color.name,
+                hex: transactionBtc.category.color.hex,
+              },
+              tenant_id: transactionBtc.category.tenant_id
             },
-            tenantId: transactionBtc.tenant_id
+            tenant_id: transactionBtc.tenant_id
           }
         });
 
@@ -298,16 +312,12 @@ export function Dashboard({ navigation }: any) {
         }
       };
 
-      const jsonUserTransactionsData = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-      const currentTransactionsData = jsonUserTransactionsData ? JSON.parse(jsonUserTransactionsData) : [];
+      const UserTransactionsDataFormatted = transactionsFormattedBrl
+        .concat(transactionsFormattedBtc)
+      
+      setTransactions(UserTransactionsDataFormatted);
 
-      const jsonUserTransactionsDataFormatted = [
-        ...currentTransactionsData,
-        transactionsFormattedBrl,
-        transactionsFormattedBtc
-      ];
-      await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(jsonUserTransactionsDataFormatted));
-      setTransactions(transactionsFormattedBrl);
+      console.log(UserTransactionsDataFormatted);
 
       const jsonHighlightData = await AsyncStorage.getItem(COLLECTION_HIGHLIGHTDATA);
       const currentHighlightData = jsonHighlightData ? JSON.parse(jsonHighlightData) : [];
@@ -335,14 +345,6 @@ export function Dashboard({ navigation }: any) {
       );
       dispatch(
         setTotalBtc(highlightDataBtc.total)
-      );
-      /*setHighlightDataBrl(highlightDataBrl);
-      setHighlightDataBtc(highlightDataBtc);*/
-
-      /*console.log(
-        //highlightDataBrl.revenues,
-        //highlightDataBrl.expenses,
-        //highlightDataBrl.total
       );
       /**
        * Transactions in BTC - End
@@ -396,9 +398,7 @@ export function Dashboard({ navigation }: any) {
       <Header>
         <UserWrapper>
           <UserInfo>
-            <Photo
-              source={{ uri: 'https://avatars.githubusercontent.com/u/86264374?s=400&u=1f5068f1cd425601df99567d3419c77a6fab80f9&v=4' }}
-            />
+            <Photo urlImage="http://cdn.onlinewebfonts.com/svg/img_364496.png" />
             <User>
               <UserGreeting>Olá,</UserGreeting>
               <UserName>{userName}</UserName>
@@ -430,7 +430,7 @@ export function Dashboard({ navigation }: any) {
 
         <TransactionList
           data={transactions}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TransactionListItem
               data={item}

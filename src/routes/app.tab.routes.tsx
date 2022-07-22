@@ -7,7 +7,7 @@ import { useTheme } from 'styled-components';
 
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { Dashboard } from '@screens/Dashboard';
-import { Resume } from '@screens/Resume';
+import { Charts } from '@screens/Charts';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -57,7 +57,7 @@ export function AppTabRoutes() {
 
       <Screen
         name="Gráficos"
-        component={Resume}
+        component={Charts}
         options={{
           tabBarIcon: (({ size, color }) => (
             <Ionicons
