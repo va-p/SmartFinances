@@ -151,7 +151,7 @@ export function RegisterTransaction({ navigation }: any) {
         }
       });
       if (accountDataResponse.status !== 200) {
-        Alert.alert("Conta", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.")
+        Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
       }
 
       const newTransaction = {
@@ -166,7 +166,7 @@ export function RegisterTransaction({ navigation }: any) {
 
       const { status } = await api.post('transaction', newTransaction);
       if (status === 200) {
-        Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Transactions') }]);
+        Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
 
         reset();
         setTransactionType('')
@@ -176,6 +176,7 @@ export function RegisterTransaction({ navigation }: any) {
           name: '',
           currency: '',
           simbol: '',
+          amount: 0,
           tenant_id: ''
         });
         setCategorySelected({

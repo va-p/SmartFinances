@@ -149,7 +149,7 @@ export function RegisterCategory({ navigation }: any) {
 
       setButtonIsLoading(false);
     } catch (error) {
-      Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Home') }]);
+      Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
       setButtonIsLoading(false);
     };
   };
