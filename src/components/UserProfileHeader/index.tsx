@@ -16,7 +16,7 @@ export function UserProfileHeader() {
   const userName = useSelector(selectUserName);
   return (
     <Container>
-      <Avatar urlImage='https://avatars.githubusercontent.com/u/86264374?s=400&u=1f5068f1cd425601df99567d3419c77a6fab80f9&v=4' />
+      <Avatar urlImage='http://cdn.onlinewebfonts.com/svg/img_364496.png' />
 
       <GreetingContainer>
         <Greeting>

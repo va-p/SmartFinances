@@ -11,9 +11,9 @@ type Props = {
 }
 
 export function Avatar({ urlImage }: Props) {
-  const { primary, secondary } = theme.colors;
+  const { secondary, secondary_light } = theme.colors;
   return (
-    <Container colors={[primary, secondary]}>
+    <Container colors={[secondary, secondary_light]}>
       <AvatarImage source={{ uri: urlImage }} />
     </Container>
   );
