@@ -2,8 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
+  AccountsContainer,
   Title,
-  Form
+  ContentScroll,
+  Form,
+  Footer
 } from './styles';
 
 import SelectDropdown from 'react-native-select-dropdown';
@@ -28,11 +31,13 @@ import theme from '@themes/theme';
 type FormData = {
   name: string;
   currency: string;
+  initialAmount: number;
 }
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
-  name: Yup.string().required("Digite o nome da conta")
+  name: Yup.string().required("Digite o nome da conta"),
+  initialAmount: Yup.number().required("Digite o saldo inicial da conta").typeError("Digite somente números e pontos."),
 });
 /* Validation Form - End */
 
@@ -89,6 +94,7 @@ export function RegisterAccount({ navigation }: any) {
         name: form.name,
         currency: currencySelected,
         simbol: simbol,
+        initial_amount: form.initialAmount,
         tenant_id: tenantId
       }
       const { status } = await api.post('account', newAccount);
@@ -133,68 +139,91 @@ export function RegisterAccount({ navigation }: any) {
 
   return (
     <Container>
-      <Title>Contas cadastradas</Title>
-      <FlatList
-        data={accounts}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <AccountListItem
-            data={item}
-            onSwipeableLeftOpen={() => handleAccountSwipeLeft(item.id)}
-          />
-        )}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
-        }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 20,
-          paddingHorizontal: 24
-        }}
-      />
+      <AccountsContainer>
+        <Title>Contas cadastradas</Title>
+        <FlatList
+          data={accounts}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <AccountListItem
+              data={item}
+              onSwipeableLeftOpen={() => handleAccountSwipeLeft(item.id)}
+            />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
+          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: 20,
+            paddingHorizontal: 24
+          }}
+        />
+      </AccountsContainer>
 
       <Divider />
 
-      <Title>Cadastrar nova conta</Title>
-      <Form>
+      <ContentScroll>
+        <Form>
+          <Title>Cadastrar nova conta</Title>
+          <ControlledInput
+            type='primary'
+            placeholder='Nome da conta'
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            name='name'
+            control={control}
+            error={errors.name}
+          />
 
-        <ControlledInput
-          type='primary'
-          placeholder='Nome da conta'
-          autoCapitalize='sentences'
-          autoCorrect={false}
-          name='name'
-          control={control}
-          error={errors.name}
-        />
+          <SelectDropdown
+            data={currencies}
+            onSelect={(selectedItem) => {
+              setCurrencySelected(selectedItem);
+            }}
+            buttonTextAfterSelection={(selectedItem) => {
+              return selectedItem
+            }}
+            rowTextForSelection={(item) => {
+              return item
+            }}
+            defaultButtonText="Selecione a moeda"
+            buttonStyle={{
+              width: '100%',
+              minHeight: 56,
+              maxHeight: 56,
+              marginTop: 10,
+              backgroundColor: theme.colors.shape,
+              borderRadius: 10
+            }}
+            buttonTextStyle={{
+              fontFamily: theme.fonts.regular,
+              fontSize: 14,
+              textAlign: 'left'
+            }}
+            dropdownStyle={{
+              borderRadius: 10,
+            }}
+          />
 
-        <SelectDropdown
-          data={currencies}
-          onSelect={(selectedItem) => {
-            setCurrencySelected(selectedItem);
-          }}
-          buttonTextAfterSelection={(selectedItem) => {
-            return selectedItem
-          }}
-          rowTextForSelection={(item) => {
-            return item
-          }}
-          defaultButtonText="Selecione a moeda"
-          buttonStyle={{
-            width: '100%',
-            marginTop: 10,
-            marginBottom: 10,
-            backgroundColor: theme.colors.shape
-          }}
-        />
-
-        <Button
-          type='secondary'
-          title='Cadastrar conta'
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleAccountRegister)}
-        />
-      </Form>
+          <ControlledInput
+            type='primary'
+            placeholder='Saldo inicial da conta'
+            keyboardType='numeric'
+            name='initialAmount'
+            control={control}
+            error={errors.initialAmount}
+          />
+          <Footer>
+            <Button
+              type='secondary'
+              title='Cadastrar conta'
+              isLoading={buttonIsLoading}
+              onPress={handleSubmit(handleAccountRegister)}
+            />
+          </Footer>
+        </Form>
+      </ContentScroll>
     </Container>
   );
 }

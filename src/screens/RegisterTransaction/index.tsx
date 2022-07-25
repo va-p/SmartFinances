@@ -18,6 +18,7 @@ import * as Yup from 'yup';
 
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
+import { AccountSelectButton } from '@components/Form/AccountSelectButton';
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { CategoryProps } from '@components/CategoryListItem';
 import { AccountProps } from '@components/AccountListItem';
@@ -27,6 +28,7 @@ import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
 import { CategorySelect } from '@screens/CategorySelect';
+import { AccountSelect } from '@screens/AccountSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -34,7 +36,7 @@ import { COLLECTION_TRANSACTIONS } from '@configs/database';
 
 import api from '@api/api';
 
-import theme from '../../global/styles/theme';
+import theme from '@themes/theme';
 
 type FormData = {
   description: string;
@@ -67,8 +69,8 @@ export function RegisterTransaction({ navigation }: any) {
     setDate(currentDate);
   };
   const showMode = (currentMode: string) => {
-    setShowDatePicker(true);
     setModeDatePicker(currentMode);
+    setShowDatePicker(true);
   };
   const showDatepicker = () => {
     showMode('date');
@@ -76,12 +78,16 @@ export function RegisterTransaction({ navigation }: any) {
   const showTimepicker = () => {
     showMode('time');
   };
-  const [accounts, setAccounts] = useState([]);
-  const [accountSelected, setAccountSelected] = useState<AccountProps>();
+  
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [accountSelected, setAccountSelected] = useState({
+    id: '',
+    name: 'Selecione a conta'
+  } as AccountProps);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
-    name: 'Categoria'
+    name: 'Selecione a categoria'
   } as CategoryProps);
   const {
     control,
@@ -91,31 +97,17 @@ export function RegisterTransaction({ navigation }: any) {
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
-  async function fetchAccounts() {
-    setLoading(true);
-
-    try {
-      const { data } = await api.get('account', {
-        params: {
-          tenant_id: tenantId
-        }
-      });
-      if (!data) {
-      } else {
-        const accountsFormatted = data
-          .map((account: AccountProps) => account.name);
-        setAccounts(accountsFormatted);
-      }
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Contas", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.");
-    }
-  };
-
   function handleTransactionsTypeSelect(type: 'income' | 'outcome' | 'transfer') {
     setTransactionType(type);
   };
+
+  function handleOpenSelectAccountModal() {
+    setAccountModalOpen(true);
+  }
+
+  function handleCloseSelectAccountModal() {
+    setAccountModalOpen(false);
+  }
 
   function handleOpenSelectCategoryModal() {
     setCategoryModalOpen(true);
@@ -147,7 +139,7 @@ export function RegisterTransaction({ navigation }: any) {
       const accountDataResponse = await api.get('single_account', {
         params: {
           tenant_id: tenantId,
-          name: accountSelected
+          name: accountSelected.name
         }
       });
       if (accountDataResponse.status !== 200) {
@@ -167,6 +159,15 @@ export function RegisterTransaction({ navigation }: any) {
       const { status } = await api.post('transaction', newTransaction);
       if (status === 200) {
         Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
+
+        const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
+        const currentData = data ? JSON.parse(data) : [];
+
+        const dataFormatted = [
+          ...currentData,
+          newTransaction
+        ];
+        await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
 
         reset();
         setTransactionType('')
@@ -197,30 +198,14 @@ export function RegisterTransaction({ navigation }: any) {
         });
       };
 
-      const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-      const currentData = data ? JSON.parse(data) : [];
-
-      const dataFormatted = [
-        ...currentData,
-        newTransaction
-      ];
-      await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
-
       setButtonIsLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+
+      setButtonIsLoading(false);
     }
   }
-
-  useEffect(() => {
-    fetchAccounts();
-    reset();
-  }, [])
-
-  useFocusEffect(useCallback(() => {
-    fetchAccounts();
-  }, []));
 
   if (loading) {
     return <Load />
@@ -270,7 +255,7 @@ export function RegisterTransaction({ navigation }: any) {
 
           <Button
             type='primary'
-            title='Selecione a data'
+            title={date ? `${date}` : 'Selecione a data'}
             onPress={showDatepicker}
           />
           {showDatePicker && (
@@ -281,29 +266,14 @@ export function RegisterTransaction({ navigation }: any) {
               is24Hour={true}
               onChange={onChangeDate}
               display='spinner'
+              dateFormat='day month year'
             />
           )}
-
-          <SelectDropdown
-            data={accounts}
-            onSelect={(selectedItem) => {
-              setAccountSelected(selectedItem);
-            }}
-            buttonTextAfterSelection={(selectedItem) => {
-              return selectedItem
-            }}
-            rowTextForSelection={(item) => {
-              return item
-            }}
-            defaultButtonText="Selecione a conta"
-            buttonStyle={{
-              width: '100%',
-              marginTop: 10,
-              marginBottom: 10,
-              backgroundColor: theme.colors.shape,
-              borderRadius: 10
-            }}
-          />
+          
+          <AccountSelectButton 
+            title={accountSelected.name}
+            onPress={handleOpenSelectAccountModal}
+          />          
 
           <CategorySelectButton
             title={categorySelected.name}
@@ -319,6 +289,18 @@ export function RegisterTransaction({ navigation }: any) {
           onPress={handleSubmit(handleTransactionRegister)}
         />
       </Form>
+
+      <ModalView
+        visible={accountModalOpen}
+        closeModal={handleCloseSelectAccountModal}
+        title='Contas'
+      >
+        <AccountSelect 
+          account={accountSelected}
+          setAccount={setAccountSelected}
+          closeSelectAccount={handleCloseSelectAccountModal}
+        />
+      </ModalView>
 
       <ModalView
         visible={categoryModalOpen}
