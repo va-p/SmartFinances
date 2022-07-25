@@ -9,7 +9,8 @@ type IconProps = {
 }
 
 export const Container = styled(RectButton)`
-  height: 58px;
+  min-height: 56px;
+  max-height: 56px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;

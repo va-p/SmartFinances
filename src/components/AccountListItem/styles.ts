@@ -11,7 +11,8 @@ export const Container = styled.View`
 
 export const Content = styled(RectButton)`
   width: 100%;
-  height: 50px;
+  min-height: 56px;
+  max-height: 56px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -39,7 +40,7 @@ export const Currency = styled.Text`
 `;
 
 export const Simbol = styled.Text`
-  font-family: ${({ theme}) => theme.fonts.bold};
+  font-family: ${({ theme}) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
 `;
 

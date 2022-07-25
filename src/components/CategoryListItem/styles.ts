@@ -15,6 +15,8 @@ export const Container = styled.View`
 
 export const Category = styled(RectButton)`
   width: 100%;
+  min-height: 56px;
+  max-height: 56px;
   flex-direction: row;
   align-items: center;
   padding: ${RFValue(15)}px;

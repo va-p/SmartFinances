@@ -9,6 +9,10 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
+export const CategoriesContainer = styled.View`
+  height: ${RFPercentage(45)}px;
+`;
+
 export const Title = styled.Text`
   text-align: center;
   font-size: ${RFValue(20)}px;
@@ -19,6 +23,6 @@ export const Title = styled.Text`
 `;
 
 export const Form = styled.View`
-  height: ${RFPercentage(45)}px;
+  height: ${RFPercentage(50)}px;
   padding: 10px 24px;
 `;

@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
+  CategoriesContainer,
   Title,
   Form
 } from './styles';
@@ -129,7 +130,7 @@ export function RegisterCategory({ navigation }: any) {
       }
       const { status } = await api.post('category', newCategory);
       if (status === 200) {
-        Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Home') }]);
+        Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
 
         reset();
         setIconSelected(
@@ -150,6 +151,7 @@ export function RegisterCategory({ navigation }: any) {
       setButtonIsLoading(false);
     } catch (error) {
       Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+
       setButtonIsLoading(false);
     };
   };
@@ -184,25 +186,27 @@ export function RegisterCategory({ navigation }: any) {
 
   return (
     <Container>
-      <Title>Categorias cadastradas</Title>
-      <FlatList
-        data={categories}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <CategoryListItem
-            data={item}
-            onSwipeableLeftOpen={() => handleCategorySwipeLeft(item.id)}
-          />
-        )}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
-        }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 20,
-          paddingHorizontal: 24
-        }}
-      />
+      <CategoriesContainer>
+        <Title>Categorias cadastradas</Title>
+        <FlatList
+          data={categories}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <CategoryListItem
+              data={item}
+              onSwipeableLeftOpen={() => handleCategorySwipeLeft(item.id)}
+            />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
+          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: 20,
+            paddingHorizontal: 24
+          }}
+        />
+      </CategoriesContainer>
 
       <Divider />
 
