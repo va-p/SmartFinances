@@ -56,6 +56,7 @@ export function RegisterAccount({ navigation }: any) {
 
   async function fetchAccounts() {
     setLoading(true);
+    
     try {
       const { data } = await api.get('account', {
         params: {
@@ -67,6 +68,7 @@ export function RegisterAccount({ navigation }: any) {
         setRefreshing(false);
         setAccounts(data);
       }
+      
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -198,7 +200,7 @@ export function RegisterAccount({ navigation }: any) {
             }}
             buttonTextStyle={{
               fontFamily: theme.fonts.regular,
-              fontSize: 14,
+              fontSize: 15,
               textAlign: 'left'
             }}
             dropdownStyle={{

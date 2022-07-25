@@ -22,6 +22,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { TransactionListItem, TransactionProps } from '@components/TransactionListItem';
+import { AccountProps } from '@components/AccountListItem';
 import { CashFlowCard } from '@components/CashFlowCard';
 import { Load } from '@components/Load';
 
@@ -69,9 +70,9 @@ type HighlightData = {
 
 export function Dashboard({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const [transactions, setTransactions] = useState<TransactionProps>();
-  const [refreshing, setRefreshing] = useState(true);
   const tenantId = useSelector(selectUserTenantId);
+  const [refreshing, setRefreshing] = useState(true);
+  const [transactions, setTransactions] = useState<TransactionProps>();
   const userName = useSelector(selectUserName);
   const revenuesBrl = useSelector(selectRevenuesBrl);
   const expensesBrl = useSelector(selectExpensesBrl);
@@ -83,7 +84,39 @@ export function Dashboard({ navigation }: any) {
 
   async function fetchTransactions() {
     setLoading(true);
-    await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
+    //await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
+
+    let initialTotalBRL = 0;
+    let initialTotalBTC = 0;
+
+    try {
+      const { data } = await api.get('account', {
+        params: {
+          tenant_id: tenantId
+        }
+      });
+      const AccountsBRL = data.filter((account: AccountProps) =>
+        account.currency === 'BRL'
+      );
+
+      let SumInitialTotalBRL = AccountsBRL.
+        reduce((acumullator: number, account: AccountProps) => {
+          return initialTotalBRL += Number(account.initial_amount);
+        }, 0);
+
+      const AccountsBTC = data.filter((account: AccountProps) =>
+        account.currency === 'BTC'
+      );
+      let SumInitialTotalBTC = AccountsBTC.
+        reduce((acumullator: number, account: AccountProps) => {
+          return initialTotalBTC + Number(account.initial_amount);
+        }, 0);
+
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Contas", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.");
+    }
 
     try {
       const { data } = await api.get('transaction', {
@@ -178,7 +211,7 @@ export function Dashboard({ navigation }: any) {
           }
         });
 
-      const totalBrl = totalRevenuesBrl - totalExpensesBrl;
+      const totalBrl = initialTotalBRL + totalRevenuesBrl - totalExpensesBrl;
 
       const highlightDataBrl = {
         revenues: {
@@ -286,7 +319,7 @@ export function Dashboard({ navigation }: any) {
           }
         });
 
-      const totalBtc = totalRevenuesBtc - totalExpensesBtc;
+      const totalBtc = initialTotalBTC + totalRevenuesBtc - totalExpensesBtc;
 
       const highlightDataBtc = {
         revenues: {
@@ -314,20 +347,9 @@ export function Dashboard({ navigation }: any) {
 
       const UserTransactionsDataFormatted = transactionsFormattedBrl
         .concat(transactionsFormattedBtc)
-      
+
       setTransactions(UserTransactionsDataFormatted);
 
-      console.log(UserTransactionsDataFormatted);
-
-      const jsonHighlightData = await AsyncStorage.getItem(COLLECTION_HIGHLIGHTDATA);
-      const currentHighlightData = jsonHighlightData ? JSON.parse(jsonHighlightData) : [];
-
-      const jsonUserHighlightDataFormatted = [
-        currentHighlightData,
-        highlightDataBrl,
-        highlightDataBtc
-      ];
-      await AsyncStorage.setItem(COLLECTION_HIGHLIGHTDATA, JSON.stringify(jsonUserHighlightDataFormatted));
       dispatch(
         setRevenuesBrl(highlightDataBrl.revenues)
       );
@@ -380,10 +402,6 @@ export function Dashboard({ navigation }: any) {
     await AsyncStorage.removeItem(COLLECTION_USERS);
     navigation.navigate('SignIn');
   }
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
 
   useFocusEffect(useCallback(() => {
     fetchTransactions();

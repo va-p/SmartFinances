@@ -174,16 +174,17 @@ export function RegisterTransaction({ navigation }: any) {
         setAccountSelected({
           created_at: '',
           id: '',
-          name: '',
+          name: 'Selecione a conta',
           currency: '',
           simbol: '',
+          initial_amount: 0,
           amount: 0,
           tenant_id: ''
         });
         setCategorySelected({
           id: '',
           created_at: '',
-          name: 'Categoria',
+          name: 'Selecione a categoria',
           icon: {
             id: '',
             title: '',
@@ -266,7 +267,7 @@ export function RegisterTransaction({ navigation }: any) {
               is24Hour={true}
               onChange={onChangeDate}
               display='spinner'
-              dateFormat='day month year'
+              dateFormat='day month year'              
             />
           )}
           

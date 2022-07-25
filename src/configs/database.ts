@@ -1,4 +1,4 @@
-const DATABASE_NAME = '@smartfinancesdigitaltech_teste';
+const DATABASE_NAME = '@smartfinancesdigitaltech';
 //const DATABASE_NAME_TEST = '@smartfinancesdigitaltech_test';
 
 //@app:collection

@@ -21,7 +21,8 @@ export interface AccountProps {
   name: string;
   currency: string;
   simbol: string;
-  amount: number;
+  initial_amount: string | number;
+  amount: string | number;
   tenant_id: string;
 }
 
