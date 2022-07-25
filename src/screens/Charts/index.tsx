@@ -20,42 +20,35 @@ import { VictoryPie } from 'victory-native';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
+import { CategoryProps, ColorProps, IconProps } from '@components/CategoryListItem';
+import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
-
-import { Category } from '@screens/CategorySelect';
 
 import {
   COLLECTION_TRANSACTIONS
 } from '@configs/database';
 
-//import { categories } from '../../utils/categories';
-
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
-interface TransactionData {
-  type: 'positive' | 'negative';
-  name: string;
-  amount: string;
-  category: string;
-  date: string;
-}
-
 interface CategoryData {
-  key: string;
+  id: string;
+  created_at: string;
   name: string;
+  icon: IconProps;
+  color: ColorProps;
+  tenant_id: string;
   total: number;
   totalFormatted: string;
-  color: string;
   percent: string;
 }
 
-export function Resume() {
+export function Charts() {
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryProps[]>([]);
   const tenantId = useSelector(selectUserTenantId);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalByCategories, setTotalByCategories] = useState<CategoryData[]>([]);
@@ -72,16 +65,19 @@ export function Resume() {
 
   async function fetchCategories() {
     setLoading(true);
+
     try {
       const { data } = await api.get('category', {
         params: {
           tenant_id: tenantId
         }
       });
+
       if (!data) {
       } else {
         setCategories(data);
       }
+
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -89,62 +85,73 @@ export function Resume() {
     }
   };
 
-  async function loadData() {
+  async function fetchTransactions() {
     setLoading(true);
-    const jsonUserTransactionsData = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-    const responseFormatted = jsonUserTransactionsData ? JSON.parse(jsonUserTransactionsData) : [];
 
-    const expenses = responseFormatted
-      .filter((expense: TransactionData) =>
-        expense.type === 'negative' &&
-        new Date(expense.date).getMonth() === selectedDate.getMonth() &&
-        new Date(expense.date).getFullYear() === selectedDate.getFullYear()
-      );
+    try {
+      const { data } = await api.get('transaction', {
+        params: {
+          tenant_id: tenantId
+        }
+      })
+      if (!data) {
+      } const expenses = data
+        .filter((expense: TransactionProps) =>
+          expense.type == 'outcome' &&
+        new Date(expense.created_at).getMonth() === selectedDate.getMonth() &&
+        new Date(expense.created_at).getFullYear() === selectedDate.getFullYear()
+        );
 
-    const expensesTotal = expenses
-      .reduce((acumullator: number, expense: TransactionData) => {
-        return acumullator + Number(expense.amount);
-      }, 0);
+      const expensesTotal = expenses
+        .reduce((acumullator: number, expense: TransactionProps) => {
+          return acumullator + Number(expense.amount);
+        }, 0);
 
-    const totalByCategory: CategoryData[] = [];
+      const totalByCategory: CategoryData[] = [];
 
-    categories.forEach(category => {
-      let categorySum = 0;
+      categories.forEach(category => {
+        let categorySum = 0;
 
-      expenses.forEach((expense: TransactionData) => {
-        if (expense.category === category.key) {
-          categorySum += Number(expense.amount);
+        expenses.forEach((expense: TransactionProps) => {
+          if (expense.category.id === category.id) {
+            categorySum += Number(expense.amount);
+          }
+        });
+
+        if (categorySum > 0) {
+          const totalFormatted = categorySum
+            .toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            })
+
+          const percent = `${(categorySum / expensesTotal * 100).toFixed(0)}%`;
+
+          totalByCategory.push({
+            id: category.id,
+            created_at: category.created_at,
+            name: category.name,
+            icon: category.icon,
+            color: category.color,
+            tenant_id: category.tenant_id,
+            total: categorySum,
+            totalFormatted,
+            percent
+          });
         }
       });
 
-      if (categorySum > 0) {
-        const totalFormatted = categorySum
-          .toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          })
-
-        const percent = `${(categorySum / expensesTotal * 100).toFixed(0)}%`;
-
-        totalByCategory.push({
-          key: category.key,
-          name: category.name,
-          color: category.color,
-          total: categorySum,
-          totalFormatted,
-          percent
-        });
-      }
-    });
-    console.log(expenses);
-
-    setTotalByCategories(totalByCategory);
-    setLoading(false);
+      setTotalByCategories(totalByCategory);
+      setLoading(false);
+    }
+    catch (error) {
+      console.error(error);
+      Alert.alert("Transações", "Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.");
+    }
   };
 
-
   useFocusEffect(useCallback(() => {
-    loadData();
+    fetchTransactions();
     fetchCategories();
   }, [selectedDate]));
 
@@ -158,7 +165,7 @@ export function Resume() {
 
   return (
     <Container>
-      <Header title='Resumo por categoria'/>
+      <Header title='Despesas por categoria' />
 
       <Content
         showsVerticalScrollIndicator={false}
@@ -186,7 +193,7 @@ export function Resume() {
         <ChartContainer>
           <VictoryPie
             data={totalByCategories}
-            colorScale={totalByCategories.map(category => category.color)}
+            colorScale={totalByCategories.map(category => category.color.hex)}
             style={{
               labels: {
                 fontSize: RFValue(18),
@@ -203,10 +210,10 @@ export function Resume() {
         {
           totalByCategories.map(item => (
             <HistoryCard
-              key={item.key}
+              key={item.id}
               title={item.name}
               amount={item.totalFormatted}
-              color={item.color}
+              color={item.color.hex}
             />
           ))
         }
