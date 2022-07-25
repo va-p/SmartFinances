@@ -56,6 +56,7 @@ type FormData = {
 const schema = Yup.object().shape({
   email: Yup
     .string()
+    .email("Digite um e-mail válido")
     .required("Digite o seu e-mail"),
   password: Yup
     .string()
