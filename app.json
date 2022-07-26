@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": []
     },
     "ios": {

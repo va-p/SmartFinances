@@ -71,9 +71,8 @@ export function CategoryListItem({
         renderRightActions={handleCategorySwipeLeft}
         onSwipeableOpen={onSwipeableLeftOpen}
       >
-        <Category {...rest}>
+        <Category {...rest} color={data.color.hex}>
           <Icon name={data.icon?.name} />
-          <Color color={data.color.hex} />
           <Name>{data.name}</Name>
         </Category>
       </Swipeable>

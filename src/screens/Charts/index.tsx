@@ -55,7 +55,7 @@ export function Charts() {
 
   const theme = useTheme();
 
-  function handleDateChange(action: 'next' | 'prev') {
+  function handleDateChange(action: 'next' | 'prev'): void {
     if (action === 'next') {
       setSelectedDate(addMonths(selectedDate, 1));
     } else {
@@ -155,9 +155,9 @@ export function Charts() {
     fetchCategories();
   }, [selectedDate]));
 
-  useEffect(() => {
+  /*useEffect(() => {
     fetchCategories();
-  }, []);
+  }, []);*/
 
   if (loading) {
     return <Load />
