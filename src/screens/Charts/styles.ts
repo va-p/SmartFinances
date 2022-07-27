@@ -11,11 +11,6 @@ export const Container = styled.View`
 
 export const Content = styled.ScrollView``;
 
-export const ChartContainer = styled.View`
-  width: 100%;
-  align-items: center;
-`;
-
 export const MonthSelect = styled.View`
   width: 100%;
   flex-direction: row;
@@ -28,6 +23,11 @@ export const MonthSelectButton = styled(BorderlessButton)``;
 
 export const MonthSelectIcon = styled(Feather)`
   font-size: ${RFValue(24)}px;
+`;
+
+export const ChartContainer = styled.View`
+  width: 100%;
+  align-items: center;
 `;
 
 export const Month = styled.Text`

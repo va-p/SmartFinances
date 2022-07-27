@@ -34,7 +34,6 @@ export function Balance({ type, title, amount }: Props) {
           {amount}
         </AmountBalance>
       </Details>
-
     </Container>
   )
 }

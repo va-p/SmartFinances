@@ -1,24 +1,33 @@
 import React from 'react';
+import { TouchableOpacityProps } from 'react-native';
 import {
   Container,
-  Title,
+  Details,
+  Icon,
+  Name,
   Amount,
 } from './styles';
 
-interface Props {
-  title: string;
+type Props = TouchableOpacityProps & {
+  icon: string;
+  name: string;
   amount: string;
   color: string;
 }
 
 export function HistoryCard({
-  title,
+  icon,
+  name,
   amount,
-  color
-}: Props){
-  return(
-    <Container color={color}>
-      <Title>{title}</Title>
+  color,
+  ...rest
+}: Props) {
+  return (
+    <Container color={color} {...rest}>
+      <Details>
+        <Icon name={icon} />
+        <Name>{name}</Name>
+      </Details>
       <Amount>{amount}</Amount>
     </Container>
   );

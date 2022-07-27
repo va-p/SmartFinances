@@ -11,12 +11,11 @@ import {
 } from './styles';
 
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { VictoryPie, VictoryTooltip } from 'victory-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
 import { addMonths, subMonths, format } from 'date-fns';
 import { useTheme } from 'styled-components';
-import { VictoryPie } from 'victory-native';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
@@ -25,10 +24,6 @@ import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
-
-import {
-  COLLECTION_TRANSACTIONS
-} from '@configs/database';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -46,12 +41,25 @@ interface CategoryData {
   percent: string;
 }
 
+interface MonthData {
+  //created_at: string;
+  monthName: string;
+  monthFormatted: number;
+  //yearFormatted: number;
+  totalExpensesFormatted: string;
+  totalRevenuesFormatted: string;
+}
+
 export function Charts() {
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
   const tenantId = useSelector(selectUserTenantId);
+  const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const [transactions, setTransactions] = useState<TransactionProps[]>([]);
+  const [expenses, setExpenses] = useState<TransactionProps[]>([]);
+  const [revenues, setRevenues] = useState<TransactionProps[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [totalByCategories, setTotalByCategories] = useState<CategoryData[]>([]);
+  const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<CategoryData[]>([]);
+  const [categorySelected, setCategorySelected] = useState('');
 
   const theme = useTheme();
 
@@ -95,24 +103,48 @@ export function Charts() {
         }
       })
       if (!data) {
-      } const expenses = data
+      } else {
+        setTransactions(data);
+      }
+
+      const expenses = transactions
+        .filter((expense: TransactionProps) =>
+          expense.type == 'outcome'
+        );
+      setExpenses(expenses);
+
+      const revenues = transactions
+        .filter((revenue: TransactionProps) => {
+          revenue.type == 'income'
+        });
+      setRevenues(revenues);
+
+      /**
+       * Expenses by Selected Month - Start
+      **/
+      const expensesBySelectedMonth = transactions
         .filter((expense: TransactionProps) =>
           expense.type == 'outcome' &&
-        new Date(expense.created_at).getMonth() === selectedDate.getMonth() &&
-        new Date(expense.created_at).getFullYear() === selectedDate.getFullYear()
+          new Date(expense.created_at).getMonth() === selectedDate.getMonth() &&
+          new Date(expense.created_at).getFullYear() === selectedDate.getFullYear()
         );
-
-      const expensesTotal = expenses
+      const expensesTotalBySelectedMonth = expensesBySelectedMonth
         .reduce((acumullator: number, expense: TransactionProps) => {
           return acumullator + Number(expense.amount);
         }, 0);
+      /**
+       * Expenses by Selected Month - End
+      **/
 
-      const totalByCategory: CategoryData[] = [];
+      /**
+       * Expenses by Category - Start
+      **/
+      const totalExpensesByCategory: CategoryData[] = [];
 
       categories.forEach(category => {
         let categorySum = 0;
 
-        expenses.forEach((expense: TransactionProps) => {
+        expensesBySelectedMonth.forEach((expense: TransactionProps) => {
           if (expense.category.id === category.id) {
             categorySum += Number(expense.amount);
           }
@@ -125,9 +157,9 @@ export function Charts() {
               currency: 'BRL'
             })
 
-          const percent = `${(categorySum / expensesTotal * 100).toFixed(0)}%`;
+          const percent = `${(categorySum / expensesTotalBySelectedMonth * 100).toFixed(0)}%`;
 
-          totalByCategory.push({
+          totalExpensesByCategory.push({
             id: category.id,
             created_at: category.created_at,
             name: category.name,
@@ -141,7 +173,13 @@ export function Charts() {
         }
       });
 
-      setTotalByCategories(totalByCategory);
+      setTotalExpensesByCategories(totalExpensesByCategory);
+      /**
+       * Expenses by Category - End
+      **/ 
+
+      //const dateTest = new Date(1658411143409).getMonth();
+      //console.log();
       setLoading(false);
     }
     catch (error) {
@@ -150,14 +188,19 @@ export function Charts() {
     }
   };
 
+  function handleCategoryOnPress(id: string) {
+    setCategorySelected(prev => prev === id ? '' : id);
+  }
+
   useFocusEffect(useCallback(() => {
     fetchTransactions();
     fetchCategories();
   }, [selectedDate]));
 
-  /*useEffect(() => {
+  useEffect(() => {
+    fetchTransactions();
     fetchCategories();
-  }, []);*/
+  }, []);
 
   if (loading) {
     return <Load />
@@ -165,7 +208,7 @@ export function Charts() {
 
   return (
     <Container>
-      <Header title='Despesas por categoria' />
+      <Header title='Gráficos' />
 
       <Content
         showsVerticalScrollIndicator={false}
@@ -189,31 +232,43 @@ export function Charts() {
           </MonthSelectButton>
         </MonthSelect>
 
-
         <ChartContainer>
           <VictoryPie
-            data={totalByCategories}
-            colorScale={totalByCategories.map(category => category.color.hex)}
+            data={totalExpensesByCategories}
+            colorScale={totalExpensesByCategories.map(category => category.color.hex)}
+            x='percent'
+            y='total'
+            innerRadius={80}
+            animate={{
+              duration: 2000,
+              easing: 'bounce'
+            }}
             style={{
               labels: {
                 fontSize: RFValue(18),
                 fontWeight: 'bold',
-                fill: theme.colors.shape
+                fill: theme.colors.secondary
+              },
+              data: {
+                fillOpacity: ({ datum }) => (datum.id === categorySelected || categorySelected === '') ? 1 : 0.2,
+                stroke: ({ datum }) => datum.id === categorySelected ? datum.color.hex : 'none',
+                strokeOpacity: 0.5,
+                strokeWidth: 10
               }
             }}
             labelRadius={50}
-            x="percent"
-            y="total"
           />
         </ChartContainer>
 
         {
-          totalByCategories.map(item => (
+          totalExpensesByCategories.map(item => (
             <HistoryCard
               key={item.id}
-              title={item.name}
+              icon={item.icon.name}
+              name={item.name}
               amount={item.totalFormatted}
               color={item.color.hex}
+              onPress={() => handleCategoryOnPress(item.id)}
             />
           ))
         }

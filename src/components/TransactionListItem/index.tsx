@@ -29,7 +29,6 @@ export interface TransactionProps {
   created_at: string;
   description: string;
   amount: string | number;
-  amountBtc?: string | number;
   type: 'income' | 'outcome' | 'transfer';
   account: AccountProps;
   category: CategoryProps;

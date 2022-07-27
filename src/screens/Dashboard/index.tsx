@@ -448,7 +448,7 @@ export function Dashboard({ navigation }: any) {
 
         <TransactionList
           data={transactions}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: TransactionProps) => item.id}
           renderItem={({ item }) => (
             <TransactionListItem
               data={item}

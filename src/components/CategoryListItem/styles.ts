@@ -13,15 +13,15 @@ export const Container = styled.View`
   flex: 1;
 `;
 
-export const Category = styled.TouchableOpacity.attrs<ColorProps>({
+export const Category = styled.TouchableOpacity.attrs({
   activeOpacity: 0.6
-})`
+})<ColorProps>`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
   flex-direction: row;
   align-items: center;
-  padding: ${RFValue(10)}px;
+  padding: 10px;
   margin-bottom: 10px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-left-width: 10px;
@@ -31,7 +31,7 @@ export const Category = styled.TouchableOpacity.attrs<ColorProps>({
 
 export const Icon = styled(Ionicons)`
   font-size: ${RFValue(20)}px;
-  margin-right: 16px;
+  margin-right: 8px;
 `;
 
 export const Name = styled.Text`
