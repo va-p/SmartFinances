@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
 import { RegisterTransaction } from '@screens/RegisterTransaction';
+import { AppStackRoutes } from './app.stack.routes';
 import { Dashboard } from '@screens/Dashboard';
 import { Charts } from '@screens/Charts';
 
@@ -62,6 +63,20 @@ export function AppTabRoutes() {
           tabBarIcon: (({ size, color }) => (
             <Ionicons
               name='pie-chart-outline'
+              size={size}
+              color={color}
+            />
+          ))
+        }}
+      />
+
+      <Screen
+        name="Mais"
+        component={AppStackRoutes}
+        options={{
+          tabBarIcon: (({ size, color }) => (
+            <Ionicons
+              name='ellipsis-horizontal-outline'
               size={size}
               color={color}
             />

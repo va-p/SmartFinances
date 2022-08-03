@@ -2,7 +2,7 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { AppDrawerRoutes } from './app.drawer.routes';
+import { AppTabRoutes } from './app.tab.routes';
 import { SignIn } from '@screens/SignIn';
 
 const { Navigator, Screen } = createStackNavigator();
@@ -20,7 +20,7 @@ export function AuthRoutes() {
 
       <Screen
         name="Home"
-        component={AppDrawerRoutes}
+        component={AppTabRoutes}
       />
     </Navigator>
   )
