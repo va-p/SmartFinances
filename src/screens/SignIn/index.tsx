@@ -7,7 +7,10 @@ import {
   Title,
   SignInTitle,
   Footer,
-  FooterWrapper
+  FooterWrapper,
+  WrapperTextSignUp,
+  TextSignUp,
+  LinkSignUp
 } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -227,6 +230,10 @@ export function SignIn({ navigation }: any) {
             isLoading={buttonIsLoading}
             onPress={handleSubmit(handleSignInWithXano)}
           />
+
+          <WrapperTextSignUp>
+            <TextSignUp>Não tem uma conta? <LinkSignUp onPress={() => navigation.navigate('SignUp')}>Cadastre-se</LinkSignUp></TextSignUp>
+          </WrapperTextSignUp>
         </FooterWrapper>
       </Footer>
     </Container>

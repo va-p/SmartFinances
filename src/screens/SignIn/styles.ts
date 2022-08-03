@@ -45,3 +45,17 @@ export const FooterWrapper = styled.View`
   justify-content: space-between;
   padding: 0 32px;
 `;
+
+export const WrapperTextSignUp = styled.View`
+  align-items: flex-end;
+  margin-top: 3%;
+`;
+
+export const TextSignUp = styled.Text`
+  color: ${({ theme }) => theme.colors.background};
+`;
+
+export const LinkSignUp = styled.Text`
+  font-weight: bold;
+  color: ${({ theme }) => theme.colors.primary};
+`;
