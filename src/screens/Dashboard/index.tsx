@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, RefreshControl } from 'react-native';
+import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
@@ -16,7 +16,8 @@ import {
 import {
   VictoryBar,
   VictoryChart,
-  VictoryGroup
+  VictoryGroup,
+  VictoryTheme
 } from 'victory-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -442,9 +443,10 @@ export function Dashboard({ navigation }: any) {
         </MonthSelect>
 
         <VictoryChart
+          theme={VictoryTheme.material}
           width={400} height={220}
           maxDomain={{ x: 6 }}
-          domainPadding={{ x: 6, y: 2 }}
+          domainPadding={{ x: 7 }}
         >
           <VictoryGroup
             offset={12}
@@ -453,21 +455,21 @@ export function Dashboard({ navigation }: any) {
               data={totalAmountsByMonth}
               x={'created_at'}
               y={'totalRevenuesByMonth'}
-              sortKey = "x"
+              sortKey="x"
               sortOrder="descending"
               alignment='start'
               style={{
                 data: {
                   width: 10,
-                  fill: 'green'
+                  fill: 'seagreen'
                 }
               }}
+              cornerRadius={{ top: 2, bottom: 2 }}
               animate={{
                 duration: 2000,
                 onLoad: { duration: 1000 },
                 easing: 'backOut'
               }}
-              cornerRadius={{top: 2, bottom: 2}}
             />
             <VictoryBar
               data={totalAmountsByMonth}
@@ -478,15 +480,15 @@ export function Dashboard({ navigation }: any) {
               style={{
                 data: {
                   width: 10,
-                  fill: 'red'
+                  fill: 'tomato'
                 }
               }}
+              cornerRadius={{ top: 2, bottom: 2 }}
               animate={{
                 duration: 2000,
                 onLoad: { duration: 1000 },
                 easing: 'backOut'
               }}
-              cornerRadius={{top: 2, bottom: 2}}
             />
           </VictoryGroup>
         </VictoryChart>
@@ -506,6 +508,7 @@ export function Dashboard({ navigation }: any) {
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }
         />
+
       </Transactions>
     </Container>
   )

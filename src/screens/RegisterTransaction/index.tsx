@@ -178,7 +178,6 @@ export function RegisterTransaction({ navigation }: any) {
           currency: '',
           simbol: '',
           initial_amount: 0,
-          amount: 0,
           tenant_id: ''
         });
         setCategorySelected({
