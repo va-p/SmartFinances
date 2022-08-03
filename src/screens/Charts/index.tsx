@@ -129,8 +129,8 @@ export function Charts() {
           new Date(expense.created_at).getFullYear() === selectedDate.getFullYear()
         );
       const expensesTotalBySelectedMonth = expensesBySelectedMonth
-        .reduce((acumullator: number, expense: TransactionProps) => {
-          return acumullator + Number(expense.amount);
+        .reduce((acc: number, expense: TransactionProps) => {
+          return acc + Number(expense.amount);
         }, 0);
       /**
        * Expenses by Selected Month - End
@@ -241,7 +241,7 @@ export function Charts() {
             innerRadius={80}
             animate={{
               duration: 2000,
-              easing: 'bounce'
+              easing: 'backOut'
             }}
             style={{
               labels: {

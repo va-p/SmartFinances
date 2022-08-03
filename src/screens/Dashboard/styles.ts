@@ -6,8 +6,6 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-import { DataListProps } from '.';
-
 export const Container = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.background};
@@ -15,86 +13,68 @@ export const Container = styled.View`
 
 export const Header = styled.View`
   width: 100%;
-  height: ${RFPercentage(35)}px;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  padding-left: ${RFPercentage(1)}px;
-  background-color: ${({ theme }) => theme.colors.primary};
-`;
-
-export const UserWrapper = styled.View`
-  width: 100%;    
-  flex-direction: row;
+  height: ${RFPercentage(5)}px;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
+  justify-content: flex-end;
   margin-top: ${getStatusBarHeight()}px;
 `;
 
-export const UserInfo = styled.View`
-  flex-direction: row;
+export const CashFlowGroup = styled.View`
   align-items: center;
 `;
 
-export const Photo = styled.Image`
-  width: ${RFValue(48)}px;
-  height: ${RFValue(48)}px;
-  border-radius: 10px;
-`;
-
-export const User = styled.View`
-  margin-left: 17px;
-`;
-
-export const UserGreeting = styled.Text`
-  font-size: ${RFValue(18)}px;
-  font-family: ${({ theme }) => theme.fonts.regular};
-  color: ${({ theme }) => theme.colors.shape};
-`;
-
-export const UserName = styled.Text`
-  font-size: ${RFValue(18)}px;
+export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  color: ${({ theme }) => theme.colors.shape};
+  font-size: ${RFValue(18)}px;
+  
+  color: ${({ theme }) => theme.colors.text_dark};
 `;
 
-export const LogoutButton = styled(BorderlessButton)``;
-
-export const Icon = styled(Ionicons)`
-  font-size: ${RFValue(24)}px;
-  color: ${({ theme }) => theme.colors.secondary};
+export const CashFlowDescription = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(10)}px;
+  padding-bottom: 12px;
+  margin-top: -12px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
-export const HighlightCards = styled.ScrollView.attrs({
-  horizontal: true,
-  showsHorizontalScrollIndicator: false,
-  contentContainerStyle: {
-    paddingHorizontal: 24
-  }
-})`
+export const Chart = styled.View`
   width: 100%;
-  position: absolute;
-  margin-top: ${RFPercentage(14)}px;
+  height: ${RFPercentage(25)}px;
+  justify-content: center;
+  padding: 10px;
+`;
+
+export const MonthSelect = styled.View`
+  width: 100%;
+  height: ${RFPercentage(2)}px;
+  flex-direction: row;
+  align-items: center;
+  padding-top: 20px;
+  margin-bottom: -20px;
+  justify-content: center;
+`;
+
+export const FilterButtonGroup = styled.View`
+  width: ${RFPercentage(12)}px;
 `;
 
 export const Transactions = styled.View`
   flex: 1%;
-  padding: 0 24px;
-  margin-top: ${RFPercentage(3)}px;
+  padding: 0 10px;
 `;
 
 export const Title = styled.Text`
-  font-size: ${RFValue(18)}px;
+  font-size: ${RFValue(14)}px;
   font-family: ${({ theme }) => theme.fonts.regular};
-  margin-bottom: ${RFValue(10)}px;
+  margin-bottom: ${RFPercentage(1)}px;
 `;
 
 export const TransactionList = styled(
-  FlatList as new () => FlatList<DataListProps>
-).attrs({
-  showsVerticalScrollIndicator: false,
-  contentContainerStyle: {
-    paddingBottom: getBottomSpace()
-  }
-})``;
+  FlatList as new () => FlatList)
+  .attrs({
+    showsVerticalScrollIndicator: false,
+    contentContainerStyle: {
+      paddingBottom: getBottomSpace()
+    }
+  })``;

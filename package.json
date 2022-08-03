@@ -7,6 +7,9 @@
     "start": "react-native start",
     "test": "jest"
   },
+  "resolutions": {
+    "@types/react": "~17.0.21"
+  },
   "dependencies": {
     "@expo-google-fonts/poppins": "^0.1.0",
     "@hookform/resolvers": "^2.9.5",
