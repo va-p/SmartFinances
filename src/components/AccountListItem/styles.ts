@@ -16,8 +16,8 @@ export const Content = styled(RectButton)`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  margin-bottom: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
@@ -50,7 +50,7 @@ export const DeleteButton = styled(Animated.View)`
   align-items: center;
   justify-content: center;
   padding-left: 70%;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   background-color: ${({ theme }) => theme.colors.attention};
   border-radius: 10px;
 `;

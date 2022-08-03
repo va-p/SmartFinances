@@ -8,8 +8,10 @@ import {
   Amount,
   Footer,
   Details,
+  IconContainer,
   Icon,
-  CategoryName,
+  DetailsContainer,
+  Category,
   Account,
   Date,
   DeleteButton,
@@ -26,7 +28,7 @@ import { AccountProps } from '@components/AccountListItem';
 
 export interface TransactionProps {
   id: string;
-  created_at: string;
+  created_at: Date;
   description: string;
   amount: string | number;
   type: 'income' | 'outcome' | 'transfer';
@@ -77,32 +79,36 @@ export function TransactionListItem({
         onSwipeableOpen={onSwipeableLeftOpen}
       >
         <Content {...rest}>
-          <Header>
-            <Description>
-              {data.description}
-            </Description>
+          <IconContainer>
+            <Icon type={data.type} name={data.category.icon.name} />
+          </IconContainer>
+          <DetailsContainer>
+            <Header>
+              <Description type={data.type}>
+                {data.description}
+              </Description>
 
-            <Amount type={data.type}>
-              {data.type === 'outcome' && '- '}
-              {data.amount || data.amountBtc}
-            </Amount>
-          </Header>
+              <Amount type={data.type}>
+                {data.type === 'outcome' && '- '}
+                {data.amount}
+              </Amount>
+            </Header>
 
-          <Footer>
-            <Details>
-              <Icon name={data.category.icon.name} />
-              <CategoryName>
-                {data.category.name}
-                {' | '}
-              </CategoryName>
-              <Account>
-                {data.account.name}
-              </Account>
-            </Details>
-            <Date>
-              {data.created_at}
-            </Date>
-          </Footer>
+            <Footer>
+              <Details>
+                <Category>
+                  {data.category.name}
+                  {' | '}
+                </Category>
+                <Account>
+                  {data.account.name}
+                </Account>
+              </Details>
+              <Date>
+                {data.created_at}
+              </Date>
+            </Footer>
+          </DetailsContainer>
         </Content>
       </Swipeable>
     </Container>
