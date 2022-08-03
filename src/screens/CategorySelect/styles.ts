@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 type CategoryProps = {
   isActive: boolean;
+  color: string;
 }
 
 export const Container = styled(GestureHandlerRootView)`
@@ -17,10 +18,13 @@ export const Category = styled.TouchableOpacity<CategoryProps>`
   width: 100%;
   flex-direction: row;
   align-items: center;
-  padding: ${RFValue(15)}px;
+  padding: 15px;
   background-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.secondary_light : theme.colors.background
   };
+  border-left-width: 10px;
+  border-left-color: ${({ color }) => color};
+  border-radius: 10px;
 `;
 
 export const Icon = styled(Ionicons)`

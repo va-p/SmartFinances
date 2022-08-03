@@ -39,7 +39,7 @@ export function CategorySelect({
 
   async function fetchCategories() {
     setLoading(true);
-    
+
     try {
       const { data } = await api.get('category', {
         params: {
@@ -81,6 +81,7 @@ export function CategorySelect({
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <Category
+            color={item.color.hex}
             onPress={() => handleCategorySelect(item)}
             isActive={category.id === item.id}
           >
