@@ -10,6 +10,10 @@ export function OptionsMenu({ navigation }: any) {
     navigation.navigate('Cadastrar conta');
   }
 
+  function handleClickRegisterCategory() {
+    navigation.navigate('Cadastrar categoria');
+  }
+
   return (
     <Container>
       <Button
