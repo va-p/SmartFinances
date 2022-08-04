@@ -25,7 +25,7 @@ export function OptionsMenu({ navigation }: any) {
       <Button
         type='secondary'
         title='Cadastrar Categoria'
-        onPress={() => handleClickRegisterAccount()}
+        onPress={() => handleClickRegisterCategory()}
       />
     </Container>
   );
