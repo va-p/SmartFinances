@@ -57,7 +57,7 @@ export function AppTabRoutes() {
       />
 
       <Screen
-        name="Gráficos"
+        name="Resumo"
         component={Charts}
         options={{
           tabBarIcon: (({ size, color }) => (
