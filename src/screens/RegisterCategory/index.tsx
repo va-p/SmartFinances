@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import { Alert, FlatList, Platform, RefreshControl } from 'react-native';
 import {
   Container,
   CategoriesContainer,
   Title,
-  Form
+  Form,
+  ContentScroll,
+  Footer
 } from './styles';
 
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -185,7 +187,7 @@ export function RegisterCategory({ navigation }: any) {
   }
 
   return (
-    <Container>
+    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <CategoriesContainer>
         <Title>Categorias cadastradas</Title>
         <FlatList
@@ -210,38 +212,42 @@ export function RegisterCategory({ navigation }: any) {
 
       <Divider />
 
-      <Form>
-        <Title>Cadastrar nova categoria</Title>
-        <ControlledInput
-          type='primary'
-          placeholder='Nome da categoria'
-          autoCapitalize='sentences'
-          autoCorrect={false}
-          defaultValue=''
-          name='name'
-          control={control}
-          error={errors.name}
-        />
+      <ContentScroll>
+        <Form>
+          <Title>Cadastrar nova categoria</Title>
+          <ControlledInput
+            type='primary'
+            placeholder='Nome da categoria'
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            defaultValue=''
+            name='name'
+            control={control}
+            error={errors.name}
+          />
 
-        <IconSelectButton
-          title={iconSelected.title}
-          icon={iconSelected.name}
-          onPress={handleOpenSelectIconModal}
-        />
+          <IconSelectButton
+            title={iconSelected.title}
+            icon={iconSelected.name}
+            onPress={handleOpenSelectIconModal}
+          />
 
-        <ColorSelectButton
-          title={colorSelected.name}
-          color={colorSelected.hex}
-          onPress={handleOpenSelectColorModal}
-        />
+          <ColorSelectButton
+            title={colorSelected.name}
+            color={colorSelected.hex}
+            onPress={handleOpenSelectColorModal}
+          />
 
-        <Button
-          type='secondary'
-          title='Cadastrar categoria'
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleCategoryRegister)}
-        />
-      </Form>
+          <Footer>
+            <Button
+              type='secondary'
+              title='Cadastrar categoria'
+              isLoading={buttonIsLoading}
+              onPress={handleSubmit(handleCategoryRegister)}
+            />
+          </Footer>
+        </Form>
+      </ContentScroll>
 
       <ModalView
         visible={iconModalOpen}

@@ -67,6 +67,7 @@ export function SignUp({ navigation }: any) {
         ein: 0,
         email: form.email,
         phone: form.phone,
+        subscription_id: 1,
         contact_1: form.name
       }
 

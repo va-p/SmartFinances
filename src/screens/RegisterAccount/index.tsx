@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import { Alert, FlatList, Platform, RefreshControl } from 'react-native';
 import {
   Container,
   AccountsContainer,
@@ -103,6 +103,7 @@ export function RegisterAccount({ navigation }: any) {
       if (status === 200) {
         Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
       };
+      
       fetchAccounts();
       setButtonIsLoading(false);
     } catch (error) {
@@ -140,7 +141,7 @@ export function RegisterAccount({ navigation }: any) {
   }
 
   return (
-    <Container>
+    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <AccountsContainer>
         <Title>Contas cadastradas</Title>
         <FlatList

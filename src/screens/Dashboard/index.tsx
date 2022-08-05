@@ -45,18 +45,7 @@ export function Dashboard() {
   const [refreshing, setRefreshing] = useState(true);
   //const [transactions, setTransactions] = useState<TransactionProps[]>([]);
   const [transactionsFormatted, setTransactionsFormatted] = useState<TransactionProps>();
-  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<MonthData[]>([
-    {
-      date: 0,
-      totalRevenuesByMonth: 0,
-      totalExpensesByMonth: 0
-    },
-    {
-      date: 1,
-      totalRevenuesByMonth: 0,
-      totalExpensesByMonth: 0
-    }
-  ]);
+  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<MonthData[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [transactionsFormattedBySelectedDate, setTransactionsFormattedBySelectedDate] = useState<TransactionProps[]>([]);
   const [cashFlowTotal, setCashFlowTotal] = useState('');
@@ -221,7 +210,7 @@ export function Dashboard() {
       const newList: any = Object.values(totalsByMonths);
 
       setTotalAmountsByMonth(newList);
-      console.log(totalAmountsByMonth);
+      //console.log(totalAmountsByMonth);
       /**
        * All Totals By Months - End
       **/
