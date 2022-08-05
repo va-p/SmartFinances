@@ -5,7 +5,6 @@ import {
   Form
 } from './styles';
 
-import { useDispatch, useSelector } from 'react-redux';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -13,10 +12,6 @@ import * as Yup from 'yup';
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { Button } from '@components/Form/Button';
 import { Header } from '@components/Header';
-
-import {
-  selectUserTenantId
-} from '@slices/userSlice';
 
 import api from '@api/api';
 
@@ -62,8 +57,6 @@ export function SignUp({ navigation }: any) {
     resolver: yupResolver(schema)
   });
 
-
-
   async function handleRegisterUser(form: FormData) {
     setButtonIsLoading(true)
 
@@ -74,7 +67,7 @@ export function SignUp({ navigation }: any) {
         ein: 0,
         email: form.email,
         phone: form.phone,
-        conctact_1: form.name
+        contact_1: form.name
       }
 
       const tenantRegister = await api.post('tenant', newTenant);
@@ -86,7 +79,6 @@ export function SignUp({ navigation }: any) {
           }
         })
       };
-      console.log(responseTenantRegister.data.id);
 
       const newUser = {
         name: form.name,

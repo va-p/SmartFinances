@@ -16,7 +16,7 @@ export const Container = styled(RectButton).attrs({
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 16px;
+  padding: 10px;
   margin-top: 10px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;

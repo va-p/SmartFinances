@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -9,8 +9,6 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import SelectDropdown from 'react-native-select-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
@@ -25,7 +23,6 @@ import { AccountProps } from '@components/AccountListItem';
 import { ModalView } from '@components/ModalView';
 import { Button } from '@components/Form/Button';
 import { Header } from '@components/Header';
-import { Load } from '@components/Load';
 
 import { CategorySelect } from '@screens/CategorySelect';
 import { AccountSelect } from '@screens/AccountSelect';
@@ -36,8 +33,6 @@ import { COLLECTION_TRANSACTIONS } from '@configs/database';
 
 import api from '@api/api';
 
-import theme from '@themes/theme';
-
 type FormData = {
   description: string;
   amount: string;
@@ -47,17 +42,16 @@ type FormData = {
 const schema = Yup.object().shape({
   description: Yup
     .string()
-    .required("Descrição é obrigatório"),
+    .required("Digite a descrição"),
   amount: Yup
     .number()
-    .typeError("Informe um valor númerico")
+    .typeError("Digite um valor númerico")
     .positive("O valor não pode ser negativo")
-    .required("O valor é obrigatório")
+    .required("Digite o valor")
 });
 /* Validation Form - End */
 
 export function RegisterTransaction({ navigation }: any) {
-  const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [transactionType, setTransactionType] = useState('');
   const [date, setDate] = useState(new Date());
@@ -205,10 +199,6 @@ export function RegisterTransaction({ navigation }: any) {
 
       setButtonIsLoading(false);
     }
-  }
-
-  if (loading) {
-    return <Load />
   }
 
   return (
