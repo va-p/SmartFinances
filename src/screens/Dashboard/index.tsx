@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import { Alert, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
@@ -19,7 +19,6 @@ import {
   VictoryGroup,
   VictoryTheme
 } from 'victory-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { addMonths, subMonths } from 'date-fns';
 import { useSelector } from 'react-redux';
@@ -32,25 +31,32 @@ import {
   selectUserTenantId
 } from '@slices/userSlice';
 
-import {
-  COLLECTION_TOKENS,
-  COLLECTION_USERS
-} from '@configs/database';
-
 import api from '@api/api';
 
-type MonthData = TransactionProps & {
+type MonthData = {
+  date: Date | number;
   totalRevenuesByMonth: number;
   totalExpensesByMonth: number;
 }
 
-export function Dashboard({ navigation }: any) {
+export function Dashboard() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
-  const [transactions, setTransactions] = useState<TransactionProps[]>([]);
+  //const [transactions, setTransactions] = useState<TransactionProps[]>([]);
   const [transactionsFormatted, setTransactionsFormatted] = useState<TransactionProps>();
-  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<MonthData[]>([]);
+  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<MonthData[]>([
+    {
+      date: 0,
+      totalRevenuesByMonth: 0,
+      totalExpensesByMonth: 0
+    },
+    {
+      date: 1,
+      totalRevenuesByMonth: 0,
+      totalExpensesByMonth: 0
+    }
+  ]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [transactionsFormattedBySelectedDate, setTransactionsFormattedBySelectedDate] = useState<TransactionProps[]>([]);
   const [cashFlowTotal, setCashFlowTotal] = useState('');
@@ -68,9 +74,6 @@ export function Dashboard({ navigation }: any) {
     setLoading(true);
 
     //await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
-    let initialTotalBRL = 0;
-    let initialTotalBTC = 0;
-
     try {
       const { data } = await api.get('transaction', {
         params: {
@@ -79,7 +82,6 @@ export function Dashboard({ navigation }: any) {
       })
       if (!data) {
       } else {
-        setTransactions(data);
         setRefreshing(false);
       }
 
@@ -94,7 +96,7 @@ export function Dashboard({ navigation }: any) {
       let totalRevenuesBRL = 0;
       let totalExpensesBRL = 0;
 
-      const transactionsFormattedBrl: MonthData = transactionsBRL
+      const transactionsFormattedBrl: TransactionProps = transactionsBRL
         .map((transactionBRL: TransactionProps) => {
           switch (transactionBRL.type) {
             case 'income':
@@ -124,7 +126,7 @@ export function Dashboard({ navigation }: any) {
             created_at: dateTransactionBRL,
             description: transactionBRL.description,
             amount,
-            totalExpensesByMonth,
+            totalExpensesBRL,
             type: transactionBRL.type,
             account: {
               id: transactionBRL.account?.id,
@@ -153,7 +155,9 @@ export function Dashboard({ navigation }: any) {
           }
         });
 
-      const totalBRL = initialTotalBRL + totalRevenuesBRL - totalExpensesBRL;
+      let initialTotalAmount = 0;
+
+      const totalBRL = initialTotalAmount + totalRevenuesBRL - totalExpensesBRL;
       const totalFormattedBRL = Number(totalBRL).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL'
@@ -167,12 +171,9 @@ export function Dashboard({ navigation }: any) {
 
 
       /**
-        * All Transactions and Totals By Months - Start
+        * All Totals By Months - Start
       **/
-      let totalRevenuesByMonth = 0;
-      let totalExpensesByMonth = 0;
-
-      const totalsByMonths: TransactionProps = transactionsBRL
+      const transactionsByMonths: TransactionProps = transactionsBRL
         .map((transactionByMonth: TransactionProps) => {
           const dateTransactionByMonth = Intl.DateTimeFormat('pt-BR', {
             month: 'long',
@@ -180,44 +181,56 @@ export function Dashboard({ navigation }: any) {
           }).format(new Date(transactionByMonth.created_at));
 
           return {
-            created_at: dateTransactionByMonth,
+            date: dateTransactionByMonth,
             type: transactionByMonth.type,
-            amount: transactionByMonth.amount
+            amount: transactionByMonth.amount,
+            totalRevenuesByMonth: 0,
+            totalExpensesByMonth: 0
           }
         });
 
       // Agrupe
-      const groups = totalsByMonths.reduce((acc: any, current: any) => {
-        if (!acc[current.created_at]) {
-          acc[current.created_at] = {
+      const totalsByMonths = transactionsByMonths.reduce((acc: any, current: any) => {
+        if (!acc[current.date]) {
+          acc[current.date] = {
             ...current
           }
           return acc
         }
 
-        acc[current.created_at].amount = acc[current.created_at].amount + current.amount
+        //errado, tem que especificar current outcome e income
+        //acc[current.date].amount = acc[current.date].amount + current.amount
 
-        current.type === 'income' ?
-          acc[current.created_at].totalRevenuesByMonth = acc[current.created_at].amount + current.amount :
-          acc[current.created_at].totalExpensesByMonth = acc[current.created_at].amount + current.amount
+        switch (current.type) {
+          case 'income':
+            acc[current.date].totalRevenuesByMonth = acc[current.date].amount += current.amount
+            break;
+          case 'outcome':
+            acc[current.date].totalExpensesByMonth = acc[current.date].amount += current.amount
+          default: 'income'
+            break;
+        }
+        /*current.type === 'income' ?
+          acc[current.date].totalRevenuesByMonth = acc[current.date].amount + current.amount :
+          acc[current.date].totalExpensesByMonth = acc[current.date].amount + current.amount*/
 
         return acc
       }, {})
 
       // Extraia a lista 
-      const newList: any = Object.values(groups);
+      const newList: any = Object.values(totalsByMonths);
 
       setTotalAmountsByMonth(newList);
       console.log(totalAmountsByMonth);
       /**
-       * All Transactions and Totals By Months - End
+       * All Totals By Months - End
       **/
 
 
       /**
        * Transactions By Selected Date Formatted in BRL - Start
       **/
-      const transactionsBySelectedDate = data
+      /*const transactionsBySelectedDate = data
         .filter((transaction: TransactionProps) =>
           transaction.account?.currency === 'BRL' &&
           new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
@@ -245,7 +258,11 @@ export function Dashboard({ navigation }: any) {
               currency: 'BRL'
             });
 
-          const dateTransaction = transactionBRLBySelectedDate.created_at.toLocaleDateString();
+          const dateTransaction = Intl.DateTimeFormat('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          }).format(new Date(transactionBRLBySelectedDate.created_at));
 
           return {
             id: transactionBRLBySelectedDate.id,
@@ -280,15 +297,14 @@ export function Dashboard({ navigation }: any) {
           }
         });
 
-
-
       const totalBRLBySelectedDate = totalRevenuesBRLBySelectedDate - totalExpensesBRLBySelectedDate;
-      const totalBySelectedDateFormattedBRL = totalBRLBySelectedDate.toLocaleString('pt-BR', {
+      const totalBySelectedDateFormattedBRL = Number(totalBRLBySelectedDate).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL'
       })
 
       setTransactionsFormattedBySelectedDate(transactionsBySelectedDateFormattedBrl);
+      setCashFlowTotalBySelectedDate(totalBySelectedDateFormattedBRL);*/
       /**
        * Transactions By Selected Date Formatted in BRL - End
       **/
@@ -296,7 +312,7 @@ export function Dashboard({ navigation }: any) {
       /**
        * Transactions in BTC - Start
       **/
-      const transactionsBtc = data
+      /*const transactionsBtc = data
         .filter((transaction: TransactionProps) =>
           transaction.account?.currency === 'BTC'
         );
@@ -316,7 +332,7 @@ export function Dashboard({ navigation }: any) {
             default: 'income';
               break;
           }
-          const amountBtc = Number(transactionBtc.amount)
+          const amount = Number(transactionBtc.amount)
             .toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BTC',
@@ -329,23 +345,11 @@ export function Dashboard({ navigation }: any) {
             year: 'numeric'
           }).format(new Date(transactionBtc.created_at));
 
-          /*const dateAccountBtc = Intl.DateTimeFormat('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }).format(new Date(transactionBtc.account.created_at));
-
-          const dateCategoryBtc = Intl.DateTimeFormat('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }).format(new Date(transactionBtc.category.created_at));*/
-
           return {
             id: transactionBtc.id,
             created_at: dateTransactionBtc,
             description: transactionBtc.description,
-            amountBtc,
+            amount,
             type: transactionBtc.type,
             account: {
               id: transactionBtc.account.id,
@@ -375,14 +379,10 @@ export function Dashboard({ navigation }: any) {
       const totalBtc = initialTotalBTC + totalRevenuesBtc - totalExpensesBtc;
 
       const UserTransactionsDataFormatted = transactionsFormattedBrl
-        .concat(transactionsFormattedBtc)
+        .concat(transactionsFormattedBtc)*/
       /**
        * Transactions in BTC - End
       */
-
-      setCashFlowTotalBySelectedDate(totalBySelectedDateFormattedBRL);
-
-      //console.log(selectedDate.toLocaleDateString('pt-BR'));
 
       setLoading(false);
     } catch (error) {
@@ -408,12 +408,6 @@ export function Dashboard({ navigation }: any) {
       Alert.alert("Exclusão de transação", `${error}`)
     }
   };
-
-  async function handleLogout() {
-    await AsyncStorage.removeItem(COLLECTION_TOKENS);
-    await AsyncStorage.removeItem(COLLECTION_USERS);
-    navigation.navigate('SignIn');
-  }
 
   useFocusEffect(useCallback(() => {
     fetchTransactions();
@@ -453,8 +447,8 @@ export function Dashboard({ navigation }: any) {
           >
             <VictoryBar
               data={totalAmountsByMonth}
-              x={'created_at'}
-              y={'totalRevenuesByMonth'}
+              x='date'
+              y='totalRevenuesByMonth'
               sortKey="x"
               sortOrder="descending"
               alignment='start'
@@ -473,8 +467,8 @@ export function Dashboard({ navigation }: any) {
             />
             <VictoryBar
               data={totalAmountsByMonth}
-              x={'created_at'}
-              y={'amount'}
+              x='date'
+              y='totalExpensesByMonth'
               sortOrder="descending"
               alignment='start'
               style={{

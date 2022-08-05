@@ -3,8 +3,6 @@ import styled from 'styled-components/native';
 
 import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { BorderlessButton } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
 
 export const Container = styled.View`
   flex: 1;
@@ -62,12 +60,6 @@ export const FilterButtonGroup = styled.View`
 export const Transactions = styled.View`
   flex: 1%;
   padding: 0 10px;
-`;
-
-export const Title = styled.Text`
-  font-size: ${RFValue(14)}px;
-  font-family: ${({ theme }) => theme.fonts.regular};
-  margin-bottom: ${RFPercentage(1)}px;
 `;
 
 export const TransactionList = styled(
