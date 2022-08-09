@@ -31,18 +31,18 @@ export const Form = styled.View`
 `;
 
 export const IconAndColor = styled.TouchableOpacity <Props>`
-  width: 55px;
-  height: 55px;
+  width: 70px;
+  height: 70px;
   align-items: center;
   justify-content: center;
   margin-right: 10px;
   background-color: ${({ color }) => color};
-  border-radius: 25px;
+  border-radius: 35px;
 `;
 
 export const Title = styled.Text`
   text-align: left;
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(12)}px;
   ${({ theme }) => css`
     font-family: ${theme.fonts.medium};
     color: ${theme.colors.title};
@@ -56,9 +56,6 @@ export const ColorsList = styled.View`
 export const ColorContainer = styled.View <Props>`
   width: 50px;
   height: 50px;
-  border: 5px solid ${({ theme, isActive }) =>
-    isActive ? theme.colors.secondary : theme.colors.background
-  };
   border-radius: 25px;
 `;
 
@@ -71,12 +68,12 @@ export const Color = styled(BorderlessButton) <Props>`
 `;
 
 export const IconsList = styled.View`
-  height: ${RFPercentage(55)}px;
+  height: ${RFPercentage(60)}px;
 `;
 
 export const IconContainer = styled.TouchableOpacity <Props>`
-  width: 55px;
-  height: 55px;
+  width: 60px;
+  height: 60px;
   align-items: center;
   justify-content: center;
   margin-right: 10px;
@@ -84,16 +81,14 @@ export const IconContainer = styled.TouchableOpacity <Props>`
   background-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.text : theme.colors.shape
   };
-  border-radius: 25px;
+  border-radius: 30px;
 `;
 
 export const Icon = styled(Ionicons) <Props>`
-  font-size: ${RFValue(25)}px;
+  font-size: ${RFValue(28)}px;
   color: ${({ theme, isActive }) =>
     isActive ? theme.colors.background : theme.colors.text
   };
 `;
 
-export const Footer = styled.View`
-  padding: 12px 0;
-`;
+export const Footer = styled.View``;

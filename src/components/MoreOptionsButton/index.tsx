@@ -17,7 +17,7 @@ type Props = RectButtonProps & {
 
 export function MoreOptionsButton({ icon, title, ...rest }: Props) {
   return (
-    <Container >
+    <Container>
       <Content {...rest}>
         <DetailsContainer>
           <Icon name={icon} />

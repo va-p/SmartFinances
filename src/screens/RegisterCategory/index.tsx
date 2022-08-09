@@ -140,7 +140,6 @@ export function RegisterCategory() {
           />
         </Header>
 
-
         <ColorsList>
           <Title>Cor da categoria</Title>
           <FlatList
@@ -178,9 +177,6 @@ export function RegisterCategory() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               alignItems: 'center',
-            }}
-            style={{
-              padding: 5
             }}
           />
         </IconsList>

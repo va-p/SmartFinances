@@ -4,7 +4,6 @@ import {
   Container,
   Category,
   Icon,
-  Color,
   Name,
   DeleteButton,
   DeleteButtonIcon,
@@ -72,7 +71,7 @@ export function CategoryListItem({
         onSwipeableOpen={onSwipeableLeftOpen}
       >
         <Category {...rest} color={data.color.hex}>
-          <Icon name={data.icon?.name} />
+          <Icon name={data.icon?.name} color={data.color.hex}/>
           <Name>{data.name}</Name>
         </Category>
       </Swipeable>

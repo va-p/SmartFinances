@@ -1,8 +1,7 @@
+import { Animated } from 'react-native';
 import styled from 'styled-components/native';
-import { Animated, TouchableOpacity } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
 type ColorProps = {
@@ -29,9 +28,10 @@ export const Category = styled.TouchableOpacity.attrs({
   border-radius: 10px;
 `;
 
-export const Icon = styled(Ionicons)`
+export const Icon = styled(Ionicons)<ColorProps>`
   font-size: ${RFValue(20)}px;
   margin-right: 8px;
+  color: ${({ color }) => color};
 `;
 
 export const Name = styled.Text`

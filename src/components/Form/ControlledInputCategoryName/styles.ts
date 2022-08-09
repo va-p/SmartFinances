@@ -14,7 +14,7 @@ export const ErrorMessage = styled.Text`
 
 
 export const Input = styled(TextInput).attrs(({ theme }) => ({
-  placeholderTextColor: theme.colors.title
+  placeholderTextColor: theme.colors.text
 }))`
   width: 100%;
   padding: 5px 0;
