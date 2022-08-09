@@ -1,11 +1,9 @@
 import styled, { css } from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
-  padding-top: ${getStatusBarHeight() + 10}px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 

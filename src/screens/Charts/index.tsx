@@ -208,7 +208,7 @@ export function Charts() {
 
   return (
     <Container>
-      <Header title='Gráficos' />
+      <Header type='secondary' title='Resumo' />
 
       <Content
         showsVerticalScrollIndicator={false}

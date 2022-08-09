@@ -20,6 +20,7 @@ import { AccountListItem, AccountProps } from '@components/AccountListItem';
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { Button } from '@components/Form/Button';
 import { Divider } from '@components/Divider';
+import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
@@ -142,6 +143,8 @@ export function RegisterAccount({ navigation }: any) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Header type='primary' title='Cadastro de conta'/>
+
       <AccountsContainer>
         <Title>Contas cadastradas</Title>
         <FlatList

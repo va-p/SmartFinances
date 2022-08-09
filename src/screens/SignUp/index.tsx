@@ -107,7 +107,7 @@ export function SignUp({ navigation }: any) {
 
   return (
     <Container>
-      <Header title='Criar nova conta' />
+      <Header type='secondary' title='Criar nova conta' />
 
       <Form>
         <ControlledInput
