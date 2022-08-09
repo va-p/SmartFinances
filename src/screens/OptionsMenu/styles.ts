@@ -6,12 +6,7 @@ export const Container = styled.View`
   flex: 1;  
 `;
 
-export const Content = styled.View`
-  
-`;
-
-export const ContentScroll = styled.ScrollView`
-`;
+export const ContentScroll = styled.ScrollView``;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};

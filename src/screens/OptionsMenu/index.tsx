@@ -1,7 +1,7 @@
 import React from 'react';
+import { Linking } from 'react-native';
 import {
   Container,
-  Content,
   ContentScroll,
   Title
 } from './styles';
@@ -11,16 +11,28 @@ import { Header } from '@components/Header';
 
 export function OptionsMenu({ navigation }: any) {
   function handleClickAccounts() {
-    navigation.navigate('Cadastrar conta');
+    navigation.navigate('Cadastrar Conta');
   }
 
   function handleClickCategories() {
-    navigation.navigate('Cadastrar categoria');
+    navigation.navigate('Categorias');
+  }
+
+  function handleClickHelp() {
+    navigation.navigate('Central de Ajuda');
+  }
+
+  function handleClickContactSupport() {
+    Linking.openURL('mailto:contato@solucaodigital.tech')
+  }
+
+  function handleClickTermsAndPolices() {
+    navigation.navigate('Termos e Políticas');
   }
 
   return (
     <Container>
-      <Header  type='secondary' title='Mais opções' />
+      <Header type='secondary' title='Mais opções' />
       <ContentScroll>
         <Title>Conta</Title>
         <MoreOptionsButton
@@ -34,7 +46,21 @@ export function OptionsMenu({ navigation }: any) {
           onPress={() => handleClickCategories()}
         />
         <Title>Sobre</Title>
-
+        <MoreOptionsButton
+          icon='help-buoy-outline'
+          title='Central de Ajuda'
+          onPress={() => handleClickHelp()}
+        />
+        <MoreOptionsButton
+          icon='chatbubbles-outline'
+          title='Contatar Suporte'
+          onPress={() => handleClickContactSupport()}
+        />
+        <MoreOptionsButton
+          icon='shield-checkmark-outline'
+          title='Termos e Políticas'
+          onPress={() => handleClickTermsAndPolices()}
+        />
       </ContentScroll>
     </Container>
   );

@@ -28,7 +28,7 @@ export const Icon = styled(Ionicons)`
 `;
 
 export const Title = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
+  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text_dark};
 `;

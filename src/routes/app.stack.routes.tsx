@@ -1,15 +1,12 @@
 import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons'
 
-import theme from '@themes/theme';
-
-import { RegisterCategory } from '@screens/RegisterCategory';
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { TermsAndPolices } from '@screens/TermsAndPolices';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { Categories } from '@screens/Categories';
-import { AppTabRoutes } from './app.tab.routes';
+import { HelpCenter } from '@screens/HelpCenter';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -26,13 +23,23 @@ export function AppStackRoutes() {
       />
 
       <Screen
-        name="Cadastrar conta"
+        name="Cadastrar Conta"
         component={RegisterAccount}
       />
 
       <Screen
-        name="Cadastrar categoria"
+        name="Categorias"
         component={Categories}
+      />
+
+      <Screen
+        name="Central de Ajuda"
+        component={HelpCenter}
+      />
+
+      <Screen
+        name="Termos e Políticas"
+        component={TermsAndPolices}
       />
     </Navigator>
   )
