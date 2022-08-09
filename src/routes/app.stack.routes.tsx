@@ -8,6 +8,7 @@ import theme from '@themes/theme';
 import { RegisterCategory } from '@screens/RegisterCategory';
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { OptionsMenu } from '@screens/OptionsMenu';
+import { Categories } from '@screens/Categories';
 import { AppTabRoutes } from './app.tab.routes';
 
 const { Navigator, Screen } = createStackNavigator();
@@ -31,7 +32,7 @@ export function AppStackRoutes() {
 
       <Screen
         name="Cadastrar categoria"
-        component={RegisterCategory}
+        component={Categories}
       />
     </Navigator>
   )
