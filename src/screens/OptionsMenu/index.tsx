@@ -11,7 +11,7 @@ import { Header } from '@components/Header';
 
 export function OptionsMenu({ navigation }: any) {
   function handleClickAccounts() {
-    navigation.navigate('Cadastrar Conta');
+    navigation.navigate('Contas');
   }
 
   function handleClickCategories() {

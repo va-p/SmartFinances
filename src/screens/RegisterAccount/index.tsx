@@ -1,8 +1,7 @@
-import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, Platform, RefreshControl } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Platform } from 'react-native';
 import {
   Container,
-  AccountsContainer,
   Title,
   ContentScroll,
   Form,
@@ -10,18 +9,15 @@ import {
 } from './styles';
 
 import SelectDropdown from 'react-native-select-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
-import { AccountListItem, AccountProps } from '@components/AccountListItem';
 import { ControlledInput } from '@components/Form/ControlledInput';
+import { AccountProps } from '@components/AccountListItem';
 import { Button } from '@components/Form/Button';
-import { Divider } from '@components/Divider';
 import { Header } from '@components/Header';
-import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -43,41 +39,16 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterAccount({ navigation }: any) {
-  const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
-  const [refreshing, setRefreshing] = useState(true);
-  const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
   });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const currencies = ['BRL', 'BTC'];
+  const currencies = ['BRL - Real Brasileiro', 'BTC - Bitcoin'];
   const [currencySelected, setCurrencySelected] = useState('');
   const [simbol, setSimbol] = useState('');
 
-  async function fetchAccounts() {
-    setLoading(true);
-    
-    try {
-      const { data } = await api.get('account', {
-        params: {
-          tenant_id: tenantId
-        }
-      });
-      if (!data) {
-      } else {
-        setRefreshing(false);
-        setAccounts(data);
-      }
-      
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Contas", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.");
-    }
-  };
-
-  async function handleAccountRegister(form: FormData) {
+   async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);
 
     if (!currencySelected) {
@@ -113,62 +84,8 @@ export function RegisterAccount({ navigation }: any) {
     };
   };
 
-  async function handleAccountSwipeLeft(id: string) {
-    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a conta.", onPress: () => handleDeleteAccount(id) }])
-  };
-
-  async function handleDeleteAccount(id: string) {
-    try {
-      await api.delete('delete_account', {
-        params: {
-          account_id: id
-        }
-      });
-      fetchAccounts();
-      Alert.alert("Exclusão de conta", "Conta excluída com sucesso!")
-    } catch (error) {
-      Alert.alert("Exclusão de conta", `${error}`)
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchAccounts();
-    }, [])
-  );
-
-  if (loading) {
-    return <Load />
-  }
-
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Header type='primary' title='Cadastro de conta'/>
-
-      <AccountsContainer>
-        <Title>Contas cadastradas</Title>
-        <FlatList
-          data={accounts}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <AccountListItem
-              data={item}
-              onSwipeableLeftOpen={() => handleAccountSwipeLeft(item.id)}
-            />
-          )}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: 20,
-            paddingHorizontal: 24
-          }}
-        />
-      </AccountsContainer>
-
-      <Divider />
-
       <ContentScroll>
         <Form>
           <Title>Cadastrar nova conta</Title>

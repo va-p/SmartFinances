@@ -7,7 +7,7 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const CategoriesContainer = styled.View`
+export const AccountsContainer = styled.View`
   height: ${RFPercentage(80)}px;
 `;
 

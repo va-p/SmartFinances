@@ -119,7 +119,7 @@ export function Categories() {
       <Footer>
         <Button
           type='secondary'
-          title='Cadastrar nova categoria'
+          title='Criar nova categoria'
           onPress={handleOpenRegisterCategoryModal}
         />
       </Footer>

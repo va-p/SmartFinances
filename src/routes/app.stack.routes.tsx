@@ -2,11 +2,11 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { RegisterAccount } from '@screens/RegisterAccount';
 import { TermsAndPolices } from '@screens/TermsAndPolices';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
+import { Accounts } from '@screens/Accounts';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -23,8 +23,8 @@ export function AppStackRoutes() {
       />
 
       <Screen
-        name="Cadastrar Conta"
-        component={RegisterAccount}
+        name="Contas"
+        component={Accounts}
       />
 
       <Screen
