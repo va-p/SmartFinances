@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import {
   Container,
-  Title,
-  ContentScroll,
   Form,
   Footer
 } from './styles';
@@ -15,9 +13,7 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
-import { AccountProps } from '@components/AccountListItem';
 import { Button } from '@components/Form/Button';
-import { Header } from '@components/Header';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -48,7 +44,7 @@ export function RegisterAccount({ navigation }: any) {
   const [currencySelected, setCurrencySelected] = useState('');
   const [simbol, setSimbol] = useState('');
 
-   async function handleAccountRegister(form: FormData) {
+  async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);
 
     if (!currencySelected) {
@@ -75,7 +71,7 @@ export function RegisterAccount({ navigation }: any) {
       if (status === 200) {
         Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
       };
-      
+
       fetchAccounts();
       setButtonIsLoading(false);
     } catch (error) {
@@ -86,67 +82,64 @@ export function RegisterAccount({ navigation }: any) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ContentScroll>
-        <Form>
-          <Title>Cadastrar nova conta</Title>
-          <ControlledInput
-            type='primary'
-            placeholder='Nome da conta'
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            name='name'
-            control={control}
-            error={errors.name}
-          />
+      <Form>
+        <ControlledInput
+          type='primary'
+          placeholder='Nome da conta'
+          autoCapitalize='sentences'
+          autoCorrect={false}
+          name='name'
+          control={control}
+          error={errors.name}
+        />
 
-          <SelectDropdown
-            data={currencies}
-            onSelect={(selectedItem) => {
-              setCurrencySelected(selectedItem);
-            }}
-            buttonTextAfterSelection={(selectedItem) => {
-              return selectedItem
-            }}
-            rowTextForSelection={(item) => {
-              return item
-            }}
-            defaultButtonText="Selecione a moeda"
-            buttonStyle={{
-              width: '100%',
-              minHeight: 56,
-              maxHeight: 56,
-              marginTop: 10,
-              backgroundColor: theme.colors.shape,
-              borderRadius: 10
-            }}
-            buttonTextStyle={{
-              fontFamily: theme.fonts.regular,
-              fontSize: 15,
-              textAlign: 'left'
-            }}
-            dropdownStyle={{
-              borderRadius: 10,
-            }}
-          />
+        <SelectDropdown
+          data={currencies}
+          onSelect={(selectedItem) => {
+            setCurrencySelected(selectedItem);
+          }}
+          buttonTextAfterSelection={(selectedItem) => {
+            return selectedItem
+          }}
+          rowTextForSelection={(item) => {
+            return item
+          }}
+          defaultButtonText="Selecione a moeda"
+          buttonStyle={{
+            width: '100%',
+            minHeight: 56,
+            maxHeight: 56,
+            marginTop: 10,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10
+          }}
+          buttonTextStyle={{
+            fontFamily: theme.fonts.regular,
+            fontSize: 15,
+            textAlign: 'left'
+          }}
+          dropdownStyle={{
+            borderRadius: 10,
+          }}
+        />
 
-          <ControlledInput
-            type='primary'
-            placeholder='Saldo inicial da conta'
-            keyboardType='numeric'
-            name='initialAmount'
-            control={control}
-            error={errors.initialAmount}
+        <ControlledInput
+          type='primary'
+          placeholder='Saldo inicial da conta'
+          keyboardType='numeric'
+          name='initialAmount'
+          control={control}
+          error={errors.initialAmount}
+        />
+        <Footer>
+          <Button
+            type='secondary'
+            title='Cadastrar conta'
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleAccountRegister)}
           />
-          <Footer>
-            <Button
-              type='secondary'
-              title='Cadastrar conta'
-              isLoading={buttonIsLoading}
-              onPress={handleSubmit(handleAccountRegister)}
-            />
-          </Footer>
-        </Form>
-      </ContentScroll>
+        </Footer>
+      </Form>
     </Container>
   );
 }
