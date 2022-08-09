@@ -13,6 +13,8 @@ import {
   DetailsContainer,
   Category,
   Account,
+  AmountConvertedContainer,
+  AmountConverted,
   Date,
   DeleteButton,
   DeleteButtonIcon,
@@ -31,6 +33,7 @@ export interface TransactionProps {
   created_at: Date;
   description: string;
   amount: string | number;
+  amountConvertedBRLFormatted?: number | null;
   type: 'income' | 'outcome' | 'transfer';
   account: AccountProps;
   category: CategoryProps;
@@ -104,9 +107,14 @@ export function TransactionListItem({
                   {data.account.name}
                 </Account>
               </Details>
-              <Date>
-                {data.created_at}
-              </Date>
+              <AmountConvertedContainer>
+                <AmountConverted>
+                  {data.account.currency != 'BRL' && `aprox. ${data.amountConvertedBRLFormatted}`}
+                </AmountConverted>
+                <Date>
+                  {data.created_at}
+                </Date>
+              </AmountConvertedContainer>
             </Footer>
           </DetailsContainer>
         </Content>

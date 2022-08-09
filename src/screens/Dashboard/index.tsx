@@ -20,49 +20,93 @@ import {
   VictoryTheme
 } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { addMonths, subMonths } from 'date-fns';
-import { useSelector } from 'react-redux';
 
 import { TransactionListItem, TransactionProps } from '@components/TransactionListItem';
 import { FilterButton } from '@components/FilterButton';
 import { Load } from '@components/Load';
 
 import {
+  selectBtcQuote, setBtcQuote
+} from '@slices/cryptocurrencyQuotesBrlSlice';
+
+import {
   selectUserTenantId
 } from '@slices/userSlice';
 
+import apiCryptoQuote from '@api/apiCryptoQuote';
 import api from '@api/api';
 
-type MonthData = {
+type PeriodData = {
   date: Date | number;
-  totalRevenuesByMonth: number;
-  totalExpensesByMonth: number;
+  totalRevenuesByPeriod: number;
+  totalExpensesByPeriod: number;
 }
 
 export function Dashboard() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
-  //const [transactions, setTransactions] = useState<TransactionProps[]>([]);
+  const dispatch = useDispatch();
+  const btcQuoteBrl = useSelector(selectBtcQuote);
   const [transactionsFormatted, setTransactionsFormatted] = useState<TransactionProps>();
-  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<MonthData[]>([]);
+  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<PeriodData[]>([
+    {
+      date: 0,
+      totalRevenuesByPeriod: 0,
+      totalExpensesByPeriod: 0
+    },
+    {
+      date: 1,
+      totalRevenuesByPeriod: 0,
+      totalExpensesByPeriod: 0
+    }
+  ]);
+  /*const [totalAmountsByYear, setTotalAmountsByYear] = useState<PeriodData[]>([
+    {
+      date: 0,
+      totalRevenuesByPeriod: 0,
+      totalExpensesByPeriod: 0
+    },
+    {
+      date: 1,
+      totalRevenuesByPeriod: 0,
+      totalExpensesByPeriod: 0
+    }
+  ]);*/
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [transactionsFormattedBySelectedDate, setTransactionsFormattedBySelectedDate] = useState<TransactionProps[]>([]);
+  //const [transactionsFormattedBySelectedDate, setTransactionsFormattedBySelectedDate] = useState<TransactionProps[]>([]);
   const [cashFlowTotal, setCashFlowTotal] = useState('');
-  const [cashFlowTotalBySelectedDate, setCashFlowTotalBySelectedDate] = useState('');
+  //const [cashFlowTotalBySelectedDate, setCashFlowTotalBySelectedDate] = useState('');
 
-  function handleDateChange(action: 'next' | 'prev'): void {
-    if (action === 'next') {
-      setSelectedDate(addMonths(selectedDate, 1));
-    } else {
-      setSelectedDate(subMonths(selectedDate, 1));
+  async function fetchCryptoQuotes() {
+    //await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
+    try {
+      const { data } = await apiCryptoQuote.get('quotes/latest', {
+        params: {
+          slug: 'bitcoin',
+          convert: 'BRL'
+        }
+      })
+      if (!data) {
+      }
+      else {
+        //console.log(data.data['1'])
+        //setBitcoinQuoteBRL(data.data['1'])
+        dispatch(
+          setBtcQuote(data.data['1'])
+        )
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Cotação de crypto", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
     }
   };
 
   async function fetchTransactions() {
     setLoading(true);
 
-    //await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
     try {
       const { data } = await api.get('transaction', {
         params: {
@@ -70,77 +114,124 @@ export function Dashboard() {
         }
       })
       if (!data) {
-      } else {
+      }
+      else {
         setRefreshing(false);
       }
 
       /**
-       * All Transactions and Total Formatted in BRL - Start
+       * All Transactions and Totals Formatted in PT-br - Start
       **/
-      const transactionsBRL = data
-        .filter((transaction: TransactionProps) =>
-          transaction.account?.currency === 'BRL'
-        );
-
+      let amount = 'R$0';
+      let amountConvertedBRL = 0;
+      let amountConvertedBRLFormatted = 'R$0';
       let totalRevenuesBRL = 0;
       let totalExpensesBRL = 0;
 
-      const transactionsFormattedBrl: TransactionProps = transactionsBRL
-        .map((transactionBRL: TransactionProps) => {
-          switch (transactionBRL.type) {
+      const transactionsFormattedPtbr: TransactionProps = data
+        .map((transactionPtbr: TransactionProps) => {
+          //Insert switch for verify currency and formatted amount for this currency. If currency is BTC, convert value to BTC using converting API.
+          switch (transactionPtbr.account.currency) {
+            case 'BRL':
+              amount = Number(transactionPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              break;
+            case 'BTC':
+              amountConvertedBRL = Number(transactionPtbr.amount) * btcQuoteBrl.quote.BRL.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              amount = Number(transactionPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BTC',
+                  minimumFractionDigits: 8,
+                  maximumSignificantDigits: 8
+                });
+              break;
+            case 'USD':
+              //amountConvertedBRL = Number(transactionPtbr.amount) * americanDolarQuoteBRL;
+              //amountConvertedBRLFormatted = Number(transactionPtbr.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              amount = Number(transactionPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'USD'
+                });
+              break;
+            case 'EUR':
+              //amountConvertedBRL = Number(transactionPtbr.amount) * americanDolarQuoteBRL;
+              //amountConvertedBRLFormatted = Number(transactionPtbr.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              amount = Number(transactionPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'EUR'
+                });
+              break;
+            default: 'BRL'
+              break;
+          }
+
+          switch (transactionPtbr.type) {
             case 'income':
-              totalRevenuesBRL += Number(transactionBRL.amount);
+              if (transactionPtbr.account.currency != 'BRL') {
+                totalRevenuesBRL += amountConvertedBRL
+              } else {
+                totalRevenuesBRL += Number(transactionPtbr.amount)
+              }
               break;
             case 'outcome':
-              totalExpensesBRL += Number(transactionBRL.amount);
+              if (transactionPtbr.account.currency != 'BRL') {
+                totalExpensesBRL += amountConvertedBRL
+              } else {
+                totalExpensesBRL += Number(transactionPtbr.amount)
+              }
               break;
             default: 'income';
               break;
           }
 
-          const amount = Number(transactionBRL.amount)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            });
-
-          const dateTransactionBRL = Intl.DateTimeFormat('pt-BR', {
+          const dateTransactionPtbr = Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
-          }).format(new Date(transactionBRL.created_at));
+          }).format(new Date(transactionPtbr.created_at));
 
           return {
-            id: transactionBRL.id,
-            created_at: dateTransactionBRL,
-            description: transactionBRL.description,
+            id: transactionPtbr.id,
+            created_at: dateTransactionPtbr,
+            description: transactionPtbr.description,
             amount,
-            totalExpensesBRL,
-            type: transactionBRL.type,
+            amountConvertedBRLFormatted,
+            type: transactionPtbr.type,
             account: {
-              id: transactionBRL.account?.id,
-              name: transactionBRL.account?.name,
-              currency: transactionBRL.account?.currency,
-              simbol: transactionBRL.account?.simbol,
-              initial_amount: transactionBRL.account?.initial_amount,
-              tenant_id: transactionBRL.account?.tenant_id
+              id: transactionPtbr.account?.id,
+              name: transactionPtbr.account?.name,
+              currency: transactionPtbr.account?.currency,
+              simbol: transactionPtbr.account?.simbol,
+              initial_amount: transactionPtbr.account?.initial_amount,
+              tenant_id: transactionPtbr.account?.tenant_id
             },
             category: {
-              id: transactionBRL.category?.id,
-              name: transactionBRL.category?.name,
+              id: transactionPtbr.category?.id,
+              name: transactionPtbr.category?.name,
               icon: {
-                id: transactionBRL.category?.icon.id,
-                title: transactionBRL.category?.icon.title,
-                name: transactionBRL.category?.icon.name,
+                id: transactionPtbr.category?.icon.id,
+                title: transactionPtbr.category?.icon.title,
+                name: transactionPtbr.category?.icon.name,
               },
               color: {
-                id: transactionBRL.category.color.id,
-                name: transactionBRL.category.color.name,
-                hex: transactionBRL.category.color.hex,
+                id: transactionPtbr.category.color.id,
+                name: transactionPtbr.category.color.name,
+                hex: transactionPtbr.category.color.hex,
               },
-              tenant_id: transactionBRL.category?.tenant_id
+              tenant_id: transactionPtbr.category?.tenant_id
             },
-            tenant_id: transactionBRL.tenant_id
+            tenant_id: transactionPtbr.tenant_id
           }
         });
 
@@ -152,18 +243,32 @@ export function Dashboard() {
         currency: 'BRL'
       });
 
-      setTransactionsFormatted(transactionsFormattedBrl);
+      setTransactionsFormatted(transactionsFormattedPtbr);
       setCashFlowTotal(totalFormattedBRL);
       /**
-       * All Transactions and Total Formatted in BRL - End
+       * All Transactions and Totals Formatted in PT-br - End
       **/
 
 
       /**
         * All Totals By Months - Start
       **/
-      const transactionsByMonths: TransactionProps = transactionsBRL
+      let totalRevenuesByPeriod = 0;
+      let totalExpensesByPeriod = 0;
+
+      const transactionsByMonths = data
         .map((transactionByMonth: TransactionProps) => {
+          switch (transactionByMonth.account.currency) {
+            case 'BRL':
+              amount = Number(transactionByMonth.amount);
+              break;
+            case 'BTC':
+              amount = Number(transactionByMonth.amount) * btcQuoteBrl.quote.BRL.price;
+              break;
+            default: 'BRL'
+              break;
+          }
+
           const dateTransactionByMonth = Intl.DateTimeFormat('pt-BR', {
             month: 'long',
             year: 'numeric'
@@ -171,46 +276,53 @@ export function Dashboard() {
 
           return {
             date: dateTransactionByMonth,
-            type: transactionByMonth.type,
-            amount: transactionByMonth.amount,
-            totalRevenuesByMonth: 0,
-            totalExpensesByMonth: 0
+            type: transactionByMonth.type,            
+            amount,
+            totalRevenuesByPeriod: 0,
+            totalExpensesByPeriod: 0
           }
         });
 
-      // Agrupe
-      const totalsByMonths = transactionsByMonths.reduce((acc: any, current: any) => {
-        if (!acc[current.date]) {
-          acc[current.date] = {
-            ...current
+      const transactionsByYears = data
+        .map((transactionByYear: TransactionProps) => {
+          const dateTransactionByYear = Intl.DateTimeFormat('pt-BR', {
+            year: 'numeric'
+          }).format(new Date(transactionByYear.created_at));
+
+          return {
+            date: dateTransactionByYear,
+            type: transactionByYear.type,
+            amount: transactionByYear.amount,
+            totalRevenuesByPeriod: 0,
+            totalExpensesByPeriod: 0
           }
+        });
+
+
+      const totalsByMonths = transactionsByMonths
+        .reduce((acc: any, current: any) => {
+          if (!acc[current.date]) {
+            acc[current.date] = {
+              ...current
+            }
+          }
+
+          switch (current.type) {
+            case 'income':
+              acc[current.date].totalRevenuesByPeriod += Number(current.amount)              
+              break;
+            case 'outcome':
+              acc[current.date].totalExpensesByPeriod += Number(current.amount)              
+              break;
+          }
+
           return acc
-        }
+        }, [])
 
-        //errado, tem que especificar current outcome e income
-        //acc[current.date].amount = acc[current.date].amount + current.amount
-
-        switch (current.type) {
-          case 'income':
-            acc[current.date].totalRevenuesByMonth = acc[current.date].amount += current.amount
-            break;
-          case 'outcome':
-            acc[current.date].totalExpensesByMonth = acc[current.date].amount += current.amount
-          default: 'income'
-            break;
-        }
-        /*current.type === 'income' ?
-          acc[current.date].totalRevenuesByMonth = acc[current.date].amount + current.amount :
-          acc[current.date].totalExpensesByMonth = acc[current.date].amount + current.amount*/
-
-        return acc
-      }, {})
-
-      // Extraia a lista 
       const newList: any = Object.values(totalsByMonths);
 
       setTotalAmountsByMonth(newList);
-      //console.log(totalAmountsByMonth);
+      console.log(totalAmountsByMonth);
       /**
        * All Totals By Months - End
       **/
@@ -229,23 +341,51 @@ export function Dashboard() {
       let totalRevenuesBRLBySelectedDate = 0;
       let totalExpensesBRLBySelectedDate = 0;
 
-      const transactionsBySelectedDateFormattedBrl = transactionsBySelectedDate
-        .map((transactionBRLBySelectedDate: TransactionProps) => {
-          switch (transactionBRLBySelectedDate.type) {
+      const transactionsBySelectedDateFormattedPtbr = transactionsBySelectedDate
+        .map((transactionPtbrBySelectedDate: TransactionProps) => {
+          switch (transactionPtbrBySelectedDate.account.currency) {
+            case 'BRL':
+              amount = Number(transactionPtbrBySelectedDate.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              break;
+            case 'BTC':
+              amountConvertedBRL = Number(transactionPtbrBySelectedDate.amount) * bitcoinQuoteBRL.quote.BRL.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+              });
+              amount = Number(transactionPtbrBySelectedDate.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BTC',
+                  minimumFractionDigits: 8,
+                  maximumSignificantDigits: 8
+                });
+            default: 'BRL'
+              break;
+          }
+
+          switch (transactionPtbrBySelectedDate.type) {
             case 'income':
-              totalRevenuesBRLBySelectedDate += Number(transactionBRLBySelectedDate.amount);
+              if (transactionPtbrBySelectedDate.account.currency != 'BRL') {
+                totalRevenuesBRL += amountConvertedBRL
+              } else {
+                totalRevenuesBRL += Number(transactionPtbrBySelectedDate.amount);
+              }
               break;
             case 'outcome':
-              totalExpensesBRLBySelectedDate += Number(transactionBRLBySelectedDate.amount);
+              if (transactionPtbrBySelectedDate.account.currency != 'BRL') {
+                totalExpensesBRL += amountConvertedBRL
+              } else {
+                totalExpensesBRL += Number(transactionPtbrBySelectedDate.amount);
+              }
               break;
             default: 'income';
               break;
           }
-          const amount = Number(transactionBRLBySelectedDate.amount)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            });
 
           const dateTransaction = Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
@@ -258,6 +398,7 @@ export function Dashboard() {
             created_at: dateTransaction,
             description: transactionBRLBySelectedDate.description,
             amount,
+            amountConvertedBRLFormatted,
             type: transactionBRLBySelectedDate.type,
             account: {
               id: transactionBRLBySelectedDate.account?.id,
@@ -298,85 +439,18 @@ export function Dashboard() {
        * Transactions By Selected Date Formatted in BRL - End
       **/
 
-      /**
-       * Transactions in BTC - Start
-      **/
-      /*const transactionsBtc = data
-        .filter((transaction: TransactionProps) =>
-          transaction.account?.currency === 'BTC'
-        );
-
-      let totalRevenuesBtc = 0;
-      let totalExpensesBtc = 0;
-
-      const transactionsFormattedBtc: TransactionProps = transactionsBtc
-        .map((transactionBtc: TransactionProps) => {
-          switch (transactionBtc.type) {
-            case 'income':
-              totalRevenuesBtc += Number(transactionBtc.amount);
-              break;
-            case 'outcome':
-              totalExpensesBtc += Number(transactionBtc.amount);
-              break;
-            default: 'income';
-              break;
-          }
-          const amount = Number(transactionBtc.amount)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 8
-            });
-
-          const dateTransactionBtc = Intl.DateTimeFormat('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }).format(new Date(transactionBtc.created_at));
-
-          return {
-            id: transactionBtc.id,
-            created_at: dateTransactionBtc,
-            description: transactionBtc.description,
-            amount,
-            type: transactionBtc.type,
-            account: {
-              id: transactionBtc.account.id,
-              name: transactionBtc.account.name,
-              currency: transactionBtc.account.currency,
-              simbol: transactionBtc.account.simbol,
-            },
-            category: {
-              id: transactionBtc.category.id,
-              name: transactionBtc.category.name,
-              icon: {
-                id: transactionBtc.category?.icon.id,
-                title: transactionBtc.category?.icon.title,
-                name: transactionBtc.category?.icon.name,
-              },
-              color: {
-                id: transactionBtc.category.color.id,
-                name: transactionBtc.category.color.name,
-                hex: transactionBtc.category.color.hex,
-              },
-              tenant_id: transactionBtc.category.tenant_id
-            },
-            tenant_id: transactionBtc.tenant_id
-          }
-        });
-
-      const totalBtc = initialTotalBTC + totalRevenuesBtc - totalExpensesBtc;
-
-      const UserTransactionsDataFormatted = transactionsFormattedBrl
-        .concat(transactionsFormattedBtc)*/
-      /**
-       * Transactions in BTC - End
-      */
-
       setLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Transações", "Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.");
+    }
+  };
+
+  function handleDateChange(action: 'next' | 'prev'): void {
+    if (action === 'next') {
+      setSelectedDate(addMonths(selectedDate, 1));
+    } else {
+      setSelectedDate(subMonths(selectedDate, 1));
     }
   };
 
@@ -399,6 +473,7 @@ export function Dashboard() {
   };
 
   useFocusEffect(useCallback(() => {
+    fetchCryptoQuotes();
     fetchTransactions();
   }, []));
 
@@ -414,7 +489,6 @@ export function Dashboard() {
           <CashFlowDescription> Fluxo de Caixa</CashFlowDescription>
         </CashFlowGroup>
       </Header>
-
 
       <Chart>
         <MonthSelect>
@@ -437,7 +511,7 @@ export function Dashboard() {
             <VictoryBar
               data={totalAmountsByMonth}
               x='date'
-              y='totalRevenuesByMonth'
+              y='totalRevenuesByPeriod'
               sortKey="x"
               sortOrder="descending"
               alignment='start'
@@ -449,15 +523,15 @@ export function Dashboard() {
               }}
               cornerRadius={{ top: 2, bottom: 2 }}
               animate={{
-                duration: 2000,
-                onLoad: { duration: 1000 },
+                duration: 2500,
+                onLoad: { duration: 2500 },
                 easing: 'backOut'
               }}
             />
             <VictoryBar
               data={totalAmountsByMonth}
               x='date'
-              y='totalExpensesByMonth'
+              y='totalExpensesByPeriod'
               sortOrder="descending"
               alignment='start'
               style={{
@@ -469,7 +543,7 @@ export function Dashboard() {
               cornerRadius={{ top: 2, bottom: 2 }}
               animate={{
                 duration: 2000,
-                onLoad: { duration: 1000 },
+                onLoad: { duration: 2500 },
                 easing: 'backOut'
               }}
             />
@@ -491,7 +565,6 @@ export function Dashboard() {
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }
         />
-
       </Transactions>
     </Container>
   )

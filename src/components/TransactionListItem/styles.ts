@@ -60,9 +60,8 @@ export const Amount = styled.Text<TransactionProps>`
 
 export const Footer = styled.View`
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-top: 10px;
 `;
 
 export const Details = styled.View`
@@ -76,6 +75,15 @@ export const Category = styled.Text`
 `;
 
 export const Account = styled.Text`
+  font-size: ${RFValue(12)}px;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+export const AmountConvertedContainer = styled.View`
+  align-items: flex-end;
+`;
+
+export const AmountConverted = styled.Text`
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
