@@ -203,7 +203,7 @@ export function RegisterTransaction({ navigation }: any) {
 
   return (
     <Container>
-      <Header title='Cadastro de transação' />
+      <Header type='secondary'title='Cadastro de transação' />
 
       <Form>
         <Fields>

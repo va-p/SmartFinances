@@ -1,11 +1,17 @@
-import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, Platform, RefreshControl } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, FlatList, Platform } from 'react-native';
 import {
   Container,
-  CategoriesContainer,
-  Title,
+  Header,
   Form,
-  ContentScroll,
+  IconAndColor,
+  Title,
+  ColorsList,
+  ColorContainer,
+  Color,
+  IconsList,
+  IconContainer,
+  Icon,
   Footer
 } from './styles';
 
@@ -15,25 +21,16 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
 import {
-  CategoryListItem,
-  CategoryProps,
   ColorProps,
   IconProps
 } from '@components/CategoryListItem';
-import { ColorSelectButton } from '@components/Form/ColorSelectButton';
-import { IconSelectButton } from '@components/Form/IconSelectButton';
-import { ControlledInput } from '@components/Form/ControlledInput';
-import { ListSeparator } from '@components/ListSeparator';
-import { useFocusEffect } from '@react-navigation/native';
-import { ModalView } from '@components/ModalView';
+import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 import { Button } from '@components/Form/Button';
-import { Divider } from '@components/Divider';
-import { Load } from '@components/Load';
-
-import { ColorSelect } from '@screens/ColorSelect';
-import { IconSelect } from '@screens/IconSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
+
+import { colors } from '@utils/colors';
+import { icons } from '@utils/icons';
 
 import api from '@api/api';
 
@@ -48,22 +45,17 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterCategory({ navigation }: any) {
-  const [loading, setLoading] = useState(false);
+export function RegisterCategory() {
   const tenantId = useSelector(selectUserTenantId);
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
-  const [refreshing, setRefreshing] = useState(true);
-  const [iconModalOpen, setIconModalOpen] = useState(false);
   const [iconSelected, setIconSelected] = useState({
     id: '',
     title: 'Selecione o ícone',
     name: ''
   } as IconProps);
-  const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorSelected, setColorSelected] = useState({
     id: '',
     name: 'Selecione a cor',
-    hex: ''
+    hex: '#969CB2'
   } as ColorProps);
   const {
     control,
@@ -73,42 +65,13 @@ export function RegisterCategory({ navigation }: any) {
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
-  async function fetchCategories() {
-    setLoading(true);
+  function handleColorSelect(color: ColorProps) {
+    setColorSelected(color);
+  }
 
-    try {
-      const { data } = await api.get('category', {
-        params: {
-          tenant_id: tenantId
-        }
-      });
-      if (!data) {
-      } else {
-        setCategories(data);
-        setRefreshing(false);
-      }
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Categorias", "Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.");
-    }
-  };
-
-  function handleOpenSelectIconModal() {
-    setIconModalOpen(true);
-  };
-
-  function handleCloseSelectIconModal() {
-    setIconModalOpen(false);
-  };
-
-  function handleOpenSelectColorModal() {
-    setColorModalOpen(true);
-  };
-
-  function handleCloseSelectColorModal() {
-    setColorModalOpen(false);
-  };
+  function handleIconSelect(icon: IconProps) {
+    setIconSelected(icon);
+  }
 
   async function handleCategoryRegister(form: FormData) {
     setButtonIsLoading(true);
@@ -158,65 +121,15 @@ export function RegisterCategory({ navigation }: any) {
     };
   };
 
-  async function handleCategorySwipeLeft(id: string) {
-    Alert.alert("Exclusão de categoria", "Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
-  };
-
-  async function handleDeleteCategory(id: string) {
-    try {
-      await api.delete('delete_category', {
-        params: {
-          category_id: id
-        }
-      });
-      fetchCategories();
-      Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
-    } catch (error) {
-      Alert.alert("Exclusão de categoria", `${error}`)
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories();
-    }, [])
-  );
-
-  if (loading) {
-    return <Load />
-  }
-
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <CategoriesContainer>
-        <Title>Categorias cadastradas</Title>
-        <FlatList
-          data={categories}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <CategoryListItem
-              data={item}
-              onSwipeableLeftOpen={() => handleCategorySwipeLeft(item.id)}
-            />
-          )}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: 20,
-            paddingHorizontal: 24
-          }}
-        />
-      </CategoriesContainer>
+      <Form>
+        <Header>
+          <IconAndColor color={colorSelected.hex} icon={iconSelected.name} isActive={iconSelected.id}>
+            <Icon name={iconSelected.name} isActive={iconSelected.id} />
+          </IconAndColor>
 
-      <Divider />
-
-      <ContentScroll>
-        <Form>
-          <Title>Cadastrar nova categoria</Title>
-          <ControlledInput
-            type='primary'
+          <ControlledInputCategoryName
             placeholder='Nome da categoria'
             autoCapitalize='sentences'
             autoCorrect={false}
@@ -225,53 +138,62 @@ export function RegisterCategory({ navigation }: any) {
             control={control}
             error={errors.name}
           />
+        </Header>
 
-          <IconSelectButton
-            title={iconSelected.title}
-            icon={iconSelected.name}
-            onPress={handleOpenSelectIconModal}
+
+        <ColorsList>
+          <Title>Cor da categoria</Title>
+          <FlatList
+            data={colors}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <ColorContainer color={item.hex} isActive={colorSelected.id === item.id}>
+                <Color
+                  color={item.hex}
+                  isActive={colorSelected.id === item.id}
+                  onPress={() => handleColorSelect(item)}
+                />
+              </ColorContainer>
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
           />
+        </ColorsList>
 
-          <ColorSelectButton
-            title={colorSelected.name}
-            color={colorSelected.hex}
-            onPress={handleOpenSelectColorModal}
+        <IconsList>
+          <Title>Ícone da categoria</Title>
+          <FlatList
+            data={icons}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <IconContainer icon={item.name} isActive={iconSelected.id === item.id} color={colorSelected.hex}>
+                <Icon
+                  name={item.name}
+                  isActive={iconSelected.id === item.id}
+                  onPress={() => handleIconSelect(item)}
+                />
+              </IconContainer>
+            )}
+            numColumns={5}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              alignItems: 'center',
+            }}
+            style={{
+              padding: 5
+            }}
           />
+        </IconsList>
 
-          <Footer>
-            <Button
-              type='secondary'
-              title='Cadastrar categoria'
-              isLoading={buttonIsLoading}
-              onPress={handleSubmit(handleCategoryRegister)}
-            />
-          </Footer>
-        </Form>
-      </ContentScroll>
-
-      <ModalView
-        visible={iconModalOpen}
-        closeModal={handleCloseSelectIconModal}
-        title='Selecione o ícone'
-      >
-        <IconSelect
-          icon={iconSelected}
-          setIcon={setIconSelected}
-          closeSelectIcon={handleCloseSelectIconModal}
-        />
-      </ModalView>
-
-      <ModalView
-        visible={colorModalOpen}
-        closeModal={handleCloseSelectColorModal}
-        title='Selecione a cor'
-      >
-        <ColorSelect
-          color={colorSelected}
-          setColor={setColorSelected}
-          closeSelectColor={handleCloseSelectColorModal}
-        />
-      </ModalView>
+        <Footer>
+          <Button
+            type='secondary'
+            title='Cadastrar categoria'
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleCategoryRegister)}
+          />
+        </Footer>
+      </Form>
     </Container>
   );
 }
