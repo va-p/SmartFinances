@@ -84,8 +84,8 @@ export function CategorySelect({
             color={item.color.hex}
             onPress={() => handleCategorySelect(item)}
             isActive={category.id === item.id}
-          >
-            <Icon name={item.icon?.name} />
+          >            
+            <Icon name={item.icon?.name} color={item.color.hex}/>
             <Name>{item.name}</Name>
           </Category>
         )}
