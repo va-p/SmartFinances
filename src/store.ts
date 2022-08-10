@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import cryptocurrencyQuotesBrlReducer from './slices/cryptocurrencyQuotesBrlSlice';
+import quotesBrlReducer from './slices/quotesBrlSlice';
 import userReducer from './slices/userSlice';
 
 const store = configureStore({
   reducer: {
     user: userReducer,
-    cryptocurrencyQuotesBrl: cryptocurrencyQuotesBrlReducer
+    quotesBrl: quotesBrlReducer
   },
 });
 

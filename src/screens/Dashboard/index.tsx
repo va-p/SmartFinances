@@ -28,14 +28,19 @@ import { FilterButton } from '@components/FilterButton';
 import { Load } from '@components/Load';
 
 import {
-  selectBtcQuote, setBtcQuote
-} from '@slices/cryptocurrencyQuotesBrlSlice';
+  setBtcQuoteBrl,
+  selectBtcQuoteBrl,
+  setEurQuoteBrl,
+  selectEurQuoteBrl,
+  setUsdQuoteBrl,
+  selectUsdQuoteBrl
+} from '@slices/quotesBrlSlice';
 
 import {
   selectUserTenantId
 } from '@slices/userSlice';
 
-import apiCryptoQuote from '@api/apiCryptoQuote';
+import apiQuotes from '@api/apiQuotes';
 import api from '@api/api';
 
 type PeriodData = {
@@ -49,7 +54,9 @@ export function Dashboard() {
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
-  const btcQuoteBrl = useSelector(selectBtcQuote);
+  const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
+  const eurQuoteBrl = useSelector(selectEurQuoteBrl);
+  const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
   const [transactionsFormatted, setTransactionsFormatted] = useState<TransactionProps>();
   const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<PeriodData[]>([
     {
@@ -80,27 +87,69 @@ export function Dashboard() {
   const [cashFlowTotal, setCashFlowTotal] = useState('');
   //const [cashFlowTotalBySelectedDate, setCashFlowTotalBySelectedDate] = useState('');
 
-  async function fetchCryptoQuotes() {
-    //await AsyncStorage.removeItem(COLLECTION_TRANSACTIONS);
+  async function fetchBtcQuote() {
     try {
-      const { data } = await apiCryptoQuote.get('quotes/latest', {
+      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
         params: {
-          slug: 'bitcoin',
+          amount: 1,
+          id: '1',
           convert: 'BRL'
         }
       })
       if (!data) {
       }
       else {
-        //console.log(data.data['1'])
-        //setBitcoinQuoteBRL(data.data['1'])
         dispatch(
-          setBtcQuote(data.data['1'])
+          setBtcQuoteBrl(data.data.quote.BRL)
         )
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Cotação de crypto", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
+    }
+  };
+
+  async function fetchEurQuote() {
+    try {
+      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
+        params: {
+          amount: 1,
+          symbol: 'EUR',
+          convert: 'BRL'
+        }
+      })
+      if (!data) {
+      }
+      else {
+        dispatch(
+          setEurQuoteBrl(data.data['0'].quote.BRL)
+        )
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
+    }
+  };
+
+  async function fetchUsdQuote() {
+    try {
+      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
+        params: {
+          amount: 1,
+          symbol: 'USD',
+          convert: 'BRL'
+        }
+      })
+      if (!data) {
+      }
+      else {
+        dispatch(
+          setUsdQuoteBrl(data.data['0'].quote.BRL)
+        )
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
     }
   };
 
@@ -132,15 +181,15 @@ export function Dashboard() {
         .map((transactionPtbr: TransactionProps) => {
           //Insert switch for verify currency and formatted amount for this currency. If currency is BTC, convert value to BTC using converting API.
           switch (transactionPtbr.account.currency) {
-            case 'BRL':
+            case 'BRL - Real Brasileiro':
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
                 });
               break;
-            case 'BTC':
-              amountConvertedBRL = Number(transactionPtbr.amount) * btcQuoteBrl.quote.BRL.price;
+            case 'BTC - Bitcoin':
+              amountConvertedBRL = Number(transactionPtbr.amount) * btcQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
@@ -154,38 +203,42 @@ export function Dashboard() {
                   maximumSignificantDigits: 8
                 });
               break;
-            case 'USD':
-              //amountConvertedBRL = Number(transactionPtbr.amount) * americanDolarQuoteBRL;
-              //amountConvertedBRLFormatted = Number(transactionPtbr.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-              amount = Number(transactionPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'USD'
-                });
-              break;
-            case 'EUR':
-              //amountConvertedBRL = Number(transactionPtbr.amount) * americanDolarQuoteBRL;
-              //amountConvertedBRLFormatted = Number(transactionPtbr.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            case 'EUR - Euro':
+              amountConvertedBRL = Number(transactionPtbr.amount) * eurQuoteBrl.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'EUR'
                 });
               break;
-            default: 'BRL'
+            case 'USD - Dólar Americano':
+              amountConvertedBRL = Number(transactionPtbr.amount) * usdQuoteBrl.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              amount = Number(transactionPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'USD'
+                });
+              break;
+            default: 'BRL - Real Brasileiro'
               break;
           }
 
           switch (transactionPtbr.type) {
             case 'income':
-              if (transactionPtbr.account.currency != 'BRL') {
+              if (transactionPtbr.account.currency != 'BRL - Real Brasileiro') {
                 totalRevenuesBRL += amountConvertedBRL
               } else {
                 totalRevenuesBRL += Number(transactionPtbr.amount)
               }
               break;
             case 'outcome':
-              if (transactionPtbr.account.currency != 'BRL') {
+              if (transactionPtbr.account.currency != 'BRL - Real Brasileiro') {
                 totalExpensesBRL += amountConvertedBRL
               } else {
                 totalExpensesBRL += Number(transactionPtbr.amount)
@@ -259,13 +312,19 @@ export function Dashboard() {
       const transactionsByMonths = data
         .map((transactionByMonth: TransactionProps) => {
           switch (transactionByMonth.account.currency) {
-            case 'BRL':
+            case 'BRL - Real Brasileiro':
               amount = Number(transactionByMonth.amount);
               break;
-            case 'BTC':
-              amount = Number(transactionByMonth.amount) * btcQuoteBrl.quote.BRL.price;
+            case 'BTC - Bitcoin':
+              amount = Number(transactionByMonth.amount) * btcQuoteBrl.price;
               break;
-            default: 'BRL'
+            case 'EUR - Euro':
+              amount = Number(transactionByMonth.amount) * eurQuoteBrl.price;
+              break;
+            case 'USD - Dólar Americano':
+              amount = Number(transactionByMonth.amount) * usdQuoteBrl.price;
+              break;
+            default: 'BRL - Real Brasileiro'
               break;
           }
 
@@ -276,7 +335,7 @@ export function Dashboard() {
 
           return {
             date: dateTransactionByMonth,
-            type: transactionByMonth.type,            
+            type: transactionByMonth.type,
             amount,
             totalRevenuesByPeriod: 0,
             totalExpensesByPeriod: 0
@@ -309,10 +368,10 @@ export function Dashboard() {
 
           switch (current.type) {
             case 'income':
-              acc[current.date].totalRevenuesByPeriod += Number(current.amount)              
+              acc[current.date].totalRevenuesByPeriod += Number(current.amount)
               break;
             case 'outcome':
-              acc[current.date].totalExpensesByPeriod += Number(current.amount)              
+              acc[current.date].totalExpensesByPeriod += Number(current.amount)
               break;
           }
 
@@ -322,7 +381,6 @@ export function Dashboard() {
       const newList: any = Object.values(totalsByMonths);
 
       setTotalAmountsByMonth(newList);
-      console.log(totalAmountsByMonth);
       /**
        * All Totals By Months - End
       **/
@@ -473,7 +531,9 @@ export function Dashboard() {
   };
 
   useFocusEffect(useCallback(() => {
-    fetchCryptoQuotes();
+    fetchBtcQuote();
+    fetchEurQuote();
+    fetchUsdQuote();
     fetchTransactions();
   }, []));
 

@@ -13,17 +13,16 @@ import {
   CategoryListItem,
   CategoryProps
 } from '@components/CategoryListItem';
+import { ModalView } from '@components/ModalView';
+import { Button } from '@components/Form/Button';
+import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
-import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Form/Button';
-
 import { RegisterCategory } from '@screens/RegisterCategory';
 
 import api from '@api/api';
-import { Header } from '@components/Header';
 
 export function Categories() {
   const [loading, setLoading] = useState(false);

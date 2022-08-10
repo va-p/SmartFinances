@@ -3,11 +3,11 @@ import styled from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
-interface ContainerProps {
+type Props = {
   color: string;
 }
 
-export const Container = styled.TouchableOpacity<ContainerProps>`
+export const Container = styled.TouchableOpacity<Props>`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
@@ -26,9 +26,10 @@ export const Details = styled.View`
   flex-direction: row;
 `;
 
-export const Icon = styled(Ionicons)`
+export const Icon = styled(Ionicons) <Props>`
   font-size: ${RFValue(20)}px;
   margin-right: 8px;
+  color: ${({ color }) => color};
 `;
 
 export const Name = styled.Text`

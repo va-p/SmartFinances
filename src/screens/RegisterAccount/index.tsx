@@ -8,6 +8,7 @@ import {
 
 import SelectDropdown from 'react-native-select-dropdown';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -29,8 +30,13 @@ type FormData = {
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
-  name: Yup.string().required("Digite o nome da conta"),
-  initialAmount: Yup.number().required("Digite o saldo inicial da conta").typeError("Digite somente números e pontos."),
+  name: Yup
+    .string()
+    .required("Digite o nome da conta"),
+  initialAmount: Yup
+    .number()
+    .required("Digite o saldo inicial da conta")
+    .typeError("Digite somente números e pontos."),
 });
 /* Validation Form - End */
 
@@ -40,9 +46,24 @@ export function RegisterAccount({ navigation }: any) {
     resolver: yupResolver(schema)
   });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const currencies = ['BRL - Real Brasileiro', 'BTC - Bitcoin'];
+  const currencies = [
+    'BRL - Real Brasileiro',
+    'BTC - Bitcoin',
+    'EUR - Euro',
+    'USD - Dólar Americano'
+  ];
   const [currencySelected, setCurrencySelected] = useState('');
   const [simbol, setSimbol] = useState('');
+
+  function iconSelectDropdown() {
+    return (
+      <Ionicons
+        name='chevron-down-outline'
+        size={20}
+        color={theme.colors.text}
+      />
+    )
+  }
 
   async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);
@@ -53,10 +74,18 @@ export function RegisterAccount({ navigation }: any) {
       }]);
     }
 
-    if (currencySelected === 'BRL') {
-      setSimbol('R$')
-    } else {
-      setSimbol('₿')
+    switch (currencySelected) {
+      case 'BRL - Real Brasileiro':
+        setSimbol('R$')
+        break;
+      case 'BTC - Bitcoin':
+        setSimbol('₿')
+      case 'EUR - Euro':
+        setSimbol('€')
+      case 'USD - Dólar Americano':
+        setSimbol('US$')
+      default: 'BRL - Real Brasileiro'
+        break;
     }
 
     try {
@@ -72,7 +101,6 @@ export function RegisterAccount({ navigation }: any) {
         Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
       };
 
-      fetchAccounts();
       setButtonIsLoading(false);
     } catch (error) {
       Alert.alert("Cadastro de Conta", "Conta já cadastrada. Por favor, digite outro nome para a conta.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
@@ -105,6 +133,8 @@ export function RegisterAccount({ navigation }: any) {
             return item
           }}
           defaultButtonText="Selecione a moeda"
+          renderDropdownIcon={iconSelectDropdown}
+          dropdownIconPosition='right'
           buttonStyle={{
             width: '100%',
             minHeight: 56,

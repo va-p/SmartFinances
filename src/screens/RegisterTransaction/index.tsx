@@ -252,7 +252,7 @@ export function RegisterTransaction({ navigation }: any) {
             <DateTimePicker
               testID="dateTimePicker"
               value={date}
-              mode={modeDatePicker}
+              mode='date'
               is24Hour={true}
               onChange={onChangeDate}
               display='spinner'

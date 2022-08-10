@@ -25,7 +25,7 @@ export function HistoryCard({
   return (
     <Container color={color} {...rest}>
       <Details>
-        <Icon name={icon} />
+        <Icon name={icon} color={color} />
         <Name>{name}</Name>
       </Details>
       <Amount>{amount}</Amount>

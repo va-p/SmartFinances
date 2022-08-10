@@ -18,7 +18,7 @@ export function OptionsMenu({ navigation }: any) {
     navigation.navigate('Categorias');
   }
 
-  function handleClickHelp() {
+  function handleClickHelpCenter() {
     navigation.navigate('Central de Ajuda');
   }
 
@@ -49,7 +49,7 @@ export function OptionsMenu({ navigation }: any) {
         <MoreOptionsButton
           icon='help-buoy-outline'
           title='Central de Ajuda'
-          onPress={() => handleClickHelp()}
+          onPress={() => handleClickHelpCenter()}
         />
         <MoreOptionsButton
           icon='chatbubbles-outline'

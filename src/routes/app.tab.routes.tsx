@@ -22,9 +22,9 @@ export function AppTabRoutes() {
         tabBarActiveTintColor: theme.colors.secondary,
         tabBarInactiveTintColor: theme.colors.text,
         tabBarStyle: {
-          height: 60,
-          paddingTop: 10,
-          paddingBottom: 10
+          height: 50,
+          paddingTop: 5,
+          paddingBottom: 5
         }
       }}
     >

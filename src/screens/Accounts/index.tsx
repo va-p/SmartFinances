@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, Platform, RefreshControl } from 'react-native';
+import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
   AccountsContainer,
@@ -7,10 +7,7 @@ import {
 } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import * as Yup from 'yup';
 
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
 import { ModalView } from '@components/ModalView';
@@ -18,37 +15,18 @@ import { Button } from '@components/Form/Button';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
+import { RegisterAccount } from '@screens/RegisterAccount';
+
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
-import { RegisterAccount } from '@screens/RegisterAccount';
 
-type FormData = {
-  name: string;
-  currency: string;
-  initialAmount: number;
-}
-
-/* Validation Form - Start */
-const schema = Yup.object().shape({
-  name: Yup.string().required("Digite o nome da conta"),
-  initialAmount: Yup.number().required("Digite o saldo inicial da conta").typeError("Digite somente números e pontos."),
-});
-/* Validation Form - End */
-
-export function Accounts({ navigation }: any) {
+export function Accounts() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [registerAccountModalOpen, setRegisterAccountModalOpen] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema)
-  });
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const currencies = ['BRL', 'BTC'];
-  const [currencySelected, setCurrencySelected] = useState('');
-  const [simbol, setSimbol] = useState('');
 
   async function fetchAccounts() {
     setLoading(true);
@@ -127,7 +105,7 @@ export function Accounts({ navigation }: any) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingTop: 20,
-            paddingHorizontal: 24
+            paddingHorizontal: 10
           }}
         />
       </AccountsContainer>
