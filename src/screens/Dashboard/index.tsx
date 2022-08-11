@@ -205,7 +205,11 @@ export function Dashboard() {
               break;
             case 'EUR - Euro':
               amountConvertedBRL = Number(transactionPtbr.amount) * eurQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              amountConvertedBRLFormatted = Number(amountConvertedBRL)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
