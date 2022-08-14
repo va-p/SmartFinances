@@ -27,7 +27,7 @@ export const Category = styled.TouchableOpacity<CategoryProps>`
   border-radius: 10px;
 `;
 
-export const Icon = styled(Ionicons)<CategoryProps>`
+export const Icon = styled(Ionicons) <CategoryProps>`
   font-size: ${RFValue(20)}px;
   margin-right: 16px;
   color: ${({ color }) => color};

@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
   Content,
-  ChartContainer,
   MonthSelect,
   MonthSelectButton,
   MonthSelectIcon,
-  Month
+  Month,
+  PieChartContainer
 } from './styles';
 
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -197,11 +197,6 @@ export function Charts() {
     fetchCategories();
   }, [selectedDate]));
 
-  useEffect(() => {
-    fetchTransactions();
-    fetchCategories();
-  }, []);
-
   if (loading) {
     return <Load />
   }
@@ -220,7 +215,7 @@ export function Charts() {
 
         <MonthSelect>
           <MonthSelectButton onPress={() => handleDateChange('prev')}>
-            <MonthSelectIcon name="chevron-left" />
+            <MonthSelectIcon name="chevron-back" />
           </MonthSelectButton>
 
           <Month>
@@ -228,11 +223,11 @@ export function Charts() {
           </Month>
 
           <MonthSelectButton onPress={() => handleDateChange('next')}>
-            <MonthSelectIcon name="chevron-right" />
+            <MonthSelectIcon name="chevron-forward" />
           </MonthSelectButton>
         </MonthSelect>
 
-        <ChartContainer>
+        <PieChartContainer>
           <VictoryPie
             data={totalExpensesByCategories}
             colorScale={totalExpensesByCategories.map(category => category.color.hex)}
@@ -258,7 +253,7 @@ export function Charts() {
             }}
             labelRadius={50}
           />
-        </ChartContainer>
+        </PieChartContainer>
 
         {
           totalExpensesByCategories.map(item => (

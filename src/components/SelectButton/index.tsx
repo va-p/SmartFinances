@@ -11,7 +11,7 @@ type Props = RectButtonProps & {
   title: string;
 }
 
-export function FilterButton({ title, ...rest }: Props) {
+export function SelectButton({ title, ...rest }: Props) {
   return (
     <Container {...rest}>
       <Title>{title}</Title>

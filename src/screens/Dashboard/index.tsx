@@ -7,7 +7,7 @@ import {
   CashFlowTotal,
   CashFlowDescription,
   Chart,
-  MonthSelect,
+  FiltersContainer,
   FilterButtonGroup,
   Transactions,
   TransactionList,
@@ -21,11 +21,14 @@ import {
 } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { addMonths, subMonths } from 'date-fns';
+import { addMonths, addYears, subMonths, subYears } from 'date-fns';
 
 import { TransactionListItem, TransactionProps } from '@components/TransactionListItem';
-import { FilterButton } from '@components/FilterButton';
+import { ModalViewSelection } from '@components/ModalViewSelection';
+import { SelectButton } from '@components/SelectButton';
 import { Load } from '@components/Load';
+
+import { PeriodProps, PeriodSelect } from '@screens/PeriodSelect';
 
 import {
   setBtcQuoteBrl,
@@ -58,7 +61,14 @@ export function Dashboard() {
   const eurQuoteBrl = useSelector(selectEurQuoteBrl);
   const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
   const [transactionsFormatted, setTransactionsFormatted] = useState<TransactionProps>();
-  const [totalAmountsByMonth, setTotalAmountsByMonth] = useState<PeriodData[]>([
+  const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState<TransactionProps[]>([]);
+  const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
+  const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
+    id: '1',
+    name: 'Mês',
+    period: 'months'
+  });
+  const [totalAmountsGroupedBySelectedPeriod, setTotalAmountsGroupedBySelectedPeriod] = useState<PeriodData[]>([
     {
       date: 0,
       totalRevenuesByPeriod: 0,
@@ -70,22 +80,12 @@ export function Dashboard() {
       totalExpensesByPeriod: 0
     }
   ]);
-  /*const [totalAmountsByYear, setTotalAmountsByYear] = useState<PeriodData[]>([
-    {
-      date: 0,
-      totalRevenuesByPeriod: 0,
-      totalExpensesByPeriod: 0
-    },
-    {
-      date: 1,
-      totalRevenuesByPeriod: 0,
-      totalExpensesByPeriod: 0
-    }
-  ]);*/
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  //const [transactionsFormattedBySelectedDate, setTransactionsFormattedBySelectedDate] = useState<TransactionProps[]>([]);
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState(today);
   const [cashFlowTotal, setCashFlowTotal] = useState('');
-  //const [cashFlowTotalBySelectedDate, setCashFlowTotalBySelectedDate] = useState('');
+  const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
+
+  //console.log(selectedDate);
 
   async function fetchBtcQuote() {
     try {
@@ -170,7 +170,7 @@ export function Dashboard() {
 
       /**
        * All Transactions and Totals Formatted in PT-br - Start
-      **/
+       */
       let amount = 'R$0';
       let amountConvertedBRL = 0;
       let amountConvertedBRLFormatted = 'R$0';
@@ -292,28 +292,30 @@ export function Dashboard() {
           }
         });
 
+      // Set totals in BRL for all period formatted in pt-BR
       let initialTotalAmount = 0;
 
       const totalBRL = initialTotalAmount + totalRevenuesBRL - totalExpensesBRL;
-      const totalFormattedBRL = Number(totalBRL).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      });
+      const totalFormattedPtbr = Number(totalBRL)
+        .toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        });
 
       setTransactionsFormatted(transactionsFormattedPtbr);
-      setCashFlowTotal(totalFormattedBRL);
+      setCashFlowTotal(totalFormattedPtbr);
       /**
-       * All Transactions and Totals Formatted in PT-br - End
-      **/
+       * All Transactions and Totals Formatted in pt-BR - End
+       */
 
 
       /**
-        * All Totals By Months - Start
-      **/
-      let totalRevenuesByPeriod = 0;
-      let totalExpensesByPeriod = 0;
+        * All Totals Grouped By Months - Start
+       */
+      let totalRevenuesBRLByPeriod = 0;
+      let totalExpensesBRLByPeriod = 0;
 
-      const transactionsByMonths = data
+      const transactionsGroupedByMonths = data
         .map((transactionByMonth: TransactionProps) => {
           switch (transactionByMonth.account.currency) {
             case 'BRL - Real Brasileiro':
@@ -346,23 +348,7 @@ export function Dashboard() {
           }
         });
 
-      const transactionsByYears = data
-        .map((transactionByYear: TransactionProps) => {
-          const dateTransactionByYear = Intl.DateTimeFormat('pt-BR', {
-            year: 'numeric'
-          }).format(new Date(transactionByYear.created_at));
-
-          return {
-            date: dateTransactionByYear,
-            type: transactionByYear.type,
-            amount: transactionByYear.amount,
-            totalRevenuesByPeriod: 0,
-            totalExpensesByPeriod: 0
-          }
-        });
-
-
-      const totalsByMonths = transactionsByMonths
+      const totalsByMonths = transactionsGroupedByMonths
         .reduce((acc: any, current: any) => {
           if (!acc[current.date]) {
             acc[current.date] = {
@@ -380,127 +366,233 @@ export function Dashboard() {
           }
 
           return acc
-        }, [])
+        }, []);
 
-      const newList: any = Object.values(totalsByMonths);
+      const totalsGroupedByMonths: any = Object.values(totalsByMonths);
 
-      setTotalAmountsByMonth(newList);
+      // Set totals in BRL for selected period formatted in pt-BR
       /**
-       * All Totals By Months - End
-      **/
-
+       * All Totals Grouped By Months - End
+       */
 
       /**
-       * Transactions By Selected Date Formatted in BRL - Start
-      **/
-      /*const transactionsBySelectedDate = data
-        .filter((transaction: TransactionProps) =>
-          transaction.account?.currency === 'BRL' &&
-          new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
-          new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
+       * All Totals Grouped By Years - Start
+       */
+      const transactionsGroupedByYears = data
+        .map((transactionByYear: TransactionProps) => {
+          switch (transactionByYear.account.currency) {
+            case 'BRL - Real Brasileiro':
+              amount = Number(transactionByYear.amount);
+              break;
+            case 'BTC - Bitcoin':
+              amount = Number(transactionByYear.amount) * btcQuoteBrl.price;
+              break;
+            case 'EUR - Euro':
+              amount = Number(transactionByYear.amount) * eurQuoteBrl.price;
+              break;
+            case 'USD - Dólar Americano':
+              amount = Number(transactionByYear.amount) * usdQuoteBrl.price;
+              break;
+            default: 'BRL - Real Brasileiro'
+              break;
+          }
+
+          const dateTransactionByYear = Intl.DateTimeFormat('pt-BR', {
+            year: 'numeric'
+          }).format(new Date(transactionByYear.created_at));
+
+          return {
+            date: dateTransactionByYear,
+            type: transactionByYear.type,
+            amount: transactionByYear.amount,
+            totalRevenuesByPeriod: 0,
+            totalExpensesByPeriod: 0
+          }
+        });
+
+      const totalsByYears = transactionsGroupedByYears
+        .reduce((acc: any, current: any) => {
+          if (!acc[current.date]) {
+            acc[current.date] = {
+              ...current
+            }
+          }
+
+          switch (current.type) {
+            case 'income':
+              acc[current.date].totalRevenuesByPeriod += Number(current.amount)
+              break;
+            case 'outcome':
+              acc[current.date].totalExpensesByPeriod += Number(current.amount)
+              break;
+          }
+
+          return acc
+        }, []);
+
+      const totalsGroupedByYears: any = Object.values(totalsByYears);
+      /**
+       * All Totals Grouped By Years - End
+       */
+
+      /**
+       * Transactions By Selected Period Formatted in pt-BR - Start
+       */
+      const transactionsBySelectedPeriod = data
+        .filter((transaction: TransactionProps) => {
+          //periodSelected.period === 'modnths' ?
+            new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
+            new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear() //:
+            //new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
+        }
         );
 
-      let totalRevenuesBRLBySelectedDate = 0;
-      let totalExpensesBRLBySelectedDate = 0;
+      let totalRevenuesBRLBySelectedPeriod = 0;
+      let totalExpensesBRLBySelectedPeriod = 0;
 
-      const transactionsBySelectedDateFormattedPtbr = transactionsBySelectedDate
-        .map((transactionPtbrBySelectedDate: TransactionProps) => {
-          switch (transactionPtbrBySelectedDate.account.currency) {
-            case 'BRL':
-              amount = Number(transactionPtbrBySelectedDate.amount)
+      const transactionsBySelectedPeriodFormattedPtbr = transactionsBySelectedPeriod
+        .map((transactionPtbrBySelectedPeriod: TransactionProps) => {
+          switch (transactionPtbrBySelectedPeriod.account.currency) {
+            case 'BRL - Real Brasileiro':
+              amount = Number(transactionPtbrBySelectedPeriod.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
                 });
               break;
-            case 'BTC':
-              amountConvertedBRL = Number(transactionPtbrBySelectedDate.amount) * bitcoinQuoteBRL.quote.BRL.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL).toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              });
-              amount = Number(transactionPtbrBySelectedDate.amount)
+            case 'BTC - Bitcoin':
+              amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * btcQuoteBrl.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              amount = Number(transactionPtbrBySelectedPeriod.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BTC',
                   minimumFractionDigits: 8,
                   maximumSignificantDigits: 8
                 });
-            default: 'BRL'
+              break;
+            case 'EUR - Euro':
+              amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * eurQuoteBrl.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              amount = Number(transactionPtbrBySelectedPeriod.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'EUR'
+                });
+              break;
+            case 'USD - Dólar Americano':
+              amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * usdQuoteBrl.price;
+              amountConvertedBRLFormatted = Number(amountConvertedBRL)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              amount = Number(transactionPtbrBySelectedPeriod.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'USD'
+                });
+              break;
+            default: 'BRL - Real Brasileiro'
               break;
           }
 
-          switch (transactionPtbrBySelectedDate.type) {
+          switch (transactionPtbrBySelectedPeriod.type) {
             case 'income':
-              if (transactionPtbrBySelectedDate.account.currency != 'BRL') {
-                totalRevenuesBRL += amountConvertedBRL
+              if (transactionPtbrBySelectedPeriod.account.currency != 'BRL - Real Brasileiro') {
+                totalRevenuesBRLBySelectedPeriod += amountConvertedBRL
               } else {
-                totalRevenuesBRL += Number(transactionPtbrBySelectedDate.amount);
+                totalRevenuesBRLBySelectedPeriod += Number(transactionPtbrBySelectedPeriod.amount)
               }
               break;
             case 'outcome':
-              if (transactionPtbrBySelectedDate.account.currency != 'BRL') {
-                totalExpensesBRL += amountConvertedBRL
+              if (transactionPtbrBySelectedPeriod.account.currency != 'BRL - Real Brasileiro') {
+                totalExpensesBRLBySelectedPeriod += amountConvertedBRL
               } else {
-                totalExpensesBRL += Number(transactionPtbrBySelectedDate.amount);
+                totalExpensesBRLBySelectedPeriod += Number(transactionPtbrBySelectedPeriod.amount)
               }
               break;
             default: 'income';
               break;
           }
 
-          const dateTransaction = Intl.DateTimeFormat('pt-BR', {
+          const dateTransactionBySelectedPeriod = Intl.DateTimeFormat('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
-          }).format(new Date(transactionBRLBySelectedDate.created_at));
+          }).format(new Date(transactionPtbrBySelectedPeriod.created_at));
 
           return {
-            id: transactionBRLBySelectedDate.id,
-            created_at: dateTransaction,
-            description: transactionBRLBySelectedDate.description,
+            id: transactionPtbrBySelectedPeriod.id,
+            created_at: dateTransactionBySelectedPeriod,
+            description: transactionPtbrBySelectedPeriod.description,
             amount,
             amountConvertedBRLFormatted,
-            type: transactionBRLBySelectedDate.type,
+            type: transactionPtbrBySelectedPeriod.type,
             account: {
-              id: transactionBRLBySelectedDate.account?.id,
-              name: transactionBRLBySelectedDate.account?.name,
-              currency: transactionBRLBySelectedDate.account?.currency,
-              simbol: transactionBRLBySelectedDate.account?.simbol,
-              initial_amount: transactionBRLBySelectedDate.account?.initial_amount,
-              tenant_id: transactionBRLBySelectedDate.account?.tenant_id
+              id: transactionPtbrBySelectedPeriod.account?.id,
+              name: transactionPtbrBySelectedPeriod.account?.name,
+              currency: transactionPtbrBySelectedPeriod.account?.currency,
+              simbol: transactionPtbrBySelectedPeriod.account?.simbol,
+              initial_amount: transactionPtbrBySelectedPeriod.account?.initial_amount,
+              tenant_id: transactionPtbrBySelectedPeriod.account?.tenant_id
             },
             category: {
-              id: transactionBRLBySelectedDate.category?.id,
-              name: transactionBRLBySelectedDate.category?.name,
+              id: transactionPtbrBySelectedPeriod.category?.id,
+              name: transactionPtbrBySelectedPeriod.category?.name,
               icon: {
-                id: transactionBRLBySelectedDate.category?.icon.id,
-                title: transactionBRLBySelectedDate.category?.icon.title,
-                name: transactionBRLBySelectedDate.category?.icon.name,
+                id: transactionPtbrBySelectedPeriod.category?.icon.id,
+                title: transactionPtbrBySelectedPeriod.category?.icon.title,
+                name: transactionPtbrBySelectedPeriod.category?.icon.name,
               },
               color: {
-                id: transactionBRLBySelectedDate.category.color.id,
-                name: transactionBRLBySelectedDate.category.color.name,
-                hex: transactionBRLBySelectedDate.category.color.hex,
+                id: transactionPtbrBySelectedPeriod.category.color.id,
+                name: transactionPtbrBySelectedPeriod.category.color.name,
+                hex: transactionPtbrBySelectedPeriod.category.color.hex,
               },
-              tenant_id: transactionBRLBySelectedDate.category?.tenant_id
+              tenant_id: transactionPtbrBySelectedPeriod.category?.tenant_id
             },
-            tenant_id: transactionBRLBySelectedDate.tenant_id
+            tenant_id: transactionPtbrBySelectedPeriod.tenant_id
           }
         });
 
-      const totalBRLBySelectedDate = totalRevenuesBRLBySelectedDate - totalExpensesBRLBySelectedDate;
-      const totalBySelectedDateFormattedBRL = Number(totalBRLBySelectedDate).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
+      const totalBRLBySelectedPeriod = totalRevenuesBRLBySelectedPeriod - totalExpensesBRLBySelectedPeriod;
+      const totalBySelectedPeriodFormattedBRL = Number(totalBRLBySelectedPeriod)
+        .toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        })
 
-      setTransactionsFormattedBySelectedDate(transactionsBySelectedDateFormattedBrl);
-      setCashFlowTotalBySelectedDate(totalBySelectedDateFormattedBRL);*/
+      console.log(transactionsBySelectedPeriod);
+      setTransactionsFormattedBySelectedPeriod(transactionsBySelectedPeriodFormattedPtbr);
+      setCashFlowTotalBySelectedPeriod(totalBySelectedPeriodFormattedBRL);
       /**
-       * Transactions By Selected Date Formatted in BRL - End
-      **/
+       * Transactions By Selected Period Formatted in pt-BR - End
+       */
 
+      /**
+       * Set Totals Grouped by Selected Period - Start
+       */
+      switch (periodSelected.period) {
+        case 'months':
+          setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
+          break;
+        case 'years':
+          setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByYears);
+        default:
+          break;
+      }
+      /**
+       * Set Totals Grouped by Selected Period - End
+       */
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -508,12 +600,34 @@ export function Dashboard() {
     }
   };
 
+  function handleOpenPeriodSelectedModal() {
+    setPeriodSelectedModalOpen(true);
+  };
+
+  function handleClosePeriodSelectedModal() {
+    setPeriodSelectedModalOpen(false);
+  };
+
   function handleDateChange(action: 'next' | 'prev'): void {
-    if (action === 'next') {
-      setSelectedDate(addMonths(selectedDate, 1));
-    } else {
-      setSelectedDate(subMonths(selectedDate, 1));
+    switch (periodSelected.period) {
+      case 'months':
+        if (action === 'next') {
+          setSelectedDate(addMonths(selectedDate, 1));
+        } else {
+          setSelectedDate(subMonths(selectedDate, 1));
+        }
+        break;
+      case 'years':
+        if (action === 'next') {
+          setSelectedDate(addYears(selectedDate, 1));
+        } else {
+          setSelectedDate(subYears(selectedDate, 1));
+        }
+        break;
+      default:
+        break;
     }
+
   };
 
   async function handleTransactionSwipeLeft(id: string) {
@@ -539,7 +653,7 @@ export function Dashboard() {
     fetchEurQuote();
     fetchUsdQuote();
     fetchTransactions();
-  }, []));
+  }, [periodSelected]));
 
   if (loading) {
     return <Load />
@@ -555,13 +669,14 @@ export function Dashboard() {
       </Header>
 
       <Chart>
-        <MonthSelect>
+        <FiltersContainer>
           <FilterButtonGroup>
-            <FilterButton
-              title='Por meses'
+            <SelectButton
+              title={`Por ${periodSelected.name}`}
+              onPress={handleOpenPeriodSelectedModal}
             />
           </FilterButtonGroup>
-        </MonthSelect>
+        </FiltersContainer>
 
         <VictoryChart
           theme={VictoryTheme.material}
@@ -573,7 +688,7 @@ export function Dashboard() {
             offset={12}
           >
             <VictoryBar
-              data={totalAmountsByMonth}
+              data={totalAmountsGroupedBySelectedPeriod}
               x='date'
               y='totalRevenuesByPeriod'
               sortKey="x"
@@ -593,7 +708,7 @@ export function Dashboard() {
               }}
             />
             <VictoryBar
-              data={totalAmountsByMonth}
+              data={totalAmountsGroupedBySelectedPeriod}
               x='date'
               y='totalExpensesByPeriod'
               sortOrder="descending"
@@ -606,7 +721,7 @@ export function Dashboard() {
               }}
               cornerRadius={{ top: 2, bottom: 2 }}
               animate={{
-                duration: 2000,
+                duration: 2500,
                 onLoad: { duration: 2500 },
                 easing: 'backOut'
               }}
@@ -625,11 +740,23 @@ export function Dashboard() {
               onSwipeableLeftOpen={() => handleTransactionSwipeLeft(item.id)}
             />
           )}
+          initialNumToRender={50}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }
         />
       </Transactions>
-    </Container>
+      <ModalViewSelection
+        visible={periodSelectedModalOpen}
+        closeModal={handleClosePeriodSelectedModal}
+        title='Selecione o período'
+      >
+        <PeriodSelect
+          period={periodSelected}
+          setPeriod={setPeriodSelected}
+          closeSelectPeriod={handleClosePeriodSelectedModal}
+        />
+      </ModalViewSelection>
+    </Container >
   )
 }

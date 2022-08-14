@@ -43,18 +43,20 @@ export const Chart = styled.View`
   padding: 10px;
 `;
 
-export const MonthSelect = styled.View`
+export const FiltersContainer = styled.View`
   width: 100%;
-  height: ${RFPercentage(2)}px;
+  height: ${RFPercentage(5)}px;
   flex-direction: row;
   align-items: center;
-  padding-top: 20px;
-  margin-bottom: -20px;
+  padding-bottom: 10px;
+  margin-bottom: -50px;
   justify-content: center;
 `;
 
 export const FilterButtonGroup = styled.View`
   width: ${RFPercentage(12)}px;
+  flex-direction: row;
+  justify-content: center;
 `;
 
 export const Transactions = styled.View`
