@@ -5,6 +5,7 @@ import {
   Form,
   Fields,
   TransactionsTypes,
+  Footer
 } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -72,7 +73,7 @@ export function RegisterTransaction({ navigation }: any) {
   const showTimepicker = () => {
     showMode('time');
   };
-  
+
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
@@ -203,7 +204,7 @@ export function RegisterTransaction({ navigation }: any) {
 
   return (
     <Container>
-      <Header type='secondary'title='Cadastro de transação' />
+      <Header type='secondary' title='Cadastro de transação' />
 
       <Form>
         <Fields>
@@ -256,14 +257,14 @@ export function RegisterTransaction({ navigation }: any) {
               is24Hour={true}
               onChange={onChangeDate}
               display='spinner'
-              dateFormat='day month year'              
+              dateFormat='day month year'
             />
           )}
-          
-          <AccountSelectButton 
+
+          <AccountSelectButton
             title={accountSelected.name}
             onPress={handleOpenSelectAccountModal}
-          />          
+          />
 
           <CategorySelectButton
             title={categorySelected.name}
@@ -271,21 +272,21 @@ export function RegisterTransaction({ navigation }: any) {
             onPress={handleOpenSelectCategoryModal}
           />
         </Fields>
-
+      </Form>
+      <Footer>
         <Button
           type='secondary'
           title="Cadastrar transação"
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleTransactionRegister)}
         />
-      </Form>
-
+      </Footer>
       <ModalView
         visible={accountModalOpen}
         closeModal={handleCloseSelectAccountModal}
         title='Contas'
       >
-        <AccountSelect 
+        <AccountSelect
           account={accountSelected}
           setAccount={setAccountSelected}
           closeSelectAccount={handleCloseSelectAccountModal}

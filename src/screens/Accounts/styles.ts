@@ -12,5 +12,5 @@ export const AccountsContainer = styled.View`
 `;
 
 export const Footer = styled.View`
-  padding: 0 10px;
+  padding: 0 20px;
 `;

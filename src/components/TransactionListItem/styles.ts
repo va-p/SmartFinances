@@ -1,5 +1,5 @@
-import styled from 'styled-components/native';
 import { Animated } from 'react-native';
+import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
@@ -18,14 +18,13 @@ export const Content = styled(RectButton)`
   min-height: 70px;
   max-height: 70px;
   flex-direction: row;
+  align-items: center;
   padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 10px;
 `;
 
 export const IconContainer = styled.View`
   width: 10%;
-  padding-right: 10px;
+  height: 125%;
 `;
 
 export const Icon = styled(Ionicons)<TransactionProps>`
@@ -36,11 +35,11 @@ export const Icon = styled(Ionicons)<TransactionProps>`
 
 export const DetailsContainer = styled.View`
   width: 90%;
+
 `;
 
 export const Header = styled.View`
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
 `;
 
@@ -66,7 +65,6 @@ export const Footer = styled.View`
 
 export const Details = styled.View`
   flex-direction: row;
-  align-items: center;
 `;
 
 export const Category = styled.Text`
@@ -99,9 +97,7 @@ export const DeleteButton = styled(Animated.View)`
   align-items: center;
   justify-content: center;
   padding-left: 70%;
-  margin-bottom: 5px;
   background-color: ${({ theme }) => theme.colors.attention};
-  border-radius: 10px;
 `;
 
 export const DeleteButtonIcon = styled(Ionicons)`

@@ -9,7 +9,7 @@ export const Form = styled.View`
   flex: 1;
   width: 100%;
   justify-content: space-between;
-  padding: 10px;
+  padding: 10px 20px;
 `;
 
 export const Fields = styled.View``;
@@ -28,4 +28,9 @@ export const GroupButtonDateRow = styled.View`
 
 export const GroupButtonDate = styled.View`
   width: 48%;
+`;
+
+export const Footer = styled.View`
+  width: 100%;
+  padding: 20px;
 `;

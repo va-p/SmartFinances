@@ -54,6 +54,5 @@ export const Icon = styled(Ionicons)`
 `;
 
 export const Footer = styled.View`
-  width: 100%;
-  padding: 24px;
+  padding: 20px;
 `;

@@ -91,4 +91,6 @@ export const Icon = styled(Ionicons) <Props>`
   };
 `;
 
-export const Footer = styled.View``;
+export const Footer = styled.View`
+  padding: 0 20px;
+`;
