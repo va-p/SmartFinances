@@ -25,10 +25,20 @@ import { ModalView } from '@components/ModalView';
 import { Button } from '@components/Form/Button';
 import { Header } from '@components/Header';
 
+import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { AccountSelect } from '@screens/AccountSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
+
+import {
+  selectBrlQuoteBtc,
+  selectBrlQuoteEur,
+  selectBrlQuoteUsd,
+  selectBtcQuoteBrl,
+  selectEurQuoteBrl,
+  selectUsdQuoteBrl
+} from '@slices/quotesBrlSlice';
 
 import { COLLECTION_TRANSACTIONS } from '@configs/database';
 
@@ -54,11 +64,17 @@ const schema = Yup.object().shape({
 
 export function RegisterTransaction({ navigation }: any) {
   const tenantId = useSelector(selectUserTenantId);
+  const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
+  const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
+  const brlQuoteEur = useSelector(selectBrlQuoteEur);
+  const eurQuoteBrl = useSelector(selectEurQuoteBrl);
+  const brlQuoteUsd = useSelector(selectBrlQuoteUsd);
+  const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
   const [transactionType, setTransactionType] = useState('');
   const [date, setDate] = useState(new Date());
   const [modeDatePicker, setModeDatePicker] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const onChangeDate = (event, selectedDate) => {
+  const onChangeDate = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
     setShowDatePicker(false);
     setDate(currentDate);
@@ -78,6 +94,11 @@ export function RegisterTransaction({ navigation }: any) {
   const [accountSelected, setAccountSelected] = useState({
     id: '',
     name: 'Selecione a conta'
+  } as AccountProps);
+  const [accountDestinationModalOpen, setAccountDestinationModalOpen] = useState(false);
+  const [accountDestinationSelected, setAccountDestinationSelected] = useState({
+    id: '',
+    name: 'Selecione a conta de destino'
   } as AccountProps);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [categorySelected, setCategorySelected] = useState({
@@ -104,6 +125,14 @@ export function RegisterTransaction({ navigation }: any) {
     setAccountModalOpen(false);
   }
 
+  function handleOpenSelectAccountDestinationModal() {
+    setAccountDestinationModalOpen(true);
+  }
+
+  function handleCloseSelectAccountDestinationModal() {
+    setAccountDestinationModalOpen(false);
+  }
+
   function handleOpenSelectCategoryModal() {
     setCategoryModalOpen(true);
   };
@@ -115,92 +144,236 @@ export function RegisterTransaction({ navigation }: any) {
   async function handleTransactionRegister(form: FormData) {
     setButtonIsLoading(true);
 
-    if (!transactionType)
+    if (!transactionType) {
       return Alert.alert("Cadastro de Transação", "Selecione o tipo da transação", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
+    };
 
-    if (accountSelected === undefined)
-      return Alert.alert("Cadastro de Transação", "Selecione a conta da transação", [{
+    if (accountSelected.id === '') {
+      return Alert.alert("Cadastro de Transação", "Selecione a conta de origem da transação", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
+    };
 
-    if (categorySelected.id === '')
+    if (transactionType === 'transfer') {
+      if (accountDestinationSelected.id === '')
+        return Alert.alert("Cadastro de Transação", "Selecione a conta de destino da transação", [{
+          text: "OK", onPress: () => setButtonIsLoading(false)
+        }]);
+    };
+
+    if (categorySelected.id === '') {
       return Alert.alert("Cadastro de Transação", "Selecione a categoria da transação", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
+    };
 
-    try {
-      const accountDataResponse = await api.get('single_account', {
-        params: {
-          tenant_id: tenantId,
-          name: accountSelected.name
+    if (transactionType != 'transfer') {
+      try {
+        const accountDataResponse = await api.get('single_account', {
+          params: {
+            tenant_id: tenantId,
+            name: accountSelected.name
+          }
+        });
+        if (accountDataResponse.status !== 200) {
+          Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
         }
-      });
-      if (accountDataResponse.status !== 200) {
-        Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
-      }
 
-      const newTransaction = {
-        created_at: date,
-        description: form.description,
-        amount: form.amount,
-        type: transactionType,
-        account_id: accountDataResponse.data.id,
-        category_id: categorySelected.id,
-        tenant_id: tenantId
-      }
+        const newTransaction = {
+          created_at: date,
+          description: form.description,
+          amount: form.amount,
+          type: transactionType,
+          account_id: accountDataResponse.data.id,
+          category_id: categorySelected.id,
+          tenant_id: tenantId
+        }
 
-      const { status } = await api.post('transaction', newTransaction);
-      if (status === 200) {
-        Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
+        const { status } = await api.post('transaction', newTransaction);
+        if (status === 200) {
+          Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
 
-        const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-        const currentData = data ? JSON.parse(data) : [];
+          const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
+          const currentData = data ? JSON.parse(data) : [];
 
-        const dataFormatted = [
-          ...currentData,
-          newTransaction
-        ];
-        await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
+          const dataFormatted = [
+            ...currentData,
+            newTransaction
+          ];
+          await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
 
-        reset();
-        setTransactionType('')
-        setAccountSelected({
-          created_at: '',
-          id: '',
-          name: 'Selecione a conta',
-          currency: '',
-          simbol: '',
-          initial_amount: 0,
-          tenant_id: ''
-        });
-        setCategorySelected({
-          id: '',
-          created_at: '',
-          name: 'Selecione a categoria',
-          icon: {
+          reset();
+          setTransactionType('')
+          setAccountSelected({
+            created_at: '',
             id: '',
-            title: '',
-            name: '',
-          },
-          color: {
+            name: 'Selecione a conta',
+            currency: '',
+            simbol: '',
+            initial_amount: 0,
+            tenant_id: ''
+          });
+          setCategorySelected({
             id: '',
-            name: '',
-            hex: '',
-          },
-          tenant_id: ''
-        });
-      };
+            created_at: '',
+            name: 'Selecione a categoria',
+            icon: {
+              id: '',
+              title: '',
+              name: '',
+            },
+            color: {
+              id: '',
+              name: '',
+              hex: '',
+            },
+            tenant_id: ''
+          });
+        };
 
-      setButtonIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+        setButtonIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
 
-      setButtonIsLoading(false);
+        setButtonIsLoading(false);
+      }
     }
-  }
+    else {
+      let amountConverted = 0;
+
+      try {
+        if (accountSelected.currency != accountDestinationSelected.currency) {
+          //Converted BRL
+          if (accountSelected.currency === 'BTC - Bitcoin' &&
+            accountDestinationSelected.currency === 'BRL - Real Brasileiro') {
+            amountConverted = Number(form.amount) * btcQuoteBrl.price
+          };
+          if (accountSelected.currency === 'EUR - Euro' &&
+            accountDestinationSelected.currency === 'BRL - Real Brasileiro') {
+            amountConverted = Number(form.amount) * eurQuoteBrl.price
+          };
+          if (accountSelected.currency === 'USD - Dólar Americano' &&
+            accountDestinationSelected.currency === 'BRL - Real Brasileiro') {
+            amountConverted = Number(form.amount) * usdQuoteBrl.price
+          };
+          if (accountSelected.currency === 'BRL - Real Brasileiro' &&
+            accountDestinationSelected.currency === 'BTC - Bitcoin') {
+            amountConverted = Number(form.amount) * brlQuoteBtc.price
+          };
+          if (accountSelected.currency === 'BRL - Real Brasileiro' &&
+            accountDestinationSelected.currency === 'EUR - Euro') {
+            amountConverted = Number(form.amount) * brlQuoteEur.price
+          };
+          if (accountSelected.currency === 'BRL - Real Brasileiro' &&
+            accountDestinationSelected.currency === 'USD - Dólar Americano') {
+            amountConverted = Number(form.amount) * brlQuoteUsd.price
+          };
+        } else {
+          amountConverted = Number(form.amount)
+        };
+
+        const accountDataResponse = await api.get('single_account', {
+          params: {
+            tenant_id: tenantId,
+            name: accountSelected.name
+          }
+        });
+        const accountDestinationDataResponse = await api.get('single_account', {
+          params: {
+            tenant_id: tenantId,
+            name: accountDestinationSelected.name
+          }
+        });
+        if (accountDataResponse.status && accountDestinationDataResponse.status !== 200) {
+          Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
+        }
+
+        const transferOut = {
+          created_at: date,
+          description: form.description,
+          amount: form.amount,
+          type: transactionType,
+          account_id: accountDataResponse.data.id,
+          category_id: categorySelected.id,
+          tenant_id: tenantId
+        }
+
+        const transferIn = {
+          created_at: date,
+          description: form.description,
+          amount: amountConverted,
+          type: transactionType,
+          account_id: accountDestinationDataResponse.data.id,
+          category_id: categorySelected.id,
+          tenant_id: tenantId
+        }
+
+        const transferOutDataResponse = await api.post('transaction', transferOut);
+        const transferInDataResponse = await api.post('transaction', transferIn);
+
+        if (transferInDataResponse.response === 200) {
+          Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
+
+          const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
+          const currentData = data ? JSON.parse(data) : [];
+
+          const dataFormatted = [
+            ...currentData,
+            transferOut,
+            transferIn
+          ];
+          await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
+
+          reset();
+          setTransactionType('')
+          setAccountSelected({
+            created_at: '',
+            id: '',
+            name: 'Selecione a conta',
+            currency: '',
+            simbol: '',
+            initial_amount: 0,
+            tenant_id: ''
+          });
+          setAccountDestinationSelected({
+            created_at: '',
+            id: '',
+            name: 'Selecione a conta de destino',
+            currency: '',
+            simbol: '',
+            initial_amount: 0,
+            tenant_id: ''
+          });
+          setCategorySelected({
+            id: '',
+            created_at: '',
+            name: 'Selecione a categoria',
+            icon: {
+              id: '',
+              title: '',
+              name: '',
+            },
+            color: {
+              id: '',
+              name: '',
+              hex: '',
+            },
+            tenant_id: ''
+          });
+        };
+
+        setButtonIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+
+        setButtonIsLoading(false);
+      }
+    }
+  };
 
   return (
     <Container>
@@ -237,6 +410,12 @@ export function RegisterTransaction({ navigation }: any) {
               isActive={transactionType === 'income'}
             />
             <TransactionTypeButton
+              type='swap'
+              title='Transf'
+              onPress={() => handleTransactionsTypeSelect('transfer')}
+              isActive={transactionType === 'transfer'}
+            />
+            <TransactionTypeButton
               type='down'
               title='Saída'
               onPress={() => handleTransactionsTypeSelect('outcome')}
@@ -266,6 +445,15 @@ export function RegisterTransaction({ navigation }: any) {
             onPress={handleOpenSelectAccountModal}
           />
 
+          {
+            transactionType === 'transfer' ?
+              <AccountSelectButton
+                title={accountDestinationSelected.name}
+                onPress={handleOpenSelectAccountDestinationModal}
+              /> :
+              <></>
+          }
+
           <CategorySelectButton
             title={categorySelected.name}
             icon={categorySelected.icon?.name}
@@ -273,6 +461,7 @@ export function RegisterTransaction({ navigation }: any) {
           />
         </Fields>
       </Form>
+
       <Footer>
         <Button
           type='secondary'
@@ -281,6 +470,7 @@ export function RegisterTransaction({ navigation }: any) {
           onPress={handleSubmit(handleTransactionRegister)}
         />
       </Footer>
+
       <ModalView
         visible={accountModalOpen}
         closeModal={handleCloseSelectAccountModal}
@@ -290,6 +480,18 @@ export function RegisterTransaction({ navigation }: any) {
           account={accountSelected}
           setAccount={setAccountSelected}
           closeSelectAccount={handleCloseSelectAccountModal}
+        />
+      </ModalView>
+
+      <ModalView
+        visible={accountDestinationModalOpen}
+        closeModal={handleCloseSelectAccountDestinationModal}
+        title='Contas'
+      >
+        <AccountDestinationSelect
+          accountDestination={accountDestinationSelected}
+          setAccountDestination={setAccountDestinationSelected}
+          closeSelectAccountDestination={handleCloseSelectAccountDestinationModal}
         />
       </ModalView>
 

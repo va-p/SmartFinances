@@ -2,7 +2,7 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "platforms": [
@@ -16,12 +16,12 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 16,
+      "versionCode": 17,
       "permissions": []
     },
     "ios": {
       "bundleIdentifier": "com.digitaltech.smartfinances",
-      "buildNumber": "1.2.0",
+      "buildNumber": "1.4.0",
       "supportsTablet": true
     }
   }

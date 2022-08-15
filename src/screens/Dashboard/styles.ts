@@ -3,6 +3,8 @@ import styled from 'styled-components/native';
 
 import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { BorderlessButton } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
 
 export const Container = styled.View`
   flex: 1;
@@ -17,14 +19,9 @@ export const Header = styled.View`
   margin-top: ${getStatusBarHeight()}px;
 `;
 
-export const CashFlowGroup = styled.View`
-  align-items: center;
-`;
-
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
-  
   color: ${({ theme }) => theme.colors.text_dark};
 `;
 
@@ -36,31 +33,23 @@ export const CashFlowDescription = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const Chart = styled.View`
-  width: 100%;
-  height: ${RFPercentage(25)}px;
-  justify-content: center;
-  padding: 10px;
-`;
-
 export const FiltersContainer = styled.View`
-  width: 100%;
-  height: ${RFPercentage(5)}px;
-  flex-direction: row;
   align-items: center;
-  padding-bottom: 10px;
-  margin-bottom: -50px;
-  justify-content: center;
 `;
 
 export const FilterButtonGroup = styled.View`
   width: ${RFPercentage(12)}px;
-  flex-direction: row;
+`;
+
+export const ChartContainer = styled.View`
+  width: 100%;
+  height: ${RFPercentage(25)}px;
   justify-content: center;
+  padding-bottom: 5px;
 `;
 
 export const Transactions = styled.View`
-  flex: 1%;
+  flex: 1;
 `;
 
 export const TransactionList = styled(
@@ -71,3 +60,12 @@ export const TransactionList = styled(
       paddingBottom: getBottomSpace()
     }
   })``;
+
+
+  export const MonthSelect = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+`;

@@ -3,14 +3,13 @@ import { Alert, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
-  CashFlowGroup,
   CashFlowTotal,
   CashFlowDescription,
-  Chart,
+  ChartContainer,
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
-  TransactionList,
+  TransactionList
 } from './styles'
 
 import {
@@ -21,7 +20,8 @@ import {
 } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { addMonths, addYears, subMonths, subYears } from 'date-fns';
+import { addMonths, addYears, subMonths, subYears, format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 import { TransactionListItem, TransactionProps } from '@components/TransactionListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
@@ -65,7 +65,7 @@ export function Dashboard() {
   const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
   const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
-    name: 'Mês',
+    name: 'Meses',
     period: 'months'
   });
   const [totalAmountsGroupedBySelectedPeriod, setTotalAmountsGroupedBySelectedPeriod] = useState<PeriodData[]>([
@@ -80,8 +80,7 @@ export function Dashboard() {
       totalExpensesByPeriod: 0
     }
   ]);
-  const today = new Date();
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [cashFlowTotal, setCashFlowTotal] = useState('');
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
 
@@ -440,12 +439,11 @@ export function Dashboard() {
        */
       const transactionsBySelectedPeriod = data
         .filter((transaction: TransactionProps) => {
-          //periodSelected.period === 'modnths' ?
-            new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
-            new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear() //:
-            //new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
-        }
-        );
+
+
+          new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
+        });
+      console.log(transactionsBySelectedPeriod);
 
       let totalRevenuesBRLBySelectedPeriod = 0;
       let totalExpensesBRLBySelectedPeriod = 0;
@@ -571,7 +569,6 @@ export function Dashboard() {
           currency: 'BRL'
         })
 
-      console.log(transactionsBySelectedPeriod);
       setTransactionsFormattedBySelectedPeriod(transactionsBySelectedPeriodFormattedPtbr);
       setCashFlowTotalBySelectedPeriod(totalBySelectedPeriodFormattedBRL);
       /**
@@ -653,7 +650,7 @@ export function Dashboard() {
     fetchEurQuote();
     fetchUsdQuote();
     fetchTransactions();
-  }, [periodSelected]));
+  }, [periodSelected.period]));
 
   if (loading) {
     return <Load />
@@ -662,22 +659,21 @@ export function Dashboard() {
   return (
     <Container>
       <Header>
-        <CashFlowGroup>
-          <CashFlowTotal>{cashFlowTotal}</CashFlowTotal>
-          <CashFlowDescription> Fluxo de Caixa</CashFlowDescription>
-        </CashFlowGroup>
+        <CashFlowTotal>{cashFlowTotal}</CashFlowTotal>
+        <CashFlowDescription> Fluxo de Caixa</CashFlowDescription>
       </Header>
 
-      <Chart>
-        <FiltersContainer>
-          <FilterButtonGroup>
-            <SelectButton
-              title={`Por ${periodSelected.name}`}
-              onPress={handleOpenPeriodSelectedModal}
-            />
-          </FilterButtonGroup>
-        </FiltersContainer>
+      <FiltersContainer>
+        <FilterButtonGroup>
+          <SelectButton
+            title={`Por ${periodSelected.name}`}
+            onPress={handleOpenPeriodSelectedModal}
+          />
+        </FilterButtonGroup>
+      </FiltersContainer>
 
+
+      <ChartContainer>
         <VictoryChart
           theme={VictoryTheme.material}
           width={400} height={220}
@@ -728,7 +724,7 @@ export function Dashboard() {
             />
           </VictoryGroup>
         </VictoryChart>
-      </Chart>
+      </ChartContainer>
 
       <Transactions>
         <TransactionList

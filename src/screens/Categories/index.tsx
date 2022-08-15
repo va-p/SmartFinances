@@ -104,6 +104,7 @@ export function Categories() {
               onSwipeableLeftOpen={() => handleCategorySwipeLeft(item.id)}
             />
           )}
+          initialNumToRender={50}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
           }

@@ -1,5 +1,5 @@
 import { Animated } from 'react-native';
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
@@ -24,10 +24,10 @@ export const Content = styled(RectButton)`
 
 export const IconContainer = styled.View`
   width: 10%;
-  height: 125%;
+  height: 110%;
 `;
 
-export const Icon = styled(Ionicons)<TransactionProps>`
+export const Icon = styled(Ionicons) <TransactionProps>`
   font-size: ${RFValue(20)}px;
   color: ${({ theme, type }) =>
     type === 'income' ? theme.colors.success : theme.colors.secondary};
@@ -46,15 +46,29 @@ export const Header = styled.View`
 export const Description = styled.Text<TransactionProps>`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(12)}px;
-  color: ${({ theme, type }) =>
-    type === 'income' ? theme.colors.success : theme.colors.text_dark};
+  ${({ type }) => type === 'income' && css`
+    color: ${({ theme }) => theme.colors.success};
+  `};
+  ${({ type }) => type === 'outcome' && css`
+    color: ${({ theme }) => theme.colors.text_dark};
+  `};
+  ${({ type }) => type === 'transfer' && css`
+    color: ${({ theme }) => theme.colors.text};
+  `};
 `;
 
 export const Amount = styled.Text<TransactionProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
-  color: ${({ theme, type }) =>
-    type === 'income' ? theme.colors.success : theme.colors.text_dark};
+  ${({ type }) => type === 'income' && css`
+    color: ${({ theme }) => theme.colors.success};
+  `};
+  ${({ type }) => type === 'outcome' && css`
+    color: ${({ theme }) => theme.colors.text_dark};
+  `};
+  ${({ type }) => type === 'transfer' && css`
+    color: ${({ theme }) => theme.colors.text};
+  `};
 `;
 
 export const Footer = styled.View`

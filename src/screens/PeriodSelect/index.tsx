@@ -27,12 +27,12 @@ export function PeriodSelect({
   const periods = [
     {
       id: '1',
-      name: 'Mês',
+      name: 'Meses',
       period: 'months'
     },
     {
       id: '2',
-      name: 'Ano',
+      name: 'Anos',
       period: 'years'
     }
   ];

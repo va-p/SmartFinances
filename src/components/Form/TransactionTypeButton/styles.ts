@@ -1,21 +1,22 @@
 import styled, { css } from 'styled-components/native';
+
 import { RectButton } from 'react-native-gesture-handler';
-import { Feather } from '@expo/vector-icons';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 interface IconProps {
-  type: 'up' | 'down';
+  type: 'up' | 'down' | 'swap';
 }
 
 interface ContainerProps {
   isActive: boolean;
-  type: 'up' | 'down';
+  type: 'up' | 'down' | 'swap';
 }
 
-export const Container  = styled.View<ContainerProps>`
-  width: 48%;
-
-  border-width: ${({ isActive, type }) => isActive ? 0 : 1.5}px;
+export const Container = styled.View<ContainerProps>`
+  width: 32%;
+  border-width: ${({ isActive }) => isActive ? 0 : 1.5}px;
   border-style: solid;
   border-color: ${({ theme }) => theme.colors.text};
   border-radius: 5px;
@@ -28,24 +29,30 @@ export const Container  = styled.View<ContainerProps>`
     background-color: ${({ theme }) => theme.colors.attention_light};
   `};
 
-  
+  ${({ isActive, type }) => isActive && type === 'swap' && css`
+    background-color: ${({ theme }) => theme.colors.text};
+  `};
 `;
 
 export const Button = styled(RectButton)`
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-
-    padding: 16px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
 `;
 
-export const Icon = styled(Feather)<IconProps>`
+export const Icon = styled(Ionicons) <IconProps>`
   font-size: ${RFValue(24)}px;
-  margin-right: 12px;
-
-  color: ${({ theme, type }) =>
-    type === 'up' ? theme.colors.success : theme.colors.attention
-  }
+  margin-right: 5px;
+  ${({ type }) => type === 'up' && css`
+    color: ${({ theme }) => theme.colors.success};
+  `};
+  ${({ type }) => type === 'down' && css`
+    color: ${({ theme }) => theme.colors.attention};
+  `};
+  ${({ type }) => type === 'swap' && css`
+    color: ${({ theme }) => theme.colors.text_dark};
+  `};
 `;
 
 export const Title = styled.Text`

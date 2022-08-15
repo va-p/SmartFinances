@@ -46,6 +46,15 @@ export function RegisterAccount({ navigation }: any) {
     resolver: yupResolver(schema)
   });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const accountTypes = [
+    'Carteira',
+    'Carteira de Criptomoedas',
+    'Conta Corrente',
+    'Investimentos',
+    'Poupança',
+    'Outro'
+  ];
+  const [typeSelected, setTypeSelected] = useState('');
   const currencies = [
     'BRL - Real Brasileiro',
     'BTC - Bitcoin',
@@ -68,6 +77,12 @@ export function RegisterAccount({ navigation }: any) {
   async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);
 
+    if (!typeSelected) {
+      return Alert.alert("Cadastro de Conta", "Selecione o tipo da conta", [{
+        text: "OK", onPress: () => setButtonIsLoading(false)
+      }]);
+    }
+
     if (!currencySelected) {
       return Alert.alert("Cadastro de Conta", "Selecione a moeda da conta", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
@@ -80,10 +95,13 @@ export function RegisterAccount({ navigation }: any) {
         break;
       case 'BTC - Bitcoin':
         setSimbol('₿')
+        break;
       case 'EUR - Euro':
         setSimbol('€')
+        break;
       case 'USD - Dólar Americano':
         setSimbol('US$')
+        break;
       default: 'BRL - Real Brasileiro'
         break;
     }
@@ -91,6 +109,7 @@ export function RegisterAccount({ navigation }: any) {
     try {
       const newAccount = {
         name: form.name,
+        type: typeSelected,
         currency: currencySelected,
         simbol: simbol,
         initial_amount: form.initialAmount,
@@ -119,6 +138,38 @@ export function RegisterAccount({ navigation }: any) {
           name='name'
           control={control}
           error={errors.name}
+        />
+
+        <SelectDropdown
+          data={accountTypes}
+          onSelect={(selectedItem) => {
+            setTypeSelected(selectedItem);
+          }}
+          buttonTextAfterSelection={(selectedItem) => {
+            return selectedItem
+          }}
+          rowTextForSelection={(item) => {
+            return item
+          }}
+          defaultButtonText="Selecione o tipo da conta"
+          renderDropdownIcon={iconSelectDropdown}
+          dropdownIconPosition='right'
+          buttonStyle={{
+            width: '100%',
+            minHeight: 56,
+            maxHeight: 56,
+            marginTop: 10,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10
+          }}
+          buttonTextStyle={{
+            fontFamily: theme.fonts.regular,
+            fontSize: 15,
+            textAlign: 'left'
+          }}
+          dropdownStyle={{
+            borderRadius: 10,
+          }}
         />
 
         <SelectDropdown

@@ -10,11 +10,12 @@ import {
 
 const icons = {
   up: 'arrow-up-circle',
-  down: 'arrow-down-circle'
+  down: 'arrow-down-circle',
+  swap: 'swap-vertical-outline'
 }
 
 interface Props extends RectButtonProps {
-  type: 'up' | 'down';
+  type: 'up' | 'down' | 'swap';
   title: string;
   isActive: boolean;
 }
@@ -28,8 +29,7 @@ export function TransactionTypeButton({
   return(
     <Container
       isActive={isActive}
-      type={type}
-      
+      type={type}      
     >
       <Button
         {...rest}
