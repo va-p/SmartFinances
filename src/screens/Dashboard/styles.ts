@@ -1,10 +1,8 @@
 import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
 
-import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { BorderlessButton } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 
 export const Container = styled.View`
   flex: 1;
@@ -13,10 +11,11 @@ export const Container = styled.View`
 
 export const Header = styled.View`
   width: 100%;
-  height: ${RFPercentage(5)}px;
+  height: ${RFPercentage(4)}px;
   align-items: center;
-  justify-content: flex-end;
-  margin-top: ${getStatusBarHeight()}px;
+  justify-content: center;
+  margin-top: ${RFPercentage(2)}px;
+  margin-bottom: ${RFPercentage(1)}px;
 `;
 
 export const CashFlowTotal = styled.Text`
@@ -28,8 +27,8 @@ export const CashFlowTotal = styled.Text`
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(10)}px;
-  padding-bottom: 12px;
-  margin-top: -12px;
+  padding-bottom: 10px;
+  margin-top: -5px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -43,9 +42,9 @@ export const FilterButtonGroup = styled.View`
 
 export const ChartContainer = styled.View`
   width: 100%;
-  height: ${RFPercentage(25)}px;
+  height: ${RFPercentage(20)}px;
   justify-content: center;
-  padding-bottom: 5px;
+  padding-bottom: 10px;
 `;
 
 export const Transactions = styled.View`

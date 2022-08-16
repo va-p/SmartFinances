@@ -46,6 +46,8 @@ import {
   selectUserTenantId
 } from '@slices/userSlice';
 
+import theme from '@themes/theme';
+
 import apiQuotes from '@api/apiQuotes';
 import api from '@api/api';
 
@@ -68,7 +70,7 @@ export function Dashboard() {
   const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
   const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
-    name: 'Meses',
+    name: 'meses',
     period: 'months'
   });
   const [totalAmountsGroupedBySelectedPeriod, setTotalAmountsGroupedBySelectedPeriod] = useState<PeriodData[]>([
@@ -254,11 +256,9 @@ export function Dashboard() {
               break;
           }
 
-          const dateTransactionPtbr = Intl.DateTimeFormat('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }).format(new Date(transactionPtbr.created_at));
+          const dateTransactionPtbr = format(
+            transactionPtbr.created_at, 'dd/MM/yyyy', { locale: ptBR }
+          );
 
           return {
             id: transactionPtbr.id,
@@ -340,10 +340,9 @@ export function Dashboard() {
               break;
           }
 
-          const dateTransactionByMonth = Intl.DateTimeFormat('pt-BR', {
-            month: 'long',
-            year: 'numeric'
-          }).format(new Date(transactionByMonth.created_at));
+          const dateTransactionByMonth = format(
+            transactionByMonth.created_at, `MMM '\n' yyyy`, { locale: ptBR }
+          );
 
           return {
             date: dateTransactionByMonth,
@@ -375,8 +374,6 @@ export function Dashboard() {
         }, []);
 
       const totalsGroupedByMonths: any = Object.values(totalsByMonths);
-
-      // Set totals in BRL for selected period formatted in pt-BR
       /**
        * All Totals Grouped By Months - End
        */
@@ -403,9 +400,9 @@ export function Dashboard() {
               break;
           }
 
-          const dateTransactionByYear = Intl.DateTimeFormat('pt-BR', {
-            year: 'numeric'
-          }).format(new Date(transactionByYear.created_at));
+          const dateTransactionByYear = format(
+            transactionByYear.created_at, 'yyyy', { locale: ptBR }
+          );
 
           return {
             date: dateTransactionByYear,
@@ -529,11 +526,9 @@ export function Dashboard() {
               break;
           }
 
-          const dateTransactionBySelectedPeriod = Intl.DateTimeFormat('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }).format(new Date(transactionPtbrBySelectedPeriod.created_at));
+          const dateTransactionBySelectedPeriod = format(
+            transactionPtbrBySelectedPeriod.created_at, 'dd/MM/yyyy', { locale: ptBR }
+          );
 
           return {
             id: transactionPtbrBySelectedPeriod.id,
@@ -671,7 +666,7 @@ export function Dashboard() {
     <Container>
       <Header>
         <CashFlowTotal>{cashFlowTotal}</CashFlowTotal>
-        <CashFlowDescription> Fluxo de Caixa</CashFlowDescription>
+        <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
       </Header>
 
       <FiltersContainer>
@@ -686,7 +681,7 @@ export function Dashboard() {
       <ChartContainer>
         <VictoryChart
           theme={VictoryTheme.material}
-          width={400} height={220}
+          width={400} height={180}
           maxDomain={{ x: 6 }}
           domainPadding={{ x: 7 }}
         >
@@ -703,7 +698,7 @@ export function Dashboard() {
               style={{
                 data: {
                   width: 10,
-                  fill: 'seagreen'
+                  fill: theme.colors.success
                 }
               }}
               cornerRadius={{ top: 2, bottom: 2 }}
@@ -722,7 +717,7 @@ export function Dashboard() {
               style={{
                 data: {
                   width: 10,
-                  fill: 'tomato'
+                  fill: theme.colors.attention
                 }
               }}
               cornerRadius={{ top: 2, bottom: 2 }}
