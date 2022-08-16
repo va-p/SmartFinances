@@ -18,12 +18,15 @@ import {
   VictoryGroup,
   VictoryTheme
 } from 'victory-native';
+import { addMonths, addYears, subMonths, subYears, format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { addMonths, addYears, subMonths, subYears, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-import { TransactionListItem, TransactionProps } from '@components/TransactionListItem';
+import {
+  TransactionListItem,
+  TransactionProps
+} from '@components/TransactionListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { SelectButton } from '@components/SelectButton';
 import { Load } from '@components/Load';
@@ -179,15 +182,15 @@ export function Dashboard() {
       const transactionsFormattedPtbr: TransactionProps = data
         .map((transactionPtbr: TransactionProps) => {
           //Insert switch for verify currency and formatted amount for this currency. If currency is BTC, convert value to BTC using converting API.
-          switch (transactionPtbr.account.currency) {
-            case 'BRL - Real Brasileiro':
+          switch (transactionPtbr.account.currency.code) {
+            case 'BRL':
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
                 });
               break;
-            case 'BTC - Bitcoin':
+            case 'BTC':
               amountConvertedBRL = Number(transactionPtbr.amount) * btcQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
@@ -202,7 +205,7 @@ export function Dashboard() {
                   maximumSignificantDigits: 8
                 });
               break;
-            case 'EUR - Euro':
+            case 'EUR':
               amountConvertedBRL = Number(transactionPtbr.amount) * eurQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
@@ -215,7 +218,7 @@ export function Dashboard() {
                   currency: 'EUR'
                 });
               break;
-            case 'USD - Dólar Americano':
+            case 'USD':
               amountConvertedBRL = Number(transactionPtbr.amount) * usdQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
@@ -228,20 +231,20 @@ export function Dashboard() {
                   currency: 'USD'
                 });
               break;
-            default: 'BRL - Real Brasileiro'
+            default: 'BRL'
               break;
           }
 
           switch (transactionPtbr.type) {
             case 'income':
-              if (transactionPtbr.account.currency != 'BRL - Real Brasileiro') {
+              if (transactionPtbr.account.currency.code != 'BRL') {
                 totalRevenuesBRL += amountConvertedBRL
               } else {
                 totalRevenuesBRL += Number(transactionPtbr.amount)
               }
               break;
             case 'outcome':
-              if (transactionPtbr.account.currency != 'BRL - Real Brasileiro') {
+              if (transactionPtbr.account.currency.code != 'BRL') {
                 totalExpensesBRL += amountConvertedBRL
               } else {
                 totalExpensesBRL += Number(transactionPtbr.amount)
@@ -265,27 +268,31 @@ export function Dashboard() {
             amountConvertedBRLFormatted,
             type: transactionPtbr.type,
             account: {
-              id: transactionPtbr.account?.id,
-              name: transactionPtbr.account?.name,
-              currency: transactionPtbr.account?.currency,
-              simbol: transactionPtbr.account?.simbol,
-              initial_amount: transactionPtbr.account?.initial_amount,
-              tenant_id: transactionPtbr.account?.tenant_id
+              id: transactionPtbr.account.id,
+              name: transactionPtbr.account.name,
+              currency: {
+                id: transactionPtbr.account.currency.id,
+                name: transactionPtbr.account.currency.name,
+                code: transactionPtbr.account.currency.code,
+                symbol: transactionPtbr.account.currency.symbol
+              },
+              initial_amount: transactionPtbr.account.initial_amount,
+              tenant_id: transactionPtbr.account.tenant_id
             },
             category: {
-              id: transactionPtbr.category?.id,
-              name: transactionPtbr.category?.name,
+              id: transactionPtbr.category.id,
+              name: transactionPtbr.category.name,
               icon: {
-                id: transactionPtbr.category?.icon.id,
-                title: transactionPtbr.category?.icon.title,
-                name: transactionPtbr.category?.icon.name,
+                id: transactionPtbr.category.icon.id,
+                title: transactionPtbr.category.icon.title,
+                name: transactionPtbr.category.icon.name,
               },
               color: {
                 id: transactionPtbr.category.color.id,
                 name: transactionPtbr.category.color.name,
                 hex: transactionPtbr.category.color.hex,
               },
-              tenant_id: transactionPtbr.category?.tenant_id
+              tenant_id: transactionPtbr.category.tenant_id
             },
             tenant_id: transactionPtbr.tenant_id
           }
@@ -316,20 +323,20 @@ export function Dashboard() {
 
       const transactionsGroupedByMonths = data
         .map((transactionByMonth: TransactionProps) => {
-          switch (transactionByMonth.account.currency) {
-            case 'BRL - Real Brasileiro':
+          switch (transactionByMonth.account.currency.code) {
+            case 'BRL':
               amount = Number(transactionByMonth.amount);
               break;
-            case 'BTC - Bitcoin':
+            case 'BTC':
               amount = Number(transactionByMonth.amount) * btcQuoteBrl.price;
               break;
-            case 'EUR - Euro':
+            case 'EUR':
               amount = Number(transactionByMonth.amount) * eurQuoteBrl.price;
               break;
-            case 'USD - Dólar Americano':
+            case 'USD':
               amount = Number(transactionByMonth.amount) * usdQuoteBrl.price;
               break;
-            default: 'BRL - Real Brasileiro'
+            default: 'BRL'
               break;
           }
 
@@ -379,20 +386,20 @@ export function Dashboard() {
        */
       const transactionsGroupedByYears = data
         .map((transactionByYear: TransactionProps) => {
-          switch (transactionByYear.account.currency) {
-            case 'BRL - Real Brasileiro':
+          switch (transactionByYear.account.currency.code) {
+            case 'BRL':
               amount = Number(transactionByYear.amount);
               break;
-            case 'BTC - Bitcoin':
+            case 'BTC':
               amount = Number(transactionByYear.amount) * btcQuoteBrl.price;
               break;
-            case 'EUR - Euro':
+            case 'EUR':
               amount = Number(transactionByYear.amount) * eurQuoteBrl.price;
               break;
-            case 'USD - Dólar Americano':
+            case 'USD':
               amount = Number(transactionByYear.amount) * usdQuoteBrl.price;
               break;
-            default: 'BRL - Real Brasileiro'
+            default: 'BRL'
               break;
           }
 
@@ -450,15 +457,15 @@ export function Dashboard() {
 
       const transactionsBySelectedPeriodFormattedPtbr = transactionsBySelectedPeriod
         .map((transactionPtbrBySelectedPeriod: TransactionProps) => {
-          switch (transactionPtbrBySelectedPeriod.account.currency) {
-            case 'BRL - Real Brasileiro':
+          switch (transactionPtbrBySelectedPeriod.account.currency.code) {
+            case 'BRL':
               amount = Number(transactionPtbrBySelectedPeriod.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
                 });
               break;
-            case 'BTC - Bitcoin':
+            case 'BTC':
               amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * btcQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
@@ -473,7 +480,7 @@ export function Dashboard() {
                   maximumSignificantDigits: 8
                 });
               break;
-            case 'EUR - Euro':
+            case 'EUR':
               amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * eurQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
@@ -486,7 +493,7 @@ export function Dashboard() {
                   currency: 'EUR'
                 });
               break;
-            case 'USD - Dólar Americano':
+            case 'USD':
               amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * usdQuoteBrl.price;
               amountConvertedBRLFormatted = Number(amountConvertedBRL)
                 .toLocaleString('pt-BR', {
@@ -499,20 +506,20 @@ export function Dashboard() {
                   currency: 'USD'
                 });
               break;
-            default: 'BRL - Real Brasileiro'
+            default: 'BRL'
               break;
           }
 
           switch (transactionPtbrBySelectedPeriod.type) {
             case 'income':
-              if (transactionPtbrBySelectedPeriod.account.currency != 'BRL - Real Brasileiro') {
+              if (transactionPtbrBySelectedPeriod.account.currency.code != 'BRL') {
                 totalRevenuesBRLBySelectedPeriod += amountConvertedBRL
               } else {
                 totalRevenuesBRLBySelectedPeriod += Number(transactionPtbrBySelectedPeriod.amount)
               }
               break;
             case 'outcome':
-              if (transactionPtbrBySelectedPeriod.account.currency != 'BRL - Real Brasileiro') {
+              if (transactionPtbrBySelectedPeriod.account.currency.code != 'BRL') {
                 totalExpensesBRLBySelectedPeriod += amountConvertedBRL
               } else {
                 totalExpensesBRLBySelectedPeriod += Number(transactionPtbrBySelectedPeriod.amount)
@@ -536,27 +543,31 @@ export function Dashboard() {
             amountConvertedBRLFormatted,
             type: transactionPtbrBySelectedPeriod.type,
             account: {
-              id: transactionPtbrBySelectedPeriod.account?.id,
-              name: transactionPtbrBySelectedPeriod.account?.name,
-              currency: transactionPtbrBySelectedPeriod.account?.currency,
-              simbol: transactionPtbrBySelectedPeriod.account?.simbol,
-              initial_amount: transactionPtbrBySelectedPeriod.account?.initial_amount,
-              tenant_id: transactionPtbrBySelectedPeriod.account?.tenant_id
+              id: transactionPtbrBySelectedPeriod.account.id,
+              name: transactionPtbrBySelectedPeriod.account.name,
+              currency: {
+                id: transactionPtbrBySelectedPeriod.account.currency.id,
+                name: transactionPtbrBySelectedPeriod.account.currency.name,
+                code: transactionPtbrBySelectedPeriod.account.currency.code,
+                symbol: transactionPtbrBySelectedPeriod.account.currency.symbol
+              },
+              initial_amount: transactionPtbrBySelectedPeriod.account.initial_amount,
+              tenant_id: transactionPtbrBySelectedPeriod.account.tenant_id
             },
             category: {
-              id: transactionPtbrBySelectedPeriod.category?.id,
-              name: transactionPtbrBySelectedPeriod.category?.name,
+              id: transactionPtbrBySelectedPeriod.category.id,
+              name: transactionPtbrBySelectedPeriod.category.name,
               icon: {
-                id: transactionPtbrBySelectedPeriod.category?.icon.id,
-                title: transactionPtbrBySelectedPeriod.category?.icon.title,
-                name: transactionPtbrBySelectedPeriod.category?.icon.name,
+                id: transactionPtbrBySelectedPeriod.category.icon.id,
+                title: transactionPtbrBySelectedPeriod.category.icon.title,
+                name: transactionPtbrBySelectedPeriod.category.icon.name,
               },
               color: {
                 id: transactionPtbrBySelectedPeriod.category.color.id,
                 name: transactionPtbrBySelectedPeriod.category.color.name,
                 hex: transactionPtbrBySelectedPeriod.category.color.hex,
               },
-              tenant_id: transactionPtbrBySelectedPeriod.category?.tenant_id
+              tenant_id: transactionPtbrBySelectedPeriod.category.tenant_id
             },
             tenant_id: transactionPtbrBySelectedPeriod.tenant_id
           }
@@ -672,7 +683,6 @@ export function Dashboard() {
         </FilterButtonGroup>
       </FiltersContainer>
 
-
       <ChartContainer>
         <VictoryChart
           theme={VictoryTheme.material}
@@ -742,6 +752,7 @@ export function Dashboard() {
           }
         />
       </Transactions>
+
       <ModalViewSelection
         visible={periodSelectedModalOpen}
         closeModal={handleClosePeriodSelectedModal}

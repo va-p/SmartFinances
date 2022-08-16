@@ -15,12 +15,19 @@ import {
 
 import { RectButtonProps, Swipeable } from 'react-native-gesture-handler';
 
+export interface Currency {
+  id: string;
+  name: string;
+  code: string;
+  symbol: string;
+}
+
 export interface AccountProps {
   id: string;
   created_at: string;
   name: string;
-  currency: string;
-  simbol: string;
+  currency: Currency;
+  //simbol: string;
   initial_amount: string | number;
   tenant_id: string;
 }
@@ -63,8 +70,8 @@ export function AccountListItem({ data, onSwipeableLeftOpen, ...rest }: Props) {
             <Name>{data.name}</Name>
           </NameContainer>
           <CurrencyContainer>
-            <Currency>{data.currency}</Currency>
-            <Simbol>{data.simbol}</Simbol>
+            <Currency>{data.currency.name}</Currency>
+            <Simbol>{data.currency.symbol}</Simbol>
           </CurrencyContainer>
         </Content>
       </Swipeable>

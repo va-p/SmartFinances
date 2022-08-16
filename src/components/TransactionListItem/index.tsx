@@ -109,7 +109,7 @@ export function TransactionListItem({
               </Details>
               <AmountConvertedContainer>
                 <AmountConverted>
-                  {data.account.currency != 'BRL - Real Brasileiro' && `aprox. ${data.amountConvertedBRLFormatted}`}
+                  {data.account.currency.name != 'Real Brasileiro' && `aprox. ${data.amountConvertedBRLFormatted}`}
                 </AmountConverted>
                 <Date>
                   {data.created_at}
