@@ -1,7 +1,6 @@
 import React from 'react';
 import { AppRegistry, Platform, StatusBar } from 'react-native';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider } from 'styled-components';
 import AppLoading from 'expo-app-loading';
 import { Provider } from 'react-redux'

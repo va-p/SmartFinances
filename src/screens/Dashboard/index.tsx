@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, RefreshControl } from 'react-native';
+import { Alert, RefreshControl, StatusBar } from 'react-native';
 import {
   Container,
   Header,
@@ -664,6 +664,7 @@ export function Dashboard() {
 
   return (
     <Container>
+      <StatusBar barStyle="dark-content" />
       <Header>
         <CashFlowTotal>{cashFlowTotal}</CashFlowTotal>
         <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
