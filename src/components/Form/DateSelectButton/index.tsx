@@ -13,7 +13,7 @@ interface Props {
   onPress: () => void;
 }
 
-export function AccountSelectButton({
+export function DateSelectButton({
   title,
   color,
   onPress
@@ -21,7 +21,7 @@ export function AccountSelectButton({
   return (
     <Container onPress={onPress}>
       <Description>
-        <Icon color={color} name='wallet'/>
+        <Icon color={color} name='calendar'/>
         <Title>{title}</Title>
       </Description>
       <IconChevronDown name='chevron-down-outline' />

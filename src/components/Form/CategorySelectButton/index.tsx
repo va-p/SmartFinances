@@ -1,5 +1,7 @@
 import React from 'react';
+import { TouchableOpacityProps } from 'react-native';
 import {
+  Placeholder,
   Container,
   Description,
   Title,
@@ -7,24 +9,26 @@ import {
   IconChevronDown
 } from './styles';
 
-interface Props {
-  title: string;
+import { CategoryProps } from '@components/CategoryListItem';
+
+type Props = TouchableOpacityProps & {
+  categorySelected: CategoryProps;
   icon: string;
-  onPress: () => void;
+  color: string;
 }
 
 export function CategorySelectButton({
-  title,
+  categorySelected,
   icon,
-  onPress
+  color,
+  ...rest
 }: Props) {
+  if (categorySelected.id === '') {
+    return <Placeholder {...rest}/>
+  };
   return (
-    <Container onPress={onPress}>
-      <Description>
-        <Title>{title}</Title>
-        <Icon name={icon}/>
-      </Description>
-      <IconChevronDown name='chevron-down-outline' />
+    <Container {...rest}>
+      <Icon name={icon} color={color} />
     </Container>
-  )
+  );
 }

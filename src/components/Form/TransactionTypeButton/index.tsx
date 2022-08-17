@@ -9,8 +9,8 @@ import {
 } from './styles';
 
 const icons = {
-  up: 'arrow-up-circle',
-  down: 'arrow-down-circle',
+  up: 'arrow-up-circle-outline',
+  down: 'arrow-down-circle-outline',
   swap: 'swap-vertical-outline'
 }
 

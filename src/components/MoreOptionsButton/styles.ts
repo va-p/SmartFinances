@@ -34,6 +34,6 @@ export const Title = styled.Text`
 `;
 
 export const IconChevronForward = styled(Ionicons)`
-  font-size: ${RFValue(18)}px;
+  font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
