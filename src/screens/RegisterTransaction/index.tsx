@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
-  Form,
-  Fields,
+  Header,
+  HeaderRow,
+  CategorySelectButtonContainer,
+  InputTransactionValueContainer,
+  CurrencyAccont,
+  Title,
   TransactionsTypes,
   Footer
 } from './styles';
@@ -13,17 +17,25 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
+import { ptBR } from 'date-fns/locale';
+import { format } from 'date-fns';
 import * as Yup from 'yup';
 
+import {
+  ControlledInputTransactionDescription
+} from '@components/Form/ControlledInputTransactionDescription';
+import {
+  ControlledInputTransactionValue
+} from '@components/Form/ControlledInputTransactionValue';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { AccountSelectButton } from '@components/Form/AccountSelectButton';
+import { DateSelectButton } from '@components/Form/DateSelectButton';
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { CategoryProps } from '@components/CategoryListItem';
 import { AccountProps } from '@components/AccountListItem';
 import { ModalView } from '@components/ModalView';
 import { Button } from '@components/Form/Button';
-import { Header } from '@components/Header';
 
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 import { CategorySelect } from '@screens/CategorySelect';
@@ -42,7 +54,10 @@ import {
 
 import { COLLECTION_TRANSACTIONS } from '@configs/database';
 
+import theme from '@themes/theme';
+
 import api from '@api/api';
+import { ModalViewSelection } from '@components/ModalViewSelection';
 
 type FormData = {
   description: string;
@@ -72,6 +87,7 @@ export function RegisterTransaction({ navigation }: any) {
   const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
   const [transactionType, setTransactionType] = useState('');
   const [date, setDate] = useState(new Date());
+  const formattedDate = format(date, 'dd MMMM, yyyy', { locale: ptBR });
   const [modeDatePicker, setModeDatePicker] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const onChangeDate = (event: any, selectedDate: any) => {
@@ -86,14 +102,14 @@ export function RegisterTransaction({ navigation }: any) {
   const showDatepicker = () => {
     showMode('date');
   };
-  const showTimepicker = () => {
-    showMode('time');
-  };
 
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
-    name: 'Selecione a conta'
+    name: 'Selecione a conta',
+    currency: {
+      symbol: 'R$'
+    }
   } as AccountProps);
   const [accountDestinationModalOpen, setAccountDestinationModalOpen] = useState(false);
   const [accountDestinationSelected, setAccountDestinationSelected] = useState({
@@ -103,7 +119,10 @@ export function RegisterTransaction({ navigation }: any) {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
-    name: 'Selecione a categoria'
+    name: 'Selecione a categoria',
+    color: {
+      hex: theme.colors.primary
+    }
   } as CategoryProps);
   const {
     control,
@@ -210,8 +229,12 @@ export function RegisterTransaction({ navigation }: any) {
             created_at: '',
             id: '',
             name: 'Selecione a conta',
-            currency: '',
-            simbol: '',
+            currency: {
+              id: '',
+              name: '',
+              code: '',
+              symbol: ''
+            },
             initial_amount: 0,
             tenant_id: ''
           });
@@ -245,33 +268,61 @@ export function RegisterTransaction({ navigation }: any) {
       let amountConverted = 0;
 
       try {
-        if (accountSelected.currency != accountDestinationSelected.currency) {
-          //Converted BRL
-          if (accountSelected.currency === 'BTC - Bitcoin' &&
-            accountDestinationSelected.currency === 'BRL - Real Brasileiro') {
+        if (accountSelected.currency !== accountDestinationSelected.currency) {
+          //Converted BTC
+          if (accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'BRL') {
             amountConverted = Number(form.amount) * btcQuoteBrl.price
           };
-          if (accountSelected.currency === 'EUR - Euro' &&
-            accountDestinationSelected.currency === 'BRL - Real Brasileiro') {
-            amountConverted = Number(form.amount) * eurQuoteBrl.price
+          if (accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * btcQuoteEur.price
           };
-          if (accountSelected.currency === 'USD - Dólar Americano' &&
-            accountDestinationSelected.currency === 'BRL - Real Brasileiro') {
-            amountConverted = Number(form.amount) * usdQuoteBrl.price
+          if (accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * btcQuoteUsd.price
           };
-          if (accountSelected.currency === 'BRL - Real Brasileiro' &&
-            accountDestinationSelected.currency === 'BTC - Bitcoin') {
+          //Converted BRL
+          if (accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'BTC') {
             amountConverted = Number(form.amount) * brlQuoteBtc.price
           };
-          if (accountSelected.currency === 'BRL - Real Brasileiro' &&
-            accountDestinationSelected.currency === 'EUR - Euro') {
+          if (accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * brlQuoteEur.price
           };
-          if (accountSelected.currency === 'BRL - Real Brasileiro' &&
-            accountDestinationSelected.currency === 'USD - Dólar Americano') {
+          if (accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'USD') {
             amountConverted = Number(form.amount) * brlQuoteUsd.price
           };
-        } else {
+          //Converted EUR
+          if (accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * eurQuoteBtc.price
+          };
+          if (accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * eurQuoteBrl.price
+          };
+          if (accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * eurQuoteUsd.price
+          };
+          //Converted USD
+          if (accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * usdQuoteBtc.price
+          };
+          if (accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * usdQuoteBrl.price
+          };
+          if (accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * usdQuoteEur.price
+          };
+        }
+        else {
           amountConverted = Number(form.amount)
         };
 
@@ -333,8 +384,12 @@ export function RegisterTransaction({ navigation }: any) {
             created_at: '',
             id: '',
             name: 'Selecione a conta',
-            currency: '',
-            simbol: '',
+            currency: {
+              id: '',
+              name: '',
+              code: '',
+              symbol: '',
+            },
             initial_amount: 0,
             tenant_id: ''
           });
@@ -342,8 +397,12 @@ export function RegisterTransaction({ navigation }: any) {
             created_at: '',
             id: '',
             name: 'Selecione a conta de destino',
-            currency: '',
-            simbol: '',
+            currency: {
+              id: '',
+              name: '',
+              code: '',
+              symbol: ''
+            },
             initial_amount: 0,
             tenant_id: ''
           });
@@ -377,101 +436,108 @@ export function RegisterTransaction({ navigation }: any) {
 
   return (
     <Container>
-      <Header type='secondary' title='Cadastro de transação' />
+      <Header color={categorySelected.color.hex}>
+        <Title>Adicionar Transação</Title>
 
-      <Form>
-        <Fields>
-          <ControlledInput
-            type='primary'
-            placeholder='Descrição'
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            defaultValue=''
-            name='description'
-            control={control}
-            error={errors.description}
-          />
-
-          <ControlledInput
-            type='primary'
-            placeholder='Valor'
-            keyboardType='numeric'
-            defaultValue=''
-            name='amount'
-            control={control}
-            error={errors.amount}
-          />
-
-          <TransactionsTypes>
-            <TransactionTypeButton
-              type='up'
-              title='Entrada'
-              onPress={() => handleTransactionsTypeSelect('income')}
-              isActive={transactionType === 'income'}
+        <HeaderRow>
+          <CategorySelectButtonContainer>
+            <CategorySelectButton
+              categorySelected={categorySelected}
+              icon={categorySelected.icon?.name}
+              color={categorySelected.color.hex}
+              onPress={handleOpenSelectCategoryModal}
             />
-            <TransactionTypeButton
-              type='swap'
-              title='Transf'
-              onPress={() => handleTransactionsTypeSelect('transfer')}
-              isActive={transactionType === 'transfer'}
+          </CategorySelectButtonContainer>
+          <InputTransactionValueContainer>
+            <CurrencyAccont>{accountSelected.currency.symbol}</CurrencyAccont>
+            <ControlledInputTransactionValue
+              placeholder='0'
+              keyboardType='numeric'
+              defaultValue='0'
+              name='amount'
+              control={control}
+              error={errors.amount}
             />
-            <TransactionTypeButton
-              type='down'
-              title='Saída'
-              onPress={() => handleTransactionsTypeSelect('outcome')}
-              isActive={transactionType === 'outcome'}
-            />
-          </TransactionsTypes>
+          </InputTransactionValueContainer>
+        </HeaderRow>
+      </Header>
 
-          <Button
-            type='primary'
-            title={date ? `${date}` : 'Selecione a data'}
-            onPress={showDatepicker}
-          />
-          {showDatePicker && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode='date'
-              is24Hour={true}
-              onChange={onChangeDate}
-              display='spinner'
-              dateFormat='day month year'
-            />
-          )}
-
+      <AccountSelectButton
+        title={accountSelected.name}
+        color={categorySelected.color.hex}
+        onPress={handleOpenSelectAccountModal}
+      />
+      {
+        transactionType === 'transfer' ?
           <AccountSelectButton
-            title={accountSelected.name}
-            onPress={handleOpenSelectAccountModal}
-          />
+            title={accountDestinationSelected.name}
+            color={categorySelected.color.hex}
+            onPress={handleOpenSelectAccountDestinationModal}
+          /> :
+          <></>
+      }
 
-          {
-            transactionType === 'transfer' ?
-              <AccountSelectButton
-                title={accountDestinationSelected.name}
-                onPress={handleOpenSelectAccountDestinationModal}
-              /> :
-              <></>
-          }
-
-          <CategorySelectButton
-            title={categorySelected.name}
-            icon={categorySelected.icon?.name}
-            onPress={handleOpenSelectCategoryModal}
+      <DateSelectButton
+        title={formattedDate}
+        color={categorySelected.color.hex}
+        onPress={showDatepicker}
+      />
+      {
+        showDatePicker && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode='date'
+            is24Hour={true}
+            onChange={onChangeDate}
+            display='spinner'
+            dateFormat='day month year'
+            textColor='#000'
           />
-        </Fields>
-      </Form>
+        )
+      }
+      <ControlledInputTransactionDescription
+        color={categorySelected.color.hex}
+        placeholder='Descrição'
+        autoCapitalize='sentences'
+        autoCorrect={false}
+        defaultValue=''
+        name='description'
+        control={control}
+        error={errors.description}
+      />
+
+      <TransactionsTypes>
+        <TransactionTypeButton
+          type='up'
+          title='Entrada'
+          onPress={() => handleTransactionsTypeSelect('income')}
+          isActive={transactionType === 'income'}
+        />
+        <TransactionTypeButton
+          type='swap'
+          title='Transf'
+          onPress={() => handleTransactionsTypeSelect('transfer')}
+          isActive={transactionType === 'transfer'}
+        />
+        <TransactionTypeButton
+          type='down'
+          title='Saída'
+          onPress={() => handleTransactionsTypeSelect('outcome')}
+          isActive={transactionType === 'outcome'}
+        />
+      </TransactionsTypes>
 
       <Footer>
         <Button
           type='secondary'
-          title="Cadastrar transação"
+          title="Adicionar transação"
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleTransactionRegister)}
         />
       </Footer>
 
-      <ModalView
+      <ModalViewSelection
         visible={accountModalOpen}
         closeModal={handleCloseSelectAccountModal}
         title='Contas'
@@ -481,9 +547,9 @@ export function RegisterTransaction({ navigation }: any) {
           setAccount={setAccountSelected}
           closeSelectAccount={handleCloseSelectAccountModal}
         />
-      </ModalView>
+      </ModalViewSelection>
 
-      <ModalView
+      <ModalViewSelection
         visible={accountDestinationModalOpen}
         closeModal={handleCloseSelectAccountDestinationModal}
         title='Contas'
@@ -493,9 +559,9 @@ export function RegisterTransaction({ navigation }: any) {
           setAccountDestination={setAccountDestinationSelected}
           closeSelectAccountDestination={handleCloseSelectAccountDestinationModal}
         />
-      </ModalView>
+      </ModalViewSelection>
 
-      <ModalView
+      <ModalViewSelection
         visible={categoryModalOpen}
         closeModal={handleCloseSelectCategoryModal}
         title='Categorias'
@@ -505,7 +571,7 @@ export function RegisterTransaction({ navigation }: any) {
           setCategory={setCategorySelected}
           closeSelectCategory={handleCloseSelectCategoryModal}
         />
-      </ModalView>
+      </ModalViewSelection>
     </Container>
   );
 }

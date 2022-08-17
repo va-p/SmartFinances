@@ -67,6 +67,7 @@ export function AccountSelect({
 
   function handleAccountSelect(account: AccountProps) {
     setAccount(account);
+    closeSelectAccount();
   }
 
   useEffect(() => {
@@ -95,8 +96,8 @@ export function AccountSelect({
               <Name>{item.name}</Name>
             </NameContainer>
             <CurrencyContainer>
-              <Currency>{item.currency}</Currency>
-              <Simbol>{item.simbol}</Simbol>
+              <Currency>{item.currency.name}</Currency>
+              <Simbol>{item.currency.symbol}</Simbol>
             </CurrencyContainer>
           </Account>
         )}

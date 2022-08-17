@@ -11,7 +11,7 @@ export const Overlay = styled.View`
 export const Header = styled.View`
   width: 100%;
   height: 50px;
-  margin-top: ${RFPercentage(85)}px;
+  margin-top: ${RFPercentage(75)}px;
   align-items: flex-start;
   padding: 10px;
   background-color: ${({ theme }) => theme.colors.background};

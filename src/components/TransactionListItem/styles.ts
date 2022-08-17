@@ -35,7 +35,6 @@ export const Icon = styled(Ionicons) <TransactionProps>`
 
 export const DetailsContainer = styled.View`
   width: 90%;
-
 `;
 
 export const Header = styled.View`
@@ -44,7 +43,7 @@ export const Header = styled.View`
 `;
 
 export const Description = styled.Text<TransactionProps>`
-  font-family: ${({ theme }) => theme.fonts.bold};
+  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   ${({ type }) => type === 'income' && css`
     color: ${({ theme }) => theme.colors.success};
@@ -55,6 +54,16 @@ export const Description = styled.Text<TransactionProps>`
   ${({ type }) => type === 'transfer' && css`
     color: ${({ theme }) => theme.colors.text};
   `};
+`;
+
+export const AmountContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const TransferDirectionIcon = styled(Ionicons)`
+font-size: ${RFValue(14)}px;
+color: ${({ theme, type }) => theme.colors.text};
 `;
 
 export const Amount = styled.Text<TransactionProps>`
@@ -69,6 +78,7 @@ export const Amount = styled.Text<TransactionProps>`
   ${({ type }) => type === 'transfer' && css`
     color: ${({ theme }) => theme.colors.text};
   `};
+  margin-left: 5px;
 `;
 
 export const Footer = styled.View`

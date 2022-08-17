@@ -1,20 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import {
-  Container,
-  Category,
-  Icon,
-  Name,
-  Footer,
+  Container
 } from './styles';
 
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 
+import {
+  CategoryListItemRegisterTransaction
+} from '@components/CategoryListItemRegisterTransaction';
 import { CategoryProps } from '@components/CategoryListItem';
-import { ListSeparator } from '@components/ListSeparator';
-import { Button } from '@components/Form/Button';
 import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
@@ -60,6 +58,7 @@ export function CategorySelect({
 
   function handleCategorySelect(category: CategoryProps) {
     setCategory(category);
+    closeSelectCategory();
   }
 
   useEffect(() => {
@@ -80,29 +79,21 @@ export function CategorySelect({
         data={categories}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <Category
-            color={item.color.hex}
+          <CategoryListItemRegisterTransaction
+            data={item}
             onPress={() => handleCategorySelect(item)}
-            isActive={category.id === item.id}
-          >            
-            <Icon name={item.icon?.name} color={item.color.hex}/>
-            <Name>{item.name}</Name>
-          </Category>
+          />
         )}
-        ItemSeparatorComponent={() => <ListSeparator />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
         }
+        numColumns={4}
+        contentContainerStyle={{
+          paddingTop: 10,
+          paddingBottom: getBottomSpace()
+        }}
         style={{ flex: 1, width: '100%' }}
       />
-
-      <Footer>
-        <Button
-          type='secondary'
-          title="Selecionar"
-          onPress={closeSelectCategory}
-        />
-      </Footer>
     </Container>
   )
 }

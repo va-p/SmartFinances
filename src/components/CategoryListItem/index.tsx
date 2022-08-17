@@ -14,7 +14,7 @@ import { RectButtonProps, Swipeable } from 'react-native-gesture-handler';
 
 export interface IconProps {
   id: string;
-  title: string | undefined;
+  title?: string | undefined;
   name: string;
 }
 
@@ -70,8 +70,8 @@ export function CategoryListItem({
         renderRightActions={handleCategorySwipeLeft}
         onSwipeableOpen={onSwipeableLeftOpen}
       >
-        <Category {...rest} color={data.color.hex}>
-          <Icon name={data.icon?.name} color={data.color.hex}/>
+        <Category {...rest} icon={data.icon.name} color={data.color.hex}>
+          <Icon name={data.icon.name} color={data.color.hex} />
           <Name>{data.name}</Name>
         </Category>
       </Swipeable>

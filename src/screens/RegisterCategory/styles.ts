@@ -85,7 +85,7 @@ export const IconContainer = styled.TouchableOpacity <Props>`
 `;
 
 export const Icon = styled(Ionicons) <Props>`
-  font-size: ${RFValue(28)}px;
+  font-size: ${RFValue(30)}px;
   color: ${({ theme, isActive }) =>
     isActive ? theme.colors.background : theme.colors.text
   };

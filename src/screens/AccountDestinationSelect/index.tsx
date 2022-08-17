@@ -67,6 +67,7 @@ export function AccountDestinationSelect({
 
   function handleAccountSelect(account: AccountProps) {
     setAccountDestination(account);
+    closeSelectAccountDestination();
   }
 
   useEffect(() => {
@@ -95,8 +96,8 @@ export function AccountDestinationSelect({
               <Name>{item.name}</Name>
             </NameContainer>
             <CurrencyContainer>
-              <Currency>{item.currency}</Currency>
-              <Simbol>{item.simbol}</Simbol>
+              <Currency>{item.currency.name}</Currency>
+              <Simbol>{item.currency.symbol}</Simbol>
             </CurrencyContainer>
           </Account>
         )}

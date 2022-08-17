@@ -5,6 +5,8 @@ import {
   Content,
   Header,
   Description,
+  AmountContainer,
+  TransferDirectionIcon,
   Amount,
   Footer,
   Details,
@@ -54,7 +56,7 @@ export function TransactionListItem({
     item => item.key === data.category
   );*/
 
-  function handleProductSizeSwipeLeft(
+  function handleTransactionSwipeLeft(
     progressAnimatedValue: Animated.AnimatedInterpolation,
     dragAnimatedValue: Animated.AnimatedInterpolation
   ) {
@@ -78,7 +80,7 @@ export function TransactionListItem({
   return (
     <Container>
       <Swipeable
-        renderRightActions={handleProductSizeSwipeLeft}
+        renderRightActions={handleTransactionSwipeLeft}
         onSwipeableOpen={onSwipeableLeftOpen}
       >
         <Content {...rest}>
@@ -91,10 +93,17 @@ export function TransactionListItem({
                 {data.description}
               </Description>
 
-              <Amount type={data.type}>
-                {data.type === 'outcome' && '- '}
-                {data.amount}
-              </Amount>
+              <AmountContainer>
+                {
+                  data.type === 'transfer' ?
+                    <TransferDirectionIcon name='swap-vertical-outline'/> :
+                    <></>
+                }
+                <Amount type={data.type}>
+                  {data.type === 'outcome' && '-'}
+                  {data.amount}
+                </Amount>
+              </AmountContainer>
             </Header>
 
             <Footer>

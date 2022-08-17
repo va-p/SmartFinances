@@ -11,6 +11,7 @@ type CategoryProps = {
 
 export const Container = styled(GestureHandlerRootView)`
   flex: 1;
+  padding: 0 20px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -18,7 +19,6 @@ export const Category = styled.TouchableOpacity<CategoryProps>`
   width: 100%;
   flex-direction: row;
   align-items: center;
-  padding: 15px;
   background-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.secondary_light : theme.colors.background
   };
