@@ -4,25 +4,50 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-export const Container = styled(RectButton)`
-  width: 100%;
-  min-height: 25px;
-  max-height: 25px;
+type ColorProps = {
+  color: string;
+}
+
+export const Container = styled(RectButton).attrs({
+  activeOpacity: 0.7
+})`
+  min-height: 56px;
+  max-height: 56px;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: 15px;
+  justify-content: space-between;
+  padding: 10px;
+`;
+
+export const Icon = styled(Ionicons) <ColorProps>`
+  font-size: ${RFValue(20)}px;
+  margin-right: 10px;
+  color: ${({ color }) => color};
+`;
+
+export const TitleContainer = styled.View`
+  flex-direction: row;
 `;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
-  color: ${({ theme }) => theme.colors.text};
+  font-size: ${RFValue(14)}px;
 `;
 
-export const Icon = styled(Ionicons)`
+export const SubtitleContainer = styled.View`
+  flex-direction: row;
+`;
+
+export const SubTitle = styled.Text<ItemProps>`
+  font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
-  padding-left: 5px;
+  padding-right: 10px;
+  color: ${({ theme, isActive }) =>
+    isActive ? theme.colors.primary : theme.colors.text
+  };
+`;
+
+export const IconChevronDown = styled(Ionicons)`
+  font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.text};
 `;

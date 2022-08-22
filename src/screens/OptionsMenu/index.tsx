@@ -6,8 +6,10 @@ import {
   Title
 } from './styles';
 
-import { MoreOptionsButton } from '@components/MoreOptionsButton';
+import { SelectButton } from '@components/SelectButton';
 import { Header } from '@components/Header';
+
+import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
   function handleClickAccounts() {
@@ -35,30 +37,39 @@ export function OptionsMenu({ navigation }: any) {
       <Header type='secondary' title='Mais opções' />
       <ContentScroll>
         <Title>Conta</Title>
-        <MoreOptionsButton
+        <SelectButton
           icon='wallet-outline'
           title='Contas'
+          color={theme.colors.secondary}
           onPress={() => handleClickAccounts()}
         />
-        <MoreOptionsButton
+
+        <SelectButton
           icon='bookmarks-outline'
           title='Categorias'
+          color={theme.colors.secondary}
           onPress={() => handleClickCategories()}
         />
+
         <Title>Sobre</Title>
-        <MoreOptionsButton
+        <SelectButton
           icon='help-buoy-outline'
           title='Central de Ajuda'
+          color={theme.colors.secondary}
           onPress={() => handleClickHelpCenter()}
         />
-        <MoreOptionsButton
+
+        <SelectButton
           icon='chatbubbles-outline'
           title='Contatar Suporte'
+          color={theme.colors.secondary}
           onPress={() => handleClickContactSupport()}
         />
-        <MoreOptionsButton
+        
+        <SelectButton
           icon='shield-checkmark-outline'
           title='Termos e Políticas'
+          color={theme.colors.secondary}
           onPress={() => handleClickTermsAndPolices()}
         />
       </ContentScroll>

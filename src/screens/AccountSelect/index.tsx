@@ -1,14 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import {
-  Container,
-  Account,
-  NameContainer,
-  Name,
-  CurrencyContainer,
-  Currency,
-  Simbol,
-  Footer,
+  Container
 } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -17,7 +10,8 @@ import { useSelector } from 'react-redux';
 
 import { AccountProps } from '@components/AccountListItem';
 import { ListSeparator } from '@components/ListSeparator';
-import { Button } from '@components/Form/Button';
+import { ListItem } from '@components/ListItem';
+
 import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
@@ -88,18 +82,12 @@ export function AccountSelect({
         data={accounts}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <Account
-            onPress={() => handleAccountSelect(item)}
+          <ListItem 
+            data={item}
             isActive={account.id === item.id}
-          >
-            <NameContainer>
-              <Name>{item.name}</Name>
-            </NameContainer>
-            <CurrencyContainer>
-              <Currency>{item.currency.name}</Currency>
-              <Simbol>{item.currency.symbol}</Simbol>
-            </CurrencyContainer>
-          </Account>
+            onPress={() => handleAccountSelect(item)}
+          />
+
         )}
         ItemSeparatorComponent={() => <ListSeparator />}
         refreshControl={
@@ -107,14 +95,6 @@ export function AccountSelect({
         }
         style={{ flex: 1, width: '100%' }}
       />
-
-      <Footer>
-        <Button
-          type='secondary'
-          title="Selecionar"
-          onPress={closeSelectAccount}
-        />
-      </Footer>
     </Container>
   )
 }

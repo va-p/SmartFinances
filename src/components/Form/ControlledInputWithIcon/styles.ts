@@ -20,7 +20,7 @@ export const Content = styled.View`
   min-height: 56px;
   max-height: 56px;
   flex-direction: row;
-  padding: 10px 20px;
+  padding: 10px;
 `;
 
 export const Icon = styled(Ionicons) <ColorProps>`

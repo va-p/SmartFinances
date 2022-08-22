@@ -215,7 +215,7 @@ export function RegisterAccount({ navigation }: any) {
         <Footer>
           <Button
             type='secondary'
-            title='Cadastrar conta'
+            title='Criar conta'
             isLoading={buttonIsLoading}
             onPress={handleSubmit(handleAccountRegister)}
           />

@@ -54,7 +54,7 @@ export const Title = styled.Text`
 export const TransactionsTypes = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 10px;
   margin-top: 8px;
   margin-bottom: 16px;
 `;

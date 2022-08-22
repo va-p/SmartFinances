@@ -105,8 +105,7 @@ export function Accounts() {
           }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingTop: 20,
-            paddingHorizontal: 10
+            paddingTop: 20
           }}
         />
       </AccountsContainer>

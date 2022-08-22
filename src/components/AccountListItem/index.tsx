@@ -15,7 +15,7 @@ import {
 
 import { RectButtonProps, Swipeable } from 'react-native-gesture-handler';
 
-export interface Currency {
+export interface CurrencyProps {
   id: string;
   name: string;
   code: string;

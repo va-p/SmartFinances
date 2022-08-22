@@ -11,17 +11,20 @@ import {
 import { Control, Controller, FieldError } from 'react-hook-form';
 
 type Props = TextInputProps & {
+  type: string;
+  icon: string;
+  color: string;
   name: string;
   control: Control<any>;
   error?: FieldError;
-  color: string;
 }
 
-export function ControlledInputTransactionDescription({
+export function ControlledInputWithIcon({
+  icon,
+  color,
   name,
   control,
   error,
-  color,
   ...rest
 }: Props) {
   return (
@@ -34,7 +37,7 @@ export function ControlledInputTransactionDescription({
             {error && <ErrorMessage> {error.message} </ErrorMessage>}
 
             <Content>
-              <Icon color={color} name='pencil' />
+              <Icon color={color} name={icon} />
               <Input
                 onChangeText={onChange}
                 value={value}

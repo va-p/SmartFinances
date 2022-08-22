@@ -1,21 +1,39 @@
 import React from 'react';
+import { RectButtonProps } from 'react-native-gesture-handler';
 import {
   Container,
+  Icon,
+  TitleContainer,
   Title,
-  Icon
+  SubtitleContainer,
+  SubTitle,
+  IconChevronDown
 } from './styles';
-
-import { RectButtonProps } from 'react-native-gesture-handler';
 
 type Props = RectButtonProps & {
   title: string;
+  subTitle?: string;
+  icon: string;
+  color: string;
 }
 
-export function SelectButton({ title, ...rest }: Props) {
+export function SelectButton({
+  title,
+  subTitle,
+  icon,
+  color,
+  ...rest
+}: Props) {
   return (
     <Container {...rest}>
-      <Title>{title}</Title>
-      <Icon name='chevron-down-outline' />
+      <TitleContainer>
+        <Icon color={color} name={icon} />
+        <Title>{title}</Title>
+      </TitleContainer>
+      <SubtitleContainer>
+        <SubTitle>{subTitle}</SubTitle>
+        <IconChevronDown name='chevron-forward-outline' />
+      </SubtitleContainer>
     </Container>
-  );
+  )
 }

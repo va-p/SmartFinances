@@ -4,15 +4,11 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-type PeriodProps = {
+type ItemProps = {
   isActive: boolean;
 }
 
-export const Container = styled.View`
-  background-color: ${({ theme }) => theme.colors.background};
-`;
-
-export const Period = styled(RectButton)`
+export const Item = styled(RectButton)`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
@@ -22,17 +18,15 @@ export const Period = styled(RectButton)`
   padding: 10px;
 `;
 
-export const Icon = styled(Ionicons) <PeriodProps>`
+export const Icon = styled(Ionicons)`
   font-size: ${RFValue(20)}px;
-  color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.success : theme.colors.background
-  };
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
-export const Name = styled.Text<PeriodProps>`
+export const Name = styled.Text<ItemProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
   color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.success : theme.colors.text_dark
+    isActive ? theme.colors.primary : theme.colors.text_dark
   };
 `;

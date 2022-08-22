@@ -20,6 +20,11 @@ export const Placeholder = styled(TouchableOpacity).attrs({
   border-radius: 30px;
 `;
 
+export const ErrorMessage = styled.Text`
+  font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.background};
+`;
+
 export const Container = styled(RectButton).attrs({
   activeOpacity: 0.7
 }) <ColorProps>`

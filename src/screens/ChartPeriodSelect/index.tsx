@@ -1,11 +1,10 @@
 import React from 'react';
 import { FlatList } from 'react-native';
 import {
-  Container,
-  Period,
-  Name,
-  Icon
+  Container
 } from './styles';
+
+import { ListItem } from '@components/ListItem';
 
 export interface PeriodProps {
   id: string;
@@ -19,7 +18,7 @@ type Props = {
   closeSelectPeriod: () => void;
 }
 
-export function PeriodSelect({
+export function ChartPeriodSelect({
   period,
   setPeriod,
   closeSelectPeriod
@@ -27,12 +26,12 @@ export function PeriodSelect({
   const periods = [
     {
       id: '1',
-      name: 'meses',
+      name: 'Meses',
       period: 'months'
     },
     {
       id: '2',
-      name: 'anos',
+      name: 'Anos',
       period: 'years'
     }
   ];
@@ -48,15 +47,11 @@ export function PeriodSelect({
         data={periods}
         keyExtractor={(item) => item.id}
         renderItem={({ item }: any) => (
-          <Period onPress={() => handlePeriodSelect(item)}>
-            <Name isActive={period.id === item.id}>
-              {item.name}
-            </Name>
-            <Icon
-              isActive={period.id === item.id} 
-              name='checkmark-circle'
-            />
-          </Period>
+          <ListItem
+            data={item}
+            isActive={period.id === item.id}
+            onPress={() => handlePeriodSelect(item)}
+          />
         )}
       />
     </Container>

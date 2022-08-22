@@ -17,5 +17,5 @@ export const Form = styled.View`
 `;
 
 export const Footer = styled.View`
-  padding: 0 20px;
+  padding: 10px 0;
 `;

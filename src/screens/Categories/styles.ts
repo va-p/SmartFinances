@@ -12,5 +12,5 @@ export const CategoriesContainer = styled.View`
 `;
 
 export const Footer = styled.View`
-  padding: 0 20px;
+  padding: 20px;
 `;

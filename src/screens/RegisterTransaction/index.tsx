@@ -22,19 +22,17 @@ import { format } from 'date-fns';
 import * as Yup from 'yup';
 
 import {
-  ControlledInputTransactionDescription
-} from '@components/Form/ControlledInputTransactionDescription';
+  ControlledInputWithIcon
+} from '@components/Form/ControlledInputWithIcon';
 import {
   ControlledInputTransactionValue
 } from '@components/Form/ControlledInputTransactionValue';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
-import { AccountSelectButton } from '@components/Form/AccountSelectButton';
-import { DateSelectButton } from '@components/Form/DateSelectButton';
-import { ControlledInput } from '@components/Form/ControlledInput';
+import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CategoryProps } from '@components/CategoryListItem';
 import { AccountProps } from '@components/AccountListItem';
-import { ModalView } from '@components/ModalView';
+import { SelectButton } from '@components/SelectButton';
 import { Button } from '@components/Form/Button';
 
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
@@ -57,11 +55,11 @@ import { COLLECTION_TRANSACTIONS } from '@configs/database';
 import theme from '@themes/theme';
 
 import api from '@api/api';
-import { ModalViewSelection } from '@components/ModalViewSelection';
 
 type FormData = {
   description: string;
   amount: string;
+  category: CategoryProps;
 }
 
 /* Validation Form - Start */
@@ -73,7 +71,7 @@ const schema = Yup.object().shape({
     .number()
     .typeError("Digite um valor númerico")
     .positive("O valor não pode ser negativo")
-    .required("Digite o valor")
+    .required("Digite o valor"),
 });
 /* Validation Form - End */
 
@@ -88,21 +86,15 @@ export function RegisterTransaction({ navigation }: any) {
   const [transactionType, setTransactionType] = useState('');
   const [date, setDate] = useState(new Date());
   const formattedDate = format(date, 'dd MMMM, yyyy', { locale: ptBR });
-  const [modeDatePicker, setModeDatePicker] = useState('date');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const onChangeDate = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
     setShowDatePicker(false);
     setDate(currentDate);
   };
-  const showMode = (currentMode: string) => {
-    setModeDatePicker(currentMode);
+  const showDatepicker = () => {
     setShowDatePicker(true);
   };
-  const showDatepicker = () => {
-    showMode('date');
-  };
-
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
@@ -445,9 +437,10 @@ export function RegisterTransaction({ navigation }: any) {
               categorySelected={categorySelected}
               icon={categorySelected.icon?.name}
               color={categorySelected.color.hex}
-              onPress={handleOpenSelectCategoryModal}
+              onPress={handleOpenSelectCategoryModal}              
             />
           </CategorySelectButtonContainer>
+          
           <InputTransactionValueContainer>
             <CurrencyAccont>{accountSelected.currency.symbol}</CurrencyAccont>
             <ControlledInputTransactionValue
@@ -462,23 +455,26 @@ export function RegisterTransaction({ navigation }: any) {
         </HeaderRow>
       </Header>
 
-      <AccountSelectButton
+      <SelectButton
         title={accountSelected.name}
+        icon='wallet'
         color={categorySelected.color.hex}
         onPress={handleOpenSelectAccountModal}
       />
       {
         transactionType === 'transfer' ?
-          <AccountSelectButton
+          <SelectButton
             title={accountDestinationSelected.name}
+            icon='wallet'
             color={categorySelected.color.hex}
             onPress={handleOpenSelectAccountDestinationModal}
           /> :
           <></>
       }
 
-      <DateSelectButton
+      <SelectButton
         title={formattedDate}
+        icon='calendar'
         color={categorySelected.color.hex}
         onPress={showDatepicker}
       />
@@ -496,7 +492,8 @@ export function RegisterTransaction({ navigation }: any) {
           />
         )
       }
-      <ControlledInputTransactionDescription
+      <ControlledInputWithIcon
+        icon='pencil'
         color={categorySelected.color.hex}
         placeholder='Descrição'
         autoCapitalize='sentences'

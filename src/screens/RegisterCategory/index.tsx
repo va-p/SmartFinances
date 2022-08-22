@@ -45,7 +45,7 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterCategory() {
+export function RegisterCategory({ navigation }: any) {
   const tenantId = useSelector(selectUserTenantId);
   const [iconSelected, setIconSelected] = useState({
     id: '',
@@ -110,7 +110,6 @@ export function RegisterCategory() {
           name: 'Selecione a cor',
           hex: ''
         });
-        fetchCategories();
       };
 
       setButtonIsLoading(false);
