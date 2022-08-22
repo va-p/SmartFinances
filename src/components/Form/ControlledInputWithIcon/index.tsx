@@ -11,7 +11,6 @@ import {
 import { Control, Controller, FieldError } from 'react-hook-form';
 
 type Props = TextInputProps & {
-  type: string;
   icon: string;
   color: string;
   name: string;
