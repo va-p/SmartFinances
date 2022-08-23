@@ -5,7 +5,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>en</string>
 		<key>CFBundleDisplayName</key>
-		<string>gofinances</string>
+		<string>smartfinances</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -60,7 +60,7 @@
 			<dict>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>gofinances</string>
+					<string>smartfinances</string>
 				</array>
 			</dict>
 		</array>
