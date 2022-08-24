@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import quotesBrlReducer from './slices/quotesBrlSlice';
+import quotesReducer from './slices/quotesSlice';
 import userReducer from './slices/userSlice';
 
 const store = configureStore({
   reducer: {
     user: userReducer,
-    quotesBrl: quotesBrlReducer
+    quotes: quotesReducer
   },
 });
 
