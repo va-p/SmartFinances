@@ -5,11 +5,11 @@ export default {
     secondary: '#FF872C',
     secondary_light: 'rgba(255, 135, 44, 0.3)',
 
-    success: '#12c38c',
-    success_light: 'rgba(18, 164, 84, 0.5)',
+    success: '#12C38C',
+    success_light: 'rgba(18, 195, 140, 0.6)',
 
-    attention: '#fb6767',
-    attention_light: 'rgba(232, 63, 91, 0.5)',
+    attention: '#FB6767',
+    attention_light: 'rgba(251, 103, 103, 0.6)',
 
     shape: '#F0F2F5',
     
@@ -20,6 +20,7 @@ export default {
     background: '#FFFFFF',
 
     overlay: 'rgba(0, 0, 0, 0.7)',
+    overlay_light: 'rgba(0, 0, 0, 0.1)',
   },
 
   fonts: {
