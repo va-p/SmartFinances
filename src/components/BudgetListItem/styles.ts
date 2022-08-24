@@ -6,6 +6,7 @@ export const Container = styled(RectButton)`
   width: 100%;
   min-height: 80px;
   max-height: 80px;
+  padding: 10px;
 `;
 
 export const Name = styled.Text`
