@@ -26,16 +26,17 @@ import {
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
+import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CategoryProps } from '@components/CategoryListItem';
-import { AccountProps } from '@components/AccountListItem';
 
 
 export interface TransactionProps {
   id: string;
-  created_at: Date;
+  created_at: any;
   description: string;
   amount: string | number;
-  amountConvertedBRLFormatted?: number | null;
+  amount_not_converted?: string | number;
+  currency: CurrencyProps;
   type: 'income' | 'outcome' | 'transfer';
   account: AccountProps;
   category: CategoryProps;
@@ -95,9 +96,8 @@ export function TransactionListItem({
 
               <AmountContainer>
                 {
-                  data.type === 'transfer' ?
-                    <TransferDirectionIcon name='swap-vertical-outline'/> :
-                    <></>
+                  data.type === 'transfer' &&
+                  <TransferDirectionIcon name='swap-vertical-outline' />
                 }
                 <Amount type={data.type}>
                   {data.type === 'outcome' && '-'}
@@ -118,7 +118,7 @@ export function TransactionListItem({
               </Details>
               <AmountConvertedContainer>
                 <AmountConverted>
-                  {data.account.currency.name != 'Real Brasileiro' && `aprox. ${data.amountConvertedBRLFormatted}`}
+                  {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
                 </AmountConverted>
                 <Date>
                   {data.created_at}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { TouchableOpacityProps } from 'react-native';
 import {
   Container,
   Category,
@@ -6,29 +7,7 @@ import {
   Name
 } from './styles';
 
-import { RectButtonProps } from 'react-native-gesture-handler';
-import { TouchableOpacityProps } from 'react-native';
-
-export interface IconProps {
-  id: string;
-  title?: string | undefined;
-  name: string;
-}
-
-export interface ColorProps {
-  id: string;
-  name: string;
-  hex: string;
-}
-
-export interface CategoryProps {
-  id: string;
-  created_at: string;
-  name: string;
-  icon: IconProps;
-  color: ColorProps;
-  tenant_id: string;
-}
+import { CategoryProps } from '@components/CategoryListItem';
 
 type Props = TouchableOpacityProps & {
   data: CategoryProps;

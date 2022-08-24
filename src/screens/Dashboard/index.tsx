@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, RefreshControl, StatusBar } from 'react-native';
+import { Alert, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
@@ -28,10 +28,10 @@ import {
   TransactionProps
 } from '@components/TransactionListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
-import { SelectButton } from '@components/SelectButton';
+import { ChartSelectButton } from '@components/ChartSelectButton';
 import { Load } from '@components/Load';
 
-import { PeriodProps, PeriodSelect } from '@screens/PeriodSelect';
+import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 import {
   setBtcQuoteBrl,
@@ -40,7 +40,7 @@ import {
   selectEurQuoteBrl,
   setUsdQuoteBrl,
   selectUsdQuoteBrl
-} from '@slices/quotesBrlSlice';
+} from '@slices/quotesSlice';
 
 import {
   selectUserTenantId
@@ -65,12 +65,12 @@ export function Dashboard() {
   const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
   const eurQuoteBrl = useSelector(selectEurQuoteBrl);
   const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
-  const [transactionsFormatted, setTransactionsFormatted] = useState<TransactionProps>();
+  const [transactions, setTransactions] = useState<TransactionProps[]>([]);
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState<TransactionProps[]>([]);
   const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
-  const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
+  const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
     id: '1',
-    name: 'meses',
+    name: 'Meses',
     period: 'months'
   });
   const [totalAmountsGroupedBySelectedPeriod, setTotalAmountsGroupedBySelectedPeriod] = useState<PeriodData[]>([
@@ -85,11 +85,12 @@ export function Dashboard() {
       totalExpensesByPeriod: 0
     }
   ]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [cashFlowTotal, setCashFlowTotal] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState(new Date());
+  const selectedPeriodFormatted = format(
+    selectedPeriod, `MMM '\n' yyyy`, { locale: ptBR }
+  );
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
 
-  //console.log(selectedDate);
 
   async function fetchBtcQuote() {
     try {
@@ -169,21 +170,21 @@ export function Dashboard() {
       if (!data) {
       }
       else {
+        setTransactions(data);
         setRefreshing(false);
       }
 
       /**
-       * All Transactions and Totals Formatted in PT-br - Start
+       * All Transactions Formatted in pt-BR - Start
        */
-      let amount = 'R$0';
-      let amountConvertedBRL = 0;
-      let amountConvertedBRLFormatted = 'R$0';
+      let amount: any;
+      let amountNotConvertedFormatted = '';
+      let initialTotalAmountBRL = 0;
       let totalRevenuesBRL = 0;
       let totalExpensesBRL = 0;
 
       const transactionsFormattedPtbr: TransactionProps = data
         .map((transactionPtbr: TransactionProps) => {
-          //Insert switch for verify currency and formatted amount for this currency. If currency is BTC, convert value to BTC using converting API.
           switch (transactionPtbr.account.currency.code) {
             case 'BRL':
               amount = Number(transactionPtbr.amount)
@@ -193,12 +194,6 @@ export function Dashboard() {
                 });
               break;
             case 'BTC':
-              amountConvertedBRL = Number(transactionPtbr.amount) * btcQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
@@ -208,12 +203,6 @@ export function Dashboard() {
                 });
               break;
             case 'EUR':
-              amountConvertedBRL = Number(transactionPtbr.amount) * eurQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
@@ -221,12 +210,6 @@ export function Dashboard() {
                 });
               break;
             case 'USD':
-              amountConvertedBRL = Number(transactionPtbr.amount) * usdQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
               amount = Number(transactionPtbr.amount)
                 .toLocaleString('pt-BR', {
                   style: 'currency',
@@ -237,20 +220,43 @@ export function Dashboard() {
               break;
           }
 
+          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'BRL') {
+            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+              });
+          }
+          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'BTC') {
+            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BTC',
+                minimumFractionDigits: 8,
+                maximumSignificantDigits: 8
+              });
+          }
+          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'EUR') {
+            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'EUR'
+              });
+          }
+          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'USD') {
+            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'USD'
+              });
+          }
+
           switch (transactionPtbr.type) {
             case 'income':
-              if (transactionPtbr.account.currency.code != 'BRL') {
-                totalRevenuesBRL += amountConvertedBRL
-              } else {
-                totalRevenuesBRL += Number(transactionPtbr.amount)
-              }
+              totalRevenuesBRL += Number(transactionPtbr.amount)
               break;
             case 'outcome':
-              if (transactionPtbr.account.currency.code != 'BRL') {
-                totalExpensesBRL += amountConvertedBRL
-              } else {
-                totalExpensesBRL += Number(transactionPtbr.amount)
-              }
+              totalExpensesBRL += Number(transactionPtbr.amount)
               break;
             default: 'income';
               break;
@@ -265,7 +271,13 @@ export function Dashboard() {
             created_at: dateTransactionPtbr,
             description: transactionPtbr.description,
             amount,
-            amountConvertedBRLFormatted,
+            amount_not_converted: amountNotConvertedFormatted,
+            currency: {
+              id: transactionPtbr.currency.id,
+              name: transactionPtbr.currency.name,
+              code: transactionPtbr.currency.code,
+              symbol: transactionPtbr.currency.symbol
+            },
             type: transactionPtbr.type,
             account: {
               id: transactionPtbr.account.id,
@@ -298,29 +310,330 @@ export function Dashboard() {
           }
         });
 
-      // Set totals in BRL for all period formatted in pt-BR
-      let initialTotalAmount = 0;
-
-      const totalBRL = initialTotalAmount + totalRevenuesBRL - totalExpensesBRL;
+      const totalBRL =
+        initialTotalAmountBRL +
+        totalRevenuesBRL -
+        totalExpensesBRL;
       const totalFormattedPtbr = Number(totalBRL)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
         });
-
-      setTransactionsFormatted(transactionsFormattedPtbr);
-      setCashFlowTotal(totalFormattedPtbr);
       /**
-       * All Transactions and Totals Formatted in pt-BR - End
+       * All Transactions Formatted in pt-BR - End
        */
 
 
       /**
-        * All Totals Grouped By Months - Start
+       * Transactions By Months Formatted in pt-BR - Start
        */
-      let totalRevenuesBRLByPeriod = 0;
-      let totalExpensesBRLByPeriod = 0;
+      let initialTotalAmountBRLByMonths = 0;
+      let totalRevenuesBRLByMonths = 0;
+      let totalExpensesBRLByMonths = 0;
 
+      const transactionsByMonths = transactions
+        .filter((transactionByMonthsPtBr: TransactionProps) =>
+          new Date(transactionByMonthsPtBr.created_at).getMonth() === selectedPeriod.getMonth() &&
+          new Date(transactionByMonthsPtBr.created_at).getFullYear() === selectedPeriod.getFullYear()
+        );
+
+      var transactionsByMonthsFormattedPtbr = transactionsByMonths
+        .map((transactionByMonthsPtbr: TransactionProps) => {
+          switch (transactionByMonthsPtbr.account.currency.code) {
+            case 'BRL':
+              amount = Number(transactionByMonthsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              break;
+            case 'BTC':
+              amount = Number(transactionByMonthsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BTC',
+                  minimumFractionDigits: 8,
+                  maximumSignificantDigits: 8
+                });
+              break;
+            case 'EUR':
+              amount = Number(transactionByMonthsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'EUR'
+                });
+              break;
+            case 'USD':
+              amount = Number(transactionByMonthsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'USD'
+                });
+              break;
+            default: 'BRL'
+              break;
+          }
+
+          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'BRL') {
+            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+              });
+          }
+          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'BTC') {
+            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BTC',
+                minimumFractionDigits: 8,
+                maximumSignificantDigits: 8
+              });
+          }
+          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'EUR') {
+            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'EUR'
+              });
+          }
+          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'USD') {
+            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'USD'
+              });
+          }
+
+          switch (transactionByMonthsPtbr.type) {
+            case 'income':
+              totalRevenuesBRLByMonths += Number(transactionByMonthsPtbr.amount)
+              break;
+            case 'outcome':
+              totalExpensesBRLByMonths += Number(transactionByMonthsPtbr.amount)
+              break;
+            default: 'income';
+              break;
+          }
+
+          const dateTransactionPtbr = format(
+            transactionByMonthsPtbr.created_at, 'dd/MM/yyyy', { locale: ptBR }
+          );
+
+          return {
+            id: transactionByMonthsPtbr.id,
+            created_at: dateTransactionPtbr,
+            description: transactionByMonthsPtbr.description,
+            amount,
+            amount_not_converted: amountNotConvertedFormatted,
+            currency: {
+              id: transactionByMonthsPtbr.currency.id,
+              name: transactionByMonthsPtbr.currency.name,
+              code: transactionByMonthsPtbr.currency.code,
+              symbol: transactionByMonthsPtbr.currency.symbol
+            },
+            type: transactionByMonthsPtbr.type,
+            account: {
+              id: transactionByMonthsPtbr.account.id,
+              name: transactionByMonthsPtbr.account.name,
+              currency: {
+                id: transactionByMonthsPtbr.account.currency.id,
+                name: transactionByMonthsPtbr.account.currency.name,
+                code: transactionByMonthsPtbr.account.currency.code,
+                symbol: transactionByMonthsPtbr.account.currency.symbol
+              },
+              initial_amount: transactionByMonthsPtbr.account.initial_amount,
+              tenant_id: transactionByMonthsPtbr.account.tenant_id
+            },
+            category: {
+              id: transactionByMonthsPtbr.category.id,
+              name: transactionByMonthsPtbr.category.name,
+              icon: {
+                id: transactionByMonthsPtbr.category.icon.id,
+                title: transactionByMonthsPtbr.category.icon.title,
+                name: transactionByMonthsPtbr.category.icon.name,
+              },
+              color: {
+                id: transactionByMonthsPtbr.category.color.id,
+                name: transactionByMonthsPtbr.category.color.name,
+                hex: transactionByMonthsPtbr.category.color.hex,
+              },
+              tenant_id: transactionByMonthsPtbr.category.tenant_id
+            },
+            tenant_id: transactionByMonthsPtbr.tenant_id
+          }
+        });
+
+      const totalBRLByMonths =
+        initialTotalAmountBRLByMonths +
+        totalRevenuesBRLByMonths -
+        totalExpensesBRLByMonths;
+      const totalFormattedPtbrByMonths = Number(totalBRLByMonths)
+        .toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        });
+      /**
+       * Transactions By Months Formatted in pt-BR - End
+       */
+
+
+      /**
+       * Transactions By Years Formatted in pt-BR - Start
+       */
+      let initialTotalAmountBRLByYears = 0;
+      let totalRevenuesBRLByYears = 0;
+      let totalExpensesBRLByYears = 0;
+
+      const transactionsByYears = transactions
+        .filter((transactionByYearsPtBr: TransactionProps) =>
+          new Date(transactionByYearsPtBr.created_at).getFullYear() === selectedPeriod.getFullYear()
+        );
+
+      const transactionsByYearsFormattedPtbr = transactionsByYears
+        .map((transactionByYearsPtbr: TransactionProps) => {
+          switch (transactionByYearsPtbr.account.currency.code) {
+            case 'BRL':
+              amount = Number(transactionByYearsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                });
+              break;
+            case 'BTC':
+              amount = Number(transactionByYearsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BTC',
+                  minimumFractionDigits: 8,
+                  maximumSignificantDigits: 8
+                });
+              break;
+            case 'EUR':
+              amount = Number(transactionByYearsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'EUR'
+                });
+              break;
+            case 'USD':
+              amount = Number(transactionByYearsPtbr.amount)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'USD'
+                });
+              break;
+            default: 'BRL'
+              break;
+          }
+
+          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'BRL') {
+            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+              });
+          }
+          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'BTC') {
+            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BTC',
+                minimumFractionDigits: 8,
+                maximumSignificantDigits: 8
+              });
+          }
+          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'EUR') {
+            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'EUR'
+              });
+          }
+          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'USD') {
+            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
+              .toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'USD'
+              });
+          }
+
+          switch (transactionByYearsPtbr.type) {
+            case 'income':
+              totalRevenuesBRLByYears += Number(transactionByYearsPtbr.amount)
+              break;
+            case 'outcome':
+              totalExpensesBRLByYears += Number(transactionByYearsPtbr.amount)
+              break;
+            default: 'income';
+              break;
+          }
+
+          const dateTransactionPtbr = format(
+            transactionByYearsPtbr.created_at, 'dd/MM/yyyy', { locale: ptBR }
+          );
+
+          return {
+            id: transactionByYearsPtbr.id,
+            created_at: dateTransactionPtbr,
+            description: transactionByYearsPtbr.description,
+            amount,
+            amount_not_converted: amountNotConvertedFormatted,
+            currency: {
+              id: transactionByYearsPtbr.currency.id,
+              name: transactionByYearsPtbr.currency.name,
+              code: transactionByYearsPtbr.currency.code,
+              symbol: transactionByYearsPtbr.currency.symbol
+            },
+            type: transactionByYearsPtbr.type,
+            account: {
+              id: transactionByYearsPtbr.account.id,
+              name: transactionByYearsPtbr.account.name,
+              currency: {
+                id: transactionByYearsPtbr.account.currency.id,
+                name: transactionByYearsPtbr.account.currency.name,
+                code: transactionByYearsPtbr.account.currency.code,
+                symbol: transactionByYearsPtbr.account.currency.symbol
+              },
+              initial_amount: transactionByYearsPtbr.account.initial_amount,
+              tenant_id: transactionByYearsPtbr.account.tenant_id
+            },
+            category: {
+              id: transactionByYearsPtbr.category.id,
+              name: transactionByYearsPtbr.category.name,
+              icon: {
+                id: transactionByYearsPtbr.category.icon.id,
+                title: transactionByYearsPtbr.category.icon.title,
+                name: transactionByYearsPtbr.category.icon.name,
+              },
+              color: {
+                id: transactionByYearsPtbr.category.color.id,
+                name: transactionByYearsPtbr.category.color.name,
+                hex: transactionByYearsPtbr.category.color.hex,
+              },
+              tenant_id: transactionByYearsPtbr.category.tenant_id
+            },
+            tenant_id: transactionByYearsPtbr.tenant_id
+          }
+        });
+
+      const totalBRLByYears =
+        initialTotalAmountBRLByYears +
+        totalRevenuesBRLByYears -
+        totalExpensesBRLByYears;
+      const totalFormattedPtbrByYears = Number(totalBRLByYears)
+        .toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        });
+      /**
+       * Transactions By Years Formatted in pt-BR - End
+       */
+
+
+      /**
+       * All Totals Grouped By Months - Start
+       */
       const transactionsGroupedByMonths = data
         .map((transactionByMonth: TransactionProps) => {
           switch (transactionByMonth.account.currency.code) {
@@ -377,6 +690,7 @@ export function Dashboard() {
       /**
        * All Totals Grouped By Months - End
        */
+
 
       /**
        * All Totals Grouped By Years - Start
@@ -438,164 +752,32 @@ export function Dashboard() {
        * All Totals Grouped By Years - End
        */
 
-      /**
-       * Transactions By Selected Period Formatted in pt-BR - Start
-       */
-      const transactionsBySelectedPeriod = data
-        .filter((transaction: TransactionProps) => {
-
-
-          new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
-        });
-      console.log(transactionsBySelectedPeriod);
-
-      let totalRevenuesBRLBySelectedPeriod = 0;
-      let totalExpensesBRLBySelectedPeriod = 0;
-
-      const transactionsBySelectedPeriodFormattedPtbr = transactionsBySelectedPeriod
-        .map((transactionPtbrBySelectedPeriod: TransactionProps) => {
-          switch (transactionPtbrBySelectedPeriod.account.currency.code) {
-            case 'BRL':
-              amount = Number(transactionPtbrBySelectedPeriod.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              break;
-            case 'BTC':
-              amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * btcQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              amount = Number(transactionPtbrBySelectedPeriod.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BTC',
-                  minimumFractionDigits: 8,
-                  maximumSignificantDigits: 8
-                });
-              break;
-            case 'EUR':
-              amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * eurQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              amount = Number(transactionPtbrBySelectedPeriod.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'EUR'
-                });
-              break;
-            case 'USD':
-              amountConvertedBRL = Number(transactionPtbrBySelectedPeriod.amount) * usdQuoteBrl.price;
-              amountConvertedBRLFormatted = Number(amountConvertedBRL)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              amount = Number(transactionPtbrBySelectedPeriod.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'USD'
-                });
-              break;
-            default: 'BRL'
-              break;
-          }
-
-          switch (transactionPtbrBySelectedPeriod.type) {
-            case 'income':
-              if (transactionPtbrBySelectedPeriod.account.currency.code != 'BRL') {
-                totalRevenuesBRLBySelectedPeriod += amountConvertedBRL
-              } else {
-                totalRevenuesBRLBySelectedPeriod += Number(transactionPtbrBySelectedPeriod.amount)
-              }
-              break;
-            case 'outcome':
-              if (transactionPtbrBySelectedPeriod.account.currency.code != 'BRL') {
-                totalExpensesBRLBySelectedPeriod += amountConvertedBRL
-              } else {
-                totalExpensesBRLBySelectedPeriod += Number(transactionPtbrBySelectedPeriod.amount)
-              }
-              break;
-            default: 'income';
-              break;
-          }
-
-          const dateTransactionBySelectedPeriod = format(
-            transactionPtbrBySelectedPeriod.created_at, 'dd/MM/yyyy', { locale: ptBR }
-          );
-
-          return {
-            id: transactionPtbrBySelectedPeriod.id,
-            created_at: dateTransactionBySelectedPeriod,
-            description: transactionPtbrBySelectedPeriod.description,
-            amount,
-            amountConvertedBRLFormatted,
-            type: transactionPtbrBySelectedPeriod.type,
-            account: {
-              id: transactionPtbrBySelectedPeriod.account.id,
-              name: transactionPtbrBySelectedPeriod.account.name,
-              currency: {
-                id: transactionPtbrBySelectedPeriod.account.currency.id,
-                name: transactionPtbrBySelectedPeriod.account.currency.name,
-                code: transactionPtbrBySelectedPeriod.account.currency.code,
-                symbol: transactionPtbrBySelectedPeriod.account.currency.symbol
-              },
-              initial_amount: transactionPtbrBySelectedPeriod.account.initial_amount,
-              tenant_id: transactionPtbrBySelectedPeriod.account.tenant_id
-            },
-            category: {
-              id: transactionPtbrBySelectedPeriod.category.id,
-              name: transactionPtbrBySelectedPeriod.category.name,
-              icon: {
-                id: transactionPtbrBySelectedPeriod.category.icon.id,
-                title: transactionPtbrBySelectedPeriod.category.icon.title,
-                name: transactionPtbrBySelectedPeriod.category.icon.name,
-              },
-              color: {
-                id: transactionPtbrBySelectedPeriod.category.color.id,
-                name: transactionPtbrBySelectedPeriod.category.color.name,
-                hex: transactionPtbrBySelectedPeriod.category.color.hex,
-              },
-              tenant_id: transactionPtbrBySelectedPeriod.category.tenant_id
-            },
-            tenant_id: transactionPtbrBySelectedPeriod.tenant_id
-          }
-        });
-
-      const totalBRLBySelectedPeriod = totalRevenuesBRLBySelectedPeriod - totalExpensesBRLBySelectedPeriod;
-      const totalBySelectedPeriodFormattedBRL = Number(totalBRLBySelectedPeriod)
-        .toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        })
-
-      setTransactionsFormattedBySelectedPeriod(transactionsBySelectedPeriodFormattedPtbr);
-      setCashFlowTotalBySelectedPeriod(totalBySelectedPeriodFormattedBRL);
-      /**
-       * Transactions By Selected Period Formatted in pt-BR - End
-       */
 
       /**
-       * Set Totals Grouped by Selected Period - Start
+       * Set Transactions and Totals by Selected Period - Start
        */
-      switch (periodSelected.period) {
+      switch (chartPeriodSelected.period) {
         case 'months':
+          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByMonths);
           setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
+          setTransactionsFormattedBySelectedPeriod(transactionsByMonthsFormattedPtbr);
           break;
         case 'years':
+          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByYears);
           setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByYears);
-        default:
+          setTransactionsFormattedBySelectedPeriod(transactionsByYearsFormattedPtbr);
+          break;
+        case 'all':
+          setCashFlowTotalBySelectedPeriod(totalFormattedPtbr);
+          //setTotalAmountsGroupedBySelectedPeriod();
+          setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbr);
           break;
       }
+      console.log(transactions, transactionsFormattedBySelectedPeriod, totalAmountsGroupedBySelectedPeriod);
       /**
-       * Set Totals Grouped by Selected Period - End
+       * Set Transactions and Totals by Selected Period  - End
        */
+
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -612,22 +794,22 @@ export function Dashboard() {
   };
 
   function handleDateChange(action: 'next' | 'prev'): void {
-    switch (periodSelected.period) {
+    switch (chartPeriodSelected.period) {
       case 'months':
         if (action === 'next') {
-          setSelectedDate(addMonths(selectedDate, 1));
+          setSelectedPeriod(addMonths(selectedPeriod, 1));
         } else {
-          setSelectedDate(subMonths(selectedDate, 1));
+          setSelectedPeriod(subMonths(selectedPeriod, 1));
         }
         break;
       case 'years':
         if (action === 'next') {
-          setSelectedDate(addYears(selectedDate, 1));
+          setSelectedPeriod(addYears(selectedPeriod, 1));
         } else {
-          setSelectedDate(subYears(selectedDate, 1));
+          setSelectedPeriod(subYears(selectedPeriod, 1));
         }
         break;
-      default:
+      default: 'months'
         break;
     }
 
@@ -656,7 +838,7 @@ export function Dashboard() {
     fetchEurQuote();
     fetchUsdQuote();
     fetchTransactions();
-  }, [periodSelected.period]));
+  }, [chartPeriodSelected.period]));
 
   if (loading) {
     return <Load />
@@ -664,16 +846,15 @@ export function Dashboard() {
 
   return (
     <Container>
-      <StatusBar barStyle="dark-content" />
       <Header>
-        <CashFlowTotal>{cashFlowTotal}</CashFlowTotal>
+        <CashFlowTotal>{cashFlowTotalBySelectedPeriod}</CashFlowTotal>
         <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
       </Header>
 
       <FiltersContainer>
         <FilterButtonGroup>
-          <SelectButton
-            title={`Por ${periodSelected.name}`}
+          <ChartSelectButton
+            title={`Por ${chartPeriodSelected.name}`}
             onPress={handleOpenPeriodSelectedModal}
           />
         </FilterButtonGroup>
@@ -699,7 +880,7 @@ export function Dashboard() {
               style={{
                 data: {
                   width: 10,
-                  fill: theme.colors.success
+                  fill: theme.colors.success_light
                 }
               }}
               cornerRadius={{ top: 2, bottom: 2 }}
@@ -718,7 +899,7 @@ export function Dashboard() {
               style={{
                 data: {
                   width: 10,
-                  fill: theme.colors.attention
+                  fill: theme.colors.attention_light
                 }
               }}
               cornerRadius={{ top: 2, bottom: 2 }}
@@ -734,7 +915,7 @@ export function Dashboard() {
 
       <Transactions>
         <TransactionList
-          data={transactionsFormatted}
+          data={transactionsFormattedBySelectedPeriod}
           keyExtractor={(item: TransactionProps) => item.id}
           renderItem={({ item }: any) => (
             <TransactionListItem
@@ -754,12 +935,12 @@ export function Dashboard() {
         closeModal={handleClosePeriodSelectedModal}
         title='Selecione o período'
       >
-        <PeriodSelect
-          period={periodSelected}
-          setPeriod={setPeriodSelected}
+        <ChartPeriodSelect
+          period={chartPeriodSelected}
+          setPeriod={setChartPeriodSelected}
           closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>
-    </Container >
+    </Container>
   )
 }

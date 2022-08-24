@@ -15,7 +15,7 @@ type Props = TextInputProps & {
   color: string;
 }
 
-export function ControlledInputTransactionValue({
+export function ControlledInputValue({
   name,
   control,
   error,
