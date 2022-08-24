@@ -8,7 +8,8 @@ export const Container = styled.View`
 `;
 
 export const AccountsContainer = styled.View`
-  height: ${RFPercentage(80)}px;
+  height: ${RFPercentage(75)}px;
+  padding: 0 10px;
 `;
 
 export const Footer = styled.View`

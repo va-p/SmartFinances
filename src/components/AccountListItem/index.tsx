@@ -24,9 +24,8 @@ export interface CurrencyProps {
 
 export interface AccountProps {
   id: string;
-  created_at: string;
   name: string;
-  currency: Currency;
+  currency: CurrencyProps;
   initial_amount: string | number;
   tenant_id: string;
 }

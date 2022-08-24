@@ -29,20 +29,14 @@ export const HeaderRow = styled.View`
 `;
 
 export const CategorySelectButtonContainer = styled.View`
-  width: 60%;
+  width: 55%;
   flex-direction: row;
 `;
 
 export const InputTransactionValueContainer = styled.View`
-  width: 40%;
+  width: 45%;
   flex-direction: row;
   align-items: center;
-`;
-
-export const CurrencyAccont = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(18)}px;
-  color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Title = styled.Text`

@@ -21,6 +21,7 @@ import { selectUserTenantId } from '@slices/userSlice';
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
 type FormData = {
   name: string;
@@ -130,14 +131,26 @@ export function RegisterAccount({ navigation }: any) {
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Form>
-        <ControlledInput
-          type='primary'
-          placeholder='Nome da conta'
+        <ControlledInputWithIcon
+          icon='pencil'
+          color={theme.colors.primary}
+          placeholder='Nome'
           autoCapitalize='sentences'
           autoCorrect={false}
+          defaultValue=''
           name='name'
           control={control}
           error={errors.name}
+        />
+
+        <ControlledInputWithIcon
+          icon='cash'
+          color={theme.colors.primary}
+          placeholder='Saldo inicial'
+          keyboardType='numeric'
+          name='initialAmount'
+          control={control}
+          error={errors.initialAmount}
         />
 
         <SelectDropdown
@@ -202,15 +215,6 @@ export function RegisterAccount({ navigation }: any) {
           dropdownStyle={{
             borderRadius: 10,
           }}
-        />
-
-        <ControlledInput
-          type='primary'
-          placeholder='Saldo inicial da conta'
-          keyboardType='numeric'
-          name='initialAmount'
-          control={control}
-          error={errors.initialAmount}
         />
         <Footer>
           <Button

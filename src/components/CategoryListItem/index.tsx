@@ -26,7 +26,6 @@ export interface ColorProps {
 
 export interface CategoryProps {
   id: string;
-  created_at: string;
   name: string;
   icon: IconProps;
   color: ColorProps;

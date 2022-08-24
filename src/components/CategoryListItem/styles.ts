@@ -14,7 +14,7 @@ export const Container = styled.View`
 
 export const Category = styled.TouchableOpacity.attrs({
   activeOpacity: 0.6
-})<ColorProps>`
+}) <ColorProps>`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
@@ -28,7 +28,7 @@ export const Category = styled.TouchableOpacity.attrs({
   border-radius: 10px;
 `;
 
-export const Icon = styled(Ionicons)<ColorProps>`
+export const Icon = styled(Ionicons) <ColorProps>`
   font-size: ${RFValue(20)}px;
   margin-right: 8px;
   color: ${({ color }) => color};
