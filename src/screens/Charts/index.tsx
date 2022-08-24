@@ -121,7 +121,7 @@ export function Charts() {
 
       /**
        * Expenses by Selected Month - Start
-      **/
+       */
       const expensesBySelectedMonth = transactions
         .filter((expense: TransactionProps) =>
           expense.type == 'outcome' &&
@@ -134,11 +134,11 @@ export function Charts() {
         }, 0);
       /**
        * Expenses by Selected Month - End
-      **/
+       */
 
       /**
        * Expenses by Category - Start
-      **/
+       */
       const totalExpensesByCategory: CategoryData[] = [];
 
       categories.forEach(category => {
@@ -176,7 +176,24 @@ export function Charts() {
       setTotalExpensesByCategories(totalExpensesByCategory);
       /**
        * Expenses by Category - End
-      **/ 
+       */
+
+      /**
+       * Revenues by Selected Month - Start
+       */
+      const revenuesBySelectedMonth = transactions
+        .filter((revenue: TransactionProps) =>
+          revenue.type == 'outcome' &&
+          new Date(revenue.created_at).getMonth() === selectedDate.getMonth() &&
+          new Date(revenue.created_at).getFullYear() === selectedDate.getFullYear()
+        );
+      const revenuesTotalBySelectedMonth = revenuesBySelectedMonth
+        .reduce((acc: number, revenue: TransactionProps) => {
+          return acc + Number(revenue.amount);
+        }, 0);
+      /**
+       * Revenues by Selected Month - End
+       */
 
       //const dateTest = new Date(1658411143409).getMonth();
       //console.log();
