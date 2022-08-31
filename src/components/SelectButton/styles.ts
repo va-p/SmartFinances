@@ -38,13 +38,11 @@ export const SubtitleContainer = styled.View`
   flex-direction: row;
 `;
 
-export const SubTitle = styled.Text<ItemProps>`
+export const SubTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   padding-right: 10px;
-  color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary : theme.colors.text
-  };
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const IconChevronDown = styled(Ionicons)`

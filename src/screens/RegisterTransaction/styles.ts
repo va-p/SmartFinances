@@ -8,35 +8,37 @@ type ColorProps = {
 
 export const Container = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Header = styled.View <ColorProps>`
   min-height: ${RFPercentage(18)}px;
   max-height: ${RFPercentage(18)}px;
   align-items: center;
-  padding: 10px 20px;
+  padding: 10px 10px;
   margin-bottom: 3px;
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
   background-color: ${({ color }) => color};
 `;
 
+export const TitleContainer = styled.View`
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
 export const HeaderRow = styled.View`
-  width: 100%;  
+  width: 100%;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
   padding: 10px 0;
 `;
 
-export const CategorySelectButtonContainer = styled.View`
-  width: 55%;
-  flex-direction: row;
-`;
-
 export const InputTransactionValueContainer = styled.View`
-  width: 45%;
+  width: 60%;
   flex-direction: row;
   align-items: center;
+  margin: 0 10px 0 20px;
 `;
 
 export const Title = styled.Text`

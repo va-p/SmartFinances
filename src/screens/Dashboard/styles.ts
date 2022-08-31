@@ -1,8 +1,9 @@
 import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper';
+import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
@@ -60,11 +61,14 @@ export const TransactionList = styled(
     }
   })``;
 
-
-  export const MonthSelect = styled.View`
-  width: 100%;
-  flex-direction: row;
+export const RegisterTransactionButton = styled(RectButton)`
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 24px;
+  justify-content: center;
+  background-color: ${({ theme }) => theme.colors.secondary};
+  border-radius: 30px;
 `;

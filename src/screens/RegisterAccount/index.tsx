@@ -13,15 +13,19 @@ import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
-import { ControlledInput } from '@components/Form/ControlledInput';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
+import { ModalViewSelection } from '@components/ModalViewSelection';
+import { CurrencyProps } from '@components/AccountListItem';
 import { Button } from '@components/Form/Button';
+
+import { CurrencySelect } from '@screens/CurrencySelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
-import api from '@api/api';
-
 import theme from '@themes/theme';
-import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
+
+import api from '@api/api';
+import { SelectButton } from '@components/SelectButton';
 
 type FormData = {
   name: string;
@@ -46,7 +50,6 @@ export function RegisterAccount({ navigation }: any) {
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
   });
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const accountTypes = [
     'Carteira',
     'Carteira de Criptomoedas',
@@ -56,14 +59,15 @@ export function RegisterAccount({ navigation }: any) {
     'Outro'
   ];
   const [typeSelected, setTypeSelected] = useState('');
-  const currencies = [
-    'BRL - Real Brasileiro',
-    'BTC - Bitcoin',
-    'EUR - Euro',
-    'USD - Dólar Americano'
-  ];
-  const [currencySelected, setCurrencySelected] = useState('');
+  const [currencyModalOpen, setCurrencyModalOpen] = useState(false);
+  const [currencySelected, setCurrencySelected] = useState({
+    id: '4',
+    name: 'Real Brasileiro',
+    code: 'BRL',
+    symbol: 'R$'
+  } as CurrencyProps);
   const [simbol, setSimbol] = useState('');
+  const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
   function iconSelectDropdown() {
     return (
@@ -73,6 +77,14 @@ export function RegisterAccount({ navigation }: any) {
         color={theme.colors.text}
       />
     )
+  }
+
+  function handleOpenSelectCurrencyModal() {
+    setCurrencyModalOpen(true);
+  }
+
+  function handleCloseSelectCurrencyModal() {
+    setCurrencyModalOpen(false);
   }
 
   async function handleAccountRegister(form: FormData) {
@@ -88,30 +100,13 @@ export function RegisterAccount({ navigation }: any) {
       return Alert.alert("Cadastro de Conta", "Selecione a moeda da conta", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
-    }
-
-    switch (currencySelected) {
-      case 'BRL - Real Brasileiro':
-        setSimbol('R$')
-        break;
-      case 'BTC - Bitcoin':
-        setSimbol('₿')
-        break;
-      case 'EUR - Euro':
-        setSimbol('€')
-        break;
-      case 'USD - Dólar Americano':
-        setSimbol('US$')
-        break;
-      default: 'BRL - Real Brasileiro'
-        break;
-    }
+    }    
 
     try {
       const newAccount = {
         name: form.name,
         type: typeSelected,
-        currency: currencySelected,
+        currency_id: currencySelected.id,
         simbol: simbol,
         initial_amount: form.initialAmount,
         tenant_id: tenantId
@@ -153,6 +148,13 @@ export function RegisterAccount({ navigation }: any) {
           error={errors.initialAmount}
         />
 
+        <SelectButton
+          title={currencySelected.name}
+          icon='wallet'
+          color={theme.colors.primary}
+          onPress={handleOpenSelectCurrencyModal}
+        />
+
         <SelectDropdown
           data={accountTypes}
           onSelect={(selectedItem) => {
@@ -184,47 +186,28 @@ export function RegisterAccount({ navigation }: any) {
             borderRadius: 10,
           }}
         />
-
-        <SelectDropdown
-          data={currencies}
-          onSelect={(selectedItem) => {
-            setCurrencySelected(selectedItem);
-          }}
-          buttonTextAfterSelection={(selectedItem) => {
-            return selectedItem
-          }}
-          rowTextForSelection={(item) => {
-            return item
-          }}
-          defaultButtonText="Selecione a moeda"
-          renderDropdownIcon={iconSelectDropdown}
-          dropdownIconPosition='right'
-          buttonStyle={{
-            width: '100%',
-            minHeight: 56,
-            maxHeight: 56,
-            marginTop: 10,
-            backgroundColor: theme.colors.shape,
-            borderRadius: 10
-          }}
-          buttonTextStyle={{
-            fontFamily: theme.fonts.regular,
-            fontSize: 15,
-            textAlign: 'left'
-          }}
-          dropdownStyle={{
-            borderRadius: 10,
-          }}
-        />
-        <Footer>
-          <Button
-            type='secondary'
-            title='Criar conta'
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleAccountRegister)}
-          />
-        </Footer>
       </Form>
+
+      <Footer>
+        <Button
+          type='secondary'
+          title='Criar conta'
+          isLoading={buttonIsLoading}
+          onPress={handleSubmit(handleAccountRegister)}
+        />
+      </Footer>
+
+      <ModalViewSelection
+        visible={currencyModalOpen}
+        closeModal={handleCloseSelectCurrencyModal}
+        title='Selecione a moeda'
+      >
+        <CurrencySelect
+          currency={currencySelected}
+          setCurrency={setCurrencySelected}
+          closeSelectCurrency={handleCloseSelectCurrencyModal}
+        />
+      </ModalViewSelection>
     </Container>
   );
 }

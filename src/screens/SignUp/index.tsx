@@ -43,11 +43,11 @@ const schema = Yup.object().shape({
   password: Yup
     .string()
     .required("Digite a sua senha")
-    .min(8, 'A senha deve ter no mínimo 8 caracteres'),
+    .min(8, "A senha deve ter no mínimo 8 caracteres"),
   confirmPassword: Yup
     .string()
-    .required('Confirme a sua senha')
-    .oneOf([Yup.ref('password'), null], 'As senhas não conferem'),
+    .required("Confirme a sua senha")
+    .oneOf([Yup.ref('password'), null], "As senhas não conferem"),
 });
 /* Validation Form - End */
 
@@ -111,60 +111,70 @@ export function SignUp({ navigation }: any) {
 
       <Form>
         <ControlledInput
+          type='primary'
           placeholder='Nome'
           autoCapitalize='words'
           autoCorrect={false}
-          type='primary'
+          autoComplete='name'
+          textContentType='name'
           name='name'
           control={control}
           error={errors.name}
         />
 
         <ControlledInput
+          type='primary'
           placeholder='Sobrenome'
           autoCapitalize='words'
           autoCorrect={false}
-          type='primary'
+          autoComplete='name-family'
+          textContentType='familyName'
           name='lastName'
           control={control}
           error={errors.lastName}
         />
 
         <ControlledInput
+          type='primary'
           placeholder='E-mail'
           autoCapitalize='none'
           keyboardType='email-address'
           autoCorrect={false}
-          type='primary'
+          autoComplete='email'
+          textContentType='emailAddress'
           name='email'
           control={control}
           error={errors.email}
         />
 
         <ControlledInput
+          type='primary'
           placeholder='Telefone'
           keyboardType='phone-pad'
-          type='primary'
           name='phone'
           control={control}
           error={errors.phone}
         />
 
         <ControlledInput
+          type='primary'
           placeholder='Senha'
           autoCorrect={false}
           secureTextEntry={true}
-          type='primary'
+          autoComplete='password-new'
+          textContentType='newPassword'
           name='password'
           control={control}
           error={errors.password}
         />
 
         <ControlledInput
+          type='primary'
           placeholder='Confirme sua senha'
           autoCorrect={false}
           secureTextEntry={true}
-          type='primary'
+          autoComplete='password-new'
+          textContentType='newPassword'
           name='confirmPassword'
           control={control}
           error={errors.confirmPassword}

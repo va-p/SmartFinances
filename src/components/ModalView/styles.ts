@@ -31,7 +31,7 @@ export const Title = styled.Text`
   flex: 1;
   text-align: center;
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(18)}px;
+  font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.shape};
 `;
 

@@ -7,15 +7,11 @@ export const Container = styled.KeyboardAvoidingView`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const AccountsContainer = styled.View`
-  height: ${RFPercentage(45)}px;
-`;
-
 export const Form = styled.View`
-  height: ${RFPercentage(50)}px;
+  height: ${RFPercentage(80)}px;
   padding: 10px;
 `;
 
 export const Footer = styled.View`
-  padding: 10px 0;
+  padding: 0 20px;
 `;

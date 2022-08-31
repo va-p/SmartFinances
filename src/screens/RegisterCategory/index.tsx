@@ -183,7 +183,7 @@ export function RegisterCategory({ navigation }: any) {
         <Footer>
           <Button
             type='secondary'
-            title='Cadastrar categoria'
+            title='Criar categoria'
             isLoading={buttonIsLoading}
             onPress={handleSubmit(handleCategoryRegister)}
           />

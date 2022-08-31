@@ -92,5 +92,5 @@ export const Icon = styled(Ionicons) <Props>`
 `;
 
 export const Footer = styled.View`
-  padding: 10px 0;
+  padding: 0 20px;
 `;

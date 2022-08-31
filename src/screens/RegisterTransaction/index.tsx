@@ -3,8 +3,8 @@ import { Alert } from 'react-native';
 import {
   Container,
   Header,
+  TitleContainer,
   HeaderRow,
-  CategorySelectButtonContainer,
   InputTransactionValueContainer,
   Title,
   TransactionsTypes,
@@ -13,7 +13,9 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { BorderlessButton } from 'react-native-gesture-handler';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Ionicons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
@@ -70,6 +72,10 @@ import theme from '@themes/theme';
 
 import api from '@api/api';
 
+type Props = {
+  closeRegisterTransaction: () => void;
+}
+
 type FormData = {
   description: string;
   amount: string;
@@ -89,7 +95,7 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterTransaction({ navigation }: any) {
+export function RegisterTransaction({ closeRegisterTransaction }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
   const brlQuoteEur = useSelector(selectBrlQuoteEur);
@@ -219,7 +225,6 @@ export function RegisterTransaction({ navigation }: any) {
 
     if (transactionType != 'transfer') {
       if (currencySelected.code !== accountSelected.currency.code) {
-        // Need converted value and input both values
         let amountConverted = 0;
 
         // Converted BRL
@@ -291,7 +296,7 @@ export function RegisterTransaction({ navigation }: any) {
 
           const { status } = await api.post('transaction', newTransaction);
           if (status === 200) {
-            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
+            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
             const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
             const currentData = data ? JSON.parse(data) : [];
@@ -343,13 +348,13 @@ export function RegisterTransaction({ navigation }: any) {
 
       } else {
         try {
-          const accountDataResponse = await api.get('single_account', {
+          const accountResponse = await api.get('single_account', {
             params: {
               tenant_id: tenantId,
               name: accountSelected.name
             }
           });
-          if (accountDataResponse.status !== 200) {
+          if (accountResponse.status !== 200) {
             Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
           }
 
@@ -359,14 +364,14 @@ export function RegisterTransaction({ navigation }: any) {
             amount: form.amount,
             currency_id: currencySelected.id,
             type: transactionType,
-            account_id: accountDataResponse.data.id,
+            account_id: accountResponse.data.id,
             category_id: categorySelected.id,
             tenant_id: tenantId
           }
 
           const { status } = await api.post('transaction', newTransaction);
           if (status === 200) {
-            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
+            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
             const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
             const currentData = data ? JSON.parse(data) : [];
@@ -419,81 +424,81 @@ export function RegisterTransaction({ navigation }: any) {
     } else {
       let amountConverted = 0;
 
-      try {
-        if (accountSelected.currency !== accountDestinationSelected.currency) {
-          //Converted BTC
-          if (accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'BRL') {
-            amountConverted = Number(form.amount) * btcQuoteBrl.price
-          };
-          if (accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'EUR') {
-            amountConverted = Number(form.amount) * btcQuoteEur.price
-          };
-          if (accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'USD') {
-            amountConverted = Number(form.amount) * btcQuoteUsd.price
-          };
+      if (accountSelected.currency.code !== accountDestinationSelected.currency.code) {
 
-          //Converted BRL
-          if (accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'BTC') {
-            amountConverted = Number(form.amount) * brlQuoteBtc.price
-          };
-          if (accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'EUR') {
-            amountConverted = Number(form.amount) * brlQuoteEur.price
-          };
-          if (accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'USD') {
-            amountConverted = Number(form.amount) * brlQuoteUsd.price
-          };
-
-          //Converted EUR
-          if (accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'BTC') {
-            amountConverted = Number(form.amount) * eurQuoteBtc.price
-          };
-          if (accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'BRL') {
-            amountConverted = Number(form.amount) * eurQuoteBrl.price
-          };
-          if (accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'USD') {
-            amountConverted = Number(form.amount) * eurQuoteUsd.price
-          };
-
-          //Converted USD
-          if (accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'BTC') {
-            amountConverted = Number(form.amount) * usdQuoteBtc.price
-          };
-          if (accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'BRL') {
-            amountConverted = Number(form.amount) * usdQuoteBrl.price
-          };
-          if (accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'EUR') {
-            amountConverted = Number(form.amount) * usdQuoteEur.price
-          };
-        }
-        else {
-          amountConverted = Number(form.amount)
+        //Converted BRL
+        if (accountSelected.currency.code === 'BRL' &&
+          accountDestinationSelected.currency.code === 'BTC') {
+          amountConverted = Number(form.amount) * brlQuoteBtc.price
+        };
+        if (accountSelected.currency.code === 'BRL' &&
+          accountDestinationSelected.currency.code === 'EUR') {
+          amountConverted = Number(form.amount) * brlQuoteEur.price
+        };
+        if (accountSelected.currency.code === 'BRL' &&
+          accountDestinationSelected.currency.code === 'USD') {
+          amountConverted = Number(form.amount) * brlQuoteUsd.price
         };
 
-        const accountDataResponse = await api.get('single_account', {
+        //Converted BTC
+        if (accountSelected.currency.code === 'BTC' &&
+          accountDestinationSelected.currency.code === 'BRL') {
+          amountConverted = Number(form.amount) * btcQuoteBrl.price
+        };
+        if (accountSelected.currency.code === 'BTC' &&
+          accountDestinationSelected.currency.code === 'EUR') {
+          amountConverted = Number(form.amount) * btcQuoteEur.price
+        };
+        if (accountSelected.currency.code === 'BTC' &&
+          accountDestinationSelected.currency.code === 'USD') {
+          amountConverted = Number(form.amount) * btcQuoteUsd.price
+        };
+
+        //Converted EUR
+        if (accountSelected.currency.code === 'EUR' &&
+          accountDestinationSelected.currency.code === 'BTC') {
+          amountConverted = Number(form.amount) * eurQuoteBtc.price
+        };
+        if (accountSelected.currency.code === 'EUR' &&
+          accountDestinationSelected.currency.code === 'BRL') {
+          amountConverted = Number(form.amount) * eurQuoteBrl.price
+        };
+        if (accountSelected.currency.code === 'EUR' &&
+          accountDestinationSelected.currency.code === 'USD') {
+          amountConverted = Number(form.amount) * eurQuoteUsd.price
+        };
+
+        //Converted USD
+        if (accountSelected.currency.code === 'USD' &&
+          accountDestinationSelected.currency.code === 'BTC') {
+          amountConverted = Number(form.amount) * usdQuoteBtc.price
+        };
+        if (accountSelected.currency.code === 'USD' &&
+          accountDestinationSelected.currency.code === 'BRL') {
+          amountConverted = Number(form.amount) * usdQuoteBrl.price
+        };
+        if (accountSelected.currency.code === 'USD' &&
+          accountDestinationSelected.currency.code === 'EUR') {
+          amountConverted = Number(form.amount) * usdQuoteEur.price
+        };
+      } else {
+        amountConverted = Number(form.amount)
+      };
+
+      try {
+        const accountResponse = await api.get('single_account', {
           params: {
             tenant_id: tenantId,
             name: accountSelected.name
           }
         });
-        const accountDestinationDataResponse = await api.get('single_account', {
+        const accountDestinationResponse = await api.get('single_account', {
           params: {
             tenant_id: tenantId,
             name: accountDestinationSelected.name
           }
         });
-        if (accountDataResponse.status && accountDestinationDataResponse.status !== 200) {
+        if (accountResponse.status && accountDestinationResponse.status !== 200) {
           Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
         }
 
@@ -501,8 +506,9 @@ export function RegisterTransaction({ navigation }: any) {
           created_at: date,
           description: form.description,
           amount: form.amount,
+          currency_id: currencySelected.id,
           type: transactionType,
-          account_id: accountDataResponse.data.id,
+          account_id: accountResponse.data.id,
           category_id: categorySelected.id,
           tenant_id: tenantId
         }
@@ -511,17 +517,20 @@ export function RegisterTransaction({ navigation }: any) {
           created_at: date,
           description: form.description,
           amount: amountConverted,
+          currency_id: currencySelected.id,
           type: transactionType,
-          account_id: accountDestinationDataResponse.data.id,
+          account_id: accountDestinationResponse.data.id,
           category_id: categorySelected.id,
           tenant_id: tenantId
         }
 
-        const transferOutDataResponse = await api.post('transaction', transferOut);
-        const transferInDataResponse = await api.post('transaction', transferIn);
+        const transferOutResponse = await api.post('transaction', transferOut);
+        const transferInResponse = await api.post('transaction', transferIn);
 
-        if (transferInDataResponse.response === 200) {
-          Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Timeline') }]);
+        if (transferOutResponse.status && transferInResponse.status === 200) {
+          Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+
+          console.log(transferInResponse);
 
           const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
           const currentData = data ? JSON.parse(data) : [];
@@ -589,30 +598,42 @@ export function RegisterTransaction({ navigation }: any) {
   return (
     <Container>
       <Header color={categorySelected.color.hex}>
-        <Title>Adicionar Transação</Title>
+        <TitleContainer>
+          <BorderlessButton onPress={closeRegisterTransaction}>
+            <Ionicons name='close' size={26} color={theme.colors.background} />
+          </BorderlessButton>
+          <Title>Adicionar Transação</Title>
+          {
+            transactionType === 'transfer' ?
+              <BorderlessButton>
+                <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
+              </BorderlessButton> :
+              <Ionicons name='trash-outline' size={26} color={categorySelected.color.hex} />
+          }
+        </TitleContainer>
 
         <HeaderRow>
-          <CategorySelectButtonContainer>
-            <CategorySelectButton
-              categorySelected={categorySelected}
-              icon={categorySelected.icon?.name}
-              color={categorySelected.color.hex}
-              onPress={handleOpenSelectCategoryModal}
-            />
-          </CategorySelectButtonContainer>
+          <CategorySelectButton
+            categorySelected={categorySelected}
+            icon={categorySelected.icon?.name}
+            color={categorySelected.color.hex}
+            onPress={handleOpenSelectCategoryModal}
+          />
 
           <InputTransactionValueContainer>
-            <CurrencySelectButton
-              title={currencySelected.symbol}
-              onPress={handleOpenSelectCurrencyModal}
-            />
             <ControlledInputValue
               placeholder='0'
               keyboardType='numeric'
               defaultValue='0'
+              textAlign='right'
               name='amount'
               control={control}
               error={errors.amount}
+            />
+
+            <CurrencySelectButton
+              title={currencySelected.symbol}
+              onPress={handleOpenSelectCurrencyModal}
             />
           </InputTransactionValueContainer>
         </HeaderRow>
@@ -625,14 +646,13 @@ export function RegisterTransaction({ navigation }: any) {
         onPress={handleOpenSelectAccountModal}
       />
       {
-        transactionType === 'transfer' ?
-          <SelectButton
-            title={accountDestinationSelected.name}
-            icon='wallet'
-            color={categorySelected.color.hex}
-            onPress={handleOpenSelectAccountDestinationModal}
-          /> :
-          <></>
+        transactionType === 'transfer' &&
+        <SelectButton
+          title={accountDestinationSelected.name}
+          icon='wallet'
+          color={categorySelected.color.hex}
+          onPress={handleOpenSelectAccountDestinationModal}
+        />
       }
 
       <SelectButton

@@ -208,6 +208,8 @@ export function SignIn({ navigation }: any) {
             placeholder='E-mail'
             autoCapitalize='none'
             autoCorrect={false}
+            autoComplete='email'
+            textContentType='emailAddress'
             name='email'
             control={control}
             error={errors.email}
@@ -219,6 +221,7 @@ export function SignIn({ navigation }: any) {
             autoCapitalize='none'
             autoCorrect={false}
             secureTextEntry={true}
+            textContentType='password'
             name='password'
             control={control}
             error={errors.password}

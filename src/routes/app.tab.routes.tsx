@@ -1,11 +1,9 @@
 import React from 'react';
-import { Platform } from 'react-native';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
-import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { AppStackRoutes } from './app.stack.routes';
 import { Dashboard } from '@screens/Dashboard';
 import { Charts } from '@screens/Charts';
@@ -35,20 +33,6 @@ export function AppTabRoutes() {
           tabBarIcon: (({ size, color }) => (
             <Ionicons
               name='list-outline'
-              size={size}
-              color={color}
-            />
-          ))
-        }}
-      />
-
-      <Screen
-        name="Cadastrar"
-        component={RegisterTransaction}
-        options={{
-          tabBarIcon: (({ size, color }) => (
-            <Ionicons
-              name='add-circle-outline'
               size={size}
               color={color}
             />

@@ -9,7 +9,8 @@ import {
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
-  TransactionList
+  TransactionList,
+  RegisterTransactionButton
 } from './styles'
 
 import {
@@ -21,17 +22,20 @@ import {
 import { addMonths, addYears, subMonths, subYears, format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
 
 import {
   TransactionListItem,
   TransactionProps
 } from '@components/TransactionListItem';
+import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { Load } from '@components/Load';
 
 import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
+import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import {
   setBtcQuoteBrl,
@@ -90,6 +94,7 @@ export function Dashboard() {
     selectedPeriod, `MMM '\n' yyyy`, { locale: ptBR }
   );
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
+  const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
 
 
   async function fetchBtcQuote() {
@@ -773,7 +778,6 @@ export function Dashboard() {
           setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbr);
           break;
       }
-      console.log(transactions, transactionsFormattedBySelectedPeriod, totalAmountsGroupedBySelectedPeriod);
       /**
        * Set Transactions and Totals by Selected Period  - End
        */
@@ -791,6 +795,14 @@ export function Dashboard() {
 
   function handleClosePeriodSelectedModal() {
     setPeriodSelectedModalOpen(false);
+  };
+
+  function handleOpenRegisterTransactionModal() {
+    setRegisterTransactionModalOpen(true);
+  };
+
+  function handleCloseRegisterTransactionModal() {
+    setRegisterTransactionModalOpen(false);
   };
 
   function handleDateChange(action: 'next' | 'prev'): void {
@@ -930,6 +942,10 @@ export function Dashboard() {
         />
       </Transactions>
 
+      <RegisterTransactionButton onPress={handleOpenRegisterTransactionModal}>
+        <Ionicons name='add-outline' size={32} color={theme.colors.background} />
+      </RegisterTransactionButton>
+
       <ModalViewSelection
         visible={periodSelectedModalOpen}
         closeModal={handleClosePeriodSelectedModal}
@@ -941,6 +957,15 @@ export function Dashboard() {
           closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>
+
+      <ModalViewRegisterTransaction
+        visible={registerTransactionModalOpen}
+        closeModal={handleCloseRegisterTransactionModal}
+      >
+        <RegisterTransaction
+          closeRegisterTransaction={handleCloseRegisterTransactionModal}
+        />
+      </ModalViewRegisterTransaction>
     </Container>
   )
 }

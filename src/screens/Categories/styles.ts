@@ -8,9 +8,9 @@ export const Container = styled.View`
 `;
 
 export const CategoriesContainer = styled.View`
-  height: ${RFPercentage(80)}px;
+  height: ${RFPercentage(85)}px;
 `;
 
 export const Footer = styled.View`
-  padding: 20px;
+  padding: 0 20px;
 `;
