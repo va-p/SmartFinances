@@ -5,8 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
 import { AppStackRoutes } from './app.stack.routes';
-import { Dashboard } from '@screens/Dashboard';
 import { Charts } from '@screens/Charts';
+import { Home } from '@screens/Home';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -28,7 +28,7 @@ export function AppTabRoutes() {
     >
       <Screen
         name="Timeline"
-        component={Dashboard}
+        component={Home}
         options={{
           tabBarIcon: (({ size, color }) => (
             <Ionicons

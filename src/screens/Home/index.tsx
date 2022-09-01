@@ -61,7 +61,7 @@ type PeriodData = {
   totalExpensesByPeriod: number;
 }
 
-export function Dashboard() {
+export function Home() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
@@ -95,7 +95,7 @@ export function Dashboard() {
   );
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
-
+  const [transactionId, setTransactionId] = useState('');
 
   async function fetchBtcQuote() {
     try {
@@ -805,6 +805,11 @@ export function Dashboard() {
     setRegisterTransactionModalOpen(false);
   };
 
+  function handleOpenTransaction(id: string) {
+    setTransactionId(id);
+    setRegisterTransactionModalOpen(true);
+  }
+
   function handleDateChange(action: 'next' | 'prev'): void {
     switch (chartPeriodSelected.period) {
       case 'months':
@@ -827,23 +832,9 @@ export function Dashboard() {
 
   };
 
-  async function handleTransactionSwipeLeft(id: string) {
-    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a transação.", onPress: () => handleDeleteTransaction(id) }])
-  };
-
-  async function handleDeleteTransaction(id: string) {
-    try {
-      await api.delete('delete_transaction', {
-        params: {
-          transaction_id: id
-        }
-      });
-      fetchTransactions();
-      Alert.alert("Exclusão de transação", "Transação excluída com sucesso!")
-    } catch (error) {
-      Alert.alert("Exclusão de transação", `${error}`)
-    }
-  };
+  function ClearTransactionId() {
+    setTransactionId('');
+  }
 
   useFocusEffect(useCallback(() => {
     fetchBtcQuote();
@@ -932,7 +923,7 @@ export function Dashboard() {
           renderItem={({ item }: any) => (
             <TransactionListItem
               data={item}
-              onSwipeableLeftOpen={() => handleTransactionSwipeLeft(item.id)}
+              onPress={() => handleOpenTransaction(item.id)}
             />
           )}
           initialNumToRender={50}
@@ -964,6 +955,8 @@ export function Dashboard() {
       >
         <RegisterTransaction
           closeRegisterTransaction={handleCloseRegisterTransactionModal}
+          id={transactionId}
+          setId={ClearTransactionId}
         />
       </ModalViewRegisterTransaction>
     </Container>

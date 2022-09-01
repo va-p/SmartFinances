@@ -45,89 +45,57 @@ export interface TransactionProps {
 
 type Props = RectButtonProps & {
   data: TransactionProps;
-  onSwipeableLeftOpen: () => void;
 }
 
 export function TransactionListItem({
   data,
-  onSwipeableLeftOpen,
   ...rest
 }: Props) {
-  /*const [ category ] = categories.filter(
-    item => item.key === data.category
-  );*/
-
-  function handleTransactionSwipeLeft(
-    progressAnimatedValue: Animated.AnimatedInterpolation,
-    dragAnimatedValue: Animated.AnimatedInterpolation
-  ) {
-    const delay = progressAnimatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 1]
-    });
-    const opacity = dragAnimatedValue.interpolate({
-      inputRange: [-150, -50],
-      outputRange: [1, 0],
-      extrapolate: 'clamp',
-    });
-    return (
-      <DeleteButton style={{ opacity }}>
-        <DeleteButtonText>Excluir</DeleteButtonText>
-        <DeleteButtonIcon name='trash-outline' />
-      </DeleteButton>
-    )
-  };
-
   return (
     <Container>
-      <Swipeable
-        renderRightActions={handleTransactionSwipeLeft}
-        onSwipeableOpen={onSwipeableLeftOpen}
-      >
-        <Content {...rest}>
-          <IconContainer>
-            <Icon type={data.type} name={data.category.icon.name} />
-          </IconContainer>
-          <DetailsContainer>
-            <Header>
-              <Description type={data.type}>
-                {data.description}
-              </Description>
+      <Content {...rest}>
+        <IconContainer>
+          <Icon type={data.type} name={data.category.icon.name} />
+        </IconContainer>
+        <DetailsContainer>
+          <Header>
+            <Description type={data.type}>
+              {data.description}
+            </Description>
 
-              <AmountContainer>
-                {
-                  data.type === 'transfer' &&
-                  <TransferDirectionIcon name='swap-vertical-outline' />
-                }
-                <Amount type={data.type}>
-                  {data.type === 'outcome' && '-'}
-                  {data.amount}
-                </Amount>
-              </AmountContainer>
-            </Header>
+            <AmountContainer>
+              {
+                data.type === 'transfer' &&
+                <TransferDirectionIcon name='swap-vertical-outline' />
+              }
+              <Amount type={data.type}>
+                {data.type === 'outcome' && '-'}
+                {data.amount}
+              </Amount>
+            </AmountContainer>
+          </Header>
 
-            <Footer>
-              <Details>
-                <Category>
-                  {data.category.name}
-                  {' | '}
-                </Category>
-                <Account>
-                  {data.account.name}
-                </Account>
-              </Details>
-              <AmountConvertedContainer>
-                <AmountConverted>
-                  {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
-                </AmountConverted>
-                <Date>
-                  {data.created_at}
-                </Date>
-              </AmountConvertedContainer>
-            </Footer>
-          </DetailsContainer>
-        </Content>
-      </Swipeable>
+          <Footer>
+            <Details>
+              <Category>
+                {data.category.name}
+                {' | '}
+              </Category>
+              <Account>
+                {data.account.name}
+              </Account>
+            </Details>
+            <AmountConvertedContainer>
+              <AmountConverted>
+                {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
+              </AmountConverted>
+              <Date>
+                {data.created_at}
+              </Date>
+            </AmountConvertedContainer>
+          </Footer>
+        </DetailsContainer>
+      </Content>
     </Container>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
@@ -74,6 +75,8 @@ import api from '@api/api';
 
 type Props = {
   closeRegisterTransaction: () => void;
+  id: string;
+  setId: () => void;
 }
 
 type FormData = {
@@ -95,7 +98,7 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterTransaction({ closeRegisterTransaction }: Props) {
+export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
   const brlQuoteEur = useSelector(selectBrlQuoteEur);
@@ -109,17 +112,15 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
   const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
   const usdQuoteBtc = useSelector(selectUsdQuoteBtc);
   const usdQuoteEur = useSelector(selectUsdQuoteEur);
-  const [date, setDate] = useState(new Date());
-  const formattedDate = format(date, 'dd MMMM, yyyy', { locale: ptBR });
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const onChangeDate = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate;
-    setShowDatePicker(false);
-    setDate(currentDate);
-  };
-  const showDatepicker = () => {
-    setShowDatePicker(true);
-  };
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [categorySelected, setCategorySelected] = useState({
+    id: '',
+    name: 'Selecione a categoria',
+    color: {
+      hex: theme.colors.primary
+    }
+  } as CategoryProps);
+  const [amount, setAmount] = useState('');
   const [currencyModalOpen, setCurrencyModalOpen] = useState(false);
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
@@ -140,14 +141,18 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
     id: '',
     name: 'Selecione a conta de destino'
   } as AccountProps);
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [categorySelected, setCategorySelected] = useState({
-    id: '',
-    name: 'Selecione a categoria',
-    color: {
-      hex: theme.colors.primary
-    }
-  } as CategoryProps);
+  const [date, setDate] = useState(new Date());
+  const formattedDate = format(date, 'dd MMMM, yyyy', { locale: ptBR });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const onChangeDate = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate;
+    setShowDatePicker(false);
+    setDate(currentDate);
+  };
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+  const [description, setDescription] = useState('');
   const [transactionType, setTransactionType] = useState('');
   const {
     control,
@@ -223,130 +228,272 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
     };
     /* Validation Form - End */
 
-    if (transactionType != 'transfer') {
-      if (currencySelected.code !== accountSelected.currency.code) {
+    if (id != '') {
+      handleEditTransaction();
+    }
+    else {
+      if (transactionType != 'transfer') {
+        if (currencySelected.code !== accountSelected.currency.code) {
+          let amountConverted = 0;
+
+          // Converted BRL
+          if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * btcQuoteBrl.price;
+          }
+          if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * eurQuoteBrl.price;
+          }
+          if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * usdQuoteBrl.price;
+          }
+
+          // Converted BTC
+          if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * brlQuoteBtc.price;
+          }
+          if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * eurQuoteBtc.price;
+          }
+          if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * usdQuoteBtc.price;
+          }
+
+          // Converted EUR
+          if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * brlQuoteEur.price;
+          }
+          if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * btcQuoteEur.price;
+          }
+          if (currencySelected.code === 'USD' && accountSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * usdQuoteEur.price;
+          }
+
+          // Converted USD
+          if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * brlQuoteUsd.price;
+          }
+          if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * btcQuoteUsd.price;
+          }
+          if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * eurQuoteUsd.price;
+          }
+
+          try {
+            const accountDataResponse = await api.get('single_account', {
+              params: {
+                tenant_id: tenantId,
+                name: accountSelected.name
+              }
+            });
+            if (accountDataResponse.status !== 200) {
+              Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
+            }
+
+            const newTransaction = {
+              created_at: date,
+              description: form.description,
+              amount: amountConverted,
+              amount_not_converted: form.amount,
+              currency_id: currencySelected.id,
+              type: transactionType,
+              account_id: accountDataResponse.data.id,
+              category_id: categorySelected.id,
+              tenant_id: tenantId
+            }
+
+            const { status } = await api.post('transaction', newTransaction);
+            if (status === 200) {
+              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+
+              const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
+              const currentData = data ? JSON.parse(data) : [];
+
+              const dataFormatted = [
+                ...currentData,
+                newTransaction
+              ];
+              await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
+
+              reset();
+              setTransactionType('')
+              setAccountSelected({
+                id: '',
+                name: 'Selecione a conta',
+                currency: {
+                  id: '',
+                  name: '',
+                  code: '',
+                  symbol: ''
+                },
+                initial_amount: 0,
+                tenant_id: ''
+              });
+              setCategorySelected({
+                id: '',
+                name: 'Selecione a categoria',
+                icon: {
+                  id: '',
+                  title: '',
+                  name: '',
+                },
+                color: {
+                  id: '',
+                  name: '',
+                  hex: '',
+                },
+                tenant_id: ''
+              });
+            };
+
+            setButtonIsLoading(false);
+          } catch (error) {
+            console.error(error);
+            Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+
+            setButtonIsLoading(false);
+          }
+
+        } else {
+          try {
+            const accountResponse = await api.get('single_account', {
+              params: {
+                tenant_id: tenantId,
+                name: accountSelected.name
+              }
+            });
+            if (accountResponse.status !== 200) {
+              Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
+            }
+
+            const newTransaction = {
+              created_at: date,
+              description: form.description,
+              amount: form.amount,
+              currency_id: currencySelected.id,
+              type: transactionType,
+              account_id: accountResponse.data.id,
+              category_id: categorySelected.id,
+              tenant_id: tenantId
+            }
+
+            const { status } = await api.post('transaction', newTransaction);
+            if (status === 200) {
+              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+
+              const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
+              const currentData = data ? JSON.parse(data) : [];
+
+              const dataFormatted = [
+                ...currentData,
+                newTransaction
+              ];
+              await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
+
+              reset();
+              setTransactionType('')
+              setAccountSelected({
+                id: '',
+                name: 'Selecione a conta',
+                currency: {
+                  id: '',
+                  name: '',
+                  code: '',
+                  symbol: ''
+                },
+                initial_amount: 0,
+                tenant_id: ''
+              });
+              setCategorySelected({
+                id: '',
+                name: 'Selecione a categoria',
+                icon: {
+                  id: '',
+                  title: '',
+                  name: '',
+                },
+                color: {
+                  id: '',
+                  name: '',
+                  hex: '',
+                },
+                tenant_id: ''
+              });
+            };
+
+            setButtonIsLoading(false);
+          } catch (error) {
+            console.error(error);
+            Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+
+            setButtonIsLoading(false);
+          }
+        }
+      } else {
         let amountConverted = 0;
 
-        // Converted BRL
-        if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'BRL') {
-          amountConverted = Number(form.amount) * btcQuoteBrl.price;
-        }
-        if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BRL') {
-          amountConverted = Number(form.amount) * eurQuoteBrl.price;
-        }
-        if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BRL') {
-          amountConverted = Number(form.amount) * usdQuoteBrl.price;
-        }
+        if (accountSelected.currency.code !== accountDestinationSelected.currency.code) {
 
-        // Converted BTC
-        if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'BTC') {
-          amountConverted = Number(form.amount) * brlQuoteBtc.price;
-        }
-        if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BTC') {
-          amountConverted = Number(form.amount) * eurQuoteBtc.price;
-        }
-        if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BTC') {
-          amountConverted = Number(form.amount) * usdQuoteBtc.price;
-        }
-
-        // Converted EUR
-        if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'EUR') {
-          amountConverted = Number(form.amount) * brlQuoteEur.price;
-        }
-        if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'EUR') {
-          amountConverted = Number(form.amount) * btcQuoteEur.price;
-        }
-        if (currencySelected.code === 'USD' && accountSelected.currency.code === 'EUR') {
-          amountConverted = Number(form.amount) * usdQuoteEur.price;
-        }
-
-        // Converted USD
-        if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'USD') {
-          amountConverted = Number(form.amount) * brlQuoteUsd.price;
-        }
-        if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'USD') {
-          amountConverted = Number(form.amount) * btcQuoteUsd.price;
-        }
-        if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'USD') {
-          amountConverted = Number(form.amount) * eurQuoteUsd.price;
-        }
-
-        try {
-          const accountDataResponse = await api.get('single_account', {
-            params: {
-              tenant_id: tenantId,
-              name: accountSelected.name
-            }
-          });
-          if (accountDataResponse.status !== 200) {
-            Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
-          }
-
-          const newTransaction = {
-            created_at: date,
-            description: form.description,
-            amount: amountConverted,
-            amount_not_converted: form.amount,
-            currency_id: currencySelected.id,
-            type: transactionType,
-            account_id: accountDataResponse.data.id,
-            category_id: categorySelected.id,
-            tenant_id: tenantId
-          }
-
-          const { status } = await api.post('transaction', newTransaction);
-          if (status === 200) {
-            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
-
-            const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-            const currentData = data ? JSON.parse(data) : [];
-
-            const dataFormatted = [
-              ...currentData,
-              newTransaction
-            ];
-            await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
-
-            reset();
-            setTransactionType('')
-            setAccountSelected({
-              id: '',
-              name: 'Selecione a conta',
-              currency: {
-                id: '',
-                name: '',
-                code: '',
-                symbol: ''
-              },
-              initial_amount: 0,
-              tenant_id: ''
-            });
-            setCategorySelected({
-              id: '',
-              name: 'Selecione a categoria',
-              icon: {
-                id: '',
-                title: '',
-                name: '',
-              },
-              color: {
-                id: '',
-                name: '',
-                hex: '',
-              },
-              tenant_id: ''
-            });
+          //Converted BRL
+          if (accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * brlQuoteBtc.price
+          };
+          if (accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * brlQuoteEur.price
+          };
+          if (accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * brlQuoteUsd.price
           };
 
-          setButtonIsLoading(false);
-        } catch (error) {
-          console.error(error);
-          Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+          //Converted BTC
+          if (accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * btcQuoteBrl.price
+          };
+          if (accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * btcQuoteEur.price
+          };
+          if (accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * btcQuoteUsd.price
+          };
 
-          setButtonIsLoading(false);
-        }
+          //Converted EUR
+          if (accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * eurQuoteBtc.price
+          };
+          if (accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * eurQuoteBrl.price
+          };
+          if (accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'USD') {
+            amountConverted = Number(form.amount) * eurQuoteUsd.price
+          };
 
-      } else {
+          //Converted USD
+          if (accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'BTC') {
+            amountConverted = Number(form.amount) * usdQuoteBtc.price
+          };
+          if (accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'BRL') {
+            amountConverted = Number(form.amount) * usdQuoteBrl.price
+          };
+          if (accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'EUR') {
+            amountConverted = Number(form.amount) * usdQuoteEur.price
+          };
+        } else {
+          amountConverted = Number(form.amount)
+        };
+
         try {
           const accountResponse = await api.get('single_account', {
             params: {
@@ -354,11 +501,17 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
               name: accountSelected.name
             }
           });
-          if (accountResponse.status !== 200) {
+          const accountDestinationResponse = await api.get('single_account', {
+            params: {
+              tenant_id: tenantId,
+              name: accountDestinationSelected.name
+            }
+          });
+          if (accountResponse.status && accountDestinationResponse.status !== 200) {
             Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
           }
 
-          const newTransaction = {
+          const transferOut = {
             created_at: date,
             description: form.description,
             amount: form.amount,
@@ -369,16 +522,32 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
             tenant_id: tenantId
           }
 
-          const { status } = await api.post('transaction', newTransaction);
-          if (status === 200) {
+          const transferIn = {
+            created_at: date,
+            description: form.description,
+            amount: amountConverted,
+            currency_id: currencySelected.id,
+            type: transactionType,
+            account_id: accountDestinationResponse.data.id,
+            category_id: categorySelected.id,
+            tenant_id: tenantId
+          }
+
+          const transferOutResponse = await api.post('transaction', transferOut);
+          const transferInResponse = await api.post('transaction', transferIn);
+
+          if (transferOutResponse.status && transferInResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+
+            console.log(transferInResponse);
 
             const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
             const currentData = data ? JSON.parse(data) : [];
 
             const dataFormatted = [
               ...currentData,
-              newTransaction
+              transferOut,
+              transferIn
             ];
             await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
 
@@ -387,6 +556,18 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
             setAccountSelected({
               id: '',
               name: 'Selecione a conta',
+              currency: {
+                id: '',
+                name: '',
+                code: '',
+                symbol: '',
+              },
+              initial_amount: 0,
+              tenant_id: ''
+            });
+            setAccountDestinationSelected({
+              id: '',
+              name: 'Selecione a conta de destino',
               currency: {
                 id: '',
                 name: '',
@@ -421,191 +602,142 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
           setButtonIsLoading(false);
         }
       }
-    } else {
-      let amountConverted = 0;
+    };
+  };
 
-      if (accountSelected.currency.code !== accountDestinationSelected.currency.code) {
-
-        //Converted BRL
-        if (accountSelected.currency.code === 'BRL' &&
-          accountDestinationSelected.currency.code === 'BTC') {
-          amountConverted = Number(form.amount) * brlQuoteBtc.price
-        };
-        if (accountSelected.currency.code === 'BRL' &&
-          accountDestinationSelected.currency.code === 'EUR') {
-          amountConverted = Number(form.amount) * brlQuoteEur.price
-        };
-        if (accountSelected.currency.code === 'BRL' &&
-          accountDestinationSelected.currency.code === 'USD') {
-          amountConverted = Number(form.amount) * brlQuoteUsd.price
-        };
-
-        //Converted BTC
-        if (accountSelected.currency.code === 'BTC' &&
-          accountDestinationSelected.currency.code === 'BRL') {
-          amountConverted = Number(form.amount) * btcQuoteBrl.price
-        };
-        if (accountSelected.currency.code === 'BTC' &&
-          accountDestinationSelected.currency.code === 'EUR') {
-          amountConverted = Number(form.amount) * btcQuoteEur.price
-        };
-        if (accountSelected.currency.code === 'BTC' &&
-          accountDestinationSelected.currency.code === 'USD') {
-          amountConverted = Number(form.amount) * btcQuoteUsd.price
-        };
-
-        //Converted EUR
-        if (accountSelected.currency.code === 'EUR' &&
-          accountDestinationSelected.currency.code === 'BTC') {
-          amountConverted = Number(form.amount) * eurQuoteBtc.price
-        };
-        if (accountSelected.currency.code === 'EUR' &&
-          accountDestinationSelected.currency.code === 'BRL') {
-          amountConverted = Number(form.amount) * eurQuoteBrl.price
-        };
-        if (accountSelected.currency.code === 'EUR' &&
-          accountDestinationSelected.currency.code === 'USD') {
-          amountConverted = Number(form.amount) * eurQuoteUsd.price
-        };
-
-        //Converted USD
-        if (accountSelected.currency.code === 'USD' &&
-          accountDestinationSelected.currency.code === 'BTC') {
-          amountConverted = Number(form.amount) * usdQuoteBtc.price
-        };
-        if (accountSelected.currency.code === 'USD' &&
-          accountDestinationSelected.currency.code === 'BRL') {
-          amountConverted = Number(form.amount) * usdQuoteBrl.price
-        };
-        if (accountSelected.currency.code === 'USD' &&
-          accountDestinationSelected.currency.code === 'EUR') {
-          amountConverted = Number(form.amount) * usdQuoteEur.price
-        };
-      } else {
-        amountConverted = Number(form.amount)
-      };
-
-      try {
-        const accountResponse = await api.get('single_account', {
-          params: {
-            tenant_id: tenantId,
-            name: accountSelected.name
-          }
-        });
-        const accountDestinationResponse = await api.get('single_account', {
-          params: {
-            tenant_id: tenantId,
-            name: accountDestinationSelected.name
-          }
-        });
-        if (accountResponse.status && accountDestinationResponse.status !== 200) {
-          Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
+  async function fetchTransaction() {
+    try {
+      const { data } = await api.get('single_transaction', {
+        params: {
+          transaction_id: id
         }
+      })
+      console.log(data);
+      setCategorySelected(data.category);
+      setAmount(data.amount);
+      setCurrencySelected(data.currency);
+      setAccountSelected(data.account);
+      setDate(data.created_at);
+      setDescription(data.description);
+      setTransactionType(data.type);
 
-        const transferOut = {
-          created_at: date,
-          description: form.description,
-          amount: form.amount,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountResponse.data.id,
-          category_id: categorySelected.id,
-          tenant_id: tenantId
-        }
 
-        const transferIn = {
-          created_at: date,
-          description: form.description,
-          amount: amountConverted,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountDestinationResponse.data.id,
-          category_id: categorySelected.id,
-          tenant_id: tenantId
-        }
-
-        const transferOutResponse = await api.post('transaction', transferOut);
-        const transferInResponse = await api.post('transaction', transferIn);
-
-        if (transferOutResponse.status && transferInResponse.status === 200) {
-          Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
-
-          console.log(transferInResponse);
-
-          const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-          const currentData = data ? JSON.parse(data) : [];
-
-          const dataFormatted = [
-            ...currentData,
-            transferOut,
-            transferIn
-          ];
-          await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
-
-          reset();
-          setTransactionType('')
-          setAccountSelected({
-            id: '',
-            name: 'Selecione a conta',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
-            },
-            initial_amount: 0,
-            tenant_id: ''
-          });
-          setAccountDestinationSelected({
-            id: '',
-            name: 'Selecione a conta de destino',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: ''
-            },
-            initial_amount: 0,
-            tenant_id: ''
-          });
-          setCategorySelected({
-            id: '',
-            name: 'Selecione a categoria',
-            icon: {
-              id: '',
-              title: '',
-              name: '',
-            },
-            color: {
-              id: '',
-              name: '',
-              hex: '',
-            },
-            tenant_id: ''
-          });
-        };
-
-        setButtonIsLoading(false);
-      } catch (error) {
-        console.error(error);
-        Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
-
-        setButtonIsLoading(false);
-      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Transação", "Não foi possível buscar a transação. Verifique sua conexão com a internet e tente novamente.");
     }
   };
+
+  async function handleEditTransaction(form: FormData) {
+    setButtonIsLoading(true);
+
+    const transactionEdited = {
+      created_at: date,
+      description: form.description,
+      amount: form.amount,
+      currency_id: currencySelected.id,
+      type: transactionType,
+      category_id: categorySelected.id,
+      tenant_id: tenantId
+    }
+
+    try {
+      const { status } = await api.post('transaction', transactionEdited, {
+        params: {
+          transaction_id: id
+        }
+      })
+
+      if (status === 200) {
+        Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Editar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+      }
+
+      setId();
+      setButtonIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Edição de Transação", "Não foi possível editar a transação. Verifique sua conexão com a internet e tente novamente.")
+
+      setButtonIsLoading(false);
+    }
+  };
+
+  async function handleClickDeleteTransaction(id: string) {
+    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a transação.", onPress: () => handleDeleteTransaction(id) }])
+  };
+
+  async function handleDeleteTransaction(id: string) {
+    try {
+      await api.delete('delete_transaction', {
+        params: {
+          transaction_id: id
+        }
+      });
+
+      Alert.alert("Exclusão de transação", "Transação excluída com sucesso!");
+      handleCloseRegisterTransaction();
+    } catch (error) {
+      Alert.alert("Exclusão de transação", `${error}`);
+    }
+  };
+
+  function handleCloseRegisterTransaction() {
+    setId();
+    reset();
+    setTransactionType('')
+    setAccountSelected({
+      id: '',
+      name: 'Selecione a conta',
+      currency: {
+        id: '',
+        name: '',
+        code: '',
+        symbol: ''
+      },
+      initial_amount: 0,
+      tenant_id: ''
+    });
+    setCategorySelected({
+      id: '',
+      name: 'Selecione a categoria',
+      icon: {
+        id: '',
+        title: '',
+        name: '',
+      },
+      color: {
+        id: '',
+        name: '',
+        hex: '',
+      },
+      tenant_id: ''
+    });
+    closeRegisterTransaction();
+  };
+
+  useFocusEffect(useCallback(() => {
+    if (id != '') {
+      fetchTransaction();
+    }
+  }, [id]));
 
   return (
     <Container>
       <Header color={categorySelected.color.hex}>
         <TitleContainer>
-          <BorderlessButton onPress={closeRegisterTransaction}>
+          <BorderlessButton onPress={() => handleCloseRegisterTransaction()}>
             <Ionicons name='close' size={26} color={theme.colors.background} />
           </BorderlessButton>
-          <Title>Adicionar Transação</Title>
+          <Title>
+            {
+              id != '' ?
+                'Editar Transação' :
+                'Adicionar Transação'
+            }
+          </Title>
           {
-            transactionType === 'transfer' ?
-              <BorderlessButton>
+            id != '' ?
+              <BorderlessButton onPress={() => handleClickDeleteTransaction(id)}>
                 <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
               </BorderlessButton> :
               <Ionicons name='trash-outline' size={26} color={categorySelected.color.hex} />
@@ -624,7 +756,6 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
             <ControlledInputValue
               placeholder='0'
               keyboardType='numeric'
-              defaultValue='0'
               textAlign='right'
               name='amount'
               control={control}
@@ -664,7 +795,7 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
       {
         showDatePicker && (
           <DateTimePicker
-            testID="dateTimePicker"
+            testID='dateTimePicker'
             value={date}
             mode='date'
             is24Hour={true}
@@ -681,7 +812,7 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
         placeholder='Descrição'
         autoCapitalize='sentences'
         autoCorrect={false}
-        defaultValue=''
+        defaultValue={description}
         name='description'
         control={control}
         error={errors.description}
@@ -711,7 +842,7 @@ export function RegisterTransaction({ closeRegisterTransaction }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title="Adicionar transação"
+          title={id != '' ? 'Editar transação' : 'Adicionar Transação'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleTransactionRegister)}
         />

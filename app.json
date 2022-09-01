@@ -15,7 +15,7 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 27,
+      "versionCode": 28,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/ic_launcher_foreground.png",
