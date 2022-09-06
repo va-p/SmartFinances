@@ -1,5 +1,4 @@
 import React from 'react';
-import { Animated } from 'react-native';
 import {
   Container,
   Content,
@@ -17,18 +16,13 @@ import {
   Account,
   AmountConvertedContainer,
   AmountConverted,
-  Date,
-  DeleteButton,
-  DeleteButtonIcon,
-  DeleteButtonText,
+  Date
 } from './styles'
 
-import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CategoryProps } from '@components/CategoryListItem';
-
 
 export interface TransactionProps {
   id: string;
@@ -37,7 +31,7 @@ export interface TransactionProps {
   amount: string | number;
   amount_not_converted?: string | number;
   currency: CurrencyProps;
-  type: 'income' | 'outcome' | 'transfer';
+  type: 'income' | 'outcome' | 'transferOut' | 'transferIn';
   account: AccountProps;
   category: CategoryProps;
   tenant_id: string;
@@ -65,8 +59,12 @@ export function TransactionListItem({
 
             <AmountContainer>
               {
-                data.type === 'transfer' &&
-                <TransferDirectionIcon name='swap-vertical-outline' />
+                data.type === 'transferOut' &&
+                <TransferDirectionIcon name='arrow-up-outline' />
+              }
+              {
+                data.type === 'transferIn' &&
+                <TransferDirectionIcon name='arrow-down-outline' />
               }
               <Amount type={data.type}>
                 {data.type === 'outcome' && '-'}

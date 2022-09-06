@@ -3,18 +3,13 @@ import styled, { css } from 'styled-components/native';
 import { RectButton } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
-
-interface IconProps {
-  type: 'up' | 'down' | 'swap';
-}
 
 interface ContainerProps {
   isActive: boolean;
   type: 'up' | 'down' | 'swap';
 }
 
-export const Container = styled.View<ContainerProps>`
+export const Container = styled.View <ContainerProps>`
   width: 32%;
   border-width: ${({ isActive }) => isActive ? 0 : 1.5}px;
   border-style: solid;
@@ -41,7 +36,7 @@ export const Button = styled(RectButton)`
   padding: 16px 8px;
 `;
 
-export const Icon = styled(Ionicons) <IconProps>`
+export const Icon = styled(Ionicons) <ContainerProps>`
   font-size: ${RFValue(24)}px;
   margin-right: 5px;
   ${({ type }) => type === 'up' && css`

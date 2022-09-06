@@ -1,8 +1,7 @@
-import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
 
-import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
@@ -15,7 +14,7 @@ export const Header = styled.View`
   height: ${RFPercentage(4)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight()}px;
+  margin-top: ${getStatusBarHeight() - 15}px;
   margin-bottom: ${RFPercentage(1)}px;
 `;
 
@@ -51,15 +50,6 @@ export const ChartContainer = styled.View`
 export const Transactions = styled.View`
   flex: 1;
 `;
-
-export const TransactionList = styled(
-  FlatList as new () => FlatList)
-  .attrs({
-    showsVerticalScrollIndicator: false,
-    contentContainerStyle: {
-      paddingBottom: getBottomSpace()
-    }
-  })``;
 
 export const RegisterTransactionButton = styled(RectButton)`
   width: 40px;

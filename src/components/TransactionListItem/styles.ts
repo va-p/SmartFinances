@@ -1,4 +1,3 @@
-import { Animated } from 'react-native';
 import styled, { css } from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -113,22 +112,4 @@ export const AmountConverted = styled.Text`
 export const Date = styled.Text`
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
-`;
-
-export const DeleteButton = styled(Animated.View)`
-  flex: 1;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding-left: 70%;
-  background-color: ${({ theme }) => theme.colors.attention};
-`;
-
-export const DeleteButtonIcon = styled(Ionicons)`
-  font-size: ${RFValue(20)}px;
-  color: ${({ theme }) => theme.colors.shape};
-`;
-
-export const DeleteButtonText = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
 `;

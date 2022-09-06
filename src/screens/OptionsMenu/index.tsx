@@ -12,10 +12,6 @@ import { Header } from '@components/Header';
 import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
-  function handleClickAccounts() {
-    navigation.navigate('Contas');
-  }
-
   function handleClickCategories() {
     navigation.navigate('Categorias');
   }
@@ -38,13 +34,6 @@ export function OptionsMenu({ navigation }: any) {
       <ContentScroll>
         <Title>Conta</Title>
         <SelectButton
-          icon='wallet-outline'
-          title='Contas'
-          color={theme.colors.secondary}
-          onPress={() => handleClickAccounts()}
-        />
-
-        <SelectButton
           icon='bookmarks-outline'
           title='Categorias'
           color={theme.colors.secondary}
@@ -65,7 +54,7 @@ export function OptionsMenu({ navigation }: any) {
           color={theme.colors.secondary}
           onPress={() => handleClickContactSupport()}
         />
-        
+
         <SelectButton
           icon='shield-checkmark-outline'
           title='Termos e Políticas'

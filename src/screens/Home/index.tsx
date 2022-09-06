@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import {
   Container,
@@ -9,10 +9,16 @@ import {
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
-  TransactionList,
   RegisterTransactionButton
 } from './styles'
 
+import Animated, {
+  Extrapolate,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue
+} from 'react-native-reanimated';
 import {
   VictoryBar,
   VictoryChart,
@@ -20,6 +26,7 @@ import {
   VictoryTheme
 } from 'victory-native';
 import { addMonths, addYears, subMonths, subYears, format } from 'date-fns';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,10 +57,11 @@ import {
   selectUserTenantId
 } from '@slices/userSlice';
 
-import theme from '@themes/theme';
-
 import apiQuotes from '@api/apiQuotes';
 import api from '@api/api';
+
+import theme from '@themes/theme';
+import { number } from 'yup';
 
 type PeriodData = {
   date: Date | number;
@@ -96,6 +104,21 @@ export function Home() {
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler(event => {
+    scrollY.value = event.contentOffset.y;
+    console.log(event.contentOffset.y);
+  });
+  const headerStyleAnimation = useAnimatedStyle(() => {
+    return {
+      height: interpolate(
+        scrollY.value,
+        [0, 200],
+        [200, 70],
+        Extrapolate.CLAMP
+      ),
+    }
+  });
 
   async function fetchBtcQuote() {
     try {
@@ -184,11 +207,10 @@ export function Home() {
        */
       let amount: any;
       let amountNotConvertedFormatted = '';
-      let initialTotalAmountBRL = 0;
       let totalRevenuesBRL = 0;
       let totalExpensesBRL = 0;
 
-      const transactionsFormattedPtbr: TransactionProps = data
+      const transactionsFormattedPtbr = data
         .map((transactionPtbr: TransactionProps) => {
           switch (transactionPtbr.account.currency.code) {
             case 'BRL':
@@ -294,6 +316,7 @@ export function Home() {
                 symbol: transactionPtbr.account.currency.symbol
               },
               initial_amount: transactionPtbr.account.initial_amount,
+              totalAccountAmount: 0,
               tenant_id: transactionPtbr.account.tenant_id
             },
             category: {
@@ -316,7 +339,6 @@ export function Home() {
         });
 
       const totalBRL =
-        initialTotalAmountBRL +
         totalRevenuesBRL -
         totalExpensesBRL;
       const totalFormattedPtbr = Number(totalBRL)
@@ -332,7 +354,7 @@ export function Home() {
       /**
        * Transactions By Months Formatted in pt-BR - Start
        */
-      let initialTotalAmountBRLByMonths = 0;
+      //let initialTotalAmountBRLByMonths = 0;
       let totalRevenuesBRLByMonths = 0;
       let totalExpensesBRLByMonths = 0;
 
@@ -470,7 +492,7 @@ export function Home() {
         });
 
       const totalBRLByMonths =
-        initialTotalAmountBRLByMonths +
+        //initialTotalAmountBRLByMonths +
         totalRevenuesBRLByMonths -
         totalExpensesBRLByMonths;
       const totalFormattedPtbrByMonths = Number(totalBRLByMonths)
@@ -486,7 +508,7 @@ export function Home() {
       /**
        * Transactions By Years Formatted in pt-BR - Start
        */
-      let initialTotalAmountBRLByYears = 0;
+      //let initialTotalAmountBRLByYears = 0;
       let totalRevenuesBRLByYears = 0;
       let totalExpensesBRLByYears = 0;
 
@@ -623,7 +645,7 @@ export function Home() {
         });
 
       const totalBRLByYears =
-        initialTotalAmountBRLByYears +
+        //initialTotalAmountBRLByYears +
         totalRevenuesBRLByYears -
         totalExpensesBRLByYears;
       const totalFormattedPtbrByYears = Number(totalBRLByYears)
@@ -673,11 +695,7 @@ export function Home() {
 
       const totalsByMonths = transactionsGroupedByMonths
         .reduce((acc: any, current: any) => {
-          if (!acc[current.date]) {
-            acc[current.date] = {
-              ...current
-            }
-          }
+          if (!acc[current.date]) acc[current.date] = { ...current };
 
           switch (current.type) {
             case 'income':
@@ -734,11 +752,7 @@ export function Home() {
 
       const totalsByYears = transactionsGroupedByYears
         .reduce((acc: any, current: any) => {
-          if (!acc[current.date]) {
-            acc[current.date] = {
-              ...current
-            }
-          }
+          if (!acc[current.date]) acc[current.date] = { ...current };
 
           switch (current.type) {
             case 'income':
@@ -836,6 +850,13 @@ export function Home() {
     setTransactionId('');
   }
 
+  useEffect(() => {
+    fetchBtcQuote();
+    fetchEurQuote();
+    fetchUsdQuote();
+    fetchTransactions();
+  }, [chartPeriodSelected.period]);
+
   useFocusEffect(useCallback(() => {
     fetchBtcQuote();
     fetchEurQuote();
@@ -849,75 +870,75 @@ export function Home() {
 
   return (
     <Container>
-      <Header>
-        <CashFlowTotal>{cashFlowTotalBySelectedPeriod}</CashFlowTotal>
-        <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
-      </Header>
+      <Animated.View>
+        <Header>
+          <CashFlowTotal>{cashFlowTotalBySelectedPeriod}</CashFlowTotal>
+          <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
+        </Header>
 
-      <FiltersContainer>
-        <FilterButtonGroup>
-          <ChartSelectButton
-            title={`Por ${chartPeriodSelected.name}`}
-            onPress={handleOpenPeriodSelectedModal}
-          />
-        </FilterButtonGroup>
-      </FiltersContainer>
+        <FiltersContainer>
+          <FilterButtonGroup>
+            <ChartSelectButton
+              title={`Por ${chartPeriodSelected.name}`}
+              onPress={handleOpenPeriodSelectedModal}
+            />
+          </FilterButtonGroup>
+        </FiltersContainer>
 
-      <ChartContainer>
-        <VictoryChart
-          theme={VictoryTheme.material}
-          width={400} height={180}
-          maxDomain={{ x: 6 }}
-          domainPadding={{ x: 7 }}
-        >
-          <VictoryGroup
-            offset={12}
+        <ChartContainer>
+          <VictoryChart
+            theme={VictoryTheme.material}
+            width={400} height={180}
+            maxDomain={{ x: 6 }}
+            domainPadding={{ x: 7 }}
           >
-            <VictoryBar
-              data={totalAmountsGroupedBySelectedPeriod}
-              x='date'
-              y='totalRevenuesByPeriod'
-              sortKey="x"
-              sortOrder="descending"
-              alignment='start'
-              style={{
-                data: {
-                  width: 10,
-                  fill: theme.colors.success_light
-                }
-              }}
-              cornerRadius={{ top: 2, bottom: 2 }}
-              animate={{
-                duration: 2500,
-                onLoad: { duration: 2500 },
-                easing: 'backOut'
-              }}
-            />
-            <VictoryBar
-              data={totalAmountsGroupedBySelectedPeriod}
-              x='date'
-              y='totalExpensesByPeriod'
-              sortOrder="descending"
-              alignment='start'
-              style={{
-                data: {
-                  width: 10,
-                  fill: theme.colors.attention_light
-                }
-              }}
-              cornerRadius={{ top: 2, bottom: 2 }}
-              animate={{
-                duration: 2500,
-                onLoad: { duration: 2500 },
-                easing: 'backOut'
-              }}
-            />
-          </VictoryGroup>
-        </VictoryChart>
-      </ChartContainer>
+            <VictoryGroup
+              offset={12}
+            >
+              <VictoryBar
+                data={totalAmountsGroupedBySelectedPeriod}
+                x='date'
+                y='totalRevenuesByPeriod'
+                sortKey="x"
+                sortOrder="descending"
+                alignment='start'
+                style={{
+                  data: {
+                    width: 10,
+                    fill: theme.colors.success_light
+                  }
+                }}
+                cornerRadius={{ top: 2, bottom: 2 }}
+                animate={{
+                  onLoad: { duration: 1500 },
+                  easing: 'backOut',
+                }}
+              />
+              <VictoryBar
+                data={totalAmountsGroupedBySelectedPeriod}
+                x='date'
+                y='totalExpensesByPeriod'
+                sortOrder="descending"
+                alignment='start'
+                style={{
+                  data: {
+                    width: 10,
+                    fill: theme.colors.attention_light
+                  }
+                }}
+                cornerRadius={{ top: 2, bottom: 2 }}
+                animate={{
+                  onLoad: { duration: 1500 },
+                  easing: 'backOut'
+                }}
+              />
+            </VictoryGroup>
+          </VictoryChart>
+        </ChartContainer>
+      </Animated.View>
 
       <Transactions>
-        <TransactionList
+        <Animated.FlatList
           data={transactionsFormattedBySelectedPeriod}
           keyExtractor={(item: TransactionProps) => item.id}
           renderItem={({ item }: any) => (
@@ -926,10 +947,15 @@ export function Home() {
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}
-          initialNumToRender={50}
+          initialNumToRender={80}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }
+          onScroll={scrollHandler}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: getBottomSpace()
+          }}
         />
       </Transactions>
 

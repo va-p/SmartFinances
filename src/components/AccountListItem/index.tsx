@@ -3,11 +3,13 @@ import { Animated } from 'react-native';
 import {
   Container,
   Content,
+  DetailsContainer,
+  IconContainer,
+  Icon,
   NameContainer,
   Name,
-  Currency,
-  CurrencyContainer,
-  Simbol,
+  Amount,
+  IconChevronDown,
   DeleteButton,
   DeleteButtonIcon,
   DeleteButtonText
@@ -27,15 +29,23 @@ export interface AccountProps {
   name: string;
   currency: CurrencyProps;
   initial_amount: string | number;
+  totalAccountAmount?: string;
   tenant_id: string;
 }
 
 type Props = RectButtonProps & {
   data: AccountProps;
+  icon: string;
+  color: string;
   onSwipeableLeftOpen: () => void;
 }
 
-export function AccountListItem({ data, onSwipeableLeftOpen, ...rest }: Props) {
+export function AccountListItem({
+  data,
+  icon,
+  color,
+  onSwipeableLeftOpen,
+  ...rest }: Props) {
   function handleAccountSwipeLeft(
     progressAnimatedValue: Animated.AnimatedInterpolation,
     dragAnimatedValue: Animated.AnimatedInterpolation
@@ -64,13 +74,16 @@ export function AccountListItem({ data, onSwipeableLeftOpen, ...rest }: Props) {
         onSwipeableOpen={onSwipeableLeftOpen}
       >
         <Content {...rest}>
-          <NameContainer>
-            <Name>{data.name}</Name>
-          </NameContainer>
-          <CurrencyContainer>
-            <Currency>{data.currency.name}</Currency>
-            <Simbol>{data.currency.symbol}</Simbol>
-          </CurrencyContainer>
+          <DetailsContainer>
+            <IconContainer>
+              <Icon color={color} name={icon} />
+            </IconContainer>
+            <NameContainer>
+              <Name>{data.name}</Name>
+              <Amount>{data.totalAccountAmount}</Amount>
+            </NameContainer>
+          </DetailsContainer>
+          <IconChevronDown name='chevron-forward-outline' />
         </Content>
       </Swipeable>
     </Container>

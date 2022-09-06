@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -228,11 +228,16 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     };
     /* Validation Form - End */
 
+
+    // Edit Transaction
     if (id != '') {
-      handleEditTransaction();
+      handleEditTransaction(form);
     }
+    // Add Transaction
     else {
+      // Income or outcome Transaction
       if (transactionType != 'transfer') {
+        // Need conversion
         if (currencySelected.code !== accountSelected.currency.code) {
           let amountConverted = 0;
 
@@ -355,7 +360,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             setButtonIsLoading(false);
           }
 
-        } else {
+        }
+        // No need conversion
+        else {
           try {
             const accountResponse = await api.get('single_account', {
               params: {
@@ -430,9 +437,12 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             setButtonIsLoading(false);
           }
         }
-      } else {
+      }
+      // Transfer Transaction
+      else {
         let amountConverted = 0;
 
+        // Need conversion
         if (accountSelected.currency.code !== accountDestinationSelected.currency.code) {
 
           //Converted BRL
@@ -490,7 +500,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             accountDestinationSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * usdQuoteEur.price
           };
-        } else {
+        }
+        // No need conversion        
+        else {
           amountConverted = Number(form.amount)
         };
 
@@ -516,7 +528,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             description: form.description,
             amount: form.amount,
             currency_id: currencySelected.id,
-            type: transactionType,
+            type: 'transferOut',
             account_id: accountResponse.data.id,
             category_id: categorySelected.id,
             tenant_id: tenantId
@@ -527,7 +539,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             description: form.description,
             amount: amountConverted,
             currency_id: currencySelected.id,
-            type: transactionType,
+            type: 'transferIn',
             account_id: accountDestinationResponse.data.id,
             category_id: categorySelected.id,
             tenant_id: tenantId
@@ -538,8 +550,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
           if (transferOutResponse.status && transferInResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
-
-            console.log(transferInResponse);
 
             const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
             const currentData = data ? JSON.parse(data) : [];
@@ -823,7 +833,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           type='up'
           title='Entrada'
           onPress={() => handleTransactionsTypeSelect('income')}
-          isActive={transactionType === 'income'}
+          isActive={transactionType === 'income' || transactionType === 'transferIn'}
         />
         <TransactionTypeButton
           type='swap'
@@ -835,7 +845,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           type='down'
           title='Saída'
           onPress={() => handleTransactionsTypeSelect('outcome')}
-          isActive={transactionType === 'outcome'}
+          isActive={transactionType === 'outcome' || transactionType === 'transferOut'}
         />
       </TransactionsTypes>
 

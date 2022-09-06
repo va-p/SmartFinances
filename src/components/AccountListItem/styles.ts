@@ -5,6 +5,10 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
+type ColorProps = {
+  color: string;
+}
+
 export const Container = styled.View`
   flex: 1;
 `;
@@ -22,26 +26,36 @@ export const Content = styled(RectButton)`
   border-radius: 10px;
 `;
 
+export const DetailsContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const IconContainer = styled.View`
+  margin-right: 10px;
+`;
+
+export const Icon = styled(Ionicons) <ColorProps>`
+font-size: ${RFValue(22)}px;
+`;
+
 export const NameContainer = styled.View``;
 
 export const Name = styled.Text`
-  font-family: ${({ theme}) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(12)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
-export const CurrencyContainer = styled.View`
-  flex-direction: row;
+export const Amount = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.medium};
+  font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.text_dark};
 `;
 
-export const Currency = styled.Text`
-  padding: 0 5px;
-  font-family: ${({ theme}) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
-`;
-
-export const Simbol = styled.Text`
-  font-family: ${({ theme}) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+export const IconChevronDown = styled(Ionicons)`
+  font-size: ${RFValue(16)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const DeleteButton = styled(Animated.View)`

@@ -7,6 +7,7 @@ import { useTheme } from 'styled-components';
 import { AppStackRoutes } from './app.stack.routes';
 import { Charts } from '@screens/Charts';
 import { Home } from '@screens/Home';
+import { Accounts } from '@screens/Accounts';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -33,6 +34,20 @@ export function AppTabRoutes() {
           tabBarIcon: (({ size, color }) => (
             <Ionicons
               name='list-outline'
+              size={size}
+              color={color}
+            />
+          ))
+        }}
+      />
+
+      <Screen
+        name="Contas"
+        component={Accounts}
+        options={{
+          tabBarIcon: (({ size, color }) => (
+            <Ionicons
+              name='wallet-outline'
               size={size}
               color={color}
             />
