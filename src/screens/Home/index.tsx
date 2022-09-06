@@ -61,7 +61,6 @@ import apiQuotes from '@api/apiQuotes';
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import { number } from 'yup';
 
 type PeriodData = {
   date: Date | number;
@@ -816,6 +815,7 @@ export function Home() {
   };
 
   function handleCloseRegisterTransactionModal() {
+    fetchTransactions();
     setRegisterTransactionModalOpen(false);
   };
 

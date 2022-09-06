@@ -12,9 +12,9 @@ import {
 
 import { VictoryArea, VictoryChart, VictoryTheme } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { format, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
-import { format } from 'date-fns';
 
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
 import { TransactionProps } from '@components/TransactionListItem';
@@ -140,30 +140,18 @@ export function Accounts() {
       /** 
        * All Totals Grouped By Months - Start
        */
-      // Format the date
-      const transactionsFormattedByMonths = data
-        .map((transactionByAccount: TransactionProps) => {
-          const dateTransactionByMonth = format(
-            transactionByAccount.created_at, `MMM '\n' yyyy`, { locale: ptBR }
-          );
-
-          return {
-            date: dateTransactionByMonth,
-            type: transactionByAccount.type,
-            amount: transactionByAccount.amount,
-          }
-        });
-
       // Group by month
       let totalsByMonths: any = [];
-      for (const item of transactionsFormattedByMonths) {
-        if (!totalsByMonths.hasOwnProperty(item.date)) {
-          totalsByMonths[item.date] = { date: item.date, total: 0, totalExpensesByMonth: 0, totalRevenuesByMonth: 0 };
+      for (const item of data) {
+        // Format the date "aaaa-mm", easier to sort the array
+        const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+        if (!totalsByMonths.hasOwnProperty(ym)) {
+          totalsByMonths[ym] = { date: ym, total: 0, totalRevenuesByMonth: 0, totalExpensesByMonth: 0 };
         }
         if (item.type === 'income') {
-          totalsByMonths[item.date].totalRevenuesByMonth += item.amount;
+          totalsByMonths[ym].totalRevenuesByMonth += item.amount;
         } else if (item.type === 'outcome') {
-          totalsByMonths[item.date].totalExpensesByMonth += item.amount;
+          totalsByMonths[ym].totalExpensesByMonth += item.amount;
         }
       }
       totalsByMonths = Object.values(totalsByMonths);
@@ -173,7 +161,10 @@ export function Accounts() {
       for (var i = totalsByMonths.length - 1; i >= 0; i--) {
         total += totalsByMonths[i].totalRevenuesByMonth - totalsByMonths[i].totalExpensesByMonth;
         totalsByMonths[i].total = total;
-      }
+        // Converts the date to the final format
+        totalsByMonths[i].date = format(parseISO(totalsByMonths[i].date), `MMM '\n' yyyy`, { locale: ptBR });
+      };
+
       setTotalByMonths(totalsByMonths);
       /** 
        * All Totals Grouped By Months - End
@@ -188,11 +179,11 @@ export function Accounts() {
 
   function handleOpenRegisterAccountModal() {
     setRegisterAccountModalOpen(true);
-  }
+  };
 
   function handleCloseRegisterAccountModal() {
     setRegisterAccountModalOpen(false);
-  }
+  };
 
   async function handleAccountSwipeLeft(id: string) {
     Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a conta.", onPress: () => handleDeleteAccount(id) }])
@@ -240,8 +231,9 @@ export function Accounts() {
             data={totalByMonths}
             x='date'
             y='total'
-            sortKey="x"
-            sortOrder="descending"
+            sortKey='x'
+            sortOrder='descending'
+            interpolation='natural'
             style={{
               data: {
                 fill: theme.colors.success,
