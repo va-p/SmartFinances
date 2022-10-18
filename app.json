@@ -15,7 +15,7 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 30,
+      "versionCode": 31,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/ic_launcher_foreground.png",
@@ -27,6 +27,7 @@
       "buildNumber": "1.7.8",
       "supportsTablet": true,
       "icon": "./assets/ic_launcher.png"
-    }
+    },
+    "jsEngine": "hermes"
   }
 }

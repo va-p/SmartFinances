@@ -5,6 +5,9 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '12.0'
 
+require 'json'
+podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
+
 target 'smartfinances' do
   use_expo_modules!
   post_integrate do |installer|
@@ -17,7 +20,10 @@ target 'smartfinances' do
   use_unimodules!
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(
+    :path => config["reactNativePath"],
+    :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
+    )
 
   # Uncomment to opt-in to using Flipper
   #
