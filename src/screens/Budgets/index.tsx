@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 
 import { BudgetListItem, BudgetProps } from '@components/BudgetListItem';
 import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
@@ -53,11 +53,11 @@ export function Budgets() {
 
   function handleOpenRegisterBudgetModal() {
     setRegisterBudgetModalOpen(true);
-  }
+  };
 
   function handleCloseRegisterBudgetModal() {
     setRegisterBudgetModalOpen(false);
-  }
+  };
 
   useFocusEffect(useCallback(() => {
     fetchBudgets();

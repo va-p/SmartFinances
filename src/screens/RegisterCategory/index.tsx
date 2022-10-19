@@ -3,7 +3,6 @@ import { Alert, FlatList, Platform } from 'react-native';
 import {
   Container,
   Header,
-  Form,
   IconAndColor,
   Title,
   ColorsList,
@@ -20,12 +19,9 @@ import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
-import {
-  ColorProps,
-  IconProps
-} from '@components/CategoryListItem';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
-import { Button } from '@components/Form/Button';
+import { ColorProps, IconProps } from '@components/CategoryListItem';
+import { Button } from '@components/Button';
 
 import { selectUserTenantId } from '@slices/userSlice';
 

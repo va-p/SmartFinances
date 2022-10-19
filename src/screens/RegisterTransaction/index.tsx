@@ -36,7 +36,7 @@ import { CurrencySelectButton } from '@components/CurrencySelectButton';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CategoryProps } from '@components/CategoryListItem';
 import { SelectButton } from '@components/SelectButton';
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 import { CurrencySelect } from '@screens/CurrencySelect';

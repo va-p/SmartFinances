@@ -17,7 +17,7 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CurrencyProps } from '@components/AccountListItem';
 import { SelectButton } from '@components/SelectButton';
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 
 import { CurrencySelect } from '@screens/CurrencySelect';
 
@@ -76,15 +76,15 @@ export function RegisterAccount({ navigation }: any) {
         color={theme.colors.text}
       />
     )
-  }
+  };
 
   function handleOpenSelectCurrencyModal() {
     setCurrencyModalOpen(true);
-  }
+  };
 
   function handleCloseSelectCurrencyModal() {
     setCurrencyModalOpen(false);
-  }
+  };
 
   async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);

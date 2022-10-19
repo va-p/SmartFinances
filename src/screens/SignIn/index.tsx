@@ -22,7 +22,7 @@ import * as Yup from 'yup';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { SignInSocialButton } from '@components/SignInSocialButton'
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 
 import GoogleSvg from '@assets/google.svg';
 import AppleSvg from '@assets/apple.svg';
@@ -35,7 +35,7 @@ import {
   COLLECTION_USERS
 } from '@configs/database';
 
-import { loadStoredUserData, signInWithXano } from '@services/auth';
+import { loadStoredUserData } from '@services/auth';
 
 import {
   setUserId,
@@ -165,7 +165,7 @@ export function SignIn({ navigation }: any) {
       console.error(error);
       Alert.alert('Não foi possível conectar a conta Google');
     }
-  }
+  };
 
   async function handleSignInWithApple() {
     try {
@@ -174,7 +174,7 @@ export function SignIn({ navigation }: any) {
       console.error(error);
       Alert.alert('Não foi possível conectar a conta Apple');
     }
-  }
+  };
 
   useEffect(() => {
     loadUserData();

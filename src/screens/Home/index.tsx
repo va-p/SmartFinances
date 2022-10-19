@@ -27,12 +27,12 @@ import {
 } from 'victory-native';
 import {
   format,
+  parse,
   parseISO,
   addMonths,
   addYears,
   subMonths,
-  subYears,
-  parse
+  subYears
 } from 'date-fns';
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
@@ -58,7 +58,6 @@ import {
   setEurQuoteBrl,
   setUsdQuoteBrl,
 } from '@slices/quotesSlice';
-
 import {
   selectUserTenantId
 } from '@slices/userSlice';
@@ -366,6 +365,7 @@ export function Home() {
         }
       };
       transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr);
+      console.log(transactionsFormattedPtbr);
 
       const total =
         totalRevenues -
@@ -505,16 +505,17 @@ export function Home() {
        */
       let totalsGroupedByAllHistory: any = [];
       for (const item of data) {
+        // Format the date to "Todo o \n histórico"
         item.created_at = `Todo o \n histórico`;
-        const dateAll = item.created_at;
+        const allHistory = item.created_at;
         // Create the objects
-        if (!totalsGroupedByAllHistory.hasOwnProperty(dateAll)) {
-          totalsGroupedByAllHistory[dateAll] = { date: dateAll, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
+        if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
+          totalsGroupedByAllHistory[allHistory] = { date: allHistory, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
         }
         if (item.type === 'income') {
-          totalsGroupedByAllHistory[dateAll].totalRevenuesByPeriod += item.amount;
+          totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod += item.amount;
         } else if (item.type === 'outcome') {
-          totalsGroupedByAllHistory[dateAll].totalExpensesByPeriod += item.amount;
+          totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod += item.amount;
         }
       }
       totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);

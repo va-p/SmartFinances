@@ -9,6 +9,7 @@ import {
 } from './styles';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
+import SelectDropdown from 'react-native-select-dropdown';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
@@ -26,7 +27,7 @@ import { AccountProps } from '@components/AccountListItem';
 import { CategorySelect } from '@screens/CategorySelect';
 import { SelectButton } from '@components/SelectButton';
 import { AccountSelect } from '@screens/AccountSelect';
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 
 import { BudgetPeriodSelect, ChartPeriodProps } from '@screens/BudgetPeriodSelect';
 
@@ -35,7 +36,6 @@ import { selectUserTenantId } from '@slices/userSlice';
 import theme from '@themes/theme';
 
 import api from '@api/api';
-import SelectDropdown from 'react-native-select-dropdown';
 
 type FormData = {
   name: string;
@@ -69,7 +69,6 @@ export function RegisterBudget({ navigation }: any) {
   const showDatepicker = () => {
     setShowDatePicker(true);
   };
-
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
@@ -106,7 +105,7 @@ export function RegisterBudget({ navigation }: any) {
     'USD - Dólar Americano'
   ];
   const [currencySelected, setCurrencySelected] = useState('');
-  const [simbol, setSimbol] = useState('');
+  /*const [simbol, setSimbol] = useState('');
 
   switch (currencySelected) {
     case 'BRL - Real Brasileiro':
@@ -123,7 +122,7 @@ export function RegisterBudget({ navigation }: any) {
       break;
     default: 'BRL - Real Brasileiro'
       break;
-  }
+  };*/
 
   function iconSelectDropdown() {
     return (
@@ -133,15 +132,15 @@ export function RegisterBudget({ navigation }: any) {
         color={theme.colors.text}
       />
     )
-  }
+  };
 
   function handleOpenSelectAccountModal() {
     setAccountModalOpen(true);
-  }
+  };
 
   function handleCloseSelectAccountModal() {
     setAccountModalOpen(false);
-  }
+  };
 
   function handleOpenSelectCategoryModal() {
     setCategoryModalOpen(true);
@@ -189,7 +188,7 @@ export function RegisterBudget({ navigation }: any) {
 
       setButtonIsLoading(false);
     }
-  }
+  };
 
   return (
     <Container>
@@ -206,7 +205,6 @@ export function RegisterBudget({ navigation }: any) {
       />
 
       <AmountContainer>
-
         <AmountGroup>
           <ControlledInputWithIcon
             icon='cash'

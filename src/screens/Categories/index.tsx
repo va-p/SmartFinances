@@ -14,7 +14,7 @@ import {
   CategoryProps
 } from '@components/CategoryListItem';
 import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
@@ -56,11 +56,11 @@ export function Categories() {
 
   function handleOpenRegisterCategoryModal() {
     setRegisterCategoryModalOpen(true);
-  }
+  };
 
   function handleCloseRegisterCategoryModal() {
     setRegisterCategoryModalOpen(false);
-  }
+  };
 
   async function handleCategorySwipeLeft(id: string) {
     Alert.alert("Exclusão de categoria", "Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
