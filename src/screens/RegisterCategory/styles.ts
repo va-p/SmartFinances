@@ -22,12 +22,8 @@ export const Header = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
-`;
-
-export const Form = styled.View`
-  height: ${RFPercentage(90)}px;
   padding: 10px;
+  margin-bottom: 10px;
 `;
 
 export const IconAndColor = styled.TouchableOpacity <Props>`
@@ -42,6 +38,7 @@ export const IconAndColor = styled.TouchableOpacity <Props>`
 
 export const Title = styled.Text`
   text-align: left;
+  padding-left: 10px;
   font-size: ${RFValue(12)}px;
   ${({ theme }) => css`
     font-family: ${theme.fonts.medium};

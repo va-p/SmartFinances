@@ -32,6 +32,7 @@ export const TitleContainer = styled.View`
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const SubtitleContainer = styled.View`

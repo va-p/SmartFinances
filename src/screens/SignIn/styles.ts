@@ -10,7 +10,7 @@ export const Header = styled.View`
   height: 70%;
   align-items: center;
   justify-content: flex-end;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const TitleWrapper = styled.View`
@@ -22,7 +22,7 @@ export const Title = styled.Text`
   margin-top: 45px;
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(30)}px;
-  color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const SignInTitle = styled.Text`
@@ -31,7 +31,7 @@ export const SignInTitle = styled.Text`
   font-size: ${RFValue(16)}px;
   margin-top: 80px;
   margin-bottom: 67px;
-  color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Footer = styled.View`
@@ -57,5 +57,5 @@ export const TextSignUp = styled.Text`
 
 export const LinkSignUp = styled.Text`
   font-weight: bold;
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.background};
 `;

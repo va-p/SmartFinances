@@ -33,6 +33,11 @@ export function ChartPeriodSelect({
       id: '2',
       name: 'Anos',
       period: 'years'
+    },
+    {
+      id: '3',
+      name: 'Tudo',
+      period: 'all'
     }
   ];
 

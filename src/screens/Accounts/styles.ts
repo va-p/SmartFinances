@@ -20,7 +20,7 @@ export const Header = styled.View`
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
@@ -39,9 +39,15 @@ export const ChartContainer = styled.View`
 `;
 
 export const AccountsContainer = styled.View`
-  height: ${RFPercentage(58)}px;
+  height: ${RFPercentage(50)}px;
 `;
 
 export const Footer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
   padding: 0 20px;
+`;
+
+export const ButtonGroup = styled.View`
+  width: 49%;
 `;

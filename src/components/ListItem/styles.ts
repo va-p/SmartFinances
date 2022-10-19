@@ -27,6 +27,6 @@ export const Name = styled.Text<ItemProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
   color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary : theme.colors.text_dark
+    isActive ? theme.colors.primary : theme.colors.text
   };
 `;

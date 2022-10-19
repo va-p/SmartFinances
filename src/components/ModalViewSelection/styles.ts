@@ -10,10 +10,10 @@ export const Overlay = styled.View`
 
 export const Header = styled.View`
   width: 100%;
-  height: 50px;
+  height: 35px;
   margin-top: ${RFPercentage(75)}px;
   align-items: flex-start;
-  padding: 10px;
+  padding: 5px 10px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -22,7 +22,7 @@ export const Title = styled.Text`
   text-align: center;
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const Container = styled.View`

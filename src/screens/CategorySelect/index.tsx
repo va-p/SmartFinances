@@ -89,7 +89,9 @@ export function CategorySelect({
         }
         numColumns={4}
         contentContainerStyle={{
+          justifyContent: 'center',
           paddingTop: 10,
+          paddingHorizontal: 10,
           paddingBottom: getBottomSpace()
         }}
         style={{ flex: 1, width: '100%' }}

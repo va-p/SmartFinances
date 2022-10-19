@@ -46,11 +46,12 @@ export const Icon = styled(Ionicons) <ContainerProps>`
     color: ${({ theme }) => theme.colors.attention};
   `};
   ${({ type }) => type === 'swap' && css`
-    color: ${({ theme }) => theme.colors.text_dark};
+    color: ${({ theme }) => theme.colors.text};
   `};
 `;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;

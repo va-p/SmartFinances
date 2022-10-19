@@ -11,6 +11,7 @@ export const Container = styled.TouchableOpacity.attrs({
   activeOpacity: 0.6
 })`
   flex: 1;
+  align-items: center;
 `;
 
 export const Category = styled.View`
@@ -31,4 +32,6 @@ export const Icon = styled(Ionicons) <ColorProps>`
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(10)}px;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text};
 `;

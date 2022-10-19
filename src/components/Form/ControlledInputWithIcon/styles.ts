@@ -1,3 +1,4 @@
+import { TextInput } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -29,6 +30,9 @@ export const Icon = styled(Ionicons) <ColorProps>`
   color: ${({ color }) => color};
 `;
 
-export const Input = styled.TextInput`
-width: 100%;
+export const Input = styled(TextInput).attrs(({ theme }) => ({
+  placeholderTextColor: theme.colors.text
+}))`
+  width: 100%;
+  color: ${({ theme }) => theme.colors.text};
 `;

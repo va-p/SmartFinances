@@ -19,12 +19,12 @@ export const Header = styled.View`
   padding-left: 24px;
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Icon = styled(Ionicons)`
   font-size: ${RFValue(24)}px;
-  color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const Title = styled.Text`
@@ -32,7 +32,7 @@ export const Title = styled.Text`
   text-align: center;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(16)}px;
-  color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const Container = styled.View`

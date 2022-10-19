@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CurrencyProps } from '@components/AccountListItem';
+import { SelectButton } from '@components/SelectButton';
 import { Button } from '@components/Form/Button';
 
 import { CurrencySelect } from '@screens/CurrencySelect';
@@ -25,7 +26,6 @@ import { selectUserTenantId } from '@slices/userSlice';
 import theme from '@themes/theme';
 
 import api from '@api/api';
-import { SelectButton } from '@components/SelectButton';
 
 type FormData = {
   name: string;
@@ -66,7 +66,6 @@ export function RegisterAccount({ navigation }: any) {
     code: 'BRL',
     symbol: 'R$'
   } as CurrencyProps);
-  const [simbol, setSimbol] = useState('');
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
   function iconSelectDropdown() {
@@ -107,7 +106,6 @@ export function RegisterAccount({ navigation }: any) {
         name: form.name,
         type: typeSelected,
         currency_id: currencySelected.id,
-        simbol: simbol,
         initial_amount: form.initialAmount,
         tenant_id: tenantId
       }
@@ -180,7 +178,8 @@ export function RegisterAccount({ navigation }: any) {
           buttonTextStyle={{
             fontFamily: theme.fonts.regular,
             fontSize: 15,
-            textAlign: 'left'
+            textAlign: 'left',
+            color: theme.colors.text
           }}
           dropdownStyle={{
             borderRadius: 10,

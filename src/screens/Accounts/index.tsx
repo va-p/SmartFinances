@@ -7,7 +7,8 @@ import {
   CashFlowDescription,
   ChartContainer,
   AccountsContainer,
-  Footer
+  Footer,
+  ButtonGroup
 } from './styles';
 
 import { VictoryArea, VictoryChart, VictoryTheme } from 'victory-native';
@@ -18,12 +19,12 @@ import { ptBR } from 'date-fns/locale';
 
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
 import { TransactionProps } from '@components/TransactionListItem';
+import { AddAccountButton } from '@components/AddAccountButton';
 import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Form/Button';
 import { Load } from '@components/Load';
 
+import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 import { RegisterAccount } from '@screens/RegisterAccount';
-
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
@@ -37,6 +38,7 @@ export function Accounts() {
   const [transactions, setTransactions] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
+  const [connectAccountModalOpen, setConnectAccountModalOpen] = useState(false);
   const [registerAccountModalOpen, setRegisterAccountModalOpen] = useState(false);
 
   async function fetchAccounts() {
@@ -132,19 +134,20 @@ export function Accounts() {
       const totalsGroupedByAccounts: any = Object.values(totalsByAccounts);
       setTransactions(totalsGroupedByAccounts);
       setTotal(totalFormattedPtbr);
-      /**  
+      /**
        * All totals Grouped By Accounts/Wallets - End
        */
 
 
-      /** 
+      /**
        * All Totals Grouped By Months - Start
        */
       // Group by month
       let totalsByMonths: any = [];
       for (const item of data) {
-        // Format the date "aaaa-mm", easier to sort the array
+        // Format the date to "aaaa-mm", easier to sort the array
         const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+        // Create the objects
         if (!totalsByMonths.hasOwnProperty(ym)) {
           totalsByMonths[ym] = { date: ym, total: 0, totalRevenuesByMonth: 0, totalExpensesByMonth: 0 };
         }
@@ -175,6 +178,14 @@ export function Accounts() {
       console.error(error);
       Alert.alert("Contas", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.");
     }
+  };
+
+  function handleOpenConnectAccountModal() {
+    setConnectAccountModalOpen(true);
+  };
+
+  function handleCloseConnectAccountModal() {
+    setConnectAccountModalOpen(false);
   };
 
   function handleOpenRegisterAccountModal() {
@@ -223,7 +234,7 @@ export function Accounts() {
       <ChartContainer>
         <VictoryChart
           theme={VictoryTheme.material}
-          width={400} height={180}
+          width={400} height={220}
           maxDomain={{ x: 6 }}
           domainPadding={{ x: 1 }}
         >
@@ -236,9 +247,9 @@ export function Accounts() {
             interpolation='natural'
             style={{
               data: {
-                fill: theme.colors.success,
-                fillOpacity: 0.3,
-                stroke: theme.colors.success,
+                fill: theme.colors.primary,
+                fillOpacity: 0.1,
+                stroke: theme.colors.primary,
                 strokeWidth: 2
               }
             }}
@@ -274,17 +285,35 @@ export function Accounts() {
       </AccountsContainer>
 
       <Footer>
-        <Button
-          type='secondary'
-          title='Criar nova conta'
-          onPress={handleOpenRegisterAccountModal}
-        />
+        <ButtonGroup>
+          <AddAccountButton
+            icon='card'
+            title='Conectar uma conta bancária'
+            onPress={handleOpenConnectAccountModal}
+          />
+        </ButtonGroup>
+
+        <ButtonGroup>
+          <AddAccountButton
+            icon='wallet'
+            title='Criar nova conta manual'
+            onPress={handleOpenRegisterAccountModal}
+          />
+        </ButtonGroup>
       </Footer>
+
+      <ModalView
+        visible={connectAccountModalOpen}
+        closeModal={handleCloseConnectAccountModal}
+        title='Conectar Conta Bancária'
+      >
+        <SelectConnectAccount />
+      </ModalView>
 
       <ModalView
         visible={registerAccountModalOpen}
         closeModal={handleCloseRegisterAccountModal}
-        title='Criar Nova Conta'
+        title='Criar Nova Conta Manual'
       >
         <RegisterAccount />
       </ModalView>

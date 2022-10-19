@@ -11,20 +11,21 @@ export const Container = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const BackButton = styled(BorderlessButton)`
   right: ${RFPercentage(15)}px;
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const Icon = styled(Ionicons)`
   font-size: ${RFValue(18)}px;
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
-  color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.title};
 `;

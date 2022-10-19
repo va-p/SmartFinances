@@ -168,27 +168,27 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
   function handleOpenSelectCurrencyModal() {
     setCurrencyModalOpen(true);
-  }
+  };
 
   function handleCloseSelectCurrencyModal() {
     setCurrencyModalOpen(false);
-  }
+  };
 
   function handleOpenSelectAccountModal() {
     setAccountModalOpen(true);
-  }
+  };
 
   function handleCloseSelectAccountModal() {
     setAccountModalOpen(false);
-  }
+  };
 
   function handleOpenSelectAccountDestinationModal() {
     setAccountDestinationModalOpen(true);
-  }
+  };
 
   function handleCloseSelectAccountDestinationModal() {
     setAccountDestinationModalOpen(false);
-  }
+  };
 
   function handleOpenSelectCategoryModal() {
     setCategoryModalOpen(true);
@@ -209,7 +209,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     };
 
     if (accountSelected.id === '') {
-      return Alert.alert("Cadastro de Transação", "Selecione a conta de origem da transação", [{
+      return Alert.alert("Cadastro de Transação", "Selecione a conta da transação", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
     };
@@ -231,7 +231,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
     // Edit Transaction
     if (id != '') {
-      handleEditTransaction(form);
+      handleEditTransaction(id, form);
     }
     // Add Transaction
     else {
@@ -346,7 +346,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 color: {
                   id: '',
                   name: '',
-                  hex: '',
+                  hex: theme.colors.primary,
                 },
                 tenant_id: ''
               });
@@ -423,7 +423,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 color: {
                   id: '',
                   name: '',
-                  hex: '',
+                  hex: theme.colors.primary,
                 },
                 tenant_id: ''
               });
@@ -598,7 +598,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               color: {
                 id: '',
                 name: '',
-                hex: '',
+                hex: theme.colors.primary,
               },
               tenant_id: ''
             });
@@ -622,7 +622,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           transaction_id: id
         }
       })
-      console.log(data);
       setCategorySelected(data.category);
       setAmount(data.amount);
       setCurrencySelected(data.currency);
@@ -630,36 +629,33 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       setDate(data.created_at);
       setDescription(data.description);
       setTransactionType(data.type);
-
-
     } catch (error) {
       console.error(error);
       Alert.alert("Transação", "Não foi possível buscar a transação. Verifique sua conexão com a internet e tente novamente.");
     }
   };
 
-  async function handleEditTransaction(form: FormData) {
+  async function handleEditTransaction(id: string, form: FormData) {
     setButtonIsLoading(true);
 
     const transactionEdited = {
+      transaction_id: id,
       created_at: date,
       description: form.description,
       amount: form.amount,
+      amount_not_converted: null,
       currency_id: currencySelected.id,
       type: transactionType,
+      account_id: accountSelected.id,
       category_id: categorySelected.id,
       tenant_id: tenantId
     }
 
     try {
-      const { status } = await api.post('transaction', transactionEdited, {
-        params: {
-          transaction_id: id
-        }
-      })
+      const { status } = await api.post('edit_transaction', transactionEdited);
 
       if (status === 200) {
-        Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Editar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+        Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: closeRegisterTransaction }]);
       }
 
       setId();
@@ -718,7 +714,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       color: {
         id: '',
         name: '',
-        hex: '',
+        hex: theme.colors.primary,
       },
       tenant_id: ''
     });

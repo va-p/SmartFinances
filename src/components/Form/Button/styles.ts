@@ -23,7 +23,7 @@ export const Container = styled(RectButton) <ContainerProps>`
 export const Title = styled.Text <ContainerProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
-  color: ${({ theme, type }) => type === 'primary' ? theme.colors.text_dark : theme.colors.shape};
+  color: ${({ theme, type }) => type === 'primary' ? theme.colors.title : theme.colors.text_light};
 `;
 
 export const Load = styled.ActivityIndicator.attrs<ContainerProps>(({ type, theme }) => ({

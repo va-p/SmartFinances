@@ -67,11 +67,11 @@ export function RegisterCategory({ navigation }: any) {
 
   function handleColorSelect(color: ColorProps) {
     setColorSelected(color);
-  }
+  };
 
   function handleIconSelect(icon: IconProps) {
     setIconSelected(icon);
-  }
+  };
 
   async function handleCategoryRegister(form: FormData) {
     setButtonIsLoading(true);
@@ -122,73 +122,76 @@ export function RegisterCategory({ navigation }: any) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Form>
-        <Header>
-          <IconAndColor color={colorSelected.hex} icon={iconSelected.name} isActive={iconSelected.id}>
-            <Icon name={iconSelected.name} isActive={iconSelected.id} />
-          </IconAndColor>
+      <Header>
+        <IconAndColor color={colorSelected.hex} icon={iconSelected.name} isActive={iconSelected.id}>
+          <Icon name={iconSelected.name} isActive={iconSelected.id} />
+        </IconAndColor>
 
-          <ControlledInputCategoryName
-            placeholder='Nome da categoria'
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            defaultValue=''
-            name='name'
-            control={control}
-            error={errors.name}
-          />
-        </Header>
+        <ControlledInputCategoryName
+          placeholder='Nome da categoria'
+          autoCapitalize='sentences'
+          autoCorrect={false}
+          defaultValue=''
+          name='name'
+          control={control}
+          error={errors.name}
+        />
+      </Header>
 
-        <ColorsList>
-          <Title>Cor da categoria</Title>
-          <FlatList
-            data={colors}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => (
-              <ColorContainer color={item.hex} isActive={colorSelected.id === item.id}>
-                <Color
-                  color={item.hex}
-                  isActive={colorSelected.id === item.id}
-                  onPress={() => handleColorSelect(item)}
-                />
-              </ColorContainer>
-            )}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
-        </ColorsList>
+      <ColorsList>
+        <Title>Cor da categoria</Title>
+        <FlatList
+          data={colors}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <ColorContainer color={item.hex} isActive={colorSelected.id === item.id}>
+              <Color
+                color={item.hex}
+                isActive={colorSelected.id === item.id}
+                onPress={() => handleColorSelect(item)}
+              />
+            </ColorContainer>
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 10
+          }}
+        />
+      </ColorsList>
 
-        <IconsList>
-          <Title>Ícone da categoria</Title>
-          <FlatList
-            data={icons}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => (
-              <IconContainer icon={item.name} isActive={iconSelected.id === item.id} color={colorSelected.hex}>
-                <Icon
-                  name={item.name}
-                  isActive={iconSelected.id === item.id}
-                  onPress={() => handleIconSelect(item)}
-                />
-              </IconContainer>
-            )}
-            numColumns={5}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              alignItems: 'center',
-            }}
-          />
-        </IconsList>
+      <IconsList>
+        <Title>Ícone da categoria</Title>
+        <FlatList
+          data={icons}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <IconContainer icon={item.name} isActive={iconSelected.id === item.id} color={colorSelected.hex}>
+              <Icon
+                name={item.name}
+                isActive={iconSelected.id === item.id}
+                onPress={() => handleIconSelect(item)}
+              />
+            </IconContainer>
+          )}
+          numColumns={5}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            alignItems: 'center',
+            paddingTop: 20,
+            paddingHorizontal: 10
+          }}
+        />
+      </IconsList>
 
-        <Footer>
-          <Button
-            type='secondary'
-            title='Criar categoria'
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleCategoryRegister)}
-          />
-        </Footer>
-      </Form>
+      <Footer>
+        <Button
+          type='secondary'
+          title='Criar categoria'
+          isLoading={buttonIsLoading}
+          onPress={handleSubmit(handleCategoryRegister)}
+        />
+      </Footer>
     </Container>
   );
 }

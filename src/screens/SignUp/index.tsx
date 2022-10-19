@@ -180,6 +180,8 @@ export function SignUp({ navigation }: any) {
           error={errors.confirmPassword}
         />
 
+        
+
         <Button
           type='secondary'
           isLoading={buttonIsLoading}

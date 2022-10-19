@@ -24,4 +24,5 @@ export const Input = styled(TextInput).attrs(({ theme }) => ({
   font-family: ${theme.fonts.regular};
   border: 1px solid ${theme.colors.shape};
   `};
+  color: ${({ theme }) => theme.colors.title};
 `;

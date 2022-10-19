@@ -94,6 +94,7 @@ export function Categories() {
   return (
     <Container>
       <Header type='primary' title='Categorias' />
+      
       <CategoriesContainer>
         <FlatList
           data={categories}

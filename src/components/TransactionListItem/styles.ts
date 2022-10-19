@@ -5,7 +5,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
 type TransactionProps = {
-  type: 'income' | 'outcome' | 'transfer';
+  type: 'income' | 'outcome' | 'transferOut' | 'transferIn';
 }
 
 export const Container = styled.View`
@@ -48,10 +48,13 @@ export const Description = styled.Text<TransactionProps>`
     color: ${({ theme }) => theme.colors.success};
   `};
   ${({ type }) => type === 'outcome' && css`
-    color: ${({ theme }) => theme.colors.text_dark};
+    color: ${({ theme }) => theme.colors.title};
   `};
-  ${({ type }) => type === 'transfer' && css`
-    color: ${({ theme }) => theme.colors.text};
+  ${({ type }) => type === 'transferOut' && css`
+    color: ${({ theme }) => theme.colors.title};
+  `};
+  ${({ type }) => type === 'transferIn' && css`
+    color: ${({ theme }) => theme.colors.title};
   `};
 `;
 
@@ -61,8 +64,8 @@ export const AmountContainer = styled.View`
 `;
 
 export const TransferDirectionIcon = styled(Ionicons)`
-font-size: ${RFValue(14)}px;
-color: ${({ theme, type }) => theme.colors.text};
+  font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Amount = styled.Text<TransactionProps>`
@@ -72,9 +75,12 @@ export const Amount = styled.Text<TransactionProps>`
     color: ${({ theme }) => theme.colors.success};
   `};
   ${({ type }) => type === 'outcome' && css`
-    color: ${({ theme }) => theme.colors.text_dark};
+    color: ${({ theme }) => theme.colors.text};
   `};
-  ${({ type }) => type === 'transfer' && css`
+  ${({ type }) => type === 'transferOut' && css`
+    color: ${({ theme }) => theme.colors.text};
+  `};
+  ${({ type }) => type === 'transferIn' && css`
     color: ${({ theme }) => theme.colors.text};
   `};
   margin-left: 5px;

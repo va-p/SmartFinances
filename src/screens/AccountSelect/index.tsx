@@ -62,7 +62,7 @@ export function AccountSelect({
   function handleAccountSelect(account: AccountProps) {
     setAccount(account);
     closeSelectAccount();
-  }
+  };
 
   useEffect(() => {
     fetchAccounts();

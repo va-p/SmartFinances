@@ -37,6 +37,7 @@ export const Icon = styled(Ionicons) <ColorProps>`
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const DeleteButton = styled(Animated.View)`

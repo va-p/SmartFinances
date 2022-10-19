@@ -14,5 +14,5 @@ export const Title = styled.Text`
   font-size: ${RFValue(18)}px;
   padding-top: 10px;
   padding-left: 10px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.title};
 `;
