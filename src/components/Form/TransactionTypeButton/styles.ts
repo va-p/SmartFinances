@@ -19,11 +19,9 @@ export const Container = styled.View <ContainerProps>`
   ${({ isActive, type }) => isActive && type === 'up' && css`
     background-color: ${({ theme }) => theme.colors.success_light};
   `};
-
   ${({ isActive, type }) => isActive && type === 'down' && css`
     background-color: ${({ theme }) => theme.colors.attention_light};
   `};
-
   ${({ isActive, type }) => isActive && type === 'swap' && css`
     background-color: ${({ theme }) => theme.colors.text_light};
   `};
