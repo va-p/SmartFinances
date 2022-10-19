@@ -35,9 +35,11 @@ import {
   subYears
 } from 'date-fns';
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
+import LinearGradient from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
 
@@ -101,7 +103,6 @@ export function Home() {
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
-
   //Animated header and chart
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(event => {
@@ -153,6 +154,8 @@ export function Home() {
       positionY.value = withSpring(0);
     }
   });
+  // Shimmer effect
+  const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 
   async function fetchBtcQuote() {
@@ -364,8 +367,12 @@ export function Home() {
           totalExpenses += item.amount;
         }
       };
-      transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr);
-      console.log(transactionsFormattedPtbr);
+      transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr)
+        .sort((a: any, b: any) => {
+          const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
+          const secondDateParsed = parse(b.created_at, 'dd/MM/yyyy', new Date());
+          return secondDateParsed.getTime() - firstDateParsed.getTime();
+        });
 
       const total =
         totalRevenues -
