@@ -8,6 +8,10 @@ type ColorProps = {
 
 export const Container = styled.View`
   flex: 1;
+  justify-content: space-between;
+`;
+
+export const MainContent = styled.View`
 `;
 
 export const Header = styled.View <ColorProps>`
@@ -27,6 +31,12 @@ export const TitleContainer = styled.View`
   justify-content: space-between;
 `;
 
+export const Title = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(12)}px;
+  color: ${({ theme }) => theme.colors.shape};
+`;
+
 export const HeaderRow = styled.View`
   width: 100%;
   flex-direction: row;
@@ -39,12 +49,6 @@ export const InputTransactionValueContainer = styled.View`
   flex-direction: row;
   align-items: center;
   margin: 0 10px 0 20px;
-`;
-
-export const Title = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
-  color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const TransactionsTypes = styled.View`
@@ -66,5 +70,5 @@ export const GroupButtonDate = styled.View`
 
 export const Footer = styled.View`
   width: 100%;
-  padding: 20px;
+  padding: 10px;
 `;

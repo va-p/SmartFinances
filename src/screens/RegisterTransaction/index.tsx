@@ -1,12 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import {
   Container,
+  MainContent,
   Header,
   TitleContainer,
+  Title,
   HeaderRow,
   InputTransactionValueContainer,
-  Title,
   TransactionsTypes,
   Footer
 } from './styles';
@@ -729,121 +730,123 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
   return (
     <Container>
-      <Header color={categorySelected.color.hex}>
-        <TitleContainer>
-          <BorderlessButton onPress={() => handleCloseRegisterTransaction()}>
-            <Ionicons name='close' size={26} color={theme.colors.background} />
-          </BorderlessButton>
-          <Title>
+      <MainContent>
+        <Header color={categorySelected.color.hex}>
+          <TitleContainer>
+            <BorderlessButton onPress={() => handleCloseRegisterTransaction()}>
+              <Ionicons name='close' size={26} color={theme.colors.background} />
+            </BorderlessButton>
+            <Title>
+              {
+                id != '' ?
+                  'Editar Transação' :
+                  'Adicionar Transação'
+              }
+            </Title>
             {
               id != '' ?
-                'Editar Transação' :
-                'Adicionar Transação'
+                <BorderlessButton onPress={() => handleClickDeleteTransaction(id)}>
+                  <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
+                </BorderlessButton> :
+                <Ionicons name='trash-outline' size={26} color={categorySelected.color.hex} />
             }
-          </Title>
-          {
-            id != '' ?
-              <BorderlessButton onPress={() => handleClickDeleteTransaction(id)}>
-                <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
-              </BorderlessButton> :
-              <Ionicons name='trash-outline' size={26} color={categorySelected.color.hex} />
-          }
-        </TitleContainer>
+          </TitleContainer>
 
-        <HeaderRow>
-          <CategorySelectButton
-            categorySelected={categorySelected}
-            icon={categorySelected.icon?.name}
-            color={categorySelected.color.hex}
-            onPress={handleOpenSelectCategoryModal}
-          />
-
-          <InputTransactionValueContainer>
-            <ControlledInputValue
-              placeholder='0'
-              keyboardType='numeric'
-              textAlign='right'
-              name='amount'
-              control={control}
-              error={errors.amount}
+          <HeaderRow>
+            <CategorySelectButton
+              categorySelected={categorySelected}
+              icon={categorySelected.icon?.name}
+              color={categorySelected.color.hex}
+              onPress={handleOpenSelectCategoryModal}
             />
 
-            <CurrencySelectButton
-              title={currencySelected.symbol}
-              onPress={handleOpenSelectCurrencyModal}
-            />
-          </InputTransactionValueContainer>
-        </HeaderRow>
-      </Header>
+            <InputTransactionValueContainer>
+              <ControlledInputValue
+                placeholder='0'
+                keyboardType='numeric'
+                textAlign='right'
+                name='amount'
+                control={control}
+                error={errors.amount}
+              />
 
-      <SelectButton
-        title={accountSelected.name}
-        icon='wallet'
-        color={categorySelected.color.hex}
-        onPress={handleOpenSelectAccountModal}
-      />
-      {
-        transactionType === 'transfer' &&
+              <CurrencySelectButton
+                title={currencySelected.symbol}
+                onPress={handleOpenSelectCurrencyModal}
+              />
+            </InputTransactionValueContainer>
+          </HeaderRow>
+        </Header>
+
         <SelectButton
-          title={accountDestinationSelected.name}
+          title={accountSelected.name}
           icon='wallet'
           color={categorySelected.color.hex}
-          onPress={handleOpenSelectAccountDestinationModal}
+          onPress={handleOpenSelectAccountModal}
         />
-      }
-
-      <SelectButton
-        title={formattedDate}
-        icon='calendar'
-        color={categorySelected.color.hex}
-        onPress={showDatepicker}
-      />
-      {
-        showDatePicker && (
-          <DateTimePicker
-            testID='dateTimePicker'
-            value={date}
-            mode='date'
-            is24Hour={true}
-            onChange={onChangeDate}
-            display='spinner'
-            dateFormat='day month year'
-            textColor='#000'
+        {
+          transactionType === 'transfer' &&
+          <SelectButton
+            title={accountDestinationSelected.name}
+            icon='wallet'
+            color={categorySelected.color.hex}
+            onPress={handleOpenSelectAccountDestinationModal}
           />
-        )
-      }
-      <ControlledInputWithIcon
-        icon='pencil'
-        color={categorySelected.color.hex}
-        placeholder='Descrição'
-        autoCapitalize='sentences'
-        autoCorrect={false}
-        defaultValue={description}
-        name='description'
-        control={control}
-        error={errors.description}
-      />
+        }
 
-      <TransactionsTypes>
-        <TransactionTypeButton
-          type='up'
-          title='Entrada'
-          onPress={() => handleTransactionsTypeSelect('income')}
-          isActive={transactionType === 'income' || transactionType === 'transferIn'}
+        <SelectButton
+          title={formattedDate}
+          icon='calendar'
+          color={categorySelected.color.hex}
+          onPress={showDatepicker}
         />
-        <TransactionTypeButton
-          type='swap'
-          title='Transf'
-          onPress={() => handleTransactionsTypeSelect('transfer')}
-          isActive={transactionType === 'transfer'}
+        {
+          showDatePicker && (
+            <DateTimePicker
+              testID='dateTimePicker'
+              value={date}
+              mode='date'
+              is24Hour={true}
+              onChange={onChangeDate}
+              display='spinner'
+              dateFormat='day month year'
+              textColor='#000'
+            />
+          )
+        }
+        <ControlledInputWithIcon
+          icon='pencil'
+          color={categorySelected.color.hex}
+          placeholder='Descrição'
+          autoCapitalize='sentences'
+          autoCorrect={false}
+          defaultValue={description}
+          name='description'
+          control={control}
+          error={errors.description}
         />
-        <TransactionTypeButton
-          type='down'
-          title='Saída'
-          onPress={() => handleTransactionsTypeSelect('outcome')}
-          isActive={transactionType === 'outcome' || transactionType === 'transferOut'}
-        />
-      </TransactionsTypes>
+
+        <TransactionsTypes>
+          <TransactionTypeButton
+            type='up'
+            title='Entrada'
+            onPress={() => handleTransactionsTypeSelect('income')}
+            isActive={transactionType === 'income' || transactionType === 'transferIn'}
+          />
+          <TransactionTypeButton
+            type='swap'
+            title='Transf'
+            onPress={() => handleTransactionsTypeSelect('transfer')}
+            isActive={transactionType === 'transfer'}
+          />
+          <TransactionTypeButton
+            type='down'
+            title='Saída'
+            onPress={() => handleTransactionsTypeSelect('outcome')}
+            isActive={transactionType === 'outcome' || transactionType === 'transferOut'}
+          />
+        </TransactionsTypes>
+      </MainContent>
 
       <Footer>
         <Button
