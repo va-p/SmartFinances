@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
@@ -14,51 +13,35 @@ export const Header = styled.View`
   height: ${RFPercentage(4)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight() - 15}px;
+  margin-top: ${getStatusBarHeight() - 18}px;
   margin-bottom: ${RFPercentage(1)}px;
 `;
 
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(11)}px;
   padding-bottom: 10px;
   margin-top: -5px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const FiltersContainer = styled.View`
+  height: ${RFPercentage(3.5)}px;
   align-items: center;
+  justify-content: center;
 `;
 
 export const FilterButtonGroup = styled.View`
   width: ${RFPercentage(12)}px;
 `;
 
-export const ChartContainer = styled.View`
-  width: 100%;
-  height: ${RFPercentage(20)}px;
-  justify-content: center;
-  padding-bottom: 10px;
-`;
-
 export const Transactions = styled.View`
   flex: 1;
-`;
-
-export const RegisterTransactionButton = styled(RectButton)`
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 22px;
-  bottom: 22px;
-  align-items: center;
-  justify-content: center;
-  background-color: ${({ theme }) => theme.colors.secondary};
-  border-radius: 30px;
+  background-color: ${({ theme }) => theme.colors.background};
 `;

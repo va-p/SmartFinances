@@ -1,15 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, RefreshControl } from 'react-native';
+import { Alert, RefreshControl, StyleSheet, BackHandler } from 'react-native';
 import {
   Container,
   Header,
   CashFlowTotal,
   CashFlowDescription,
-  ChartContainer,
   FiltersContainer,
   FilterButtonGroup,
-  Transactions,
-  RegisterTransactionButton
+  Transactions
 } from './styles'
 
 import Animated, {
@@ -17,7 +15,9 @@ import Animated, {
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
-  useSharedValue
+  useSharedValue,
+  useAnimatedGestureHandler,
+  withSpring
 } from 'react-native-reanimated';
 import {
   VictoryBar,
@@ -25,7 +25,16 @@ import {
   VictoryGroup,
   VictoryTheme
 } from 'victory-native';
-import { addMonths, addYears, subMonths, subYears, format } from 'date-fns';
+import {
+  format,
+  parseISO,
+  addMonths,
+  addYears,
+  subMonths,
+  subYears,
+  parse
+} from 'date-fns';
+import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,11 +55,8 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import {
   setBtcQuoteBrl,
-  selectBtcQuoteBrl,
   setEurQuoteBrl,
-  selectEurQuoteBrl,
   setUsdQuoteBrl,
-  selectUsdQuoteBrl
 } from '@slices/quotesSlice';
 
 import {
@@ -73,10 +79,6 @@ export function Home() {
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
-  const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
-  const eurQuoteBrl = useSelector(selectEurQuoteBrl);
-  const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
-  const [transactions, setTransactions] = useState<TransactionProps[]>([]);
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState<TransactionProps[]>([]);
   const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
   const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
@@ -97,27 +99,62 @@ export function Home() {
     }
   ]);
   const [selectedPeriod, setSelectedPeriod] = useState(new Date());
-  const selectedPeriodFormatted = format(
-    selectedPeriod, `MMM '\n' yyyy`, { locale: ptBR }
-  );
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
+
+  //Animated header and chart
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(event => {
     scrollY.value = event.contentOffset.y;
-    console.log(event.contentOffset.y);
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
       height: interpolate(
         scrollY.value,
-        [0, 200],
-        [200, 70],
+        [0, 210],
+        [210, 0],
         Extrapolate.CLAMP
-      ),
+      )
     }
   });
+  const sliderChartStyleAnimation = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        scrollY.value,
+        [0, 160],
+        [1, 0],
+        Extrapolate.CLAMP
+      )
+    }
+  });
+  //Animated button register transaction
+  const positionX = useSharedValue(0);
+  const positionY = useSharedValue(0);
+  const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
+  const registerTransactionButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: positionX.value },
+        { translateY: positionY.value }
+      ]
+    }
+  });
+  const OnGestureEvent = useAnimatedGestureHandler({
+    onStart(_, ctx: any) {
+      ctx.positionX = positionX.value;
+      ctx.positionY = positionY.value;
+    },
+    onActive(event, ctx: any) {
+      positionX.value = ctx.positionX + event.translationX;
+      positionY.value = ctx.positionY + event.translationY;
+    },
+    onEnd() {
+      positionX.value = withSpring(0);
+      positionY.value = withSpring(0);
+    }
+  });
+
 
   async function fetchBtcQuote() {
     try {
@@ -197,150 +234,143 @@ export function Home() {
       if (!data) {
       }
       else {
-        setTransactions(data);
         setRefreshing(false);
       }
 
       /**
        * All Transactions Formatted in pt-BR - Start
        */
-      let amount: any;
+      let amount_formatted: any;
       let amountNotConvertedFormatted = '';
-      let totalRevenuesBRL = 0;
-      let totalExpensesBRL = 0;
+      let totalRevenues = 0;
+      let totalExpenses = 0;
 
-      const transactionsFormattedPtbr = data
-        .map((transactionPtbr: TransactionProps) => {
-          switch (transactionPtbr.account.currency.code) {
-            case 'BRL':
-              amount = Number(transactionPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              break;
-            case 'BTC':
-              amount = Number(transactionPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BTC',
-                  minimumFractionDigits: 8,
-                  maximumSignificantDigits: 8
-                });
-              break;
-            case 'EUR':
-              amount = Number(transactionPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'EUR'
-                });
-              break;
-            case 'USD':
-              amount = Number(transactionPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'USD'
-                });
-              break;
-            default: 'BRL'
-              break;
-          }
-
-          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'BRL') {
-            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+      let transactionsFormattedPtbr: any = [];
+      for (const item of data) {
+        // Format the date "dd/MM/yyyy"
+        const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
+        // Format the currency
+        switch (item.account.currency.code) {
+          case 'BRL':
+            amount_formatted = Number(item.amount)
               .toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
               });
-          }
-          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'BTC') {
-            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+            break;
+          case 'BTC':
+            amount_formatted = Number(item.amount)
               .toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BTC',
                 minimumFractionDigits: 8,
                 maximumSignificantDigits: 8
               });
-          }
-          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'EUR') {
-            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+            break;
+          case 'EUR':
+            amount_formatted = Number(item.amount)
               .toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'EUR'
               });
-          }
-          if (transactionPtbr.amount_not_converted && transactionPtbr.currency.code === 'USD') {
-            amountNotConvertedFormatted = Number(transactionPtbr.amount_not_converted)
+            break;
+          case 'USD':
+            amount_formatted = Number(item.amount)
               .toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'USD'
               });
-          }
-
-          switch (transactionPtbr.type) {
-            case 'income':
-              totalRevenuesBRL += Number(transactionPtbr.amount)
-              break;
-            case 'outcome':
-              totalExpensesBRL += Number(transactionPtbr.amount)
-              break;
-            default: 'income';
-              break;
-          }
-
-          const dateTransactionPtbr = format(
-            transactionPtbr.created_at, 'dd/MM/yyyy', { locale: ptBR }
-          );
-
-          return {
-            id: transactionPtbr.id,
-            created_at: dateTransactionPtbr,
-            description: transactionPtbr.description,
-            amount,
+        }
+        if (item.amount_not_converted && item.currency.code === 'BRL') {
+          amountNotConvertedFormatted = Number(item.amount_not_converted)
+            .toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            });
+        }
+        if (item.amount_not_converted && item.currency.code === 'BTC') {
+          amountNotConvertedFormatted = Number(item.amount_not_converted)
+            .toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BTC',
+              minimumFractionDigits: 8,
+              maximumSignificantDigits: 8
+            });
+        }
+        if (item.amount_not_converted && item.currency.code === 'EUR') {
+          amountNotConvertedFormatted = Number(item.amount_not_converted)
+            .toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'EUR'
+            });
+        }
+        if (item.amount_not_converted && item.currency.code === 'USD') {
+          amountNotConvertedFormatted = Number(item.amount_not_converted)
+            .toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'USD'
+            });
+        }
+        // Create the objects
+        if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
+          transactionsFormattedPtbr[item.id] = {
+            id: item.id,
+            created_at: dmy,
+            description: item.description,
+            amount: item.amount,
+            amount_formatted,
             amount_not_converted: amountNotConvertedFormatted,
             currency: {
-              id: transactionPtbr.currency.id,
-              name: transactionPtbr.currency.name,
-              code: transactionPtbr.currency.code,
-              symbol: transactionPtbr.currency.symbol
+              id: item.currency.id,
+              name: item.currency.name,
+              code: item.currency.code,
+              symbol: item.currency.symbol
             },
-            type: transactionPtbr.type,
+            type: item.type,
             account: {
-              id: transactionPtbr.account.id,
-              name: transactionPtbr.account.name,
+              id: item.account.id,
+              name: item.account.name,
               currency: {
-                id: transactionPtbr.account.currency.id,
-                name: transactionPtbr.account.currency.name,
-                code: transactionPtbr.account.currency.code,
-                symbol: transactionPtbr.account.currency.symbol
+                id: item.account.currency.id,
+                name: item.account.currency.name,
+                code: item.account.currency.code,
+                symbol: item.account.currency.symbol
               },
-              initial_amount: transactionPtbr.account.initial_amount,
+              initial_amount: item.account.initial_amount,
               totalAccountAmount: 0,
-              tenant_id: transactionPtbr.account.tenant_id
+              tenant_id: item.account.tenant_id
             },
             category: {
-              id: transactionPtbr.category.id,
-              name: transactionPtbr.category.name,
+              id: item.category.id,
+              name: item.category.name,
               icon: {
-                id: transactionPtbr.category.icon.id,
-                title: transactionPtbr.category.icon.title,
-                name: transactionPtbr.category.icon.name,
+                id: item.category.icon.id,
+                title: item.category.icon.title,
+                name: item.category.icon.name,
               },
               color: {
-                id: transactionPtbr.category.color.id,
-                name: transactionPtbr.category.color.name,
-                hex: transactionPtbr.category.color.hex,
+                id: item.category.color.id,
+                name: item.category.color.name,
+                hex: item.category.color.hex,
               },
-              tenant_id: transactionPtbr.category.tenant_id
+              tenant_id: item.category.tenant_id
             },
-            tenant_id: transactionPtbr.tenant_id
-          }
-        });
+            tenant_id: item.tenant_id,
+          };
+        }
+        // Sum revenues and expenses
+        if (item.type === 'income') {
+          totalRevenues += item.amount;
+        } else if (item.type === 'outcome') {
+          totalExpenses += item.amount;
+        }
+      };
+      transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr);
 
-      const totalBRL =
-        totalRevenuesBRL -
-        totalExpensesBRL;
-      const totalFormattedPtbr = Number(totalBRL)
+      const total =
+        totalRevenues -
+        totalExpenses;
+      const totalFormattedPtbrByAllHistory = Number(total)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
@@ -353,148 +383,29 @@ export function Home() {
       /**
        * Transactions By Months Formatted in pt-BR - Start
        */
-      //let initialTotalAmountBRLByMonths = 0;
-      let totalRevenuesBRLByMonths = 0;
-      let totalExpensesBRLByMonths = 0;
+      let totalRevenuesByMonths = 0;
+      let totalExpensesByMonths = 0;
 
-      const transactionsByMonths = transactions
+      const transactionsByMonthsFormattedPtbr = transactionsFormattedPtbr
         .filter((transactionByMonthsPtBr: TransactionProps) =>
-          new Date(transactionByMonthsPtBr.created_at).getMonth() === selectedPeriod.getMonth() &&
-          new Date(transactionByMonthsPtBr.created_at).getFullYear() === selectedPeriod.getFullYear()
+          parse(transactionByMonthsPtBr.created_at, 'dd/MM/yyyy', new Date()).getMonth() === selectedPeriod.getMonth() &&
+          parse(transactionByMonthsPtBr.created_at, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
         );
 
-      var transactionsByMonthsFormattedPtbr = transactionsByMonths
-        .map((transactionByMonthsPtbr: TransactionProps) => {
-          switch (transactionByMonthsPtbr.account.currency.code) {
-            case 'BRL':
-              amount = Number(transactionByMonthsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              break;
-            case 'BTC':
-              amount = Number(transactionByMonthsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BTC',
-                  minimumFractionDigits: 8,
-                  maximumSignificantDigits: 8
-                });
-              break;
-            case 'EUR':
-              amount = Number(transactionByMonthsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'EUR'
-                });
-              break;
-            case 'USD':
-              amount = Number(transactionByMonthsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'USD'
-                });
-              break;
-            default: 'BRL'
-              break;
-          }
+      // Sum revenues and expenses
+      for (const item of transactionsByMonthsFormattedPtbr) {
+        if (item.type === 'income') {
+          totalRevenuesByMonths += item.amount;
+        } else if (item.type === 'outcome') {
+          totalExpensesByMonths += item.amount;
+        }
+      };
 
-          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'BRL') {
-            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              });
-          }
-          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'BTC') {
-            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BTC',
-                minimumFractionDigits: 8,
-                maximumSignificantDigits: 8
-              });
-          }
-          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'EUR') {
-            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'EUR'
-              });
-          }
-          if (transactionByMonthsPtbr.amount_not_converted && transactionByMonthsPtbr.currency.code === 'USD') {
-            amountNotConvertedFormatted = Number(transactionByMonthsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'USD'
-              });
-          }
-
-          switch (transactionByMonthsPtbr.type) {
-            case 'income':
-              totalRevenuesBRLByMonths += Number(transactionByMonthsPtbr.amount)
-              break;
-            case 'outcome':
-              totalExpensesBRLByMonths += Number(transactionByMonthsPtbr.amount)
-              break;
-            default: 'income';
-              break;
-          }
-
-          const dateTransactionPtbr = format(
-            transactionByMonthsPtbr.created_at, 'dd/MM/yyyy', { locale: ptBR }
-          );
-
-          return {
-            id: transactionByMonthsPtbr.id,
-            created_at: dateTransactionPtbr,
-            description: transactionByMonthsPtbr.description,
-            amount,
-            amount_not_converted: amountNotConvertedFormatted,
-            currency: {
-              id: transactionByMonthsPtbr.currency.id,
-              name: transactionByMonthsPtbr.currency.name,
-              code: transactionByMonthsPtbr.currency.code,
-              symbol: transactionByMonthsPtbr.currency.symbol
-            },
-            type: transactionByMonthsPtbr.type,
-            account: {
-              id: transactionByMonthsPtbr.account.id,
-              name: transactionByMonthsPtbr.account.name,
-              currency: {
-                id: transactionByMonthsPtbr.account.currency.id,
-                name: transactionByMonthsPtbr.account.currency.name,
-                code: transactionByMonthsPtbr.account.currency.code,
-                symbol: transactionByMonthsPtbr.account.currency.symbol
-              },
-              initial_amount: transactionByMonthsPtbr.account.initial_amount,
-              tenant_id: transactionByMonthsPtbr.account.tenant_id
-            },
-            category: {
-              id: transactionByMonthsPtbr.category.id,
-              name: transactionByMonthsPtbr.category.name,
-              icon: {
-                id: transactionByMonthsPtbr.category.icon.id,
-                title: transactionByMonthsPtbr.category.icon.title,
-                name: transactionByMonthsPtbr.category.icon.name,
-              },
-              color: {
-                id: transactionByMonthsPtbr.category.color.id,
-                name: transactionByMonthsPtbr.category.color.name,
-                hex: transactionByMonthsPtbr.category.color.hex,
-              },
-              tenant_id: transactionByMonthsPtbr.category.tenant_id
-            },
-            tenant_id: transactionByMonthsPtbr.tenant_id
-          }
-        });
-
-      const totalBRLByMonths =
-        //initialTotalAmountBRLByMonths +
-        totalRevenuesBRLByMonths -
-        totalExpensesBRLByMonths;
-      const totalFormattedPtbrByMonths = Number(totalBRLByMonths)
+      const totalByMonths =
+        //initialTotalAmountByMonths +
+        totalRevenuesByMonths -
+        totalExpensesByMonths;
+      const totalFormattedPtbrByMonths = Number(totalByMonths)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
@@ -507,146 +418,27 @@ export function Home() {
       /**
        * Transactions By Years Formatted in pt-BR - Start
        */
-      //let initialTotalAmountBRLByYears = 0;
-      let totalRevenuesBRLByYears = 0;
-      let totalExpensesBRLByYears = 0;
+      let totalRevenuesByYears = 0;
+      let totalExpensesByYears = 0;
 
-      const transactionsByYears = transactions
+      const transactionsByYearsFormattedPtbr = transactionsFormattedPtbr
         .filter((transactionByYearsPtBr: TransactionProps) =>
-          new Date(transactionByYearsPtBr.created_at).getFullYear() === selectedPeriod.getFullYear()
+          parse(transactionByYearsPtBr.created_at, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
         );
 
-      const transactionsByYearsFormattedPtbr = transactionsByYears
-        .map((transactionByYearsPtbr: TransactionProps) => {
-          switch (transactionByYearsPtbr.account.currency.code) {
-            case 'BRL':
-              amount = Number(transactionByYearsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                });
-              break;
-            case 'BTC':
-              amount = Number(transactionByYearsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BTC',
-                  minimumFractionDigits: 8,
-                  maximumSignificantDigits: 8
-                });
-              break;
-            case 'EUR':
-              amount = Number(transactionByYearsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'EUR'
-                });
-              break;
-            case 'USD':
-              amount = Number(transactionByYearsPtbr.amount)
-                .toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'USD'
-                });
-              break;
-            default: 'BRL'
-              break;
-          }
-
-          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'BRL') {
-            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              });
-          }
-          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'BTC') {
-            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BTC',
-                minimumFractionDigits: 8,
-                maximumSignificantDigits: 8
-              });
-          }
-          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'EUR') {
-            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'EUR'
-              });
-          }
-          if (transactionByYearsPtbr.amount_not_converted && transactionByYearsPtbr.currency.code === 'USD') {
-            amountNotConvertedFormatted = Number(transactionByYearsPtbr.amount_not_converted)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'USD'
-              });
-          }
-
-          switch (transactionByYearsPtbr.type) {
-            case 'income':
-              totalRevenuesBRLByYears += Number(transactionByYearsPtbr.amount)
-              break;
-            case 'outcome':
-              totalExpensesBRLByYears += Number(transactionByYearsPtbr.amount)
-              break;
-            default: 'income';
-              break;
-          }
-
-          const dateTransactionPtbr = format(
-            transactionByYearsPtbr.created_at, 'dd/MM/yyyy', { locale: ptBR }
-          );
-
-          return {
-            id: transactionByYearsPtbr.id,
-            created_at: dateTransactionPtbr,
-            description: transactionByYearsPtbr.description,
-            amount,
-            amount_not_converted: amountNotConvertedFormatted,
-            currency: {
-              id: transactionByYearsPtbr.currency.id,
-              name: transactionByYearsPtbr.currency.name,
-              code: transactionByYearsPtbr.currency.code,
-              symbol: transactionByYearsPtbr.currency.symbol
-            },
-            type: transactionByYearsPtbr.type,
-            account: {
-              id: transactionByYearsPtbr.account.id,
-              name: transactionByYearsPtbr.account.name,
-              currency: {
-                id: transactionByYearsPtbr.account.currency.id,
-                name: transactionByYearsPtbr.account.currency.name,
-                code: transactionByYearsPtbr.account.currency.code,
-                symbol: transactionByYearsPtbr.account.currency.symbol
-              },
-              initial_amount: transactionByYearsPtbr.account.initial_amount,
-              tenant_id: transactionByYearsPtbr.account.tenant_id
-            },
-            category: {
-              id: transactionByYearsPtbr.category.id,
-              name: transactionByYearsPtbr.category.name,
-              icon: {
-                id: transactionByYearsPtbr.category.icon.id,
-                title: transactionByYearsPtbr.category.icon.title,
-                name: transactionByYearsPtbr.category.icon.name,
-              },
-              color: {
-                id: transactionByYearsPtbr.category.color.id,
-                name: transactionByYearsPtbr.category.color.name,
-                hex: transactionByYearsPtbr.category.color.hex,
-              },
-              tenant_id: transactionByYearsPtbr.category.tenant_id
-            },
-            tenant_id: transactionByYearsPtbr.tenant_id
-          }
-        });
+      // Sum revenues and expenses
+      for (const item of transactionsByYearsFormattedPtbr) {
+        if (item.type === 'income') {
+          totalRevenuesByYears += item.amount;
+        } else if (item.type === 'outcome') {
+          totalExpensesByYears += item.amount;
+        }
+      };
 
       const totalBRLByYears =
         //initialTotalAmountBRLByYears +
-        totalRevenuesBRLByYears -
-        totalExpensesBRLByYears;
+        totalRevenuesByYears -
+        totalExpensesByYears;
       const totalFormattedPtbrByYears = Number(totalBRLByYears)
         .toLocaleString('pt-BR', {
           style: 'currency',
@@ -660,55 +452,26 @@ export function Home() {
       /**
        * All Totals Grouped By Months - Start
        */
-      const transactionsGroupedByMonths = data
-        .map((transactionByMonth: TransactionProps) => {
-          switch (transactionByMonth.account.currency.code) {
-            case 'BRL':
-              amount = Number(transactionByMonth.amount);
-              break;
-            case 'BTC':
-              amount = Number(transactionByMonth.amount) * btcQuoteBrl.price;
-              break;
-            case 'EUR':
-              amount = Number(transactionByMonth.amount) * eurQuoteBrl.price;
-              break;
-            case 'USD':
-              amount = Number(transactionByMonth.amount) * usdQuoteBrl.price;
-              break;
-            default: 'BRL'
-              break;
-          }
+      let totalsGroupedByMonths: any = [];
+      for (const item of data) {
+        // Format the date to "yyyy-mm", easier to sort the array
+        const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+        // Create the objects
+        if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
+          totalsGroupedByMonths[ym] = { date: ym, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
+        }
+        if (item.type === 'income') {
+          totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
+        } else if (item.type === 'outcome') {
+          totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
+        }
+      }
+      totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
 
-          const dateTransactionByMonth = format(
-            transactionByMonth.created_at, `MMM '\n' yyyy`, { locale: ptBR }
-          );
-
-          return {
-            date: dateTransactionByMonth,
-            type: transactionByMonth.type,
-            amount,
-            totalRevenuesByPeriod: 0,
-            totalExpensesByPeriod: 0
-          }
-        });
-
-      const totalsByMonths = transactionsGroupedByMonths
-        .reduce((acc: any, current: any) => {
-          if (!acc[current.date]) acc[current.date] = { ...current };
-
-          switch (current.type) {
-            case 'income':
-              acc[current.date].totalRevenuesByPeriod += Number(current.amount)
-              break;
-            case 'outcome':
-              acc[current.date].totalExpensesByPeriod += Number(current.amount)
-              break;
-          }
-
-          return acc
-        }, []);
-
-      const totalsGroupedByMonths: any = Object.values(totalsByMonths);
+      // Runs from last to first, formating the date to "MMM yyyy"
+      for (var i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
+        totalsGroupedByMonths[i].date = format(parseISO(totalsGroupedByMonths[i].date), `MMM '\n' yyyy`, { locale: ptBR });
+      };
       /**
        * All Totals Grouped By Months - End
        */
@@ -717,57 +480,46 @@ export function Home() {
       /**
        * All Totals Grouped By Years - Start
        */
-      const transactionsGroupedByYears = data
-        .map((transactionByYear: TransactionProps) => {
-          switch (transactionByYear.account.currency.code) {
-            case 'BRL':
-              amount = Number(transactionByYear.amount);
-              break;
-            case 'BTC':
-              amount = Number(transactionByYear.amount) * btcQuoteBrl.price;
-              break;
-            case 'EUR':
-              amount = Number(transactionByYear.amount) * eurQuoteBrl.price;
-              break;
-            case 'USD':
-              amount = Number(transactionByYear.amount) * usdQuoteBrl.price;
-              break;
-            default: 'BRL'
-              break;
-          }
-
-          const dateTransactionByYear = format(
-            transactionByYear.created_at, 'yyyy', { locale: ptBR }
-          );
-
-          return {
-            date: dateTransactionByYear,
-            type: transactionByYear.type,
-            amount: transactionByYear.amount,
-            totalRevenuesByPeriod: 0,
-            totalExpensesByPeriod: 0
-          }
-        });
-
-      const totalsByYears = transactionsGroupedByYears
-        .reduce((acc: any, current: any) => {
-          if (!acc[current.date]) acc[current.date] = { ...current };
-
-          switch (current.type) {
-            case 'income':
-              acc[current.date].totalRevenuesByPeriod += Number(current.amount)
-              break;
-            case 'outcome':
-              acc[current.date].totalExpensesByPeriod += Number(current.amount)
-              break;
-          }
-
-          return acc
-        }, []);
-
-      const totalsGroupedByYears: any = Object.values(totalsByYears);
+      let totalsGroupedByYears: any = [];
+      for (const item of data) {
+        // Format the date to "yyyy", easier to sort the array
+        const y = format(item.created_at, `yyyy`, { locale: ptBR });
+        // Create the objects
+        if (!totalsGroupedByYears.hasOwnProperty(y)) {
+          totalsGroupedByYears[y] = { date: y, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
+        }
+        if (item.type === 'income') {
+          totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
+        } else if (item.type === 'outcome') {
+          totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
+        }
+      }
+      totalsGroupedByYears = Object.values(totalsGroupedByYears);
       /**
        * All Totals Grouped By Years - End
+       */
+
+
+      /**
+       * All Totals Grouped By All History - Start
+       */
+      let totalsGroupedByAllHistory: any = [];
+      for (const item of data) {
+        item.created_at = `Todo o \n histórico`;
+        const dateAll = item.created_at;
+        // Create the objects
+        if (!totalsGroupedByAllHistory.hasOwnProperty(dateAll)) {
+          totalsGroupedByAllHistory[dateAll] = { date: dateAll, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
+        }
+        if (item.type === 'income') {
+          totalsGroupedByAllHistory[dateAll].totalRevenuesByPeriod += item.amount;
+        } else if (item.type === 'outcome') {
+          totalsGroupedByAllHistory[dateAll].totalExpensesByPeriod += item.amount;
+        }
+      }
+      totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);
+      /**
+       * All Totals Grouped All History - End
        */
 
 
@@ -786,8 +538,8 @@ export function Home() {
           setTransactionsFormattedBySelectedPeriod(transactionsByYearsFormattedPtbr);
           break;
         case 'all':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbr);
-          //setTotalAmountsGroupedBySelectedPeriod();
+          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByAllHistory);
+          setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByAllHistory);
           setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbr);
           break;
       }
@@ -822,7 +574,7 @@ export function Home() {
   function handleOpenTransaction(id: string) {
     setTransactionId(id);
     setRegisterTransactionModalOpen(true);
-  }
+  };
 
   function handleDateChange(action: 'next' | 'prev'): void {
     switch (chartPeriodSelected.period) {
@@ -848,14 +600,13 @@ export function Home() {
 
   function ClearTransactionId() {
     setTransactionId('');
-  }
+  };
 
   useEffect(() => {
-    fetchBtcQuote();
-    fetchEurQuote();
-    fetchUsdQuote();
-    fetchTransactions();
-  }, [chartPeriodSelected.period]);
+    BackHandler.addEventListener('hardwareBackPress', () => {
+      return true;
+    })
+  }, []);
 
   useFocusEffect(useCallback(() => {
     fetchBtcQuote();
@@ -864,13 +615,14 @@ export function Home() {
     fetchTransactions();
   }, [chartPeriodSelected.period]));
 
+
   if (loading) {
     return <Load />
   }
 
   return (
     <Container>
-      <Animated.View>
+      <Animated.View style={[headerStyleAnimation, styles.header]}>
         <Header>
           <CashFlowTotal>{cashFlowTotalBySelectedPeriod}</CashFlowTotal>
           <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
@@ -885,10 +637,11 @@ export function Home() {
           </FilterButtonGroup>
         </FiltersContainer>
 
-        <ChartContainer>
+        <Animated.View style={sliderChartStyleAnimation}>
           <VictoryChart
             theme={VictoryTheme.material}
-            width={400} height={180}
+            padding={{ top: 10, right: 50, bottom: 130, left: 50 }}
+            width={420} height={210}
             maxDomain={{ x: 6 }}
             domainPadding={{ x: 7 }}
           >
@@ -899,8 +652,8 @@ export function Home() {
                 data={totalAmountsGroupedBySelectedPeriod}
                 x='date'
                 y='totalRevenuesByPeriod'
-                sortKey="x"
-                sortOrder="descending"
+                sortKey='x'
+                sortOrder='descending'
                 alignment='start'
                 style={{
                   data: {
@@ -918,7 +671,7 @@ export function Home() {
                 data={totalAmountsGroupedBySelectedPeriod}
                 x='date'
                 y='totalExpensesByPeriod'
-                sortOrder="descending"
+                sortOrder='descending'
                 alignment='start'
                 style={{
                   data: {
@@ -934,7 +687,7 @@ export function Home() {
               />
             </VictoryGroup>
           </VictoryChart>
-        </ChartContainer>
+        </Animated.View>
       </Animated.View>
 
       <Transactions>
@@ -947,21 +700,36 @@ export function Home() {
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}
-          initialNumToRender={80}
+          initialNumToRender={200}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }
-          onScroll={scrollHandler}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingBottom: getBottomSpace()
           }}
+          onScroll={scrollHandler}
+          scrollEventThrottle={32}
         />
       </Transactions>
 
-      <RegisterTransactionButton onPress={handleOpenRegisterTransactionModal}>
-        <Ionicons name='add-outline' size={32} color={theme.colors.background} />
-      </RegisterTransactionButton>
+      <PanGestureHandler onGestureEvent={OnGestureEvent}>
+        <Animated.View
+          style={[
+            registerTransactionButtonStyle,
+            {
+              position: 'absolute',
+              bottom: 22,
+              right: 22
+            }
+          ]}
+        >
+          <ButtonAnimated onPress={handleOpenRegisterTransactionModal} style={styles.animatedButton}>
+            <Ionicons name='add-outline' size={32} color={theme.colors.background} />
+          </ButtonAnimated>
+        </Animated.View>
+      </PanGestureHandler>
+
 
       <ModalViewSelection
         visible={periodSelectedModalOpen}
@@ -988,3 +756,18 @@ export function Home() {
     </Container>
   )
 }
+
+const styles = StyleSheet.create({
+  header: {
+    overflow: 'hidden',
+    zIndex: 1
+  },
+  animatedButton: {
+    width: 45,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.secondary,
+    borderRadius: 30
+  }
+})
