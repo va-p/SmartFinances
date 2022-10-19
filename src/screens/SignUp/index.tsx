@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
-  Form
+  Form,
+  Footer
 } from './styles';
 
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,7 +11,7 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
-import { Button } from '@components/Form/Button';
+import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 
 import api from '@api/api';
@@ -103,7 +104,7 @@ export function SignUp({ navigation }: any) {
 
       setButtonIsLoading(false)
     }
-  }
+  };
 
   return (
     <Container>
@@ -179,16 +180,16 @@ export function SignUp({ navigation }: any) {
           control={control}
           error={errors.confirmPassword}
         />
+      </Form>
 
-        
-
+      <Footer>
         <Button
           type='secondary'
           isLoading={buttonIsLoading}
           title='Cadastrar'
           onPress={handleSubmit(handleRegisterUser)}
         />
-      </Form>
+      </Footer>
     </Container>
   );
 }
