@@ -15,11 +15,11 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 31,
+      "versionCode": 32,
       "permissions": [],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/ic_launcher_foreground.png",
-        "backgroundImage": "./assets/ic_launcher_background.png"
+        "foregroundImage": "./assets/ic_launcher_foreground.svg",
+        "backgroundImage": "./assets/ic_launcher_background.svg"
       }
     },
     "ios": {
