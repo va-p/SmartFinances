@@ -37,7 +37,7 @@ export const SignInTitle = styled.Text`
 export const Footer = styled.View`
   width: 100%;
   height: 30%;
-  background-color: ${({ theme }) => theme.colors.secondary};
+  background-color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const FooterWrapper = styled.View`

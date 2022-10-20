@@ -28,6 +28,7 @@ export interface TransactionProps {
   id: string;
   created_at: any;
   description: string;
+  amount: string | number;
   amount_formatted: string | number;
   amount_not_converted?: string | number;
   currency: CurrencyProps;

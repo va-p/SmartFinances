@@ -13,5 +13,5 @@ export const Container = styled.View`
 export const Indicator = styled(
   ActivityIndicator
 ).attrs({
-  color: theme.colors.secondary
+  color: theme.colors.primary
 })``;

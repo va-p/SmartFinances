@@ -29,7 +29,7 @@ export const IconContainer = styled.View`
 export const Icon = styled(Ionicons) <TransactionProps>`
   font-size: ${RFValue(20)}px;
   color: ${({ theme, type }) =>
-    type === 'income' ? theme.colors.success : theme.colors.secondary};
+    type === 'income' ? theme.colors.success : theme.colors.primary};
 `;
 
 export const DetailsContainer = styled.View`

@@ -1,11 +1,9 @@
 export default {
   colors: {
     primary: 'rgb(255, 82, 0)',
+    primary_light: 'rgba(255, 82, 0, 0.3)',
 
-    secondary: 'rgb(255, 82, 0)',
-    secondary_light: 'rgba(255, 82, 0, 0.3)',
-
-    background: 'rgb(5, 0, 68)',
+    background: 'rgb(3, 1, 65)',
     shape: 'rgb(25, 5, 100)',
 
     title: 'rgb(133, 201, 240)',
