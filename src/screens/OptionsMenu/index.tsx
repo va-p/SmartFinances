@@ -14,19 +14,19 @@ import theme from '@themes/theme';
 export function OptionsMenu({ navigation }: any) {
   function handleClickCategories() {
     navigation.navigate('Categorias');
-  }
+  };
 
   function handleClickHelpCenter() {
     navigation.navigate('Central de Ajuda');
-  }
+  };
 
   function handleClickContactSupport() {
     Linking.openURL('mailto:contato@solucaodigital.tech')
-  }
+  };
 
   function handleClickTermsAndPolices() {
     navigation.navigate('Termos e Políticas');
-  }
+  };
 
   return (
     <Container>
@@ -36,7 +36,7 @@ export function OptionsMenu({ navigation }: any) {
         <SelectButton
           icon='bookmarks-outline'
           title='Categorias'
-          color={theme.colors.secondary}
+          color={theme.colors.primary}
           onPress={() => handleClickCategories()}
         />
 
@@ -44,21 +44,21 @@ export function OptionsMenu({ navigation }: any) {
         <SelectButton
           icon='help-buoy-outline'
           title='Central de Ajuda'
-          color={theme.colors.secondary}
+          color={theme.colors.primary}
           onPress={() => handleClickHelpCenter()}
         />
 
         <SelectButton
           icon='chatbubbles-outline'
           title='Contatar Suporte'
-          color={theme.colors.secondary}
+          color={theme.colors.primary}
           onPress={() => handleClickContactSupport()}
         />
 
         <SelectButton
           icon='shield-checkmark-outline'
           title='Termos e Políticas'
-          color={theme.colors.secondary}
+          color={theme.colors.primary}
           onPress={() => handleClickTermsAndPolices()}
         />
       </ContentScroll>
