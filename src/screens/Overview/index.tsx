@@ -31,7 +31,6 @@ import api from '@api/api';
 
 interface CategoryData {
   id: string;
-  created_at: string;
   name: string;
   icon: IconProps;
   color: ColorProps;
@@ -42,7 +41,6 @@ interface CategoryData {
 }
 
 interface MonthData {
-  //created_at: string;
   monthName: string;
   monthFormatted: number;
   //yearFormatted: number;
@@ -50,7 +48,7 @@ interface MonthData {
   totalRevenuesFormatted: string;
 }
 
-export function Charts() {
+export function Overview() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
@@ -58,6 +56,7 @@ export function Charts() {
   const [expenses, setExpenses] = useState<TransactionProps[]>([]);
   const [revenues, setRevenues] = useState<TransactionProps[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [totalRevenuesByCategories, setTotalRevenuesByCategories] = useState<CategoryData[]>([]);
   const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<CategoryData[]>([]);
   const [categorySelected, setCategorySelected] = useState('');
 
@@ -80,7 +79,6 @@ export function Charts() {
           tenant_id: tenantId
         }
       });
-
       if (!data) {
       } else {
         setCategories(data);
@@ -107,17 +105,78 @@ export function Charts() {
         setTransactions(data);
       }
 
+      const revenues = transactions
+        .filter((revenue: TransactionProps) => {
+          revenue.type == 'income'
+        });
+      setRevenues(revenues);
+
       const expenses = transactions
         .filter((expense: TransactionProps) =>
           expense.type == 'outcome'
         );
       setExpenses(expenses);
 
-      const revenues = transactions
-        .filter((revenue: TransactionProps) => {
-          revenue.type == 'income'
+
+      /**
+       * Revenues by Selected Month - Start
+       */
+      const revenuesBySelectedMonth = transactions
+        .filter((revenue: TransactionProps) =>
+          revenue.type == 'income' &&
+          new Date(revenue.created_at).getMonth() === selectedDate.getMonth() &&
+          new Date(revenue.created_at).getFullYear() === selectedDate.getFullYear()
+        );
+      const revenuesTotalBySelectedMonth = revenuesBySelectedMonth
+        .reduce((acc: number, revenue: TransactionProps) => {
+          return acc + Number(revenue.amount);
+        }, 0);
+      /**
+       * Revenues by Selected Month - End
+       */
+
+      /**
+       * Revenues by Category - Start
+       */
+      const totalRevenuesByCategory: CategoryData[] = [];
+
+      categories.forEach(category => {
+        let categorySum = 0;
+
+        revenuesBySelectedMonth.forEach((revenue: TransactionProps) => {
+          if (revenue.category.id === category.id) {
+            categorySum += Number(revenue.amount);
+          }
         });
-      setRevenues(revenues);
+
+        if (categorySum > 0) {
+          const totalFormatted = categorySum
+            .toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            })
+
+          const percent = `${(categorySum / revenuesTotalBySelectedMonth * 100).toFixed(0)}%`;
+
+          totalRevenuesByCategory.push({
+            id: category.id,
+            name: category.name,
+            icon: category.icon,
+            color: category.color,
+            tenant_id: category.tenant_id,
+            total: categorySum,
+            totalFormatted,
+            percent
+          })
+        }
+      });
+
+      setTotalRevenuesByCategories(totalRevenuesByCategory);
+      //console.log(totalRevenuesByCategories);
+      /**
+       * Revenues by Category - Start
+       */
+
 
       /**
        * Expenses by Selected Month - Start
@@ -161,7 +220,6 @@ export function Charts() {
 
           totalExpensesByCategory.push({
             id: category.id,
-            created_at: category.created_at,
             name: category.name,
             icon: category.icon,
             color: category.color,
@@ -178,25 +236,6 @@ export function Charts() {
        * Expenses by Category - End
        */
 
-      /**
-       * Revenues by Selected Month - Start
-       */
-      const revenuesBySelectedMonth = transactions
-        .filter((revenue: TransactionProps) =>
-          revenue.type == 'outcome' &&
-          new Date(revenue.created_at).getMonth() === selectedDate.getMonth() &&
-          new Date(revenue.created_at).getFullYear() === selectedDate.getFullYear()
-        );
-      const revenuesTotalBySelectedMonth = revenuesBySelectedMonth
-        .reduce((acc: number, revenue: TransactionProps) => {
-          return acc + Number(revenue.amount);
-        }, 0);
-      /**
-       * Revenues by Selected Month - End
-       */
-
-      //const dateTest = new Date(1658411143409).getMonth();
-      //console.log();
       setLoading(false);
     }
     catch (error) {
@@ -259,7 +298,7 @@ export function Charts() {
               labels: {
                 fontSize: RFValue(18),
                 fontWeight: 'bold',
-                fill: theme.colors.secondary
+                fill: theme.colors.primary
               },
               data: {
                 fillOpacity: ({ datum }) => (datum.id === categorySelected || categorySelected === '') ? 1 : 0.2,
