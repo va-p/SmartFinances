@@ -20,7 +20,7 @@ export function Header({ type, title }: Props) {
 
   function handleClickBackButton() {
     navigation.goBack();
-  }
+  };
 
   return (
     <Container type={type}>
@@ -31,7 +31,7 @@ export function Header({ type, title }: Props) {
           </BackButton> :
           <></>
       }
-      <Title>{title}</Title>
+      <Title>{title}</Title>      
     </Container>
   );
 }

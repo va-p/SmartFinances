@@ -4,8 +4,13 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
+export type TypeProps = 'primary' | 'secondary';
 
-export const Container = styled.View`
+type ContainerProps = {
+  type: TypeProps;
+}
+
+export const Container = styled.View <ContainerProps>`
   width: 100%;
   height: 50px;
   flex-direction: row;
@@ -15,7 +20,8 @@ export const Container = styled.View`
 `;
 
 export const BackButton = styled(BorderlessButton)`
-  right: ${RFPercentage(15)}px;
+  position: absolute;
+  left: 0px;
   color: ${({ theme }) => theme.colors.primary};
 `;
 
