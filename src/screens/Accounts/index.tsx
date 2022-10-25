@@ -233,7 +233,7 @@ export function Accounts() {
 
       <ChartContainer>
         <VictoryChart
-          theme={VictoryTheme.material}
+          theme={VictoryTheme.smartFinances}
           width={400} height={220}
           maxDomain={{ x: 6 }}
           domainPadding={{ x: 1 }}

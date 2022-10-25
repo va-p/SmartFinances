@@ -24,8 +24,8 @@ export function OptionsMenu({ navigation }: any) {
     Linking.openURL('mailto:contato@solucaodigital.tech')
   };
 
-  function handleClickTermsAndPolices() {
-    navigation.navigate('Termos e Políticas');
+  function handleClickTermsOfUse() {
+    navigation.navigate('Termos de Uso');
   };
 
   return (
@@ -57,9 +57,9 @@ export function OptionsMenu({ navigation }: any) {
 
         <SelectButton
           icon='shield-checkmark-outline'
-          title='Termos e Políticas'
+          title='Termos de Uso'
           color={theme.colors.primary}
-          onPress={() => handleClickTermsAndPolices()}
+          onPress={() => handleClickTermsOfUse()}
         />
       </ContentScroll>
     </Container>

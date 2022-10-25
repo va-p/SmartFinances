@@ -4,13 +4,14 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
+  padding: 10px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const CategoriesContainer = styled.View`
-  height: ${RFPercentage(82)}px;
+  height: ${RFPercentage(81)}px;
 `;
 
 export const Footer = styled.View`
-  padding: 0 20px;
+  padding: 0 0 10px 0;
 `;

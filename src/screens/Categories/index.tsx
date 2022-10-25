@@ -18,9 +18,9 @@ import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Load } from '@components/Load';
 
-import { selectUserTenantId } from '@slices/userSlice';
-
 import { RegisterCategory } from '@screens/RegisterCategory';
+
+import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
@@ -111,8 +111,7 @@ export function Categories() {
           }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingTop: 20,
-            paddingHorizontal: 10
+            paddingTop: 20
           }}
         />
       </CategoriesContainer>

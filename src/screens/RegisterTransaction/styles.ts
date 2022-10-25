@@ -18,7 +18,7 @@ export const Header = styled.View <ColorProps>`
   min-height: ${RFPercentage(18)}px;
   max-height: ${RFPercentage(18)}px;
   align-items: center;
-  padding: 10px 10px;
+  padding: 10px;
   margin-bottom: 3px;
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;

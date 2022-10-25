@@ -15,5 +15,5 @@ export const CurrencyGroup = styled.View`
 `;
 
 export const Footer = styled.View`
-  padding: 20px;  
+  padding: 10px;  
 `;

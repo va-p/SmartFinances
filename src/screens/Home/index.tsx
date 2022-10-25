@@ -647,7 +647,7 @@ export function Home() {
 
         <Animated.View style={sliderChartStyleAnimation}>
           <VictoryChart
-            theme={VictoryTheme.material}
+            theme={VictoryTheme.smartFinances}
             padding={{ top: 10, right: 50, bottom: 130, left: 50 }}
             width={420} height={210}
             maxDomain={{ x: 6 }}
@@ -738,7 +738,6 @@ export function Home() {
         </Animated.View>
       </PanGestureHandler>
 
-
       <ModalViewSelection
         visible={periodSelectedModalOpen}
         closeModal={handleClosePeriodSelectedModal}
@@ -775,7 +774,7 @@ const styles = StyleSheet.create({
     height: 45,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.primary,
     borderRadius: 30
   }
-})
+});
