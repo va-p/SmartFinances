@@ -2,8 +2,8 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { TermsAndPolices } from '@screens/TermsAndPolices';
 import { OptionsMenu } from '@screens/OptionsMenu';
+import { TermsOfUse } from '@screens/TermsOfUse';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
 import { Accounts } from '@screens/Accounts';
@@ -38,8 +38,8 @@ export function AppStackRoutes() {
       />
 
       <Screen
-        name="Termos e Políticas"
-        component={TermsAndPolices}
+        name="Termos de Uso"
+        component={TermsOfUse}
       />
     </Navigator>
   )

@@ -2,8 +2,9 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
+import { PrivacyPolicy } from '@screens/PrivacyPolicy';
+import { TermsOfUse } from '@screens/TermsOfUse';
 import { AppTabRoutes } from './app.tab.routes';
-import { TermsAndPolices } from '@screens/TermsAndPolices';
 import { SignIn } from '@screens/SignIn';
 import { SignUp } from '@screens/SignUp';
 
@@ -27,8 +28,13 @@ export function AuthRoutes() {
       />
 
       <Screen
-        name="Termos e Políticas de Uso"
-        component={TermsAndPolices}
+        name="Termos de Uso"
+        component={TermsOfUse}
+      />
+
+      <Screen 
+        name="Política de Privacidade"
+        component={PrivacyPolicy}
       />
 
       <Screen

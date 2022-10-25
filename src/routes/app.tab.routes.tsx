@@ -5,9 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
 import { AppStackRoutes } from './app.stack.routes';
-import { Charts } from '@screens/Charts';
-import { Home } from '@screens/Home';
 import { Accounts } from '@screens/Accounts';
+import { Overview } from '@screens/Overview';
+import { Home } from '@screens/Home';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -58,7 +58,7 @@ export function AppTabRoutes() {
 
       <Screen
         name="Resumo"
-        component={Charts}
+        component={Overview}
         options={{
           tabBarIcon: (({ size, color }) => (
             <Ionicons
