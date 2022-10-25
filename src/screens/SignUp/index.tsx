@@ -3,18 +3,25 @@ import { Alert } from 'react-native';
 import {
   Container,
   Form,
-  Footer
+  Footer,
+  TermsAndPolicyContainer,
+  CheckboxGroup,
+  TermsAndPolicy,
+  Link
 } from './styles';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
+import { ControlledCheckbox } from '@components/Form/ControlledCheckbox';
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 
 import api from '@api/api';
+
+import theme from '@themes/theme';
 
 type FormData = {
   name: string;
@@ -23,6 +30,7 @@ type FormData = {
   phone: string;
   password: string;
   confirmPassword: string;
+  checkbox: boolean;
 }
 
 /* Validation Form - Start */
@@ -40,7 +48,7 @@ const schema = Yup.object().shape({
   phone: Yup
     .number()
     .required("Digite o seu telefone celular")
-    .typeError('Digite apenas números'),
+    .typeError("Digite apenas números"),
   password: Yup
     .string()
     .required("Digite a sua senha")
@@ -49,11 +57,16 @@ const schema = Yup.object().shape({
     .string()
     .required("Confirme a sua senha")
     .oneOf([Yup.ref('password'), null], "As senhas não conferem"),
+  checkbox: Yup
+    .bool()
+    .oneOf([true], "Aceite os Termos de Uso e a Política de Privacidade")
 });
+
 /* Validation Form - End */
 
 export function SignUp({ navigation }: any) {
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const [isChecked, setChecked] = useState(false);
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
   });
@@ -108,7 +121,7 @@ export function SignUp({ navigation }: any) {
 
   return (
     <Container>
-      <Header type='secondary' title='Criar nova conta' />
+      <Header type='primary' title='Criar nova conta' />
 
       <Form>
         <ControlledInput
@@ -150,7 +163,7 @@ export function SignUp({ navigation }: any) {
 
         <ControlledInput
           type='primary'
-          placeholder='Telefone'
+          placeholder='Celular'
           keyboardType='phone-pad'
           name='phone'
           control={control}
@@ -180,6 +193,10 @@ export function SignUp({ navigation }: any) {
           control={control}
           error={errors.confirmPassword}
         />
+
+        <TermsAndPolicyContainer>
+          <TermsAndPolicy>Ao me cadastrar, eu declaro que li e concordo com os <Link onPress={() => navigation.navigate('Termos de Uso')}>Termos de Uso</Link> e <Link onPress={() => navigation.navigate('Política de Privacidade')}>Política de Privacidade</Link>.</TermsAndPolicy>
+        </TermsAndPolicyContainer>
       </Form>
 
       <Footer>
