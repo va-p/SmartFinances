@@ -5,7 +5,7 @@
     "baseUrl": "./",
     "paths": {
       "@themes/*": [
-        "./src/global/styles/*"
+        "./src/global/themes/*"
       ],
       "@components/*": [
         "./src/components/*"
