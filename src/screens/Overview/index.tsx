@@ -28,6 +28,7 @@ import { Load } from '@components/Load';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 interface CategoryData {
   id: string;
@@ -156,7 +157,7 @@ export function Overview() {
               currency: 'BRL'
             })
 
-          const percent = `${(categorySum / revenuesTotalBySelectedMonth * 100).toFixed(0)}%`;
+          const percent = `${(categorySum / revenuesTotalBySelectedMonth * 100).toFixed(2)}%`;
 
           totalRevenuesByCategory.push({
             id: category.id,
@@ -246,7 +247,7 @@ export function Overview() {
 
   function handleCategoryOnPress(id: string) {
     setCategorySelected(prev => prev === id ? '' : id);
-  }
+  };
 
   useFocusEffect(useCallback(() => {
     fetchTransactions();
@@ -294,6 +295,7 @@ export function Overview() {
               duration: 2000,
               easing: 'backOut'
             }}
+            theme={smartFinancesChartTheme}
             style={{
               labels: {
                 fontSize: RFValue(18),
