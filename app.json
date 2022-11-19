@@ -4,7 +4,8 @@
     "slug": "smart-finances",
     "version": "1.9.11",
     "orientation": "portrait",
-    "backgroundColor": "#030141",
+    "backgroundColor": "#020027",
+    "primaryColor": "#FF5200",
     "platforms": [
       "ios",
       "android"
@@ -12,7 +13,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#030141"
+      "backgroundColor": "#020027"
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
@@ -22,8 +23,7 @@
     "ios": {
       "bundleIdentifier": "com.digitaltech.smartfinances",
       "buildNumber": "1.9.11",
-      "supportsTablet": true,
-      "icon": "./assets/ic_launcher.png"
+      "supportsTablet": true
     },
     "extra": {
       "eas": {

@@ -3,7 +3,9 @@ export default {
     primary: 'rgb(255, 82, 0)',
     primary_light: 'rgba(255, 82, 0, 0.3)',
 
-    background: 'rgb(3, 1, 65)',
+    backgroundd: 'rgb(3, 1, 65)',
+    background: 'rgb(2, 0, 39)',
+
     shape: 'rgb(25, 5, 100)',
 
     title: 'rgb(133, 201, 240)',
