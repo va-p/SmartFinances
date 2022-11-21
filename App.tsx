@@ -17,7 +17,7 @@ import {
   Poppins_700Bold
 } from '@expo-google-fonts/poppins';
 
-import theme from './src/global/styles/theme';
+import theme from './src/global/themes/theme';
 
 // Need manually add Intl polyfill for react-native app
 import 'intl';
