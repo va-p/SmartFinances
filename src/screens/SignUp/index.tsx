@@ -5,7 +5,6 @@ import {
   Form,
   Footer,
   TermsAndPolicyContainer,
-  CheckboxGroup,
   TermsAndPolicy,
   Link
 } from './styles';
@@ -21,7 +20,6 @@ import { Header } from '@components/Header';
 
 import api from '@api/api';
 
-import theme from '@themes/theme';
 
 type FormData = {
   name: string;
@@ -61,7 +59,6 @@ const schema = Yup.object().shape({
     .bool()
     .oneOf([true], "Aceite os Termos de Uso e a Política de Privacidade")
 });
-
 /* Validation Form - End */
 
 export function SignUp({ navigation }: any) {
