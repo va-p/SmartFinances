@@ -20,10 +20,9 @@ import Animated, {
   withSpring
 } from 'react-native-reanimated';
 import {
-  VictoryBar,
   VictoryChart,
-  VictoryGroup,
-  VictoryTheme
+  VictoryBar,
+  VictoryGroup
 } from 'victory-native';
 import {
   format,
@@ -35,7 +34,7 @@ import {
   subYears
 } from 'date-fns';
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
-import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,6 +66,7 @@ import {
 import apiQuotes from '@api/apiQuotes';
 import api from '@api/api';
 
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
 
 type PeriodData = {
@@ -103,7 +103,7 @@ export function Home() {
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
-  //Animated header and chart
+  // Animated header, chart
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(event => {
     scrollY.value = event.contentOffset.y;
@@ -112,23 +112,29 @@ export function Home() {
     return {
       height: interpolate(
         scrollY.value,
-        [0, 210],
+        [0, 200],
         [210, 0],
         Extrapolate.CLAMP
-      )
-    }
-  });
-  const sliderChartStyleAnimation = useAnimatedStyle(() => {
-    return {
+      ),
       opacity: interpolate(
         scrollY.value,
-        [0, 160],
+        [0, 190],
         [1, 0],
         Extrapolate.CLAMP
       )
     }
   });
-  //Animated button register transaction
+  const chartStyleAnimation = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        scrollY.value,
+        [0, 120],
+        [1, 0],
+        Extrapolate.CLAMP
+      )
+    }
+  });
+  // Animated button register transaction
   const positionX = useSharedValue(0);
   const positionY = useSharedValue(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
@@ -155,8 +161,6 @@ export function Home() {
     }
   });
   // Shimmer effect
-  const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
-
 
   async function fetchBtcQuote() {
     try {
@@ -645,13 +649,14 @@ export function Home() {
           </FilterButtonGroup>
         </FiltersContainer>
 
-        <Animated.View style={sliderChartStyleAnimation}>
+        <Animated.View style={chartStyleAnimation}>
           <VictoryChart
-            theme={VictoryTheme.smartFinances}
+            theme={smartFinancesChartTheme}
             padding={{ top: 10, right: 50, bottom: 130, left: 50 }}
             width={420} height={210}
+            minDomain={{ y: 0 }}
             maxDomain={{ x: 6 }}
-            domainPadding={{ x: 7 }}
+            domainPadding={{ x: 7, y: 6 }}
           >
             <VictoryGroup
               offset={12}

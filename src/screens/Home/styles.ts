@@ -43,5 +43,4 @@ export const FilterButtonGroup = styled.View`
 
 export const Transactions = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
 `;
