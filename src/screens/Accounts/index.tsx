@@ -11,7 +11,7 @@ import {
   ButtonGroup
 } from './styles';
 
-import { VictoryArea, VictoryChart, VictoryTheme } from 'victory-native';
+import { VictoryArea, VictoryChart } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
@@ -29,6 +29,7 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
 
 export function Accounts() {
@@ -233,7 +234,7 @@ export function Accounts() {
 
       <ChartContainer>
         <VictoryChart
-          theme={VictoryTheme.smartFinances}
+          theme={smartFinancesChartTheme}
           width={400} height={220}
           maxDomain={{ x: 6 }}
           domainPadding={{ x: 1 }}
@@ -257,9 +258,28 @@ export function Accounts() {
               onLoad: { duration: 10000 },
               easing: 'backOut'
             }}
+            events={[{
+              target: 'parent',
+              eventHandlers: {
+                onClick: () => {
+                  return [
+                    {
+                      target: 'data',
+                      eventKey: 'all',
+                      mutation: ({ style }) => {
+                        return style.stroke === 'black'
+                          ? null
+                          : { style: { stroke: 'black', strokeWidth: 5 } };
+                      }
+                    }
+                  ];
+                }
+              }
+            }]}
           />
         </VictoryChart>
       </ChartContainer>
+
       <AccountsContainer>
         <FlatList
           data={transactions}
@@ -288,7 +308,7 @@ export function Accounts() {
         <ButtonGroup>
           <AddAccountButton
             icon='card'
-            title='Conectar uma conta bancária'
+            title='Conectar conta bancária'
             onPress={handleOpenConnectAccountModal}
           />
         </ButtonGroup>
@@ -296,7 +316,7 @@ export function Accounts() {
         <ButtonGroup>
           <AddAccountButton
             icon='wallet'
-            title='Criar nova conta manual'
+            title='Criar conta manual'
             onPress={handleOpenRegisterAccountModal}
           />
         </ButtonGroup>
@@ -313,7 +333,7 @@ export function Accounts() {
       <ModalView
         visible={registerAccountModalOpen}
         closeModal={handleCloseRegisterAccountModal}
-        title='Criar Nova Conta Manual'
+        title='Criar Conta Manual'
       >
         <RegisterAccount />
       </ModalView>
