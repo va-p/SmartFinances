@@ -13,7 +13,7 @@ export const Container = styled.View`
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(13)}px;
   color: ${({ theme }) => theme.colors.attention};
 `;
 
