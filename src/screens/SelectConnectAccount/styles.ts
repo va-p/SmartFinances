@@ -5,6 +5,7 @@ export const Container = styled.KeyboardAvoidingView`
   flex-direction: row;
   justify-content: space-between;
   background-color: ${({ theme }) => theme.colors.background};
+  padding: 10px;
 `;
 
 export const ButtonGroup = styled.View`
