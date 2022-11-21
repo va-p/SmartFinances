@@ -21,7 +21,7 @@ export const Container = styled(RectButton).attrs({
 
 export const Icon = styled(Ionicons) <ColorProps>`
   font-size: ${RFValue(20)}px;
-  margin-right: 10px;
+  margin-right: 15px;
   color: ${({ color }) => color};
 `;
 
@@ -31,7 +31,7 @@ export const TitleContainer = styled.View`
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
