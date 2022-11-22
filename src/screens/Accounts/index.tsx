@@ -292,7 +292,7 @@ export function Accounts() {
               onSwipeableLeftOpen={() => handleAccountSwipeLeft(item.id)}
             />
           )}
-          initialNumToRender={50}
+          initialNumToRender={10}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
           }

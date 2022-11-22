@@ -39,13 +39,14 @@ export const ChartContainer = styled.View`
 `;
 
 export const AccountsContainer = styled.View`
-  height: ${RFPercentage(50)}px;
+  height: ${RFPercentage(54)}px;
 `;
 
 export const Footer = styled.View`
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
+  padding: 10px;
 `;
 
 export const ButtonGroup = styled.View`
