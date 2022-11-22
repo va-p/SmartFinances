@@ -198,7 +198,7 @@ export function Accounts() {
   };
 
   async function handleAccountSwipeLeft(id: string) {
-    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a conta.", onPress: () => handleDeleteAccount(id) }])
+    Alert.alert("Exclusão de Conta", "ATENÇÃO! Todas as transações associadas à esta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a conta.", onPress: () => handleDeleteAccount(id) }])
   };
 
   async function handleDeleteAccount(id: string) {

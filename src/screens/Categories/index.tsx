@@ -63,7 +63,7 @@ export function Categories() {
   };
 
   async function handleCategorySwipeLeft(id: string) {
-    Alert.alert("Exclusão de categoria", "Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
+    Alert.alert("Exclusão de Categoria", "ATENÇÃO! Todas as transações associadas à esta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
   };
 
   async function handleDeleteCategory(id: string) {
