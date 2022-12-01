@@ -11,7 +11,7 @@ import {
   ButtonGroup
 } from './styles';
 
-import { VictoryArea, VictoryChart } from 'victory-native';
+import { VictoryArea, VictoryChart, VictoryZoomContainer } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
@@ -234,10 +234,16 @@ export function Accounts() {
 
       <ChartContainer>
         <VictoryChart
-          theme={smartFinancesChartTheme}
-          width={400} height={220}
-          maxDomain={{ x: 6 }}
+          width={400}
+          height={220}
           domainPadding={{ x: 1 }}
+          containerComponent={
+            <VictoryZoomContainer
+              allowZoom={false}
+              zoomDomain={{ x: [6, 12] }}
+            />
+          }
+          theme={smartFinancesChartTheme}
         >
           <VictoryArea
             data={totalByMonths}

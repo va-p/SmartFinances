@@ -22,7 +22,8 @@ import Animated, {
 import {
   VictoryChart,
   VictoryBar,
-  VictoryGroup
+  VictoryGroup,
+  VictoryZoomContainer
 } from 'victory-native';
 import {
   format,
@@ -651,12 +652,18 @@ export function Home() {
 
         <Animated.View style={chartStyleAnimation}>
           <VictoryChart
-            theme={smartFinancesChartTheme}
-            padding={{ top: 10, right: 50, bottom: 130, left: 50 }}
-            width={420} height={210}
+            width={420}
+            height={210}
             minDomain={{ y: 0 }}
-            maxDomain={{ x: 6 }}
-            domainPadding={{ x: 7, y: 6 }}
+            padding={{ top: 10, right: 40, bottom: 130, left: 40 }}
+            domainPadding={{ x: 6, y: 6 }}
+            containerComponent={
+              <VictoryZoomContainer
+                allowZoom={false}
+                zoomDomain={{ x: [6, 12] }}
+              />
+            }
+            theme={smartFinancesChartTheme}
           >
             <VictoryGroup
               offset={12}
