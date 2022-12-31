@@ -108,13 +108,13 @@ export function Overview() {
 
       const revenues = transactions
         .filter((revenue: TransactionProps) => {
-          revenue.type == 'income'
+          revenue.type == 'credit'
         });
       setRevenues(revenues);
 
       const expenses = transactions
         .filter((expense: TransactionProps) =>
-          expense.type == 'outcome'
+          expense.type == 'debit'
         );
       setExpenses(expenses);
 
@@ -124,7 +124,7 @@ export function Overview() {
        */
       const revenuesBySelectedMonth = transactions
         .filter((revenue: TransactionProps) =>
-          revenue.type == 'income' &&
+          revenue.type == 'credit' &&
           new Date(revenue.created_at).getMonth() === selectedDate.getMonth() &&
           new Date(revenue.created_at).getFullYear() === selectedDate.getFullYear()
         );
@@ -175,7 +175,7 @@ export function Overview() {
       setTotalRevenuesByCategories(totalRevenuesByCategory);
       //console.log(totalRevenuesByCategories);
       /**
-       * Revenues by Category - Start
+       * Revenues by Category - End
        */
 
 
@@ -184,7 +184,7 @@ export function Overview() {
        */
       const expensesBySelectedMonth = transactions
         .filter((expense: TransactionProps) =>
-          expense.type == 'outcome' &&
+          expense.type == 'debit' &&
           new Date(expense.created_at).getMonth() === selectedDate.getMonth() &&
           new Date(expense.created_at).getFullYear() === selectedDate.getFullYear()
         );

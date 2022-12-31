@@ -1,21 +1,21 @@
 import React from 'react';
 import {
   Container,
-  Content,
-  Header,
+  DescriptionAndAmountContainer,
   Description,
   AmountContainer,
   TransferDirectionIcon,
   Amount,
+  LabelContainer,
   Footer,
-  Details,
+  CategoryAndAccountContainer,
   IconContainer,
   Icon,
   DetailsContainer,
   Category,
   Account,
-  AmountConvertedContainer,
-  AmountConverted,
+  AmountNotConvertedContainer,
+  AmountNotConverted,
   Date
 } from './styles'
 
@@ -32,7 +32,7 @@ export interface TransactionProps {
   amount_formatted: string | number;
   amount_not_converted?: string | number;
   currency: CurrencyProps;
-  type: 'income' | 'outcome' | 'transferOut' | 'transferIn';
+  type: 'credit' | 'debit' | 'transferDebit' | 'transferCredit';
   account: AccountProps;
   category: CategoryProps;
   tenant_id: string;
@@ -42,59 +42,57 @@ type Props = RectButtonProps & {
   data: TransactionProps;
 }
 
-export function TransactionListItem({
-  data,
-  ...rest
-}: Props) {
+export function TransactionListItem({ data, ...rest }: Props) {
   return (
-    <Container>
-      <Content {...rest}>
-        <IconContainer>
-          <Icon type={data.type} name={data.category.icon.name} />
-        </IconContainer>
-        <DetailsContainer>
-          <Header>
-            <Description type={data.type}>
-              {data.description}
-            </Description>
+    <Container {...rest}>
+      <IconContainer>
+        <Icon type={data.type} name={data.category.icon.name} />
+      </IconContainer>
+      <DetailsContainer>
+        <DescriptionAndAmountContainer>
+          <Description type={data.type}>
+            {data.description}
+          </Description>
 
-            <AmountContainer>
-              {
-                data.type === 'transferOut' &&
-                <TransferDirectionIcon name='arrow-up-outline' />
-              }
-              {
-                data.type === 'transferIn' &&
-                <TransferDirectionIcon name='arrow-down-outline' />
-              }
-              <Amount type={data.type}>
-                {data.type === 'outcome' && '-'}
-                {data.amount_formatted}
-              </Amount>
-            </AmountContainer>
-          </Header>
+          <AmountContainer>
+            {
+              data.type === 'transferDebit' &&
+              <TransferDirectionIcon name='arrow-up-outline' />
+            }
+            {
+              data.type === 'transferCredit' &&
+              <TransferDirectionIcon name='arrow-down-outline' />
+            }
+            <Amount type={data.type}>
+              {data.type === 'debit' && '-'}
+              {data.amount_formatted}
+            </Amount>
+          </AmountContainer>
+        </DescriptionAndAmountContainer>
+        <LabelContainer>
+          
+        </LabelContainer>
 
-          <Footer>
-            <Details>
-              <Category>
-                {data.category.name}
-                {' | '}
-              </Category>
-              <Account>
-                {data.account.name}
-              </Account>
-            </Details>
-            <AmountConvertedContainer>
-              <AmountConverted>
-                {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
-              </AmountConverted>
-              <Date>
-                {data.created_at}
-              </Date>
-            </AmountConvertedContainer>
-          </Footer>
-        </DetailsContainer>
-      </Content>
+        <Footer>
+          <CategoryAndAccountContainer>
+            <Category>
+              {data.category.name}
+              {' | '}
+            </Category>
+            <Account>
+              {data.account.name}
+            </Account>
+          </CategoryAndAccountContainer>
+          <AmountNotConvertedContainer>
+            <AmountNotConverted>
+              {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
+            </AmountNotConverted>
+            <Date>
+              {data.created_at}
+            </Date>
+          </AmountNotConvertedContainer>
+        </Footer>
+      </DetailsContainer>
     </Container>
   )
 }

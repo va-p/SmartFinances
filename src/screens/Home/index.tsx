@@ -366,9 +366,9 @@ export function Home() {
           };
         }
         // Sum revenues and expenses
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalRevenues += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalExpenses += item.amount;
         }
       };
@@ -406,9 +406,9 @@ export function Home() {
 
       // Sum revenues and expenses
       for (const item of transactionsByMonthsFormattedPtbr) {
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalRevenuesByMonths += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalExpensesByMonths += item.amount;
         }
       };
@@ -440,9 +440,9 @@ export function Home() {
 
       // Sum revenues and expenses
       for (const item of transactionsByYearsFormattedPtbr) {
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalRevenuesByYears += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalExpensesByYears += item.amount;
         }
       };
@@ -472,9 +472,9 @@ export function Home() {
         if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
           totalsGroupedByMonths[ym] = { date: ym, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
         }
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
         }
       }
@@ -500,9 +500,9 @@ export function Home() {
         if (!totalsGroupedByYears.hasOwnProperty(y)) {
           totalsGroupedByYears[y] = { date: y, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
         }
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
         }
       }
@@ -524,9 +524,9 @@ export function Home() {
         if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
           totalsGroupedByAllHistory[allHistory] = { date: allHistory, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
         }
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod += item.amount;
         }
       }
@@ -720,7 +720,7 @@ export function Home() {
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}
-          initialNumToRender={200}
+          initialNumToRender={100}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }

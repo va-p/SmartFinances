@@ -83,7 +83,6 @@ type Props = {
 type FormData = {
   description: string;
   amount: string;
-  category: CategoryProps;
 }
 
 /* Validation Form - Start */
@@ -163,7 +162,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
-  function handleTransactionsTypeSelect(type: 'income' | 'outcome' | 'transfer') {
+  function handleTransactionsTypeSelect(type: 'credit' | 'debit' | 'transfer') {
     setTransactionType(type);
   };
 
@@ -236,7 +235,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     }
     // Add Transaction
     else {
-      // Income or outcome Transaction
+      // Credit or Debit Transaction
       if (transactionType != 'transfer') {
         // Need conversion
         if (currencySelected.code !== accountSelected.currency.code) {
@@ -524,32 +523,32 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
           }
 
-          const transferOut = {
+          const transferDebit = {
             created_at: date,
             description: form.description,
             amount: form.amount,
             currency_id: currencySelected.id,
-            type: 'transferOut',
+            type: 'transferDebit',
             account_id: accountResponse.data.id,
             category_id: categorySelected.id,
             tenant_id: tenantId
           }
 
-          const transferIn = {
+          const transferCredit = {
             created_at: date,
             description: form.description,
             amount: amountConverted,
             currency_id: currencySelected.id,
-            type: 'transferIn',
+            type: 'transferCredit',
             account_id: accountDestinationResponse.data.id,
             category_id: categorySelected.id,
             tenant_id: tenantId
           }
 
-          const transferOutResponse = await api.post('transaction', transferOut);
-          const transferInResponse = await api.post('transaction', transferIn);
+          const transferDebitResponse = await api.post('transaction', transferDebit);
+          const transferCreditResponse = await api.post('transaction', transferCredit);
 
-          if (transferOutResponse.status && transferInResponse.status === 200) {
+          if (transferDebitResponse.status && transferCreditResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
             const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
@@ -557,8 +556,8 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
             const dataFormatted = [
               ...currentData,
-              transferOut,
-              transferIn
+              transferDebit,
+              transferCredit
             ];
             await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
 
@@ -680,7 +679,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           transaction_id: id
         }
       });
-
       Alert.alert("Exclusão de transação", "Transação excluída com sucesso!");
       handleCloseRegisterTransaction();
     } catch (error) {
@@ -765,6 +763,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
+                defaultValue={amount.toString()}
                 name='amount'
                 control={control}
                 error={errors.amount}
@@ -829,9 +828,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         <TransactionsTypes>
           <TransactionTypeButton
             type='up'
-            title='Entrada'
-            onPress={() => handleTransactionsTypeSelect('income')}
-            isActive={transactionType === 'income' || transactionType === 'transferIn'}
+            title='Crédito'
+            onPress={() => handleTransactionsTypeSelect('credit')}
+            isActive={transactionType === 'credit' || transactionType === 'transferCredit'}
           />
           <TransactionTypeButton
             type='swap'
@@ -841,9 +840,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           />
           <TransactionTypeButton
             type='down'
-            title='Saída'
-            onPress={() => handleTransactionsTypeSelect('outcome')}
-            isActive={transactionType === 'outcome' || transactionType === 'transferOut'}
+            title='Débito'
+            onPress={() => handleTransactionsTypeSelect('debit')}
+            isActive={transactionType === 'debit' || transactionType === 'transferDebit'}
           />
         </TransactionsTypes>
       </MainContent>
