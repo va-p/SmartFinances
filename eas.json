@@ -5,17 +5,37 @@
   "build": {
     "development": {
       "distribution": "internal",
+      "developmentClient": true,
       "android": {
-        "gradleCommand": ":app:assembleDebug"
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode"
       },
       "ios": {
-        "buildConfiguration": "Debug"
+        "simulator": true
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode"
+      },
+      "ios": {
+        "buildConfiguration": "Debug",
+        "autoIncrement": "buildNumber"
+      }
     },
-    "production": {}
+    "production": {
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode"
+      },
+      "ios": {
+        "buildConfiguration": "Debug",
+        "autoIncrement": "buildNumber"
+      }
+    }
   },
   "submit": {
     "production": {}
