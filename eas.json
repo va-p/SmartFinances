@@ -1,13 +1,12 @@
 {
   "cli": {
-    "version": ">= 2.4.1"
+    "version": ">= 3.1.1"
   },
   "build": {
     "development": {
       "distribution": "internal",
       "android": {
-        "gradleCommand": ":app:assembleDebug",
-        "image": "ubuntu-18.04-jdk-11-ndk-r19c"
+        "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
         "buildConfiguration": "Debug"
