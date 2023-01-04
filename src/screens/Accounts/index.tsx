@@ -35,7 +35,7 @@ export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
-  const [transactions, setTransactions] = useState<AccountProps[]>([]);
+  const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
   const [connectAccountModalOpen, setConnectAccountModalOpen] = useState(false);
@@ -59,13 +59,28 @@ export function Accounts({ navigation }: any) {
       /**  
        * All totals Grouped By Accounts/Wallets - Start
        */
-      // Group by account
-      let totalsByAccounts: any = [];
+      let totalRevenuesBRL = 0;
+      let totalExpensesBRL = 0;
+
+      let accounts: any = [];
       for (const item of data) {
+        // Sum the total evenues and expenses of all accounts
+        switch (item.type) {
+          case 'credit':
+            totalRevenuesBRL += Number(item.amount)
+            break;
+          case 'debit':
+            totalExpensesBRL += Number(item.amount)
+            break;
+          default: 'credit';
+            break;
+        }
+
+        // Group by account
         const account = item.account.id;
         // Create the objects
-        if (!totalsByAccounts.hasOwnProperty(account)) {
-          totalsByAccounts[account] = {
+        if (!accounts.hasOwnProperty(account)) {
+          accounts[account] = {
             id: account,
             name: item.account.name,
             currency: {
@@ -76,41 +91,54 @@ export function Accounts({ navigation }: any) {
             totalRevenuesByAccount: 0,
             totalExpensesByAccount: 0,
             totalAccountAmount: 0
-          }
+          };
         }
-        if (item.type === 'credit') {
-          totalsByAccounts[account].totalRevenuesByAccount += item.amount;
-        } else if (item.type === 'debit') {
-          totalsByAccounts[account].totalExpensesByAccount += item.amount;
+        switch (item.type) {
+          case 'credit':
+            accounts[account].totalRevenuesByAccount += item.amount;
+            break;
+          case 'debit':
+            accounts[account].totalExpensesByAccount += item.amount;
+            break;
+          case 'transferCredit':
+            accounts[account].totalRevenuesByAccount += item.amount;
+            break;
+          case 'transferDebit':
+            accounts[account].totalExpensesByAccount += item.amount;
+            break;
+          default: 'credit'
+            break;
         }
-
-        const totalByAccount =
-          totalsByAccounts[account].initial_amount +
-          totalsByAccounts[account].totalRevenuesByAccount -
-          totalsByAccounts[account].totalExpensesByAccount;
-        totalsByAccounts[account].totalAccountAmount = Number(totalByAccount)
-          .toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          });
       }
-      totalsByAccounts = Object.values(totalsByAccounts);
 
-      // Runs from last to first, accumulating the total of all accounts
-      let totalBRL = 0;
-      for (var i = totalsByAccounts.length - 1; i >= 0; i--) {
-        totalBRL += totalsByAccounts[i].totalRevenuesByAccount - totalsByAccounts[i].totalExpensesByAccount;
-      };
-
+      // Sum the total of all accounts
+      const totalBRL =
+        totalRevenuesBRL -
+        totalExpensesBRL;
       const totalFormattedPtbr = Number(totalBRL)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
         });
 
-      const totalsGroupedByAccounts: any = Object.values(totalsByAccounts);
-      setTransactions(totalsGroupedByAccounts);
+      accounts = Object.values(accounts);
+
+      // Runs from last to first, accumulating the total
+      for (var i = accounts.length - 1; i >= 0; i--) {
+        const totalByAccount =
+          accounts[i].initial_amount +
+          accounts[i].totalRevenuesByAccount -
+          accounts[i].totalExpensesByAccount;
+
+        accounts[i].totalAccountAmount = Number(totalByAccount)
+          .toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          });
+      };
+
       setTotal(totalFormattedPtbr);
+      setAccounts(accounts);
       /**
        * All totals Grouped By Accounts/Wallets - End
        */
@@ -264,7 +292,7 @@ export function Accounts({ navigation }: any) {
 
       <AccountsContainer>
         <FlatList
-          data={transactions}
+          data={accounts}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <AccountListItem
