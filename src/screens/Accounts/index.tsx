@@ -18,7 +18,6 @@ import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
-import { TransactionProps } from '@components/TransactionListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ModalView } from '@components/ModalView';
 import { Load } from '@components/Load';
@@ -32,7 +31,7 @@ import api from '@api/api';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
 
-export function Accounts() {
+export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
@@ -60,77 +59,54 @@ export function Accounts() {
       /**  
        * All totals Grouped By Accounts/Wallets - Start
        */
-      let totalRevenuesBRL = 0;
-      let totalExpensesBRL = 0;
-
-      const transactionsFormattedByAccounts = data
-        .map((transactionByAccount: TransactionProps) => {
-          switch (transactionByAccount.type) {
-            case 'income':
-              totalRevenuesBRL += Number(transactionByAccount.amount)
-              break;
-            case 'outcome':
-              totalExpensesBRL += Number(transactionByAccount.amount)
-              break;
-            default: 'income';
-              break;
-          }
-
-          return {
-            type: transactionByAccount.type,
-            amount: transactionByAccount.amount,
-            id: transactionByAccount.account.id,
-            name: transactionByAccount.account.name,
+      // Group by account
+      let totalsByAccounts: any = [];
+      for (const item of data) {
+        const account = item.account.id;
+        // Create the objects
+        if (!totalsByAccounts.hasOwnProperty(account)) {
+          totalsByAccounts[account] = {
+            id: account,
+            name: item.account.name,
             currency: {
-              code: transactionByAccount.account.currency.code,
-              symbol: transactionByAccount.account.currency.symbol
+              code: item.account.currency.code,
+              symbol: item.account.currency.symbol
             },
-            initial_amount: transactionByAccount.account.initial_amount,
-            totalRevenuesByAccounts: 0,
-            totalExpensesByAccounts: 0,
-            totalAccountAmount: 0,
+            initial_amount: item.account.initial_amount,
+            totalRevenuesByAccount: 0,
+            totalExpensesByAccount: 0,
+            totalAccountAmount: 0
           }
-        });
+        }
+        if (item.type === 'credit') {
+          totalsByAccounts[account].totalRevenuesByAccount += item.amount;
+        } else if (item.type === 'debit') {
+          totalsByAccounts[account].totalExpensesByAccount += item.amount;
+        }
 
-      const totalBRL =
-        totalRevenuesBRL -
-        totalExpensesBRL;
+        const totalByAccount =
+          totalsByAccounts[account].initial_amount +
+          totalsByAccounts[account].totalRevenuesByAccount -
+          totalsByAccounts[account].totalExpensesByAccount;
+        totalsByAccounts[account].totalAccountAmount = Number(totalByAccount)
+          .toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          });
+      }
+      totalsByAccounts = Object.values(totalsByAccounts);
+
+      // Runs from last to first, accumulating the total of all accounts
+      let totalBRL = 0;
+      for (var i = totalsByAccounts.length - 1; i >= 0; i--) {
+        totalBRL += totalsByAccounts[i].totalRevenuesByAccount - totalsByAccounts[i].totalExpensesByAccount;
+      };
+
       const totalFormattedPtbr = Number(totalBRL)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
         });
-
-      const totalsByAccounts = transactionsFormattedByAccounts
-        .reduce((acc: any, current: any) => {
-          if (!acc[current.id]) acc[current.id] = { ...current }
-
-          switch (current.type) {
-            case 'income':
-              acc[current.id].totalRevenuesByAccounts += Number(current.amount)
-              break;
-            case 'transferIn':
-              acc[current.id].totalRevenuesByAccounts += Number(current.amount)
-              break;
-            case 'outcome':
-              acc[current.id].totalExpensesByAccounts += Number(current.amount)
-              break;
-            case 'transferOut':
-              acc[current.id].totalExpensesByAccounts += Number(current.amount)
-              break;
-          }
-
-          const totalByAccount =
-            acc[current.id].initial_amount +
-            acc[current.id].totalRevenuesByAccounts -
-            acc[current.id].totalExpensesByAccounts;
-          acc[current.id].totalAccountAmount = Number(totalByAccount)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            });
-          return acc
-        }, []);
 
       const totalsGroupedByAccounts: any = Object.values(totalsByAccounts);
       setTransactions(totalsGroupedByAccounts);
@@ -150,11 +126,11 @@ export function Accounts() {
         const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
         // Create the objects
         if (!totalsByMonths.hasOwnProperty(ym)) {
-          totalsByMonths[ym] = { date: ym, total: 0, totalRevenuesByMonth: 0, totalExpensesByMonth: 0 };
+          totalsByMonths[ym] = { date: ym, totalRevenuesByMonth: 0, totalExpensesByMonth: 0, total: 0 };
         }
-        if (item.type === 'income') {
+        if (item.type === 'credit') {
           totalsByMonths[ym].totalRevenuesByMonth += item.amount;
-        } else if (item.type === 'outcome') {
+        } else if (item.type === 'debit') {
           totalsByMonths[ym].totalExpensesByMonth += item.amount;
         }
       }
@@ -197,8 +173,8 @@ export function Accounts() {
     setRegisterAccountModalOpen(false);
   };
 
-  async function handleAccountSwipeLeft(id: string) {
-    Alert.alert("Exclusão de Conta", "ATENÇÃO! Todas as transações associadas à esta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a conta.", onPress: () => handleDeleteAccount(id) }])
+  function handleOpenAccount(id: string) {
+    navigation.navigate('Conta', { id });
   };
 
   async function handleDeleteAccount(id: string) {
@@ -295,7 +271,7 @@ export function Accounts() {
               data={item}
               icon='wallet'
               color={theme.colors.primary}
-              onSwipeableLeftOpen={() => handleAccountSwipeLeft(item.id)}
+              onPress={() => handleOpenAccount(item.id)}
             />
           )}
           initialNumToRender={10}
