@@ -24,7 +24,6 @@ export const IconContainer = styled.View`
 
 export const Icon = styled(Ionicons) <TransactionProps>`
   position: absolute;
-  top: 0;
   font-size: ${RFValue(20)}px;
   color: ${({ theme, type }) =>
     type === 'credit' ? theme.colors.success : theme.colors.primary};
@@ -32,6 +31,7 @@ export const Icon = styled(Ionicons) <TransactionProps>`
 
 export const DetailsContainer = styled.View`
   width: 90%;
+  height: 100%;
 `;
 
 export const DescriptionAndAmountContainer = styled.View`
@@ -92,11 +92,6 @@ export const AmountNotConvertedContainer = styled.View`
 `;
 
 export const AmountNotConverted = styled.Text`
-  font-size: ${RFValue(12)}px;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-export const Date = styled.Text`
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;

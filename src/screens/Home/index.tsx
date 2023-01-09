@@ -1,13 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, RefreshControl, StyleSheet, BackHandler } from 'react-native';
+import {
+  Alert,
+  RefreshControl,
+  StyleSheet,
+  BackHandler,
+  SectionList
+} from 'react-native';
 import {
   Container,
   Header,
+  CashFlowContainer,
   CashFlowTotal,
   CashFlowDescription,
+  HideDataButton,
   FiltersContainer,
   FilterButtonGroup,
-  Transactions
+  Transactions,
+  ListEmptyContainer,
+  ListEmptyText
 } from './styles'
 
 import Animated, {
@@ -43,11 +53,8 @@ import LinearGradient from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
 
-import {
-  TransactionListItem,
-  TransactionProps
-} from '@components/TransactionListItem';
 import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
+import { TransactionListItem } from '@components/TransactionListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { Load } from '@components/Load';
@@ -69,6 +76,7 @@ import api from '@api/api';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
+import { SectionListHeader } from '@components/SectionListHeader';
 
 type PeriodData = {
   date: Date | number;
@@ -81,7 +89,7 @@ export function Home() {
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
-  const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState<TransactionProps[]>([]);
+  const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
   const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
   const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
     id: '1',
@@ -104,6 +112,7 @@ export function Home() {
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
+  const [visible, setVisible] = useState(true);
   // Animated header, chart
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(event => {
@@ -161,7 +170,9 @@ export function Home() {
       positionY.value = withSpring(0);
     }
   });
-  // Shimmer effect
+  // Animated section list
+  const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
+
 
   async function fetchBtcQuote() {
     try {
@@ -255,7 +266,7 @@ export function Home() {
       let transactionsFormattedPtbr: any = [];
       for (const item of data) {
         // Format the date "dd/MM/yyyy"
-        const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
+        var dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
         // Format the currency
         switch (item.account.currency.code) {
           case 'BRL':
@@ -387,6 +398,24 @@ export function Home() {
           style: 'currency',
           currency: 'BRL'
         });
+
+      // Group transactions by date to section list
+      const transactionsFormattedPtbrGroupedByDate = transactionsFormattedPtbr
+        .reduce((acc: any, cur: any) => {
+          const existObj = acc.find(
+            (obj: any) => obj.title === cur.created_at
+          )
+
+          if (existObj) {
+            existObj.data.push(cur)
+          } else {
+            acc.push({
+              title: cur.created_at,
+              data: [cur]
+            })
+          }
+          return acc
+        }, [])
       /**
        * All Transactions Formatted in pt-BR - End
        */
@@ -395,21 +424,25 @@ export function Home() {
       /**
        * Transactions By Months Formatted in pt-BR - Start
        */
-      let totalRevenuesByMonths = 0;
-      let totalExpensesByMonths = 0;
-
-      const transactionsByMonthsFormattedPtbr = transactionsFormattedPtbr
-        .filter((transactionByMonthsPtBr: TransactionProps) =>
-          parse(transactionByMonthsPtBr.created_at, 'dd/MM/yyyy', new Date()).getMonth() === selectedPeriod.getMonth() &&
-          parse(transactionByMonthsPtBr.created_at, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
+      const transactionsByMonthsFormattedPtbr = transactionsFormattedPtbrGroupedByDate
+        .filter((transactionByMonthsPtBr: any) =>
+          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getMonth() === selectedPeriod.getMonth() &&
+          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
         );
 
       // Sum revenues and expenses
+      let totalRevenuesByMonths = 0;
+      let totalExpensesByMonths = 0;
+
       for (const item of transactionsByMonthsFormattedPtbr) {
-        if (item.type === 'credit') {
-          totalRevenuesByMonths += item.amount;
-        } else if (item.type === 'debit') {
-          totalExpensesByMonths += item.amount;
+        if (item.data) {
+          item.data.forEach((cur: any) => {
+            if (cur.type === 'credit') {
+              totalRevenuesByMonths += cur.amount;
+            } else if (cur.type === 'debit') {
+              totalExpensesByMonths += cur.amount;
+            }
+          })
         }
       };
 
@@ -430,20 +463,24 @@ export function Home() {
       /**
        * Transactions By Years Formatted in pt-BR - Start
        */
-      let totalRevenuesByYears = 0;
-      let totalExpensesByYears = 0;
-
-      const transactionsByYearsFormattedPtbr = transactionsFormattedPtbr
-        .filter((transactionByYearsPtBr: TransactionProps) =>
-          parse(transactionByYearsPtBr.created_at, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
+      const transactionsByYearsFormattedPtbr = transactionsFormattedPtbrGroupedByDate
+        .filter((transactionByYearsPtBr: any) =>
+          parse(transactionByYearsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
         );
 
       // Sum revenues and expenses
+      let totalRevenuesByYears = 0;
+      let totalExpensesByYears = 0;
+
       for (const item of transactionsByYearsFormattedPtbr) {
-        if (item.type === 'credit') {
-          totalRevenuesByYears += item.amount;
-        } else if (item.type === 'debit') {
-          totalExpensesByYears += item.amount;
+        if (item.data) {
+          item.data.forEach((cur: any) => {
+            if (cur.type === 'credit') {
+              totalRevenuesByYears += cur.amount
+            } else if (cur.type === 'debit') {
+              totalExpensesByYears += cur.amount
+            }
+          })
         }
       };
 
@@ -506,7 +543,12 @@ export function Home() {
           totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
         }
       }
-      totalsGroupedByYears = Object.values(totalsGroupedByYears);
+      totalsGroupedByYears = Object.values(totalsGroupedByYears)
+        .sort((a: any, b: any) => {
+          const firstDateParsed = parse(a.date, 'yyyy', new Date());
+          const secondDateParsed = parse(b.date, 'yyyy', new Date());
+          return secondDateParsed.getTime() - firstDateParsed.getTime();
+        });
       /**
        * All Totals Grouped By Years - End
        */
@@ -553,7 +595,7 @@ export function Home() {
         case 'all':
           setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByAllHistory);
           setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByAllHistory);
-          setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbr);
+          setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbrGroupedByDate);
           break;
       }
       /**
@@ -615,6 +657,10 @@ export function Home() {
     setTransactionId('');
   };
 
+  function handleClickHideData() {
+    visible ? setVisible(false) : setVisible(true);
+  };
+
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', () => {
       return true;
@@ -637,8 +683,18 @@ export function Home() {
     <Container>
       <Animated.View style={[headerStyleAnimation, styles.header]}>
         <Header>
-          <CashFlowTotal>{cashFlowTotalBySelectedPeriod}</CashFlowTotal>
-          <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
+          <CashFlowContainer>
+            <CashFlowTotal>{visible ? cashFlowTotalBySelectedPeriod : "•••••"}</CashFlowTotal>
+            <CashFlowDescription>Fluxo de caixa</CashFlowDescription>
+          </CashFlowContainer>
+
+          <HideDataButton onPress={() => handleClickHideData()}>
+            <Ionicons
+              name={visible ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color={theme.colors.primary}
+            />
+          </HideDataButton>
         </Header>
 
         <FiltersContainer>
@@ -711,16 +767,28 @@ export function Home() {
       </Animated.View>
 
       <Transactions>
-        <Animated.FlatList
-          data={transactionsFormattedBySelectedPeriod}
-          keyExtractor={(item: TransactionProps) => item.id}
+        <AnimatedSectionList
+          sections={transactionsFormattedBySelectedPeriod}
+          keyExtractor={(item: any) => item.id}
           renderItem={({ item }: any) => (
             <TransactionListItem
               data={item}
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}
-          initialNumToRender={100}
+          renderSectionHeader={({ section }) => (
+            <SectionListHeader
+              data={section}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyContainer>
+              <ListEmptyText>
+                Nenhuma transação no período selecionado. Adicione transações para visualizá-las aqui.
+              </ListEmptyText>
+            </ListEmptyContainer>
+          )}
+          initialNumToRender={60}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }

@@ -15,8 +15,7 @@ import {
   Category,
   Account,
   AmountNotConvertedContainer,
-  AmountNotConverted,
-  Date
+  AmountNotConverted
 } from './styles'
 
 import { RectButtonProps } from 'react-native-gesture-handler';
@@ -69,6 +68,7 @@ export function TransactionListItem({ data, ...rest }: Props) {
             </Amount>
           </AmountContainer>
         </DescriptionAndAmountContainer>
+        
         <LabelContainer>
           
         </LabelContainer>
@@ -86,10 +86,7 @@ export function TransactionListItem({ data, ...rest }: Props) {
           <AmountNotConvertedContainer>
             <AmountNotConverted>
               {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
-            </AmountNotConverted>
-            <Date>
-              {data.created_at}
-            </Date>
+            </AmountNotConverted>            
           </AmountNotConvertedContainer>
         </Footer>
       </DetailsContainer>
