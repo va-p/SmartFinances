@@ -189,6 +189,7 @@ export function SignUp({ navigation }: any) {
           name='confirmPassword'
           control={control}
           error={errors.confirmPassword}
+          onSubmitEditing={handleSubmit(handleRegisterUser)}
         />
 
         <TermsAndPolicyContainer>

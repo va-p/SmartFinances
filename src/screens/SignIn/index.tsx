@@ -204,7 +204,7 @@ export function SignIn({ navigation }: any) {
       <Footer>
         <FooterWrapper>
           <ControlledInput
-            type='secondary'
+            type='primary'
             placeholder='E-mail'
             autoCapitalize='none'
             autoCorrect={false}
@@ -225,6 +225,7 @@ export function SignIn({ navigation }: any) {
             name='password'
             control={control}
             error={errors.password}
+            onSubmitEditing={handleSubmit(handleSignInWithXano)}
           />
 
           <Button
