@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import {
   Container,
-  ButtonGroup
+  ButtonGroup,
+  ComingSoon
 } from './styles';
 
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ModalView } from '@components/ModalView';
-
-import { ConnectNubankAccount } from '@screens/ConnectNubankAccount';
 
 export function SelectConnectAccount({ navigation }: any) {
   const [connectNubankAccountModalOpen, setConnectNubankAccountModalOpen] = useState(false);
@@ -22,20 +21,15 @@ export function SelectConnectAccount({ navigation }: any) {
 
   return (
     <Container>
-      <ButtonGroup>
-
-      </ButtonGroup>
-
-      <ButtonGroup>
-
-      </ButtonGroup>
+      <ComingSoon>
+        Em breve
+      </ComingSoon>
 
       <ModalView
         visible={connectNubankAccountModalOpen}
         closeModal={handleCloseConnectNubankAccount}
         title='Conectar Conta Nubank'
       >
-        <ConnectNubankAccount />
       </ModalView>
     </Container>
   );
