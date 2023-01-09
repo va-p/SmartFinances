@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, Platform } from 'react-native';
 import {
   Container,
@@ -29,6 +29,13 @@ import { colors } from '@utils/colors';
 import { icons } from '@utils/icons';
 
 import api from '@api/api';
+import { useFocusEffect } from '@react-navigation/native';
+
+type Props = {
+  closeRegisterCategory: () => void;
+  id: string;
+  setId: () => void;
+}
 
 type FormData = {
   name: string;
@@ -41,8 +48,9 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterCategory({ navigation }: any) {
+export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { navigation }: any) {
   const tenantId = useSelector(selectUserTenantId);
+  const [name, setName] = useState('');
   const [iconSelected, setIconSelected] = useState({
     id: '',
     title: 'Selecione o ícone',
@@ -72,49 +80,143 @@ export function RegisterCategory({ navigation }: any) {
   async function handleCategoryRegister(form: FormData) {
     setButtonIsLoading(true);
 
-    if (iconSelected.id === '')
+    /* Validation Form - Start */
+    if (iconSelected.id === '') {
       return Alert.alert("Cadastro de categoria", "Selecione o ícone da categoria.", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
+    };
 
-    if (colorSelected.id === '')
+    if (colorSelected.id === '') {
       return Alert.alert("Cadastro de categoria", "Selecione a cor da categoria.", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
+    };
+    /* Validation Form - End */
+
+    // Edit Category
+    if (id != '') {
+      handleEditCategory(id, form);
+    }
+    // Add Category
+    else {
+      try {
+        const newCategory = {
+          name: form.name,
+          icon: iconSelected,
+          color: colorSelected,
+          tenant_id: tenantId
+        }
+        const { status } = await api.post('category', newCategory);
+        if (status === 200) {
+          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+
+          reset();
+          setIconSelected(
+            {
+              id: '',
+              title: 'Selecione o ícone',
+              name: ''
+            }
+          );
+          setColorSelected({
+            id: '',
+            name: 'Selecione a cor',
+            hex: ''
+          });
+        };
+
+        setButtonIsLoading(false);
+      } catch (error) {
+        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+
+        setButtonIsLoading(false);
+      };
+    }
+  };
+
+  async function fetchCategory() {
+    try {
+      const { data } = await api.get('single_category', {
+        params: {
+          category_id: id
+        }
+      })
+      setName(data.name);
+      setIconSelected(data.icon);
+      setColorSelected(data.color);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Categoria", "Não foi possível buscar a categoria. Verifique sua conexão com a internet e tente novamente.");
+    }
+  };
+
+  async function handleEditCategory(id: string, form: FormData) {
+    setButtonIsLoading(true);
+
+    const categoryEdited = {
+      category_id: id,
+      name: form.name,
+      icon: iconSelected,
+      color: colorSelected
+    }
 
     try {
-      const newCategory = {
-        name: form.name,
-        icon: iconSelected,
-        color: colorSelected,
-        tenant_id: tenantId
-      }
-      const { status } = await api.post('category', newCategory);
+      const { status } = await api.post('edit_category', categoryEdited);
+
       if (status === 200) {
-        Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+        Alert.alert("Edição de Categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: closeRegisterCategory }])
+      }
 
-        reset();
-        setIconSelected(
-          {
-            id: '',
-            title: 'Selecione o ícone',
-            name: ''
-          }
-        );
-        setColorSelected({
-          id: '',
-          name: 'Selecione a cor',
-          hex: ''
-        });
-      };
-
+      setId();
       setButtonIsLoading(false);
     } catch (error) {
-      Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+      console.error(error);
+      Alert.alert("Edição de Categoria", "Não foi possível editar a categoria. Verifique sua conexão com a internet e tente novamente.")
 
       setButtonIsLoading(false);
-    };
+    }
   };
+
+  async function handleClickDeleteCategory() {
+    Alert.alert("Exclusão de categoria", "Tem certeza que deseja excluir a cateogria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
+  };
+
+  async function handleDeleteCategory(id: string) {
+    try {
+      await api.delete('delete_category', {
+        params: {
+          category_id: id
+        }
+      });
+      Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
+      handleCloseRegisterTransaction();
+    } catch (error) {
+      Alert.alert("Exclusão de categoria", `${error}`)
+    }
+  };
+
+  function handleCloseRegisterTransaction() {
+    setId();
+    reset();
+    setIconSelected({
+      id: '',
+      title: 'Selecione o ícone',
+      name: ''
+    });
+    setColorSelected({
+      id: '',
+      name: 'Selecione a cor',
+      hex: '#969CB2'
+    });
+    closeRegisterCategory();
+  };
+
+  useFocusEffect(useCallback(() => {
+    if (id != '') {
+      fetchCategory();
+    }
+  }, [id]));
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -127,7 +229,7 @@ export function RegisterCategory({ navigation }: any) {
           placeholder='Nome da categoria'
           autoCapitalize='sentences'
           autoCorrect={false}
-          defaultValue=''
+          defaultValue={name}
           name='name'
           control={control}
           error={errors.name}
@@ -183,7 +285,7 @@ export function RegisterCategory({ navigation }: any) {
       <Footer>
         <Button
           type='secondary'
-          title='Criar categoria'
+          title={id != '' ? 'Editar Categoria' : 'Criar Categoria'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleCategoryRegister)}
         />

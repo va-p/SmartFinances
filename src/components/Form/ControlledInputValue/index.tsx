@@ -12,14 +12,12 @@ type Props = TextInputProps & {
   name: string;
   control: Control<any>;
   error?: FieldError;
-  color: string;
 }
 
 export function ControlledInputValue({
   name,
   control,
   error,
-  color,
   ...rest
 }: Props) {
   return (

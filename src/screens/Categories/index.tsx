@@ -30,7 +30,7 @@ export function Categories() {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
   const [registerCategoryModalOpen, setRegisterCategoryModalOpen] = useState(false);
-
+  const [categoryId, setCategoryId] = useState('');
 
   async function fetchCategories() {
     setLoading(true);
@@ -59,26 +59,18 @@ export function Categories() {
   };
 
   function handleCloseRegisterCategoryModal() {
+    setCategoryId('');
     setRegisterCategoryModalOpen(false);
   };
 
-  async function handleCategorySwipeLeft(id: string) {
-    Alert.alert("Exclusão de Categoria", "ATENÇÃO! Todas as transações associadas à esta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
+  function handleOpenCategory(id: string) {
+    console.log(categoryId);
+    setCategoryId(id);
+    setRegisterCategoryModalOpen(true);
   };
 
-  async function handleDeleteCategory(id: string) {
-    try {
-      await api.delete('delete_category', {
-        params: {
-          category_id: id
-        }
-      });
-      Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
-
-      fetchCategories();
-    } catch (error) {
-      Alert.alert("Exclusão de categoria", `${error}`)
-    }
+  function ClearTransactionId() {
+    setCategoryId('');
   };
 
   useFocusEffect(
@@ -94,7 +86,7 @@ export function Categories() {
   return (
     <Container>
       <Header type='primary' title='Categorias' />
-      
+
       <CategoriesContainer>
         <FlatList
           data={categories}
@@ -102,7 +94,7 @@ export function Categories() {
           renderItem={({ item }) => (
             <CategoryListItem
               data={item}
-              onSwipeableLeftOpen={() => handleCategorySwipeLeft(item.id)}
+              onPress={() => handleOpenCategory(item.id)}
             />
           )}
           initialNumToRender={50}
@@ -119,7 +111,7 @@ export function Categories() {
       <Footer>
         <Button
           type='secondary'
-          title='Criar nova categoria'
+          title='Criar Nova Categoria'
           onPress={handleOpenRegisterCategoryModal}
         />
       </Footer>
@@ -127,9 +119,13 @@ export function Categories() {
       <ModalView
         visible={registerCategoryModalOpen}
         closeModal={handleCloseRegisterCategoryModal}
-        title='Criar Nova Categoria'
+        title={categoryId != '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
       >
-        <RegisterCategory />
+        <RegisterCategory
+          closeRegisterCategory={handleCloseRegisterCategoryModal}
+          id={categoryId}
+          setId={ClearTransactionId}
+        />
       </ModalView>
     </Container>
   );
