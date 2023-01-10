@@ -2,11 +2,14 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
+import { PrivacyPolicy } from '@screens/PrivacyPolicy';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { TermsOfUse } from '@screens/TermsOfUse';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
 import { Accounts } from '@screens/Accounts';
+
+import theme from '@themes/theme';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -14,7 +17,10 @@ export function AppStackRoutes() {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false
+        headerShown: false,
+        cardStyle: {
+          backgroundColor: theme.colors.background
+        }
       }}
     >
       <Screen
@@ -40,6 +46,11 @@ export function AppStackRoutes() {
       <Screen
         name="Termos de Uso"
         component={TermsOfUse}
+      />
+
+      <Screen
+        name="Politica de Privacidade"
+        component={PrivacyPolicy}
       />
     </Navigator>
   )

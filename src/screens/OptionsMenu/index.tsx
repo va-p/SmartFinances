@@ -28,6 +28,10 @@ export function OptionsMenu({ navigation }: any) {
     navigation.navigate('Termos de Uso');
   };
 
+  function handleClickPrivacyPolicy() {
+    navigation.navigate('Politica de Privacidade');
+  };
+
   return (
     <Container>
       <Header type='secondary' title='Mais opções' />
@@ -60,6 +64,13 @@ export function OptionsMenu({ navigation }: any) {
           title='Termos de Uso'
           color={theme.colors.primary}
           onPress={() => handleClickTermsOfUse()}
+        />
+
+        <SelectButton
+          icon='hand-left-outline'
+          title='Política de Privacidade'
+          color={theme.colors.primary}
+          onPress={() => handleClickPrivacyPolicy()}
         />
       </ContentScroll>
     </Container>
