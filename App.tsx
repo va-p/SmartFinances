@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppRegistry, Platform, StatusBar } from 'react-native';
 
+import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider } from 'styled-components';
-import AppLoading from 'expo-app-loading';
 import { Provider } from 'react-redux'
+import * as Font from 'expo-font';
 
 import { AuthProvider } from './src/hooks/auth';
 import store from './src/store'
@@ -11,7 +12,6 @@ import store from './src/store'
 import { Routes } from './src/routes';
 
 import {
-  useFonts,
   Poppins_400Regular,
   Poppins_500Medium,
   Poppins_700Bold
@@ -32,15 +32,32 @@ if (Platform.OS === 'android') {
 }
 import 'intl/locale-data/jsonp/en';
 
-export default function App() {
-  const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_700Bold
-  });
+SplashScreen.preventAutoHideAsync();
 
-  if (!fontsLoaded) {
-    return <AppLoading />
+export default function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await Font.loadAsync({
+          Poppins_400Regular,
+          Poppins_500Medium,
+          Poppins_700Bold
+        });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setAppIsReady(true);
+        SplashScreen.hideAsync();
+      }
+    }
+
+    prepare();
+  }, []);
+
+  if (!appIsReady) {
+    return null;
   }
 
   return (
