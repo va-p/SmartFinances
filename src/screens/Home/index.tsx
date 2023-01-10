@@ -657,7 +657,7 @@ export function Home() {
     setTransactionId('');
   };
 
-  function handleClickHideData() {
+  function handleHideData() {
     visible ? setVisible(false) : setVisible(true);
   };
 
@@ -685,10 +685,10 @@ export function Home() {
         <Header>
           <CashFlowContainer>
             <CashFlowTotal>{visible ? cashFlowTotalBySelectedPeriod : "•••••"}</CashFlowTotal>
-            <CashFlowDescription>Fluxo de caixa</CashFlowDescription>
+            <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
           </CashFlowContainer>
 
-          <HideDataButton onPress={() => handleClickHideData()}>
+          <HideDataButton onPress={() => handleHideData()}>
             <Ionicons
               name={visible ? 'eye-off-outline' : 'eye-outline'}
               size={20}
