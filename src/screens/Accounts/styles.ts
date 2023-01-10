@@ -2,6 +2,7 @@ import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
+import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
@@ -10,25 +11,34 @@ export const Container = styled.View`
 
 export const Header = styled.View`
   width: 100%;
-  height: ${RFPercentage(4)}px;
+  height: ${RFPercentage(4.5)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight() - 15}px;
+  margin-top: ${getStatusBarHeight() - 20}px;
   margin-bottom: ${RFPercentage(1)}px;
 `;
+
+export const CashFlowContainer = styled.View``;
 
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
+  text-align: center;
   color: ${({ theme }) => theme.colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(10)}px;
-  padding-bottom: 10px;
-  margin-top: -5px;
+  text-align: center;
+  margin-top: -10px;
   color: ${({ theme }) => theme.colors.text};
+`;
+
+export const HideDataButton = styled(BorderlessButton)`
+  position: absolute;
+  top: 0px;
+  right: 10px;
 `;
 
 export const ChartContainer = styled.View`
@@ -39,7 +49,8 @@ export const ChartContainer = styled.View`
 `;
 
 export const AccountsContainer = styled.View`
-  height: ${RFPercentage(54)}px;
+  min-height: ${RFPercentage(53)}px;
+  max-height: ${RFPercentage(53)}px;
 `;
 
 export const Footer = styled.View`

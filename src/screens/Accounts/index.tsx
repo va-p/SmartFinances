@@ -3,8 +3,10 @@ import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
+  CashFlowContainer,
   CashFlowTotal,
   CashFlowDescription,
+  HideDataButton,
   ChartContainer,
   AccountsContainer,
   Footer,
@@ -13,6 +15,7 @@ import {
 
 import { VictoryArea, VictoryChart, VictoryZoomContainer } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { format, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
@@ -38,6 +41,7 @@ export function Accounts({ navigation }: any) {
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
+  const [visible, setVisible] = useState(true);
   const [connectAccountModalOpen, setConnectAccountModalOpen] = useState(false);
   const [registerAccountModalOpen, setRegisterAccountModalOpen] = useState(false);
 
@@ -64,16 +68,11 @@ export function Accounts({ navigation }: any) {
 
       let accounts: any = [];
       for (const item of data) {
-        // Sum the total evenues and expenses of all accounts
-        switch (item.type) {
-          case 'credit':
-            totalRevenuesBRL += Number(item.amount)
-            break;
-          case 'debit':
-            totalExpensesBRL += Number(item.amount)
-            break;
-          default: 'credit';
-            break;
+        // Sum the total revenues and expenses of all accounts
+        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
+          totalRevenuesBRL += item.amount
+        } else if (new Date(item.created_at) <= new Date() && item.type === 'debit') {
+          totalExpensesBRL += item.amount
         }
 
         // Group by account
@@ -93,23 +92,18 @@ export function Accounts({ navigation }: any) {
             totalAccountAmount: 0
           };
         }
-        switch (item.type) {
-          case 'credit':
-            accounts[account].totalRevenuesByAccount += item.amount;
-            break;
-          case 'debit':
-            accounts[account].totalExpensesByAccount += item.amount;
-            break;
-          case 'transferCredit':
-            accounts[account].totalRevenuesByAccount += item.amount;
-            break;
-          case 'transferDebit':
-            accounts[account].totalExpensesByAccount += item.amount;
-            break;
-          default: 'credit'
-            break;
+
+        // Sum the total revenues and expenses by account
+        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
+          accounts[account].totalRevenuesByAccount += item.amount
+        } else if (new Date(item.created_at) <= new Date() && item.type === 'debit') {
+          accounts[account].totalExpensesByAccount += item.amount
+        } else if (new Date(item.created_at) <= new Date() && item.type === 'transferCredit') {
+          accounts[account].totalRevenuesByAccount += item.amount
+        } else if (new Date(item.created_at) <= new Date() && item.type === 'transferDebit') {
+          accounts[account].totalExpensesByAccount += item.amount
         }
-      }
+      };
 
       // Sum the total of all accounts
       const totalBRL =
@@ -201,6 +195,10 @@ export function Accounts({ navigation }: any) {
     setRegisterAccountModalOpen(false);
   };
 
+  function handleHideData() {
+    visible ? setVisible(false) : setVisible(true);
+  };
+
   function handleOpenAccount(id: string) {
     navigation.navigate('Conta', { id });
   };
@@ -232,8 +230,18 @@ export function Accounts({ navigation }: any) {
   return (
     <Container>
       <Header>
-        <CashFlowTotal>{total}</CashFlowTotal>
-        <CashFlowDescription>Patrimônio Total</CashFlowDescription>
+        <CashFlowContainer>
+          <CashFlowTotal>{visible ? total : "•••••"}</CashFlowTotal>
+          <CashFlowDescription>Patrimônio Total</CashFlowDescription>
+        </CashFlowContainer>
+
+        <HideDataButton onPress={() => handleHideData()}>
+          <Ionicons
+            name={visible ? 'eye-off-outline' : 'eye-outline'}
+            size={20}
+            color={theme.colors.primary}
+          />
+        </HideDataButton>
       </Header>
 
       <ChartContainer>

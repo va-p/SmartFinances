@@ -57,6 +57,7 @@ import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTrans
 import { TransactionListItem } from '@components/TransactionListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { ChartSelectButton } from '@components/ChartSelectButton';
+import { SectionListHeader } from '@components/SectionListHeader';
 import { Load } from '@components/Load';
 
 import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -76,7 +77,6 @@ import api from '@api/api';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
-import { SectionListHeader } from '@components/SectionListHeader';
 
 type PeriodData = {
   date: Date | number;
@@ -376,11 +376,11 @@ export function Home() {
             tenant_id: item.tenant_id,
           };
         }
-        // Sum revenues and expenses
-        if (item.type === 'credit') {
-          totalRevenues += item.amount;
-        } else if (item.type === 'debit') {
-          totalExpenses += item.amount;
+        // Sum revenues and expenses of all transactions
+        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
+          totalRevenues += item.amount
+        } else if (new Date(item.created_at) <= new Date() && item.type === 'debit') {
+          totalExpenses += item.amount
         }
       };
       transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr)
@@ -437,9 +437,9 @@ export function Home() {
       for (const item of transactionsByMonthsFormattedPtbr) {
         if (item.data) {
           item.data.forEach((cur: any) => {
-            if (cur.type === 'credit') {
+            if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'credit') {
               totalRevenuesByMonths += cur.amount;
-            } else if (cur.type === 'debit') {
+            } else if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'debit') {
               totalExpensesByMonths += cur.amount;
             }
           })
@@ -475,9 +475,9 @@ export function Home() {
       for (const item of transactionsByYearsFormattedPtbr) {
         if (item.data) {
           item.data.forEach((cur: any) => {
-            if (cur.type === 'credit') {
+            if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'credit') {
               totalRevenuesByYears += cur.amount
-            } else if (cur.type === 'debit') {
+            } else if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'debit') {
               totalExpensesByYears += cur.amount
             }
           })
