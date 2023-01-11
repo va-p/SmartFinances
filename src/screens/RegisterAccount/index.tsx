@@ -94,7 +94,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     setCurrencyModalOpen(false);
   };
 
-  async function handleAccountRegister(form: FormData) {
+  async function handleRegisterAccount(form: FormData) {
     setButtonIsLoading(true);
 
     /* Validation Form - Start */
@@ -282,7 +282,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           type='secondary'
           title={id != '' ? "Editar conta" : "Criar conta"}
           isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleAccountRegister)}
+          onPress={handleSubmit(handleRegisterAccount)}
         />
       </Footer>
 
