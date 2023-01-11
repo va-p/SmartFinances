@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import {
   Container,
   MainContent,
@@ -198,7 +198,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     setCategoryModalOpen(false);
   };
 
-  async function handleTransactionRegister(form: FormData) {
+  async function handleRegisterTransaction(form: FormData) {
     setButtonIsLoading(true);
 
     /* Validation Form - Start */
@@ -239,9 +239,8 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       if (transactionType != 'transfer') {
         // Need conversion
         if (currencySelected.code !== accountSelected.currency.code) {
-          let amountConverted = 0;
-
           // Converted BRL
+          let amountConverted = 0;
           if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'BRL') {
             amountConverted = Number(form.amount) * btcQuoteBrl.price;
           }
@@ -251,7 +250,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BRL') {
             amountConverted = Number(form.amount) * usdQuoteBrl.price;
           }
-
           // Converted BTC
           if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'BTC') {
             amountConverted = Number(form.amount) * brlQuoteBtc.price;
@@ -262,7 +260,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BTC') {
             amountConverted = Number(form.amount) * usdQuoteBtc.price;
           }
-
           // Converted EUR
           if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * brlQuoteEur.price;
@@ -273,7 +270,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           if (currencySelected.code === 'USD' && accountSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * usdQuoteEur.price;
           }
-
           // Converted USD
           if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'USD') {
             amountConverted = Number(form.amount) * brlQuoteUsd.price;
@@ -286,7 +282,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           }
 
           try {
-            const accountDataResponse = await api.get('single_account', {
+            const accountDataResponse = await api.get('single_account_get_id', {
               params: {
                 tenant_id: tenantId,
                 name: accountSelected.name
@@ -312,15 +308,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             if (status === 200) {
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
-              const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-              const currentData = data ? JSON.parse(data) : [];
-
-              const dataFormatted = [
-                ...currentData,
-                newTransaction
-              ];
-              await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
-
               reset();
               setTransactionType('')
               setAccountSelected({
@@ -351,20 +338,17 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 tenant_id: ''
               });
             };
-
-            setButtonIsLoading(false);
           } catch (error) {
             console.error(error);
             Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
-
+          } finally {
             setButtonIsLoading(false);
-          }
-
+          };
         }
         // No need conversion
         else {
           try {
-            const accountResponse = await api.get('single_account', {
+            const accountResponse = await api.get('single_account_get_id', {
               params: {
                 tenant_id: tenantId,
                 name: accountSelected.name
@@ -389,15 +373,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             if (status === 200) {
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
-              const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-              const currentData = data ? JSON.parse(data) : [];
-
-              const dataFormatted = [
-                ...currentData,
-                newTransaction
-              ];
-              await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
-
               reset();
               setTransactionType('')
               setAccountSelected({
@@ -428,78 +403,72 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 tenant_id: ''
               });
             };
-
-            setButtonIsLoading(false);
           } catch (error) {
             console.error(error);
             Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
-
+          } finally {
             setButtonIsLoading(false);
-          }
+          };
         }
       }
       // Transfer Transaction
       else {
-        let amountConverted = 0;
-
         // Need conversion
+        let amountConverted = 0;
         if (accountSelected.currency.code !== accountDestinationSelected.currency.code) {
 
           //Converted BRL
           if (accountSelected.currency.code === 'BRL' &&
             accountDestinationSelected.currency.code === 'BTC') {
             amountConverted = Number(form.amount) * brlQuoteBtc.price
-          };
+          }
           if (accountSelected.currency.code === 'BRL' &&
             accountDestinationSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * brlQuoteEur.price
-          };
+          }
           if (accountSelected.currency.code === 'BRL' &&
             accountDestinationSelected.currency.code === 'USD') {
             amountConverted = Number(form.amount) * brlQuoteUsd.price
-          };
-
+          }
           //Converted BTC
           if (accountSelected.currency.code === 'BTC' &&
             accountDestinationSelected.currency.code === 'BRL') {
             amountConverted = Number(form.amount) * btcQuoteBrl.price
-          };
+          }
           if (accountSelected.currency.code === 'BTC' &&
             accountDestinationSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * btcQuoteEur.price
-          };
+          }
           if (accountSelected.currency.code === 'BTC' &&
             accountDestinationSelected.currency.code === 'USD') {
             amountConverted = Number(form.amount) * btcQuoteUsd.price
-          };
-
+          }
           //Converted EUR
           if (accountSelected.currency.code === 'EUR' &&
             accountDestinationSelected.currency.code === 'BTC') {
             amountConverted = Number(form.amount) * eurQuoteBtc.price
-          };
+          }
           if (accountSelected.currency.code === 'EUR' &&
             accountDestinationSelected.currency.code === 'BRL') {
             amountConverted = Number(form.amount) * eurQuoteBrl.price
-          };
+          }
           if (accountSelected.currency.code === 'EUR' &&
             accountDestinationSelected.currency.code === 'USD') {
             amountConverted = Number(form.amount) * eurQuoteUsd.price
-          };
-
+          }
           //Converted USD
           if (accountSelected.currency.code === 'USD' &&
             accountDestinationSelected.currency.code === 'BTC') {
             amountConverted = Number(form.amount) * usdQuoteBtc.price
-          };
+          }
           if (accountSelected.currency.code === 'USD' &&
             accountDestinationSelected.currency.code === 'BRL') {
             amountConverted = Number(form.amount) * usdQuoteBrl.price
-          };
+          }
           if (accountSelected.currency.code === 'USD' &&
             accountDestinationSelected.currency.code === 'EUR') {
             amountConverted = Number(form.amount) * usdQuoteEur.price
-          };
+          }
         }
         // No need conversion        
         else {
@@ -507,13 +476,13 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         };
 
         try {
-          const accountResponse = await api.get('single_account', {
+          const accountResponse = await api.get('single_account_get_id', {
             params: {
               tenant_id: tenantId,
               name: accountSelected.name
             }
           });
-          const accountDestinationResponse = await api.get('single_account', {
+          const accountDestinationResponse = await api.get('single_account_get_id', {
             params: {
               tenant_id: tenantId,
               name: accountDestinationSelected.name
@@ -550,16 +519,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
           if (transferDebitResponse.status && transferCreditResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
-
-            const data = await AsyncStorage.getItem(COLLECTION_TRANSACTIONS);
-            const currentData = data ? JSON.parse(data) : [];
-
-            const dataFormatted = [
-              ...currentData,
-              transferDebit,
-              transferCredit
-            ];
-            await AsyncStorage.setItem(COLLECTION_TRANSACTIONS, JSON.stringify(dataFormatted));
 
             reset();
             setTransactionType('')
@@ -603,14 +562,12 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               tenant_id: ''
             });
           };
-
-          setButtonIsLoading(false);
         } catch (error) {
           console.error(error);
           Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
-
+        } finally {
           setButtonIsLoading(false);
-        }
+        };
       }
     };
   };
@@ -659,13 +616,12 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       }
 
       setId();
-      setButtonIsLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Edição de Transação", "Não foi possível editar a transação. Verifique sua conexão com a internet e tente novamente.")
-
+    } finally {
       setButtonIsLoading(false);
-    }
+    };
   };
 
   async function handleClickDeleteTransaction(id: string) {
@@ -737,7 +693,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             <Title>
               {
                 id != '' ?
-                  'Editar Transação' :
+                  `Editar Transação \n ${description}` :
                   'Adicionar Transação'
               }
             </Title>
@@ -852,7 +808,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           type='secondary'
           title={id != '' ? 'Editar transação' : 'Adicionar Transação'}
           isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleTransactionRegister)}
+          onPress={handleSubmit(handleRegisterTransaction)}
         />
       </Footer>
 

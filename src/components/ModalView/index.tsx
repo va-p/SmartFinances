@@ -10,8 +10,6 @@ import {
 
 import { BorderlessButton, GestureHandlerRootView } from 'react-native-gesture-handler';
 
-type TypeProps = 'primary' | 'secondary';
-
 export type Props = ModalProps & {
   children: ReactNode;
   closeModal: () => void;
