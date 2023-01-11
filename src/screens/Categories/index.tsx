@@ -122,9 +122,9 @@ export function Categories() {
         title={categoryId != '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
       >
         <RegisterCategory
-          closeRegisterCategory={handleCloseRegisterCategoryModal}
           id={categoryId}
           setId={ClearTransactionId}
+          closeCategory={handleCloseRegisterCategoryModal}
         />
       </ModalView>
     </Container>

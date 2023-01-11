@@ -109,8 +109,9 @@ export function RegisterCategory({ id, setId, closeCategory }: Props) {
         }
         const { status } = await api.post('category', newCategory);
         if (status === 200) {
-          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a tela anterior", onPress: () => closeCategory }]);
+          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para as categorias", onPress: closeCategory }]);
 
+          setId();
           reset();
           setIconSelected(
             {
@@ -126,7 +127,7 @@ export function RegisterCategory({ id, setId, closeCategory }: Props) {
           });
         };
       } catch (error) {
-        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: () => closeCategory }]);
+        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeCategory }]);
       } finally {
         setButtonIsLoading(false);
       };
@@ -282,7 +283,7 @@ export function RegisterCategory({ id, setId, closeCategory }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? `Editar Categoria \n ${name}` : 'Criar Categoria'}
+          title={id != '' ? 'Editar Categoria' : 'Criar Categoria'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterCategory)}
         />

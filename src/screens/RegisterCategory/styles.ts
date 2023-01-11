@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components/native';
+import { TouchableOpacity } from 'react-native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { BorderlessButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
 type TypeProps = 'primary' | 'secondary';
@@ -53,14 +53,19 @@ export const ColorsList = styled.View`
 export const ColorContainer = styled.View <Props>`
   width: 50px;
   height: 50px;
+  align-items: center;
+  justify-content: center;
   border-radius: 25px;
 `;
 
-export const Color = styled(BorderlessButton) <Props>`
+export const Color = styled(TouchableOpacity) <Props>`
   width: 40px;
   height: 40px;
-  margin-right: 8px;
   background-color: ${({ color }) => color};
+  border-width: 2px;
+  border-color: ${({ theme, isActive }) =>
+    isActive ? theme.colors.primary : theme.colors.background
+  };
   border-radius: 20px;
 `;
 
