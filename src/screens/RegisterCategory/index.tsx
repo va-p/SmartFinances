@@ -14,6 +14,7 @@ import {
   Footer
 } from './styles';
 
+import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
@@ -29,10 +30,9 @@ import { colors } from '@utils/colors';
 import { icons } from '@utils/icons';
 
 import api from '@api/api';
-import { useFocusEffect } from '@react-navigation/native';
 
 type Props = {
-  closeRegisterCategory: () => void;
+  closeCategory: () => void;
   id: string;
   setId: () => void;
 }
@@ -48,7 +48,7 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { navigation }: any) {
+export function RegisterCategory({ id, setId, closeCategory }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const [name, setName] = useState('');
   const [iconSelected, setIconSelected] = useState({
@@ -77,7 +77,7 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
     setIconSelected(icon);
   };
 
-  async function handleCategoryRegister(form: FormData) {
+  async function handleRegisterCategory(form: FormData) {
     setButtonIsLoading(true);
 
     /* Validation Form - Start */
@@ -109,7 +109,7 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
         }
         const { status } = await api.post('category', newCategory);
         if (status === 200) {
-          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a tela anterior", onPress: () => closeCategory }]);
 
           reset();
           setIconSelected(
@@ -125,11 +125,9 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
             hex: ''
           });
         };
-
-        setButtonIsLoading(false);
       } catch (error) {
-        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
-
+        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: () => closeCategory }]);
+      } finally {
         setButtonIsLoading(false);
       };
     }
@@ -165,17 +163,16 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
       const { status } = await api.post('edit_category', categoryEdited);
 
       if (status === 200) {
-        Alert.alert("Edição de Categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: closeRegisterCategory }])
+        Alert.alert("Edição de Categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: closeCategory }])
       }
 
       setId();
-      setButtonIsLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Edição de Categoria", "Não foi possível editar a categoria. Verifique sua conexão com a internet e tente novamente.")
-
+    } finally {
       setButtonIsLoading(false);
-    }
+    };
   };
 
   async function handleClickDeleteCategory() {
@@ -190,13 +187,13 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
         }
       });
       Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
-      handleCloseRegisterTransaction();
+      handleCloseCategory();
     } catch (error) {
       Alert.alert("Exclusão de categoria", `${error}`)
     }
   };
 
-  function handleCloseRegisterTransaction() {
+  function handleCloseCategory() {
     setId();
     reset();
     setIconSelected({
@@ -209,7 +206,7 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
       name: 'Selecione a cor',
       hex: '#969CB2'
     });
-    closeRegisterCategory();
+    closeCategory();
   };
 
   useFocusEffect(useCallback(() => {
@@ -285,9 +282,9 @@ export function RegisterCategory({ closeRegisterCategory, id, setId }: Props, { 
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar Categoria' : 'Criar Categoria'}
+          title={id != '' ? `Editar Categoria \n ${name}` : 'Criar Categoria'}
           isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleCategoryRegister)}
+          onPress={handleSubmit(handleRegisterCategory)}
         />
       </Footer>
     </Container>
