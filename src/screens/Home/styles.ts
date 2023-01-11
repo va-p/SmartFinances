@@ -15,7 +15,7 @@ export const Header = styled.View`
   height: ${RFPercentage(4.5)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight() - 20}px;
+  margin-top: ${getStatusBarHeight() - 30}px;
   margin-bottom: ${RFPercentage(1)}px;
 `;
 
@@ -30,7 +30,7 @@ export const CashFlowTotal = styled.Text`
 
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(11)}px;
+  font-size: ${RFValue(10)}px;
   text-align: center;
   margin-top: -10px;
   color: ${({ theme }) => theme.colors.text};

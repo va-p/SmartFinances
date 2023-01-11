@@ -122,13 +122,13 @@ export function Home() {
     return {
       height: interpolate(
         scrollY.value,
-        [0, 200],
-        [210, 0],
+        [0, 400],
+        [200, 0],
         Extrapolate.CLAMP
       ),
       opacity: interpolate(
         scrollY.value,
-        [0, 190],
+        [0, 400],
         [1, 0],
         Extrapolate.CLAMP
       )
@@ -138,7 +138,7 @@ export function Home() {
     return {
       opacity: interpolate(
         scrollY.value,
-        [0, 120],
+        [0, 300],
         [1, 0],
         Extrapolate.CLAMP
       )
@@ -835,9 +835,9 @@ export function Home() {
         closeModal={handleCloseRegisterTransactionModal}
       >
         <RegisterTransaction
-          closeRegisterTransaction={handleCloseRegisterTransactionModal}
           id={transactionId}
           setId={ClearTransactionId}
+          closeRegisterTransaction={handleCloseRegisterTransactionModal}
         />
       </ModalViewRegisterTransaction>
     </Container>
