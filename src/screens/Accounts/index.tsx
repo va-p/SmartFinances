@@ -200,21 +200,7 @@ export function Accounts({ navigation }: any) {
   };
 
   function handleOpenAccount(id: string) {
-    navigation.navigate('Conta', { id });
-  };
-
-  async function handleDeleteAccount(id: string) {
-    try {
-      await api.delete('delete_account', {
-        params: {
-          account_id: id
-        }
-      });
-      fetchAccounts();
-      Alert.alert("Exclusão de conta", "Conta excluída com sucesso!")
-    } catch (error) {
-      Alert.alert("Exclusão de conta", `${error}`)
-    }
+    navigation.navigate("Conta", id);
   };
 
   useFocusEffect(
@@ -353,7 +339,7 @@ export function Accounts({ navigation }: any) {
         closeModal={handleCloseRegisterAccountModal}
         title='Criar Conta Manual'
       >
-        <RegisterAccount />
+        <RegisterAccount id='' />
       </ModalView>
     </Container>
   );

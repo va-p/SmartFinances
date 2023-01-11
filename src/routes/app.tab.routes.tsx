@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
+import { AppAccountStackRoutes } from './app.account.stack.routes';
 import { AppStackRoutes } from './app.stack.routes';
 import { Accounts } from '@screens/Accounts';
 import { Overview } from '@screens/Overview';
@@ -46,7 +47,7 @@ export function AppTabRoutes() {
 
       <Screen
         name="Contas"
-        component={Accounts}
+        component={AppAccountStackRoutes}
         options={{
           tabBarIcon: (({ size, color }) => (
             <Ionicons

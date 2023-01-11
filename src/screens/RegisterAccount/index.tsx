@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import {
   Container,
@@ -6,6 +6,7 @@ import {
   Footer
 } from './styles';
 
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +34,11 @@ type FormData = {
   initialAmount: number;
 }
 
+type Props = {
+  id: string;
+  closeAccount?: () => void;
+}
+
 /* Validation Form - Start */
 const schema = Yup.object().shape({
   name: Yup
@@ -45,11 +51,13 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterAccount({ navigation }: any) {
+export function RegisterAccount({ id, closeAccount }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
   });
+  const [name, setName] = useState('');
+  const [initialAmount, setInitialAmount] = useState('');
   const accountTypes = [
     'Carteira',
     'Carteira de Criptomoedas',
@@ -89,6 +97,7 @@ export function RegisterAccount({ navigation }: any) {
   async function handleAccountRegister(form: FormData) {
     setButtonIsLoading(true);
 
+    /* Validation Form - Start */
     if (!typeSelected) {
       return Alert.alert("Cadastro de Conta", "Selecione o tipo da conta", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
@@ -99,27 +108,107 @@ export function RegisterAccount({ navigation }: any) {
       return Alert.alert("Cadastro de Conta", "Selecione a moeda da conta", [{
         text: "OK", onPress: () => setButtonIsLoading(false)
       }]);
-    }    
+    }
+    /* Validation Form - End */
+
+
+    // Edit account
+    if (id != '') {
+      handleEditAccount(id, form);
+    }
+    // Add Transaction
+    else {
+      try {
+        const newAccount = {
+          name: form.name,
+          type: typeSelected,
+          currency_id: currencySelected.id,
+          initial_amount: form.initialAmount,
+          tenant_id: tenantId
+        }
+        const { status } = await api.post('account', newAccount);
+        if (status === 200) {
+          Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a tela anterior", onPress: () => closeAccount }]);
+        };
+
+        setButtonIsLoading(false);
+      } catch (error) {
+        Alert.alert("Cadastro de Conta", "Conta já cadastrada. Por favor, digite outro nome para a conta.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeAccount }]);
+        setButtonIsLoading(false);
+      } finally {
+        setButtonIsLoading(false);
+      };
+    }
+  };
+
+  async function fetchAccount() {
+    try {
+      const { data } = await api.get('single_account', {
+        params: {
+          account_id: id
+        }
+      })
+
+      setName(data.name);
+      setInitialAmount(data.initial_amount);
+      setTypeSelected(data.type);
+      setCurrencySelected(data.currency);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Conta", "Não foi possível buscar a conta. Verifique sua conexão com a internet e tente novamente.");
+    }
+  };
+
+  async function handleEditAccount(id: string, form: FormData) {
+    const AccountEdited = {
+      account_id: id,
+      name: form.name,
+      type: typeSelected,
+      currency_id: currencySelected.id,
+      initial_amount: form.initialAmount
+    }
 
     try {
-      const newAccount = {
-        name: form.name,
-        type: typeSelected,
-        currency_id: currencySelected.id,
-        initial_amount: form.initialAmount,
-        tenant_id: tenantId
-      }
-      const { status } = await api.post('account', newAccount);
-      if (status === 200) {
-        Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
-      };
+      const { status } = await api.post('edit_account', AccountEdited);
 
-      setButtonIsLoading(false);
+      if (status === 200) {
+        Alert.alert("Edição de Conta", "Conta editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: closeAccount }]);
+      }
+
     } catch (error) {
-      Alert.alert("Cadastro de Conta", "Conta já cadastrada. Por favor, digite outro nome para a conta.", [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
+      console.error(error);
+      Alert.alert("Edição de Conta", "Não foi possível editar a conta. Verifique sua conexão com a internet e tente novamente.")
+    } finally {
       setButtonIsLoading(false);
-    };
+    }
   };
+
+  async function handleDeleteAccount(id: string) {
+    setButtonIsLoading(true);
+
+    try {
+      const { status } = await api.delete('delete_account', {
+        params: {
+          account_id: id
+        }
+      });
+      if (status === 200) {
+        Alert.alert("Exclusão de conta", "Conta excluída com sucesso!", [{ text: "Voltar para a tela anterior", onPress: closeAccount }])
+      }
+
+    } catch (error) {
+      Alert.alert("Exclusão de conta", `${error}`)
+    } finally {
+      setButtonIsLoading(false);
+    }
+  };
+
+
+  useFocusEffect(useCallback(() => {
+    if (id != '') {
+      fetchAccount();
+    }
+  }, [id]));
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -130,7 +219,7 @@ export function RegisterAccount({ navigation }: any) {
           placeholder='Nome'
           autoCapitalize='sentences'
           autoCorrect={false}
-          defaultValue=''
+          defaultValue={name}
           name='name'
           control={control}
           error={errors.name}
@@ -141,6 +230,7 @@ export function RegisterAccount({ navigation }: any) {
           color={theme.colors.primary}
           placeholder='Saldo inicial'
           keyboardType='numeric'
+          defaultValue={initialAmount}
           name='initialAmount'
           control={control}
           error={errors.initialAmount}
@@ -164,7 +254,7 @@ export function RegisterAccount({ navigation }: any) {
           rowTextForSelection={(item) => {
             return item
           }}
-          defaultButtonText="Selecione o tipo da conta"
+          defaultButtonText={id != '' ? typeSelected : "Selecione o tipo da conta"}
           renderDropdownIcon={iconSelectDropdown}
           dropdownIconPosition='right'
           buttonStyle={{
@@ -190,7 +280,7 @@ export function RegisterAccount({ navigation }: any) {
       <Footer>
         <Button
           type='secondary'
-          title='Criar conta'
+          title={id != '' ? "Editar conta" : "Criar conta"}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleAccountRegister)}
         />
