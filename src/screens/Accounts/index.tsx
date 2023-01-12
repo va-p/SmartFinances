@@ -15,9 +15,9 @@ import {
 
 import { VictoryArea, VictoryChart, VictoryZoomContainer } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { format, parseISO } from 'date-fns';
-import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
@@ -27,6 +27,8 @@ import { Load } from '@components/Load';
 
 import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 import { RegisterAccount } from '@screens/RegisterAccount';
+
+import { setAccountName, setAccountTotalAmount } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
@@ -38,6 +40,7 @@ export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
+  const dispatch = useDispatch();
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
@@ -55,8 +58,7 @@ export function Accounts({ navigation }: any) {
         }
       })
       if (!data) {
-      }
-      else {
+      } else {
         setRefreshing(false);
       }
 
@@ -199,7 +201,13 @@ export function Accounts({ navigation }: any) {
     visible ? setVisible(false) : setVisible(true);
   };
 
-  function handleOpenAccount(id: string) {
+  function handleOpenAccount(id: string, name: string, total: any) {
+    dispatch(
+      setAccountTotalAmount(total)
+    );
+    dispatch(
+      setAccountName(name)
+    );
     navigation.navigate("Conta", id);
   };
 
@@ -293,7 +301,7 @@ export function Accounts({ navigation }: any) {
               data={item}
               icon='wallet'
               color={theme.colors.primary}
-              onPress={() => handleOpenAccount(item.id)}
+              onPress={() => handleOpenAccount(item.id, item.name, item.totalAccountAmount)}
             />
           )}
           initialNumToRender={10}

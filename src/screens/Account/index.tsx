@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { RefreshControl, StyleSheet, SectionList, Alert } from 'react-native';
+import { RefreshControl, StyleSheet, SectionList } from 'react-native';
 import {
   Container,
   Header,
@@ -28,8 +28,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue
 } from 'react-native-reanimated';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { format, parse, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
@@ -46,6 +46,7 @@ import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { RegisterAccount } from '@screens/RegisterAccount';
 
+import { selectAccountName, selectAccountTotalAmount } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
@@ -54,25 +55,25 @@ export function Account() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
-  const [total, setTotal] = useState('R$0');
-  const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
-  const [selectedPeriod, setSelectedPeriod] = useState(new Date());
-  const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
-  const [balanceIsPositive, setBalanceIsPositive] = useState(true);
-  const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
-  const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
-  const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
+  const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
     name: 'Meses',
     period: 'months'
   });
+  const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
+  const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
+  const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
+  const [balanceIsPositive, setBalanceIsPositive] = useState(true);
   const [editAccountModalOpen, setEditAccountModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
-  const [accountName, setAccountName] = useState('');
-  //const [accountInitialAmount, setAccountInitialAmount] = useState('');
-  //const [accountType, setAccountType] = useState('');
-  //const [accountCurrency, setAccountCurrency] = useState('');
+  const navigation = useNavigation();
+  const route = useRoute();
+  const accountId = route.params;
+  const accountName = useSelector(selectAccountName);
+  const accountTotal = useSelector(selectAccountTotalAmount);
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(event => {
@@ -97,29 +98,6 @@ export function Account() {
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
-  const navigation = useNavigation();
-  const route = useRoute();
-  const id = route.params;
-
-  async function fetchAccount() {
-    setLoading(true);
-
-    try {
-      const { data } = await api.get('single_account', {
-        params: {
-          account_id: id
-        }
-      })
-
-      setAccountName(data.name);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Conta", "Não foi possível buscar a conta. Verifique sua conexão com a internet e tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   async function fetchTransactions() {
     setLoading(true);
 
@@ -129,11 +107,6 @@ export function Account() {
           tenant_id: tenantId
         }
       })
-      if (!data) {
-      }
-      else {
-        setRefreshing(false);
-      }
 
       /**
        * All Transactions Formatted in pt-BR - Start
@@ -265,7 +238,7 @@ export function Account() {
       };
       transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr)
         .filter((transactionFormattedPtbr: any) =>
-          transactionFormattedPtbr.account.id === id
+          transactionFormattedPtbr.account.id === accountId
         )
         .sort((a: any, b: any) => {
           const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
@@ -288,8 +261,6 @@ export function Account() {
           style: 'currency',
           currency: 'BRL'
         });
-      setTotal(totalFormattedPtbrByAllHistory);
-
       // Group transactions by date to section list
       const transactionsFormattedPtbrGroupedByDate = transactionsFormattedPtbr
         .reduce((acc: any, cur: any) => {
@@ -317,8 +288,8 @@ export function Account() {
        */
       const transactionsByMonthsFormattedPtbr = transactionsFormattedPtbrGroupedByDate
         .filter((transactionByMonthsPtBr: any) =>
-          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getMonth() === selectedPeriod.getMonth() &&
-          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
+          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getMonth() === selectedDate.getMonth() &&
+          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedDate.getFullYear()
         );
 
       // Sum revenues and expenses
@@ -363,7 +334,7 @@ export function Account() {
        */
       const transactionsByYearsFormattedPtbr = transactionsFormattedPtbrGroupedByDate
         .filter((transactionByYearsPtBr: any) =>
-          parse(transactionByYearsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedPeriod.getFullYear()
+          parse(transactionByYearsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedDate.getFullYear()
         );
 
       // Sum revenues and expenses
@@ -486,7 +457,7 @@ export function Account() {
       /**
        * Set Transactions and Totals by Selected Period - Start
        */
-      switch (chartPeriodSelected.period) {
+      switch (periodSelected.period) {
         case 'months':
           setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByMonths);
           setTransactionsFormattedBySelectedPeriod(transactionsByMonthsFormattedPtbr);
@@ -503,7 +474,6 @@ export function Account() {
       /**
        * Set Transactions and Totals by Selected Period  - End
        */
-
     } catch (error) {
       console.error(error);
     } finally {
@@ -542,18 +512,13 @@ export function Account() {
     setTransactionModalOpen(false);
   };
 
-  function ClearAccountId() {
-    setTransactionId('');
-  };
-
   function ClearTransactionId() {
     setTransactionId('');
   };
 
   useFocusEffect(useCallback(() => {
-    fetchAccount();
     fetchTransactions();
-  }, [chartPeriodSelected.period]));
+  }, [periodSelected.period]));
 
   if (loading) {
     return <Load />
@@ -580,7 +545,7 @@ export function Account() {
         <FiltersContainer>
           <FilterButtonGroup>
             <ChartSelectButton
-              title={`Por ${chartPeriodSelected.name}`}
+              title={`Por ${periodSelected.name}`}
               onPress={handleOpenPeriodSelectedModal}
             />
           </FilterButtonGroup>
@@ -588,7 +553,7 @@ export function Account() {
 
         <AccountBalanceContainer>
           <AccountBalanceGroup>
-            <AccountBalance balanceIsPositive={balanceIsPositive}>{total}</AccountBalance>
+            <AccountBalance balanceIsPositive={balanceIsPositive}>{accountTotal}</AccountBalance>
             <AccountBalanceDescription>Sado da conta</AccountBalanceDescription>
           </AccountBalanceGroup>
 
@@ -596,7 +561,7 @@ export function Account() {
 
           <AccountBalanceGroup>
             <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>{cashFlowTotalBySelectedPeriod}</AccountCashFlow>
-            <AccountCashFlowDescription>{`Fluxo de caixa por ${chartPeriodSelected.name}`}</AccountCashFlowDescription>
+            <AccountCashFlowDescription>{`Fluxo de caixa por ${periodSelected.name}`}</AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>
       </Animated.View>
@@ -642,8 +607,8 @@ export function Account() {
         title='Selecione o período'
       >
         <ChartPeriodSelect
-          period={chartPeriodSelected}
-          setPeriod={setChartPeriodSelected}
+          period={periodSelected}
+          setPeriod={setPeriodSelected}
           closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>
@@ -654,7 +619,7 @@ export function Account() {
         title={`Editar Conta ${accountName}`}
       >
         <RegisterAccount
-          id={id}
+          id={accountId}
           closeAccount={handleCloseEditAccount}
         />
       </ModalView>

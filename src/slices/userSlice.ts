@@ -71,7 +71,7 @@ export const {
 } = userSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectUsertId = (state: RootState) => state.user.userId;
+export const selectUserId = (state: RootState) => state.user.userId;
 export const selectUserName = (state: RootState) => state.user.userName;
 export const selectUserLastName = (state: RootState) => state.user.userLastName;
 export const selectUserEmail = (state: RootState) => state.user.userEmail;
