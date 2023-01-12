@@ -35,6 +35,7 @@ import api from '@api/api';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -303,6 +304,9 @@ export function Accounts({ navigation }: any) {
               color={theme.colors.primary}
               onPress={() => handleOpenAccount(item.id, item.name, item.totalAccountAmount)}
             />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text="Não há contas. Adicione uma conta e ao menos uma transação para visualizar a conta aqui"/>
           )}
           initialNumToRender={10}
           refreshControl={

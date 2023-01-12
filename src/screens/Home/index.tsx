@@ -15,9 +15,7 @@ import {
   HideDataButton,
   FiltersContainer,
   FilterButtonGroup,
-  Transactions,
-  ListEmptyContainer,
-  ListEmptyText
+  Transactions
 } from './styles'
 
 import Animated, {
@@ -55,6 +53,7 @@ import { ptBR } from 'date-fns/locale';
 
 import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
 import { TransactionListItem } from '@components/TransactionListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -782,11 +781,7 @@ export function Home() {
             />
           )}
           ListEmptyComponent={() => (
-            <ListEmptyContainer>
-              <ListEmptyText>
-                Nenhuma transação no período selecionado. Adicione transações para visualizá-las aqui.
-              </ListEmptyText>
-            </ListEmptyContainer>
+            <ListEmptyComponent />
           )}
           initialNumToRender={60}
           refreshControl={
