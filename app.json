@@ -2,7 +2,7 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "version": "1.11.4",
+    "version": "1.16.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "backgroundColor": "#020027",
@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 47,
+      "versionCode": 51,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/ic_launcher_foreground.png",
@@ -27,7 +27,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.digitaltech.smartfinances",
-      "buildNumber": "1.11.4",
+      "buildNumber": "1.16.2",
       "supportsTablet": true
     },
     "extra": {
