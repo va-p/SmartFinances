@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export const Container = styled(RectButton)`
   width: 100%;
-  height: 112px;
+  height: 100px;
   align-items: center;
   justify-content: center;
   padding: 10px;
