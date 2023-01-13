@@ -11,23 +11,24 @@ import {
 } from './styles';
 
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { VictoryPie, VictoryTooltip } from 'victory-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
 import { addMonths, subMonths, format } from 'date-fns';
 import { useTheme } from 'styled-components';
+import { VictoryPie } from 'victory-native';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
 import { CategoryProps, ColorProps, IconProps } from '@components/CategoryListItem';
+import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
 import { Header } from '@components/Header';
-import { Load } from '@components/Load';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
+
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 interface CategoryData {
@@ -44,7 +45,6 @@ interface CategoryData {
 interface MonthData {
   monthName: string;
   monthFormatted: number;
-  //yearFormatted: number;
   totalExpensesFormatted: string;
   totalRevenuesFormatted: string;
 }
@@ -84,12 +84,12 @@ export function Overview() {
       } else {
         setCategories(data);
       }
-
-      setLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Categorias", "Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.");
-    }
+    } finally {
+      setLoading(false);
+    };
   };
 
   async function fetchTransactions() {
@@ -173,7 +173,6 @@ export function Overview() {
       });
 
       setTotalRevenuesByCategories(totalRevenuesByCategory);
-      //console.log(totalRevenuesByCategories);
       /**
        * Revenues by Category - End
        */
@@ -236,13 +235,13 @@ export function Overview() {
       /**
        * Expenses by Category - End
        */
-
-      setLoading(false);
     }
     catch (error) {
       console.error(error);
       Alert.alert("Transações", "Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.");
-    }
+    } finally {
+      setLoading(false);
+    };
   };
 
   function handleCategoryOnPress(id: string) {
@@ -255,12 +254,26 @@ export function Overview() {
   }, [selectedDate]));
 
   if (loading) {
-    return <Load />
+    return <SkeletonOverviewScreen />
   }
 
   return (
     <Container>
       <Header type='secondary' title='Resumo' />
+
+      <MonthSelect>
+        <MonthSelectButton onPress={() => handleDateChange('prev')}>
+          <MonthSelectIcon name="chevron-back" />
+        </MonthSelectButton>
+
+        <Month>
+          {format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}
+        </Month>
+
+        <MonthSelectButton onPress={() => handleDateChange('next')}>
+          <MonthSelectIcon name="chevron-forward" />
+        </MonthSelectButton>
+      </MonthSelect>
 
       <Content
         showsVerticalScrollIndicator={false}
@@ -269,20 +282,6 @@ export function Overview() {
           paddingBottom: useBottomTabBarHeight(),
         }}
       >
-
-        <MonthSelect>
-          <MonthSelectButton onPress={() => handleDateChange('prev')}>
-            <MonthSelectIcon name="chevron-back" />
-          </MonthSelectButton>
-
-          <Month>
-            {format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}
-          </Month>
-
-          <MonthSelectButton onPress={() => handleDateChange('next')}>
-            <MonthSelectIcon name="chevron-forward" />
-          </MonthSelectButton>
-        </MonthSelect>
 
         <PieChartContainer>
           <VictoryPie
