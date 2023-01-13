@@ -711,6 +711,7 @@ export function Home() {
               <VictoryZoomContainer
                 allowZoom={false}
                 zoomDomain={{ x: [6, 12] }}
+                zoomDimension='x'
               />
             }
             theme={smartFinancesChartTheme}

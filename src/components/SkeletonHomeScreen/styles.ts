@@ -14,6 +14,7 @@ export const Title = styled.View`
   height: ${RFPercentage(4)}px;
   margin-bottom: 5px;
   background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: ${RFPercentage(2)}px;
 `;
 
 export const Filters = styled.View`
@@ -21,6 +22,7 @@ export const Filters = styled.View`
   height: ${RFPercentage(3.5)}px;
   margin-bottom: 15px;
   background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: ${RFPercentage(2)}px;
 `;
 
 export const Chart = styled.View`
@@ -28,6 +30,7 @@ export const Chart = styled.View`
   height: 110px;
   background-color: ${({ theme }) => theme.colors.shape};
   margin-bottom: 40px;
+  border-radius: 10px;
 `;
 
 export const Transaction = styled.View`
@@ -35,4 +38,5 @@ export const Transaction = styled.View`
   height: 60px;
   margin-bottom: 10px;
   background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: 10px;
 `;

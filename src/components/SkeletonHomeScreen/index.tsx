@@ -17,7 +17,7 @@ export function SkeletonHomeScreen() {
       skeletonAnimatedValue,
       {
         toValue: 1,
-        duration: 350,
+        duration: 300,
         easing: EasingNode.out(EasingNode.linear)
       }
     ).start(() => {
@@ -51,43 +51,43 @@ export function SkeletonHomeScreen() {
       </Filters>
 
       <Chart>
-        <Animated.View style={{ height: 110, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 110, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Chart>
 
       <Transaction>
-        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Transaction>
 
       <Transaction>
-        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Transaction>
 
       <Transaction>
-        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Transaction>
 
       <Transaction>
-        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Transaction>
 
       <Transaction>
-        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Transaction>
 
       <Transaction>
-        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape }}>
+        <Animated.View style={{ height: 60, backgroundColor: theme.colors.shape, borderRadius: 10 }}>
           <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
         </Animated.View>
       </Transaction>

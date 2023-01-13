@@ -24,7 +24,7 @@ export function SkeletonAccountsScreen() {
       skeletonAnimatedValue,
       {
         toValue: 1,
-        duration: 350,
+        duration: 300,
         easing: EasingNode.out(EasingNode.linear)
       }
     ).start(() => {
