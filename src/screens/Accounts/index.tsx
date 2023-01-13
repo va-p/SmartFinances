@@ -21,9 +21,10 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ModalView } from '@components/ModalView';
-import { Load } from '@components/Load';
 
 import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -35,7 +36,6 @@ import api from '@api/api';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -219,7 +219,7 @@ export function Accounts({ navigation }: any) {
   );
 
   if (loading) {
-    return <Load />
+    return <SkeletonAccountsScreen />
   }
 
   return (

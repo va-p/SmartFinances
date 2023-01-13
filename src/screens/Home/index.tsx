@@ -4,7 +4,8 @@ import {
   RefreshControl,
   StyleSheet,
   BackHandler,
-  SectionList
+  SectionList,
+  Text
 } from 'react-native';
 import {
   Container,
@@ -15,7 +16,9 @@ import {
   HideDataButton,
   FiltersContainer,
   FilterButtonGroup,
-  Transactions
+  Transactions,
+  ListEmptyContainer,
+  ListEmptyText
 } from './styles'
 
 import Animated, {
@@ -43,21 +46,18 @@ import {
   subYears
 } from 'date-fns';
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import LinearGradient from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
 
 import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
 import { TransactionListItem } from '@components/TransactionListItem';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
-import { Load } from '@components/Load';
 
 import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
@@ -172,7 +172,6 @@ export function Home() {
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
-
   async function fetchBtcQuote() {
     try {
       const { data } = await apiQuotes.get('v2/tools/price-conversion', {
@@ -248,11 +247,6 @@ export function Home() {
           tenant_id: tenantId
         }
       })
-      if (!data) {
-      }
-      else {
-        setRefreshing(false);
-      }
 
       /**
        * All Transactions Formatted in pt-BR - Start
@@ -600,12 +594,13 @@ export function Home() {
       /**
        * Set Transactions and Totals by Selected Period  - End
        */
-
-      setLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Transações", "Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.");
-    }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    };
   };
 
   function handleOpenPeriodSelectedModal() {
@@ -675,7 +670,7 @@ export function Home() {
 
 
   if (loading) {
-    return <Load />
+    return <SkeletonHomeScreen />
   }
 
   return (
@@ -781,7 +776,11 @@ export function Home() {
             />
           )}
           ListEmptyComponent={() => (
-            <ListEmptyComponent />
+            <ListEmptyContainer>
+              <ListEmptyText>
+                Nenhuma transação no período selecionado. Adicione transações para visualizá-las aqui.
+              </ListEmptyText>
+            </ListEmptyContainer>
           )}
           initialNumToRender={60}
           refreshControl={
