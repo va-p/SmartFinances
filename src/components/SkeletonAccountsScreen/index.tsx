@@ -44,7 +44,7 @@ export function SkeletonAccountsScreen() {
   });
   const translateX3 = skeletonAnimatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [-10, 180]
+    outputRange: [-10, 185]
   });
 
   useEffect(() => {
