@@ -783,7 +783,7 @@ export function Home() {
               </ListEmptyText>
             </ListEmptyContainer>
           )}
-          initialNumToRender={60}
+          initialNumToRender={100}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }

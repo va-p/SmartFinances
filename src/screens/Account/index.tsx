@@ -35,13 +35,13 @@ import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
 import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { TransactionListItem } from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { SectionListHeader } from '@components/SectionListHeader';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { ModalView } from '@components/ModalView';
-import { Load } from '@components/Load';
 
 import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
@@ -522,7 +522,7 @@ export function Account() {
   }, [periodSelected.period]));
 
   if (loading) {
-    return <Load />
+    return <SkeletonAccountsScreen />
   }
 
   return (
@@ -586,7 +586,7 @@ export function Account() {
             <ListEmptyComponent />
 
           )}
-          initialNumToRender={60}
+          initialNumToRender={100}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
           }
