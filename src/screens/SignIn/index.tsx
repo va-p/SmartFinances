@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -14,7 +14,9 @@ import {
 } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from "expo-local-authentication";
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -31,11 +33,8 @@ import LogoSvg from '@assets/logo.svg';
 import { useAuth } from '@hooks/auth';
 
 import {
-  COLLECTION_TOKENS,
-  COLLECTION_USERS
+  COLLECTION_TOKENS
 } from '@configs/database';
-
-import { loadStoredUserData } from '@services/auth';
 
 import {
   setUserId,
@@ -68,6 +67,8 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
+  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [fingerprintIsConfigurated, setFingerprintIsConfigurated] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
@@ -75,8 +76,44 @@ export function SignIn({ navigation }: any) {
   const { signInWithGoogle, signInWithApple } = useAuth();
   const dispatch = useDispatch();
 
-  async function loadUserData() {
-    await loadStoredUserData();
+  async function fetchUserData() {
+    const userData = await api.get('auth/me');
+
+    const loggedInUserDataFormatted = {
+      id: userData.data.id,
+      name: userData.data.name,
+      lastName: userData.data.last_name,
+      email: userData.data.email,
+      phone: userData.data.phone,
+      role: userData.data.role,
+      image: userData.data.image,
+      tenantId: userData.data.tenant_id,
+    };
+
+    dispatch(
+      setUserId(loggedInUserDataFormatted.id)
+    );
+    dispatch(
+      setUserName(loggedInUserDataFormatted.name)
+    );
+    dispatch(
+      setUserLastName(loggedInUserDataFormatted.lastName)
+    );
+    dispatch(
+      setUserEmail(loggedInUserDataFormatted.email)
+    );
+    dispatch(
+      setUserPhone(loggedInUserDataFormatted.phone)
+    );
+    dispatch(
+      setUserRole(loggedInUserDataFormatted.role)
+    );
+    dispatch(
+      setUserProfileImage(loggedInUserDataFormatted.image)
+    );
+    dispatch(
+      setUserTenantId(loggedInUserDataFormatted.tenantId)
+    );
   };
 
   async function handleSignInWithXano(form: FormData) {
@@ -100,62 +137,41 @@ export function SignIn({ navigation }: any) {
         Alert.alert("Login", "Credenciais inválidas, por favor, tente novamente.");
       }
 
-      const userData = await api.get('auth/me');
+      await fetchUserData();
 
-      const loggedInUserDataFormatted = {
-        id: userData.data.id,
-        name: userData.data.name,
-        lastName: userData.data.last_name,
-        email: userData.data.email,
-        phone: userData.data.phone,
-        role: userData.data.role,
-        image: userData.data.image,
-        tenantId: userData.data.tenant_id,
-      };
-
-      await AsyncStorage.setItem(COLLECTION_USERS, JSON.stringify(loggedInUserDataFormatted));
-      dispatch(
-        setUserId(loggedInUserDataFormatted.id)
-      );
-      dispatch(
-        setUserName(loggedInUserDataFormatted.name)
-      );
-      dispatch(
-        setUserLastName(loggedInUserDataFormatted.lastName)
-      );
-      dispatch(
-        setUserEmail(loggedInUserDataFormatted.email)
-      );
-      dispatch(
-        setUserPhone(loggedInUserDataFormatted.phone)
-      );
-      dispatch(
-        setUserRole(loggedInUserDataFormatted.role)
-      );
-      dispatch(
-        setUserProfileImage(loggedInUserDataFormatted.image)
-      );
-      dispatch(
-        setUserTenantId(loggedInUserDataFormatted.tenantId)
-      );
-
-      switch (loggedInUserDataFormatted.role) {
-        case 'admin':
-          navigation.navigate('Home')
-          break;
-        case ('user'):
-          navigation.navigate('Home')
-        default: 'user';
-          break;
-      };
-
-
-      setButtonIsLoading(false)
+      navigation.navigate('Home')
     } catch (error) {
-      setButtonIsLoading(false)
       console.error(error);
-      Alert.alert("Login", "Credenciais inválidas, por favor, tente novamente.");
-    }
+      Alert.alert("Login", "Credenciais inválidas, por favor, verifique sua conexão com a internet e tente novamente.");
+    } finally {
+      setButtonIsLoading(false);
+    };
+  };
+
+  async function handleSignInWithBiometric() {
+    setButtonIsLoading(true);
+
+    try {
+      const biometricAuth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Entrar com Biometria",
+        cancelLabel: "Cancelar",
+      });
+      if (biometricAuth.success) {
+        try {
+          await fetchUserData();
+
+          navigation.navigate('Home');
+        } catch (error) {
+          console.error(error);
+          Alert.alert("Login", "Não foi possível buscar seus dados, por favor, verifique sua conexão com a internet e tente novamente.");
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Login", "Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.");
+    } finally {
+      setButtonIsLoading(false);
+    };
   };
 
   async function handleSignInWithGoogle() {
@@ -176,9 +192,18 @@ export function SignIn({ navigation }: any) {
     }
   };
 
-  useEffect(() => {
-    loadUserData();
-  });
+  useFocusEffect(useCallback(() => {
+    (async () => {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      setIsBiometricSupported(compatible);
+      const enroll = await LocalAuthentication.isEnrolledAsync();
+      if (enroll) {
+        setFingerprintIsConfigurated(true);
+      }
+
+      handleSignInWithBiometric();
+    })();
+  }, []));
 
   return (
     <Container>
