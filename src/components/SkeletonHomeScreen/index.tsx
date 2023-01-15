@@ -23,7 +23,7 @@ export function SkeletonHomeScreen() {
     ).start(() => {
       setTimeout(() => {
         skeletonAnimated()
-      }, 1000);
+      }, 500);
     })
   };
 
