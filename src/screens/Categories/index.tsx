@@ -23,6 +23,7 @@ import { RegisterCategory } from '@screens/RegisterCategory';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 export function Categories() {
   const [loading, setLoading] = useState(false);
@@ -46,12 +47,12 @@ export function Categories() {
         setCategories(data);
         setRefreshing(false);
       }
-
-      setLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Categorias", "Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.");
-    }
+    } finally {
+      setLoading(false);
+    };
   };
 
   function handleOpenRegisterCategoryModal() {
@@ -64,12 +65,11 @@ export function Categories() {
   };
 
   function handleOpenCategory(id: string) {
-    console.log(categoryId);
     setCategoryId(id);
     setRegisterCategoryModalOpen(true);
   };
 
-  function ClearTransactionId() {
+  function ClearCategoryId() {
     setCategoryId('');
   };
 
@@ -97,6 +97,9 @@ export function Categories() {
               onPress={() => handleOpenCategory(item.id)}
             />
           )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text="Nenhuma categoria criada. Crie categorias para visualizá-las aqui." />
+          )}
           initialNumToRender={50}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
@@ -123,7 +126,7 @@ export function Categories() {
       >
         <RegisterCategory
           id={categoryId}
-          setId={ClearTransactionId}
+          setId={ClearCategoryId}
           closeCategory={handleCloseRegisterCategoryModal}
         />
       </ModalView>

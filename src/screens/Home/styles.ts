@@ -68,17 +68,3 @@ export const TransactionsSectionText = styled.Text`
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.title};
 `;
-
-export const ListEmptyContainer = styled.View`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-`;
-
-export const ListEmptyText = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
-  text-align: center;
-  color: ${({ theme }) => theme.colors.title};
-`;
