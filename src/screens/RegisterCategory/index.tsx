@@ -32,9 +32,9 @@ import { icons } from '@utils/icons';
 import api from '@api/api';
 
 type Props = {
-  closeCategory: () => void;
   id: string;
   setId: () => void;
+  closeCategory: () => void;
 }
 
 type FormData = {
