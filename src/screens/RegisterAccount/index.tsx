@@ -6,7 +6,7 @@ import {
   Footer
 } from './styles';
 
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,9 +53,12 @@ const schema = Yup.object().shape({
 
 export function RegisterAccount({ id, closeAccount }: Props) {
   const tenantId = useSelector(selectUserTenantId);
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema)
-  });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [name, setName] = useState('');
   const [initialAmount, setInitialAmount] = useState('');
   const accountTypes = [
@@ -128,13 +131,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         }
         const { status } = await api.post('account', newAccount);
         if (status === 200) {
-          Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a tela anterior", onPress: () => closeAccount }]);
+          Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para as contas", onPress: () => closeAccount }]);
         };
 
-        setButtonIsLoading(false);
+        reset();
       } catch (error) {
-        Alert.alert("Cadastro de Conta", "Conta já cadastrada. Por favor, digite outro nome para a conta.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeAccount }]);
-        setButtonIsLoading(false);
+        Alert.alert("Cadastro de Conta", "Conta já cadastrada. Por favor, digite outro nome para a conta.", [{ text: "Tentar novamente" }, { text: "Voltar para as contas", onPress: closeAccount }]);
       } finally {
         setButtonIsLoading(false);
       };
@@ -174,7 +176,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       if (status === 200) {
         Alert.alert("Edição de Conta", "Conta editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: closeAccount }]);
       }
-
+      reset();
     } catch (error) {
       console.error(error);
       Alert.alert("Edição de Conta", "Não foi possível editar a conta. Verifique sua conexão com a internet e tente novamente.")
@@ -182,27 +184,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       setButtonIsLoading(false);
     }
   };
-
-  async function handleDeleteAccount(id: string) {
-    setButtonIsLoading(true);
-
-    try {
-      const { status } = await api.delete('delete_account', {
-        params: {
-          account_id: id
-        }
-      });
-      if (status === 200) {
-        Alert.alert("Exclusão de conta", "Conta excluída com sucesso!", [{ text: "Voltar para a tela anterior", onPress: closeAccount }])
-      }
-
-    } catch (error) {
-      Alert.alert("Exclusão de conta", `${error}`)
-    } finally {
-      setButtonIsLoading(false);
-    }
-  };
-
 
   useFocusEffect(useCallback(() => {
     if (id != '') {
@@ -234,6 +215,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           name='initialAmount'
           control={control}
           error={errors.initialAmount}
+          onSubmitEditing={handleSubmit(handleRegisterAccount)}
         />
 
         <SelectButton
@@ -289,7 +271,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       <ModalViewSelection
         visible={currencyModalOpen}
         closeModal={handleCloseSelectCurrencyModal}
-        title='Selecione a moeda'
+        title="Selecione a moeda"
       >
         <CurrencySelect
           currency={currencySelected}

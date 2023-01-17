@@ -49,7 +49,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
 
-import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
+import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { TransactionListItem } from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -819,7 +819,7 @@ export function Home() {
         />
       </ModalViewSelection>
 
-      <ModalViewRegisterTransaction
+      <ModalViewWithoutHeader
         visible={registerTransactionModalOpen}
         closeModal={handleCloseRegisterTransactionModal}
       >
@@ -828,7 +828,7 @@ export function Home() {
           setId={ClearTransactionId}
           closeRegisterTransaction={handleCloseRegisterTransactionModal}
         />
-      </ModalViewRegisterTransaction>
+      </ModalViewWithoutHeader>
     </Container>
   )
 }

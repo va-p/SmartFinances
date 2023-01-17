@@ -12,11 +12,10 @@ import {
   Footer
 } from './styles';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BorderlessButton } from 'react-native-gesture-handler';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
@@ -68,16 +67,15 @@ import {
   selectUsdQuoteEur
 } from '@slices/quotesSlice';
 
-import { COLLECTION_TRANSACTIONS } from '@configs/database';
 
 import theme from '@themes/theme';
 
 import api from '@api/api';
 
 type Props = {
-  closeRegisterTransaction: () => void;
   id: string;
   setId: () => void;
+  closeRegisterTransaction: () => void;
 }
 
 type FormData = {
@@ -687,22 +685,22 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       <MainContent>
         <Header color={categorySelected.color.hex}>
           <TitleContainer>
-            <BorderlessButton onPress={() => handleCloseRegisterTransaction()}>
+            <BorderlessButton onPress={() => handleCloseRegisterTransaction()} style={{ position: 'absolute', left: 0 }}>
               <Ionicons name='close' size={26} color={theme.colors.background} />
             </BorderlessButton>
             <Title>
               {
                 id != '' ?
                   `Editar Transação \n ${description}` :
-                  'Adicionar Transação'
+                  "Adicionar Transação"
               }
             </Title>
             {
               id != '' ?
-                <BorderlessButton onPress={() => handleClickDeleteTransaction(id)}>
+                <BorderlessButton onPress={() => handleClickDeleteTransaction(id)} style={{ position: 'absolute', right: 0 }}>
                   <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
                 </BorderlessButton> :
-                <Ionicons name='trash-outline' size={26} color={categorySelected.color.hex} />
+                <></>
             }
           </TitleContainer>
 

@@ -11,8 +11,7 @@ export const Container = styled.View`
   justify-content: space-between;
 `;
 
-export const MainContent = styled.View`
-`;
+export const MainContent = styled.View``;
 
 export const Header = styled.View <ColorProps>`
   min-height: ${RFPercentage(18)}px;
@@ -28,7 +27,7 @@ export const Header = styled.View <ColorProps>`
 export const TitleContainer = styled.View`
   width: 100%;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
 `;
 
 export const Title = styled.Text`

@@ -33,7 +33,6 @@ import api from '@api/api';
 
 type Props = {
   id: string;
-  setId: () => void;
   closeCategory: () => void;
 }
 
@@ -48,7 +47,7 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterCategory({ id, setId, closeCategory }: Props) {
+export function RegisterCategory({ id, closeCategory }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const [name, setName] = useState('');
   const [iconSelected, setIconSelected] = useState({
@@ -109,25 +108,11 @@ export function RegisterCategory({ id, setId, closeCategory }: Props) {
         }
         const { status } = await api.post('category', newCategory);
         if (status === 200) {
-          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para as categorias", onPress: closeCategory }]);
-
-          setId();
-          reset();
-          setIconSelected(
-            {
-              id: '',
-              title: 'Selecione o ícone',
-              name: ''
-            }
-          );
-          setColorSelected({
-            id: '',
-            name: 'Selecione a cor',
-            hex: ''
-          });
-        };
+          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para as categorias", onPress: handleCloseCategory }]);
+        }
+        reset();
       } catch (error) {
-        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeCategory }]);
+        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseCategory }]);
       } finally {
         setButtonIsLoading(false);
       };
@@ -164,10 +149,9 @@ export function RegisterCategory({ id, setId, closeCategory }: Props) {
       const { status } = await api.post('edit_category', categoryEdited);
 
       if (status === 200) {
-        Alert.alert("Edição de Categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: closeCategory }])
+        Alert.alert("Edição de Categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: handleCloseCategory }])
       }
-
-      setId();
+      reset();
     } catch (error) {
       console.error(error);
       Alert.alert("Edição de Categoria", "Não foi possível editar a categoria. Verifique sua conexão com a internet e tente novamente.")
@@ -176,26 +160,7 @@ export function RegisterCategory({ id, setId, closeCategory }: Props) {
     };
   };
 
-  async function handleClickDeleteCategory() {
-    Alert.alert("Exclusão de categoria", "Tem certeza que deseja excluir a cateogria?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a categoria.", onPress: () => handleDeleteCategory(id) }])
-  };
-
-  async function handleDeleteCategory(id: string) {
-    try {
-      await api.delete('delete_category', {
-        params: {
-          category_id: id
-        }
-      });
-      Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
-      handleCloseCategory();
-    } catch (error) {
-      Alert.alert("Exclusão de categoria", `${error}`)
-    }
-  };
-
   function handleCloseCategory() {
-    setId();
     reset();
     setIconSelected({
       id: '',
