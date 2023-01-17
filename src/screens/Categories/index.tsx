@@ -9,21 +9,18 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
-import {
-  CategoryListItem,
-  CategoryProps
-} from '@components/CategoryListItem';
+import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
+import { CategoryListItem, CategoryProps } from '@components/CategoryListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalView } from '@components/ModalView';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
-import { Load } from '@components/Load';
 
 import { RegisterCategory } from '@screens/RegisterCategory';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 export function Categories() {
   const [loading, setLoading] = useState(false);
@@ -62,6 +59,7 @@ export function Categories() {
   function handleCloseRegisterCategoryModal() {
     setCategoryId('');
     setRegisterCategoryModalOpen(false);
+    fetchCategories();
   };
 
   function handleOpenCategory(id: string) {
@@ -69,8 +67,22 @@ export function Categories() {
     setRegisterCategoryModalOpen(true);
   };
 
-  function ClearCategoryId() {
-    setCategoryId('');
+  async function handleClickDeleteCategory() {
+    Alert.alert("Exclusão de categoria", "ATENÇÃO: Todas as transações desta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a categoria", onPress: () => handleDeleteCategory(categoryId) }])
+  };
+
+  async function handleDeleteCategory(id: string) {
+    try {
+      await api.delete('delete_category', {
+        params: {
+          category_id: id
+        }
+      });
+      Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
+      handleCloseRegisterCategoryModal();
+    } catch (error) {
+      Alert.alert("Exclusão de categoria", `${error}`)
+    }
   };
 
   useFocusEffect(
@@ -80,12 +92,12 @@ export function Categories() {
   );
 
   if (loading) {
-    return <Load />
+    return <SkeletonCategoriesAndTagsScreen />
   }
 
   return (
     <Container>
-      <Header type='primary' title='Categorias' />
+      <Header type='primary' title="Categorias" />
 
       <CategoriesContainer>
         <FlatList
@@ -120,13 +132,14 @@ export function Categories() {
       </Footer>
 
       <ModalView
+        type={categoryId != '' ? 'secondary' : 'primary'}
+        title={categoryId != '' ? "Editar Categoria" : "Criar Nova Categoria"}
         visible={registerCategoryModalOpen}
         closeModal={handleCloseRegisterCategoryModal}
-        title={categoryId != '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
+        deleteChildren={handleClickDeleteCategory}
       >
         <RegisterCategory
           id={categoryId}
-          setId={ClearCategoryId}
           closeCategory={handleCloseRegisterCategoryModal}
         />
       </ModalView>

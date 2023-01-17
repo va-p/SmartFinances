@@ -9,7 +9,7 @@ export const Container = styled.View`
 `;
 
 export const CategoriesContainer = styled.View`
-  height: ${RFPercentage(81)}px;
+  height: ${RFPercentage(80)}px;
 `;
 
 export const Footer = styled.View`

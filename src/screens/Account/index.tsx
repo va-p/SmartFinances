@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { RefreshControl, StyleSheet, SectionList } from 'react-native';
+import { RefreshControl, StyleSheet, SectionList, Alert } from 'react-native';
 import {
   Container,
   Header,
@@ -34,7 +34,7 @@ import { format, parse, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
-import { ModalViewRegisterTransaction } from '@components/ModalViewRegisterTransaction';
+import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { TransactionListItem } from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -508,6 +508,27 @@ export function Account() {
     setTransactionModalOpen(true);
   };
 
+  async function handleClickDeleteAccount() {
+    Alert.alert("Exclusão de conta", "ATENÇÃO: Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a conta", onPress: () => handleDeleteAccount(accountId) }])
+  };
+
+  async function handleDeleteAccount(id: string) {
+    try {
+      const { status } = await api.delete('delete_account', {
+        params: {
+          account_id: id
+        }
+      });
+      if (status === 200) {
+        Alert.alert("Exclusão de conta", "Conta excluída com sucesso!")
+      }
+      handleCloseEditAccount();
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Exclusão de conta", `${error}`)
+    };
+  };
+
   function handleCloseTransaction() {
     fetchTransactions();
     setTransactionModalOpen(false);
@@ -612,9 +633,11 @@ export function Account() {
       </ModalViewSelection>
 
       <ModalView
+        type={accountId ? 'secondary' : 'primary'}
+        title={`Editar Conta ${accountName}`}
         visible={editAccountModalOpen}
         closeModal={handleCloseEditAccount}
-        title={`Editar Conta ${accountName}`}
+        deleteChildren={handleClickDeleteAccount}
       >
         <RegisterAccount
           id={accountId}
@@ -622,7 +645,7 @@ export function Account() {
         />
       </ModalView>
 
-      <ModalViewRegisterTransaction
+      <ModalViewWithoutHeader
         visible={transactionModalOpen}
         closeModal={handleCloseTransaction}
       >
@@ -631,7 +654,7 @@ export function Account() {
           setId={ClearTransactionId}
           closeRegisterTransaction={handleCloseTransaction}
         />
-      </ModalViewRegisterTransaction>
+      </ModalViewWithoutHeader>
     </Container>
   );
 }
