@@ -12,7 +12,7 @@ export type Props = ModalProps & {
   closeModal: () => void;
 }
 
-export function ModalViewRegisterTransaction({
+export function ModalViewWithoutHeader({
   children,
   closeModal,
   ...rest

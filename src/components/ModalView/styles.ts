@@ -3,12 +3,16 @@ import styled from 'styled-components/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
+type ColorProps = {
+  color: string
+}
+
 export const Overlay = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.overlay};
 `;
 
-export const Header = styled.View`
+export const Header = styled.View <ColorProps>`
   width: 100%;
   height: 60px;
   margin-top: 80px;
@@ -19,7 +23,7 @@ export const Header = styled.View`
   padding-left: 24px;
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ color }) => color};
 `;
 
 export const Icon = styled(Ionicons)`
