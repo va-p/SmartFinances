@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import {
   Container
@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import {
   CategoryListItemRegisterTransaction
 } from '@components/CategoryListItemRegisterTransaction';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryProps } from '@components/CategoryListItem';
 import { Load } from '@components/Load';
 
@@ -49,21 +50,19 @@ export function CategorySelect({
         setCategories(data);
         setRefreshing(false);
       }
-      setLoading(false);
     } catch (error) {
       console.error(error);
       Alert.alert("Categorias", "Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.");
-    }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    };
   };
 
   function handleCategorySelect(category: CategoryProps) {
     setCategory(category);
     closeSelectCategory();
   }
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   useFocusEffect(useCallback(() => {
     fetchCategories();
@@ -83,6 +82,9 @@ export function CategorySelect({
             data={item}
             onPress={() => handleCategorySelect(item)}
           />
+        )}
+        ListEmptyComponent={() => (
+          <ListEmptyComponent text="Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações." />
         )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
