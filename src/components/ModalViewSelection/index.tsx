@@ -7,7 +7,7 @@ import {
   Container
 } from './styles';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 export type Props = ModalProps & {
   children: ReactNode;
@@ -16,9 +16,9 @@ export type Props = ModalProps & {
 }
 
 export function ModalViewSelection({
+  title,
   children,
   closeModal,
-  title,
   ...rest
 }: Props) {
   return (
@@ -28,19 +28,21 @@ export function ModalViewSelection({
       statusBarTranslucent
       {...rest}
     >
-      <GestureHandlerRootView style={{ width: '100%', height: '100%' }}>
-        <Overlay>
-          <Header>
-            <Title>
-              {title}
-            </Title>
-          </Header>
+      <Overlay>
+        <TouchableWithoutFeedback onPress={closeModal} style={{ width: '100%', height: '100%' }}>
+          <>
+            <Header>
+              <Title>
+                {title}
+              </Title>
+            </Header>
 
-          <Container>
-            {children}
-          </Container>
-        </Overlay>
-      </GestureHandlerRootView>
-    </Modal>
+            <Container>
+              {children}
+            </Container>
+          </>
+        </TouchableWithoutFeedback>
+      </Overlay>
+    </Modal >
   );
 }
