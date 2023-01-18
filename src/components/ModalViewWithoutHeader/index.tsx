@@ -5,8 +5,6 @@ import {
   Container
 } from './styles';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 export type Props = ModalProps & {
   children: ReactNode;
   closeModal: () => void;
@@ -24,13 +22,11 @@ export function ModalViewWithoutHeader({
       statusBarTranslucent
       {...rest}
     >
-      <GestureHandlerRootView style={{ width: '100%', height: '100%' }}>
-        <Overlay>
-          <Container>
-            {children}
-          </Container>
-        </Overlay>
-      </GestureHandlerRootView>
+      <Overlay>
+        <Container>
+          {children}
+        </Container>
+      </Overlay>
     </Modal>
   );
 }

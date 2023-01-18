@@ -8,7 +8,7 @@ import {
   Container
 } from './styles';
 
-import { BorderlessButton, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BorderlessButton } from 'react-native-gesture-handler';
 
 import theme from '@themes/theme';
 
@@ -41,30 +41,28 @@ export function ModalView({
       statusBarTranslucent
       {...rest}
     >
-      <GestureHandlerRootView style={{ width: '100%', height: '100%' }}>
-        <Overlay>
-          <Header color={color}>
-            <BorderlessButton onPress={closeModal} style={{ position: 'absolute', top: 10, left: 25 }}>
-              <Icon name='close' />
-            </BorderlessButton>
-            <Title>
-              {title} {selectedIdentification}
-            </Title>
+      <Overlay>
+        <Header color={color}>
+          <BorderlessButton onPress={closeModal} style={{ position: 'absolute', top: 10, left: 25 }}>
+            <Icon name='close' />
+          </BorderlessButton>
+          <Title>
+            {title} {selectedIdentification}
+          </Title>
 
-            {
-              type === 'secondary' ?
-                <BorderlessButton onPress={deleteChildren} style={{ position: 'absolute', top: 10, right: 25 }}>
-                  <Icon name='trash-outline' />
-                </BorderlessButton> :
-                <></>
-            }
-          </Header>
+          {
+            type === 'secondary' ?
+              <BorderlessButton onPress={deleteChildren} style={{ position: 'absolute', top: 10, right: 25 }}>
+                <Icon name='trash-outline' />
+              </BorderlessButton> :
+              <></>
+          }
+        </Header>
 
-          <Container>
-            {children}
-          </Container>
-        </Overlay>
-      </GestureHandlerRootView>
+        <Container>
+          {children}
+        </Container>
+      </Overlay>
     </Modal>
   );
 }

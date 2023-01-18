@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,7 +8,7 @@ type ColorProps = {
   color: string
 }
 
-export const Overlay = styled.View`
+export const Overlay = styled(GestureHandlerRootView)`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.overlay};
 `;

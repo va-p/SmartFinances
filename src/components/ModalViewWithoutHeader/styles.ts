@@ -1,6 +1,8 @@
 import styled from 'styled-components/native';
 
-export const Overlay = styled.View`
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+export const Overlay = styled(GestureHandlerRootView)`
   flex: 1;
   padding-top: 80px;
   background-color: ${({ theme }) => theme.colors.overlay};
