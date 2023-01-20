@@ -110,9 +110,9 @@ export function Home() {
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
   const [visible, setVisible] = useState(true);
-  // Animated header, chart
+  // Animated header, chart and transactions list
   const scrollY = useSharedValue(0);
-  const scrollHandler = useAnimatedScrollHandler(event => {
+  const scrollHandlerToTop = useAnimatedScrollHandler(event => {
     scrollY.value = event.contentOffset.y;
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
@@ -131,40 +131,40 @@ export function Home() {
       )
     }
   });
-  const chartStyleAnimation = useAnimatedStyle(() => {
+  const chartStyleAnimationOpacity = useAnimatedStyle(() => {
     return {
       opacity: interpolate(
         scrollY.value,
-        [0, 300],
+        [0, 200],
         [1, 0],
         Extrapolate.CLAMP
       )
     }
   });
   // Animated button register transaction
-  const positionX = useSharedValue(0);
-  const positionY = useSharedValue(0);
+  const registerTransactionButtonPositionX = useSharedValue(0);
+  const registerTransactionButtonPositionY = useSharedValue(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
   const registerTransactionButtonStyle = useAnimatedStyle(() => {
     return {
       transform: [
-        { translateX: positionX.value },
-        { translateY: positionY.value }
+        { translateX: registerTransactionButtonPositionX.value },
+        { translateY: registerTransactionButtonPositionY.value }
       ]
     }
   });
-  const OnGestureEvent = useAnimatedGestureHandler({
+  const OnMoveRegisterTransactionButton = useAnimatedGestureHandler({
     onStart(_, ctx: any) {
-      ctx.positionX = positionX.value;
-      ctx.positionY = positionY.value;
+      ctx.positionX = registerTransactionButtonPositionX.value;
+      ctx.positionY = registerTransactionButtonPositionY.value;
     },
     onActive(event, ctx: any) {
-      positionX.value = ctx.positionX + event.translationX;
-      positionY.value = ctx.positionY + event.translationY;
+      registerTransactionButtonPositionX.value = ctx.positionX + event.translationX;
+      registerTransactionButtonPositionY.value = ctx.positionY + event.translationY;
     },
     onEnd() {
-      positionX.value = withSpring(0);
-      positionY.value = withSpring(0);
+      registerTransactionButtonPositionX.value = withSpring(0);
+      registerTransactionButtonPositionY.value = withSpring(0);
     }
   });
   // Animated section list
@@ -698,7 +698,7 @@ export function Home() {
           </FilterButtonGroup>
         </FiltersContainer>
 
-        <Animated.View style={chartStyleAnimation}>
+        <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
             width={420}
             height={210}
@@ -785,12 +785,12 @@ export function Home() {
           contentContainerStyle={{
             paddingBottom: getBottomSpace()
           }}
-          onScroll={scrollHandler}
-          scrollEventThrottle={32}
+          onScroll={scrollHandlerToTop}
+          scrollEventThrottle={16}
         />
       </Transactions>
 
-      <PanGestureHandler onGestureEvent={OnGestureEvent}>
+      <PanGestureHandler onGestureEvent={OnMoveRegisterTransactionButton}>
         <Animated.View
           style={[
             registerTransactionButtonStyle,
@@ -835,8 +835,7 @@ export function Home() {
 
 const styles = StyleSheet.create({
   header: {
-    overflow: 'hidden',
-    zIndex: 1
+    overflow: 'hidden'
   },
   animatedButton: {
     width: 45,

@@ -21,6 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
+import axios from 'axios';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { SignInSocialButton } from '@components/SignInSocialButton'
@@ -133,16 +134,14 @@ export function SignIn({ navigation }: any) {
           console.error(error);
           Alert.alert(`Erro: ${error}`);
         }
-      } else {
-        Alert.alert("Login", "Credenciais inválidas, por favor, tente novamente.");
       }
-
       await fetchUserData();
 
-      navigation.navigate('Home')
+      navigation.navigate('Home');
     } catch (error) {
-      console.error(error);
-      Alert.alert("Login", "Credenciais inválidas, por favor, verifique sua conexão com a internet e tente novamente.");
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Login", error.response?.data.message);
+      }
     } finally {
       setButtonIsLoading(false);
     };
@@ -250,6 +249,7 @@ export function SignIn({ navigation }: any) {
             name='password'
             control={control}
             error={errors.password}
+            returnKeyType='go'
             onSubmitEditing={handleSubmit(handleSignInWithXano)}
           />
 

@@ -8,6 +8,7 @@ import {
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 import { CategoryListItem, CategoryProps } from '@components/CategoryListItem';
@@ -81,7 +82,9 @@ export function Categories() {
       Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
       handleCloseRegisterCategoryModal();
     } catch (error) {
-      Alert.alert("Exclusão de categoria", `${error}`)
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Exclusão de categoria", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseRegisterCategoryModal }]);
+      }
     }
   };
 

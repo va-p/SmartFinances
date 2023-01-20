@@ -196,6 +196,7 @@ export function Accounts({ navigation }: any) {
 
   function handleCloseRegisterAccountModal() {
     setRegisterAccountModalOpen(false);
+    fetchAccounts();
   };
 
   function handleHideData() {
@@ -306,7 +307,7 @@ export function Accounts({ navigation }: any) {
             />
           )}
           ListEmptyComponent={() => (
-            <ListEmptyComponent text="Não há contas. Adicione uma conta e ao menos uma transação para visualizar a conta aqui"/>
+            <ListEmptyComponent text="Não há contas. Adicione uma conta e ao menos uma transação para visualizar a conta aqui" />
           )}
           initialNumToRender={10}
           refreshControl={
@@ -351,7 +352,10 @@ export function Accounts({ navigation }: any) {
         closeModal={handleCloseRegisterAccountModal}
         title='Criar Conta Manual'
       >
-        <RegisterAccount id='' />
+        <RegisterAccount
+          id=''
+          closeAccount={handleCloseRegisterAccountModal}
+        />
       </ModalView>
     </Container>
   );

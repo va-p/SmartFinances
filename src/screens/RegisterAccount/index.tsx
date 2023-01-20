@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import axios from 'axios';
 
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { ModalViewSelection } from '@components/ModalViewSelection';
@@ -36,7 +37,7 @@ type FormData = {
 
 type Props = {
   id: string;
-  closeAccount?: () => void;
+  closeAccount: () => void;
 }
 
 /* Validation Form - Start */
@@ -131,12 +132,13 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         }
         const { status } = await api.post('account', newAccount);
         if (status === 200) {
-          Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para as contas", onPress: () => closeAccount }]);
+          Alert.alert("Cadastro de Conta", "Conta cadastrada com sucesso!", [{ text: "Cadastrar nova conta" }, { text: "Voltar para a tela anterior", onPress: () => handleCloseAccount }]);
         };
-
         reset();
       } catch (error) {
-        Alert.alert("Cadastro de Conta", "Conta já cadastrada. Por favor, digite outro nome para a conta.", [{ text: "Tentar novamente" }, { text: "Voltar para as contas", onPress: closeAccount }]);
+        if (axios.isAxiosError(error)) {
+          Alert.alert("Cadastro de Conta", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseAccount }]);
+        }
       } finally {
         setButtonIsLoading(false);
       };
@@ -169,7 +171,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       currency_id: currencySelected.id,
       initial_amount: form.initialAmount
     }
-
     try {
       const { status } = await api.post('edit_account', AccountEdited);
 
@@ -178,11 +179,17 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       }
       reset();
     } catch (error) {
-      console.error(error);
-      Alert.alert("Edição de Conta", "Não foi possível editar a conta. Verifique sua conexão com a internet e tente novamente.")
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Edição de Conta", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseAccount }]);
+      }
     } finally {
       setButtonIsLoading(false);
     }
+  };
+
+  function handleCloseAccount() {
+    reset();
+    closeAccount();
   };
 
   useFocusEffect(useCallback(() => {
@@ -262,7 +269,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? "Editar conta" : "Criar conta"}
+          title={id != '' ? "Editar Conta" : "Criar Conta"}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterAccount)}
         />

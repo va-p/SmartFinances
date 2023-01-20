@@ -12,8 +12,8 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import axios from 'axios';
 
-import { ControlledCheckbox } from '@components/Form/ControlledCheckbox';
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
@@ -81,7 +81,6 @@ export function SignUp({ navigation }: any) {
         subscription_id: 1,
         contact_1: form.name
       }
-
       const tenantRegister = await api.post('tenant', newTenant);
 
       if (tenantRegister.status === 200) {
@@ -90,7 +89,7 @@ export function SignUp({ navigation }: any) {
             email: form.email
           }
         })
-      };
+      }
 
       const newUser = {
         name: form.name,
@@ -100,20 +99,18 @@ export function SignUp({ navigation }: any) {
         password: form.password,
         tenant_id: responseTenantRegister.data.id
       }
-
       const { status } = await api.post('auth/signup', newUser);
 
       if (status === 200) {
-        Alert.alert("Cadastro de usuário", "Bem vindo à Smart Finances! Você será redirecionado para a tela de login.", [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]);
+        Alert.alert("Cadastro de usuário", "Bem vindo ao Smart Finances! Você será redirecionado para a tela de login.", [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]);
       }
-
-      setButtonIsLoading(false)
     } catch (error) {
-      console.log(error);
-      Alert.alert("Não foi possível cadastrar! Verifique os campos e tente novamente.");
-
-      setButtonIsLoading(false)
-    }
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Cadastro", error.response?.data.message);
+      }
+    } finally {
+      setButtonIsLoading(false);
+    };
   };
 
   return (
@@ -189,6 +186,7 @@ export function SignUp({ navigation }: any) {
           name='confirmPassword'
           control={control}
           error={errors.confirmPassword}
+          returnKeyType='go'
           onSubmitEditing={handleSubmit(handleRegisterUser)}
         />
 

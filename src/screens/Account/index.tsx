@@ -33,6 +33,7 @@ import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { format, parse, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
+import axios from 'axios';
 
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
@@ -525,7 +526,9 @@ export function Account() {
       handleCloseEditAccount();
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Exclusão de conta", `${error}`)
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Edição de Conta", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseEditAccount }]);
+      }
     };
   };
 

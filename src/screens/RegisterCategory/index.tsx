@@ -19,6 +19,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import axios from 'axios';
 
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 import { ColorProps, IconProps } from '@components/CategoryListItem';
@@ -108,11 +109,13 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         }
         const { status } = await api.post('category', newCategory);
         if (status === 200) {
-          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para as categorias", onPress: handleCloseCategory }]);
+          Alert.alert("Cadastro de Categoria", "Categoria cadastrada com sucesso!", [{ text: "Cadastrar nova categoria" }, { text: "Voltar para a tela anterior", onPress: handleCloseCategory }]);
         }
         reset();
       } catch (error) {
-        Alert.alert("Cadastro de Categoria", "Categoria já cadastrada. Por favor, digite outro nome para a categoria.", [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseCategory }]);
+        if (axios.isAxiosError(error)) {
+          Alert.alert("Cadastro de Categoria", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseCategory }]);
+        }
       } finally {
         setButtonIsLoading(false);
       };
@@ -144,17 +147,17 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       icon: iconSelected,
       color: colorSelected
     }
-
     try {
       const { status } = await api.post('edit_category', categoryEdited);
 
       if (status === 200) {
-        Alert.alert("Edição de Categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: handleCloseCategory }])
+        Alert.alert("Edição de categoria", "Categoria editada com sucesso!", [{ text: "Voltar para as categorias", onPress: handleCloseCategory }])
       }
       reset();
     } catch (error) {
-      console.error(error);
-      Alert.alert("Edição de Categoria", "Não foi possível editar a categoria. Verifique sua conexão com a internet e tente novamente.")
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Edição de categoria", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseCategory }]);
+      }
     } finally {
       setButtonIsLoading(false);
     };
