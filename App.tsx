@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppRegistry, Platform, StatusBar } from 'react-native';
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider } from 'styled-components';
 import { Provider } from 'react-redux'
@@ -61,13 +62,15 @@ export default function App() {
   }
 
   return (
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <StatusBar barStyle="light-content" />
-        <AuthProvider>
-          <Routes />
-        </AuthProvider>
-      </ThemeProvider>
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>
+          <StatusBar barStyle="light-content" />
+          <AuthProvider>
+            <Routes />
+          </AuthProvider>
+        </ThemeProvider>
+      </Provider>
+    </GestureHandlerRootView>
   )
 }
