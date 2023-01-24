@@ -20,7 +20,7 @@ export const Header = styled.View`
   height: ${RFPercentage(4.5)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight() - 20}px;
+  margin-top: ${getStatusBarHeight() - 30}px;
   margin-bottom: ${RFPercentage(1)}px;
 `;
 

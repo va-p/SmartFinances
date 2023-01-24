@@ -1,48 +1,46 @@
 import React, { ReactNode } from 'react';
-import { Modal, ModalProps } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import {
   Overlay,
-  Header,
   Title,
   Container
 } from './styles';
 
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import {
+  BottomSheetProps,
+  BottomSheetModal,
+  BottomSheetModalProvider
+} from '@gorhom/bottom-sheet';
 
-export type Props = ModalProps & {
-  children: ReactNode;
-  closeModal: () => void;
+import theme from '@themes/theme';
+
+export type Props = BottomSheetProps & {
   title: string;
+  bottomSheetRef?: any;
+  children: ReactNode;
 }
 
-export function ModalViewSelection({
-  title,
-  children,
-  closeModal,
-  ...rest
-}: Props) {
+export function ModalViewSelection({ title, bottomSheetRef, children, ...rest }: Props) {
   return (
-    <Modal
-      transparent
-      animationType='slide'
-      statusBarTranslucent
-      {...rest}
-    >
-      <Overlay>
-        <TouchableWithoutFeedback onPress={closeModal} style={{ width: '100%', height: '100%' }}>
-          <>
-            <Header>
-              <Title>
-                {title}
-              </Title>
-            </Header>
-
-            <Container>
-              {children}
-            </Container>
-          </>
-        </TouchableWithoutFeedback>
-      </Overlay>
-    </Modal >
+    <BottomSheetModalProvider>
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        enablePanDownToClose={true}
+        backdropComponent={() => <Overlay />}
+        backgroundStyle={{ backgroundColor: theme.colors.background }}
+        handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
+        {...rest}
+      >
+        <SafeAreaView style={{ flex: 1 }}>
+          <Title>
+            {title}
+          </Title>
+          
+          <Container>
+            {children}
+          </Container>
+        </SafeAreaView>
+      </BottomSheetModal>
+    </BottomSheetModalProvider>
   );
 }

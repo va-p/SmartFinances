@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   RefreshControl,
@@ -45,6 +45,7 @@ import {
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
@@ -87,7 +88,7 @@ export function Home() {
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
-  const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
     id: '1',
     name: 'Meses',
@@ -188,7 +189,7 @@ export function Home() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua internet e tente novamente.")
     }
   };
 
@@ -210,7 +211,7 @@ export function Home() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
     }
   };
 
@@ -232,7 +233,7 @@ export function Home() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.")
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
     }
   };
 
@@ -602,11 +603,11 @@ export function Home() {
   };
 
   function handleOpenPeriodSelectedModal() {
-    setPeriodSelectedModalOpen(true);
+    bottomSheetRef.current?.present();
   };
 
   function handleClosePeriodSelectedModal() {
-    setPeriodSelectedModalOpen(false);
+    bottomSheetRef.current?.dismiss();
   };
 
   function handleOpenRegisterTransactionModal() {
@@ -665,7 +666,6 @@ export function Home() {
     fetchUsdQuote();
     fetchTransactions();
   }, [chartPeriodSelected.period]));
-
 
   if (loading) {
     return <SkeletonHomeScreen />
@@ -808,14 +808,14 @@ export function Home() {
       </PanGestureHandler>
 
       <ModalViewSelection
-        visible={periodSelectedModalOpen}
-        closeModal={handleClosePeriodSelectedModal}
-        title='Selecione o período'
+        title="Selecione o período"
+        bottomSheetRef={bottomSheetRef}
+        snapPoints={['30%', '50%']}
       >
         <ChartPeriodSelect
           period={chartPeriodSelected}
           setPeriod={setChartPeriodSelected}
-          closeSelectPeriod={handleClosePeriodSelectedModal}
+          closeSelectPeriod={handleOpenPeriodSelectedModal}
         />
       </ModalViewSelection>
 

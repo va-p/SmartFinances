@@ -26,6 +26,8 @@ export const Header = styled.View <ColorProps>`
 
 export const TitleContainer = styled.View`
   width: 100%;
+  min-height: ${RFPercentage(5.5)}px;
+  max-height: ${RFPercentage(5.5)}px;
   flex-direction: row;
   justify-content: center;
 `;

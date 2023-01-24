@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { RefreshControl, StyleSheet, SectionList, Alert } from 'react-native';
 import {
   Container,
@@ -30,6 +30,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { format, parse, parseISO } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
@@ -62,7 +63,7 @@ export function Account() {
     name: 'Meses',
     period: 'months'
   });
-  const [periodSelectedModalOpen, setPeriodSelectedModalOpen] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
@@ -73,7 +74,7 @@ export function Account() {
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
-  const accountId = route.params;
+  const accountId = route.params?.id;
   const accountName = useSelector(selectAccountName);
   const accountTotal = useSelector(selectAccountTotalAmount);
   // Animated header
@@ -497,11 +498,11 @@ export function Account() {
   };
 
   function handleOpenPeriodSelectedModal() {
-    setPeriodSelectedModalOpen(true);
+    bottomSheetRef.current?.present();
   };
 
   function handleClosePeriodSelectedModal() {
-    setPeriodSelectedModalOpen(false);
+    bottomSheetRef.current?.dismiss();
   };
 
   function handleOpenTransaction(id: string) {
@@ -624,9 +625,10 @@ export function Account() {
       </Transactions>
 
       <ModalViewSelection
-        visible={periodSelectedModalOpen}
-        closeModal={handleClosePeriodSelectedModal}
-        title='Selecione o período'
+        title="Selecione o período"
+        bottomSheetRef={bottomSheetRef}
+        snapPoints={['25%', '50%']}
+        onClose={handleClosePeriodSelectedModal}
       >
         <ChartPeriodSelect
           period={periodSelected}
@@ -664,7 +666,6 @@ export function Account() {
 
 const styles = StyleSheet.create({
   header: {
-    overflow: 'hidden',
-    zIndex: 1
+    overflow: 'hidden'
   }
 });

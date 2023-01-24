@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -15,6 +15,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
@@ -22,6 +23,7 @@ import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import * as Yup from 'yup';
+import axios from 'axios';
 
 import {
   ControlledInputWithIcon
@@ -36,12 +38,14 @@ import { CurrencySelectButton } from '@components/CurrencySelectButton';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CategoryProps } from '@components/CategoryListItem';
 import { SelectButton } from '@components/SelectButton';
+import { TagProps } from '@components/TagListItem';
 import { Button } from '@components/Button';
 
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { AccountSelect } from '@screens/AccountSelect';
+import { TagSelect } from '@screens/TagSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -50,23 +54,19 @@ import {
   selectBrlQuoteBtc,
   selectBrlQuoteEur,
   selectBrlQuoteUsd,
-
   //BTC Quotes
   selectBtcQuoteBrl,
   selectBtcQuoteEur,
   selectBtcQuoteUsd,
-
   //EUR Quotes
   selectEurQuoteBrl,
   selectEurQuoteBtc,
   selectEurQuoteUsd,
-
   //USD Quotes
   selectUsdQuoteBrl,
   selectUsdQuoteBtc,
   selectUsdQuoteEur
 } from '@slices/quotesSlice';
-
 
 import theme from '@themes/theme';
 
@@ -110,7 +110,14 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
   const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
   const usdQuoteBtc = useSelector(selectUsdQuoteBtc);
   const usdQuoteEur = useSelector(selectUsdQuoteEur);
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
+  const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
+  const accountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const accountDestinationBottomSheetRef = useRef<BottomSheetModal>(null);
+  const tagBottomSheetRef = useRef<BottomSheetModal>(null);
+
+
+  const [categoryModalOpen, setCategoryModalOpen] = useState(-1);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
     name: 'Selecione a categoria',
@@ -118,15 +125,20 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       hex: theme.colors.primary
     }
   } as CategoryProps);
+  const [tagModalOpen, setTagModalOpen] = useState(-1);
+  const [tagSelected, setTagSelected] = useState({
+    id: '',
+    name: 'Selecione a etiqueta'
+  } as TagProps);
   const [amount, setAmount] = useState('');
-  const [currencyModalOpen, setCurrencyModalOpen] = useState(false);
+  const [currencyModalOpen, setCurrencyModalOpen] = useState(-1);
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
     name: 'Real Brasileiro',
     code: 'BRL',
     symbol: 'R$'
   } as CurrencyProps);
-  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [accountModalOpen, setAccountModalOpen] = useState(-1);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
     name: 'Selecione a conta',
@@ -134,7 +146,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       symbol: 'R$'
     }
   } as AccountProps);
-  const [accountDestinationModalOpen, setAccountDestinationModalOpen] = useState(false);
+  const [accountDestinationModalOpen, setAccountDestinationModalOpen] = useState(-1);
   const [accountDestinationSelected, setAccountDestinationSelected] = useState({
     id: '',
     name: 'Selecione a conta de destino'
@@ -164,36 +176,44 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     setTransactionType(type);
   };
 
-  function handleOpenSelectCurrencyModal() {
-    setCurrencyModalOpen(true);
-  };
-
-  function handleCloseSelectCurrencyModal() {
-    setCurrencyModalOpen(false);
-  };
-
-  function handleOpenSelectAccountModal() {
-    setAccountModalOpen(true);
-  };
-
-  function handleCloseSelectAccountModal() {
-    setAccountModalOpen(false);
-  };
-
-  function handleOpenSelectAccountDestinationModal() {
-    setAccountDestinationModalOpen(true);
-  };
-
-  function handleCloseSelectAccountDestinationModal() {
-    setAccountDestinationModalOpen(false);
-  };
-
   function handleOpenSelectCategoryModal() {
-    setCategoryModalOpen(true);
+    categoryBottomSheetRef.current?.present();
   };
 
   function handleCloseSelectCategoryModal() {
-    setCategoryModalOpen(false);
+    categoryBottomSheetRef.current?.dismiss();
+  };
+  
+  function handleOpenSelectCurrencyModal() {
+    currencyBottomSheetRef.current?.present();
+  };
+
+  function handleCloseSelectCurrencyModal() {
+    currencyBottomSheetRef.current?.dismiss();
+  };
+
+  function handleOpenSelectAccountModal() {
+    accountBottomSheetRef.current?.present();
+  };
+
+  function handleCloseSelectAccountModal() {
+    accountBottomSheetRef.current?.dismiss();
+  };
+
+  function handleOpenSelectAccountDestinationModal() {
+    accountDestinationBottomSheetRef.current?.present();
+  };
+
+  function handleCloseSelectAccountDestinationModal() {
+    accountDestinationBottomSheetRef.current?.dismiss();
+  };
+
+  function handleOpenSelectTagModal() {
+    tagBottomSheetRef.current?.present();
+  };
+
+  function handleCloseSelectTagModal() {
+    tagBottomSheetRef.current?.dismiss();
   };
 
   async function handleRegisterTransaction(form: FormData) {
@@ -301,7 +321,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               category_id: categorySelected.id,
               tenant_id: tenantId
             }
-
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
@@ -337,8 +356,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               });
             };
           } catch (error) {
-            console.error(error);
-            Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+            if (axios.isAxiosError(error)) {
+              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+            }
           } finally {
             setButtonIsLoading(false);
           };
@@ -366,7 +386,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               category_id: categorySelected.id,
               tenant_id: tenantId
             }
-
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
@@ -402,8 +421,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               });
             };
           } catch (error) {
-            console.error(error);
-            Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+            if (axios.isAxiosError(error)) {
+              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+            }
           } finally {
             setButtonIsLoading(false);
           };
@@ -561,8 +581,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             });
           };
         } catch (error) {
-          console.error(error);
-          Alert.alert("Transação", "Não foi possível cadastrar a transação. Verifique sua conexão com a internet e tente novamente.");
+          if (axios.isAxiosError(error)) {
+            Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+          }
         } finally {
           setButtonIsLoading(false);
         };
@@ -615,8 +636,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
       setId();
     } catch (error) {
-      console.error(error);
-      Alert.alert("Edição de Transação", "Não foi possível editar a transação. Verifique sua conexão com a internet e tente novamente.")
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+      }
     } finally {
       setButtonIsLoading(false);
     };
@@ -685,7 +707,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       <MainContent>
         <Header color={categorySelected.color.hex}>
           <TitleContainer>
-            <BorderlessButton onPress={() => handleCloseRegisterTransaction()} style={{ position: 'absolute', left: 0 }}>
+            <BorderlessButton onPress={() => handleCloseRegisterTransaction()} style={{ position: 'absolute', top: 0, left: 0 }}>
               <Ionicons name='close' size={26} color={theme.colors.background} />
             </BorderlessButton>
             <Title>
@@ -697,7 +719,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             </Title>
             {
               id != '' ?
-                <BorderlessButton onPress={() => handleClickDeleteTransaction(id)} style={{ position: 'absolute', right: 0 }}>
+                <BorderlessButton onPress={() => handleClickDeleteTransaction(id)} style={{ position: 'absolute', top: 0, right: 0 }}>
                   <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
                 </BorderlessButton> :
                 <></>
@@ -777,7 +799,17 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           name='description'
           control={control}
           error={errors.description}
+          onSubmitEditing={handleSubmit(handleRegisterTransaction)}
         />
+
+        <SelectButton
+          title="Etiquetas"
+          icon='pricetags'
+          color={categorySelected.color.hex}
+          onPress={handleOpenSelectTagModal}
+        />
+
+
 
         <TransactionsTypes>
           <TransactionTypeButton
@@ -804,16 +836,17 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar transação' : 'Adicionar Transação'}
+          title={id != '' ? "Editar Transação" : "Adicionar Transação"}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTransaction)}
         />
       </Footer>
 
       <ModalViewSelection
-        visible={categoryModalOpen}
-        closeModal={handleCloseSelectCategoryModal}
-        title='Selecione a categoria'
+        $modal
+        title="Selecione a categoria"
+        bottomSheetRef={categoryBottomSheetRef}
+        snapPoints={['25%', '50%']}
       >
         <CategorySelect
           category={categorySelected}
@@ -823,9 +856,10 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       </ModalViewSelection>
 
       <ModalViewSelection
-        visible={currencyModalOpen}
-        closeModal={handleCloseSelectCurrencyModal}
-        title='Selecione a moeda'
+        $modal
+        title="Selecione a moeda"
+        bottomSheetRef={currencyBottomSheetRef}
+        snapPoints={['25%', '50%']}
       >
         <CurrencySelect
           currency={currencySelected}
@@ -835,9 +869,10 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       </ModalViewSelection>
 
       <ModalViewSelection
-        visible={accountModalOpen}
-        closeModal={handleCloseSelectAccountModal}
-        title='Selecione a conta'
+        $modal
+        title="Selecione a conta"
+        bottomSheetRef={accountBottomSheetRef}
+        snapPoints={['25%', '50%']}
       >
         <AccountSelect
           account={accountSelected}
@@ -847,14 +882,29 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       </ModalViewSelection>
 
       <ModalViewSelection
-        visible={accountDestinationModalOpen}
-        closeModal={handleCloseSelectAccountDestinationModal}
-        title='Selecione a conta de destino'
+        $modal
+        title="Selecione a de destino"
+        bottomSheetRef={accountDestinationBottomSheetRef}
+        snapPoints={['25%', '50%']}
+        onClose={handleCloseSelectAccountDestinationModal}
       >
         <AccountDestinationSelect
           accountDestination={accountDestinationSelected}
           setAccountDestination={setAccountDestinationSelected}
           closeSelectAccountDestination={handleCloseSelectAccountDestinationModal}
+        />
+      </ModalViewSelection>
+
+      <ModalViewSelection
+        $modal
+        title="Selecione a etiqueta"
+        bottomSheetRef={tagBottomSheetRef}
+        snapPoints={['25%', '50%']}
+      >
+        <TagSelect
+          tag={tagSelected}
+          setTag={setTagSelected}
+          closeSelectTag={handleCloseSelectTagModal}
         />
       </ModalViewSelection>
     </Container>

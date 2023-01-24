@@ -9,6 +9,7 @@ interface UserState {
   userEmail: string | null;
   userPhone: string | null;
   userRole: string | null;
+  userLocalAuthentication: boolean;
   userProfileImage: string | null;
   userTenantId: number | null;
 };
@@ -21,6 +22,7 @@ const initialState: UserState = {
   userEmail: null,
   userPhone: null,
   userRole: null,
+  userLocalAuthentication: false,
   userProfileImage: null,
   userTenantId: null
 };
@@ -49,6 +51,9 @@ export const userSlice = createSlice({
     setUserRole: (state, action: PayloadAction<UserState['userRole']>) => {
       state.userRole = action.payload;
     },
+    setUserLocalAuthentication: (state, action: PayloadAction<UserState['userLocalAuthentication']>) => {
+      state.userLocalAuthentication = action.payload;
+    },
     setUserProfileImage: (state, action: PayloadAction<UserState['userProfileImage']>) => {
       state.userProfileImage = action.payload;
     },
@@ -66,6 +71,7 @@ export const {
   setUserEmail,
   setUserPhone,
   setUserRole,
+  setUserLocalAuthentication,
   setUserProfileImage,
   setUserTenantId
 } = userSlice.actions;
@@ -77,6 +83,7 @@ export const selectUserLastName = (state: RootState) => state.user.userLastName;
 export const selectUserEmail = (state: RootState) => state.user.userEmail;
 export const selectUserPhone = (state: RootState) => state.user.userPhone;
 export const selectUserRole = (state: RootState) => state.user.userRole;
+export const selectUserLocalAuthentication = (state: RootState) => state.user.userLocalAuthentication;
 export const selectUserImage = (state: RootState) => state.user.userProfileImage;
 export const selectUserTenantId = (state: RootState) => state.user.userTenantId;
 

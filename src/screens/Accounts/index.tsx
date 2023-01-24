@@ -205,12 +205,12 @@ export function Accounts({ navigation }: any) {
 
   function handleOpenAccount(id: string, name: string, total: any) {
     dispatch(
-      setAccountTotalAmount(total)
-    );
-    dispatch(
       setAccountName(name)
     );
-    navigation.navigate("Conta", id);
+    dispatch(
+      setAccountTotalAmount(total)
+    );
+    navigation.navigate('Conta', { id });
   };
 
   useFocusEffect(
