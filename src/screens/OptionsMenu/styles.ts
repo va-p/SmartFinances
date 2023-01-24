@@ -16,3 +16,9 @@ export const Title = styled.Text`
   padding-left: 10px;
   color: ${({ theme }) => theme.colors.title};
 `;
+
+export const EnableLocalAuthContainer = styled.View`
+`;
+
+export const EnableLocalAuthText = styled.Text`
+`;

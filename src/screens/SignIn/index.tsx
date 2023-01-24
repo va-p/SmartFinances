@@ -14,7 +14,7 @@ import {
 } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as LocalAuthentication from "expo-local-authentication";
+import * as LocalAuthentication from 'expo-local-authentication';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -34,7 +34,8 @@ import LogoSvg from '@assets/logo.svg';
 import { useAuth } from '@hooks/auth';
 
 import {
-  COLLECTION_TOKENS
+  COLLECTION_TOKENS,
+  COLLECTION_USERS
 } from '@configs/database';
 
 import {
@@ -44,6 +45,7 @@ import {
   setUserEmail,
   setUserPhone,
   setUserRole,
+  setUserLocalAuthentication,
   setUserProfileImage,
   setUserTenantId,
 } from '@slices/userSlice';
@@ -68,54 +70,12 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
-  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
-  const [fingerprintIsConfigurated, setFingerprintIsConfigurated] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(schema)
   });
   const { signInWithGoogle, signInWithApple } = useAuth();
   const dispatch = useDispatch();
-
-  async function fetchUserData() {
-    const userData = await api.get('auth/me');
-
-    const loggedInUserDataFormatted = {
-      id: userData.data.id,
-      name: userData.data.name,
-      lastName: userData.data.last_name,
-      email: userData.data.email,
-      phone: userData.data.phone,
-      role: userData.data.role,
-      image: userData.data.image,
-      tenantId: userData.data.tenant_id,
-    };
-
-    dispatch(
-      setUserId(loggedInUserDataFormatted.id)
-    );
-    dispatch(
-      setUserName(loggedInUserDataFormatted.name)
-    );
-    dispatch(
-      setUserLastName(loggedInUserDataFormatted.lastName)
-    );
-    dispatch(
-      setUserEmail(loggedInUserDataFormatted.email)
-    );
-    dispatch(
-      setUserPhone(loggedInUserDataFormatted.phone)
-    );
-    dispatch(
-      setUserRole(loggedInUserDataFormatted.role)
-    );
-    dispatch(
-      setUserProfileImage(loggedInUserDataFormatted.image)
-    );
-    dispatch(
-      setUserTenantId(loggedInUserDataFormatted.tenantId)
-    );
-  };
 
   async function handleSignInWithXano(form: FormData) {
     setButtonIsLoading(true)
@@ -135,7 +95,46 @@ export function SignIn({ navigation }: any) {
           Alert.alert(`Erro: ${error}`);
         }
       }
-      await fetchUserData();
+
+      const userData = await api.get('auth/me');
+
+      const loggedInUserDataFormatted = {
+        id: userData.data.id,
+        name: userData.data.name,
+        lastName: userData.data.last_name,
+        email: userData.data.email,
+        phone: userData.data.phone,
+        role: userData.data.role,
+        image: userData.data.image,
+        tenantId: userData.data.tenant_id,
+      };
+
+      await AsyncStorage.setItem(COLLECTION_USERS, JSON.stringify(loggedInUserDataFormatted));
+
+      dispatch(
+        setUserId(loggedInUserDataFormatted.id)
+      );
+      dispatch(
+        setUserName(loggedInUserDataFormatted.name)
+      );
+      dispatch(
+        setUserLastName(loggedInUserDataFormatted.lastName)
+      );
+      dispatch(
+        setUserEmail(loggedInUserDataFormatted.email)
+      );
+      dispatch(
+        setUserPhone(loggedInUserDataFormatted.phone)
+      );
+      dispatch(
+        setUserRole(loggedInUserDataFormatted.role)
+      );
+      dispatch(
+        setUserProfileImage(loggedInUserDataFormatted.image)
+      );
+      dispatch(
+        setUserTenantId(loggedInUserDataFormatted.tenantId)
+      );
 
       navigation.navigate('Home');
     } catch (error) {
@@ -157,12 +156,43 @@ export function SignIn({ navigation }: any) {
       });
       if (biometricAuth.success) {
         try {
-          await fetchUserData();
+          const userData = await AsyncStorage.getItem(COLLECTION_USERS);
+          if (userData) {
+            const userDataParsed = JSON.parse(userData);
+
+            dispatch(
+              setUserId(userDataParsed.id)
+            );
+            dispatch(
+              setUserName(userDataParsed.name)
+            );
+            dispatch(
+              setUserLastName(userDataParsed.lastName)
+            );
+            dispatch(
+              setUserEmail(userDataParsed.email)
+            );
+            dispatch(
+              setUserPhone(userDataParsed.phone)
+            );
+            dispatch(
+              setUserRole(userDataParsed.role)
+            );
+            dispatch(
+              setUserLocalAuthentication(userDataParsed.use_local_authentication)
+            );
+            dispatch(
+              setUserProfileImage(userDataParsed.image)
+            );
+            dispatch(
+              setUserTenantId(userDataParsed.tenantId)
+            );
+          }
 
           navigation.navigate('Home');
         } catch (error) {
           console.error(error);
-          Alert.alert("Login", "Não foi possível buscar seus dados, por favor, verifique sua conexão com a internet e tente novamente.");
+          Alert.alert("Login", "Não foi possível buscar seus dados no dispositivo, por favor, verifique sua conexão com a internet e tente novamente.");
         };
       }
     } catch (error) {
@@ -194,13 +224,17 @@ export function SignIn({ navigation }: any) {
   useFocusEffect(useCallback(() => {
     (async () => {
       const compatible = await LocalAuthentication.hasHardwareAsync();
-      setIsBiometricSupported(compatible);
       const enroll = await LocalAuthentication.isEnrolledAsync();
-      if (enroll) {
-        setFingerprintIsConfigurated(true);
+
+      const userData = await AsyncStorage.getItem(COLLECTION_USERS);
+      if (userData) {
+        const userDataParsed = JSON.parse(userData);
+        var localAuth = userDataParsed.useLocalAuth;
       }
 
-      handleSignInWithBiometric();
+      if (compatible && enroll && localAuth) {
+        handleSignInWithBiometric();
+      } else return
     })();
   }, []));
 

@@ -20,7 +20,6 @@ import { Header } from '@components/Header';
 
 import api from '@api/api';
 
-
 type FormData = {
   name: string;
   lastName: string;
@@ -97,6 +96,7 @@ export function SignUp({ navigation }: any) {
         email: form.email,
         phone: form.phone,
         password: form.password,
+        use_local_authentication: false,
         tenant_id: responseTenantRegister.data.id
       }
       const { status } = await api.post('auth/signup', newUser);
