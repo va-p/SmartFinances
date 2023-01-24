@@ -95,6 +95,12 @@ export function SkeletonCategoriesAndTagsScreen() {
             <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
           </Animated.View>
         </Tag>
+
+        <Tag>
+          <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
+            <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
+          </Animated.View>
+        </Tag>
       </Body>
 
       <Footer>
