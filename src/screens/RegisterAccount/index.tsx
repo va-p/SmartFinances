@@ -175,7 +175,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       const { status } = await api.post('edit_account', AccountEdited);
 
       if (status === 200) {
-        Alert.alert("Edição de Conta", "Conta editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: closeAccount }]);
+        Alert.alert("Edição de Conta", "Conta editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: handleCloseAccount }]);
       }
       reset();
     } catch (error) {
