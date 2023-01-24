@@ -8,7 +8,7 @@ const api = axios.create({
   baseURL: 'https://x6if-pd9g-tkt7.n7.xano.io/api:ckiy-sBf'
 });
 
-api.interceptors.request.use(async config => {
+api.interceptors.request.use(async (config: any) => {
   try {
     const jsonUserAuthToken = await AsyncStorage.getItem(COLLECTION_TOKENS);
     if (jsonUserAuthToken) {
