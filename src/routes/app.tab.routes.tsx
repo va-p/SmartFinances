@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
 import { AppAccountStackRoutes } from './app.account.stack.routes';
-import { AppStackRoutes } from './app.stack.routes';
+import { AppOptionsStackRoutes } from './app.options.stack.routes';
 import { Accounts } from '@screens/Accounts';
 import { Overview } from '@screens/Overview';
 import { Home } from '@screens/Home';
@@ -75,7 +75,7 @@ export function AppTabRoutes() {
 
       <Screen
         name="Mais"
-        component={AppStackRoutes}
+        component={AppOptionsStackRoutes}
         options={{
           tabBarIcon: (({ size, color }) => (
             <Ionicons

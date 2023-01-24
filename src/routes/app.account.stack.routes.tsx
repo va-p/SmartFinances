@@ -6,7 +6,9 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import { Accounts } from '@screens/Accounts';
 import { Account } from '@screens/Account';
 
-const { Navigator, Screen } = createStackNavigator();
+import { RootParamList } from 'src/@types/navigation';
+
+const { Navigator, Screen } = createStackNavigator<RootParamList>();
 
 export function AppAccountStackRoutes() {
   return (
@@ -28,6 +30,9 @@ export function AppAccountStackRoutes() {
       <Screen
         name="Editar Conta"
         component={RegisterAccount}
+        initialParams={{
+          id: ''
+        }}
       />
     </Navigator>
   )

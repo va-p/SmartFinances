@@ -8,12 +8,13 @@ import { TermsOfUse } from '@screens/TermsOfUse';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
 import { Accounts } from '@screens/Accounts';
+import { Tags } from '@screens/Tags';
 
 import theme from '@themes/theme';
 
 const { Navigator, Screen } = createStackNavigator();
 
-export function AppStackRoutes() {
+export function AppOptionsStackRoutes() {
   return (
     <Navigator
       screenOptions={{
@@ -24,18 +25,18 @@ export function AppStackRoutes() {
       }}
     >
       <Screen
-        name="Menu"
+        name="Mais Opções"
         component={OptionsMenu}
-      />
-
-      <Screen
-        name="Contas"
-        component={Accounts}
       />
 
       <Screen
         name="Categorias"
         component={Categories}
+      />
+
+      <Screen
+        name="Etiquetas"
+        component={Tags}
       />
 
       <Screen
