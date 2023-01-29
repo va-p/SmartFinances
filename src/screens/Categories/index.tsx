@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
@@ -7,6 +7,7 @@ import {
 } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 
@@ -28,7 +29,7 @@ export function Categories() {
   const tenantId = useSelector(selectUserTenantId);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
-  const [registerCategoryModalOpen, setRegisterCategoryModalOpen] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [categoryId, setCategoryId] = useState('');
 
   async function fetchCategories() {
@@ -54,22 +55,22 @@ export function Categories() {
   };
 
   function handleOpenRegisterCategoryModal() {
-    setRegisterCategoryModalOpen(true);
+    bottomSheetRef.current?.present();
   };
 
   function handleCloseRegisterCategoryModal() {
     setCategoryId('');
-    setRegisterCategoryModalOpen(false);
+    bottomSheetRef.current?.dismiss();
     fetchCategories();
   };
 
   function handleOpenCategory(id: string) {
     setCategoryId(id);
-    setRegisterCategoryModalOpen(true);
+    bottomSheetRef.current?.present();
   };
 
   async function handleClickDeleteCategory() {
-    Alert.alert("Exclusão de categoria", "ATENÇÃO: Todas as transações desta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a categoria", onPress: () => handleDeleteCategory(categoryId) }])
+    Alert.alert("Exclusão de categoria", "ATENÇÃO! Todas as transações desta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a categoria", onPress: () => handleDeleteCategory(categoryId) }])
   };
 
   async function handleDeleteCategory(id: string) {
@@ -137,8 +138,10 @@ export function Categories() {
       <ModalView
         type={categoryId != '' ? 'secondary' : 'primary'}
         title={categoryId != '' ? "Editar Categoria" : "Criar Nova Categoria"}
-        visible={registerCategoryModalOpen}
-        closeModal={handleCloseRegisterCategoryModal}
+        bottomSheetRef={bottomSheetRef}
+        enableContentPanningGesture={false}
+        snapPoints={['100%']}
+        closeModal={() => bottomSheetRef.current?.dismiss()}
         deleteChildren={handleClickDeleteCategory}
       >
         <RegisterCategory

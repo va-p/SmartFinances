@@ -63,13 +63,13 @@ export function Account() {
     name: 'Meses',
     period: 'months'
   });
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
   const [balanceIsPositive, setBalanceIsPositive] = useState(true);
-  const [editAccountModalOpen, setEditAccountModalOpen] = useState(false);
+  const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const navigation = useNavigation();
@@ -490,19 +490,20 @@ export function Account() {
   };
 
   function handleOpenEditAccount() {
-    setEditAccountModalOpen(true);
+    editAccountBottomSheetRef.current?.present();
   };
 
   function handleCloseEditAccount() {
-    setEditAccountModalOpen(false);
+    editAccountBottomSheetRef.current?.dismiss();
+
   };
 
   function handleOpenPeriodSelectedModal() {
-    bottomSheetRef.current?.present();
+    periodSelectBottomSheetRef.current?.present();
   };
 
   function handleClosePeriodSelectedModal() {
-    bottomSheetRef.current?.dismiss();
+    periodSelectBottomSheetRef.current?.dismiss();
   };
 
   function handleOpenTransaction(id: string) {
@@ -511,7 +512,7 @@ export function Account() {
   };
 
   async function handleClickDeleteAccount() {
-    Alert.alert("Exclusão de conta", "ATENÇÃO: Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a conta", onPress: () => handleDeleteAccount(accountId) }])
+    Alert.alert("Exclusão de conta", "ATENÇÃO! Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a conta", onPress: () => handleDeleteAccount(accountId) }])
   };
 
   async function handleDeleteAccount(id: string) {
@@ -626,8 +627,8 @@ export function Account() {
 
       <ModalViewSelection
         title="Selecione o período"
-        bottomSheetRef={bottomSheetRef}
-        snapPoints={['25%', '50%']}
+        bottomSheetRef={periodSelectBottomSheetRef}
+        snapPoints={['30%', '50%']}
         onClose={handleClosePeriodSelectedModal}
       >
         <ChartPeriodSelect
@@ -640,7 +641,8 @@ export function Account() {
       <ModalView
         type={accountId ? 'secondary' : 'primary'}
         title={`Editar Conta ${accountName}`}
-        visible={editAccountModalOpen}
+        bottomSheetRef={editAccountBottomSheetRef}
+        snapPoints={['50%', '75%']}
         closeModal={handleCloseEditAccount}
         deleteChildren={handleClickDeleteAccount}
       >

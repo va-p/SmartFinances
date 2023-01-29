@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
@@ -15,6 +15,7 @@ import {
 
 import { VictoryArea, VictoryChart, VictoryZoomContainer } from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { format, parseISO } from 'date-fns';
@@ -46,8 +47,8 @@ export function Accounts({ navigation }: any) {
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
   const [visible, setVisible] = useState(true);
-  const [connectAccountModalOpen, setConnectAccountModalOpen] = useState(false);
-  const [registerAccountModalOpen, setRegisterAccountModalOpen] = useState(false);
+  const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
   async function fetchAccounts() {
     setLoading(true);
@@ -183,19 +184,19 @@ export function Accounts({ navigation }: any) {
   };
 
   function handleOpenConnectAccountModal() {
-    setConnectAccountModalOpen(true);
+    connectAccountBottomSheetRef.current?.present();
   };
 
   function handleCloseConnectAccountModal() {
-    setConnectAccountModalOpen(false);
+    connectAccountBottomSheetRef.current?.dismiss();
   };
 
   function handleOpenRegisterAccountModal() {
-    setRegisterAccountModalOpen(true);
+    registerAccountBottomSheetRef.current?.present();
   };
 
   function handleCloseRegisterAccountModal() {
-    setRegisterAccountModalOpen(false);
+    registerAccountBottomSheetRef.current?.dismiss();
     fetchAccounts();
   };
 
@@ -340,17 +341,19 @@ export function Accounts({ navigation }: any) {
       </Footer>
 
       <ModalView
-        visible={connectAccountModalOpen}
+        bottomSheetRef={connectAccountBottomSheetRef}
+        snapPoints={['50%', '75%']}
         closeModal={handleCloseConnectAccountModal}
-        title='Conectar Conta Bancária'
+        title="Conectar Conta Bancária"
       >
         <SelectConnectAccount />
       </ModalView>
 
       <ModalView
-        visible={registerAccountModalOpen}
+        bottomSheetRef={registerAccountBottomSheetRef}
+        snapPoints={['50%', '75%']}
         closeModal={handleCloseRegisterAccountModal}
-        title='Criar Conta Manual'
+        title="Criar Conta Manual"
       >
         <RegisterAccount
           id=''

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
@@ -7,6 +7,7 @@ import {
 } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 
@@ -28,7 +29,7 @@ export function Tags() {
   const tenantId = useSelector(selectUserTenantId);
   const [tags, setTags] = useState<TagProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
-  const [registerTagModalOpen, setRegisterTagModalOpen] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [tagId, setTagId] = useState('');
 
   async function fetchTags() {
@@ -54,18 +55,18 @@ export function Tags() {
   };
 
   function handleOpenRegisterTagModal() {
-    setRegisterTagModalOpen(true);
+    bottomSheetRef.current?.present();
   };
 
   function handleCloseRegisterTagModal() {
     setTagId('');
-    setRegisterTagModalOpen(false);
+    bottomSheetRef.current?.dismiss();
     fetchTags();
   };
 
   function handleOpenTag(id: string) {
     setTagId(id);
-    setRegisterTagModalOpen(true);
+    bottomSheetRef.current?.present();
   };
 
   async function handleClickDeleteTag() {
@@ -137,8 +138,9 @@ export function Tags() {
       <ModalView
         type={tagId != '' ? 'secondary' : 'primary'}
         title={tagId != '' ? "Editar Etiqueta" : "Criar Etiqueta"}
-        visible={registerTagModalOpen}
-        closeModal={handleCloseRegisterTagModal}
+        bottomSheetRef={bottomSheetRef}
+        snapPoints={['50%']}
+        closeModal={() => bottomSheetRef.current?.dismiss()}
         deleteChildren={handleClickDeleteTag}
       >
         <RegisterTag

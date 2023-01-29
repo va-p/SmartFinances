@@ -1,7 +1,8 @@
-import styled, { css } from 'styled-components/native';
 import { TouchableOpacity } from 'react-native';
+import styled, { css } from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
 type TypeProps = 'primary' | 'secondary';
@@ -22,8 +23,8 @@ export const Header = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
 `;
 
 export const IconAndColor = styled.TouchableOpacity <Props>`
@@ -31,14 +32,14 @@ export const IconAndColor = styled.TouchableOpacity <Props>`
   height: 70px;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: 12px;
   background-color: ${({ color }) => color};
   border-radius: 35px;
 `;
 
 export const Title = styled.Text`
   text-align: left;
-  padding-left: 10px;
+  padding-left: 12px;
   font-size: ${RFValue(12)}px;
   ${({ theme }) => css`
     font-family: ${theme.fonts.medium};
@@ -46,9 +47,7 @@ export const Title = styled.Text`
   `};
 `;
 
-export const ColorsList = styled.View`
-  height: ${RFPercentage(10)}px;
-`;
+export const ColorsList = styled.View``;
 
 export const ColorContainer = styled.View <Props>`
   width: 50px;
@@ -69,17 +68,15 @@ export const Color = styled(TouchableOpacity) <Props>`
   border-radius: 20px;
 `;
 
-export const IconsList = styled.View`
-  height: ${RFPercentage(60)}px;
-`;
+export const IconsList = styled.View``;
 
 export const IconContainer = styled.TouchableOpacity <Props>`
   width: 60px;
   height: 60px;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
-  margin-bottom: 10px;
+  margin-right: 12px;
+  margin-bottom: 12px;
   background-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.text : theme.colors.shape
   };
@@ -94,5 +91,9 @@ export const Icon = styled(Ionicons) <Props>`
 `;
 
 export const Footer = styled.View`
-  padding: 0 10px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  padding: 0 12px 12px 12px;
+  background-color: ${({ theme }) => theme.colors.background};
 `;
