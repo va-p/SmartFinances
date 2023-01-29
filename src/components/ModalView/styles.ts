@@ -1,6 +1,6 @@
+import { Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -8,22 +8,23 @@ type ColorProps = {
   color: string
 }
 
-export const Overlay = styled(GestureHandlerRootView)`
-  flex: 1;
+export const Overlay = styled.View`
+  width: ${Dimensions.get('window').width}px;
+  height: ${Dimensions.get('window').height}px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   background-color: ${({ theme }) => theme.colors.overlay};
 `;
 
 export const Header = styled.View <ColorProps>`
   width: 100%;
-  height: 60px;
-  margin-top: 80px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding-right: 24px;
-  padding-left: 24px;
-  border-top-left-radius: 25px;
-  border-top-right-radius: 25px;
+  padding-right: 12px;
+  padding-left: 12px;
   background-color: ${({ color }) => color};
 `;
 

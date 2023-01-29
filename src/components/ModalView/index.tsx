@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Modal, ModalProps } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import {
   Overlay,
   Header,
@@ -8,18 +8,24 @@ import {
   Container
 } from './styles';
 
+import {
+  BottomSheetProps,
+  BottomSheetModal,
+  BottomSheetModalProvider
+} from '@gorhom/bottom-sheet';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 import theme from '@themes/theme';
 
 type TypeProps = 'primary' | 'secondary';
 
-export type Props = ModalProps & {
+export type Props = BottomSheetProps & {
   type?: TypeProps;
   title: string;
   color?: string;
   selectedIdentification?: string;
   children: ReactNode;
+  bottomSheetRef?: any;
   closeModal: () => void;
   deleteChildren?: () => void;
 }
@@ -30,39 +36,44 @@ export function ModalView({
   color = theme.colors.background,
   selectedIdentification,
   children,
+  bottomSheetRef,
   closeModal,
   deleteChildren,
   ...rest
 }: Props) {
   return (
-    <Modal
-      transparent
-      animationType='slide'
-      statusBarTranslucent
-      {...rest}
-    >
-      <Overlay>
-        <Header color={color}>
-          <BorderlessButton onPress={closeModal} style={{ position: 'absolute', top: 10, left: 25 }}>
-            <Icon name='close' />
-          </BorderlessButton>
-          <Title>
-            {title} {selectedIdentification}
-          </Title>
+    <BottomSheetModalProvider>
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        enablePanDownToClose={true}
+        backdropComponent={() => <Overlay />}
+        backgroundStyle={{ backgroundColor: theme.colors.background }}
+        handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
+        {...rest}
+      >
+        <SafeAreaView style={{ flex: 1 }}>
+          <Header color={color}>
+            <BorderlessButton onPress={closeModal} >
+              <Icon name='close' />
+            </BorderlessButton>
+            <Title>
+              {title} {selectedIdentification}
+            </Title>
 
-          {
-            type === 'secondary' ?
-              <BorderlessButton onPress={deleteChildren} style={{ position: 'absolute', top: 10, right: 25 }}>
-                <Icon name='trash-outline' />
-              </BorderlessButton> :
-              <></>
-          }
-        </Header>
+            {
+              type === 'secondary' ?
+                <BorderlessButton onPress={deleteChildren}>
+                  <Icon name='trash-outline' />
+                </BorderlessButton> :
+                <></>
+            }
+          </Header>
 
-        <Container>
-          {children}
-        </Container>
-      </Overlay>
-    </Modal>
+          <Container>
+            {children}
+          </Container>
+        </SafeAreaView>
+      </BottomSheetModal>
+    </BottomSheetModalProvider>
   );
 }

@@ -4,7 +4,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.background};
 `;
@@ -36,7 +36,7 @@ export const Chart = styled.View`
 export const Transaction = styled.View`
   width: 100%;
   height: 60px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;

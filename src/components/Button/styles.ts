@@ -15,7 +15,7 @@ export const Container = styled(RectButton) <ContainerProps>`
   max-height: 56px;
   align-items: center;
   padding: 18px;
-  margin-top: 10px;
+  margin-top: 12px;
   background-color: ${({ theme, type }) => type === 'primary' ? theme.colors.shape : theme.colors.primary};
   border-radius: 10px;
 `;
