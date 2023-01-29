@@ -31,7 +31,6 @@ import { colors } from '@utils/colors';
 import { icons } from '@utils/icons';
 
 import api from '@api/api';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 
 type Props = {
   id: string;
@@ -223,9 +222,6 @@ export function RegisterCategory({ id, closeCategory }: Props) {
             )}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 12
-            }}
           />
         </ColorsList>
 
@@ -247,10 +243,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               alignItems: 'center',
-              paddingTop: 24,
-              paddingHorizontal: 12,
-              paddingBottom: 300
-            }}
+              paddingBottom: 250
+            }}            
           />
         </IconsList>
 

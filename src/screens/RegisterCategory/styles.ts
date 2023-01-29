@@ -1,7 +1,6 @@
 import { TouchableOpacity } from 'react-native';
 import styled, { css } from 'styled-components/native';
 
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,6 +15,7 @@ type Props = {
 
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
+  padding: 12px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -23,7 +23,6 @@ export const Header = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 12px;
   margin-bottom: 12px;
 `;
 
@@ -39,7 +38,6 @@ export const IconAndColor = styled.TouchableOpacity <Props>`
 
 export const Title = styled.Text`
   text-align: left;
-  padding-left: 12px;
   font-size: ${RFValue(12)}px;
   ${({ theme }) => css`
     font-family: ${theme.fonts.medium};
@@ -75,8 +73,7 @@ export const IconContainer = styled.TouchableOpacity <Props>`
   height: 60px;
   align-items: center;
   justify-content: center;
-  margin-right: 12px;
-  margin-bottom: 12px;
+  margin: 6px;
   background-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.text : theme.colors.shape
   };
@@ -94,6 +91,7 @@ export const Footer = styled.View`
   width: 100%;
   position: absolute;
   bottom: 0;
-  padding: 0 12px 12px 12px;
+  left: 12px;
+  padding-bottom: 12px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
