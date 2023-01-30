@@ -126,7 +126,7 @@ export function Home() {
       ),
       opacity: interpolate(
         scrollY.value,
-        [0, 400],
+        [0, 370],
         [1, 0],
         Extrapolate.CLAMP
       )
@@ -136,7 +136,7 @@ export function Home() {
     return {
       opacity: interpolate(
         scrollY.value,
-        [0, 200],
+        [0, 220],
         [1, 0],
         Extrapolate.CLAMP
       )
