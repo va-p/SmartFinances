@@ -792,9 +792,10 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         <ControlledInputWithIcon
           icon='pencil'
           color={categorySelected.color.hex}
-          placeholder='Descrição'
+          placeholder="Descrição"
           autoCapitalize='sentences'
           autoCorrect={false}
+          returnKeyType='go'
           defaultValue={description}
           name='description'
           control={control}
@@ -808,8 +809,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           color={categorySelected.color.hex}
           onPress={handleOpenSelectTagModal}
         />
-
-
 
         <TransactionsTypes>
           <TransactionTypeButton
