@@ -845,7 +845,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         $modal
         title="Selecione a categoria"
         bottomSheetRef={categoryBottomSheetRef}
-        snapPoints={['25%', '50%']}
+        snapPoints={['50%']}
       >
         <CategorySelect
           category={categorySelected}
@@ -858,7 +858,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         $modal
         title="Selecione a moeda"
         bottomSheetRef={currencyBottomSheetRef}
-        snapPoints={['25%', '50%']}
+        snapPoints={['50%']}
       >
         <CurrencySelect
           currency={currencySelected}
@@ -871,7 +871,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         $modal
         title="Selecione a conta"
         bottomSheetRef={accountBottomSheetRef}
-        snapPoints={['25%', '50%']}
+        snapPoints={['50%']}
       >
         <AccountSelect
           account={accountSelected}
@@ -882,9 +882,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
       <ModalViewSelection
         $modal
-        title="Selecione a de destino"
+        title="Selecione a conta de destino"
         bottomSheetRef={accountDestinationBottomSheetRef}
-        snapPoints={['25%', '50%']}
+        snapPoints={['50%']}
         onClose={handleCloseSelectAccountDestinationModal}
       >
         <AccountDestinationSelect
@@ -898,7 +898,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         $modal
         title="Selecione a etiqueta"
         bottomSheetRef={tagBottomSheetRef}
-        snapPoints={['25%', '50%']}
+        snapPoints={['50%']}
       >
         <TagSelect
           tag={tagSelected}
