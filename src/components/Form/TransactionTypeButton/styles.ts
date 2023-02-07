@@ -4,7 +4,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 
-interface ContainerProps {
+type ContainerProps = {
   isActive: boolean;
   type: 'up' | 'down' | 'swap';
 }
