@@ -63,6 +63,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const [name, setName] = useState('');
   const [initialAmount, setInitialAmount] = useState('');
   const accountTypes = [
+    'Cartão de Crédito',
     'Carteira',
     'Carteira de Criptomoedas',
     'Conta Corrente',
