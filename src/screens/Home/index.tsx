@@ -385,7 +385,7 @@ export function Home() {
       const total =
         totalRevenues -
         totalExpenses;
-      const totalFormattedPtbrByAllHistory = Number(total)
+      const totalFormattedPtbrByAllHistory = total
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
@@ -442,7 +442,7 @@ export function Home() {
         //initialTotalAmountByMonths +
         totalRevenuesByMonths -
         totalExpensesByMonths;
-      const totalFormattedPtbrByMonths = Number(totalByMonths)
+      const totalFormattedPtbrByMonths = totalByMonths
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
@@ -480,7 +480,7 @@ export function Home() {
         //initialTotalAmountBRLByYears +
         totalRevenuesByYears -
         totalExpensesByYears;
-      const totalFormattedPtbrByYears = Number(totalBRLByYears)
+      const totalFormattedPtbrByYears = totalBRLByYears
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
