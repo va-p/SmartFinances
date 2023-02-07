@@ -141,7 +141,7 @@ export function Categories() {
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
         snapPoints={['100%']}
-        closeModal={() => bottomSheetRef.current?.dismiss()}
+        closeModal={categoryId != '' ? handleCloseRegisterCategoryModal : () => bottomSheetRef.current?.dismiss()}
         deleteChildren={handleClickDeleteCategory}
       >
         <RegisterCategory
