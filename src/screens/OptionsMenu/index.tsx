@@ -9,19 +9,25 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 import { Header } from '@components/Header';
 
+import { selectUserId } from '@slices/userSlice';
+
 import { COLLECTION_USERS } from '@configs/database';
+
+import api from '@api/api';
 
 import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
   const [localAuthIsEnabled, setLocalAuthIsEnabled] = useState(false);
   const toggleSwitch = () => setLocalAuthIsEnabled(previousState => !previousState);
+  const userId = useSelector(selectUserId);
 
   function handleClickCategories() {
     navigation.navigate('Categorias');
@@ -50,21 +56,36 @@ export function OptionsMenu({ navigation }: any) {
   async function handleChangeUseLocalAuth() {
     try {
       const biometricAuth = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Entrar com Biometria",
+        promptMessage: "Autenticar com Biometria",
         cancelLabel: "Cancelar",
       });
       if (biometricAuth.success) {
         toggleSwitch();
 
-        const loggedInUserDataFormatted = {
-          useLocalAuth: localAuthIsEnabled ? false : true
-        }
-        await AsyncStorage.mergeItem(COLLECTION_USERS, JSON.stringify(loggedInUserDataFormatted))
+        try {
+          const { status } = await api.post('edit_use_local_auth', {
+            user_id: userId,
+            use_local_authentication: localAuthIsEnabled ? false : true
+          })
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            Alert.alert("Autenticação biométrica", error.response?.data.message);
+          }
+        };
+
+        try {
+          const loggedInUserDataFormatted = {
+            useLocalAuth: localAuthIsEnabled ? false : true
+          }
+          await AsyncStorage.mergeItem(COLLECTION_USERS, JSON.stringify(loggedInUserDataFormatted));
+        } catch (error) {
+          console.log(error);
+          Alert.alert("Autenticação biométrica", `${error}`);
+        };
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert("Autenticação biométrica", error.response?.data.message);
-      }
+      console.log(error);
+      Alert.alert("Autenticação biométrica", "Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.");
     }
   };
 

@@ -106,6 +106,7 @@ export function SignIn({ navigation }: any) {
         phone: userData.data.phone,
         role: userData.data.role,
         image: userData.data.image,
+        useLocalAuth: userData.data.use_local_authentication,
         tenantId: userData.data.tenant_id,
       };
 
@@ -128,6 +129,9 @@ export function SignIn({ navigation }: any) {
       );
       dispatch(
         setUserRole(loggedInUserDataFormatted.role)
+      );
+      dispatch(
+        setUserLocalAuthentication(loggedInUserDataFormatted.useLocalAuth)
       );
       dispatch(
         setUserProfileImage(loggedInUserDataFormatted.image)

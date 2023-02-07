@@ -88,6 +88,8 @@ export function SignUp({ navigation }: any) {
             email: form.email
           }
         })
+      } else {
+        return Alert.alert("Cadastro de usuário", "Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.");
       }
 
       const newUser = {
@@ -106,7 +108,7 @@ export function SignUp({ navigation }: any) {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert("Cadastro", error.response?.data.message);
+        Alert.alert("Cadastro de usuário", error.response?.data.message);
       }
     } finally {
       setButtonIsLoading(false);
@@ -115,7 +117,7 @@ export function SignUp({ navigation }: any) {
 
   return (
     <Container>
-      <Header type='primary' title='Criar nova conta' />
+      <Header type='primary' title="Criar nova conta" />
 
       <Form>
         <ControlledInput
