@@ -16,7 +16,7 @@ export const Container = styled(RectButton).attrs({
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
+  padding: 12px;
 `;
 
 export const Icon = styled(Ionicons) <ColorProps>`
