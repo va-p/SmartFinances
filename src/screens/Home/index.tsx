@@ -189,7 +189,7 @@ export function Home() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua internet e tente novamente.")
+      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
     }
   };
 
