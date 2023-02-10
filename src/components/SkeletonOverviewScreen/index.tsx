@@ -4,7 +4,6 @@ import {
   Container,
   Header,
   Title,
-  Filters,
   Category
 } from './styles';
 
@@ -54,10 +53,6 @@ export function SkeletonOverviewScreen() {
         <Title>
           <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
         </Title>
-
-        <Filters>
-          <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-        </Filters>
       </Header>
 
       <Chart>

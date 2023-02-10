@@ -12,20 +12,13 @@ export const Header = styled.View`
   width: 100%;
   align-items: center;
   justify-content: center;
+  padding-top: 8px;
 `;
 
 export const Title = styled.View`
   width: 100px;
   height: ${RFPercentage(4)}px;
-  margin-bottom: 5px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: ${RFPercentage(2)}px;
-`;
-
-export const Filters = styled.View`
-  width: 100px;
-  height: ${RFPercentage(3.5)}px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${RFPercentage(2)}px;
 `;
@@ -38,19 +31,26 @@ export const Chart = styled.View`
   border-radius: 10px;
 `;
 
+export const AccountsContainer = styled.View``;
+
+export const MainContent = styled.View`
+  flex: 1;
+  justify-content: space-between;
+`;
+
 export const Account = styled.View`
   width: 100%;
   height: 60px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
 
 export const Footer = styled.View`
-  flex: 1;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding-top: 12px;
 `;
 
 export const ButtonGroup = styled.View`

@@ -1,7 +1,6 @@
 import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
@@ -10,13 +9,10 @@ export const Container = styled.View`
 `;
 
 export const Header = styled.View`
-  flex-direction: row;
   width: 100%;
-  height: ${RFPercentage(4.5)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight() - 30}px;
-  margin-bottom: ${RFPercentage(1)}px;
+  padding: 12px 12px 0;
 `;
 
 export const CashFlowContainer = styled.View``;
@@ -38,12 +34,11 @@ export const CashFlowDescription = styled.Text`
 
 export const HideDataButton = styled(BorderlessButton)`
   position: absolute;
-  top: 0px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
 `;
 
 export const FiltersContainer = styled.View`
-  height: ${RFPercentage(3.5)}px;
   align-items: center;
   justify-content: center;
 `;

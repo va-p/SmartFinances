@@ -700,10 +700,8 @@ export function Home() {
 
         <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
-            width={420}
-            height={210}
-            minDomain={{ y: 0 }}
-            padding={{ top: 10, right: 40, bottom: 130, left: 40 }}
+            height={200}
+            padding={{ top: 12, right: 12, bottom: 130, left: 40 }}
             domainPadding={{ x: 6, y: 6 }}
             containerComponent={
               <VictoryZoomContainer

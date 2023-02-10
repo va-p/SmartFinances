@@ -1,7 +1,6 @@
 import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -17,17 +16,15 @@ export const Container = styled.View`
 export const Header = styled.View`
   flex-direction: row;
   width: 100%;
-  height: ${RFPercentage(4.5)}px;
   align-items: center;
   justify-content: center;
-  margin-top: ${getStatusBarHeight() - 30}px;
-  margin-bottom: ${RFPercentage(1)}px;
+  padding: 12px 12px 0;
 `;
 
 export const BackButton = styled(BorderlessButton)`
   position: absolute;
-  top: 0px;
-  left: 10px;
+  top: 14px;
+  left: 12px;
   color: ${({ theme }) => theme.colors.primary};
 `;
 
@@ -54,7 +51,6 @@ export const Description = styled.Text`
 `;
 
 export const FiltersContainer = styled.View`
-  height: ${RFPercentage(3.5)}px;
   align-items: center;
   justify-content: center;
 `;
@@ -65,15 +61,15 @@ export const FilterButtonGroup = styled.View`
 
 export const EditAccountButton = styled(BorderlessButton)`
   position: absolute;
-  top: 0px;
-  right: 10px;
+  top: 14px;
+  right: 12px;
 `;
 
 export const AccountBalanceContainer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
+  padding: 12px;
 `;
 
 export const AccountBalanceGroup = styled.View`

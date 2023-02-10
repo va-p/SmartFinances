@@ -4,10 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
 
+import { AppOverviewTopTabRoutes } from './app.overview.topTab.routes';
 import { AppAccountStackRoutes } from './app.account.stack.routes';
 import { AppOptionsStackRoutes } from './app.options.stack.routes';
-import { Accounts } from '@screens/Accounts';
-import { Overview } from '@screens/Overview';
 import { Home } from '@screens/Home';
 
 const { Navigator, Screen } = createBottomTabNavigator();
@@ -61,7 +60,7 @@ export function AppTabRoutes() {
 
       <Screen
         name="Resumo"
-        component={Overview}
+        component={AppOverviewTopTabRoutes}
         options={{
           tabBarIcon: (({ size, color }) => (
             <Ionicons

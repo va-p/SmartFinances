@@ -92,7 +92,7 @@ export function Account() {
       ),
       opacity: interpolate(
         scrollY.value,
-        [0, 150],
+        [0, 170],
         [1, 0],
         Extrapolate.CLAMP
       )
@@ -495,7 +495,6 @@ export function Account() {
 
   function handleCloseEditAccount() {
     editAccountBottomSheetRef.current?.dismiss();
-
   };
 
   function handleOpenPeriodSelectedModal() {

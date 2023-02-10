@@ -16,16 +16,8 @@ export const Header = styled.View`
 
 export const Title = styled.View`
   width: 100px;
-  height: ${RFPercentage(3.5)}px;
+  height: ${RFPercentage(4)}px;
   margin-bottom: 12px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: ${RFPercentage(2)}px;
-`;
-
-export const Filters = styled.View`
-  width: 200px;
-  height: ${RFPercentage(3.5)}px;
-  margin-bottom: ${RFPercentage(8)}px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${RFPercentage(2)}px;
 `;

@@ -14,7 +14,7 @@ export const Container = styled(RectButton)`
   max-height: 70px;
   flex-direction: row;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
 `;
 
 export const IconContainer = styled.View`

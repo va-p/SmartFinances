@@ -4,7 +4,8 @@ import {
   Container,
   Header,
   Title,
-  Filters,
+  MainContent,
+  AccountsContainer,
   Account,
   Footer,
   ButtonGroup,
@@ -57,10 +58,6 @@ export function SkeletonAccountsScreen() {
         <Title>
           <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
         </Title>
-
-        <Filters>
-          <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
-        </Filters>
       </Header>
 
       <Chart>
@@ -69,47 +66,57 @@ export function SkeletonAccountsScreen() {
         </Animated.View>
       </Chart>
 
-      <Account>
-        <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-          <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-        </Animated.View>
-      </Account>
-
-      <Account>
-        <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-          <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-        </Animated.View>
-      </Account>
-
-      <Account>
-        <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-          <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-        </Animated.View>
-      </Account>
-
-      <Account>
-        <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-          <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-        </Animated.View>
-      </Account>
-
-      <Footer>
-        <ButtonGroup>
-          <AddAccountButton>
+      <MainContent>
+        <AccountsContainer>
+          <Account>
             <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX3 }] }}></Animated.View>
+              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
             </Animated.View>
-          </AddAccountButton>
-        </ButtonGroup>
+          </Account>
 
-        <ButtonGroup>
-          <AddAccountButton>
+          <Account>
             <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX3 }] }}></Animated.View>
+              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
             </Animated.View>
-          </AddAccountButton>
-        </ButtonGroup>
-      </Footer>
+          </Account>
+
+          <Account>
+            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
+              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
+            </Animated.View>
+          </Account>
+
+          <Account>
+            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
+              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
+            </Animated.View>
+          </Account>
+
+          <Account>
+            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
+              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
+            </Animated.View>
+          </Account>
+        </AccountsContainer>
+
+        <Footer>
+          <ButtonGroup>
+            <AddAccountButton>
+              <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
+                <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX3 }] }}></Animated.View>
+              </Animated.View>
+            </AddAccountButton>
+          </ButtonGroup>
+
+          <ButtonGroup>
+            <AddAccountButton>
+              <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
+                <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX3 }] }}></Animated.View>
+              </Animated.View>
+            </AddAccountButton>
+          </ButtonGroup>
+        </Footer>
+      </MainContent>
     </Container>
   );
 }

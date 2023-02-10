@@ -1,7 +1,11 @@
 import React, { useEffect } from 'react';
 import {
+  Container,
+  Header,
   Chart,
-  Container, Title, Filters, Transaction
+  Title,
+  Filters,
+  Transaction
 } from './styles';
 
 import Animated, { EasingNode } from 'react-native-reanimated';
@@ -42,9 +46,11 @@ export function SkeletonHomeScreen() {
 
   return (
     <Container>
-      <Title>
-        <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
-      </Title>
+      <Header>
+        <Title>
+          <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
+        </Title>
+      </Header>
 
       <Filters>
         <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>

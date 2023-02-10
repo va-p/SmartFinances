@@ -14,12 +14,12 @@ export const Container = styled.TouchableOpacity<Props>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
-  border-left-width: 10px;
+  border-left-width: 12px;
   border-left-color: ${({ color }) => color};
-  border-radius: 10px;
+  border-radius: 12px;
 `;
 
 export const Details = styled.View`

@@ -23,7 +23,6 @@ import { CategoryProps, ColorProps, IconProps } from '@components/CategoryListIt
 import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
-import { Header } from '@components/Header';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -49,18 +48,15 @@ interface MonthData {
   totalRevenuesFormatted: string;
 }
 
-export function Overview() {
+export function OverviewRevenues() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [transactions, setTransactions] = useState<TransactionProps[]>([]);
-  const [expenses, setExpenses] = useState<TransactionProps[]>([]);
   const [revenues, setRevenues] = useState<TransactionProps[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalRevenuesByCategories, setTotalRevenuesByCategories] = useState<CategoryData[]>([]);
-  const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<CategoryData[]>([]);
   const [categorySelected, setCategorySelected] = useState('');
-
   const theme = useTheme();
 
   function handleDateChange(action: 'next' | 'prev'): void {
@@ -107,30 +103,23 @@ export function Overview() {
       }
 
       const revenues = transactions
-        .filter((revenue: TransactionProps) => {
-          revenue.type == 'credit'
+        .filter((transaction: TransactionProps) => {
+          transaction.type == 'credit'
         });
       setRevenues(revenues);
-
-      const expenses = transactions
-        .filter((expense: TransactionProps) =>
-          expense.type == 'debit'
-        );
-      setExpenses(expenses);
-
 
       /**
        * Revenues by Selected Month - Start
        */
       const revenuesBySelectedMonth = transactions
-        .filter((revenue: TransactionProps) =>
-          revenue.type == 'credit' &&
-          new Date(revenue.created_at).getMonth() === selectedDate.getMonth() &&
-          new Date(revenue.created_at).getFullYear() === selectedDate.getFullYear()
+        .filter((transaction: TransactionProps) =>
+          transaction.type === 'credit' &&
+          new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
+          new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
         );
       const revenuesTotalBySelectedMonth = revenuesBySelectedMonth
-        .reduce((acc: number, revenue: TransactionProps) => {
-          return acc + Number(revenue.amount);
+        .reduce((acc: number, cur: TransactionProps) => {
+          return acc += Number(cur.amount);
         }, 0);
       /**
        * Revenues by Selected Month - End
@@ -176,65 +165,6 @@ export function Overview() {
       /**
        * Revenues by Category - End
        */
-
-
-      /**
-       * Expenses by Selected Month - Start
-       */
-      const expensesBySelectedMonth = transactions
-        .filter((expense: TransactionProps) =>
-          expense.type == 'debit' &&
-          new Date(expense.created_at).getMonth() === selectedDate.getMonth() &&
-          new Date(expense.created_at).getFullYear() === selectedDate.getFullYear()
-        );
-      const expensesTotalBySelectedMonth = expensesBySelectedMonth
-        .reduce((acc: number, expense: TransactionProps) => {
-          return acc + Number(expense.amount);
-        }, 0);
-      /**
-       * Expenses by Selected Month - End
-       */
-
-      /**
-       * Expenses by Category - Start
-       */
-      const totalExpensesByCategory: CategoryData[] = [];
-
-      categories.forEach(category => {
-        let categorySum = 0;
-
-        expensesBySelectedMonth.forEach((expense: TransactionProps) => {
-          if (expense.category.id === category.id) {
-            categorySum += Number(expense.amount);
-          }
-        });
-
-        if (categorySum > 0) {
-          const totalFormatted = categorySum
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            })
-
-          const percent = `${(categorySum / expensesTotalBySelectedMonth * 100).toFixed(0)}%`;
-
-          totalExpensesByCategory.push({
-            id: category.id,
-            name: category.name,
-            icon: category.icon,
-            color: category.color,
-            tenant_id: category.tenant_id,
-            total: categorySum,
-            totalFormatted,
-            percent
-          });
-        }
-      });
-
-      setTotalExpensesByCategories(totalExpensesByCategory);
-      /**
-       * Expenses by Category - End
-       */
     }
     catch (error) {
       console.error(error);
@@ -249,8 +179,8 @@ export function Overview() {
   };
 
   useFocusEffect(useCallback(() => {
-    fetchTransactions();
     fetchCategories();
+    fetchTransactions();
   }, [selectedDate]));
 
   if (loading) {
@@ -259,8 +189,6 @@ export function Overview() {
 
   return (
     <Container>
-      <Header type='secondary' title='Resumo' />
-
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>
           <MonthSelectIcon name="chevron-back" />
@@ -278,15 +206,13 @@ export function Overview() {
       <Content
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: 24,
           paddingBottom: useBottomTabBarHeight(),
         }}
       >
-
         <PieChartContainer>
           <VictoryPie
-            data={totalExpensesByCategories}
-            colorScale={totalExpensesByCategories.map(category => category.color.hex)}
+            data={totalRevenuesByCategories}
+            colorScale={totalRevenuesByCategories.map(category => category.color.hex)}
             x='percent'
             y='total'
             innerRadius={80}
@@ -311,9 +237,8 @@ export function Overview() {
             labelRadius={50}
           />
         </PieChartContainer>
-
         {
-          totalExpensesByCategories.map(item => (
+          totalRevenuesByCategories.map(item => (
             <HistoryCard
               key={item.id}
               icon={item.icon.name}

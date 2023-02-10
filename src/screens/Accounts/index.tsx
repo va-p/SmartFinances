@@ -243,9 +243,8 @@ export function Accounts({ navigation }: any) {
 
       <ChartContainer>
         <VictoryChart
-          width={400}
           height={220}
-          domainPadding={{ x: 1 }}
+          domainPadding={{ y: 6 }}
           containerComponent={
             <VictoryZoomContainer
               allowZoom={false}
@@ -315,30 +314,26 @@ export function Accounts({ navigation }: any) {
             <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: 20,
-            paddingHorizontal: 10
-          }}
         />
+
+        <Footer>
+          <ButtonGroup>
+            <AddAccountButton
+              icon='card'
+              title='Conectar conta bancária'
+              onPress={handleOpenConnectAccountModal}
+            />
+          </ButtonGroup>
+
+          <ButtonGroup>
+            <AddAccountButton
+              icon='wallet'
+              title='Criar conta manual'
+              onPress={handleOpenRegisterAccountModal}
+            />
+          </ButtonGroup>
+        </Footer>
       </AccountsContainer>
-
-      <Footer>
-        <ButtonGroup>
-          <AddAccountButton
-            icon='card'
-            title='Conectar conta bancária'
-            onPress={handleOpenConnectAccountModal}
-          />
-        </ButtonGroup>
-
-        <ButtonGroup>
-          <AddAccountButton
-            icon='wallet'
-            title='Criar conta manual'
-            onPress={handleOpenRegisterAccountModal}
-          />
-        </ButtonGroup>
-      </Footer>
 
       <ModalView
         bottomSheetRef={connectAccountBottomSheetRef}

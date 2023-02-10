@@ -9,6 +9,13 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
+export const Header = styled.View`
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8px;
+`;
+
 export const Title = styled.View`
   width: 100px;
   height: ${RFPercentage(4)}px;
@@ -36,7 +43,7 @@ export const Chart = styled.View`
 export const Transaction = styled.View`
   width: 100%;
   height: 60px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
