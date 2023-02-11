@@ -14,8 +14,9 @@ export const Container = styled.View`
 `;
 
 export const Header = styled.View`
-  flex-direction: row;
   width: 100%;
+  min-height: ${RFPercentage(8)}px;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   padding: 12px 12px 0;
@@ -23,7 +24,7 @@ export const Header = styled.View`
 
 export const BackButton = styled(BorderlessButton)`
   position: absolute;
-  top: 14px;
+  top: 12px;
   left: 12px;
   color: ${({ theme }) => theme.colors.primary};
 `;
@@ -33,12 +34,15 @@ export const Icon = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
-export const TitleContainer = styled.View``;
+export const TitleContainer = styled.View`
+  height: 100%;
+`;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
   text-align: center;
+  margin-top: -8px;
   color: ${({ theme }) => theme.colors.title};
 `;
 
@@ -46,7 +50,7 @@ export const Description = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(10)}px;
   text-align: center;
-  margin-top: -10px;
+  margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -61,7 +65,7 @@ export const FilterButtonGroup = styled.View`
 
 export const EditAccountButton = styled(BorderlessButton)`
   position: absolute;
-  top: 14px;
+  top: 12px;
   right: 12px;
 `;
 
