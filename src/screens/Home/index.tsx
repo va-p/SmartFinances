@@ -142,6 +142,8 @@ export function Home() {
       )
     }
   });
+  // Animated section list
+  const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
   // Animated button register transaction
   const registerTransactionButtonPositionX = useSharedValue(0);
   const registerTransactionButtonPositionY = useSharedValue(0);
@@ -168,8 +170,6 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     }
   });
-  // Animated section list
-  const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
   async function fetchBtcQuote() {
     try {
@@ -823,7 +823,7 @@ export function Home() {
       >
         <RegisterTransaction
           id={transactionId}
-          setId={ClearTransactionId}
+          resetId={ClearTransactionId}
           closeRegisterTransaction={handleCloseRegisterTransactionModal}
         />
       </ModalViewWithoutHeader>

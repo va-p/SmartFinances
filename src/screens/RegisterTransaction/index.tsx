@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import {
   Container,
   MainContent,
@@ -25,13 +25,10 @@ import { format } from 'date-fns';
 import * as Yup from 'yup';
 import axios from 'axios';
 
-import {
-  ControlledInputWithIcon
-} from '@components/Form/ControlledInputWithIcon';
-import {
-  ControlledInputValue
-} from '@components/Form/ControlledInputValue';
+import { TagListItemRegisterTransaction } from '@components/TagListItemRegisterTransaction';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
+import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CurrencySelectButton } from '@components/CurrencySelectButton';
@@ -45,7 +42,6 @@ import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { AccountSelect } from '@screens/AccountSelect';
-import { TagSelect } from '@screens/TagSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -68,13 +64,14 @@ import {
   selectUsdQuoteEur
 } from '@slices/quotesSlice';
 
-import theme from '@themes/theme';
-
 import api from '@api/api';
+
+import theme from '@themes/theme';
 
 type Props = {
   id: string;
-  setId: () => void;
+  resetId: () => void;
+  account?: AccountProps;
   closeRegisterTransaction: () => void;
 }
 
@@ -96,7 +93,20 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Props) {
+export function RegisterTransaction({
+  id,
+  resetId,
+  account = {
+    id: '',
+    name: 'Selecione a conta',
+    currency: {
+      id: '4', name: 'Real Brasileiro', code: 'BRL', symbol: 'R$'
+    },
+    initial_amount: 0,
+    tenant_id: ''
+  },
+  closeRegisterTransaction
+}: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
   const brlQuoteEur = useSelector(selectBrlQuoteEur);
@@ -115,9 +125,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountDestinationBottomSheetRef = useRef<BottomSheetModal>(null);
   const tagBottomSheetRef = useRef<BottomSheetModal>(null);
-
-
-  const [categoryModalOpen, setCategoryModalOpen] = useState(-1);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
     name: 'Selecione a categoria',
@@ -125,28 +132,14 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       hex: theme.colors.primary
     }
   } as CategoryProps);
-  const [tagModalOpen, setTagModalOpen] = useState(-1);
-  const [tagSelected, setTagSelected] = useState({
-    id: '',
-    name: 'Selecione a etiqueta'
-  } as TagProps);
   const [amount, setAmount] = useState('');
-  const [currencyModalOpen, setCurrencyModalOpen] = useState(-1);
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
     name: 'Real Brasileiro',
     code: 'BRL',
     symbol: 'R$'
   } as CurrencyProps);
-  const [accountModalOpen, setAccountModalOpen] = useState(-1);
-  const [accountSelected, setAccountSelected] = useState({
-    id: '',
-    name: 'Selecione a conta',
-    currency: {
-      symbol: 'R$'
-    }
-  } as AccountProps);
-  const [accountDestinationModalOpen, setAccountDestinationModalOpen] = useState(-1);
+  const [accountSelected, setAccountSelected] = useState(account);
   const [accountDestinationSelected, setAccountDestinationSelected] = useState({
     id: '',
     name: 'Selecione a conta de destino'
@@ -164,6 +157,9 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
   };
   const [description, setDescription] = useState('');
   const [transactionType, setTransactionType] = useState('');
+  const [tags, setTags] = useState<TagProps[]>([]);
+  const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
+
   const {
     control,
     handleSubmit,
@@ -171,6 +167,27 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     formState: { errors }
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+
+  async function fetchTags() {
+    setButtonIsLoading(true);
+
+    try {
+      const { data } = await api.get('tag', {
+        params: {
+          tenant_id: tenantId
+        }
+      });
+      if (!data) {
+      } else {
+        setTags(data);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Etiquetas", "Não foi possível buscar as etiquetas. Verifique sua conexão com a internet e tente novamente.");
+    } finally {
+      setButtonIsLoading(false);
+    };
+  };
 
   function handleTransactionsTypeSelect(type: 'credit' | 'debit' | 'transfer') {
     setTransactionType(type);
@@ -183,7 +200,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
   function handleCloseSelectCategoryModal() {
     categoryBottomSheetRef.current?.dismiss();
   };
-  
+
   function handleOpenSelectCurrencyModal() {
     currencyBottomSheetRef.current?.present();
   };
@@ -214,6 +231,20 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
 
   function handleCloseSelectTagModal() {
     tagBottomSheetRef.current?.dismiss();
+  };
+
+  function handleSelectTag(tag: TagProps) {
+    const isAdded = tagsSelected.find(element => element.id === tag.id);
+    if (!isAdded) {
+      setTagsSelected(prevState => [...prevState, tag]);
+    } else {
+      const remove = () => {
+        setTagsSelected((prevState) =>
+          prevState.filter((element) => element.id !== tag.id)
+        );
+      };
+      return remove();
+    }
   };
 
   async function handleRegisterTransaction(form: FormData) {
@@ -306,9 +337,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 name: accountSelected.name
               }
             });
-            if (accountDataResponse.status !== 200) {
-              Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
-            }
 
             const newTransaction = {
               created_at: date,
@@ -323,6 +351,28 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             }
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
+              const transactionDataResponse = await api.get('single_transaction_get_id', {
+                params: {
+                  tenant_id: tenantId,
+                  description: form.description,
+                }
+              });
+
+              let tagsList: any = [];
+              for (const item of tagsSelected) {
+                const tag_id = item.id;
+                if (!tagsList.hasOwnProperty(tag_id)) {
+                  tagsList[tag_id] = {
+                    transaction_id: transactionDataResponse.data.id,
+                    tag_id: item.id,
+                    tenant_id: item.tenant_id
+                  };
+                }
+              };
+              tagsList = { tagsList: Object.values(tagsList) };
+
+              await api.post('transaction_tag', tagsList);
+
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
               reset();
@@ -354,6 +404,8 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 },
                 tenant_id: ''
               });
+              setTagsSelected([]);
+              tagsList = [];
             };
           } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -372,9 +424,6 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 name: accountSelected.name
               }
             });
-            if (accountResponse.status !== 200) {
-              Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
-            }
 
             const newTransaction = {
               created_at: date,
@@ -388,6 +437,28 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
             }
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
+              const transactionDataResponse = await api.get('single_transaction_get_id', {
+                params: {
+                  tenant_id: tenantId,
+                  description: form.description,
+                }
+              });
+
+              let tagsList: any = [];
+              for (const item of tagsSelected) {
+                const tag_id = item.id;
+                if (!tagsList.hasOwnProperty(tag_id)) {
+                  tagsList[tag_id] = {
+                    transaction_id: transactionDataResponse.data.id,
+                    tag_id: item.id,
+                    tenant_id: item.tenant_id
+                  };
+                }
+              };
+              tagsList = { tagsList: Object.values(tagsList) };
+
+              await api.post('transaction_tag', tagsList);
+
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
               reset();
@@ -419,6 +490,8 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
                 },
                 tenant_id: ''
               });
+              setTagsSelected([]);
+              tagsList = [];
             };
           } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -535,6 +608,28 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           const transferDebitResponse = await api.post('transaction', transferDebit);
           const transferCreditResponse = await api.post('transaction', transferCredit);
 
+          const transactionDataResponse = await api.get('single_transaction_get_id', {
+            params: {
+              tenant_id: tenantId,
+              description: form.description,
+            }
+          });
+
+          let tagsList: any = [];
+          for (const item of tagsSelected) {
+            const tag_id = item.id;
+            if (!tagsList.hasOwnProperty(tag_id)) {
+              tagsList[tag_id] = {
+                transaction_id: transactionDataResponse.data.id,
+                tag_id: item.id,
+                tenant_id: item.tenant_id
+              };
+            }
+          };
+          tagsList = { tagsList: Object.values(tagsList) };
+
+          await api.post('transaction_tag', tagsList);
+
           if (transferDebitResponse.status && transferCreditResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
@@ -579,6 +674,8 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
               },
               tenant_id: ''
             });
+            setTagsSelected([]);
+            tagsList = [];
           };
         } catch (error) {
           if (axios.isAxiosError(error)) {
@@ -631,10 +728,33 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
       const { status } = await api.post('edit_transaction', transactionEdited);
 
       if (status === 200) {
+        const transactionDataResponse = await api.get('single_transaction_get_id', {
+          params: {
+            tenant_id: tenantId,
+            description: form.description,
+          }
+        });
+
+        let tagsList: any = [];
+        for (const item of tagsSelected) {
+          const tag_id = item.id;
+          if (!tagsList.hasOwnProperty(tag_id)) {
+            tagsList[tag_id] = {
+              transaction_id: transactionDataResponse.data.id,
+              tag_id: item.id,
+              tenant_id: item.tenant_id
+            };
+          }
+        };
+        tagsList = { tagsList: Object.values(tagsList) };
+
+        await api.post('transaction_tag', tagsList);
+
         Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: closeRegisterTransaction }]);
       }
 
-      setId();
+      resetId();
+      setTagsSelected([]);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
@@ -663,7 +783,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
   };
 
   function handleCloseRegisterTransaction() {
-    setId();
+    resetId();
     reset();
     setTransactionType('')
     setAccountSelected({
@@ -695,6 +815,10 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
     });
     closeRegisterTransaction();
   };
+
+  useFocusEffect(useCallback(() => {
+    fetchTags();
+  }, []));
 
   useFocusEffect(useCallback(() => {
     if (id != '') {
@@ -807,7 +931,23 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
           title="Etiquetas"
           icon='pricetags'
           color={categorySelected.color.hex}
-          onPress={handleOpenSelectTagModal}
+        />
+        <FlatList
+          data={tags}
+          keyExtractor={item => item.id}
+          renderItem={({ item }: any) => (
+            <TagListItemRegisterTransaction
+              data={item}
+              isActive={tagsSelected.includes(item)}
+              color={categorySelected.color.hex}
+              onPress={() => handleSelectTag(item)}
+            />
+          )}
+          horizontal
+          contentContainerStyle={{
+            paddingHorizontal: 12,
+            paddingBottom: 12
+          }}
         />
 
         <TransactionsTypes>
@@ -900,11 +1040,7 @@ export function RegisterTransaction({ closeRegisterTransaction, id, setId }: Pro
         bottomSheetRef={tagBottomSheetRef}
         snapPoints={['50%']}
       >
-        <TagSelect
-          tag={tagSelected}
-          setTag={setTagSelected}
-          closeSelectTag={handleCloseSelectTagModal}
-        />
+
       </ModalViewSelection>
     </Container>
   );

@@ -30,7 +30,12 @@ import { ModalView } from '@components/ModalView';
 import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 import { RegisterAccount } from '@screens/RegisterAccount';
 
-import { setAccountName, setAccountTotalAmount } from '@slices/accountSlice';
+import {
+  setAccountName,
+  setAccountCurrency,
+  setAccountTotalAmount,
+  setAccountInitialAmount
+} from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
@@ -204,9 +209,20 @@ export function Accounts({ navigation }: any) {
     visible ? setVisible(false) : setVisible(true);
   };
 
-  function handleOpenAccount(id: string, name: string, total: any) {
+  function handleOpenAccount(
+    id: string,
+    name: string,
+    currency: any,
+    initialAmount: string,
+    total: any) {
     dispatch(
       setAccountName(name)
+    );
+    dispatch(
+      setAccountCurrency(currency)
+    );
+    dispatch(
+      setAccountInitialAmount(initialAmount)
     );
     dispatch(
       setAccountTotalAmount(total)
@@ -244,11 +260,12 @@ export function Accounts({ navigation }: any) {
       <ChartContainer>
         <VictoryChart
           height={220}
-          domainPadding={{ y: 6 }}
+          domainPadding={{ y: 12 }}
           containerComponent={
             <VictoryZoomContainer
               allowZoom={false}
               zoomDomain={{ x: [6, 12] }}
+              zoomDimension='x'
             />
           }
           theme={smartFinancesChartTheme}
@@ -272,24 +289,6 @@ export function Accounts({ navigation }: any) {
               onLoad: { duration: 10000 },
               easing: 'backOut'
             }}
-            events={[{
-              target: 'parent',
-              eventHandlers: {
-                onClick: () => {
-                  return [
-                    {
-                      target: 'data',
-                      eventKey: 'all',
-                      mutation: ({ style }) => {
-                        return style.stroke === 'black'
-                          ? null
-                          : { style: { stroke: 'black', strokeWidth: 5 } };
-                      }
-                    }
-                  ];
-                }
-              }
-            }]}
           />
         </VictoryChart>
       </ChartContainer>
@@ -303,7 +302,13 @@ export function Accounts({ navigation }: any) {
               data={item}
               icon='wallet'
               color={theme.colors.primary}
-              onPress={() => handleOpenAccount(item.id, item.name, item.totalAccountAmount)}
+              onPress={() => handleOpenAccount(
+                item.id,
+                item.name,
+                item.currency,
+                item.initial_amount,
+                item.totalAccountAmount
+              )}
             />
           )}
           ListEmptyComponent={() => (

@@ -24,14 +24,18 @@ import {
 import Animated, {
   Extrapolate,
   interpolate,
+  useAnimatedGestureHandler,
   useAnimatedScrollHandler,
   useAnimatedStyle,
-  useSharedValue
+  useSharedValue,
+  withSpring
 } from 'react-native-reanimated';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { format, parse, parseISO } from 'date-fns';
+import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 import axios from 'axios';
@@ -49,10 +53,17 @@ import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { RegisterAccount } from '@screens/RegisterAccount';
 
-import { selectAccountName, selectAccountTotalAmount } from '@slices/accountSlice';
+import {
+  selectAccountCurrency,
+  selectAccountInitialAmount,
+  selectAccountName,
+  selectAccountTotalAmount
+} from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
+
+import theme from '@themes/theme';
 
 export function Account() {
   const [loading, setLoading] = useState(false);
@@ -76,6 +87,8 @@ export function Account() {
   const route = useRoute();
   const accountId = route.params?.id;
   const accountName = useSelector(selectAccountName);
+  const accountCurrency = useSelector(selectAccountCurrency);
+  const accountInitialAmount = useSelector(selectAccountInitialAmount);
   const accountTotal = useSelector(selectAccountTotalAmount);
   // Animated header
   const scrollY = useSharedValue(0);
@@ -100,6 +113,32 @@ export function Account() {
   });
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
+  // Animated button register transaction
+  const registerTransactionButtonPositionX = useSharedValue(0);
+  const registerTransactionButtonPositionY = useSharedValue(0);
+  const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
+  const registerTransactionButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: registerTransactionButtonPositionX.value },
+        { translateY: registerTransactionButtonPositionY.value }
+      ]
+    }
+  });
+  const OnMoveRegisterTransactionButton = useAnimatedGestureHandler({
+    onStart(_, ctx: any) {
+      ctx.positionX = registerTransactionButtonPositionX.value;
+      ctx.positionY = registerTransactionButtonPositionY.value;
+    },
+    onActive(event, ctx: any) {
+      registerTransactionButtonPositionX.value = ctx.positionX + event.translationX;
+      registerTransactionButtonPositionY.value = ctx.positionY + event.translationY;
+    },
+    onEnd() {
+      registerTransactionButtonPositionX.value = withSpring(0);
+      registerTransactionButtonPositionY.value = withSpring(0);
+    }
+  });
 
   async function fetchTransactions() {
     setLoading(true);
@@ -510,6 +549,15 @@ export function Account() {
     setTransactionModalOpen(true);
   };
 
+  function handleCloseTransaction() {
+    fetchTransactions();
+    setTransactionModalOpen(false);
+  };
+
+  function handleOpenRegisterTransactionModal() {
+    setTransactionModalOpen(true);
+  };
+
   async function handleClickDeleteAccount() {
     Alert.alert("Exclusão de conta", "ATENÇÃO! Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a conta", onPress: () => handleDeleteAccount(accountId) }])
   };
@@ -531,11 +579,6 @@ export function Account() {
         Alert.alert("Edição de Conta", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseEditAccount }]);
       }
     };
-  };
-
-  function handleCloseTransaction() {
-    fetchTransactions();
-    setTransactionModalOpen(false);
   };
 
   function ClearTransactionId() {
@@ -624,6 +667,23 @@ export function Account() {
         />
       </Transactions>
 
+      <PanGestureHandler onGestureEvent={OnMoveRegisterTransactionButton}>
+        <Animated.View
+          style={[
+            registerTransactionButtonStyle,
+            {
+              position: 'absolute',
+              bottom: 22,
+              right: 22
+            }
+          ]}
+        >
+          <ButtonAnimated onPress={handleOpenRegisterTransactionModal} style={styles.animatedButton}>
+            <Ionicons name='add-outline' size={32} color={theme.colors.background} />
+          </ButtonAnimated>
+        </Animated.View>
+      </PanGestureHandler>
+
       <ModalViewSelection
         title="Selecione o período"
         bottomSheetRef={periodSelectBottomSheetRef}
@@ -657,7 +717,14 @@ export function Account() {
       >
         <RegisterTransaction
           id={transactionId}
-          setId={ClearTransactionId}
+          resetId={ClearTransactionId}
+          account={{
+            id: accountId,
+            name: accountName,
+            currency: accountCurrency,
+            initial_amount: accountInitialAmount,
+            tenant_id: tenantId
+          }}
           closeRegisterTransaction={handleCloseTransaction}
         />
       </ModalViewWithoutHeader>
@@ -668,5 +735,13 @@ export function Account() {
 const styles = StyleSheet.create({
   header: {
     overflow: 'hidden'
+  },
+  animatedButton: {
+    width: 45,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.primary,
+    borderRadius: 30
   }
 });
