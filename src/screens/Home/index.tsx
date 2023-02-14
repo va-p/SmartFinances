@@ -365,6 +365,7 @@ export function Home() {
               },
               tenant_id: item.category.tenant_id
             },
+            tags: item.tags,
             tenant_id: item.tenant_id,
           };
         }

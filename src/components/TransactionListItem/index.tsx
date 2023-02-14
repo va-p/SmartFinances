@@ -6,7 +6,7 @@ import {
   AmountContainer,
   TransferDirectionIcon,
   Amount,
-  LabelContainer,
+  TagsContainer,
   Footer,
   CategoryAndAccountContainer,
   IconContainer,
@@ -22,6 +22,8 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CategoryProps } from '@components/CategoryListItem';
+import { FlatList } from 'react-native';
+import { TagTransaction } from '@components/TagTransaction';
 
 export interface TransactionProps {
   id: string;
@@ -34,6 +36,7 @@ export interface TransactionProps {
   type: 'credit' | 'debit' | 'transferDebit' | 'transferCredit';
   account: AccountProps;
   category: CategoryProps;
+  tags: [];
   tenant_id: string;
 }
 
@@ -68,10 +71,6 @@ export function TransactionListItem({ data, ...rest }: Props) {
             </Amount>
           </AmountContainer>
         </DescriptionAndAmountContainer>
-        
-        <LabelContainer>
-          
-        </LabelContainer>
 
         <Footer>
           <CategoryAndAccountContainer>
@@ -86,9 +85,19 @@ export function TransactionListItem({ data, ...rest }: Props) {
           <AmountNotConvertedContainer>
             <AmountNotConverted>
               {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
-            </AmountNotConverted>            
+            </AmountNotConverted>
           </AmountNotConvertedContainer>
         </Footer>
+        <TagsContainer>
+          <FlatList
+            data={data.tags}
+            keyExtractor={(item: any) => item.id}
+            renderItem={({ item }: any) => (
+              <TagTransaction data={item} />
+            )}
+            horizontal
+          />
+        </TagsContainer>
       </DetailsContainer>
     </Container>
   )

@@ -14,7 +14,6 @@ import { TagProps } from '@components/TagListItem';
 import { ListItem } from '@components/ListItem';
 import { Load } from '@components/Load';
 
-
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';

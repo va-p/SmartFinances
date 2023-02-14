@@ -338,6 +338,17 @@ export function RegisterTransaction({
               }
             });
 
+            let tagsList: any = [];
+            for (const item of tagsSelected) {
+              const tag_id = item.id;
+              if (!tagsList.hasOwnProperty(tag_id)) {
+                tagsList[tag_id] = {
+                  tag_id: item.id
+                };
+              }
+            };
+            tagsList = Object.values(tagsList);
+
             const newTransaction = {
               created_at: date,
               description: form.description,
@@ -347,32 +358,11 @@ export function RegisterTransaction({
               type: transactionType,
               account_id: accountDataResponse.data.id,
               category_id: categorySelected.id,
+              tags: tagsList,
               tenant_id: tenantId
             }
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
-              const transactionDataResponse = await api.get('single_transaction_get_id', {
-                params: {
-                  tenant_id: tenantId,
-                  description: form.description,
-                }
-              });
-
-              let tagsList: any = [];
-              for (const item of tagsSelected) {
-                const tag_id = item.id;
-                if (!tagsList.hasOwnProperty(tag_id)) {
-                  tagsList[tag_id] = {
-                    transaction_id: transactionDataResponse.data.id,
-                    tag_id: item.id,
-                    tenant_id: item.tenant_id
-                  };
-                }
-              };
-              tagsList = { tagsList: Object.values(tagsList) };
-
-              await api.post('transaction_tag', tagsList);
-
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
               reset();
@@ -425,6 +415,17 @@ export function RegisterTransaction({
               }
             });
 
+            let tagsList: any = [];
+            for (const item of tagsSelected) {
+              const tag_id = item.id;
+              if (!tagsList.hasOwnProperty(tag_id)) {
+                tagsList[tag_id] = {
+                  tag_id: item.id
+                };
+              }
+            };
+            tagsList = Object.values(tagsList);
+
             const newTransaction = {
               created_at: date,
               description: form.description,
@@ -433,32 +434,11 @@ export function RegisterTransaction({
               type: transactionType,
               account_id: accountResponse.data.id,
               category_id: categorySelected.id,
+              tags: tagsList,
               tenant_id: tenantId
             }
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
-              const transactionDataResponse = await api.get('single_transaction_get_id', {
-                params: {
-                  tenant_id: tenantId,
-                  description: form.description,
-                }
-              });
-
-              let tagsList: any = [];
-              for (const item of tagsSelected) {
-                const tag_id = item.id;
-                if (!tagsList.hasOwnProperty(tag_id)) {
-                  tagsList[tag_id] = {
-                    transaction_id: transactionDataResponse.data.id,
-                    tag_id: item.id,
-                    tenant_id: item.tenant_id
-                  };
-                }
-              };
-              tagsList = { tagsList: Object.values(tagsList) };
-
-              await api.post('transaction_tag', tagsList);
-
               Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
               reset();
@@ -583,6 +563,17 @@ export function RegisterTransaction({
             Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
           }
 
+          let tagsList: any = [];
+          for (const item of tagsSelected) {
+            const tag_id = item.id;
+            if (!tagsList.hasOwnProperty(tag_id)) {
+              tagsList[tag_id] = {
+                tag_id: item.id
+              };
+            }
+          };
+          tagsList = Object.values(tagsList);
+
           const transferDebit = {
             created_at: date,
             description: form.description,
@@ -591,6 +582,7 @@ export function RegisterTransaction({
             type: 'transferDebit',
             account_id: accountResponse.data.id,
             category_id: categorySelected.id,
+            tags: tagsList,
             tenant_id: tenantId
           }
 
@@ -602,33 +594,12 @@ export function RegisterTransaction({
             type: 'transferCredit',
             account_id: accountDestinationResponse.data.id,
             category_id: categorySelected.id,
+            tags: tagsList,
             tenant_id: tenantId
           }
 
           const transferDebitResponse = await api.post('transaction', transferDebit);
           const transferCreditResponse = await api.post('transaction', transferCredit);
-
-          const transactionDataResponse = await api.get('single_transaction_get_id', {
-            params: {
-              tenant_id: tenantId,
-              description: form.description,
-            }
-          });
-
-          let tagsList: any = [];
-          for (const item of tagsSelected) {
-            const tag_id = item.id;
-            if (!tagsList.hasOwnProperty(tag_id)) {
-              tagsList[tag_id] = {
-                transaction_id: transactionDataResponse.data.id,
-                tag_id: item.id,
-                tenant_id: item.tenant_id
-              };
-            }
-          };
-          tagsList = { tagsList: Object.values(tagsList) };
-
-          await api.post('transaction_tag', tagsList);
 
           if (transferDebitResponse.status && transferCreditResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
@@ -701,6 +672,7 @@ export function RegisterTransaction({
       setAccountSelected(data.account);
       setDate(data.created_at);
       setDescription(data.description);
+      setTagsSelected(data.tags);
       setTransactionType(data.type);
     } catch (error) {
       console.error(error);
@@ -710,6 +682,17 @@ export function RegisterTransaction({
 
   async function handleEditTransaction(id: string, form: FormData) {
     setButtonIsLoading(true);
+
+    let tagsList: any = [];
+    for (const item of tagsSelected) {
+      const tag_id = item.id;
+      if (!tagsList.hasOwnProperty(tag_id)) {
+        tagsList[tag_id] = {
+          tag_id: item.id
+        };
+      }
+    };
+    tagsList = Object.values(tagsList);
 
     const transactionEdited = {
       transaction_id: id,
@@ -721,6 +704,7 @@ export function RegisterTransaction({
       type: transactionType,
       account_id: accountSelected.id,
       category_id: categorySelected.id,
+      tags: tagsList,
       tenant_id: tenantId
     }
 

@@ -10,11 +10,11 @@ type TransactionProps = {
 
 export const Container = styled(RectButton)`
   flex: 1;
-  min-height: 70px;
-  max-height: 70px;
+  min-height: 72px;
+  max-height: 88px;
   flex-direction: row;
   align-items: center;
-  padding: 12px;
+  padding: 8px 12px;
 `;
 
 export const IconContainer = styled.View`
@@ -65,8 +65,6 @@ export const Amount = styled.Text <TransactionProps>`
   margin-left: 5px;
 `;
 
-export const LabelContainer = styled.View``;
-
 export const Footer = styled.View`
   flex-direction: row;
   align-items: flex-start;
@@ -94,4 +92,8 @@ export const AmountNotConvertedContainer = styled.View`
 export const AmountNotConverted = styled.Text`
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
+`;
+
+export const TagsContainer = styled.View`
+  padding-top: 4px;
 `;
