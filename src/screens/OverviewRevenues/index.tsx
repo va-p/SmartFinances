@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
-  Content,
+  ScrollContent,
   MonthSelect,
   MonthSelectButton,
   MonthSelectIcon,
@@ -39,13 +39,6 @@ interface CategoryData {
   total: number;
   totalFormatted: string;
   percent: string;
-}
-
-interface MonthData {
-  monthName: string;
-  monthFormatted: number;
-  totalExpensesFormatted: string;
-  totalRevenuesFormatted: string;
 }
 
 export function OverviewRevenues() {
@@ -191,7 +184,7 @@ export function OverviewRevenues() {
     <Container>
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>
-          <MonthSelectIcon name="chevron-back" />
+          <MonthSelectIcon name='chevron-back' />
         </MonthSelectButton>
 
         <Month>
@@ -199,11 +192,11 @@ export function OverviewRevenues() {
         </Month>
 
         <MonthSelectButton onPress={() => handleDateChange('next')}>
-          <MonthSelectIcon name="chevron-forward" />
+          <MonthSelectIcon name='chevron-forward' />
         </MonthSelectButton>
       </MonthSelect>
 
-      <Content
+      <ScrollContent
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: useBottomTabBarHeight(),
@@ -249,7 +242,7 @@ export function OverviewRevenues() {
             />
           ))
         }
-      </Content>
+      </ScrollContent>
     </Container>
   )
 }

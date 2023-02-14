@@ -10,7 +10,7 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const Content = styled.ScrollView``;
+export const ScrollContent = styled.ScrollView``;
 
 export const MonthSelect = styled.View`
   width: 100%;

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
-  Content,
+  ScrollContent,
   MonthSelect,
   MonthSelectButton,
   MonthSelectIcon,
@@ -23,7 +23,6 @@ import { CategoryProps, ColorProps, IconProps } from '@components/CategoryListIt
 import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
-import { Header } from '@components/Header';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -40,13 +39,6 @@ interface CategoryData {
   total: number;
   totalFormatted: string;
   percent: string;
-}
-
-interface MonthData {
-  monthName: string;
-  monthFormatted: number;
-  totalExpensesFormatted: string;
-  totalRevenuesFormatted: string;
 }
 
 export function OverviewExpenses() {
@@ -192,7 +184,7 @@ export function OverviewExpenses() {
     <Container>
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>
-          <MonthSelectIcon name="chevron-back" />
+          <MonthSelectIcon name='chevron-back' />
         </MonthSelectButton>
 
         <Month>
@@ -200,11 +192,11 @@ export function OverviewExpenses() {
         </Month>
 
         <MonthSelectButton onPress={() => handleDateChange('next')}>
-          <MonthSelectIcon name="chevron-forward" />
+          <MonthSelectIcon name='chevron-forward' />
         </MonthSelectButton>
       </MonthSelect>
 
-      <Content
+      <ScrollContent
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: useBottomTabBarHeight(),
@@ -250,7 +242,7 @@ export function OverviewExpenses() {
             />
           ))
         }
-      </Content>
+      </ScrollContent>
     </Container>
   )
 }
