@@ -219,6 +219,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           color={theme.colors.primary}
           placeholder='Saldo inicial'
           keyboardType='numeric'
+          returnKeyType='go'
           defaultValue={initialAmount}
           name='initialAmount'
           control={control}

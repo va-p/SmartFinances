@@ -29,11 +29,15 @@ export function OptionsMenu({ navigation }: any) {
   const toggleSwitch = () => setLocalAuthIsEnabled(previousState => !previousState);
   const userId = useSelector(selectUserId);
 
-  function handleClickCategories() {
+  function handleOpenAccounts() {
+    navigation.navigate('Contas');
+  };
+
+  function handleOpenCategories() {
     navigation.navigate('Categorias');
   };
 
-  function handleClickTags() {
+  function handleOpenTags() {
     navigation.navigate('Etiquetas');
   };
 
@@ -104,20 +108,28 @@ export function OptionsMenu({ navigation }: any) {
   return (
     <Container>
       <Header type='secondary' title="Mais opções" />
+      
       <ContentScroll>
         <Title>Conta</Title>
+        <SelectButton
+          icon='wallet-outline'
+          title="Contas Manuais"
+          color={theme.colors.primary}
+          onPress={() => handleOpenAccounts()}
+        />
+
         <SelectButton
           icon='grid-outline'
           title="Categorias"
           color={theme.colors.primary}
-          onPress={() => handleClickCategories()}
+          onPress={() => handleOpenCategories()}
         />
 
         <SelectButton
           icon='pricetags-outline'
           title="Etiquetas"
           color={theme.colors.primary}
-          onPress={() => handleClickTags()}
+          onPress={() => handleOpenTags()}
         />
 
         <Title>Configurações</Title>

@@ -12,13 +12,7 @@ export const ContentScroll = styled.ScrollView``;
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
-  padding-top: 10px;
-  padding-left: 10px;
+  padding-top: 12px;
+  padding-left: 12px;
   color: ${({ theme }) => theme.colors.title};
-`;
-
-export const EnableLocalAuthContainer = styled.View`
-`;
-
-export const EnableLocalAuthText = styled.Text`
 `;

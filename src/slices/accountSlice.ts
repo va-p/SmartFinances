@@ -3,13 +3,13 @@ import type { RootState } from '../store'
 
 // Define a type for the slice state
 interface AccountState {
-  accountId: string | null;
+  accountId: string;
   accountName: string | null;
   accountCurrency: {
     code: string | null;
     symbol: string | null;
   };
-  accountInitialAmount: string | null;
+  accountInitialAmount: string | number | null;
   accountTotalRevenues: string | null;
   accountTotalExpenses: string | null;
   accountTotalAmount: string | null;
@@ -18,7 +18,7 @@ interface AccountState {
 
 // Define the initial state using that type
 const initialState: AccountState = {
-  accountId: null,
+  accountId: '',
   accountName: null,
   accountCurrency: {code: null, symbol: null},
   accountInitialAmount: null,

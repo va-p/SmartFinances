@@ -698,7 +698,7 @@ export function Account() {
       </ModalViewSelection>
 
       <ModalView
-        type={accountId ? 'secondary' : 'primary'}
+        type={'secondary'}
         title={`Editar Conta ${accountName}`}
         bottomSheetRef={editAccountBottomSheetRef}
         snapPoints={['50%', '75%']}

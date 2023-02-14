@@ -3,11 +3,11 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { PrivacyPolicy } from '@screens/PrivacyPolicy';
+import { AccountsList } from '@screens/AccountsList';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { TermsOfUse } from '@screens/TermsOfUse';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
-import { Accounts } from '@screens/Accounts';
 import { Tags } from '@screens/Tags';
 
 import theme from '@themes/theme';
@@ -27,6 +27,11 @@ export function AppOptionsStackRoutes() {
       <Screen
         name="Mais Opções"
         component={OptionsMenu}
+      />
+
+      <Screen
+        name="Contas"
+        component={AccountsList}
       />
 
       <Screen

@@ -297,7 +297,7 @@ export function Accounts({ navigation }: any) {
         <FlatList
           data={accounts}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => (
+          renderItem={({ item }: any) => (
             <AccountListItem
               data={item}
               icon='wallet'
@@ -312,7 +312,7 @@ export function Accounts({ navigation }: any) {
             />
           )}
           ListEmptyComponent={() => (
-            <ListEmptyComponent text="Não há contas. Adicione uma conta e ao menos uma transação para visualizar a conta aqui" />
+            <ListEmptyComponent text="Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui" />
           )}
           initialNumToRender={10}
           refreshControl={
