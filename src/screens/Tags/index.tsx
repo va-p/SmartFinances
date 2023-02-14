@@ -2,7 +2,6 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
-  TagsContainer,
   Footer
 } from './styles';
 
@@ -103,29 +102,27 @@ export function Tags() {
     <Container>
       <Header type='primary' title="Etiquetas" />
 
-      <TagsContainer>
-        <FlatList
-          data={tags}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <TagListItem
-              data={item}
-              onPress={() => handleOpenTag(item.id)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text="Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui." />
-          )}
-          initialNumToRender={50}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: 20
-          }}
-        />
-      </TagsContainer>
+      <FlatList
+        data={tags}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <TagListItem
+            data={item}
+            onPress={() => handleOpenTag(item.id)}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <ListEmptyComponent text="Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui." />
+        )}
+        initialNumToRender={50}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
+        }
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingTop: 24
+        }}
+      />
 
       <Footer>
         <Button

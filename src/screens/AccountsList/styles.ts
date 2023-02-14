@@ -5,3 +5,5 @@ export const Container = styled.View`
   padding: 12px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
+
+export const Footer = styled.View``;

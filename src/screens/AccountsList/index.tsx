@@ -1,7 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
-  Container
+  Container,
+  Footer
 } from './styles';
 
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -9,11 +10,12 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 
+import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 import { AccountListItem, AccountProps } from '@components/AccountListItem';
-import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalView } from '@components/ModalView';
 import { Header } from '@components/Header';
+import { Button } from '@components/Button';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
@@ -65,6 +67,23 @@ export function AccountsList() {
     }
   };
 
+  function handleOpenRegisterAccountModal() {
+    dispatch(
+      setAccountId('')
+    );
+    dispatch(
+      setAccountName('')
+    );
+    dispatch(
+      setAccountInitialAmount('')
+    );
+    editAccountBottomSheetRef.current?.present();
+  };
+
+  function handleCloseRegisterAccountModal() {
+    editAccountBottomSheetRef.current?.dismiss();
+  };
+
   function handleOpenAccount(
     id: string,
     name: string,
@@ -91,6 +110,9 @@ export function AccountsList() {
   };
 
   function handleCloseEditAccount() {
+    dispatch(
+      setAccountId('')
+    );
     fetchAccounts();
     editAccountBottomSheetRef.current?.dismiss();
   };
@@ -123,7 +145,7 @@ export function AccountsList() {
   );
 
   if (loading) {
-    return <SkeletonAccountsScreen />
+    return <SkeletonCategoriesAndTagsScreen />
   }
 
   return (
@@ -155,14 +177,25 @@ export function AccountsList() {
           <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
         }
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingTop: 24
+        }}
       />
+
+      <Footer>
+        <Button
+          type='secondary'
+          title="Criar Nova Conta"
+          onPress={handleOpenRegisterAccountModal}
+        />
+      </Footer>
 
       <ModalView
         type={'secondary'}
         title={`Editar Conta ${accountName}`}
         bottomSheetRef={editAccountBottomSheetRef}
         snapPoints={['50%', '75%']}
-        closeModal={handleCloseEditAccount}
+        closeModal={handleCloseRegisterAccountModal}
         deleteChildren={handleClickDeleteAccount}
       >
         <RegisterAccount

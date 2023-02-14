@@ -17,20 +17,19 @@ export const Header = styled.View`
 
 export const Title = styled.View`
   width: 100px;
-  height: ${RFPercentage(5)}px;
+  height: ${RFPercentage(4)}px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${RFPercentage(2)}px;
 `;
 
 export const Body = styled.View`
-  height: ${RFPercentage(70)}px;
+  height: ${RFPercentage(71)}px;
 `;
-
 
 export const Tag = styled.View`
   width: 100%;
   height: 56px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
@@ -42,6 +41,7 @@ export const Footer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 12px;
 `;
 
 export const AddTagButton = styled.View`

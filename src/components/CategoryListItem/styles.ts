@@ -20,8 +20,8 @@ export const Category = styled.TouchableOpacity.attrs({
   max-height: 56px;
   flex-direction: row;
   align-items: center;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-left-width: 10px;
   border-left-color: ${({ color }) => color};

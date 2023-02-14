@@ -2,7 +2,6 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
-  CategoriesContainer,
   Footer
 } from './styles';
 
@@ -103,29 +102,27 @@ export function Categories() {
     <Container>
       <Header type='primary' title="Categorias" />
 
-      <CategoriesContainer>
-        <FlatList
-          data={categories}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <CategoryListItem
-              data={item}
-              onPress={() => handleOpenCategory(item.id)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text="Nenhuma categoria criada. Crie categorias para visualizá-las aqui." />
-          )}
-          initialNumToRender={50}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: 20
-          }}
-        />
-      </CategoriesContainer>
+      <FlatList
+        data={categories}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <CategoryListItem
+            data={item}
+            onPress={() => handleOpenCategory(item.id)}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <ListEmptyComponent text="Nenhuma categoria criada. Crie categorias para visualizá-las aqui." />
+        )}
+        initialNumToRender={50}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
+        }
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingTop: 24
+        }}
+      />
 
       <Footer>
         <Button

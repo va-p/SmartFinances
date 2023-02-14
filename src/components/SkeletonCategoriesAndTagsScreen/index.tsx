@@ -49,7 +49,7 @@ export function SkeletonCategoriesAndTagsScreen() {
     <Container>
       <Header>
         <Title>
-          <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
+          <Animated.View style={{ width: '30%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
         </Title>
       </Header>
 
