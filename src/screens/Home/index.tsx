@@ -171,69 +171,74 @@ export function Home() {
     }
   });
 
-  async function fetchBtcQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          id: '1',
-          convert: 'BRL'
+  function fetchCurrenciesQuotes() {
+    const btcQuote = async () => {
+      try {
+        const { data } = await apiQuotes.get('v2/tools/price-conversion', {
+          params: {
+            amount: 1,
+            id: '1',
+            convert: 'BRL'
+          }
+        })
+        if (!data) {
         }
-      })
-      if (!data) {
+        else {
+          dispatch(
+            setBtcQuoteBrl(data.data.quote.BRL)
+          )
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
       }
-      else {
-        dispatch(
-          setBtcQuoteBrl(data.data.quote.BRL)
-        )
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
-    }
-  };
+    };
 
-  async function fetchEurQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          symbol: 'EUR',
-          convert: 'BRL'
+    const eurQuote = async () => {
+      try {
+        const { data } = await apiQuotes.get('v2/tools/price-conversion', {
+          params: {
+            amount: 1,
+            symbol: 'EUR',
+            convert: 'BRL'
+          }
+        })
+        if (!data) {
         }
-      })
-      if (!data) {
+        else {
+          dispatch(
+            setEurQuoteBrl(data.data['0'].quote.BRL)
+          )
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
       }
-      else {
-        dispatch(
-          setEurQuoteBrl(data.data['0'].quote.BRL)
-        )
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
-    }
-  };
+    };
 
-  async function fetchUsdQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          symbol: 'USD',
-          convert: 'BRL'
+    const usdQuote = async () => {
+      try {
+        const { data } = await apiQuotes.get('v2/tools/price-conversion', {
+          params: {
+            amount: 1,
+            symbol: 'USD',
+            convert: 'BRL'
+          }
+        })
+        if (!data) {
         }
-      })
-      if (!data) {
+        else {
+          dispatch(
+            setUsdQuoteBrl(data.data['0'].quote.BRL)
+          )
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
       }
-      else {
-        dispatch(
-          setUsdQuoteBrl(data.data['0'].quote.BRL)
-        )
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Cotação de moedas", "Não foi possível buscar a cotação de moedas. Verifique sua conexão com a internet e tente novamente.")
+    };
+    return {
+      btcQuote, eurQuote, usdQuote
     }
   };
 
@@ -662,9 +667,7 @@ export function Home() {
   }, []);
 
   useFocusEffect(useCallback(() => {
-    fetchBtcQuote();
-    fetchEurQuote();
-    fetchUsdQuote();
+    fetchCurrenciesQuotes();
     fetchTransactions();
   }, [chartPeriodSelected.period]));
 
