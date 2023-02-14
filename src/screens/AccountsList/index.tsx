@@ -191,8 +191,8 @@ export function AccountsList() {
       </Footer>
 
       <ModalView
-        type={'secondary'}
-        title={`Editar Conta ${accountName}`}
+        type={accountId != '' ? 'secondary' : 'primary'}
+        title={accountId != '' ? "Editar Conta" : "Criar Nova Conta"}
         bottomSheetRef={editAccountBottomSheetRef}
         snapPoints={['50%', '75%']}
         closeModal={handleCloseRegisterAccountModal}

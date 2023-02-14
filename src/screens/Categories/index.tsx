@@ -54,18 +54,23 @@ export function Categories() {
   };
 
   function handleOpenRegisterCategoryModal() {
+    setCategoryId('');
     bottomSheetRef.current?.present();
   };
 
   function handleCloseRegisterCategoryModal() {
-    setCategoryId('');
     bottomSheetRef.current?.dismiss();
-    fetchCategories();
   };
 
   function handleOpenCategory(id: string) {
     setCategoryId(id);
     bottomSheetRef.current?.present();
+  };
+
+  function handleCloseEditCategory() {
+    setCategoryId('');
+    fetchCategories();
+    bottomSheetRef.current?.dismiss();
   };
 
   async function handleClickDeleteCategory() {
@@ -143,7 +148,7 @@ export function Categories() {
       >
         <RegisterCategory
           id={categoryId}
-          closeCategory={handleCloseRegisterCategoryModal}
+          closeCategory={handleCloseEditCategory}
         />
       </ModalView>
     </Container>

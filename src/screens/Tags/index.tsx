@@ -54,18 +54,23 @@ export function Tags() {
   };
 
   function handleOpenRegisterTagModal() {
+    setTagId('');
     bottomSheetRef.current?.present();
   };
 
   function handleCloseRegisterTagModal() {
-    setTagId('');
     bottomSheetRef.current?.dismiss();
-    fetchTags();
   };
 
   function handleOpenTag(id: string) {
     setTagId(id);
     bottomSheetRef.current?.present();
+  };
+
+  function handleCloseEditTag() {
+    setTagId('');
+    fetchTags();
+    bottomSheetRef.current?.dismiss();
   };
 
   async function handleClickDeleteTag() {
@@ -134,15 +139,15 @@ export function Tags() {
 
       <ModalView
         type={tagId != '' ? 'secondary' : 'primary'}
-        title={tagId != '' ? "Editar Etiqueta" : "Criar Etiqueta"}
+        title={tagId != '' ? "Editar Etiqueta" : "Criar Nova Etiqueta"}
         bottomSheetRef={bottomSheetRef}
         snapPoints={['50%']}
-        closeModal={() => bottomSheetRef.current?.dismiss()}
+        closeModal={handleCloseRegisterTagModal}
         deleteChildren={handleClickDeleteTag}
       >
         <RegisterTag
           id={tagId}
-          closeTag={handleCloseRegisterTagModal}
+          closeTag={handleCloseEditTag}
         />
       </ModalView>
     </Container>
