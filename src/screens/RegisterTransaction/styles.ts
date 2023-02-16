@@ -26,8 +26,8 @@ export const Header = styled.View <ColorProps>`
 
 export const TitleContainer = styled.View`
   width: 100%;
-  min-height: ${RFPercentage(5.5)}px;
-  max-height: ${RFPercentage(5.5)}px;
+  min-height: ${RFPercentage(6)}px;
+  max-height: ${RFPercentage(6)}px;
   flex-direction: row;
   justify-content: center;
 `;
@@ -43,14 +43,28 @@ export const HeaderRow = styled.View`
   width: 100%;
   flex-direction: row;
   align-items: center;
-  padding: 12px 0;
+  padding: 6px 0;
 `;
 
 export const InputTransactionValueContainer = styled.View`
   width: 60%;
   flex-direction: row;
   align-items: center;
-  margin: 0 12px 0 20px;
+  margin-left: 12px;
+`;
+
+export const ContentScroll = styled.ScrollView.attrs({
+  shownsVerticalScrollIndicator: false
+})``;
+
+export const ProductImageContainer = styled.View`
+  padding: 0 12px 12px;
+`;
+
+export const ProductImage = styled.Image`
+  width: 100%;
+  height: 100px;
+  border-radius: 10px;
 `;
 
 export const TransactionsTypes = styled.View`

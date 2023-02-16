@@ -88,7 +88,7 @@ export function Home() {
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
     id: '1',
     name: 'Meses',
@@ -108,6 +108,8 @@ export function Home() {
   ]);
   const [selectedPeriod, setSelectedPeriod] = useState(new Date());
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
+
+  const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [registerTransactionModalOpen, setRegisterTransactionModalOpen] = useState(false);
   const [transactionId, setTransactionId] = useState('');
   const [visible, setVisible] = useState(true);
@@ -609,25 +611,26 @@ export function Home() {
   };
 
   function handleOpenPeriodSelectedModal() {
-    bottomSheetRef.current?.present();
+    chartPeriodSelectedBottomSheetRef.current?.present();
   };
 
   function handleClosePeriodSelectedModal() {
-    bottomSheetRef.current?.dismiss();
+    chartPeriodSelectedBottomSheetRef.current?.dismiss();
   };
 
   function handleOpenRegisterTransactionModal() {
-    setRegisterTransactionModalOpen(true);
+    setTransactionId('');
+    registerTransactionBottomSheetRef.current?.present();
   };
 
   function handleCloseRegisterTransactionModal() {
     fetchTransactions();
-    setRegisterTransactionModalOpen(false);
+    registerTransactionBottomSheetRef.current?.dismiss();
   };
 
   function handleOpenTransaction(id: string) {
     setTransactionId(id);
-    setRegisterTransactionModalOpen(true);
+    registerTransactionBottomSheetRef.current?.present();
   };
 
   function handleDateChange(action: 'next' | 'prev'): void {
@@ -811,7 +814,7 @@ export function Home() {
 
       <ModalViewSelection
         title="Selecione o período"
-        bottomSheetRef={bottomSheetRef}
+        bottomSheetRef={chartPeriodSelectedBottomSheetRef}
         snapPoints={['30%', '50%']}
       >
         <ChartPeriodSelect
@@ -822,13 +825,14 @@ export function Home() {
       </ModalViewSelection>
 
       <ModalViewWithoutHeader
-        visible={registerTransactionModalOpen}
-        closeModal={handleCloseRegisterTransactionModal}
+        bottomSheetRef={registerTransactionBottomSheetRef}
+        snapPoints={['100%']}
       >
         <RegisterTransaction
           id={transactionId}
           resetId={ClearTransactionId}
           closeRegisterTransaction={handleCloseRegisterTransactionModal}
+          closeModal={() => registerTransactionBottomSheetRef.current?.dismiss()}
         />
       </ModalViewWithoutHeader>
     </Container>

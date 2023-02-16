@@ -8,6 +8,9 @@ import {
   Title,
   HeaderRow,
   InputTransactionValueContainer,
+  ContentScroll,
+  ProductImageContainer,
+  ProductImage,
   TransactionsTypes,
   Footer
 } from './styles';
@@ -17,6 +20,7 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
@@ -73,12 +77,15 @@ type Props = {
   resetId: () => void;
   account?: AccountProps;
   closeRegisterTransaction: () => void;
+  closeModal?: () => void;
 }
 
 type FormData = {
   description: string;
   amount: string;
 }
+
+const PHOTO_MAX_SIZE = 33;
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
@@ -105,7 +112,8 @@ export function RegisterTransaction({
     initial_amount: 0,
     tenant_id: ''
   },
-  closeRegisterTransaction
+  closeRegisterTransaction,
+  closeModal
 }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
@@ -159,6 +167,8 @@ export function RegisterTransaction({
   const [transactionType, setTransactionType] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
+  const [image, setImage] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   const {
     control,
@@ -190,7 +200,7 @@ export function RegisterTransaction({
   };
 
   function handleTransactionsTypeSelect(type: 'credit' | 'debit' | 'transfer') {
-    setTransactionType(type);
+    setTransactionType(type); console.log(imageUrl);
   };
 
   function handleOpenSelectCategoryModal() {
@@ -245,6 +255,50 @@ export function RegisterTransaction({
       };
       return remove();
     }
+  };
+
+  function handleClickSelectImage() {
+    Alert.alert("Selecionar Imagem", undefined,
+      [
+        { text: "Tirar foto", onPress: handleTakePhoto },
+        { text: "Selecionar da biblioteca", onPress: handleSelectImage }
+      ]);
+  };
+
+  async function handleSelectImage() {
+    try {
+      const imageSelected = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+        base64: true
+      });
+
+      if (!imageSelected.canceled && imageSelected.assets[0].base64) {
+        setImage(imageSelected.assets[0].base64);
+        setImageUrl(imageSelected.assets[0].uri);
+      }
+    } catch (error) {
+      console.error(error);
+    };
+  };
+
+  async function handleTakePhoto() {
+    try {
+      const photoTaked = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+        base64: true
+      });
+
+      if (!photoTaked.canceled && photoTaked.assets[0].base64) {
+        setImage(photoTaked.assets[0].base64);
+        setImageUrl(photoTaked.assets[0].uri);
+      }
+    } catch (error) {
+      console.error(error);
+    };
   };
 
   async function handleRegisterTransaction(form: FormData) {
@@ -331,7 +385,7 @@ export function RegisterTransaction({
           }
 
           try {
-            const accountDataResponse = await api.get('single_account_get_id', {
+            const accountResponse = await api.get('single_account_get_id', {
               params: {
                 tenant_id: tenantId,
                 name: accountSelected.name
@@ -349,6 +403,24 @@ export function RegisterTransaction({
             };
             tagsList = Object.values(tagsList);
 
+            let imageResponse: any = null;
+            let transaction_image_id: number | null = null;
+            if (image != '') {
+              const newImage = {
+                file: `data:image/jpeg;base64,${image}`,
+                tenant_id: tenantId
+              }
+              const uploadImage = await api.post('upload/transaction_image', newImage);
+              if (uploadImage.status === 200) {
+                imageResponse = await api.get('single_transaction_image_get_id', {
+                  params: {
+                    tenant_id: tenantId
+                  }
+                });
+                transaction_image_id = imageResponse.data.id
+              }
+            }
+
             const newTransaction = {
               created_at: date,
               description: form.description,
@@ -356,9 +428,10 @@ export function RegisterTransaction({
               amount_not_converted: form.amount,
               currency_id: currencySelected.id,
               type: transactionType,
-              account_id: accountDataResponse.data.id,
+              account_id: accountResponse.data.id,
               category_id: categorySelected.id,
               tags: tagsList,
+              transaction_image_id,
               tenant_id: tenantId
             }
             const { status } = await api.post('transaction', newTransaction);
@@ -396,6 +469,7 @@ export function RegisterTransaction({
               });
               setTagsSelected([]);
               tagsList = [];
+              setImage('');
             };
           } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -426,6 +500,24 @@ export function RegisterTransaction({
             };
             tagsList = Object.values(tagsList);
 
+            let imageResponse: any = null;
+            let transaction_image_id: number | null = null;
+            if (image != '') {
+              const newImage = {
+                file: `data:image/jpeg;base64,${image}`,
+                tenant_id: tenantId
+              }
+              const uploadImage = await api.post('upload/transaction_image', newImage);
+              if (uploadImage.status === 200) {
+                imageResponse = await api.get('single_transaction_image_get_id', {
+                  params: {
+                    tenant_id: tenantId
+                  }
+                });
+                transaction_image_id = imageResponse.data.id
+              }
+            }
+
             const newTransaction = {
               created_at: date,
               description: form.description,
@@ -435,6 +527,7 @@ export function RegisterTransaction({
               account_id: accountResponse.data.id,
               category_id: categorySelected.id,
               tags: tagsList,
+              transaction_image_id,
               tenant_id: tenantId
             }
             const { status } = await api.post('transaction', newTransaction);
@@ -472,6 +565,7 @@ export function RegisterTransaction({
               });
               setTagsSelected([]);
               tagsList = [];
+              setImage('');
             };
           } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -574,6 +668,24 @@ export function RegisterTransaction({
           };
           tagsList = Object.values(tagsList);
 
+          let imageResponse: any = null;
+          let transaction_image_id: number | null = null;
+          if (image != '') {
+            const newImage = {
+              file: `data:image/jpeg;base64,${image}`,
+              tenant_id: tenantId
+            }
+            const uploadImage = await api.post('upload/transaction_image', newImage);
+            if (uploadImage.status === 200) {
+              imageResponse = await api.get('single_transaction_image_get_id', {
+                params: {
+                  tenant_id: tenantId
+                }
+              });
+              transaction_image_id = imageResponse.data.id
+            }
+          }
+
           const transferDebit = {
             created_at: date,
             description: form.description,
@@ -583,6 +695,7 @@ export function RegisterTransaction({
             account_id: accountResponse.data.id,
             category_id: categorySelected.id,
             tags: tagsList,
+            transaction_image_id,
             tenant_id: tenantId
           }
 
@@ -595,12 +708,12 @@ export function RegisterTransaction({
             account_id: accountDestinationResponse.data.id,
             category_id: categorySelected.id,
             tags: tagsList,
+            transaction_image_id,
             tenant_id: tenantId
           }
 
           const transferDebitResponse = await api.post('transaction', transferDebit);
           const transferCreditResponse = await api.post('transaction', transferCredit);
-
           if (transferDebitResponse.status && transferCreditResponse.status === 200) {
             Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
 
@@ -647,6 +760,7 @@ export function RegisterTransaction({
             });
             setTagsSelected([]);
             tagsList = [];
+            setImage('');
           };
         } catch (error) {
           if (axios.isAxiosError(error)) {
@@ -666,6 +780,7 @@ export function RegisterTransaction({
           transaction_id: id
         }
       })
+      console.log(data);
       setCategorySelected(data.category);
       setAmount(data.amount);
       setCurrencySelected(data.currency);
@@ -673,6 +788,7 @@ export function RegisterTransaction({
       setDate(data.created_at);
       setDescription(data.description);
       setTagsSelected(data.tags);
+      { data.image && setImageUrl(data.image.url) };
       setTransactionType(data.type);
     } catch (error) {
       console.error(error);
@@ -694,6 +810,24 @@ export function RegisterTransaction({
     };
     tagsList = Object.values(tagsList);
 
+    let imageResponse: any = null;
+    let transaction_image_id: number | null = null;
+    if (image != '') {
+      const newImage = {
+        file: `data:image/jpeg;base64,${image}`,
+        tenant_id: tenantId
+      }
+      const uploadImage = await api.post('upload/transaction_image', newImage);
+      if (uploadImage.status === 200) {
+        imageResponse = await api.get('single_transaction_image_get_id', {
+          params: {
+            tenant_id: tenantId
+          }
+        });
+        transaction_image_id = imageResponse.data.id
+      }
+    }
+
     const transactionEdited = {
       transaction_id: id,
       created_at: date,
@@ -705,43 +839,18 @@ export function RegisterTransaction({
       account_id: accountSelected.id,
       category_id: categorySelected.id,
       tags: tagsList,
+      transaction_image_id,
       tenant_id: tenantId
     }
 
     try {
       const { status } = await api.post('edit_transaction', transactionEdited);
-
       if (status === 200) {
-        const transactionDataResponse = await api.get('single_transaction_get_id', {
-          params: {
-            tenant_id: tenantId,
-            description: form.description,
-          }
-        });
-
-        let tagsList: any = [];
-        for (const item of tagsSelected) {
-          const tag_id = item.id;
-          if (!tagsList.hasOwnProperty(tag_id)) {
-            tagsList[tag_id] = {
-              transaction_id: transactionDataResponse.data.id,
-              tag_id: item.id,
-              tenant_id: item.tenant_id
-            };
-          }
-        };
-        tagsList = { tagsList: Object.values(tagsList) };
-
-        await api.post('transaction_tag', tagsList);
-
-        Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+        Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
       }
-
-      resetId();
-      setTagsSelected([]);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+        Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
       }
     } finally {
       setButtonIsLoading(false);
@@ -749,7 +858,7 @@ export function RegisterTransaction({
   };
 
   async function handleClickDeleteTransaction(id: string) {
-    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão." }, { text: "Sim, excluir a transação.", onPress: () => handleDeleteTransaction(id) }])
+    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a transação", onPress: () => handleDeleteTransaction(id) }])
   };
 
   async function handleDeleteTransaction(id: string) {
@@ -797,14 +906,13 @@ export function RegisterTransaction({
       },
       tenant_id: ''
     });
+    setTagsSelected([]);
     closeRegisterTransaction();
   };
 
   useFocusEffect(useCallback(() => {
     fetchTags();
-  }, []));
 
-  useFocusEffect(useCallback(() => {
     if (id != '') {
       fetchTransaction();
     }
@@ -815,21 +923,23 @@ export function RegisterTransaction({
       <MainContent>
         <Header color={categorySelected.color.hex}>
           <TitleContainer>
-            <BorderlessButton onPress={() => handleCloseRegisterTransaction()} style={{ position: 'absolute', top: 0, left: 0 }}>
+            <BorderlessButton onPress={closeModal} style={{ position: 'absolute', top: 0, left: 0 }}>
               <Ionicons name='close' size={26} color={theme.colors.background} />
             </BorderlessButton>
             <Title>
               {
-                id != '' ?
-                  `Editar Transação \n ${description}` :
+                id != '' ? (
+                  `Editar Transação \n ${description}`
+                ) :
                   "Adicionar Transação"
               }
             </Title>
             {
-              id != '' ?
+              id != '' ? (
                 <BorderlessButton onPress={() => handleClickDeleteTransaction(id)} style={{ position: 'absolute', top: 0, right: 0 }}>
                   <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
-                </BorderlessButton> :
+                </BorderlessButton>
+              ) :
                 <></>
             }
           </TitleContainer>
@@ -847,7 +957,7 @@ export function RegisterTransaction({
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
-                defaultValue={amount.toString()}
+                defaultValue={String(amount)}
                 name='amount'
                 control={control}
                 error={errors.amount}
@@ -861,99 +971,117 @@ export function RegisterTransaction({
           </HeaderRow>
         </Header>
 
-        <SelectButton
-          title={accountSelected.name}
-          icon='wallet'
-          color={categorySelected.color.hex}
-          onPress={handleOpenSelectAccountModal}
-        />
-        {
-          transactionType === 'transfer' &&
+        <ContentScroll>
           <SelectButton
-            title={accountDestinationSelected.name}
+            title={accountSelected.name}
             icon='wallet'
             color={categorySelected.color.hex}
-            onPress={handleOpenSelectAccountDestinationModal}
+            onPress={handleOpenSelectAccountModal}
           />
-        }
-
-        <SelectButton
-          title={formattedDate}
-          icon='calendar'
-          color={categorySelected.color.hex}
-          onPress={showDatepicker}
-        />
-        {
-          showDatePicker && (
-            <DateTimePicker
-              testID='dateTimePicker'
-              value={date}
-              mode='date'
-              is24Hour={true}
-              onChange={onChangeDate}
-              display='spinner'
-              dateFormat='day month year'
-              textColor='#000'
-            />
-          )
-        }
-        <ControlledInputWithIcon
-          icon='pencil'
-          color={categorySelected.color.hex}
-          placeholder="Descrição"
-          autoCapitalize='sentences'
-          autoCorrect={false}
-          returnKeyType='go'
-          defaultValue={description}
-          name='description'
-          control={control}
-          error={errors.description}
-          onSubmitEditing={handleSubmit(handleRegisterTransaction)}
-        />
-
-        <SelectButton
-          title="Etiquetas"
-          icon='pricetags'
-          color={categorySelected.color.hex}
-        />
-        <FlatList
-          data={tags}
-          keyExtractor={item => item.id}
-          renderItem={({ item }: any) => (
-            <TagListItemRegisterTransaction
-              data={item}
-              isActive={tagsSelected.includes(item)}
+          {
+            transactionType === 'transfer' &&
+            <SelectButton
+              title={accountDestinationSelected.name}
+              icon='wallet'
               color={categorySelected.color.hex}
-              onPress={() => handleSelectTag(item)}
+              onPress={handleOpenSelectAccountDestinationModal}
             />
-          )}
-          horizontal
-          contentContainerStyle={{
-            paddingHorizontal: 12,
-            paddingBottom: 12
-          }}
-        />
+          }
 
-        <TransactionsTypes>
-          <TransactionTypeButton
-            type='up'
-            title='Crédito'
-            onPress={() => handleTransactionsTypeSelect('credit')}
-            isActive={transactionType === 'credit' || transactionType === 'transferCredit'}
+          <SelectButton
+            title={formattedDate}
+            icon='calendar'
+            color={categorySelected.color.hex}
+            onPress={showDatepicker}
           />
-          <TransactionTypeButton
-            type='swap'
-            title='Transf'
-            onPress={() => handleTransactionsTypeSelect('transfer')}
-            isActive={transactionType === 'transfer'}
+          {
+            showDatePicker && (
+              <DateTimePicker
+                testID='dateTimePicker'
+                value={date}
+                mode='date'
+                is24Hour={true}
+                onChange={onChangeDate}
+                display='spinner'
+                dateFormat='day month year'
+                textColor='#000'
+              />
+            )
+          }
+          <ControlledInputWithIcon
+            icon='pencil'
+            color={categorySelected.color.hex}
+            placeholder="Descrição"
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            returnKeyType='go'
+            defaultValue={description}
+            name='description'
+            control={control}
+            error={errors.description}
+            onSubmitEditing={handleSubmit(handleRegisterTransaction)}
           />
-          <TransactionTypeButton
-            type='down'
-            title='Débito'
-            onPress={() => handleTransactionsTypeSelect('debit')}
-            isActive={transactionType === 'debit' || transactionType === 'transferDebit'}
+
+          <SelectButton
+            title="Etiquetas"
+            icon='pricetags'
+            color={categorySelected.color.hex}
           />
-        </TransactionsTypes>
+          <FlatList
+            data={tags}
+            keyExtractor={item => item.id}
+            renderItem={({ item }: any) => (
+              <TagListItemRegisterTransaction
+                data={item}
+                isActive={tagsSelected.includes(item)}
+                color={categorySelected.color.hex}
+                onPress={() => handleSelectTag(item)}
+              />
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 12,
+              paddingBottom: 12
+            }}
+          />
+
+          <SelectButton
+            title={imageUrl != '' ? "Alterar imagem" : "Selecionar imagem"}
+            icon='image'
+            color={categorySelected.color.hex}
+            onPress={handleClickSelectImage}
+          />
+          {
+            imageUrl != '' ?
+              <ProductImageContainer>
+                <ProductImage source={{ uri: imageUrl }} />
+              </ProductImageContainer>
+              :
+              <></>
+          }
+
+          <TransactionsTypes>
+            <TransactionTypeButton
+              type='up'
+              title='Crédito'
+              onPress={() => handleTransactionsTypeSelect('credit')}
+              isActive={transactionType === 'credit' || transactionType === 'transferCredit'}
+            />
+            <TransactionTypeButton
+              type='swap'
+              title='Transf'
+              onPress={() => handleTransactionsTypeSelect('transfer')}
+              isActive={transactionType === 'transfer'}
+            />
+            <TransactionTypeButton
+              type='down'
+              title='Débito'
+              onPress={() => handleTransactionsTypeSelect('debit')}
+              isActive={transactionType === 'debit' || transactionType === 'transferDebit'}
+            />
+          </TransactionsTypes>
+        </ContentScroll>
       </MainContent>
 
       <Footer>
@@ -1020,7 +1148,7 @@ export function RegisterTransaction({
 
       <ModalViewSelection
         $modal
-        title="Selecione a etiqueta"
+        title="Selecione a (s) etiqueta (s)"
         bottomSheetRef={tagBottomSheetRef}
         snapPoints={['50%']}
       >
