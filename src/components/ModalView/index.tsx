@@ -8,11 +8,7 @@ import {
   Container
 } from './styles';
 
-import {
-  BottomSheetProps,
-  BottomSheetModal,
-  BottomSheetModalProvider
-} from '@gorhom/bottom-sheet';
+import { BottomSheetProps, BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 import theme from '@themes/theme';
@@ -42,38 +38,37 @@ export function ModalView({
   ...rest
 }: Props) {
   return (
-    <BottomSheetModalProvider>
-      <BottomSheetModal
-        ref={bottomSheetRef}
-        enablePanDownToClose={true}
-        backdropComponent={() => <Overlay />}
-        backgroundStyle={{ backgroundColor: theme.colors.background }}
-        handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
-        {...rest}
-      >
-        <SafeAreaView style={{ flex: 1 }}>
-          <Header color={color}>
-            <BorderlessButton onPress={closeModal} >
-              <Icon name='close' />
-            </BorderlessButton>
-            <Title>
-              {title} {selectedIdentification}
-            </Title>
+    <BottomSheetModal
+      ref={bottomSheetRef}
+      stackBehavior='push'
+      enablePanDownToClose={true}
+      backdropComponent={() => <Overlay />}
+      backgroundStyle={{ backgroundColor: theme.colors.background }}
+      handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
+      {...rest}
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <Header color={color}>
+          <BorderlessButton onPress={closeModal} >
+            <Icon name='close' />
+          </BorderlessButton>
+          <Title>
+            {title} {selectedIdentification}
+          </Title>
 
-            {
-              type === 'secondary' ?
-                <BorderlessButton onPress={deleteChildren}>
-                  <Icon name='trash-outline' />
-                </BorderlessButton> :
-                <></>
-            }
-          </Header>
+          {
+            type === 'secondary' ?
+              <BorderlessButton onPress={deleteChildren}>
+                <Icon name='trash-outline' />
+              </BorderlessButton> :
+              <></>
+          }
+        </Header>
 
-          <Container>
-            {children}
-          </Container>
-        </SafeAreaView>
-      </BottomSheetModal>
-    </BottomSheetModalProvider>
+        <Container>
+          {children}
+        </Container>
+      </SafeAreaView>
+    </BottomSheetModal>
   );
 }

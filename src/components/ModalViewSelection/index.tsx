@@ -6,11 +6,7 @@ import {
   Container
 } from './styles';
 
-import {
-  BottomSheetProps,
-  BottomSheetModal,
-  BottomSheetModalProvider
-} from '@gorhom/bottom-sheet';
+import { BottomSheetProps, BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import theme from '@themes/theme';
 
@@ -22,25 +18,24 @@ export type Props = BottomSheetProps & {
 
 export function ModalViewSelection({ title, bottomSheetRef, children, ...rest }: Props) {
   return (
-    <BottomSheetModalProvider>
-      <BottomSheetModal
-        ref={bottomSheetRef}
-        enablePanDownToClose={true}
-        backdropComponent={() => <Overlay />}
-        backgroundStyle={{ backgroundColor: theme.colors.background }}
-        handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
-        {...rest}
-      >
-        <SafeAreaView style={{ flex: 1 }}>
-          <Title>
-            {title}
-          </Title>
-          
-          <Container>
-            {children}
-          </Container>
-        </SafeAreaView>
-      </BottomSheetModal>
-    </BottomSheetModalProvider>
+    <BottomSheetModal
+      ref={bottomSheetRef}
+      stackBehavior='push'
+      enablePanDownToClose={true}
+      backdropComponent={() => <Overlay />}
+      backgroundStyle={{ backgroundColor: theme.colors.background }}
+      handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
+      {...rest}
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <Title>
+          {title}
+        </Title>
+
+        <Container>
+          {children}
+        </Container>
+      </SafeAreaView>
+    </BottomSheetModal>
   );
 }

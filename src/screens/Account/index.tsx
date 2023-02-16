@@ -81,6 +81,7 @@ export function Account() {
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
   const [balanceIsPositive, setBalanceIsPositive] = useState(true);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const navigation = useNavigation();
@@ -555,7 +556,7 @@ export function Account() {
   };
 
   function handleOpenRegisterTransactionModal() {
-    setTransactionModalOpen(true);
+    addTransactionBottomSheetRef.current?.present();
   };
 
   async function handleClickDeleteAccount() {
@@ -712,8 +713,8 @@ export function Account() {
       </ModalView>
 
       <ModalViewWithoutHeader
-        visible={transactionModalOpen}
-        closeModal={handleCloseTransaction}
+        bottomSheetRef={addTransactionBottomSheetRef}
+        snapPoints={['100%']}
       >
         <RegisterTransaction
           id={transactionId}
