@@ -5,6 +5,7 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 ## :hammer_and_wrench: Features 
 
 -   [X] Lista as transações do usuário;
+-   [X] Permite ao usuário filtrar as transações por mês, ano e todo o histórico;
 -   [X] Permite ao usuário adicionar, editar e excluir transações;
 -   [X] Permite ao usuário adicionar imagens às transações;
 -   [X] Lista as contas/carteiras do usuário;
@@ -13,7 +14,6 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 -   [X] Permite ao usuário adicionar, editar e excluir categorias;
 -   [X] Lista as etiquetas do usuário;
 -   [X] Permite ao usuário adicionar, editar e excluir etiquetas;
--   [X] Lista as etiquetas do usuário;
 -   [X] Exibe gráfico em barras com o histórico do fluxo de caixa;
 -   [X] Exibe gráfico em linha com o total do patrimônio;
 -   [X] Exibe gráfico em pizza com as despesas por categorias;
