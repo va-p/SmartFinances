@@ -14,10 +14,13 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 -   [X] Permite ao usuário adicionar, editar e excluir categorias;
 -   [X] Lista as etiquetas do usuário;
 -   [X] Permite ao usuário adicionar, editar e excluir etiquetas;
+-   [X] Exibe o fluxo de caixa;
 -   [X] Exibe gráfico em barras com o histórico do fluxo de caixa;
 -   [X] Exibe gráfico em linha com o total do patrimônio;
 -   [X] Exibe gráfico em pizza com as despesas por categorias;
+-   [X] Lista as despesas por categorias;
 -   [X] Exibe gráfico em pizza com as receitas por categorias;
+-   [X] Lista as receitas por categorias;
 -   [X] Permite ao usuário habilitar a autenticação biométrica;
 
 
