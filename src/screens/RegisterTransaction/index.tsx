@@ -200,7 +200,7 @@ export function RegisterTransaction({
   };
 
   function handleTransactionsTypeSelect(type: 'credit' | 'debit' | 'transfer') {
-    setTransactionType(type); console.log(imageUrl);
+    setTransactionType(type);
   };
 
   function handleOpenSelectCategoryModal() {
