@@ -18,6 +18,7 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 -   [X] Exibe gráfico em linha com o total do patrimônio;
 -   [X] Exibe gráfico em pizza com as despesas por categorias;
 -   [X] Exibe gráfico em pizza com as receitas por categorias;
+-   [X] Permite ao usuário habilitar a autenticação biométrica;
 
 
 ## ✨ Tecnologias
@@ -47,7 +48,7 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 
 
 ## 🔖 Layout
-![alt text](https://github.com/va-p/SmartFinances/tree/main/screenShots/Graph.png?raw=true)
+![alt text](https://github.com/va-p/SmartFinances/blob/main/screenShots/Graph.png?raw=true)
 
 
 ## Executando o projeto
