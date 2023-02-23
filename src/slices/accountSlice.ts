@@ -9,7 +9,7 @@ interface AccountState {
     code: string | null;
     symbol: string | null;
   };
-  accountInitialAmount: string | number | null;
+  accountInitialAmount: number;
   accountTotalRevenues: string | null;
   accountTotalExpenses: string | null;
   accountTotalAmount: string | null;
@@ -21,7 +21,7 @@ const initialState: AccountState = {
   accountId: '',
   accountName: null,
   accountCurrency: {code: null, symbol: null},
-  accountInitialAmount: null,
+  accountInitialAmount: 0,
   accountTotalRevenues: null,
   accountTotalExpenses: null,
   accountTotalAmount: "R$0",

@@ -34,9 +34,9 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { format, parse, parseISO } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
+import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import axios from 'axios';
 
@@ -56,8 +56,7 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import {
   selectAccountCurrency,
   selectAccountInitialAmount,
-  selectAccountName,
-  selectAccountTotalAmount
+  selectAccountName
 } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -77,20 +76,19 @@ export function Account() {
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
-  const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] = useState('');
+  const [totalAccountBalance, setTotalAccountBalance] = useState('');
+  const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] = useState('');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
   const [balanceIsPositive, setBalanceIsPositive] = useState(true);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
-  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
   const accountId = route.params?.id;
   const accountName = useSelector(selectAccountName);
   const accountCurrency = useSelector(selectAccountCurrency);
   const accountInitialAmount = useSelector(selectAccountInitialAmount);
-  const accountTotal = useSelector(selectAccountTotalAmount);
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler(event => {
@@ -152,14 +150,14 @@ export function Account() {
       })
 
       /**
-       * All Transactions Formatted in pt-BR - Start
+       * All Transactions By Account Formatted in pt-BR - Start
        */
       let amount_formatted: any;
       let amountNotConvertedFormatted = '';
       let totalRevenues = 0;
       let totalExpenses = 0;
 
-      let transactionsFormattedPtbr: any = [];
+      let transactionsByAccountFormattedPtbr: any = [];
       for (const item of data) {
         // Format the date "dd/MM/yyyy"
         var dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
@@ -226,8 +224,8 @@ export function Account() {
             });
         }
         // Create the objects
-        if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
-          transactionsFormattedPtbr[item.id] = {
+        if (!transactionsByAccountFormattedPtbr.hasOwnProperty(dmy)) {
+          transactionsByAccountFormattedPtbr[item.id] = {
             id: item.id,
             created_at: dmy,
             description: item.description,
@@ -272,14 +270,8 @@ export function Account() {
             tenant_id: item.tenant_id,
           };
         }
-        // Sum revenues and expenses of all transactions
-        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
-          totalRevenues += item.amount
-        } else if (new Date(item.created_at) <= new Date() && item.type === 'debit') {
-          totalExpenses += item.amount
-        }
       };
-      transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr)
+      transactionsByAccountFormattedPtbr = Object.values(transactionsByAccountFormattedPtbr)
         .filter((transactionFormattedPtbr: any) =>
           transactionFormattedPtbr.account.id === accountId
         )
@@ -289,23 +281,38 @@ export function Account() {
           return secondDateParsed.getTime() - firstDateParsed.getTime();
         });
 
+      // Sum the total revenues and expenses by account
+      transactionsByAccountFormattedPtbr.forEach((cur: any) => {
+        if (cur.type === 'credit') {
+          totalRevenues += cur.amount
+        } else if (cur.type === 'debit') {
+          totalExpenses += cur.amount
+        } else if (cur.type === 'transferCredit') {
+          totalRevenues += cur.amount
+        } else if (cur.type === 'transferDebit') {
+          totalExpenses += cur.amount
+        }
+      });
+      // Sum balance total of account
       const total =
+        accountInitialAmount +
         totalRevenues -
         totalExpenses;
 
-      if (total < 0) {
-        setBalanceIsPositive(false)
-      } else {
-        setBalanceIsPositive(true)
-      }
+      // Verify if balance is positive
+      total >= 0 ?
+        (setBalanceIsPositive(true)) :
+        (setBalanceIsPositive(false))
 
-      const totalFormattedPtbrByAllHistory = Number(total)
+      const totalAccountBalanceFormatted = Number(total)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
         });
+      setTotalAccountBalance(totalAccountBalanceFormatted);
+
       // Group transactions by date to section list
-      const transactionsFormattedPtbrGroupedByDate = transactionsFormattedPtbr
+      const transactionsFormattedPtbrGroupedByDate = transactionsByAccountFormattedPtbr
         .reduce((acc: any, cur: any) => {
           const existObj = acc.find(
             (obj: any) => obj.title === cur.created_at
@@ -322,7 +329,7 @@ export function Account() {
           return acc
         }, [])
       /**
-       * All Transactions Formatted in pt-BR - End
+       * All Transactions By Account Formatted in pt-BR - End
        */
 
 
@@ -347,22 +354,23 @@ export function Account() {
             } else if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'debit') {
               totalExpensesByMonths += cur.amount;
             }
-          })
+          });
         }
       };
-
-      const totalByMonths =
-        //initialTotalAmountByMonths +
+      // Sum account cash flow
+      const cashFlowByMonths =
+        accountInitialAmount +
         totalRevenuesByMonths -
         totalExpensesByMonths;
 
-      if (totalByMonths < 0) {
-        setCashFlowIsPositive(false)
-      } else {
-        setBalanceIsPositive(true)
+      // Verify if balance is positive
+      if (periodSelected.period === 'months') {
+        cashFlowByMonths >= 0 ?
+          (setCashFlowIsPositive(true)) :
+          (setCashFlowIsPositive(false))
       }
 
-      const totalFormattedPtbrByMonths = Number(totalByMonths)
+      const cashFlowFormattedPtbrByMonths = Number(cashFlowByMonths)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
@@ -392,22 +400,23 @@ export function Account() {
             } else if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'debit') {
               totalExpensesByYears += cur.amount
             }
-          })
+          });
         }
       };
-
-      const totalBRLByYears =
-        //initialTotalAmountBRLByYears +
+      // Sum account cash flow F
+      const cashFlowByYears =
+        accountInitialAmount +
         totalRevenuesByYears -
         totalExpensesByYears;
 
-      if (totalByMonths < 0) {
-        setCashFlowIsPositive(false)
-      } else {
-        setCashFlowIsPositive(true)
+      // Verify if balance is positive
+      if (periodSelected.period === 'years') {
+        cashFlowByYears >= 0 ?
+          (setCashFlowIsPositive(true)) :
+          (setCashFlowIsPositive(false))
       }
 
-      const totalFormattedPtbrByYears = Number(totalBRLByYears)
+      const cashFlowFormattedPtbrByYears = Number(cashFlowByYears)
         .toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL'
@@ -418,99 +427,19 @@ export function Account() {
 
 
       /**
-       * All Totals Grouped By Months - Start
-       */
-      let totalsGroupedByMonths: any = [];
-      for (const item of data) {
-        // Format the date to "yyyy-mm", easier to sort the array
-        const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
-        // Create the objects
-        if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
-          totalsGroupedByMonths[ym] = { date: ym, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
-        }
-        if (item.type === 'credit') {
-          totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'debit') {
-          totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
-        }
-      }
-      totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
-
-      // Runs from last to first, formating the date to "MMM yyyy"
-      for (var i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
-        totalsGroupedByMonths[i].date = format(parseISO(totalsGroupedByMonths[i].date), `MMM '\n' yyyy`, { locale: ptBR });
-      };
-      /**
-       * All Totals Grouped By Months - End
-       */
-
-
-      /**
-       * All Totals Grouped By Years - Start
-       */
-      let totalsGroupedByYears: any = [];
-      for (const item of data) {
-        // Format the date to "yyyy", easier to sort the array
-        const y = format(item.created_at, `yyyy`, { locale: ptBR });
-        // Create the objects
-        if (!totalsGroupedByYears.hasOwnProperty(y)) {
-          totalsGroupedByYears[y] = { date: y, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
-        }
-        if (item.type === 'credit') {
-          totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'debit') {
-          totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
-        }
-      }
-      totalsGroupedByYears = Object.values(totalsGroupedByYears)
-        .sort((a: any, b: any) => {
-          const firstDateParsed = parse(a.date, 'yyyy', new Date());
-          const secondDateParsed = parse(b.date, 'yyyy', new Date());
-          return secondDateParsed.getTime() - firstDateParsed.getTime();
-        });
-      /**
-       * All Totals Grouped By Years - End
-       */
-
-
-      /**
-       * All Totals Grouped By All History - Start
-       */
-      let totalsGroupedByAllHistory: any = [];
-      for (const item of data) {
-        // Format the date to "Todo o \n histórico"
-        item.created_at = `Todo o \n histórico`;
-        const allHistory = item.created_at;
-        // Create the objects
-        if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
-          totalsGroupedByAllHistory[allHistory] = { date: allHistory, totalRevenuesByPeriod: 0, totalExpensesByPeriod: 0 };
-        }
-        if (item.type === 'credit') {
-          totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'debit') {
-          totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod += item.amount;
-        }
-      }
-      totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);
-      /**
-       * All Totals Grouped All History - End
-       */
-
-
-      /**
        * Set Transactions and Totals by Selected Period - Start
        */
       switch (periodSelected.period) {
         case 'months':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByMonths);
+          setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonths);
           setTransactionsFormattedBySelectedPeriod(transactionsByMonthsFormattedPtbr);
           break;
         case 'years':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByYears);
+          setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByYears);
           setTransactionsFormattedBySelectedPeriod(transactionsByYearsFormattedPtbr);
           break;
         case 'all':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByAllHistory);
+          setCashFlowBySelectedPeriod(totalAccountBalanceFormatted);
           setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbrGroupedByDate);
           break;
       }
@@ -547,15 +476,16 @@ export function Account() {
 
   function handleOpenTransaction(id: string) {
     setTransactionId(id);
-    setTransactionModalOpen(true);
+    addTransactionBottomSheetRef.current?.present();
   };
 
   function handleCloseTransaction() {
     fetchTransactions();
-    setTransactionModalOpen(false);
+    addTransactionBottomSheetRef.current?.dismiss();
   };
 
   function handleOpenRegisterTransactionModal() {
+    setTransactionId('');
     addTransactionBottomSheetRef.current?.present();
   };
 
@@ -588,7 +518,7 @@ export function Account() {
 
   useFocusEffect(useCallback(() => {
     fetchTransactions();
-  }, [periodSelected.period]));
+  }, [periodSelected]));
 
   if (loading) {
     return <SkeletonAccountsScreen />
@@ -623,14 +553,14 @@ export function Account() {
 
         <AccountBalanceContainer>
           <AccountBalanceGroup>
-            <AccountBalance balanceIsPositive={balanceIsPositive}>{accountTotal}</AccountBalance>
+            <AccountBalance balanceIsPositive={balanceIsPositive}>{totalAccountBalance}</AccountBalance>
             <AccountBalanceDescription>Sado da conta</AccountBalanceDescription>
           </AccountBalanceGroup>
 
           <AccountBalanceSeparator />
 
           <AccountBalanceGroup>
-            <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>{cashFlowTotalBySelectedPeriod}</AccountCashFlow>
+            <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>{cashFlowBySelectedPeriod}</AccountCashFlow>
             <AccountCashFlowDescription>{`Fluxo de caixa por ${periodSelected.name}`}</AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>
@@ -727,6 +657,7 @@ export function Account() {
             tenant_id: tenantId
           }}
           closeRegisterTransaction={handleCloseTransaction}
+          closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}
         />
       </ModalViewWithoutHeader>
     </Container>

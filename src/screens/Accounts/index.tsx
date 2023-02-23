@@ -33,7 +33,6 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import {
   setAccountName,
   setAccountCurrency,
-  setAccountTotalAmount,
   setAccountInitialAmount
 } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
@@ -213,8 +212,7 @@ export function Accounts({ navigation }: any) {
     id: string,
     name: string,
     currency: any,
-    initialAmount: string,
-    total: any) {
+    initialAmount: number) {
     dispatch(
       setAccountName(name)
     );
@@ -223,9 +221,6 @@ export function Accounts({ navigation }: any) {
     );
     dispatch(
       setAccountInitialAmount(initialAmount)
-    );
-    dispatch(
-      setAccountTotalAmount(total)
     );
     navigation.navigate('Conta', { id });
   };
@@ -306,8 +301,7 @@ export function Accounts({ navigation }: any) {
                 item.id,
                 item.name,
                 item.currency,
-                item.initial_amount,
-                item.totalAccountAmount
+                item.initial_amount
               )}
             />
           )}
