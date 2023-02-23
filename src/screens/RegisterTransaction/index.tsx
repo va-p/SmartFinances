@@ -439,7 +439,7 @@ export function RegisterTransaction({
             }
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
-              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
 
               reset();
               setTransactionType('')
@@ -476,7 +476,7 @@ export function RegisterTransaction({
             };
           } catch (error) {
             if (axios.isAxiosError(error)) {
-              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
             }
           } finally {
             setButtonIsLoading(false);
@@ -535,7 +535,7 @@ export function RegisterTransaction({
             }
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
-              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
 
               reset();
               setTransactionType('')
@@ -572,7 +572,7 @@ export function RegisterTransaction({
             };
           } catch (error) {
             if (axios.isAxiosError(error)) {
-              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
             }
           } finally {
             setButtonIsLoading(false);
@@ -718,7 +718,7 @@ export function RegisterTransaction({
           const transferDebitResponse = await api.post('transaction', transferDebit);
           const transferCreditResponse = await api.post('transaction', transferCredit);
           if (transferDebitResponse.status && transferCreditResponse.status === 200) {
-            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
 
             reset();
             setTransactionType('')
@@ -767,7 +767,7 @@ export function RegisterTransaction({
           };
         } catch (error) {
           if (axios.isAxiosError(error)) {
-            Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: closeRegisterTransaction }]);
+            Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
           }
         } finally {
           setButtonIsLoading(false);
@@ -897,11 +897,11 @@ export function RegisterTransaction({
 
         const { status } = await api.post('edit_transaction', transactionEdited);
         if (status === 200) {
-          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
         }
       } finally {
         setButtonIsLoading(false);
@@ -927,11 +927,11 @@ export function RegisterTransaction({
 
         const { status } = await api.post('edit_transaction', transactionEdited);
         if (status === 200) {
-          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
         }
       } finally {
         setButtonIsLoading(false);
