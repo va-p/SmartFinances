@@ -36,6 +36,7 @@ import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CurrencySelectButton } from '@components/CurrencySelectButton';
+import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CategoryProps } from '@components/CategoryListItem';
 import { SelectButton } from '@components/SelectButton';
@@ -115,6 +116,7 @@ export function RegisterTransaction({
   closeRegisterTransaction,
   closeModal
 }: Props) {
+  const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
   const brlQuoteEur = useSelector(selectBrlQuoteEur);
@@ -141,6 +143,7 @@ export function RegisterTransaction({
     }
   } as CategoryProps);
   const [amount, setAmount] = useState('');
+  const [amountNotConverted, setAmountNotConverted] = useState();
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
     name: 'Real Brasileiro',
@@ -774,15 +777,17 @@ export function RegisterTransaction({
   };
 
   async function fetchTransaction() {
+    setButtonIsLoading(true);
+
     try {
       const { data } = await api.get('single_transaction', {
         params: {
           transaction_id: id
         }
       })
-      console.log(data);
       setCategorySelected(data.category);
       setAmount(data.amount);
+      setAmountNotConverted(data.amount_not_converted);
       setCurrencySelected(data.currency);
       setAccountSelected(data.account);
       setDate(data.created_at);
@@ -793,7 +798,9 @@ export function RegisterTransaction({
     } catch (error) {
       console.error(error);
       Alert.alert("Transação", "Não foi possível buscar a transação. Verifique sua conexão com a internet e tente novamente.");
-    }
+    } finally {
+      setButtonIsLoading(false);
+    };
   };
 
   async function handleEditTransaction(id: string, form: FormData) {
@@ -828,33 +835,108 @@ export function RegisterTransaction({
       }
     }
 
-    const transactionEdited = {
-      transaction_id: id,
-      created_at: date,
-      description: form.description,
-      amount: form.amount,
-      amount_not_converted: null,
-      currency_id: currencySelected.id,
-      type: transactionType,
-      account_id: accountSelected.id,
-      category_id: categorySelected.id,
-      tags: tagsList,
-      transaction_image_id,
-      tenant_id: tenantId
-    }
+    // Need conversion
+    if (currencySelected.code !== accountSelected.currency.code) {
+      // Converted BRL
+      let amountConverted = 0;
+      if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'BRL') {
+        amountConverted = Number(form.amount) * btcQuoteBrl.price;
+      }
+      if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BRL') {
+        amountConverted = Number(form.amount) * eurQuoteBrl.price;
+      }
+      if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BRL') {
+        amountConverted = Number(form.amount) * usdQuoteBrl.price;
+      }
+      // Converted BTC
+      if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'BTC') {
+        amountConverted = Number(form.amount) * brlQuoteBtc.price;
+      }
+      if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BTC') {
+        amountConverted = Number(form.amount) * eurQuoteBtc.price;
+      }
+      if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BTC') {
+        amountConverted = Number(form.amount) * usdQuoteBtc.price;
+      }
+      // Converted EUR
+      if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'EUR') {
+        amountConverted = Number(form.amount) * brlQuoteEur.price;
+      }
+      if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'EUR') {
+        amountConverted = Number(form.amount) * btcQuoteEur.price;
+      }
+      if (currencySelected.code === 'USD' && accountSelected.currency.code === 'EUR') {
+        amountConverted = Number(form.amount) * usdQuoteEur.price;
+      }
+      // Converted USD
+      if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'USD') {
+        amountConverted = Number(form.amount) * brlQuoteUsd.price;
+      }
+      if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'USD') {
+        amountConverted = Number(form.amount) * btcQuoteUsd.price;
+      }
+      if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'USD') {
+        amountConverted = Number(form.amount) * eurQuoteUsd.price;
+      }
 
-    try {
-      const { status } = await api.post('edit_transaction', transactionEdited);
-      if (status === 200) {
-        Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
-      }
-    } finally {
-      setButtonIsLoading(false);
-    };
+      try {
+        const transactionEdited = {
+          transaction_id: id,
+          created_at: date,
+          description: form.description,
+          amount: amountConverted,
+          amount_not_converted: form.amount,
+          currency_id: currencySelected.id,
+          type: transactionType,
+          account_id: accountSelected.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId
+        }
+
+        const { status } = await api.post('edit_transaction', transactionEdited);
+        if (status === 200) {
+          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+        }
+      } finally {
+        setButtonIsLoading(false);
+      };
+    }
+    // No need conversion
+    else {
+      try {
+        const transactionEdited = {
+          transaction_id: id,
+          created_at: date,
+          description: form.description,
+          amount: form.amount,
+          amount_not_converted: null,
+          currency_id: currencySelected.id,
+          type: transactionType,
+          account_id: accountSelected.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId
+        }
+
+        const { status } = await api.post('edit_transaction', transactionEdited);
+        if (status === 200) {
+          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a home", onPress: handleCloseRegisterTransaction }]);
+        }
+      } finally {
+        setButtonIsLoading(false);
+      };
+    }
   };
 
   async function handleClickDeleteTransaction(id: string) {
@@ -957,7 +1039,7 @@ export function RegisterTransaction({
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
-                defaultValue={String(amount)}
+                defaultValue={amountNotConverted ? String(amountNotConverted) : String(amount)}
                 name='amount'
                 control={control}
                 error={errors.amount}
