@@ -61,5 +61,5 @@ Configure o arquivo "api.ts" dentro da pasta "api" de acordo com seu backend.
 Em seguida, inicie o projeto.
 
 ```cl
-npx start
+npx expo start
 ```
