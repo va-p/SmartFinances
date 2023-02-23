@@ -267,6 +267,7 @@ export function Account() {
               },
               tenant_id: item.category.tenant_id
             },
+            tags: item.tags,
             tenant_id: item.tenant_id,
           };
         }
@@ -583,7 +584,6 @@ export function Account() {
           )}
           ListEmptyComponent={() => (
             <ListEmptyComponent />
-
           )}
           initialNumToRender={100}
           refreshControl={
