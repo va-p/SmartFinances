@@ -31,6 +31,9 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 -   [X] Expo Bare Workflow
 -   [X] Styled Components
 -   [X] React Native Testing Library
+-   [X] ESLint
+-   [X] Prettier
+-   [X] React Native Testing Library
 -   [X] Babel Module Resolver
 -   [X] React Native Gesture Handler
 -   [X] React Native Reanimated
