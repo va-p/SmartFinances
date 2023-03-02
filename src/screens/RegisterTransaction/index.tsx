@@ -12,7 +12,7 @@ import {
   ProductImageContainer,
   ProductImage,
   TransactionsTypes,
-  Footer
+  Footer,
 } from './styles';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -36,7 +36,6 @@ import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CurrencySelectButton } from '@components/CurrencySelectButton';
-import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CategoryProps } from '@components/CategoryListItem';
 import { SelectButton } from '@components/SelectButton';
@@ -66,7 +65,7 @@ import {
   //USD Quotes
   selectUsdQuoteBrl,
   selectUsdQuoteBtc,
-  selectUsdQuoteEur
+  selectUsdQuoteEur,
 } from '@slices/quotesSlice';
 
 import api from '@api/api';
@@ -79,25 +78,20 @@ type Props = {
   account?: AccountProps;
   closeRegisterTransaction: () => void;
   closeModal?: () => void;
-}
+};
 
 type FormData = {
   description: string;
   amount: string;
-}
-
-const PHOTO_MAX_SIZE = 33;
+};
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
-  description: Yup
-    .string()
-    .required("Digite a descrição"),
-  amount: Yup
-    .number()
-    .typeError("Digite um valor númerico")
-    .positive("O valor não pode ser negativo")
-    .required("Digite o valor"),
+  description: Yup.string().required('Digite a descrição'),
+  amount: Yup.number()
+    .typeError('Digite um valor númerico')
+    .positive('O valor não pode ser negativo')
+    .required('Digite o valor'),
 });
 /* Validation Form - End */
 
@@ -108,15 +102,17 @@ export function RegisterTransaction({
     id: '',
     name: 'Selecione a conta',
     currency: {
-      id: '4', name: 'Real Brasileiro', code: 'BRL', symbol: 'R$'
+      id: '4',
+      name: 'Real Brasileiro',
+      code: 'BRL',
+      symbol: 'R$',
     },
     initial_amount: 0,
-    tenant_id: ''
+    tenant_id: '',
   },
   closeRegisterTransaction,
-  closeModal
+  closeModal,
 }: Props) {
-  const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
   const brlQuoteEur = useSelector(selectBrlQuoteEur);
@@ -134,13 +130,12 @@ export function RegisterTransaction({
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountDestinationBottomSheetRef = useRef<BottomSheetModal>(null);
-  const tagBottomSheetRef = useRef<BottomSheetModal>(null);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
     name: 'Selecione a categoria',
     color: {
-      hex: theme.colors.primary
-    }
+      hex: theme.colors.primary,
+    },
   } as CategoryProps);
   const [amount, setAmount] = useState('');
   const [amountNotConverted, setAmountNotConverted] = useState();
@@ -148,23 +143,19 @@ export function RegisterTransaction({
     id: '4',
     name: 'Real Brasileiro',
     code: 'BRL',
-    symbol: 'R$'
+    symbol: 'R$',
   } as CurrencyProps);
   const [accountSelected, setAccountSelected] = useState(account);
   const [accountDestinationSelected, setAccountDestinationSelected] = useState({
     id: '',
-    name: 'Selecione a conta de destino'
+    name: 'Selecione a conta de destino',
   } as AccountProps);
   const [date, setDate] = useState(new Date());
   const formattedDate = format(date, 'dd MMMM, yyyy', { locale: ptBR });
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const onChangeDate = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate;
+  const onChangeDate = (_: any, selectedDate: any) => {
     setShowDatePicker(false);
-    setDate(currentDate);
-  };
-  const showDatepicker = () => {
-    setShowDatePicker(true);
+    setDate(selectedDate);
   };
   const [description, setDescription] = useState('');
   const [transactionType, setTransactionType] = useState('');
@@ -172,12 +163,11 @@ export function RegisterTransaction({
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
@@ -187,8 +177,8 @@ export function RegisterTransaction({
     try {
       const { data } = await api.get('tag', {
         params: {
-          tenant_id: tenantId
-        }
+          tenant_id: tenantId,
+        },
       });
       if (!data) {
       } else {
@@ -196,60 +186,98 @@ export function RegisterTransaction({
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Etiquetas", "Não foi possível buscar as etiquetas. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Etiquetas',
+        'Não foi possível buscar as etiquetas. Verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setButtonIsLoading(false);
-    };
-  };
+    }
+  }
 
   function handleTransactionsTypeSelect(type: 'credit' | 'debit' | 'transfer') {
     setTransactionType(type);
-  };
+  }
 
   function handleOpenSelectCategoryModal() {
     categoryBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseSelectCategoryModal() {
     categoryBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenSelectCurrencyModal() {
     currencyBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseSelectCurrencyModal() {
     currencyBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenSelectAccountModal() {
     accountBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseSelectAccountModal() {
     accountBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenSelectAccountDestinationModal() {
     accountDestinationBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseSelectAccountDestinationModal() {
     accountDestinationBottomSheetRef.current?.dismiss();
-  };
+  }
 
-  function handleOpenSelectTagModal() {
+  function handleCloseRegisterTransaction() {
+    resetId();
+    reset();
+    setTransactionType('');
+    setAccountSelected({
+      id: '',
+      name: 'Selecione a conta',
+      currency: {
+        id: '',
+        name: '',
+        code: '',
+        symbol: '',
+      },
+      initial_amount: 0,
+      tenant_id: '',
+    });
+    setCategorySelected({
+      id: '',
+      name: 'Selecione a categoria',
+      icon: {
+        id: '',
+        title: '',
+        name: '',
+      },
+      color: {
+        id: '',
+        name: '',
+        hex: theme.colors.primary,
+      },
+      tenant_id: '',
+    });
+    setTagsSelected([]);
+    closeRegisterTransaction();
+  }
+
+  /*function handleOpenSelectTagModal() {
     tagBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseSelectTagModal() {
     tagBottomSheetRef.current?.dismiss();
-  };
+  }*/
 
   function handleSelectTag(tag: TagProps) {
-    const isAdded = tagsSelected.find(element => element.id === tag.id);
+    const isAdded = tagsSelected.find((element) => element.id === tag.id);
     if (!isAdded) {
-      setTagsSelected(prevState => [...prevState, tag]);
+      setTagsSelected((prevState) => [...prevState, tag]);
     } else {
       const remove = () => {
         setTagsSelected((prevState) =>
@@ -258,15 +286,7 @@ export function RegisterTransaction({
       };
       return remove();
     }
-  };
-
-  function handleClickSelectImage() {
-    Alert.alert("Selecionar Imagem", undefined,
-      [
-        { text: "Tirar foto", onPress: handleTakePhoto },
-        { text: "Selecionar da biblioteca", onPress: handleSelectImage }
-      ]);
-  };
+  }
 
   async function handleSelectImage() {
     try {
@@ -274,7 +294,7 @@ export function RegisterTransaction({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
-        base64: true
+        base64: true,
       });
 
       if (!imageSelected.canceled && imageSelected.assets[0].base64) {
@@ -283,8 +303,8 @@ export function RegisterTransaction({
       }
     } catch (error) {
       console.error(error);
-    };
-  };
+    }
+  }
 
   async function handleTakePhoto() {
     try {
@@ -292,7 +312,7 @@ export function RegisterTransaction({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
-        base64: true
+        base64: true,
       });
 
       if (!photoTaked.canceled && photoTaked.assets[0].base64) {
@@ -301,39 +321,73 @@ export function RegisterTransaction({
       }
     } catch (error) {
       console.error(error);
-    };
-  };
+    }
+  }
+
+  function handleClickSelectImage() {
+    Alert.alert('Selecionar Imagem', undefined, [
+      { text: 'Tirar foto', onPress: handleTakePhoto },
+      { text: 'Selecionar da biblioteca', onPress: handleSelectImage },
+    ]);
+  }
 
   async function handleRegisterTransaction(form: FormData) {
     setButtonIsLoading(true);
 
     /* Validation Form - Start */
     if (!transactionType) {
-      return Alert.alert("Cadastro de Transação", "Selecione o tipo da transação", [{
-        text: "OK", onPress: () => setButtonIsLoading(false)
-      }]);
-    };
+      return Alert.alert(
+        'Cadastro de Transação',
+        'Selecione o tipo da transação',
+        [
+          {
+            text: 'OK',
+            onPress: () => setButtonIsLoading(false),
+          },
+        ]
+      );
+    }
 
     if (accountSelected.id === '') {
-      return Alert.alert("Cadastro de Transação", "Selecione a conta da transação", [{
-        text: "OK", onPress: () => setButtonIsLoading(false)
-      }]);
-    };
+      return Alert.alert(
+        'Cadastro de Transação',
+        'Selecione a conta da transação',
+        [
+          {
+            text: 'OK',
+            onPress: () => setButtonIsLoading(false),
+          },
+        ]
+      );
+    }
 
     if (transactionType === 'transfer') {
       if (accountDestinationSelected.id === '')
-        return Alert.alert("Cadastro de Transação", "Selecione a conta de destino da transação", [{
-          text: "OK", onPress: () => setButtonIsLoading(false)
-        }]);
-    };
+        return Alert.alert(
+          'Cadastro de Transação',
+          'Selecione a conta de destino da transação',
+          [
+            {
+              text: 'OK',
+              onPress: () => setButtonIsLoading(false),
+            },
+          ]
+        );
+    }
 
     if (categorySelected.id === '') {
-      return Alert.alert("Cadastro de Transação", "Selecione a categoria da transação", [{
-        text: "OK", onPress: () => setButtonIsLoading(false)
-      }]);
-    };
+      return Alert.alert(
+        'Cadastro de Transação',
+        'Selecione a categoria da transação',
+        [
+          {
+            text: 'OK',
+            onPress: () => setButtonIsLoading(false),
+          },
+        ]
+      );
+    }
     /* Validation Form - End */
-
 
     // Edit Transaction
     if (id != '') {
@@ -347,43 +401,79 @@ export function RegisterTransaction({
         if (currencySelected.code !== accountSelected.currency.code) {
           // Converted BRL
           let amountConverted = 0;
-          if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'BRL') {
+          if (
+            currencySelected.code === 'BTC' &&
+            accountSelected.currency.code === 'BRL'
+          ) {
             amountConverted = Number(form.amount) * btcQuoteBrl.price;
           }
-          if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BRL') {
+          if (
+            currencySelected.code === 'EUR' &&
+            accountSelected.currency.code === 'BRL'
+          ) {
             amountConverted = Number(form.amount) * eurQuoteBrl.price;
           }
-          if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BRL') {
+          if (
+            currencySelected.code === 'USD' &&
+            accountSelected.currency.code === 'BRL'
+          ) {
             amountConverted = Number(form.amount) * usdQuoteBrl.price;
           }
           // Converted BTC
-          if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'BTC') {
+          if (
+            currencySelected.code === 'BRL' &&
+            accountSelected.currency.code === 'BTC'
+          ) {
             amountConverted = Number(form.amount) * brlQuoteBtc.price;
           }
-          if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BTC') {
+          if (
+            currencySelected.code === 'EUR' &&
+            accountSelected.currency.code === 'BTC'
+          ) {
             amountConverted = Number(form.amount) * eurQuoteBtc.price;
           }
-          if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BTC') {
+          if (
+            currencySelected.code === 'USD' &&
+            accountSelected.currency.code === 'BTC'
+          ) {
             amountConverted = Number(form.amount) * usdQuoteBtc.price;
           }
           // Converted EUR
-          if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'EUR') {
+          if (
+            currencySelected.code === 'BRL' &&
+            accountSelected.currency.code === 'EUR'
+          ) {
             amountConverted = Number(form.amount) * brlQuoteEur.price;
           }
-          if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'EUR') {
+          if (
+            currencySelected.code === 'BTC' &&
+            accountSelected.currency.code === 'EUR'
+          ) {
             amountConverted = Number(form.amount) * btcQuoteEur.price;
           }
-          if (currencySelected.code === 'USD' && accountSelected.currency.code === 'EUR') {
+          if (
+            currencySelected.code === 'USD' &&
+            accountSelected.currency.code === 'EUR'
+          ) {
             amountConverted = Number(form.amount) * usdQuoteEur.price;
           }
           // Converted USD
-          if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'USD') {
+          if (
+            currencySelected.code === 'BRL' &&
+            accountSelected.currency.code === 'USD'
+          ) {
             amountConverted = Number(form.amount) * brlQuoteUsd.price;
           }
-          if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'USD') {
+          if (
+            currencySelected.code === 'BTC' &&
+            accountSelected.currency.code === 'USD'
+          ) {
             amountConverted = Number(form.amount) * btcQuoteUsd.price;
           }
-          if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'USD') {
+          if (
+            currencySelected.code === 'EUR' &&
+            accountSelected.currency.code === 'USD'
+          ) {
             amountConverted = Number(form.amount) * eurQuoteUsd.price;
           }
 
@@ -391,8 +481,8 @@ export function RegisterTransaction({
             const accountResponse = await api.get('single_account_get_id', {
               params: {
                 tenant_id: tenantId,
-                name: accountSelected.name
-              }
+                name: accountSelected.name,
+              },
             });
 
             let tagsList: any = [];
@@ -400,10 +490,10 @@ export function RegisterTransaction({
               const tag_id = item.id;
               if (!tagsList.hasOwnProperty(tag_id)) {
                 tagsList[tag_id] = {
-                  tag_id: item.id
+                  tag_id: item.id,
                 };
               }
-            };
+            }
             tagsList = Object.values(tagsList);
 
             let imageResponse: any = null;
@@ -411,16 +501,22 @@ export function RegisterTransaction({
             if (image != '') {
               const newImage = {
                 file: `data:image/jpeg;base64,${image}`,
-                tenant_id: tenantId
-              }
-              const uploadImage = await api.post('upload/transaction_image', newImage);
+                tenant_id: tenantId,
+              };
+              const uploadImage = await api.post(
+                'upload/transaction_image',
+                newImage
+              );
               if (uploadImage.status === 200) {
-                imageResponse = await api.get('single_transaction_image_get_id', {
-                  params: {
-                    tenant_id: tenantId
+                imageResponse = await api.get(
+                  'single_transaction_image_get_id',
+                  {
+                    params: {
+                      tenant_id: tenantId,
+                    },
                   }
-                });
-                transaction_image_id = imageResponse.data.id
+                );
+                transaction_image_id = imageResponse.data.id;
               }
             }
 
@@ -435,14 +531,24 @@ export function RegisterTransaction({
               category_id: categorySelected.id,
               tags: tagsList,
               transaction_image_id,
-              tenant_id: tenantId
-            }
+              tenant_id: tenantId,
+            };
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
-              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
+              Alert.alert(
+                'Cadastro de Transação',
+                'Transação cadastrada com sucesso!',
+                [
+                  { text: 'Cadastrar nova transação' },
+                  {
+                    text: 'Voltar para a tela anterior',
+                    onPress: closeRegisterTransaction,
+                  },
+                ]
+              );
 
               reset();
-              setTransactionType('')
+              setTransactionType('');
               setAccountSelected({
                 id: '',
                 name: 'Selecione a conta',
@@ -450,10 +556,10 @@ export function RegisterTransaction({
                   id: '',
                   name: '',
                   code: '',
-                  symbol: ''
+                  symbol: '',
                 },
                 initial_amount: 0,
-                tenant_id: ''
+                tenant_id: '',
               });
               setCategorySelected({
                 id: '',
@@ -468,19 +574,29 @@ export function RegisterTransaction({
                   name: '',
                   hex: theme.colors.primary,
                 },
-                tenant_id: ''
+                tenant_id: '',
               });
               setTagsSelected([]);
               tagsList = [];
               setImage('');
-            };
+            }
           } catch (error) {
             if (axios.isAxiosError(error)) {
-              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
+              Alert.alert(
+                'Cadastro de Transação',
+                error.response?.data.message,
+                [
+                  { text: 'Tentar novamente' },
+                  {
+                    text: 'Voltar para a tela anterior',
+                    onPress: closeRegisterTransaction,
+                  },
+                ]
+              );
             }
           } finally {
             setButtonIsLoading(false);
-          };
+          }
         }
         // No need conversion
         else {
@@ -488,8 +604,8 @@ export function RegisterTransaction({
             const accountResponse = await api.get('single_account_get_id', {
               params: {
                 tenant_id: tenantId,
-                name: accountSelected.name
-              }
+                name: accountSelected.name,
+              },
             });
 
             let tagsList: any = [];
@@ -497,10 +613,10 @@ export function RegisterTransaction({
               const tag_id = item.id;
               if (!tagsList.hasOwnProperty(tag_id)) {
                 tagsList[tag_id] = {
-                  tag_id: item.id
+                  tag_id: item.id,
                 };
               }
-            };
+            }
             tagsList = Object.values(tagsList);
 
             let imageResponse: any = null;
@@ -508,16 +624,22 @@ export function RegisterTransaction({
             if (image != '') {
               const newImage = {
                 file: `data:image/jpeg;base64,${image}`,
-                tenant_id: tenantId
-              }
-              const uploadImage = await api.post('upload/transaction_image', newImage);
+                tenant_id: tenantId,
+              };
+              const uploadImage = await api.post(
+                'upload/transaction_image',
+                newImage
+              );
               if (uploadImage.status === 200) {
-                imageResponse = await api.get('single_transaction_image_get_id', {
-                  params: {
-                    tenant_id: tenantId
+                imageResponse = await api.get(
+                  'single_transaction_image_get_id',
+                  {
+                    params: {
+                      tenant_id: tenantId,
+                    },
                   }
-                });
-                transaction_image_id = imageResponse.data.id
+                );
+                transaction_image_id = imageResponse.data.id;
               }
             }
 
@@ -531,14 +653,24 @@ export function RegisterTransaction({
               category_id: categorySelected.id,
               tags: tagsList,
               transaction_image_id,
-              tenant_id: tenantId
-            }
+              tenant_id: tenantId,
+            };
             const { status } = await api.post('transaction', newTransaction);
             if (status === 200) {
-              Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
+              Alert.alert(
+                'Cadastro de Transação',
+                'Transação cadastrada com sucesso!',
+                [
+                  { text: 'Cadastrar nova transação' },
+                  {
+                    text: 'Voltar para a tela anterior',
+                    onPress: closeRegisterTransaction,
+                  },
+                ]
+              );
 
               reset();
-              setTransactionType('')
+              setTransactionType('');
               setAccountSelected({
                 id: '',
                 name: 'Selecione a conta',
@@ -546,10 +678,10 @@ export function RegisterTransaction({
                   id: '',
                   name: '',
                   code: '',
-                  symbol: ''
+                  symbol: '',
                 },
                 initial_amount: 0,
-                tenant_id: ''
+                tenant_id: '',
               });
               setCategorySelected({
                 id: '',
@@ -564,100 +696,145 @@ export function RegisterTransaction({
                   name: '',
                   hex: theme.colors.primary,
                 },
-                tenant_id: ''
+                tenant_id: '',
               });
               setTagsSelected([]);
               tagsList = [];
               setImage('');
-            };
+            }
           } catch (error) {
             if (axios.isAxiosError(error)) {
-              Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
+              Alert.alert(
+                'Cadastro de Transação',
+                error.response?.data.message,
+                [
+                  { text: 'Tentar novamente' },
+                  {
+                    text: 'Voltar para a tela anterior',
+                    onPress: closeRegisterTransaction,
+                  },
+                ]
+              );
             }
           } finally {
             setButtonIsLoading(false);
-          };
+          }
         }
       }
       // Transfer Transaction
       else {
         // Need conversion
         let amountConverted = 0;
-        if (accountSelected.currency.code !== accountDestinationSelected.currency.code) {
-
+        if (
+          accountSelected.currency.code !==
+          accountDestinationSelected.currency.code
+        ) {
           //Converted BRL
-          if (accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'BTC') {
-            amountConverted = Number(form.amount) * brlQuoteBtc.price
+          if (
+            accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'BTC'
+          ) {
+            amountConverted = Number(form.amount) * brlQuoteBtc.price;
           }
-          if (accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'EUR') {
-            amountConverted = Number(form.amount) * brlQuoteEur.price
+          if (
+            accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'EUR'
+          ) {
+            amountConverted = Number(form.amount) * brlQuoteEur.price;
           }
-          if (accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'USD') {
-            amountConverted = Number(form.amount) * brlQuoteUsd.price
+          if (
+            accountSelected.currency.code === 'BRL' &&
+            accountDestinationSelected.currency.code === 'USD'
+          ) {
+            amountConverted = Number(form.amount) * brlQuoteUsd.price;
           }
           //Converted BTC
-          if (accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'BRL') {
-            amountConverted = Number(form.amount) * btcQuoteBrl.price
+          if (
+            accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'BRL'
+          ) {
+            amountConverted = Number(form.amount) * btcQuoteBrl.price;
           }
-          if (accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'EUR') {
-            amountConverted = Number(form.amount) * btcQuoteEur.price
+          if (
+            accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'EUR'
+          ) {
+            amountConverted = Number(form.amount) * btcQuoteEur.price;
           }
-          if (accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'USD') {
-            amountConverted = Number(form.amount) * btcQuoteUsd.price
+          if (
+            accountSelected.currency.code === 'BTC' &&
+            accountDestinationSelected.currency.code === 'USD'
+          ) {
+            amountConverted = Number(form.amount) * btcQuoteUsd.price;
           }
           //Converted EUR
-          if (accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'BTC') {
-            amountConverted = Number(form.amount) * eurQuoteBtc.price
+          if (
+            accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'BTC'
+          ) {
+            amountConverted = Number(form.amount) * eurQuoteBtc.price;
           }
-          if (accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'BRL') {
-            amountConverted = Number(form.amount) * eurQuoteBrl.price
+          if (
+            accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'BRL'
+          ) {
+            amountConverted = Number(form.amount) * eurQuoteBrl.price;
           }
-          if (accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'USD') {
-            amountConverted = Number(form.amount) * eurQuoteUsd.price
+          if (
+            accountSelected.currency.code === 'EUR' &&
+            accountDestinationSelected.currency.code === 'USD'
+          ) {
+            amountConverted = Number(form.amount) * eurQuoteUsd.price;
           }
           //Converted USD
-          if (accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'BTC') {
-            amountConverted = Number(form.amount) * usdQuoteBtc.price
+          if (
+            accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'BTC'
+          ) {
+            amountConverted = Number(form.amount) * usdQuoteBtc.price;
           }
-          if (accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'BRL') {
-            amountConverted = Number(form.amount) * usdQuoteBrl.price
+          if (
+            accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'BRL'
+          ) {
+            amountConverted = Number(form.amount) * usdQuoteBrl.price;
           }
-          if (accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'EUR') {
-            amountConverted = Number(form.amount) * usdQuoteEur.price
+          if (
+            accountSelected.currency.code === 'USD' &&
+            accountDestinationSelected.currency.code === 'EUR'
+          ) {
+            amountConverted = Number(form.amount) * usdQuoteEur.price;
           }
         }
-        // No need conversion        
+        // No need conversion
         else {
-          amountConverted = Number(form.amount)
-        };
+          amountConverted = Number(form.amount);
+        }
 
         try {
           const accountResponse = await api.get('single_account_get_id', {
             params: {
               tenant_id: tenantId,
-              name: accountSelected.name
-            }
+              name: accountSelected.name,
+            },
           });
-          const accountDestinationResponse = await api.get('single_account_get_id', {
-            params: {
-              tenant_id: tenantId,
-              name: accountDestinationSelected.name
+          const accountDestinationResponse = await api.get(
+            'single_account_get_id',
+            {
+              params: {
+                tenant_id: tenantId,
+                name: accountDestinationSelected.name,
+              },
             }
-          });
-          if (accountResponse.status && accountDestinationResponse.status !== 200) {
-            Alert.alert("Conta", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.")
+          );
+          if (
+            accountResponse.status &&
+            accountDestinationResponse.status !== 200
+          ) {
+            Alert.alert(
+              'Conta',
+              'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
+            );
           }
 
           let tagsList: any = [];
@@ -665,10 +842,10 @@ export function RegisterTransaction({
             const tag_id = item.id;
             if (!tagsList.hasOwnProperty(tag_id)) {
               tagsList[tag_id] = {
-                tag_id: item.id
+                tag_id: item.id,
               };
             }
-          };
+          }
           tagsList = Object.values(tagsList);
 
           let imageResponse: any = null;
@@ -676,16 +853,19 @@ export function RegisterTransaction({
           if (image != '') {
             const newImage = {
               file: `data:image/jpeg;base64,${image}`,
-              tenant_id: tenantId
-            }
-            const uploadImage = await api.post('upload/transaction_image', newImage);
+              tenant_id: tenantId,
+            };
+            const uploadImage = await api.post(
+              'upload/transaction_image',
+              newImage
+            );
             if (uploadImage.status === 200) {
               imageResponse = await api.get('single_transaction_image_get_id', {
                 params: {
-                  tenant_id: tenantId
-                }
+                  tenant_id: tenantId,
+                },
               });
-              transaction_image_id = imageResponse.data.id
+              transaction_image_id = imageResponse.data.id;
             }
           }
 
@@ -699,8 +879,8 @@ export function RegisterTransaction({
             category_id: categorySelected.id,
             tags: tagsList,
             transaction_image_id,
-            tenant_id: tenantId
-          }
+            tenant_id: tenantId,
+          };
 
           const transferCredit = {
             created_at: date,
@@ -712,16 +892,35 @@ export function RegisterTransaction({
             category_id: categorySelected.id,
             tags: tagsList,
             transaction_image_id,
-            tenant_id: tenantId
-          }
+            tenant_id: tenantId,
+          };
 
-          const transferDebitResponse = await api.post('transaction', transferDebit);
-          const transferCreditResponse = await api.post('transaction', transferCredit);
-          if (transferDebitResponse.status && transferCreditResponse.status === 200) {
-            Alert.alert("Cadastro de Transação", "Transação cadastrada com sucesso!", [{ text: "Cadastrar nova transação" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
+          const transferDebitResponse = await api.post(
+            'transaction',
+            transferDebit
+          );
+          const transferCreditResponse = await api.post(
+            'transaction',
+            transferCredit
+          );
+          if (
+            transferDebitResponse.status &&
+            transferCreditResponse.status === 200
+          ) {
+            Alert.alert(
+              'Cadastro de Transação',
+              'Transação cadastrada com sucesso!',
+              [
+                { text: 'Cadastrar nova transação' },
+                {
+                  text: 'Voltar para a tela anterior',
+                  onPress: closeRegisterTransaction,
+                },
+              ]
+            );
 
             reset();
-            setTransactionType('')
+            setTransactionType('');
             setAccountSelected({
               id: '',
               name: 'Selecione a conta',
@@ -732,7 +931,7 @@ export function RegisterTransaction({
                 symbol: '',
               },
               initial_amount: 0,
-              tenant_id: ''
+              tenant_id: '',
             });
             setAccountDestinationSelected({
               id: '',
@@ -741,10 +940,10 @@ export function RegisterTransaction({
                 id: '',
                 name: '',
                 code: '',
-                symbol: ''
+                symbol: '',
               },
               initial_amount: 0,
-              tenant_id: ''
+              tenant_id: '',
             });
             setCategorySelected({
               id: '',
@@ -759,22 +958,28 @@ export function RegisterTransaction({
                 name: '',
                 hex: theme.colors.primary,
               },
-              tenant_id: ''
+              tenant_id: '',
             });
             setTagsSelected([]);
             tagsList = [];
             setImage('');
-          };
+          }
         } catch (error) {
           if (axios.isAxiosError(error)) {
-            Alert.alert("Cadastro de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: closeRegisterTransaction }]);
+            Alert.alert('Cadastro de Transação', error.response?.data.message, [
+              { text: 'Tentar novamente' },
+              {
+                text: 'Voltar para a tela anterior',
+                onPress: closeRegisterTransaction,
+              },
+            ]);
           }
         } finally {
           setButtonIsLoading(false);
-        };
+        }
       }
-    };
-  };
+    }
+  }
 
   async function fetchTransaction() {
     setButtonIsLoading(true);
@@ -782,26 +987,32 @@ export function RegisterTransaction({
     try {
       const { data } = await api.get('single_transaction', {
         params: {
-          transaction_id: id
-        }
-      })
+          transaction_id: id,
+        },
+      });
       setCategorySelected(data.category);
       setAmount(data.amount);
       setAmountNotConverted(data.amount_not_converted);
       setCurrencySelected(data.currency);
       setAccountSelected(data.account);
-      setDate(data.created_at);
+      const parsedDate = new Date(data.created_at);
+      setDate(parsedDate);
       setDescription(data.description);
       setTagsSelected(data.tags);
-      { data.image && setImageUrl(data.image.url) };
+      {
+        data.image && setImageUrl(data.image.url);
+      }
       setTransactionType(data.type);
     } catch (error) {
       console.error(error);
-      Alert.alert("Transação", "Não foi possível buscar a transação. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Transação',
+        'Não foi possível buscar a transação. Verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setButtonIsLoading(false);
-    };
-  };
+    }
+  }
 
   async function handleEditTransaction(id: string, form: FormData) {
     setButtonIsLoading(true);
@@ -811,10 +1022,10 @@ export function RegisterTransaction({
       const tag_id = item.id;
       if (!tagsList.hasOwnProperty(tag_id)) {
         tagsList[tag_id] = {
-          tag_id: item.id
+          tag_id: item.id,
         };
       }
-    };
+    }
     tagsList = Object.values(tagsList);
 
     let imageResponse: any = null;
@@ -822,16 +1033,16 @@ export function RegisterTransaction({
     if (image != '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
-        tenant_id: tenantId
-      }
+        tenant_id: tenantId,
+      };
       const uploadImage = await api.post('upload/transaction_image', newImage);
       if (uploadImage.status === 200) {
         imageResponse = await api.get('single_transaction_image_get_id', {
           params: {
-            tenant_id: tenantId
-          }
+            tenant_id: tenantId,
+          },
         });
-        transaction_image_id = imageResponse.data.id
+        transaction_image_id = imageResponse.data.id;
       }
     }
 
@@ -839,43 +1050,79 @@ export function RegisterTransaction({
     if (currencySelected.code !== accountSelected.currency.code) {
       // Converted BRL
       let amountConverted = 0;
-      if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'BRL') {
+      if (
+        currencySelected.code === 'BTC' &&
+        accountSelected.currency.code === 'BRL'
+      ) {
         amountConverted = Number(form.amount) * btcQuoteBrl.price;
       }
-      if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BRL') {
+      if (
+        currencySelected.code === 'EUR' &&
+        accountSelected.currency.code === 'BRL'
+      ) {
         amountConverted = Number(form.amount) * eurQuoteBrl.price;
       }
-      if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BRL') {
+      if (
+        currencySelected.code === 'USD' &&
+        accountSelected.currency.code === 'BRL'
+      ) {
         amountConverted = Number(form.amount) * usdQuoteBrl.price;
       }
       // Converted BTC
-      if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'BTC') {
+      if (
+        currencySelected.code === 'BRL' &&
+        accountSelected.currency.code === 'BTC'
+      ) {
         amountConverted = Number(form.amount) * brlQuoteBtc.price;
       }
-      if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'BTC') {
+      if (
+        currencySelected.code === 'EUR' &&
+        accountSelected.currency.code === 'BTC'
+      ) {
         amountConverted = Number(form.amount) * eurQuoteBtc.price;
       }
-      if (currencySelected.code === 'USD' && accountSelected.currency.code === 'BTC') {
+      if (
+        currencySelected.code === 'USD' &&
+        accountSelected.currency.code === 'BTC'
+      ) {
         amountConverted = Number(form.amount) * usdQuoteBtc.price;
       }
       // Converted EUR
-      if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'EUR') {
+      if (
+        currencySelected.code === 'BRL' &&
+        accountSelected.currency.code === 'EUR'
+      ) {
         amountConverted = Number(form.amount) * brlQuoteEur.price;
       }
-      if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'EUR') {
+      if (
+        currencySelected.code === 'BTC' &&
+        accountSelected.currency.code === 'EUR'
+      ) {
         amountConverted = Number(form.amount) * btcQuoteEur.price;
       }
-      if (currencySelected.code === 'USD' && accountSelected.currency.code === 'EUR') {
+      if (
+        currencySelected.code === 'USD' &&
+        accountSelected.currency.code === 'EUR'
+      ) {
         amountConverted = Number(form.amount) * usdQuoteEur.price;
       }
       // Converted USD
-      if (currencySelected.code === 'BRL' && accountSelected.currency.code === 'USD') {
+      if (
+        currencySelected.code === 'BRL' &&
+        accountSelected.currency.code === 'USD'
+      ) {
         amountConverted = Number(form.amount) * brlQuoteUsd.price;
       }
-      if (currencySelected.code === 'BTC' && accountSelected.currency.code === 'USD') {
+      if (
+        currencySelected.code === 'BTC' &&
+        accountSelected.currency.code === 'USD'
+      ) {
         amountConverted = Number(form.amount) * btcQuoteUsd.price;
       }
-      if (currencySelected.code === 'EUR' && accountSelected.currency.code === 'USD') {
+      if (
+        currencySelected.code === 'EUR' &&
+        accountSelected.currency.code === 'USD'
+      ) {
         amountConverted = Number(form.amount) * eurQuoteUsd.price;
       }
 
@@ -892,20 +1139,34 @@ export function RegisterTransaction({
           category_id: categorySelected.id,
           tags: tagsList,
           transaction_image_id,
-          tenant_id: tenantId
-        }
+          tenant_id: tenantId,
+        };
 
-        const { status } = await api.post('edit_transaction', transactionEdited);
+        const { status } = await api.post(
+          'edit_transaction',
+          transactionEdited
+        );
         if (status === 200) {
-          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert('Edição de Transação', error.response?.data.message, [
+            { text: 'Tentar novamente' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
         }
       } finally {
         setButtonIsLoading(false);
-      };
+      }
     }
     // No need conversion
     else {
@@ -922,108 +1183,109 @@ export function RegisterTransaction({
           category_id: categorySelected.id,
           tags: tagsList,
           transaction_image_id,
-          tenant_id: tenantId
-        }
+          tenant_id: tenantId,
+        };
 
-        const { status } = await api.post('edit_transaction', transactionEdited);
+        const { status } = await api.post(
+          'edit_transaction',
+          transactionEdited
+        );
         if (status === 200) {
-          Alert.alert("Edição de Transação", "Transação editada com sucesso!", [{ text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          Alert.alert("Edição de Transação", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseRegisterTransaction }]);
+          Alert.alert('Edição de Transação', error.response?.data.message, [
+            { text: 'Tentar novamente' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
         }
       } finally {
         setButtonIsLoading(false);
-      };
+      }
     }
-  };
-
-  async function handleClickDeleteTransaction(id: string) {
-    Alert.alert("Exclusão de transação", "Tem certeza que deseja excluir a transação?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a transação", onPress: () => handleDeleteTransaction(id) }])
-  };
+  }
 
   async function handleDeleteTransaction(id: string) {
     try {
       await api.delete('delete_transaction', {
         params: {
-          transaction_id: id
-        }
+          transaction_id: id,
+        },
       });
-      Alert.alert("Exclusão de transação", "Transação excluída com sucesso!");
+      Alert.alert('Exclusão de transação', 'Transação excluída com sucesso!');
       handleCloseRegisterTransaction();
     } catch (error) {
-      Alert.alert("Exclusão de transação", `${error}`);
+      Alert.alert('Exclusão de transação', `${error}`);
     }
-  };
+  }
 
-  function handleCloseRegisterTransaction() {
-    resetId();
-    reset();
-    setTransactionType('')
-    setAccountSelected({
-      id: '',
-      name: 'Selecione a conta',
-      currency: {
-        id: '',
-        name: '',
-        code: '',
-        symbol: ''
-      },
-      initial_amount: 0,
-      tenant_id: ''
-    });
-    setCategorySelected({
-      id: '',
-      name: 'Selecione a categoria',
-      icon: {
-        id: '',
-        title: '',
-        name: '',
-      },
-      color: {
-        id: '',
-        name: '',
-        hex: theme.colors.primary,
-      },
-      tenant_id: ''
-    });
-    setTagsSelected([]);
-    closeRegisterTransaction();
-  };
+  async function handleClickDeleteTransaction(id: string) {
+    Alert.alert(
+      'Exclusão de transação',
+      'Tem certeza que deseja excluir a transação?',
+      [
+        { text: 'Não, cancelar a exclusão' },
+        {
+          text: 'Sim, excluir a transação',
+          onPress: () => handleDeleteTransaction(id),
+        },
+      ]
+    );
+  }
 
-  useFocusEffect(useCallback(() => {
-    fetchTags();
+  useFocusEffect(
+    useCallback(() => {
+      fetchTags();
 
-    if (id != '') {
-      fetchTransaction();
-    }
-  }, [id]));
+      if (id != '') {
+        fetchTransaction();
+      }
+    }, [id])
+  );
 
   return (
     <Container>
       <MainContent>
         <Header color={categorySelected.color.hex}>
           <TitleContainer>
-            <BorderlessButton onPress={closeModal} style={{ position: 'absolute', top: 0, left: 0 }}>
-              <Ionicons name='close' size={26} color={theme.colors.background} />
+            <BorderlessButton
+              onPress={closeModal}
+              style={{ position: 'absolute', top: 0, left: 0 }}
+            >
+              <Ionicons
+                name='close'
+                size={26}
+                color={theme.colors.background}
+              />
             </BorderlessButton>
             <Title>
-              {
-                id != '' ? (
-                  `Editar Transação \n ${description}`
-                ) :
-                  "Adicionar Transação"
-              }
+              {id != ''
+                ? `Editar Transação \n ${description}`
+                : 'Adicionar Transação'}
             </Title>
-            {
-              id != '' ? (
-                <BorderlessButton onPress={() => handleClickDeleteTransaction(id)} style={{ position: 'absolute', top: 0, right: 0 }}>
-                  <Ionicons name='trash-outline' size={26} color={theme.colors.background} />
-                </BorderlessButton>
-              ) :
-                <></>
-            }
+            {id != '' ? (
+              <BorderlessButton
+                onPress={() => handleClickDeleteTransaction(id)}
+                style={{ position: 'absolute', top: 0, right: 0 }}
+              >
+                <Ionicons
+                  name='trash-outline'
+                  size={26}
+                  color={theme.colors.background}
+                />
+              </BorderlessButton>
+            ) : (
+              <></>
+            )}
           </TitleContainer>
 
           <HeaderRow>
@@ -1039,7 +1301,11 @@ export function RegisterTransaction({
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
-                defaultValue={amountNotConverted ? String(amountNotConverted) : String(amount)}
+                defaultValue={
+                  amountNotConverted
+                    ? String(amountNotConverted)
+                    : String(amount)
+                }
                 name='amount'
                 control={control}
                 error={errors.amount}
@@ -1060,40 +1326,36 @@ export function RegisterTransaction({
             color={categorySelected.color.hex}
             onPress={handleOpenSelectAccountModal}
           />
-          {
-            transactionType === 'transfer' &&
+          {transactionType === 'transfer' && (
             <SelectButton
               title={accountDestinationSelected.name}
               icon='wallet'
               color={categorySelected.color.hex}
               onPress={handleOpenSelectAccountDestinationModal}
             />
-          }
+          )}
 
           <SelectButton
             title={formattedDate}
             icon='calendar'
             color={categorySelected.color.hex}
-            onPress={showDatepicker}
+            onPress={() => setShowDatePicker(true)}
           />
-          {
-            showDatePicker && (
-              <DateTimePicker
-                testID='dateTimePicker'
-                value={date}
-                mode='date'
-                is24Hour={true}
-                onChange={onChangeDate}
-                display='spinner'
-                dateFormat='day month year'
-                textColor='#000'
-              />
-            )
-          }
+          {showDatePicker && (
+            <DateTimePicker
+              testID='dateTimePicker'
+              value={date}
+              mode='date'
+              is24Hour={true}
+              onChange={onChangeDate}
+              dateFormat='day month year'
+              textColor={theme.colors.text}
+            />
+          )}
           <ControlledInputWithIcon
             icon='pencil'
             color={categorySelected.color.hex}
-            placeholder="Descrição"
+            placeholder='Descrição'
             autoCapitalize='sentences'
             autoCorrect={false}
             returnKeyType='go'
@@ -1105,13 +1367,13 @@ export function RegisterTransaction({
           />
 
           <SelectButton
-            title="Etiquetas"
+            title='Etiquetas'
             icon='pricetags'
             color={categorySelected.color.hex}
           />
           <FlatList
             data={tags}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }: any) => (
               <TagListItemRegisterTransaction
                 data={item}
@@ -1124,31 +1386,33 @@ export function RegisterTransaction({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
               paddingHorizontal: 12,
-              paddingBottom: 12
+              paddingBottom: 12,
             }}
           />
 
           <SelectButton
-            title={imageUrl != '' ? "Alterar imagem" : "Selecionar imagem"}
+            title={imageUrl != '' ? 'Alterar imagem' : 'Selecionar imagem'}
             icon='image'
             color={categorySelected.color.hex}
             onPress={handleClickSelectImage}
           />
-          {
-            imageUrl != '' ?
-              <ProductImageContainer>
-                <ProductImage source={{ uri: imageUrl }} />
-              </ProductImageContainer>
-              :
-              <></>
-          }
+          {imageUrl != '' ? (
+            <ProductImageContainer>
+              <ProductImage source={{ uri: imageUrl }} />
+            </ProductImageContainer>
+          ) : (
+            <></>
+          )}
 
           <TransactionsTypes>
             <TransactionTypeButton
               type='up'
               title='Crédito'
               onPress={() => handleTransactionsTypeSelect('credit')}
-              isActive={transactionType === 'credit' || transactionType === 'transferCredit'}
+              isActive={
+                transactionType === 'credit' ||
+                transactionType === 'transferCredit'
+              }
             />
             <TransactionTypeButton
               type='swap'
@@ -1160,7 +1424,10 @@ export function RegisterTransaction({
               type='down'
               title='Débito'
               onPress={() => handleTransactionsTypeSelect('debit')}
-              isActive={transactionType === 'debit' || transactionType === 'transferDebit'}
+              isActive={
+                transactionType === 'debit' ||
+                transactionType === 'transferDebit'
+              }
             />
           </TransactionsTypes>
         </ContentScroll>
@@ -1169,7 +1436,7 @@ export function RegisterTransaction({
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? "Editar Transação" : "Adicionar Transação"}
+          title={id != '' ? 'Editar Transação' : 'Adicionar Transação'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTransaction)}
         />
@@ -1177,7 +1444,7 @@ export function RegisterTransaction({
 
       <ModalViewSelection
         $modal
-        title="Selecione a categoria"
+        title='Selecione a categoria'
         bottomSheetRef={categoryBottomSheetRef}
         snapPoints={['50%']}
       >
@@ -1190,7 +1457,7 @@ export function RegisterTransaction({
 
       <ModalViewSelection
         $modal
-        title="Selecione a moeda"
+        title='Selecione a moeda'
         bottomSheetRef={currencyBottomSheetRef}
         snapPoints={['50%']}
       >
@@ -1203,7 +1470,7 @@ export function RegisterTransaction({
 
       <ModalViewSelection
         $modal
-        title="Selecione a conta"
+        title='Selecione a conta'
         bottomSheetRef={accountBottomSheetRef}
         snapPoints={['50%']}
       >
@@ -1216,7 +1483,7 @@ export function RegisterTransaction({
 
       <ModalViewSelection
         $modal
-        title="Selecione a conta de destino"
+        title='Selecione a conta de destino'
         bottomSheetRef={accountDestinationBottomSheetRef}
         snapPoints={['50%']}
         onClose={handleCloseSelectAccountDestinationModal}
@@ -1224,17 +1491,10 @@ export function RegisterTransaction({
         <AccountDestinationSelect
           accountDestination={accountDestinationSelected}
           setAccountDestination={setAccountDestinationSelected}
-          closeSelectAccountDestination={handleCloseSelectAccountDestinationModal}
+          closeSelectAccountDestination={
+            handleCloseSelectAccountDestinationModal
+          }
         />
-      </ModalViewSelection>
-
-      <ModalViewSelection
-        $modal
-        title="Selecione a (s) etiqueta (s)"
-        bottomSheetRef={tagBottomSheetRef}
-        snapPoints={['50%']}
-      >
-
       </ModalViewSelection>
     </Container>
   );
