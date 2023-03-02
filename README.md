@@ -31,19 +31,19 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 -   [X] Expo Bare Workflow
 -   [X] Styled Components
 -   [X] React Native Testing Library
+-   [X] Redux
+-   [X] Axios
 -   [X] ESLint
 -   [X] Prettier
 -   [X] Babel Module Resolver
 -   [X] React Native Gesture Handler
 -   [X] React Native Reanimated
--   [X] Redux
 -   [X] React Native Async Storage
 -   [X] React Native Responsive Fontsize
 -   [X] iPhone X Helper
 -   [X] React Hook Form
 -   [X] Vector Icons
 -   [X] React Native Svg e Svg Transform
--   [X] Axios
 -   [X] Expo Google Fonts
 -   [X] React Navigation Stack
 -   [X] React Navigation Bottom Tabs
