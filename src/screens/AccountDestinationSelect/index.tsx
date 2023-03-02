@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
-import {
-  Container
-} from './styles';
+import { Container } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
@@ -22,12 +20,12 @@ type Props = {
   accountDestination: AccountProps;
   setAccountDestination: (accountDestination: AccountProps) => void;
   closeSelectAccountDestination: () => void;
-}
+};
 
 export function AccountDestinationSelect({
   accountDestination,
   setAccountDestination,
-  closeSelectAccountDestination
+  closeSelectAccountDestination,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
@@ -40,8 +38,8 @@ export function AccountDestinationSelect({
     try {
       const { data } = await api.get('account', {
         params: {
-          tenant_id: tenantId
-        }
+          tenant_id: tenantId,
+        },
       });
       if (!data) {
       } else {
@@ -50,24 +48,29 @@ export function AccountDestinationSelect({
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Contas", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Contas',
+        'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
-    };
-  };
+    }
+  }
 
   function handleAccountSelect(account: AccountProps) {
     setAccountDestination(account);
     closeSelectAccountDestination();
-  };
+  }
 
-  useFocusEffect(useCallback(() => {
-    fetchAccounts();
-  }, []));
+  useFocusEffect(
+    useCallback(() => {
+      fetchAccounts();
+    }, [])
+  );
 
   if (loading) {
-    return <Load />
+    return <Load />;
   }
 
   return (
@@ -83,7 +86,7 @@ export function AccountDestinationSelect({
           />
         )}
         ListEmptyComponent={() => (
-          <ListEmptyComponent text="Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações." />
+          <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />
         )}
         ItemSeparatorComponent={() => <ListSeparator />}
         refreshControl={
@@ -92,5 +95,5 @@ export function AccountDestinationSelect({
         style={{ flex: 1, width: '100%' }}
       />
     </Container>
-  )
+  );
 }

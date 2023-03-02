@@ -4,28 +4,30 @@ import type { RootState } from '../store'
 // Define a type for the slice state
 interface AccountState {
   accountId: string;
-  accountName: string | null;
+  accountName: string;
   accountCurrency: {
-    code: string | null;
-    symbol: string | null;
+    id: string;
+    name: string;
+    code: string;
+    symbol: string;
   };
   accountInitialAmount: number;
   accountTotalRevenues: string | null;
   accountTotalExpenses: string | null;
   accountTotalAmount: string | null;
-  accountTenantId: number | null;
+  accountTenantId: string;
 };
 
 // Define the initial state using that type
 const initialState: AccountState = {
   accountId: '',
-  accountName: null,
-  accountCurrency: {code: null, symbol: null},
+  accountName: '',
+  accountCurrency: { id: '', name: '', code: '', symbol: 'R$' },
   accountInitialAmount: 0,
   accountTotalRevenues: null,
   accountTotalExpenses: null,
   accountTotalAmount: "R$0",
-  accountTenantId: null
+  accountTenantId: ''
 };
 
 export const accountSlice = createSlice({

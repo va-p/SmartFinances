@@ -1,9 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
-import {
-  Container,
-  Footer
-} from './styles';
+import { Container, Footer } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -37,8 +34,8 @@ export function Categories() {
     try {
       const { data } = await api.get('category', {
         params: {
-          tenant_id: tenantId
-        }
+          tenant_id: tenantId,
+        },
       });
       if (!data) {
       } else {
@@ -47,51 +44,70 @@ export function Categories() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Categorias", "Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Categorias',
+        'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setLoading(false);
-    };
-  };
+    }
+  }
 
   function handleOpenRegisterCategoryModal() {
     setCategoryId('');
     bottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseRegisterCategoryModal() {
     bottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenCategory(id: string) {
     setCategoryId(id);
     bottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseEditCategory() {
     setCategoryId('');
     fetchCategories();
     bottomSheetRef.current?.dismiss();
-  };
-
-  async function handleClickDeleteCategory() {
-    Alert.alert("Exclusão de categoria", "ATENÇÃO! Todas as transações desta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a categoria", onPress: () => handleDeleteCategory(categoryId) }])
-  };
+  }
 
   async function handleDeleteCategory(id: string) {
     try {
       await api.delete('delete_category', {
         params: {
-          category_id: id
-        }
+          category_id: id,
+        },
       });
-      Alert.alert("Exclusão de categoria", "Categoria excluída com sucesso!")
+      Alert.alert('Exclusão de categoria', 'Categoria excluída com sucesso!');
       handleCloseRegisterCategoryModal();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert("Exclusão de categoria", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseRegisterCategoryModal }]);
+        Alert.alert('Exclusão de categoria', error.response?.data.message, [
+          { text: 'Tentar novamente' },
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: handleCloseRegisterCategoryModal,
+          },
+        ]);
       }
     }
-  };
+  }
+
+  async function handleClickDeleteCategory() {
+    Alert.alert(
+      'Exclusão de categoria',
+      'ATENÇÃO! Todas as transações desta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?',
+      [
+        { text: 'Não, cancelar a exclusão' },
+        {
+          text: 'Sim, excluir a categoria',
+          onPress: () => handleDeleteCategory(categoryId),
+        },
+      ]
+    );
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -100,16 +116,16 @@ export function Categories() {
   );
 
   if (loading) {
-    return <SkeletonCategoriesAndTagsScreen />
+    return <SkeletonCategoriesAndTagsScreen />;
   }
 
   return (
     <Container>
-      <Header type='primary' title="Categorias" />
+      <Header type='primary' title='Categorias' />
 
       <FlatList
         data={categories}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <CategoryListItem
             data={item}
@@ -117,7 +133,7 @@ export function Categories() {
           />
         )}
         ListEmptyComponent={() => (
-          <ListEmptyComponent text="Nenhuma categoria criada. Crie categorias para visualizá-las aqui." />
+          <ListEmptyComponent text='Nenhuma categoria criada. Crie categorias para visualizá-las aqui.' />
         )}
         initialNumToRender={50}
         refreshControl={
@@ -125,25 +141,29 @@ export function Categories() {
         }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingTop: 24
+          paddingTop: 24,
         }}
       />
 
       <Footer>
         <Button
           type='secondary'
-          title="Criar Nova Categoria"
+          title='Criar Nova Categoria'
           onPress={handleOpenRegisterCategoryModal}
         />
       </Footer>
 
       <ModalView
         type={categoryId != '' ? 'secondary' : 'primary'}
-        title={categoryId != '' ? "Editar Categoria" : "Criar Nova Categoria"}
+        title={categoryId != '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
         snapPoints={['100%']}
-        closeModal={categoryId != '' ? handleCloseRegisterCategoryModal : () => bottomSheetRef.current?.dismiss()}
+        closeModal={
+          categoryId != ''
+            ? handleCloseRegisterCategoryModal
+            : () => bottomSheetRef.current?.dismiss()
+        }
         deleteChildren={handleClickDeleteCategory}
       >
         <RegisterCategory

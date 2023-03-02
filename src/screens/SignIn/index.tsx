@@ -10,7 +10,7 @@ import {
   FooterWrapper,
   WrapperTextSignUp,
   TextSignUp,
-  LinkSignUp
+  LinkSignUp,
 } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +24,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
-import { SignInSocialButton } from '@components/SignInSocialButton'
+import { SignInSocialButton } from '@components/SignInSocialButton';
 import { Button } from '@components/Button';
 
 import GoogleSvg from '@assets/google.svg';
@@ -33,10 +33,7 @@ import LogoSvg from '@assets/logo.svg';
 
 import { useAuth } from '@hooks/auth';
 
-import {
-  COLLECTION_TOKENS,
-  COLLECTION_USERS
-} from '@configs/database';
+import { COLLECTION_TOKENS, COLLECTION_USERS } from '@configs/database';
 
 import {
   setUserId,
@@ -55,41 +52,45 @@ import api from '@api/api';
 type FormData = {
   email: string;
   password: string;
-}
+};
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
-  email: Yup
-    .string()
-    .email("Digite um e-mail válido")
-    .required("Digite o seu e-mail"),
-  password: Yup
-    .string()
-    .required("Digite a sua senha")
+  email: Yup.string()
+    .email('Digite um e-mail válido')
+    .required('Digite o seu e-mail'),
+  password: Yup.string().required('Digite a sua senha'),
 });
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
   });
   const { signInWithGoogle, signInWithApple } = useAuth();
   const dispatch = useDispatch();
 
   async function handleSignInWithXano(form: FormData) {
-    setButtonIsLoading(true)
+    setButtonIsLoading(true);
 
     const SignInUser = {
       email: form.email,
-      password: form.password
-    }
+      password: form.password,
+    };
 
     try {
       const { data, status } = await api.post('auth/login', SignInUser);
       if (status === 200) {
         try {
-          await AsyncStorage.setItem(COLLECTION_TOKENS, JSON.stringify(data.authToken));
+          await AsyncStorage.setItem(
+            COLLECTION_TOKENS,
+            JSON.stringify(data.authToken)
+          );
         } catch (error) {
           console.error(error);
           Alert.alert(`Erro: ${error}`);
@@ -110,53 +111,40 @@ export function SignIn({ navigation }: any) {
         tenantId: userData.data.tenant_id,
       };
 
-      await AsyncStorage.setItem(COLLECTION_USERS, JSON.stringify(loggedInUserDataFormatted));
+      await AsyncStorage.setItem(
+        COLLECTION_USERS,
+        JSON.stringify(loggedInUserDataFormatted)
+      );
 
-      dispatch(
-        setUserId(loggedInUserDataFormatted.id)
-      );
-      dispatch(
-        setUserName(loggedInUserDataFormatted.name)
-      );
-      dispatch(
-        setUserLastName(loggedInUserDataFormatted.lastName)
-      );
-      dispatch(
-        setUserEmail(loggedInUserDataFormatted.email)
-      );
-      dispatch(
-        setUserPhone(loggedInUserDataFormatted.phone)
-      );
-      dispatch(
-        setUserRole(loggedInUserDataFormatted.role)
-      );
+      dispatch(setUserId(loggedInUserDataFormatted.id));
+      dispatch(setUserName(loggedInUserDataFormatted.name));
+      dispatch(setUserLastName(loggedInUserDataFormatted.lastName));
+      dispatch(setUserEmail(loggedInUserDataFormatted.email));
+      dispatch(setUserPhone(loggedInUserDataFormatted.phone));
+      dispatch(setUserRole(loggedInUserDataFormatted.role));
       dispatch(
         setUserLocalAuthentication(loggedInUserDataFormatted.useLocalAuth)
       );
-      dispatch(
-        setUserProfileImage(loggedInUserDataFormatted.image)
-      );
-      dispatch(
-        setUserTenantId(loggedInUserDataFormatted.tenantId)
-      );
+      dispatch(setUserProfileImage(loggedInUserDataFormatted.image));
+      dispatch(setUserTenantId(loggedInUserDataFormatted.tenantId));
 
       navigation.navigate('Home');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert("Login", error.response?.data.message);
+        Alert.alert('Login', error.response?.data.message);
       }
     } finally {
       setButtonIsLoading(false);
-    };
-  };
+    }
+  }
 
   async function handleSignInWithBiometric() {
     setButtonIsLoading(true);
 
     try {
       const biometricAuth = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Entrar com Biometria",
-        cancelLabel: "Cancelar",
+        promptMessage: 'Entrar com Biometria',
+        cancelLabel: 'Cancelar',
       });
       if (biometricAuth.success) {
         try {
@@ -164,48 +152,40 @@ export function SignIn({ navigation }: any) {
           if (userData) {
             const userDataParsed = JSON.parse(userData);
 
+            dispatch(setUserId(userDataParsed.id));
+            dispatch(setUserName(userDataParsed.name));
+            dispatch(setUserLastName(userDataParsed.lastName));
+            dispatch(setUserEmail(userDataParsed.email));
+            dispatch(setUserPhone(userDataParsed.phone));
+            dispatch(setUserRole(userDataParsed.role));
             dispatch(
-              setUserId(userDataParsed.id)
+              setUserLocalAuthentication(
+                userDataParsed.use_local_authentication
+              )
             );
-            dispatch(
-              setUserName(userDataParsed.name)
-            );
-            dispatch(
-              setUserLastName(userDataParsed.lastName)
-            );
-            dispatch(
-              setUserEmail(userDataParsed.email)
-            );
-            dispatch(
-              setUserPhone(userDataParsed.phone)
-            );
-            dispatch(
-              setUserRole(userDataParsed.role)
-            );
-            dispatch(
-              setUserLocalAuthentication(userDataParsed.use_local_authentication)
-            );
-            dispatch(
-              setUserProfileImage(userDataParsed.image)
-            );
-            dispatch(
-              setUserTenantId(userDataParsed.tenantId)
-            );
+            dispatch(setUserProfileImage(userDataParsed.image));
+            dispatch(setUserTenantId(userDataParsed.tenantId));
           }
 
           navigation.navigate('Home');
         } catch (error) {
           console.error(error);
-          Alert.alert("Login", "Não foi possível buscar seus dados no dispositivo, por favor, verifique sua conexão com a internet e tente novamente.");
-        };
+          Alert.alert(
+            'Login',
+            'Não foi possível buscar seus dados no dispositivo, por favor, verifique sua conexão com a internet e tente novamente.'
+          );
+        }
       }
     } catch (error) {
       console.log(error);
-      Alert.alert("Login", "Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Login',
+        'Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setButtonIsLoading(false);
-    };
-  };
+    }
+  }
 
   async function handleSignInWithGoogle() {
     try {
@@ -214,7 +194,7 @@ export function SignIn({ navigation }: any) {
       console.error(error);
       Alert.alert('Não foi possível conectar a conta Google');
     }
-  };
+  }
 
   async function handleSignInWithApple() {
     try {
@@ -223,33 +203,32 @@ export function SignIn({ navigation }: any) {
       console.error(error);
       Alert.alert('Não foi possível conectar a conta Apple');
     }
-  };
+  }
 
-  useFocusEffect(useCallback(() => {
-    (async () => {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      const enroll = await LocalAuthentication.isEnrolledAsync();
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        const enroll = await LocalAuthentication.isEnrolledAsync();
 
-      const userData = await AsyncStorage.getItem(COLLECTION_USERS);
-      if (userData) {
-        const userDataParsed = JSON.parse(userData);
-        var localAuth = userDataParsed.useLocalAuth;
-      }
+        const userData = await AsyncStorage.getItem(COLLECTION_USERS);
+        if (userData) {
+          const userDataParsed = JSON.parse(userData);
+          var localAuth = userDataParsed.useLocalAuth;
+        }
 
-      if (compatible && enroll && localAuth) {
-        handleSignInWithBiometric();
-      } else return
-    })();
-  }, []));
+        if (compatible && enroll && localAuth) {
+          handleSignInWithBiometric();
+        } else return;
+      })();
+    }, [])
+  );
 
   return (
     <Container>
       <Header>
         <TitleWrapper>
-          <LogoSvg
-            width={RFValue(120)}
-            height={RFValue(68)}
-          />
+          <LogoSvg width={RFValue(120)} height={RFValue(68)} />
 
           <Title>
             Controle suas {'\n'}
@@ -258,9 +237,7 @@ export function SignIn({ navigation }: any) {
           </Title>
         </TitleWrapper>
 
-        <SignInTitle>
-          Faça seu login abaixo {'\n'}
-        </SignInTitle>
+        <SignInTitle>Faça seu login abaixo {'\n'}</SignInTitle>
       </Header>
 
       <Footer>
@@ -299,7 +276,12 @@ export function SignIn({ navigation }: any) {
           />
 
           <WrapperTextSignUp>
-            <TextSignUp>Não tem uma conta? <LinkSignUp onPress={() => navigation.navigate('SignUp')}>Cadastre-se</LinkSignUp></TextSignUp>
+            <TextSignUp>
+              Não tem uma conta?{' '}
+              <LinkSignUp onPress={() => navigation.navigate('SignUp')}>
+                Cadastre-se
+              </LinkSignUp>
+            </TextSignUp>
           </WrapperTextSignUp>
         </FooterWrapper>
       </Footer>

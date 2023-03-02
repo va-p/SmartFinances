@@ -6,7 +6,7 @@ import {
   Footer,
   TermsAndPolicyContainer,
   TermsAndPolicy,
-  Link
+  Link,
 } from './styles';
 
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -28,47 +28,43 @@ type FormData = {
   password: string;
   confirmPassword: string;
   checkbox: boolean;
-}
+};
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
-  name: Yup
-    .string()
-    .required("Digite o seu nome"),
-  lastName: Yup
-    .string()
-    .required("Digite o seu sobrenome"),
-  email: Yup
-    .string()
-    .required("Digite o seu e-mail")
-    .email("Digite um e-mail válido"),
-  phone: Yup
-    .number()
-    .required("Digite o seu telefone celular")
-    .typeError("Digite apenas números"),
-  password: Yup
-    .string()
-    .required("Digite a sua senha")
-    .min(8, "A senha deve ter no mínimo 8 caracteres"),
-  confirmPassword: Yup
-    .string()
-    .required("Confirme a sua senha")
-    .oneOf([Yup.ref('password'), null], "As senhas não conferem"),
-  checkbox: Yup
-    .bool()
-    .oneOf([true], "Aceite os Termos de Uso e a Política de Privacidade")
+  name: Yup.string().required('Digite o seu nome'),
+  lastName: Yup.string().required('Digite o seu sobrenome'),
+  email: Yup.string()
+    .required('Digite o seu e-mail')
+    .email('Digite um e-mail válido'),
+  phone: Yup.number()
+    .required('Digite o seu telefone celular')
+    .typeError('Digite apenas números'),
+  password: Yup.string()
+    .required('Digite a sua senha')
+    .min(8, 'A senha deve ter no mínimo 8 caracteres'),
+  confirmPassword: Yup.string()
+    .required('Confirme a sua senha')
+    .oneOf([Yup.ref('password'), null], 'As senhas não conferem'),
+  checkbox: Yup.bool().oneOf(
+    [true],
+    'Aceite os Termos de Uso e a Política de Privacidade'
+  ),
 });
 /* Validation Form - End */
 
 export function SignUp({ navigation }: any) {
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const [isChecked, setChecked] = useState(false);
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
   });
 
   async function handleRegisterUser(form: FormData) {
-    setButtonIsLoading(true)
+    setButtonIsLoading(true);
 
     try {
       const newTenant = {
@@ -78,18 +74,21 @@ export function SignUp({ navigation }: any) {
         email: form.email,
         phone: form.phone,
         subscription_id: 1,
-        contact_1: form.name
-      }
+        contact_1: form.name,
+      };
       const tenantRegister = await api.post('tenant', newTenant);
 
       if (tenantRegister.status === 200) {
         var responseTenantRegister = await api.get('single_tenant', {
           params: {
-            email: form.email
-          }
-        })
+            email: form.email,
+          },
+        });
       } else {
-        return Alert.alert("Cadastro de usuário", "Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.");
+        return Alert.alert(
+          'Cadastro de usuário',
+          'Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.'
+        );
       }
 
       const newUser = {
@@ -99,25 +98,29 @@ export function SignUp({ navigation }: any) {
         phone: form.phone,
         password: form.password,
         use_local_authentication: false,
-        tenant_id: responseTenantRegister.data.id
-      }
+        tenant_id: responseTenantRegister.data.id,
+      };
       const { status } = await api.post('auth/signup', newUser);
 
       if (status === 200) {
-        Alert.alert("Cadastro de usuário", "Bem vindo ao Smart Finances! Você será redirecionado para a tela de login.", [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]);
+        Alert.alert(
+          'Cadastro de usuário',
+          'Bem vindo ao Smart Finances! Você será redirecionado para a tela de login.',
+          [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]
+        );
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert("Cadastro de usuário", error.response?.data.message);
+        Alert.alert('Cadastro de usuário', error.response?.data.message);
       }
     } finally {
       setButtonIsLoading(false);
-    };
-  };
+    }
+  }
 
   return (
     <Container>
-      <Header type='primary' title="Criar nova conta" />
+      <Header type='primary' title='Criar nova conta' />
 
       <Form>
         <ControlledInput
@@ -193,7 +196,19 @@ export function SignUp({ navigation }: any) {
         />
 
         <TermsAndPolicyContainer>
-          <TermsAndPolicy>Ao me cadastrar, eu declaro que li e concordo com os <Link onPress={() => navigation.navigate('Termos de Uso')}>Termos de Uso</Link> e <Link onPress={() => navigation.navigate('Política de Privacidade')}>Política de Privacidade</Link>.</TermsAndPolicy>
+          <TermsAndPolicy>
+            Ao me cadastrar, eu declaro que li e concordo com os{' '}
+            <Link onPress={() => navigation.navigate('Termos de Uso')}>
+              Termos de Uso
+            </Link>{' '}
+            e{' '}
+            <Link
+              onPress={() => navigation.navigate('Política de Privacidade')}
+            >
+              Política de Privacidade
+            </Link>
+            .
+          </TermsAndPolicy>
         </TermsAndPolicyContainer>
       </Form>
 

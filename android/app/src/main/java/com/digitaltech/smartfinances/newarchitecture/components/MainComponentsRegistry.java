@@ -1,4 +1,4 @@
-package com.smartfinances.newarchitecture.components;
+package com.digitaltech.smartfinances.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

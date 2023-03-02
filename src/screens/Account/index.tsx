@@ -18,7 +18,7 @@ import {
   AccountBalanceDescription,
   AccountCashFlow,
   AccountCashFlowDescription,
-  Transactions
+  Transactions,
 } from './styles';
 
 import Animated, {
@@ -28,9 +28,13 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  withSpring
+  withSpring,
 } from 'react-native-reanimated';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -56,7 +60,7 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import {
   selectAccountCurrency,
   selectAccountInitialAmount,
-  selectAccountName
+  selectAccountName,
 } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -71,11 +75,14 @@ export function Account() {
   const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
     name: 'Meses',
-    period: 'months'
+    period: 'months',
   });
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [transactionsFormattedBySelectedPeriod, setTransactionsFormattedBySelectedPeriod] = useState([]);
+  const [
+    transactionsFormattedBySelectedPeriod,
+    setTransactionsFormattedBySelectedPeriod,
+  ] = useState([]);
   const [totalAccountBalance, setTotalAccountBalance] = useState('');
   const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] = useState('');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
@@ -91,24 +98,14 @@ export function Account() {
   const accountInitialAmount = useSelector(selectAccountInitialAmount);
   // Animated header
   const scrollY = useSharedValue(0);
-  const scrollHandler = useAnimatedScrollHandler(event => {
+  const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(
-        scrollY.value,
-        [0, 200],
-        [170, 0],
-        Extrapolate.CLAMP
-      ),
-      opacity: interpolate(
-        scrollY.value,
-        [0, 170],
-        [1, 0],
-        Extrapolate.CLAMP
-      )
-    }
+      height: interpolate(scrollY.value, [0, 340], [170, 0], Extrapolate.CLAMP),
+      opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolate.CLAMP),
+    };
   });
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
@@ -120,9 +117,9 @@ export function Account() {
     return {
       transform: [
         { translateX: registerTransactionButtonPositionX.value },
-        { translateY: registerTransactionButtonPositionY.value }
-      ]
-    }
+        { translateY: registerTransactionButtonPositionY.value },
+      ],
+    };
   });
   const OnMoveRegisterTransactionButton = useAnimatedGestureHandler({
     onStart(_, ctx: any) {
@@ -130,13 +127,15 @@ export function Account() {
       ctx.positionY = registerTransactionButtonPositionY.value;
     },
     onActive(event, ctx: any) {
-      registerTransactionButtonPositionX.value = ctx.positionX + event.translationX;
-      registerTransactionButtonPositionY.value = ctx.positionY + event.translationY;
+      registerTransactionButtonPositionX.value =
+        ctx.positionX + event.translationX;
+      registerTransactionButtonPositionY.value =
+        ctx.positionY + event.translationY;
     },
     onEnd() {
       registerTransactionButtonPositionX.value = withSpring(0);
       registerTransactionButtonPositionY.value = withSpring(0);
-    }
+    },
   });
 
   async function fetchTransactions() {
@@ -145,9 +144,9 @@ export function Account() {
     try {
       const { data } = await api.get('transaction', {
         params: {
-          tenant_id: tenantId
-        }
-      })
+          tenant_id: tenantId,
+        },
+      });
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
@@ -160,68 +159,68 @@ export function Account() {
       let transactionsByAccountFormattedPtbr: any = [];
       for (const item of data) {
         // Format the date "dd/MM/yyyy"
-        var dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
+        const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
         // Format the currency
         switch (item.account.currency.code) {
           case 'BRL':
-            amount_formatted = Number(item.amount)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              });
+            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            });
             break;
           case 'BTC':
-            amount_formatted = Number(item.amount)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BTC',
-                minimumFractionDigits: 8,
-                maximumSignificantDigits: 8
-              });
-            break;
-          case 'EUR':
-            amount_formatted = Number(item.amount)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'EUR'
-              });
-            break;
-          case 'USD':
-            amount_formatted = Number(item.amount)
-              .toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'USD'
-              });
-        }
-        if (item.amount_not_converted && item.currency.code === 'BRL') {
-          amountNotConvertedFormatted = Number(item.amount_not_converted)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            });
-        }
-        if (item.amount_not_converted && item.currency.code === 'BTC') {
-          amountNotConvertedFormatted = Number(item.amount_not_converted)
-            .toLocaleString('pt-BR', {
+            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BTC',
               minimumFractionDigits: 8,
-              maximumSignificantDigits: 8
+              maximumSignificantDigits: 8,
             });
+            break;
+          case 'EUR':
+            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'EUR',
+            });
+            break;
+          case 'USD':
+            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'USD',
+            });
+        }
+        if (item.amount_not_converted && item.currency.code === 'BRL') {
+          amountNotConvertedFormatted = Number(
+            item.amount_not_converted
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          });
+        }
+        if (item.amount_not_converted && item.currency.code === 'BTC') {
+          amountNotConvertedFormatted = Number(
+            item.amount_not_converted
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BTC',
+            minimumFractionDigits: 8,
+            maximumSignificantDigits: 8,
+          });
         }
         if (item.amount_not_converted && item.currency.code === 'EUR') {
-          amountNotConvertedFormatted = Number(item.amount_not_converted)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR'
-            });
+          amountNotConvertedFormatted = Number(
+            item.amount_not_converted
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'EUR',
+          });
         }
         if (item.amount_not_converted && item.currency.code === 'USD') {
-          amountNotConvertedFormatted = Number(item.amount_not_converted)
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD'
-            });
+          amountNotConvertedFormatted = Number(
+            item.amount_not_converted
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'USD',
+          });
         }
         // Create the objects
         if (!transactionsByAccountFormattedPtbr.hasOwnProperty(dmy)) {
@@ -236,7 +235,7 @@ export function Account() {
               id: item.currency.id,
               name: item.currency.name,
               code: item.currency.code,
-              symbol: item.currency.symbol
+              symbol: item.currency.symbol,
             },
             type: item.type,
             account: {
@@ -246,11 +245,11 @@ export function Account() {
                 id: item.account.currency.id,
                 name: item.account.currency.name,
                 code: item.account.currency.code,
-                symbol: item.account.currency.symbol
+                symbol: item.account.currency.symbol,
               },
               initial_amount: item.account.initial_amount,
               totalAccountAmount: 0,
-              tenant_id: item.account.tenant_id
+              tenant_id: item.account.tenant_id,
             },
             category: {
               id: item.category.id,
@@ -265,82 +264,91 @@ export function Account() {
                 name: item.category.color.name,
                 hex: item.category.color.hex,
               },
-              tenant_id: item.category.tenant_id
+              tenant_id: item.category.tenant_id,
             },
             tags: item.tags,
             tenant_id: item.tenant_id,
           };
         }
-      };
-      transactionsByAccountFormattedPtbr = Object.values(transactionsByAccountFormattedPtbr)
-        .filter((transactionFormattedPtbr: any) =>
-          transactionFormattedPtbr.account.id === accountId
+      }
+      transactionsByAccountFormattedPtbr = Object.values(
+        transactionsByAccountFormattedPtbr
+      )
+        .filter(
+          (transactionFormattedPtbr: any) =>
+            transactionFormattedPtbr.account.id === accountId
         )
         .sort((a: any, b: any) => {
           const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
-          const secondDateParsed = parse(b.created_at, 'dd/MM/yyyy', new Date());
+          const secondDateParsed = parse(
+            b.created_at,
+            'dd/MM/yyyy',
+            new Date()
+          );
           return secondDateParsed.getTime() - firstDateParsed.getTime();
         });
 
       // Sum the total revenues and expenses by account
       transactionsByAccountFormattedPtbr.forEach((cur: any) => {
         if (cur.type === 'credit') {
-          totalRevenues += cur.amount
+          totalRevenues += cur.amount;
         } else if (cur.type === 'debit') {
-          totalExpenses += cur.amount
+          totalExpenses += cur.amount;
         } else if (cur.type === 'transferCredit') {
-          totalRevenues += cur.amount
+          totalRevenues += cur.amount;
         } else if (cur.type === 'transferDebit') {
-          totalExpenses += cur.amount
+          totalExpenses += cur.amount;
         }
       });
       // Sum balance total of account
-      const total =
-        accountInitialAmount +
-        totalRevenues -
-        totalExpenses;
+      const total = accountInitialAmount + totalRevenues - totalExpenses;
 
       // Verify if balance is positive
-      total >= 0 ?
-        (setBalanceIsPositive(true)) :
-        (setBalanceIsPositive(false))
+      total >= 0 ? setBalanceIsPositive(true) : setBalanceIsPositive(false);
 
-      const totalAccountBalanceFormatted = Number(total)
-        .toLocaleString('pt-BR', {
+      const totalAccountBalanceFormatted = Number(total).toLocaleString(
+        'pt-BR',
+        {
           style: 'currency',
-          currency: 'BRL'
-        });
+          currency: 'BRL',
+        }
+      );
       setTotalAccountBalance(totalAccountBalanceFormatted);
 
       // Group transactions by date to section list
-      const transactionsFormattedPtbrGroupedByDate = transactionsByAccountFormattedPtbr
-        .reduce((acc: any, cur: any) => {
-          const existObj = acc.find(
-            (obj: any) => obj.title === cur.created_at
-          )
-
+      const transactionsFormattedPtbrGroupedByDate =
+        transactionsByAccountFormattedPtbr.reduce((acc: any, cur: any) => {
+          const existObj = acc.find((obj: any) => obj.title === cur.created_at);
           if (existObj) {
-            existObj.data.push(cur)
+            existObj.data.push(cur);
           } else {
             acc.push({
               title: cur.created_at,
-              data: [cur]
-            })
+              data: [cur],
+            });
           }
-          return acc
-        }, [])
+          return acc;
+        }, []);
       /**
        * All Transactions By Account Formatted in pt-BR - End
        */
 
-
       /**
        * Transactions By Months Formatted in pt-BR - Start
        */
-      const transactionsByMonthsFormattedPtbr = transactionsFormattedPtbrGroupedByDate
-        .filter((transactionByMonthsPtBr: any) =>
-          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getMonth() === selectedDate.getMonth() &&
-          parse(transactionByMonthsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedDate.getFullYear()
+      const transactionsByMonthsFormattedPtbr =
+        transactionsFormattedPtbrGroupedByDate.filter(
+          (transactionByMonthsPtBr: any) =>
+            parse(
+              transactionByMonthsPtBr.title,
+              'dd/MM/yyyy',
+              new Date()
+            ).getMonth() === selectedDate.getMonth() &&
+            parse(
+              transactionByMonthsPtBr.title,
+              'dd/MM/yyyy',
+              new Date()
+            ).getFullYear() === selectedDate.getFullYear()
         );
 
       // Sum revenues and expenses
@@ -350,43 +358,52 @@ export function Account() {
       for (const item of transactionsByMonthsFormattedPtbr) {
         if (item.data) {
           item.data.forEach((cur: any) => {
-            if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'credit') {
+            if (
+              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
+              cur.type === 'credit'
+            ) {
               totalRevenuesByMonths += cur.amount;
-            } else if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'debit') {
+            } else if (
+              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
+              cur.type === 'debit'
+            ) {
               totalExpensesByMonths += cur.amount;
             }
           });
         }
-      };
+      }
       // Sum account cash flow
       const cashFlowByMonths =
-        accountInitialAmount +
-        totalRevenuesByMonths -
-        totalExpensesByMonths;
+        accountInitialAmount + totalRevenuesByMonths - totalExpensesByMonths;
 
       // Verify if balance is positive
       if (periodSelected.period === 'months') {
-        cashFlowByMonths >= 0 ?
-          (setCashFlowIsPositive(true)) :
-          (setCashFlowIsPositive(false))
+        cashFlowByMonths >= 0
+          ? setCashFlowIsPositive(true)
+          : setCashFlowIsPositive(false);
       }
 
-      const cashFlowFormattedPtbrByMonths = Number(cashFlowByMonths)
-        .toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+      const cashFlowFormattedPtbrByMonths = Number(
+        cashFlowByMonths
+      ).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
       /**
        * Transactions By Months Formatted in pt-BR - End
        */
 
-
       /**
        * Transactions By Years Formatted in pt-BR - Start
        */
-      const transactionsByYearsFormattedPtbr = transactionsFormattedPtbrGroupedByDate
-        .filter((transactionByYearsPtBr: any) =>
-          parse(transactionByYearsPtBr.title, 'dd/MM/yyyy', new Date()).getFullYear() === selectedDate.getFullYear()
+      const transactionsByYearsFormattedPtbr =
+        transactionsFormattedPtbrGroupedByDate.filter(
+          (transactionByYearsPtBr: any) =>
+            parse(
+              transactionByYearsPtBr.title,
+              'dd/MM/yyyy',
+              new Date()
+            ).getFullYear() === selectedDate.getFullYear()
         );
 
       // Sum revenues and expenses
@@ -396,36 +413,40 @@ export function Account() {
       for (const item of transactionsByYearsFormattedPtbr) {
         if (item.data) {
           item.data.forEach((cur: any) => {
-            if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'credit') {
-              totalRevenuesByYears += cur.amount
-            } else if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() && cur.type === 'debit') {
-              totalExpensesByYears += cur.amount
+            if (
+              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
+              cur.type === 'credit'
+            ) {
+              totalRevenuesByYears += cur.amount;
+            } else if (
+              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
+              cur.type === 'debit'
+            ) {
+              totalExpensesByYears += cur.amount;
             }
           });
         }
-      };
-      // Sum account cash flow F
+      }
+      // Sum account cash flow
       const cashFlowByYears =
-        accountInitialAmount +
-        totalRevenuesByYears -
-        totalExpensesByYears;
+        accountInitialAmount + totalRevenuesByYears - totalExpensesByYears;
 
       // Verify if balance is positive
       if (periodSelected.period === 'years') {
-        cashFlowByYears >= 0 ?
-          (setCashFlowIsPositive(true)) :
-          (setCashFlowIsPositive(false))
+        cashFlowByYears >= 0
+          ? setCashFlowIsPositive(true)
+          : setCashFlowIsPositive(false);
       }
 
-      const cashFlowFormattedPtbrByYears = Number(cashFlowByYears)
-        .toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+      const cashFlowFormattedPtbrByYears = Number(
+        cashFlowByYears
+      ).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
       /**
        * Transactions By Years Formatted in pt-BR - End
        */
-
 
       /**
        * Set Transactions and Totals by Selected Period - Start
@@ -433,15 +454,21 @@ export function Account() {
       switch (periodSelected.period) {
         case 'months':
           setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonths);
-          setTransactionsFormattedBySelectedPeriod(transactionsByMonthsFormattedPtbr);
+          setTransactionsFormattedBySelectedPeriod(
+            transactionsByMonthsFormattedPtbr
+          );
           break;
         case 'years':
           setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByYears);
-          setTransactionsFormattedBySelectedPeriod(transactionsByYearsFormattedPtbr);
+          setTransactionsFormattedBySelectedPeriod(
+            transactionsByYearsFormattedPtbr
+          );
           break;
         case 'all':
           setCashFlowBySelectedPeriod(totalAccountBalanceFormatted);
-          setTransactionsFormattedBySelectedPeriod(transactionsFormattedPtbrGroupedByDate);
+          setTransactionsFormattedBySelectedPeriod(
+            transactionsFormattedPtbrGroupedByDate
+          );
           break;
       }
       /**
@@ -453,76 +480,94 @@ export function Account() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }
 
   function handleClickBackButton() {
     navigation.goBack();
-  };
+  }
 
   function handleOpenEditAccount() {
     editAccountBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseEditAccount() {
     editAccountBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenPeriodSelectedModal() {
     periodSelectBottomSheetRef.current?.present();
-  };
+  }
 
   function handleClosePeriodSelectedModal() {
     periodSelectBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenTransaction(id: string) {
     setTransactionId(id);
     addTransactionBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseTransaction() {
     fetchTransactions();
     addTransactionBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenRegisterTransactionModal() {
     setTransactionId('');
     addTransactionBottomSheetRef.current?.present();
-  };
-
-  async function handleClickDeleteAccount() {
-    Alert.alert("Exclusão de conta", "ATENÇÃO! Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?", [{ text: "Não, cancelar a exclusão" }, { text: "Sim, excluir a conta", onPress: () => handleDeleteAccount(accountId) }])
-  };
+  }
 
   async function handleDeleteAccount(id: string) {
     try {
       const { status } = await api.delete('delete_account', {
         params: {
-          account_id: id
-        }
+          account_id: id,
+        },
       });
       if (status === 200) {
-        Alert.alert("Exclusão de conta", "Conta excluída com sucesso!")
+        Alert.alert('Exclusão de conta', 'Conta excluída com sucesso!');
       }
       handleCloseEditAccount();
       navigation.goBack();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert("Edição de Conta", error.response?.data.message, [{ text: "Tentar novamente" }, { text: "Voltar para a tela anterior", onPress: handleCloseEditAccount }]);
+        Alert.alert('Edição de Conta', error.response?.data.message, [
+          { text: 'Tentar novamente' },
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: handleCloseEditAccount,
+          },
+        ]);
       }
-    };
-  };
+    }
+  }
+
+  async function handleClickDeleteAccount() {
+    Alert.alert(
+      'Exclusão de conta',
+      'ATENÇÃO! Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?',
+      [
+        { text: 'Não, cancelar a exclusão' },
+        {
+          text: 'Sim, excluir a conta',
+          onPress: () => handleDeleteAccount(accountId),
+        },
+      ]
+    );
+  } 
 
   function ClearTransactionId() {
     setTransactionId('');
-  };
+  }
 
-  useFocusEffect(useCallback(() => {
-    fetchTransactions();
-  }, [periodSelected]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+    }, [periodSelected])
+  );
 
   if (loading) {
-    return <SkeletonAccountsScreen />
+    return <SkeletonAccountsScreen />;
   }
 
   return (
@@ -554,14 +599,18 @@ export function Account() {
 
         <AccountBalanceContainer>
           <AccountBalanceGroup>
-            <AccountBalance balanceIsPositive={balanceIsPositive}>{totalAccountBalance}</AccountBalance>
+            <AccountBalance balanceIsPositive={balanceIsPositive}>
+              {totalAccountBalance}
+            </AccountBalance>
             <AccountBalanceDescription>Sado da conta</AccountBalanceDescription>
           </AccountBalanceGroup>
 
           <AccountBalanceSeparator />
 
           <AccountBalanceGroup>
-            <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>{cashFlowBySelectedPeriod}</AccountCashFlow>
+            <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>
+              {cashFlowBySelectedPeriod}
+            </AccountCashFlow>
             <AccountCashFlowDescription>{`Fluxo de caixa por ${periodSelected.name}`}</AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>
@@ -578,23 +627,22 @@ export function Account() {
             />
           )}
           renderSectionHeader={({ section }) => (
-            <SectionListHeader
-              data={section}
-            />
+            <SectionListHeader data={section} />
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent />
-          )}
+          ListEmptyComponent={() => <ListEmptyComponent />}
           initialNumToRender={100}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchTransactions} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchTransactions}
+            />
           }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingBottom: getBottomSpace()
+            paddingBottom: getBottomSpace(),
           }}
           onScroll={scrollHandler}
-          scrollEventThrottle={32}
+          scrollEventThrottle={16}
         />
       </Transactions>
 
@@ -605,18 +653,25 @@ export function Account() {
             {
               position: 'absolute',
               bottom: 22,
-              right: 22
-            }
+              right: 22,
+            },
           ]}
         >
-          <ButtonAnimated onPress={handleOpenRegisterTransactionModal} style={styles.animatedButton}>
-            <Ionicons name='add-outline' size={32} color={theme.colors.background} />
+          <ButtonAnimated
+            onPress={handleOpenRegisterTransactionModal}
+            style={styles.animatedButton}
+          >
+            <Ionicons
+              name='add-outline'
+              size={32}
+              color={theme.colors.background}
+            />
           </ButtonAnimated>
         </Animated.View>
       </PanGestureHandler>
 
       <ModalViewSelection
-        title="Selecione o período"
+        title='Selecione o período'
         bottomSheetRef={periodSelectBottomSheetRef}
         snapPoints={['30%', '50%']}
         onClose={handleClosePeriodSelectedModal}
@@ -636,10 +691,7 @@ export function Account() {
         closeModal={handleCloseEditAccount}
         deleteChildren={handleClickDeleteAccount}
       >
-        <RegisterAccount
-          id={accountId}
-          closeAccount={handleCloseEditAccount}
-        />
+        <RegisterAccount id={accountId} closeAccount={handleCloseEditAccount} />
       </ModalView>
 
       <ModalViewWithoutHeader
@@ -654,7 +706,7 @@ export function Account() {
             name: accountName,
             currency: accountCurrency,
             initial_amount: accountInitialAmount,
-            tenant_id: tenantId
+            tenant_id: tenantId,
           }}
           closeRegisterTransaction={handleCloseTransaction}
           closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}
@@ -666,7 +718,7 @@ export function Account() {
 
 const styles = StyleSheet.create({
   header: {
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   animatedButton: {
     width: 45,
@@ -674,6 +726,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.primary,
-    borderRadius: 30
-  }
+    borderRadius: 30,
+  },
 });

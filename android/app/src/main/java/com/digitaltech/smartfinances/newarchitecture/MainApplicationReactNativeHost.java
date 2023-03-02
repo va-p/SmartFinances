@@ -1,4 +1,4 @@
-package com.smartfinances.newarchitecture;
+package com.digitaltech.smartfinances.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -20,9 +20,9 @@ import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.smartfinances.BuildConfig;
-import com.smartfinances.newarchitecture.components.MainComponentsRegistry;
-import com.smartfinances.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.digitaltech.smartfinances.BuildConfig;
+import com.digitaltech.smartfinances.newarchitecture.components.MainComponentsRegistry;
+import com.digitaltech.smartfinances.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

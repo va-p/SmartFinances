@@ -1,10 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Alert, Linking } from 'react-native';
-import {
-  Container,
-  ContentScroll,
-  Title
-} from './styles';
+import { Container, ContentScroll, Title } from './styles';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -26,42 +22,43 @@ import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
   const [localAuthIsEnabled, setLocalAuthIsEnabled] = useState(false);
-  const toggleSwitch = () => setLocalAuthIsEnabled(previousState => !previousState);
+  const toggleSwitch = () =>
+    setLocalAuthIsEnabled((previousState) => !previousState);
   const userId = useSelector(selectUserId);
 
   function handleOpenAccounts() {
     navigation.navigate('Contas');
-  };
+  }
 
   function handleOpenCategories() {
     navigation.navigate('Categorias');
-  };
+  }
 
   function handleOpenTags() {
     navigation.navigate('Etiquetas');
-  };
+  }
 
   function handleClickHelpCenter() {
     navigation.navigate('Central de Ajuda');
-  };
+  }
 
   function handleClickContactSupport() {
-    Linking.openURL('mailto:contato@solucaodigital.tech')
-  };
+    Linking.openURL('mailto:contato@solucaodigital.tech');
+  }
 
   function handleClickTermsOfUse() {
     navigation.navigate('Termos de Uso');
-  };
+  }
 
   function handleClickPrivacyPolicy() {
     navigation.navigate('Politica de Privacidade');
-  };
+  }
 
   async function handleChangeUseLocalAuth() {
     try {
       const biometricAuth = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Autenticar com Biometria",
-        cancelLabel: "Cancelar",
+        promptMessage: 'Autenticar com Biometria',
+        cancelLabel: 'Cancelar',
       });
       if (biometricAuth.success) {
         toggleSwitch();
@@ -69,65 +66,78 @@ export function OptionsMenu({ navigation }: any) {
         try {
           const { status } = await api.post('edit_use_local_auth', {
             user_id: userId,
-            use_local_authentication: localAuthIsEnabled ? false : true
-          })
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            Alert.alert("Autenticação biométrica", error.response?.data.message);
+            use_local_authentication: localAuthIsEnabled ? false : true,
+          });
+          if (status === 200) {
+            try {
+              const loggedInUserDataFormatted = {
+                useLocalAuth: localAuthIsEnabled ? false : true,
+              };
+              await AsyncStorage.mergeItem(
+                COLLECTION_USERS,
+                JSON.stringify(loggedInUserDataFormatted)
+              );
+            } catch (error) {
+              console.log(error);
+              Alert.alert('Autenticação biométrica', `${error}`);
+            }
           }
-        };
-
-        try {
-          const loggedInUserDataFormatted = {
-            useLocalAuth: localAuthIsEnabled ? false : true
-          }
-          await AsyncStorage.mergeItem(COLLECTION_USERS, JSON.stringify(loggedInUserDataFormatted));
         } catch (error) {
           console.log(error);
-          Alert.alert("Autenticação biométrica", `${error}`);
-        };
+          if (axios.isAxiosError(error)) {
+            Alert.alert(
+              'Autenticação biométrica',
+              error.response?.data.message
+            );
+          }
+        }
       }
     } catch (error) {
       console.log(error);
-      Alert.alert("Autenticação biométrica", "Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Autenticação biométrica',
+        'Não foi possível autenticar com a biometria, por favor, tente novamente.'
+      );
     }
-  };
+  }
 
-  useFocusEffect(useCallback(() => {
-    (async () => {
-      const userData = await AsyncStorage.getItem(COLLECTION_USERS);
-      if (userData) {
-        const userDataParsed = JSON.parse(userData);
-        if (userDataParsed.useLocalAuth) {
-          setLocalAuthIsEnabled(userDataParsed.useLocalAuth);
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const userData = await AsyncStorage.getItem(COLLECTION_USERS);
+        if (userData) {
+          const userDataParsed = JSON.parse(userData);
+          if (userDataParsed.useLocalAuth) {
+            setLocalAuthIsEnabled(userDataParsed.useLocalAuth);
+          }
         }
-      }
-    })();
-  }, []));
+      })();
+    }, [])
+  );
 
   return (
     <Container>
-      <Header type='secondary' title="Mais opções" />
-      
+      <Header type='secondary' title='Mais opções' />
+
       <ContentScroll>
         <Title>Conta</Title>
         <SelectButton
           icon='wallet-outline'
-          title="Contas Manuais"
+          title='Contas Manuais'
           color={theme.colors.primary}
           onPress={() => handleOpenAccounts()}
         />
 
         <SelectButton
           icon='grid-outline'
-          title="Categorias"
+          title='Categorias'
           color={theme.colors.primary}
           onPress={() => handleOpenCategories()}
         />
 
         <SelectButton
           icon='pricetags-outline'
-          title="Etiquetas"
+          title='Etiquetas'
           color={theme.colors.primary}
           onPress={() => handleOpenTags()}
         />
@@ -135,7 +145,7 @@ export function OptionsMenu({ navigation }: any) {
         <Title>Configurações</Title>
         <ButtonToggle
           icon='finger-print-outline'
-          title="Touch / Face ID"
+          title='Touch / Face ID'
           color={theme.colors.primary}
           onValueChnage={handleChangeUseLocalAuth}
           value={localAuthIsEnabled}
@@ -145,28 +155,28 @@ export function OptionsMenu({ navigation }: any) {
         <Title>Sobre</Title>
         <SelectButton
           icon='help-buoy-outline'
-          title="Central de Ajuda"
+          title='Central de Ajuda'
           color={theme.colors.primary}
           onPress={() => handleClickHelpCenter()}
         />
 
         <SelectButton
           icon='chatbubbles-outline'
-          title="Contatar Suporte"
+          title='Contatar Suporte'
           color={theme.colors.primary}
           onPress={() => handleClickContactSupport()}
         />
 
         <SelectButton
           icon='shield-checkmark-outline'
-          title="Termos de Uso"
+          title='Termos de Uso'
           color={theme.colors.primary}
           onPress={() => handleClickTermsOfUse()}
         />
 
         <SelectButton
           icon='hand-left-outline'
-          title="Política de Privacidade"
+          title='Política de Privacidade'
           color={theme.colors.primary}
           onPress={() => handleClickPrivacyPolicy()}
         />

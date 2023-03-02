@@ -1,4 +1,4 @@
-package com.smartfinances.newarchitecture.modules;
+package com.digitaltech.smartfinances.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

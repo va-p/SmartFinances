@@ -1,8 +1,6 @@
 import React from 'react';
 import { FlatList } from 'react-native';
-import {
-  Container
-} from './styles';
+import { Container } from './styles';
 
 import { ListItem } from '@components/ListItem';
 
@@ -16,29 +14,29 @@ type Props = {
   period: PeriodProps;
   setPeriod: (period: PeriodProps) => void;
   closeSelectPeriod: () => void;
-}
+};
 
 export function ChartPeriodSelect({
   period,
   setPeriod,
-  closeSelectPeriod
+  closeSelectPeriod,
 }: Props) {
   const periods = [
     {
       id: '1',
       name: 'Meses',
-      period: 'months'
+      period: 'months',
     },
     {
       id: '2',
       name: 'Anos',
-      period: 'years'
+      period: 'years',
     },
     {
       id: '3',
       name: 'Tudo',
-      period: 'all'
-    }
+      period: 'all',
+    },
   ];
 
   function handlePeriodSelect(period: PeriodProps) {

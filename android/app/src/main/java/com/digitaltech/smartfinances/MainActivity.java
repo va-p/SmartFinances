@@ -1,4 +1,4 @@
-package com.smartfinances;
+package com.digitaltech.smartfinances;
 
 import android.os.Build;
 import android.os.Bundle;

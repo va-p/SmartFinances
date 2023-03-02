@@ -10,10 +10,14 @@ import {
   ChartContainer,
   AccountsContainer,
   Footer,
-  ButtonGroup
+  ButtonGroup,
 } from './styles';
 
-import { VictoryArea, VictoryChart, VictoryZoomContainer } from 'victory-native';
+import {
+  VictoryArea,
+  VictoryChart,
+  VictoryZoomContainer,
+} from 'victory-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,7 +37,7 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import {
   setAccountName,
   setAccountCurrency,
-  setAccountInitialAmount
+  setAccountInitialAmount,
 } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -60,15 +64,15 @@ export function Accounts({ navigation }: any) {
     try {
       const { data } = await api.get('transaction', {
         params: {
-          tenant_id: tenantId
-        }
-      })
+          tenant_id: tenantId,
+        },
+      });
       if (!data) {
       } else {
         setRefreshing(false);
       }
 
-      /**  
+      /**
        * All totals Grouped By Accounts/Wallets - Start
        */
       let totalRevenuesBRL = 0;
@@ -78,9 +82,12 @@ export function Accounts({ navigation }: any) {
       for (const item of data) {
         // Sum the total revenues and expenses of all accounts
         if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
-          totalRevenuesBRL += item.amount
-        } else if (new Date(item.created_at) <= new Date() && item.type === 'debit') {
-          totalExpensesBRL += item.amount
+          totalRevenuesBRL += item.amount;
+        } else if (
+          new Date(item.created_at) <= new Date() &&
+          item.type === 'debit'
+        ) {
+          totalExpensesBRL += item.amount;
         }
 
         // Group by account
@@ -92,59 +99,66 @@ export function Accounts({ navigation }: any) {
             name: item.account.name,
             currency: {
               code: item.account.currency.code,
-              symbol: item.account.currency.symbol
+              symbol: item.account.currency.symbol,
             },
             initial_amount: item.account.initial_amount,
             totalRevenuesByAccount: 0,
             totalExpensesByAccount: 0,
-            totalAccountAmount: 0
+            totalAccountAmount: 0,
           };
         }
 
         // Sum the total revenues and expenses by account
         if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
-          accounts[account].totalRevenuesByAccount += item.amount
-        } else if (new Date(item.created_at) <= new Date() && item.type === 'debit') {
-          accounts[account].totalExpensesByAccount += item.amount
-        } else if (new Date(item.created_at) <= new Date() && item.type === 'transferCredit') {
-          accounts[account].totalRevenuesByAccount += item.amount
-        } else if (new Date(item.created_at) <= new Date() && item.type === 'transferDebit') {
-          accounts[account].totalExpensesByAccount += item.amount
+          accounts[account].totalRevenuesByAccount += item.amount;
+        } else if (
+          new Date(item.created_at) <= new Date() &&
+          item.type === 'debit'
+        ) {
+          accounts[account].totalExpensesByAccount += item.amount;
+        } else if (
+          new Date(item.created_at) <= new Date() &&
+          item.type === 'transferCredit'
+        ) {
+          accounts[account].totalRevenuesByAccount += item.amount;
+        } else if (
+          new Date(item.created_at) <= new Date() &&
+          item.type === 'transferDebit'
+        ) {
+          accounts[account].totalExpensesByAccount += item.amount;
         }
-      };
+      }
 
       // Sum the total of all accounts
-      const totalBRL =
-        totalRevenuesBRL -
-        totalExpensesBRL;
-      const totalFormattedPtbr = Number(totalBRL)
-        .toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        });
+      const totalBRL = totalRevenuesBRL - totalExpensesBRL;
+      const totalFormattedPtbr = Number(totalBRL).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
 
       accounts = Object.values(accounts);
 
       // Runs from last to first, accumulating the total
-      for (var i = accounts.length - 1; i >= 0; i--) {
+      for (let i = accounts.length - 1; i >= 0; i--) {
         const totalByAccount =
           accounts[i].initial_amount +
           accounts[i].totalRevenuesByAccount -
           accounts[i].totalExpensesByAccount;
 
-        accounts[i].totalAccountAmount = Number(totalByAccount)
-          .toLocaleString('pt-BR', {
+        accounts[i].totalAccountAmount = Number(totalByAccount).toLocaleString(
+          'pt-BR',
+          {
             style: 'currency',
-            currency: 'BRL'
-          });
-      };
+            currency: 'BRL',
+          }
+        );
+      }
 
       setTotal(totalFormattedPtbr);
       setAccounts(accounts);
       /**
        * All totals Grouped By Accounts/Wallets - End
        */
-
 
       /**
        * All Totals Grouped By Months - Start
@@ -156,7 +170,12 @@ export function Accounts({ navigation }: any) {
         const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
         // Create the objects
         if (!totalsByMonths.hasOwnProperty(ym)) {
-          totalsByMonths[ym] = { date: ym, totalRevenuesByMonth: 0, totalExpensesByMonth: 0, total: 0 };
+          totalsByMonths[ym] = {
+            date: ym,
+            totalRevenuesByMonth: 0,
+            totalExpensesByMonth: 0,
+            total: 0,
+          };
         }
         if (item.type === 'credit') {
           totalsByMonths[ym].totalRevenuesByMonth += item.amount;
@@ -168,62 +187,66 @@ export function Accounts({ navigation }: any) {
 
       // Runs from last to first, accumulating the total
       let total = 0;
-      for (var i = totalsByMonths.length - 1; i >= 0; i--) {
-        total += totalsByMonths[i].totalRevenuesByMonth - totalsByMonths[i].totalExpensesByMonth;
+      for (let i = totalsByMonths.length - 1; i >= 0; i--) {
+        total +=
+          totalsByMonths[i].totalRevenuesByMonth -
+          totalsByMonths[i].totalExpensesByMonth;
         totalsByMonths[i].total = total;
         // Converts the date to the final format
-        totalsByMonths[i].date = format(parseISO(totalsByMonths[i].date), `MMM '\n' yyyy`, { locale: ptBR });
-      };
+        totalsByMonths[i].date = format(
+          parseISO(totalsByMonths[i].date),
+          `MMM '\n' yyyy`,
+          { locale: ptBR }
+        );
+      }
 
       setTotalByMonths(totalsByMonths);
-      /** 
+      /**
        * All Totals Grouped By Months - End
        */
 
       setLoading(false);
     } catch (error) {
       console.error(error);
-      Alert.alert("Contas", "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Contas',
+        'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
+      );
     }
-  };
+  }
 
   function handleOpenConnectAccountModal() {
     connectAccountBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseConnectAccountModal() {
     connectAccountBottomSheetRef.current?.dismiss();
-  };
+  }
 
   function handleOpenRegisterAccountModal() {
     registerAccountBottomSheetRef.current?.present();
-  };
+  }
 
   function handleCloseRegisterAccountModal() {
     registerAccountBottomSheetRef.current?.dismiss();
     fetchAccounts();
-  };
+  }
 
   function handleHideData() {
     visible ? setVisible(false) : setVisible(true);
-  };
+  }
 
   function handleOpenAccount(
     id: string,
     name: string,
     currency: any,
-    initialAmount: number) {
-    dispatch(
-      setAccountName(name)
-    );
-    dispatch(
-      setAccountCurrency(currency)
-    );
-    dispatch(
-      setAccountInitialAmount(initialAmount)
-    );
+    initialAmount: number
+  ) {
+    dispatch(setAccountName(name));
+    dispatch(setAccountCurrency(currency));
+    dispatch(setAccountInitialAmount(initialAmount));
     navigation.navigate('Conta', { id });
-  };
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -232,14 +255,14 @@ export function Accounts({ navigation }: any) {
   );
 
   if (loading) {
-    return <SkeletonAccountsScreen />
+    return <SkeletonAccountsScreen />;
   }
 
   return (
     <Container>
       <Header>
         <CashFlowContainer>
-          <CashFlowTotal>{visible ? total : "•••••"}</CashFlowTotal>
+          <CashFlowTotal>{visible ? total : '•••••'}</CashFlowTotal>
           <CashFlowDescription>Patrimônio Total</CashFlowDescription>
         </CashFlowContainer>
 
@@ -277,12 +300,12 @@ export function Accounts({ navigation }: any) {
                 fill: theme.colors.primary,
                 fillOpacity: 0.1,
                 stroke: theme.colors.primary,
-                strokeWidth: 2
-              }
+                strokeWidth: 2,
+              },
             }}
             animate={{
               onLoad: { duration: 10000 },
-              easing: 'backOut'
+              easing: 'backOut',
             }}
           />
         </VictoryChart>
@@ -291,22 +314,24 @@ export function Accounts({ navigation }: any) {
       <AccountsContainer>
         <FlatList
           data={accounts}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }: any) => (
             <AccountListItem
               data={item}
               icon='wallet'
               color={theme.colors.primary}
-              onPress={() => handleOpenAccount(
-                item.id,
-                item.name,
-                item.currency,
-                item.initial_amount
-              )}
+              onPress={() =>
+                handleOpenAccount(
+                  item.id,
+                  item.name,
+                  item.currency,
+                  item.initial_amount
+                )
+              }
             />
           )}
           ListEmptyComponent={() => (
-            <ListEmptyComponent text="Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui" />
+            <ListEmptyComponent text='Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui' />
           )}
           initialNumToRender={10}
           refreshControl={
@@ -338,7 +363,7 @@ export function Accounts({ navigation }: any) {
         bottomSheetRef={connectAccountBottomSheetRef}
         snapPoints={['50%', '75%']}
         closeModal={handleCloseConnectAccountModal}
-        title="Conectar Conta Bancária"
+        title='Conectar Conta Bancária'
       >
         <SelectConnectAccount />
       </ModalView>
@@ -347,12 +372,9 @@ export function Accounts({ navigation }: any) {
         bottomSheetRef={registerAccountBottomSheetRef}
         snapPoints={['50%', '75%']}
         closeModal={handleCloseRegisterAccountModal}
-        title="Criar Conta Manual"
+        title='Criar Conta Manual'
       >
-        <RegisterAccount
-          id=''
-          closeAccount={handleCloseRegisterAccountModal}
-        />
+        <RegisterAccount id='' closeAccount={handleCloseRegisterAccountModal} />
       </ModalView>
     </Container>
   );

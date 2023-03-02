@@ -7,7 +7,7 @@ import {
   MonthSelectButton,
   MonthSelectIcon,
   Month,
-  PieChartContainer
+  PieChartContainer,
 } from './styles';
 
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -19,7 +19,11 @@ import { VictoryPie } from 'victory-native';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
 
-import { CategoryProps, ColorProps, IconProps } from '@components/CategoryListItem';
+import {
+  CategoryProps,
+  ColorProps,
+  IconProps,
+} from '@components/CategoryListItem';
 import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
@@ -48,7 +52,9 @@ export function OverviewExpenses() {
   const [transactions, setTransactions] = useState<TransactionProps[]>([]);
   const [expenses, setExpenses] = useState<TransactionProps[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<CategoryData[]>([]);
+  const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<
+    CategoryData[]
+  >([]);
   const [categorySelected, setCategorySelected] = useState('');
   const theme = useTheme();
 
@@ -58,7 +64,7 @@ export function OverviewExpenses() {
     } else {
       setSelectedDate(subMonths(selectedDate, 1));
     }
-  };
+  }
 
   async function fetchCategories() {
     setLoading(true);
@@ -66,8 +72,8 @@ export function OverviewExpenses() {
     try {
       const { data } = await api.get('category', {
         params: {
-          tenant_id: tenantId
-        }
+          tenant_id: tenantId,
+        },
       });
       if (!data) {
       } else {
@@ -75,11 +81,14 @@ export function OverviewExpenses() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Categorias", "Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Categorias',
+        'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setLoading(false);
-    };
-  };
+    }
+  }
 
   async function fetchTransactions() {
     setLoading(true);
@@ -87,33 +96,36 @@ export function OverviewExpenses() {
     try {
       const { data } = await api.get('transaction', {
         params: {
-          tenant_id: tenantId
-        }
-      })
+          tenant_id: tenantId,
+        },
+      });
       if (!data) {
       } else {
         setTransactions(data);
       }
 
-      const expenses = transactions
-        .filter((transaction: TransactionProps) =>
-          transaction.type == 'debit'
-        );
+      const expenses = transactions.filter(
+        (transaction: TransactionProps) => transaction.type == 'debit'
+      );
       setExpenses(expenses);
 
       /**
        * Expenses by Selected Month - Start
        */
-      const expensesBySelectedMonth = transactions
-        .filter((transaction: TransactionProps) =>
+      const expensesBySelectedMonth = transactions.filter(
+        (transaction: TransactionProps) =>
           transaction.type === 'debit' &&
-          new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
-          new Date(transaction.created_at).getFullYear() === selectedDate.getFullYear()
-        );
-      const expensesTotalBySelectedMonth = expensesBySelectedMonth
-        .reduce((acc: number, expense: TransactionProps) => {
-          return acc += Number(expense.amount);
-        }, 0);
+          new Date(transaction.created_at).getMonth() ===
+            selectedDate.getMonth() &&
+          new Date(transaction.created_at).getFullYear() ===
+            selectedDate.getFullYear()
+      );
+      const expensesTotalBySelectedMonth = expensesBySelectedMonth.reduce(
+        (acc: number, expense: TransactionProps) => {
+          return (acc += Number(expense.amount));
+        },
+        0
+      );
       /**
        * Expenses by Selected Month - End
        */
@@ -123,7 +135,7 @@ export function OverviewExpenses() {
        */
       const totalExpensesByCategory: CategoryData[] = [];
 
-      categories.forEach(category => {
+      categories.forEach((category) => {
         let categorySum = 0;
 
         expensesBySelectedMonth.forEach((expense: TransactionProps) => {
@@ -133,13 +145,15 @@ export function OverviewExpenses() {
         });
 
         if (categorySum > 0) {
-          const totalFormatted = categorySum
-            .toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            })
+          const totalFormatted = categorySum.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          });
 
-          const percent = `${(categorySum / expensesTotalBySelectedMonth * 100).toFixed(2)}%`;
+          const percent = `${(
+            (categorySum / expensesTotalBySelectedMonth) *
+            100
+          ).toFixed(2)}%`;
 
           totalExpensesByCategory.push({
             id: category.id,
@@ -149,7 +163,7 @@ export function OverviewExpenses() {
             tenant_id: category.tenant_id,
             total: categorySum,
             totalFormatted,
-            percent
+            percent,
           });
         }
       });
@@ -158,26 +172,30 @@ export function OverviewExpenses() {
       /**
        * Expenses by Category - End
        */
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
-      Alert.alert("Transações", "Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.");
+      Alert.alert(
+        'Transações',
+        'Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.'
+      );
     } finally {
       setLoading(false);
-    };
-  };
+    }
+  }
 
   function handleCategoryOnPress(id: string) {
-    setCategorySelected(prev => prev === id ? '' : id);
-  };
+    setCategorySelected((prev) => (prev === id ? '' : id));
+  }
 
-  useFocusEffect(useCallback(() => {
-    fetchCategories();
-    fetchTransactions();
-  }, [selectedDate]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories();
+      fetchTransactions();
+    }, [selectedDate])
+  );
 
   if (loading) {
-    return <SkeletonOverviewScreen />
+    return <SkeletonOverviewScreen />;
   }
 
   return (
@@ -187,9 +205,7 @@ export function OverviewExpenses() {
           <MonthSelectIcon name='chevron-back' />
         </MonthSelectButton>
 
-        <Month>
-          {format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}
-        </Month>
+        <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
 
         <MonthSelectButton onPress={() => handleDateChange('next')}>
           <MonthSelectIcon name='chevron-forward' />
@@ -205,44 +221,48 @@ export function OverviewExpenses() {
         <PieChartContainer>
           <VictoryPie
             data={totalExpensesByCategories}
-            colorScale={totalExpensesByCategories.map(category => category.color.hex)}
+            colorScale={totalExpensesByCategories.map(
+              (category) => category.color.hex
+            )}
             x='percent'
             y='total'
             innerRadius={80}
             animate={{
               duration: 2000,
-              easing: 'backOut'
+              easing: 'backOut',
             }}
             theme={smartFinancesChartTheme}
             style={{
               labels: {
                 fontSize: RFValue(18),
                 fontWeight: 'bold',
-                fill: theme.colors.primary
+                fill: theme.colors.primary,
               },
               data: {
-                fillOpacity: ({ datum }) => (datum.id === categorySelected || categorySelected === '') ? 1 : 0.2,
-                stroke: ({ datum }) => datum.id === categorySelected ? datum.color.hex : 'none',
+                fillOpacity: ({ datum }) =>
+                  datum.id === categorySelected || categorySelected === ''
+                    ? 1
+                    : 0.2,
+                stroke: ({ datum }) =>
+                  datum.id === categorySelected ? datum.color.hex : 'none',
                 strokeOpacity: 0.5,
-                strokeWidth: 10
-              }
+                strokeWidth: 10,
+              },
             }}
             labelRadius={50}
           />
         </PieChartContainer>
-        {
-          totalExpensesByCategories.map(item => (
-            <HistoryCard
-              key={item.id}
-              icon={item.icon.name}
-              name={item.name}
-              amount={item.totalFormatted}
-              color={item.color.hex}
-              onPress={() => handleCategoryOnPress(item.id)}
-            />
-          ))
-        }
+        {totalExpensesByCategories.map((item) => (
+          <HistoryCard
+            key={item.id}
+            icon={item.icon.name}
+            name={item.name}
+            amount={item.totalFormatted}
+            color={item.color.hex}
+            onPress={() => handleCategoryOnPress(item.id)}
+          />
+        ))}
       </ScrollContent>
     </Container>
-  )
+  );
 }
