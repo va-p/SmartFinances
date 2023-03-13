@@ -151,7 +151,9 @@ export function RegisterTransaction({
     name: 'Selecione a conta de destino',
   } as AccountProps);
   const [date, setDate] = useState(new Date());
-  const formattedDate = format(date, 'dd MMMM, yyyy', { locale: ptBR });
+  const formattedDate = format(date, "dd 'de' MMMM 'de' yyyy", {
+    locale: ptBR,
+  });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const onChangeDate = (_: any, selectedDate: any) => {
     setShowDatePicker(false);
@@ -329,6 +331,206 @@ export function RegisterTransaction({
       { text: 'Tirar foto', onPress: handleTakePhoto },
       { text: 'Selecionar da biblioteca', onPress: handleSelectImage },
     ]);
+  }
+
+  async function handleEditTransaction(id: string, form: FormData) {
+    setButtonIsLoading(true);
+
+    let tagsList: any = [];
+    for (const item of tagsSelected) {
+      const tag_id = item.id;
+      if (!tagsList.hasOwnProperty(tag_id)) {
+        tagsList[tag_id] = {
+          tag_id: item.id,
+        };
+      }
+    }
+    tagsList = Object.values(tagsList);
+
+    let imageResponse: any = null;
+    let transaction_image_id: number | null = null;
+    if (image != '') {
+      const newImage = {
+        file: `data:image/jpeg;base64,${image}`,
+        tenant_id: tenantId,
+      };
+      const uploadImage = await api.post('upload/transaction_image', newImage);
+      if (uploadImage.status === 200) {
+        imageResponse = await api.get('single_transaction_image_get_id', {
+          params: {
+            tenant_id: tenantId,
+          },
+        });
+        transaction_image_id = imageResponse.data.id;
+      }
+    }
+
+    // Need conversion
+    if (currencySelected.code !== accountSelected.currency.code) {
+      // Converted BRL
+      let amountConverted = 0;
+      if (
+        currencySelected.code === 'BTC' &&
+        accountSelected.currency.code === 'BRL'
+      ) {
+        amountConverted = Number(form.amount) * btcQuoteBrl.price;
+      }
+      if (
+        currencySelected.code === 'EUR' &&
+        accountSelected.currency.code === 'BRL'
+      ) {
+        amountConverted = Number(form.amount) * eurQuoteBrl.price;
+      }
+      if (
+        currencySelected.code === 'USD' &&
+        accountSelected.currency.code === 'BRL'
+      ) {
+        amountConverted = Number(form.amount) * usdQuoteBrl.price;
+      }
+      // Converted BTC
+      if (
+        currencySelected.code === 'BRL' &&
+        accountSelected.currency.code === 'BTC'
+      ) {
+        amountConverted = Number(form.amount) * brlQuoteBtc.price;
+      }
+      if (
+        currencySelected.code === 'EUR' &&
+        accountSelected.currency.code === 'BTC'
+      ) {
+        amountConverted = Number(form.amount) * eurQuoteBtc.price;
+      }
+      if (
+        currencySelected.code === 'USD' &&
+        accountSelected.currency.code === 'BTC'
+      ) {
+        amountConverted = Number(form.amount) * usdQuoteBtc.price;
+      }
+      // Converted EUR
+      if (
+        currencySelected.code === 'BRL' &&
+        accountSelected.currency.code === 'EUR'
+      ) {
+        amountConverted = Number(form.amount) * brlQuoteEur.price;
+      }
+      if (
+        currencySelected.code === 'BTC' &&
+        accountSelected.currency.code === 'EUR'
+      ) {
+        amountConverted = Number(form.amount) * btcQuoteEur.price;
+      }
+      if (
+        currencySelected.code === 'USD' &&
+        accountSelected.currency.code === 'EUR'
+      ) {
+        amountConverted = Number(form.amount) * usdQuoteEur.price;
+      }
+      // Converted USD
+      if (
+        currencySelected.code === 'BRL' &&
+        accountSelected.currency.code === 'USD'
+      ) {
+        amountConverted = Number(form.amount) * brlQuoteUsd.price;
+      }
+      if (
+        currencySelected.code === 'BTC' &&
+        accountSelected.currency.code === 'USD'
+      ) {
+        amountConverted = Number(form.amount) * btcQuoteUsd.price;
+      }
+      if (
+        currencySelected.code === 'EUR' &&
+        accountSelected.currency.code === 'USD'
+      ) {
+        amountConverted = Number(form.amount) * eurQuoteUsd.price;
+      }
+
+      try {
+        const transactionEdited = {
+          transaction_id: id,
+          created_at: date,
+          description: form.description,
+          amount: amountConverted,
+          amount_not_converted: form.amount,
+          currency_id: currencySelected.id,
+          type: transactionType,
+          account_id: accountSelected.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId,
+        };
+
+        const { status } = await api.post(
+          'edit_transaction',
+          transactionEdited
+        );
+        if (status === 200) {
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          Alert.alert('Edição de Transação', error.response?.data.message, [
+            { text: 'Tentar novamente' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
+        }
+      } finally {
+        setButtonIsLoading(false);
+      }
+    }
+    // No need conversion
+    else {
+      try {
+        const transactionEdited = {
+          transaction_id: id,
+          created_at: date,
+          description: form.description,
+          amount: form.amount,
+          amount_not_converted: null,
+          currency_id: currencySelected.id,
+          type: transactionType,
+          account_id: accountSelected.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId,
+        };
+
+        const { status } = await api.post(
+          'edit_transaction',
+          transactionEdited
+        );
+        if (status === 200) {
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          Alert.alert('Edição de Transação', error.response?.data.message, [
+            { text: 'Tentar novamente' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
+        }
+      } finally {
+        setButtonIsLoading(false);
+      }
+    }
   }
 
   async function handleRegisterTransaction(form: FormData) {
@@ -1011,206 +1213,6 @@ export function RegisterTransaction({
       );
     } finally {
       setButtonIsLoading(false);
-    }
-  }
-
-  async function handleEditTransaction(id: string, form: FormData) {
-    setButtonIsLoading(true);
-
-    let tagsList: any = [];
-    for (const item of tagsSelected) {
-      const tag_id = item.id;
-      if (!tagsList.hasOwnProperty(tag_id)) {
-        tagsList[tag_id] = {
-          tag_id: item.id,
-        };
-      }
-    }
-    tagsList = Object.values(tagsList);
-
-    let imageResponse: any = null;
-    let transaction_image_id: number | null = null;
-    if (image != '') {
-      const newImage = {
-        file: `data:image/jpeg;base64,${image}`,
-        tenant_id: tenantId,
-      };
-      const uploadImage = await api.post('upload/transaction_image', newImage);
-      if (uploadImage.status === 200) {
-        imageResponse = await api.get('single_transaction_image_get_id', {
-          params: {
-            tenant_id: tenantId,
-          },
-        });
-        transaction_image_id = imageResponse.data.id;
-      }
-    }
-
-    // Need conversion
-    if (currencySelected.code !== accountSelected.currency.code) {
-      // Converted BRL
-      let amountConverted = 0;
-      if (
-        currencySelected.code === 'BTC' &&
-        accountSelected.currency.code === 'BRL'
-      ) {
-        amountConverted = Number(form.amount) * btcQuoteBrl.price;
-      }
-      if (
-        currencySelected.code === 'EUR' &&
-        accountSelected.currency.code === 'BRL'
-      ) {
-        amountConverted = Number(form.amount) * eurQuoteBrl.price;
-      }
-      if (
-        currencySelected.code === 'USD' &&
-        accountSelected.currency.code === 'BRL'
-      ) {
-        amountConverted = Number(form.amount) * usdQuoteBrl.price;
-      }
-      // Converted BTC
-      if (
-        currencySelected.code === 'BRL' &&
-        accountSelected.currency.code === 'BTC'
-      ) {
-        amountConverted = Number(form.amount) * brlQuoteBtc.price;
-      }
-      if (
-        currencySelected.code === 'EUR' &&
-        accountSelected.currency.code === 'BTC'
-      ) {
-        amountConverted = Number(form.amount) * eurQuoteBtc.price;
-      }
-      if (
-        currencySelected.code === 'USD' &&
-        accountSelected.currency.code === 'BTC'
-      ) {
-        amountConverted = Number(form.amount) * usdQuoteBtc.price;
-      }
-      // Converted EUR
-      if (
-        currencySelected.code === 'BRL' &&
-        accountSelected.currency.code === 'EUR'
-      ) {
-        amountConverted = Number(form.amount) * brlQuoteEur.price;
-      }
-      if (
-        currencySelected.code === 'BTC' &&
-        accountSelected.currency.code === 'EUR'
-      ) {
-        amountConverted = Number(form.amount) * btcQuoteEur.price;
-      }
-      if (
-        currencySelected.code === 'USD' &&
-        accountSelected.currency.code === 'EUR'
-      ) {
-        amountConverted = Number(form.amount) * usdQuoteEur.price;
-      }
-      // Converted USD
-      if (
-        currencySelected.code === 'BRL' &&
-        accountSelected.currency.code === 'USD'
-      ) {
-        amountConverted = Number(form.amount) * brlQuoteUsd.price;
-      }
-      if (
-        currencySelected.code === 'BTC' &&
-        accountSelected.currency.code === 'USD'
-      ) {
-        amountConverted = Number(form.amount) * btcQuoteUsd.price;
-      }
-      if (
-        currencySelected.code === 'EUR' &&
-        accountSelected.currency.code === 'USD'
-      ) {
-        amountConverted = Number(form.amount) * eurQuoteUsd.price;
-      }
-
-      try {
-        const transactionEdited = {
-          transaction_id: id,
-          created_at: date,
-          description: form.description,
-          amount: amountConverted,
-          amount_not_converted: form.amount,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountSelected.id,
-          category_id: categorySelected.id,
-          tags: tagsList,
-          transaction_image_id,
-          tenant_id: tenantId,
-        };
-
-        const { status } = await api.post(
-          'edit_transaction',
-          transactionEdited
-        );
-        if (status === 200) {
-          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Edição de Transação', error.response?.data.message, [
-            { text: 'Tentar novamente' },
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } finally {
-        setButtonIsLoading(false);
-      }
-    }
-    // No need conversion
-    else {
-      try {
-        const transactionEdited = {
-          transaction_id: id,
-          created_at: date,
-          description: form.description,
-          amount: form.amount,
-          amount_not_converted: null,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountSelected.id,
-          category_id: categorySelected.id,
-          tags: tagsList,
-          transaction_image_id,
-          tenant_id: tenantId,
-        };
-
-        const { status } = await api.post(
-          'edit_transaction',
-          transactionEdited
-        );
-        if (status === 200) {
-          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Edição de Transação', error.response?.data.message, [
-            { text: 'Tentar novamente' },
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } finally {
-        setButtonIsLoading(false);
-      }
     }
   }
 
