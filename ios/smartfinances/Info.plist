@@ -56,10 +56,10 @@
     </dict>
     <key>NSCameraUsageDescription</key>
     <string>O $(PRODUCT_NAME) acessa sua câmera para que você possa tirar fotos e adicioná-las às suas transações e à sua imagem de perfil.</string>
-    <key>NSFaceIDUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to use Face ID</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>O $(PRODUCT_NAME) acessa suas fotos para que você possa adicioná-las às suas transações e à sua imagem de perfil.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Permita que o $(PRODUCT_NAME) utilize o Face ID para autenticação</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
