@@ -267,6 +267,7 @@ export function Home() {
               style: 'currency',
               currency: 'USD',
             });
+            break;
         }
         if (item.amount_not_converted && item.currency.code === 'BRL') {
           amountNotConvertedFormatted = Number(
@@ -380,15 +381,17 @@ export function Home() {
 
       // Group transactions by date to section list
       const transactionsFormattedPtbrGroupedByDate =
-        transactionsFormattedPtbr.reduce((acc: any, cur: any) => {
-          const existObj = acc.find((obj: any) => obj.title === cur.created_at);
+        transactionsFormattedPtbr.reduce((acc: any, transaction: any) => {
+          const existObj = acc.find(
+            (obj: any) => obj.title === transaction.created_at
+          );
 
           if (existObj) {
-            existObj.data.push(cur);
+            existObj.data.push(transaction);
           } else {
             acc.push({
-              title: cur.created_at,
-              data: [cur],
+              title: transaction.created_at,
+              data: [transaction],
             });
           }
           return acc;

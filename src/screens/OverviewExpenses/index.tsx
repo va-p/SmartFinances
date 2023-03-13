@@ -99,8 +99,7 @@ export function OverviewExpenses() {
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setTransactions(data);
       }
 

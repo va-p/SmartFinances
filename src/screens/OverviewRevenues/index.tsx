@@ -75,8 +75,7 @@ export function OverviewRevenues() {
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setCategories(data);
       }
     } catch (error) {
@@ -121,8 +120,8 @@ export function OverviewRevenues() {
             selectedDate.getFullYear()
       );
       const revenuesTotalBySelectedMonth = revenuesBySelectedMonth.reduce(
-        (acc: number, cur: TransactionProps) => {
-          return (acc += Number(cur.amount));
+        (acc: number, revenue: TransactionProps) => {
+          return (acc += Number(revenue.amount));
         },
         0
       );

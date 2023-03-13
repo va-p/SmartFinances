@@ -1,4 +1,5 @@
 import React from 'react';
+import { FlatList } from 'react-native';
 import {
   Container,
   DescriptionAndAmountContainer,
@@ -15,21 +16,20 @@ import {
   Category,
   Account,
   AmountNotConvertedContainer,
-  AmountNotConverted
-} from './styles'
+  AmountNotConverted,
+} from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CategoryProps } from '@components/CategoryListItem';
-import { FlatList } from 'react-native';
 import { TagTransaction } from '@components/TagTransaction';
 
 export interface TransactionProps {
   id: string;
   created_at: any;
   description: string;
-  amount: string | number;
+  amount: number;
   amount_formatted: string | number;
   amount_not_converted?: string | number;
   currency: CurrencyProps;
@@ -42,7 +42,7 @@ export interface TransactionProps {
 
 type Props = RectButtonProps & {
   data: TransactionProps;
-}
+};
 
 export function TransactionListItem({ data, ...rest }: Props) {
   return (
@@ -52,19 +52,15 @@ export function TransactionListItem({ data, ...rest }: Props) {
       </IconContainer>
       <DetailsContainer>
         <DescriptionAndAmountContainer>
-          <Description type={data.type}>
-            {data.description}
-          </Description>
+          <Description type={data.type}>{data.description}</Description>
 
           <AmountContainer>
-            {
-              data.type === 'transferDebit' &&
+            {data.type === 'transferDebit' && (
               <TransferDirectionIcon name='arrow-up-outline' />
-            }
-            {
-              data.type === 'transferCredit' &&
+            )}
+            {data.type === 'transferCredit' && (
               <TransferDirectionIcon name='arrow-down-outline' />
-            }
+            )}
             <Amount type={data.type}>
               {data.type === 'debit' && '-'}
               {data.amount_formatted}
@@ -78,13 +74,12 @@ export function TransactionListItem({ data, ...rest }: Props) {
               {data.category.name}
               {' | '}
             </Category>
-            <Account>
-              {data.account.name}
-            </Account>
+            <Account>{data.account.name}</Account>
           </CategoryAndAccountContainer>
           <AmountNotConvertedContainer>
             <AmountNotConverted>
-              {data.account.currency.code != data.currency.code && `${data.amount_not_converted}`}
+              {data.account.currency.code != data.currency.code &&
+                `${data.amount_not_converted}`}
             </AmountNotConverted>
           </AmountNotConvertedContainer>
         </Footer>
@@ -92,13 +87,11 @@ export function TransactionListItem({ data, ...rest }: Props) {
           <FlatList
             data={data.tags}
             keyExtractor={(item: any) => item.id}
-            renderItem={({ item }: any) => (
-              <TagTransaction data={item} />
-            )}
+            renderItem={({ item }: any) => <TagTransaction data={item} />}
             horizontal
           />
         </TagsContainer>
       </DetailsContainer>
     </Container>
-  )
+  );
 }

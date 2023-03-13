@@ -214,12 +214,12 @@ export function SignIn({ navigation }: any) {
         const userData = await AsyncStorage.getItem(COLLECTION_USERS);
         if (userData) {
           const userDataParsed = JSON.parse(userData);
-          var localAuth = userDataParsed.useLocalAuth;
-        }
+          const localAuth = userDataParsed.useLocalAuth;
 
-        if (compatible && enroll && localAuth) {
-          handleSignInWithBiometric();
-        } else return;
+          if (compatible && enroll && localAuth) {
+            handleSignInWithBiometric();
+          } else return;
+        }
       })();
     }, [])
   );
