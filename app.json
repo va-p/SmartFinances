@@ -4,13 +4,9 @@
     "slug": "smart-finances",
     "version": "1.28.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "backgroundColor": "#020027",
     "primaryColor": "#FF5200",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -26,27 +22,13 @@
         "WRITE_EXTERNAL_STORAGE",
         "USE_FINGERPRINT",
         "USE_BIOMETRIC"
-      ],
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/ic_launcher_foreground.png",
-        "backgroundImage": "./assets/ic_launcher_background.png"
-      }
+      ]
     },
     "ios": {
       "bundleIdentifier": "com.digitaltech.smartfinances",
       "buildNumber": "1.28.1",
       "supportsTablet": true
     },
-    "plugins": [
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "O $(PRODUCT_NAME) acessa suas fotos para que você possa adicioná-las às suas transações e à sua imagem de perfil.",
-          "cameraPermission": "O $(PRODUCT_NAME) acessa sua câmera para que você possa tirar fotos e adicioná-las às suas transações e à sua imagem de perfil.",
-          "microphonePermission": false
-        }
-      ]
-    ],
     "extra": {
       "eas": {
         "projectId": "b3fbc0d4-f20d-4cb4-8ea3-0093395774ac"
