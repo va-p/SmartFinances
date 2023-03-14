@@ -3,8 +3,8 @@ import styled from 'styled-components/native';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
 type ColorProps = {
-  color: string
-}
+  color: string;
+};
 
 export const Container = styled.View`
   flex: 1;
@@ -13,7 +13,7 @@ export const Container = styled.View`
 
 export const MainContent = styled.View``;
 
-export const Header = styled.View <ColorProps>`
+export const Header = styled.View<ColorProps>`
   min-height: ${RFPercentage(18)}px;
   max-height: ${RFPercentage(18)}px;
   align-items: center;
@@ -54,10 +54,10 @@ export const InputTransactionValueContainer = styled.View`
 `;
 
 export const ContentScroll = styled.ScrollView.attrs({
-  shownsVerticalScrollIndicator: false
+  shownsVerticalScrollIndicator: false,
 })``;
 
-export const ProductImageContainer = styled.View`
+export const ProductImageContainer = styled.Pressable`
   padding: 0 12px 12px;
 `;
 

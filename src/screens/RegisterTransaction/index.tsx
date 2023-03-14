@@ -165,6 +165,7 @@ export function RegisterTransaction({
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [openImage, setOpenImage] = useState(false);
   const {
     control,
     handleSubmit,
@@ -182,8 +183,7 @@ export function RegisterTransaction({
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setTags(data);
       }
     } catch (error) {
@@ -1354,6 +1354,7 @@ export function RegisterTransaction({
               textColor={theme.colors.text}
             />
           )}
+
           <ControlledInputWithIcon
             icon='pencil'
             color={categorySelected.color.hex}
@@ -1399,7 +1400,7 @@ export function RegisterTransaction({
             onPress={handleClickSelectImage}
           />
           {imageUrl != '' ? (
-            <ProductImageContainer>
+            <ProductImageContainer onPress={() => setOpenImage(!openImage)}>
               <ProductImage source={{ uri: imageUrl }} />
             </ProductImageContainer>
           ) : (

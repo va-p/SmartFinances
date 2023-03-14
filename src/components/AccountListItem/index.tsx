@@ -8,7 +8,7 @@ import {
   NameContainer,
   Name,
   Amount,
-  IconChevronDown
+  IconChevronDown,
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
@@ -26,20 +26,16 @@ export interface AccountProps {
   currency: CurrencyProps;
   initial_amount: string | number;
   totalAccountAmount?: string;
-  tenant_id: string;
+  tenant_id: number | null;
 }
 
 type Props = RectButtonProps & {
   data: AccountProps;
   icon: string;
   color: string;
-}
+};
 
-export function AccountListItem({
-  data,
-  icon,
-  color,
-  ...rest }: Props) {
+export function AccountListItem({ data, icon, color, ...rest }: Props) {
   return (
     <Container>
       <Content {...rest}>

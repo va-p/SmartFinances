@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 type ColorProps = {
   color: string;
-}
+};
 
 export const Container = styled.View`
   flex: 1;
@@ -35,8 +35,8 @@ export const IconContainer = styled.View`
   margin-right: 10px;
 `;
 
-export const Icon = styled(Ionicons) <ColorProps>`
-font-size: ${RFValue(22)}px;
+export const Icon = styled(Ionicons)<ColorProps>`
+  font-size: ${RFValue(22)}px;
 `;
 
 export const NameContainer = styled.View``;
