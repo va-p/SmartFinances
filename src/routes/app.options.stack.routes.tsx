@@ -20,44 +20,23 @@ export function AppOptionsStackRoutes() {
       screenOptions={{
         headerShown: false,
         cardStyle: {
-          backgroundColor: theme.colors.background
-        }
+          backgroundColor: theme.colors.background,
+        },
       }}
     >
-      <Screen
-        name="Mais Opções"
-        component={OptionsMenu}
-      />
+      <Screen name='Mais Opções' component={OptionsMenu} />
 
-      <Screen
-        name="Contas"
-        component={AccountsList}
-      />
+      <Screen name='Contas' component={AccountsList} />
 
-      <Screen
-        name="Categorias"
-        component={Categories}
-      />
+      <Screen name='Categorias' component={Categories} />
 
-      <Screen
-        name="Etiquetas"
-        component={Tags}
-      />
+      <Screen name='Etiquetas' component={Tags} />
 
-      <Screen
-        name="Central de Ajuda"
-        component={HelpCenter}
-      />
+      <Screen name='Central de Ajuda' component={HelpCenter} />
 
-      <Screen
-        name="Termos de Uso"
-        component={TermsOfUse}
-      />
+      <Screen name='Termos de Uso' component={TermsOfUse} />
 
-      <Screen
-        name="Politica de Privacidade"
-        component={PrivacyPolicy}
-      />
+      <Screen name='Politica de Privacidade' component={PrivacyPolicy} />
     </Navigator>
-  )
+  );
 }

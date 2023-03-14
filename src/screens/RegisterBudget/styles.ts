@@ -7,13 +7,13 @@ export const AmountContainer = styled.View`
 `;
 
 export const AmountGroup = styled.View`
-  width: 70%;
+  width: 60%;
 `;
 
 export const CurrencyGroup = styled.View`
-  width: 30%;
+  width: 40%;
 `;
 
 export const Footer = styled.View`
-  padding: 10px;  
+  padding: 10px;
 `;

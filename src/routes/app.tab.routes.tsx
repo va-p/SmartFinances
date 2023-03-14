@@ -7,6 +7,7 @@ import { useTheme } from 'styled-components';
 import { AppOverviewTopTabRoutes } from './app.overview.topTab.routes';
 import { AppAccountStackRoutes } from './app.account.stack.routes';
 import { AppOptionsStackRoutes } from './app.options.stack.routes';
+import { AppBudgetStackRoutes } from './app.budget.stack.routes';
 import { Home } from '@screens/Home';
 
 const { Navigator, Screen } = createBottomTabNavigator();
@@ -26,63 +27,61 @@ export function AppTabRoutes() {
           height: 50,
           paddingTop: 5,
           paddingBottom: 5,
-          backgroundColor: theme.colors.background
-        }
+          backgroundColor: theme.colors.background,
+        },
       }}
     >
       <Screen
-        name="Timeline"
+        name='Timeline'
         component={Home}
         options={{
-          tabBarIcon: (({ size, color }) => (
-            <Ionicons
-              name='list-outline'
-              size={size}
-              color={color}
-            />
-          ))
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name='list-outline' size={size} color={color} />
+          ),
         }}
       />
 
       <Screen
-        name="Contas"
+        name='Contas'
         component={AppAccountStackRoutes}
         options={{
-          tabBarIcon: (({ size, color }) => (
-            <Ionicons
-              name='wallet-outline'
-              size={size}
-              color={color}
-            />
-          ))
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name='wallet-outline' size={size} color={color} />
+          ),
         }}
       />
 
       <Screen
-        name="Resumo"
+        name='Orçamentos'
+        component={AppBudgetStackRoutes}
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name='disc-outline' size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Screen
+        name='Resumo'
         component={AppOverviewTopTabRoutes}
         options={{
-          tabBarIcon: (({ size, color }) => (
-            <Ionicons
-              name='pie-chart-outline'
-              size={size}
-              color={color}
-            />
-          ))
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name='pie-chart-outline' size={size} color={color} />
+          ),
         }}
       />
 
       <Screen
-        name="Mais"
+        name='Mais'
         component={AppOptionsStackRoutes}
         options={{
-          tabBarIcon: (({ size, color }) => (
+          tabBarIcon: ({ size, color }) => (
             <Ionicons
               name='ellipsis-horizontal-outline'
               size={size}
               color={color}
             />
-          ))
+          ),
         }}
       />
     </Navigator>

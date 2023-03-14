@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
   AmountContainer,
   AmountGroup,
   CurrencyGroup,
-  Footer
+  Footer,
 } from './styles';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SelectDropdown from 'react-native-select-dropdown';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
@@ -17,10 +18,9 @@ import { useForm } from 'react-hook-form';
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import * as Yup from 'yup';
+import axios from 'axios';
 
-import {
-  ControlledInputWithIcon
-} from '@components/Form/ControlledInputWithIcon';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CategoryProps } from '@components/CategoryListItem';
 import { AccountProps } from '@components/AccountListItem';
@@ -29,7 +29,10 @@ import { SelectButton } from '@components/SelectButton';
 import { AccountSelect } from '@screens/AccountSelect';
 import { Button } from '@components/Button';
 
-import { BudgetPeriodSelect, ChartPeriodProps } from '@screens/BudgetPeriodSelect';
+import {
+  BudgetPeriodSelect,
+  ChartPeriodProps,
+} from '@screens/BudgetPeriodSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -37,126 +40,97 @@ import theme from '@themes/theme';
 
 import api from '@api/api';
 
+type Props = {
+  id: string;
+  closeBudget: () => void;
+};
+
 type FormData = {
   name: string;
   amount: string;
-  //recurrence: string;
-}
+};
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
-  name: Yup
-    .string()
-    .required("Digite o nome"),
-  amount: Yup
-    .number()
-    .typeError("Digite um valor númerico")
-    .positive("O valor não pode ser negativo")
-    .required("Digite o valor")
+  name: Yup.string().required('Digite o nome'),
+  amount: Yup.number()
+    .typeError('Digite um valor númerico')
+    .positive('O valor não pode ser negativo')
+    .required('Digite o valor'),
 });
 /* Validation Form - End */
 
-export function RegisterBudget({ navigation }: any) {
+export function RegisterBudget({ id, closeBudget }: Props) {
   const tenantId = useSelector(selectUserTenantId);
   const [startDate, setStartDate] = useState(new Date());
   const formattedDate = format(startDate, 'dd MMMM, yyyy', { locale: ptBR });
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const onChangeDate = (event: any, selectedDate: any) => {
+  const onChangeDate = (_: any, selectedDate: any) => {
     const currentDate = selectedDate;
     setShowDatePicker(false);
     setStartDate(currentDate);
   };
-  const showDatepicker = () => {
-    setShowDatePicker(true);
-  };
-  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
     name: 'Todas as contas',
     currency: {
-      symbol: 'R$'
-    }
+      symbol: 'R$',
+    },
   } as AccountProps);
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
     name: 'Todas as categorias',
     color: {
-      hex: theme.colors.primary
-    }
+      hex: theme.colors.primary,
+    },
   } as CategoryProps);
-  const [budgetPeriodModalOpen, setBudgetPeriodModalOpen] = useState(false);
-  const [budgetPeriodSelected, setBudgetPeriodSelected] = useState<ChartPeriodProps>({
-    id: '4',
-    name: 'Mensalmente',
-    period: 'monthly'
-  });
+  const periodBottomSheetRef = useRef<BottomSheetModal>(null);
+  const [budgetPeriodSelected, setBudgetPeriodSelected] =
+    useState<ChartPeriodProps>({
+      id: '4',
+      name: 'Mensalmente',
+      period: 'monthly',
+    });
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const currencies = [
     'BRL - Real Brasileiro',
     'BTC - Bitcoin',
     'EUR - Euro',
-    'USD - Dólar Americano'
+    'USD - Dólar Americano',
   ];
   const [currencySelected, setCurrencySelected] = useState('');
-  /*const [simbol, setSimbol] = useState('');
-
-  switch (currencySelected) {
-    case 'BRL - Real Brasileiro':
-      setSimbol('R$')
-      break;
-    case 'BTC - Bitcoin':
-      setSimbol('₿')
-      break;
-    case 'EUR - Euro':
-      setSimbol('€')
-      break;
-    case 'USD - Dólar Americano':
-      setSimbol('US$')
-      break;
-    default: 'BRL - Real Brasileiro'
-      break;
-  };*/
-
-  function iconSelectDropdown() {
-    return (
-      <Ionicons
-        name='chevron-down-outline'
-        size={20}
-        color={theme.colors.text}
-      />
-    )
-  };
 
   function handleOpenSelectAccountModal() {
-    setAccountModalOpen(true);
-  };
+    accountBottomSheetRef.current?.present();
+  }
 
   function handleCloseSelectAccountModal() {
-    setAccountModalOpen(false);
-  };
+    accountBottomSheetRef.current?.dismiss();
+  }
 
   function handleOpenSelectCategoryModal() {
-    setCategoryModalOpen(true);
-  };
+    categoryBottomSheetRef.current?.present();
+  }
 
   function handleCloseSelectCategoryModal() {
-    setCategoryModalOpen(false);
-  };
+    categoryBottomSheetRef.current?.dismiss();
+  }
 
   function handleOpenSelectChartPeriodModal() {
-    setBudgetPeriodModalOpen(true);
-  };
+    periodBottomSheetRef.current?.present();
+  }
 
   function handleCloseSelectChartPeriodModal() {
-    setBudgetPeriodModalOpen(false);
-  };
+    periodBottomSheetRef.current?.dismiss();
+  }
 
   async function handleRegisterBudget(form: FormData) {
     setButtonIsLoading(true);
@@ -164,31 +138,44 @@ export function RegisterBudget({ navigation }: any) {
     try {
       const newBudget = {
         name: form.name,
-        amount_limit: form.amount,
-        amount_spent: 0,
+        amount: form.amount,
         currency_id: 4,
         account_id: accountSelected.id,
         category_id: categorySelected.id,
-        recurrence: budgetPeriodSelected.period,
         start_date: startDate,
-        tenant_id: tenantId
-      }
+        recurrence: budgetPeriodSelected.period,
+        tenant_id: tenantId,
+      };
 
       const { status } = await api.post('budget', newBudget);
       if (status === 200) {
-        Alert.alert("Cadastro de Orçamento", "Orçamento cadastrado com sucesso!", [{ text: "Cadastrar novo orçamento" }, { text: "Voltar para a home", onPress: () => navigation.navigate('Dashboard') }]);
-
+        Alert.alert(
+          'Cadastro de Orçamento',
+          'Orçamento cadastrado com sucesso!',
+          [
+            { text: 'Cadastrar novo orçamento' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeBudget,
+            },
+          ]
+        );
         reset();
-      };
-
-      setButtonIsLoading(false);
+      }
     } catch (error) {
-      console.error(error);
-      Alert.alert("Cadastro de Orçamento", "Não foi possível cadastrar o orçamento. Verifique sua conexão com a internet e tente novamente.");
-
+      if (axios.isAxiosError(error)) {
+        Alert.alert('Cadastro de Orçamento', error.response?.data.message, [
+          { text: 'Tentar novamente' },
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: closeBudget,
+          },
+        ]);
+      }
+    } finally {
       setButtonIsLoading(false);
     }
-  };
+  }
 
   return (
     <Container>
@@ -225,42 +212,43 @@ export function RegisterBudget({ navigation }: any) {
             onSelect={(selectedItem) => {
               setCurrencySelected(selectedItem);
             }}
+            defaultButtonText='Moeda'
             buttonTextAfterSelection={(selectedItem) => {
-              return selectedItem
+              return selectedItem;
             }}
             rowTextForSelection={(item) => {
-              return item
+              return item;
             }}
-            defaultButtonText="Selecione a moeda"
-            renderDropdownIcon={iconSelectDropdown}
-            dropdownIconPosition='right'
             buttonStyle={{
               width: '100%',
-              minHeight: 56,
-              maxHeight: 56,
+              minHeight: 40,
+              maxHeight: 40,
               marginTop: 10,
               backgroundColor: theme.colors.shape,
-              borderRadius: 10
+              borderRadius: 10,
             }}
             buttonTextStyle={{
               fontFamily: theme.fonts.regular,
               fontSize: 15,
-              textAlign: 'left'
+              textAlign: 'left',
+              color: theme.colors.text,
             }}
-            dropdownStyle={{
-              borderRadius: 10,
+            renderDropdownIcon={() => {
+              return (
+                <Ionicons
+                  name='chevron-down-outline'
+                  size={20}
+                  color={theme.colors.text}
+                />
+              );
             }}
+            dropdownIconPosition='right'
+            rowStyle={{ backgroundColor: theme.colors.background }}
+            rowTextStyle={{ color: theme.colors.text }}
+            dropdownStyle={{ borderRadius: 10 }}
           />
         </CurrencyGroup>
       </AmountContainer>
-
-      <SelectButton
-        title='Contas'
-        subTitle={accountSelected.name}
-        icon='wallet'
-        color={categorySelected.color.hex}
-        onPress={handleOpenSelectAccountModal}
-      />
 
       <SelectButton
         title='Orçamento para'
@@ -275,22 +263,19 @@ export function RegisterBudget({ navigation }: any) {
         subTitle={formattedDate}
         icon='calendar'
         color={categorySelected.color.hex}
-        onPress={showDatepicker}
+        onPress={() => setShowDatePicker(true)}
       />
-      {
-        showDatePicker && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={startDate}
-            mode='date'
-            is24Hour={true}
-            onChange={onChangeDate}
-            display='spinner'
-            dateFormat='day month year'
-            textColor='#000'
-          />
-        )
-      }
+      {showDatePicker && (
+        <DateTimePicker
+          testID='dateTimePicker'
+          value={startDate}
+          mode='date'
+          is24Hour={true}
+          onChange={onChangeDate}
+          dateFormat='day month year'
+          textColor={theme.colors.text}
+        />
+      )}
 
       <SelectButton
         title='Repetir'
@@ -303,16 +288,16 @@ export function RegisterBudget({ navigation }: any) {
       <Footer>
         <Button
           type='secondary'
-          title="Criar orçamento"
+          title='Criar orçamento'
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterBudget)}
         />
       </Footer>
 
       <ModalViewSelection
-        visible={accountModalOpen}
-        closeModal={handleCloseSelectAccountModal}
         title='Contas'
+        bottomSheetRef={accountBottomSheetRef}
+        snapPoints={['50%']}
       >
         <AccountSelect
           account={accountSelected}
@@ -322,9 +307,9 @@ export function RegisterBudget({ navigation }: any) {
       </ModalViewSelection>
 
       <ModalViewSelection
-        visible={categoryModalOpen}
-        closeModal={handleCloseSelectCategoryModal}
         title='Categorias'
+        bottomSheetRef={categoryBottomSheetRef}
+        snapPoints={['50%']}
       >
         <CategorySelect
           category={categorySelected}
@@ -334,9 +319,9 @@ export function RegisterBudget({ navigation }: any) {
       </ModalViewSelection>
 
       <ModalViewSelection
-        visible={budgetPeriodModalOpen}
-        closeModal={handleCloseSelectChartPeriodModal}
         title='Período do orçamento'
+        bottomSheetRef={periodBottomSheetRef}
+        snapPoints={['30%', '50%']}
       >
         <BudgetPeriodSelect
           period={budgetPeriodSelected}
