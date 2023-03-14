@@ -1,10 +1,11 @@
+import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFPercentage } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
-  padding: 12px;
+  padding: ${Platform.OS === 'ios' ? '24px 12px 0' : '12px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 

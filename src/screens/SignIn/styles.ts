@@ -1,12 +1,11 @@
 import styled from 'styled-components/native';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
-export const Container = styled.View`
+export const Container = styled.KeyboardAvoidingView`
   flex: 1;
 `;
 
 export const Header = styled.View`
-  width: 100%;
   height: 70%;
   align-items: center;
   justify-content: flex-end;
@@ -35,7 +34,6 @@ export const SignInTitle = styled.Text`
 `;
 
 export const Footer = styled.View`
-  width: 100%;
   height: 30%;
   background-color: ${({ theme }) => theme.colors.primary};
 `;

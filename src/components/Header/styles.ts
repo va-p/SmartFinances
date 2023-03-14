@@ -3,18 +3,19 @@ import styled from 'styled-components/native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
 
 export type TypeProps = 'primary' | 'secondary';
 
 type ContainerProps = {
   type: TypeProps;
-}
+};
 
-export const Container = styled.View <ContainerProps>`
+export const Container = styled.View<ContainerProps>`
   width: 100%;
   height: 48px;
   flex-direction: row;
-  align-items: center;
+  align-items: ${Platform.OS === 'ios' ? 'flex-end' : 'center'};
   justify-content: center;
   background-color: ${({ theme }) => theme.colors.background};
 `;

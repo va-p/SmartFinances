@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
@@ -10,10 +11,9 @@ export const Container = styled.View`
 
 export const Header = styled.View`
   width: 100%;
-  min-height: ${RFPercentage(8)}px;
   align-items: center;
-  justify-content: center;
-  padding: 12px 12px 0;
+  justify-content: flex-start;
+  padding: ${Platform.OS === 'ios' ? '24px 12px 0' : '12px 12px 0'};
 `;
 
 export const CashFlowContainer = styled.View``;
@@ -22,7 +22,6 @@ export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
   text-align: center;
-  margin-top: -8px;
   color: ${({ theme }) => theme.colors.title};
 `;
 

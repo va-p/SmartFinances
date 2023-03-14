@@ -808,7 +808,7 @@ export function Home() {
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={() => <ListEmptyComponent />}
-          initialNumToRender={100}
+          initialNumToRender={150}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -887,6 +887,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.primary,
-    borderRadius: 30,
+    borderRadius: 23,
   },
 });

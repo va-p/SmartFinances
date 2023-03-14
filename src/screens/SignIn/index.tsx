@@ -225,7 +225,7 @@ export function SignIn({ navigation }: any) {
   );
 
   return (
-    <Container>
+    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Header>
         <TitleWrapper>
           <LogoSvg width={RFValue(120)} height={RFValue(68)} />
@@ -248,6 +248,7 @@ export function SignIn({ navigation }: any) {
             autoCapitalize='none'
             autoCorrect={false}
             autoComplete='email'
+            keyboardType='email-address'
             textContentType='emailAddress'
             name='email'
             control={control}

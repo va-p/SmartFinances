@@ -187,6 +187,7 @@ export function Account() {
               style: 'currency',
               currency: 'USD',
             });
+            break;
         }
         if (item.amount_not_converted && item.currency.code === 'BRL') {
           amountNotConvertedFormatted = Number(
@@ -554,7 +555,7 @@ export function Account() {
         },
       ]
     );
-  } 
+  }
 
   function ClearTransactionId() {
     setTransactionId('');
@@ -726,6 +727,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.primary,
-    borderRadius: 30,
+    borderRadius: 23,
   },
 });

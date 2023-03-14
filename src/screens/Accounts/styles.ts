@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
@@ -5,12 +6,11 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
-  padding: 12px;
+  padding: ${Platform.OS === 'ios' ? '24px 12px 12px' : '12px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Header = styled.View`
-  width: 100%;
   align-items: center;
   justify-content: center;
 `;
@@ -28,13 +28,12 @@ export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(10)}px;
   text-align: center;
-  margin-top: -10px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const HideDataButton = styled(BorderlessButton)`
   position: absolute;
-  top: 5px;
+  top: 0px;
   right: 0px;
 `;
 
