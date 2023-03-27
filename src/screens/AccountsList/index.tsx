@@ -5,6 +5,7 @@ import { Container, Footer } from './styles';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
+import * as Icon from 'phosphor-react-native';
 import axios from 'axios';
 
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
@@ -49,8 +50,7 @@ export function AccountsList() {
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setAccounts(data);
       }
     } catch (error) {
@@ -83,7 +83,7 @@ export function AccountsList() {
     id: string,
     name: string,
     currency: any,
-    initialAmount: string,
+    initialAmount: number,
     total: any
   ) {
     dispatch(setAccountId(id));
@@ -158,8 +158,7 @@ export function AccountsList() {
         renderItem={({ item }: any) => (
           <AccountListItem
             data={item}
-            icon='wallet'
-            color={theme.colors.primary}
+            icon={<Icon.Wallet color={theme.colors.primary} />}
             onPress={() =>
               handleOpenAccount(
                 item.id,

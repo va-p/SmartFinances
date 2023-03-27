@@ -1,28 +1,30 @@
 import React from 'react';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import {
-  Item,
-  Name,
-  Icon
-} from './styles';
+import { Item, Name } from './styles';
+
+import { CheckCircle } from 'phosphor-react-native';
+
+import theme from '@themes/theme';
 
 type ListItemProps = {
   id: string;
   name: string;
-}
+};
 
 type Props = RectButtonProps & {
   data: ListItemProps;
   isActive: boolean;
-}
+};
 
 export function ListItem({ data, isActive, ...rest }: Props) {
   return (
     <Item {...rest}>
-      <Name isActive={isActive}>
-        {data.name}
-      </Name>
-      <Icon name={isActive ? 'checkmark-circle' : ''} />
+      <Name isActive={isActive}>{data.name}</Name>
+      {isActive ? (
+        <CheckCircle size={20} weight='fill' color={theme.colors.primary} />
+      ) : (
+        ''
+      )}
     </Item>
   );
 }

@@ -6,9 +6,9 @@ export const Container = styled.KeyboardAvoidingView`
 `;
 
 export const Form = styled.View`
-  padding: 0 12px;
+  padding: 0 16px;
 `;
 
 export const Footer = styled.View`
-  padding: 12px;
+  padding: 16px;
 `;

@@ -5,7 +5,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
-  padding: ${Platform.OS === 'ios' ? '24px 12px 0' : '12px 12px 0'};
+  padding: ${Platform.OS === 'ios' ? '24px 16px 0' : '16px 16px 0'};
   align-items: center;
   background-color: ${({ theme }) => theme.colors.background};
 `;
@@ -20,7 +20,7 @@ export const Header = styled.View`
 export const Title = styled.View`
   width: 100px;
   height: ${RFPercentage(4)}px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${RFPercentage(2)}px;
 `;
@@ -28,7 +28,7 @@ export const Title = styled.View`
 export const Filters = styled.View`
   width: 100px;
   height: ${RFPercentage(3.5)}px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${RFPercentage(2)}px;
 `;

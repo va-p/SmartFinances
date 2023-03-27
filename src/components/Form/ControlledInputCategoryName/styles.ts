@@ -12,17 +12,16 @@ export const ErrorMessage = styled.Text`
   color: ${({ theme }) => theme.colors.attention};
 `;
 
-
 export const Input = styled(TextInput).attrs(({ theme }) => ({
-  placeholderTextColor: theme.colors.text
+  placeholderTextColor: theme.colors.text,
 }))`
   width: 100%;
-  padding: 5px 0;
-  padding-left: 10px;
+  padding: 4px 0;
+  padding-left: 16px;
   font-size: ${RFValue(14)}px;
   ${({ theme }) => css`
-  font-family: ${theme.fonts.regular};
-  border: 1px solid ${theme.colors.shape};
+    font-family: ${theme.fonts.regular};
+    border: 1px solid ${theme.colors.shape};
   `};
   color: ${({ theme }) => theme.colors.title};
 `;

@@ -6,21 +6,21 @@ import { Ionicons } from '@expo/vector-icons';
 type Props = {
   color: string;
   icon: string;
-}
+};
 
 export const Container = styled.View`
   flex: 1;
 `;
 
 export const Category = styled.TouchableOpacity.attrs({
-  activeOpacity: 0.6
-}) <Props>`
+  activeOpacity: 0.6,
+})<Props>`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
   flex-direction: row;
   align-items: center;
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-left-width: 10px;
@@ -28,7 +28,7 @@ export const Category = styled.TouchableOpacity.attrs({
   border-radius: 10px;
 `;
 
-export const Icon = styled(Ionicons) <Props>`
+export const Icon = styled(Ionicons)<Props>`
   font-size: ${RFValue(20)}px;
   margin-right: 8px;
   color: ${({ color }) => color};

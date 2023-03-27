@@ -6,7 +6,7 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
-  padding: ${Platform.OS === 'ios' ? '24px 12px 12px' : '12px'};
+  padding: ${Platform.OS === 'ios' ? '24px 16px 16px' : '16px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -51,7 +51,7 @@ export const Footer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-top: 12px;
+  padding-top: 16px;
 `;
 
 export const ButtonGroup = styled.View`

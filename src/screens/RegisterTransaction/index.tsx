@@ -21,7 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import * as Icon from 'phosphor-react-native';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
@@ -48,7 +48,6 @@ import { CategorySelect } from '@screens/CategorySelect';
 import { AccountSelect } from '@screens/AccountSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
-
 import {
   //BRL Quotes
   selectBrlQuoteBtc,
@@ -108,7 +107,7 @@ export function RegisterTransaction({
       symbol: 'R$',
     },
     initial_amount: 0,
-    tenant_id: '',
+    tenant_id: null,
   },
   closeRegisterTransaction,
   closeModal,
@@ -247,7 +246,7 @@ export function RegisterTransaction({
         symbol: '',
       },
       initial_amount: 0,
-      tenant_id: '',
+      tenant_id: null,
     });
     setCategorySelected({
       id: '',
@@ -277,16 +276,14 @@ export function RegisterTransaction({
   }*/
 
   function handleSelectTag(tag: TagProps) {
-    const isAdded = tagsSelected.find((element) => element.id === tag.id);
-    if (!isAdded) {
+    const tagAlreadySelected = tagsSelected.includes(tag);
+
+    if (!tagAlreadySelected) {
       setTagsSelected((prevState) => [...prevState, tag]);
     } else {
-      const remove = () => {
-        setTagsSelected((prevState) =>
-          prevState.filter((element) => element.id !== tag.id)
-        );
-      };
-      return remove();
+      setTagsSelected((prevState) =>
+        prevState.filter((item) => item.id !== tag.id)
+      );
     }
   }
 
@@ -761,7 +758,7 @@ export function RegisterTransaction({
                   symbol: '',
                 },
                 initial_amount: 0,
-                tenant_id: '',
+                tenant_id: null,
               });
               setCategorySelected({
                 id: '',
@@ -813,6 +810,7 @@ export function RegisterTransaction({
             let tagsList: any = [];
             for (const item of tagsSelected) {
               const tag_id = item.id;
+
               if (!tagsList.hasOwnProperty(tag_id)) {
                 tagsList[tag_id] = {
                   tag_id: item.id,
@@ -883,7 +881,7 @@ export function RegisterTransaction({
                   symbol: '',
                 },
                 initial_amount: 0,
-                tenant_id: '',
+                tenant_id: null,
               });
               setCategorySelected({
                 id: '',
@@ -1133,7 +1131,7 @@ export function RegisterTransaction({
                 symbol: '',
               },
               initial_amount: 0,
-              tenant_id: '',
+              tenant_id: null,
             });
             setAccountDestinationSelected({
               id: '',
@@ -1145,7 +1143,7 @@ export function RegisterTransaction({
                 symbol: '',
               },
               initial_amount: 0,
-              tenant_id: '',
+              tenant_id: null,
             });
             setCategorySelected({
               id: '',
@@ -1263,11 +1261,7 @@ export function RegisterTransaction({
               onPress={closeModal}
               style={{ position: 'absolute', top: 0, left: 0 }}
             >
-              <Ionicons
-                name='close'
-                size={26}
-                color={theme.colors.background}
-              />
+              <Icon.X size={24} color={theme.colors.background} weight='bold' />
             </BorderlessButton>
             <Title>
               {id != ''
@@ -1279,10 +1273,10 @@ export function RegisterTransaction({
                 onPress={() => handleClickDeleteTransaction(id)}
                 style={{ position: 'absolute', top: 0, right: 0 }}
               >
-                <Ionicons
-                  name='trash-outline'
-                  size={26}
+                <Icon.Trash
+                  size={24}
                   color={theme.colors.background}
+                  weight='bold'
                 />
               </BorderlessButton>
             ) : (
@@ -1324,23 +1318,20 @@ export function RegisterTransaction({
         <ContentScroll>
           <SelectButton
             title={accountSelected.name}
-            icon='wallet'
-            color={categorySelected.color.hex}
+            icon={<Icon.Wallet color={theme.colors.primary} />}
             onPress={handleOpenSelectAccountModal}
           />
           {transactionType === 'transfer' && (
             <SelectButton
               title={accountDestinationSelected.name}
-              icon='wallet'
-              color={categorySelected.color.hex}
+              icon={<Icon.Wallet color={theme.colors.primary} />}
               onPress={handleOpenSelectAccountDestinationModal}
             />
           )}
 
           <SelectButton
             title={formattedDate}
-            icon='calendar'
-            color={categorySelected.color.hex}
+            icon={<Icon.Calendar color={theme.colors.primary} />}
             onPress={() => setShowDatePicker(true)}
           />
           {showDatePicker && (
@@ -1356,8 +1347,7 @@ export function RegisterTransaction({
           )}
 
           <ControlledInputWithIcon
-            icon='pencil'
-            color={categorySelected.color.hex}
+            icon={<Icon.PencilSimple color={theme.colors.primary} />}
             placeholder='Descrição'
             autoCapitalize='sentences'
             autoCorrect={false}
@@ -1371,8 +1361,7 @@ export function RegisterTransaction({
 
           <SelectButton
             title='Etiquetas'
-            icon='pricetags'
-            color={categorySelected.color.hex}
+            icon={<Icon.Tag color={theme.colors.primary} />}
           />
           <FlatList
             data={tags}
@@ -1380,7 +1369,7 @@ export function RegisterTransaction({
             renderItem={({ item }: any) => (
               <TagListItemRegisterTransaction
                 data={item}
-                isActive={tagsSelected.includes(item)}
+                isChecked={tagsSelected.includes(item)}
                 color={categorySelected.color.hex}
                 onPress={() => handleSelectTag(item)}
               />
@@ -1395,8 +1384,7 @@ export function RegisterTransaction({
 
           <SelectButton
             title={imageUrl != '' ? 'Alterar imagem' : 'Selecionar imagem'}
-            icon='image'
-            color={categorySelected.color.hex}
+            icon={<Icon.Image color={theme.colors.primary} />}
             onPress={handleClickSelectImage}
           />
           {imageUrl != '' ? (
@@ -1452,7 +1440,7 @@ export function RegisterTransaction({
         snapPoints={['50%']}
       >
         <CategorySelect
-          category={categorySelected}
+          categorySelected={categorySelected}
           setCategory={setCategorySelected}
           closeSelectCategory={handleCloseSelectCategoryModal}
         />

@@ -1,21 +1,14 @@
 import React, { ReactNode } from 'react';
 import { SafeAreaView } from 'react-native';
-import {
-  Overlay,
-  Container
-} from './styles';
+import { Overlay, Container } from './styles';
 
-import {
-  BottomSheetProps,
-  BottomSheetModal,
-  BottomSheetModalProvider
-} from '@gorhom/bottom-sheet';
+import { BottomSheetProps, BottomSheetModal } from '@gorhom/bottom-sheet';
 import theme from '@themes/theme';
 
 export type Props = BottomSheetProps & {
   children: ReactNode;
   bottomSheetRef?: any;
-}
+};
 
 export function ModalViewWithoutHeader({
   children,
@@ -33,9 +26,7 @@ export function ModalViewWithoutHeader({
       {...rest}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        <Container>
-          {children}
-        </Container>
+        <Container>{children}</Container>
       </SafeAreaView>
     </BottomSheetModal>
   );

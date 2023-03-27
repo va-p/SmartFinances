@@ -1,11 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Container, Form, Footer } from './styles';
 
 import { useFocusEffect } from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Ionicons } from '@expo/vector-icons';
+import * as Icon from 'phosphor-react-native';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -15,6 +15,7 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CurrencyProps } from '@components/AccountListItem';
 import { SelectButton } from '@components/SelectButton';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Button } from '@components/Button';
 
 import { CurrencySelect } from '@screens/CurrencySelect';
@@ -65,7 +66,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     'Outro',
   ];
   const [typeSelected, setTypeSelected] = useState('');
-  const [currencyModalOpen, setCurrencyModalOpen] = useState(false);
+  const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
     name: 'Real Brasileiro',
@@ -74,22 +75,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } as CurrencyProps);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
-  function iconSelectDropdown() {
-    return (
-      <Ionicons
-        name='chevron-down-outline'
-        size={20}
-        color={theme.colors.text}
-      />
-    );
-  }
-
   function handleOpenSelectCurrencyModal() {
-    setCurrencyModalOpen(true);
+    currencyBottomSheetRef.current?.present();
   }
 
   function handleCloseSelectCurrencyModal() {
-    setCurrencyModalOpen(false);
+    currencyBottomSheetRef.current?.dismiss();
   }
 
   function handleCloseAccount() {
@@ -153,7 +144,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     if (id != '') {
       handleEditAccount(id, form);
     }
-    // Add Transaction
+    // Add account
     else {
       try {
         const newAccount = {
@@ -223,8 +214,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Form>
         <ControlledInputWithIcon
-          icon='pencil'
-          color={theme.colors.primary}
+          icon={<Icon.PencilSimple color={theme.colors.primary} />}
           placeholder='Nome'
           autoCapitalize='sentences'
           autoCorrect={false}
@@ -235,8 +225,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         />
 
         <ControlledInputWithIcon
-          icon='cash'
-          color={theme.colors.primary}
+          icon={<Icon.Money color={theme.colors.primary} />}
           placeholder='Saldo inicial'
           keyboardType='numeric'
           returnKeyType='go'
@@ -249,8 +238,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
         <SelectButton
           title={currencySelected.name}
-          icon='wallet'
-          color={theme.colors.primary}
+          icon={<Icon.Coins color={theme.colors.primary} />}
           onPress={handleOpenSelectCurrencyModal}
         />
 
@@ -259,21 +247,19 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           onSelect={(selectedItem) => {
             setTypeSelected(selectedItem);
           }}
+          defaultButtonText={
+            id != '' ? typeSelected : 'Selecione o tipo da conta'
+          }
           buttonTextAfterSelection={(selectedItem) => {
             return selectedItem;
           }}
           rowTextForSelection={(item) => {
             return item;
           }}
-          defaultButtonText={
-            id != '' ? typeSelected : 'Selecione o tipo da conta'
-          }
-          renderDropdownIcon={iconSelectDropdown}
-          dropdownIconPosition='right'
           buttonStyle={{
             width: '100%',
-            minHeight: 56,
-            maxHeight: 56,
+            minHeight: 40,
+            maxHeight: 40,
             marginTop: 10,
             backgroundColor: theme.colors.shape,
             borderRadius: 10,
@@ -284,9 +270,13 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             textAlign: 'left',
             color: theme.colors.text,
           }}
-          dropdownStyle={{
-            borderRadius: 10,
+          renderDropdownIcon={() => {
+            return <Icon.CaretRight size={20} color={theme.colors.text} />;
           }}
+          dropdownIconPosition='right'
+          rowStyle={{ backgroundColor: theme.colors.background }}
+          rowTextStyle={{ color: theme.colors.text }}
+          dropdownStyle={{ borderRadius: 10 }}
         />
       </Form>
 
@@ -300,9 +290,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       </Footer>
 
       <ModalViewSelection
-        visible={currencyModalOpen}
-        closeModal={handleCloseSelectCurrencyModal}
+        $modal
         title='Selecione a moeda'
+        bottomSheetRef={currencyBottomSheetRef}
+        snapPoints={['50%']}
       >
         <CurrencySelect
           currency={currencySelected}

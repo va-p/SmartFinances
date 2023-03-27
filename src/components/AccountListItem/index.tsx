@@ -4,14 +4,15 @@ import {
   Content,
   DetailsContainer,
   IconContainer,
-  Icon,
   NameContainer,
   Name,
   Amount,
-  IconChevronDown,
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
+import * as Icon from 'phosphor-react-native';
+
+import theme from '@themes/theme';
 
 export interface CurrencyProps {
   id: string;
@@ -31,24 +32,23 @@ export interface AccountProps {
 
 type Props = RectButtonProps & {
   data: AccountProps;
-  icon: string;
-  color: string;
+  icon: any;
 };
 
-export function AccountListItem({ data, icon, color, ...rest }: Props) {
+export function AccountListItem({ data, icon, ...rest }: Props) {
   return (
     <Container>
       <Content {...rest}>
         <DetailsContainer>
           <IconContainer>
-            <Icon color={color} name={icon} />
+            <>{icon}</>
           </IconContainer>
           <NameContainer>
             <Name>{data.name}</Name>
             <Amount>{data.totalAccountAmount}</Amount>
           </NameContainer>
         </DetailsContainer>
-        <IconChevronDown name='chevron-forward-outline' />
+        <Icon.CaretRight size={16} color={theme.colors.text} />
       </Content>
     </Container>
   );

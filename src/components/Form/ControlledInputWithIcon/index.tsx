@@ -1,26 +1,18 @@
 import React from 'react';
 import { TextInputProps } from 'react-native';
-import {
-  Container,
-  ErrorMessage,
-  Content,
-  Icon,
-  Input
-} from './styles';
+import { Container, ErrorMessage, Content, Input } from './styles';
 
 import { Control, Controller, FieldError } from 'react-hook-form';
 
 type Props = TextInputProps & {
-  icon: string;
-  color: string;
+  icon: any;
   name: string;
   control: Control<any>;
   error?: FieldError;
-}
+};
 
 export function ControlledInputWithIcon({
   icon,
-  color,
   name,
   control,
   error,
@@ -36,12 +28,8 @@ export function ControlledInputWithIcon({
             {error && <ErrorMessage> {error.message} </ErrorMessage>}
 
             <Content>
-              <Icon color={color} name={icon} />
-              <Input
-                onChangeText={onChange}
-                value={value}
-                {...rest}
-              />
+              <>{icon}</>
+              <Input onChangeText={onChange} value={value} {...rest} />
             </Content>
           </>
         )}

@@ -12,7 +12,7 @@ export const ContentScroll = styled.ScrollView``;
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${RFValue(18)}px;
-  padding-top: 12px;
-  padding-left: 12px;
+  padding-top: 16px;
+  padding-left: 16px;
   color: ${({ theme }) => theme.colors.title};
 `;

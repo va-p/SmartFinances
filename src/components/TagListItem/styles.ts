@@ -9,7 +9,7 @@ export const Tag = styled(RectButton)`
   max-height: 56px;
   flex-direction: row;
   align-items: center;
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;

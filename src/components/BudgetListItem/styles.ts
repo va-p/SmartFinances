@@ -6,8 +6,7 @@ type BudgetProps = { is_amount_reached: boolean };
 
 export const Container = styled(RectButton)`
   width: 100%;
-  min-height: 80px;
-  padding: 10px;
+  padding: 12px;
 `;
 
 export const Name = styled.Text`
@@ -34,8 +33,6 @@ export const AmountBudget = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   color: ${({ theme }) => theme.colors.text};
 `;
-
-export const ChartContainer = styled.View``;
 
 export const PeriodContainer = styled.View`
   flex-direction: row;

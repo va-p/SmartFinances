@@ -1,13 +1,7 @@
 import styled from 'styled-components/native';
-import { Animated } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
-
-type ColorProps = {
-  color: string;
-};
 
 export const Container = styled.View`
   flex: 1;
@@ -20,8 +14,8 @@ export const Content = styled(RectButton)`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 16px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
@@ -32,11 +26,7 @@ export const DetailsContainer = styled.View`
 `;
 
 export const IconContainer = styled.View`
-  margin-right: 10px;
-`;
-
-export const Icon = styled(Ionicons)<ColorProps>`
-  font-size: ${RFValue(22)}px;
+  margin-right: 8px;
 `;
 
 export const NameContainer = styled.View``;
@@ -51,29 +41,4 @@ export const Amount = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
   color: ${({ theme }) => theme.colors.text};
-`;
-
-export const IconChevronDown = styled(Ionicons)`
-  font-size: ${RFValue(16)}px;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-export const DeleteButton = styled(Animated.View)`
-  flex: 1;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding-left: 70%;
-  margin-bottom: 10px;
-  background-color: ${({ theme }) => theme.colors.attention};
-  border-radius: 10px;
-`;
-
-export const DeleteButtonIcon = styled(Ionicons)`
-  font-size: ${RFValue(20)}px;
-  color: ${({ theme }) => theme.colors.shape};
-`;
-
-export const DeleteButtonText = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
 `;

@@ -2,11 +2,10 @@ import React from 'react';
 import { Switch } from 'react-native';
 import {
   Container,
-  Icon,
   TitleContainer,
   Title,
   SubtitleContainer,
-  SubTitle
+  SubTitle,
 } from './styles';
 
 import theme from '@themes/theme';
@@ -17,9 +16,8 @@ type Props = {
   isEnabled: boolean;
   title: string;
   subTitle?: string;
-  icon: string;
-  color: string;
-}
+  icon: any;
+};
 
 export function ButtonToggle({
   onValueChnage,
@@ -28,18 +26,17 @@ export function ButtonToggle({
   title,
   subTitle,
   icon,
-  color
 }: Props) {
   return (
     <Container>
       <TitleContainer>
-        <Icon color={color} name={icon} />
+        {icon}
         <Title>{title}</Title>
       </TitleContainer>
       <SubtitleContainer>
         <SubTitle>{subTitle}</SubTitle>
         <Switch
-          trackColor={{false: '#767577', true: theme.colors.title}}
+          trackColor={{ false: '#767577', true: theme.colors.title }}
           thumbColor={isEnabled ? theme.colors.primary : '#f4f3f4'}
           ios_backgroundColor='#3e3e3e'
           onValueChange={onValueChnage}
@@ -47,5 +44,5 @@ export function ButtonToggle({
         />
       </SubtitleContainer>
     </Container>
-  )
+  );
 }

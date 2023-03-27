@@ -1,7 +1,7 @@
 import { Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export const Overlay = styled.View`
   width: ${Dimensions.get('window').width}px;
@@ -16,7 +16,7 @@ export const Overlay = styled.View`
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
-  padding-left: 10px;
+  padding-left: 16px;
   color: ${({ theme }) => theme.colors.title};
 `;
 

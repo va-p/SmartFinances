@@ -4,7 +4,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
-  padding: 12px;
+  padding: 16px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -41,7 +41,7 @@ export const Footer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
+  padding-bottom: 16px;
 `;
 
 export const AddTagButton = styled.View`

@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
   color: string;
-}
+};
 
 export const Container = styled.TouchableOpacity<Props>`
   width: 100%;
@@ -14,7 +14,7 @@ export const Container = styled.TouchableOpacity<Props>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-left-width: 12px;
@@ -26,7 +26,7 @@ export const Details = styled.View`
   flex-direction: row;
 `;
 
-export const Icon = styled(Ionicons) <Props>`
+export const Icon = styled(Ionicons)<Props>`
   font-size: ${RFValue(20)}px;
   margin-right: 8px;
   color: ${({ color }) => color};

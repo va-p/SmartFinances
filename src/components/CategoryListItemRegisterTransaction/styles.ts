@@ -2,29 +2,33 @@ import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
+import { RectButton } from 'react-native-gesture-handler';
+
+type CheckedProps = {
+  isChecked?: boolean;
+};
 
 type ColorProps = {
   color: string;
-}
+};
 
-export const Container = styled.TouchableOpacity.attrs({
-  activeOpacity: 0.6
-})`
+export const Container = styled(RectButton)`
   flex: 1;
   align-items: center;
 `;
 
-export const Category = styled.View`
+export const Category = styled.View<CheckedProps>`
   width: 50px;
   min-height: 50px;
   max-height: 50px;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme }) => theme.colors.shape};
+  background-color: ${({ theme, isChecked }) =>
+    isChecked ? theme.colors.primary : theme.colors.shape};
   border-radius: 30px;
 `;
 
-export const Icon = styled(Ionicons) <ColorProps>`
+export const Icon = styled(Ionicons)<ColorProps>`
   font-size: ${RFValue(25)}px;
   color: ${({ color }) => color};
 `;

@@ -21,7 +21,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+import * as Icon from 'phosphor-react-native';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -67,8 +67,7 @@ export function Accounts({ navigation }: any) {
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setRefreshing(false);
       }
 
@@ -267,11 +266,11 @@ export function Accounts({ navigation }: any) {
         </CashFlowContainer>
 
         <HideDataButton onPress={() => handleHideData()}>
-          <Ionicons
-            name={visible ? 'eye-off-outline' : 'eye-outline'}
-            size={20}
-            color={theme.colors.primary}
-          />
+          {visible ? (
+            <Icon.EyeSlash size={20} color={theme.colors.primary} />
+          ) : (
+            <Icon.Eye size={20} color={theme.colors.primary} />
+          )}
         </HideDataButton>
       </Header>
 
@@ -318,8 +317,7 @@ export function Accounts({ navigation }: any) {
           renderItem={({ item }: any) => (
             <AccountListItem
               data={item}
-              icon='wallet'
-              color={theme.colors.primary}
+              icon={<Icon.Wallet color={theme.colors.primary} />}
               onPress={() =>
                 handleOpenAccount(
                   item.id,

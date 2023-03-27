@@ -138,19 +138,19 @@ export function Budgets() {
           (transaction: TransactionProps) =>
             transaction.type === 'debit' &&
             //transaction.account.id === budget.account.id &&
-            transaction.category.id === budget.category.id &&
+            //budget.categories.find((category: CategoryProps) => category.id === transaction.category.id) &&
+            budget.categories.includes(transaction.category) &&
             new Date(transaction.created_at) >= startDate &&
             new Date(transaction.created_at) <= endDate
         );
 
-        let amountSpent = filteredTransactions.reduce(
+        //console.log(filteredTransactions);
+
+        const amountSpent = filteredTransactions.reduce(
           (acc: any, transaction: TransactionProps) => acc + transaction.amount,
           0
         );
 
-        let amountLeft: string | number = budget.amount - amountSpent;
-
-        const isAmountReached = amountSpent >= budget.amount;
         const percentage = `${((amountSpent / budget.amount) * 100).toFixed(
           2
         )}%`;
@@ -167,86 +167,17 @@ export function Budgets() {
           locale: ptBR,
         });
 
-        // Format the currency
-        let amount: any;
-        switch (budget.currency.code) {
-          case 'BRL':
-            amount = Number(budget.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            amountSpent = Number(amountSpent).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            amountLeft = Number(amountLeft).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            break;
-          case 'BTC':
-            amount = Number(budget.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
-            });
-            amountSpent = Number(amountSpent).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
-            });
-            amountLeft = Number(amountLeft).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
-            });
-            break;
-          case 'EUR':
-            amount = Number(budget.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR',
-            });
-            amountSpent = Number(amountSpent).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR',
-            });
-            amountLeft = Number(amountLeft).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR',
-            });
-            break;
-          case 'USD':
-            amount = Number(budget.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD',
-            });
-            amountSpent = Number(amountSpent).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD',
-            });
-            amountLeft = Number(amountLeft).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD',
-            });
-            break;
-        }
-
         // Create the objects
         if (!budgetsFormatted.hasOwnProperty(endDate)) {
           budgetsFormatted[budget.id] = {
             id: budget.id,
             name: budget.name,
-            amount,
+            amount: budget.amount,
             amount_spent: amountSpent,
-            amount_left: amountLeft,
-            is_amount_reached: isAmountReached,
             percentage,
             currency: budget.currency,
             account: budget.account,
-            category: budget.category,
+            categories: budget.categories,
             start_date,
             end_date,
             recurrence: budget.recurrence,
@@ -338,9 +269,6 @@ export function Budgets() {
           <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
         }
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 20,
-        }}
       />
 
       <Footer>

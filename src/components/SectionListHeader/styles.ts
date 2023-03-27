@@ -5,7 +5,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 export const Container = styled.View`
   flex: 1;
   justify-content: center;
-  padding: 2px 10px;
+  padding: 2px 16px;
   background-color: ${({ theme }) => theme.colors.shape};
 `;
 

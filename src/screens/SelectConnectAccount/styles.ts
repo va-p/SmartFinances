@@ -8,7 +8,7 @@ export const Container = styled.KeyboardAvoidingView`
   align-items: center;
   justify-content: center;
   background-color: ${({ theme }) => theme.colors.background};
-  padding: 10px;
+  padding: 16px;
 `;
 
 export const ButtonGroup = styled.View`

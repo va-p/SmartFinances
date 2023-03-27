@@ -21,10 +21,9 @@ import * as Yup from 'yup';
 import axios from 'axios';
 
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
+import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
 import { ModalViewSelection } from '@components/ModalViewSelection';
-import { CategoryProps } from '@components/CategoryListItem';
 import { AccountProps } from '@components/AccountListItem';
-import { CategorySelect } from '@screens/CategorySelect';
 import { SelectButton } from '@components/SelectButton';
 import { AccountSelect } from '@screens/AccountSelect';
 import { Button } from '@components/Button';
@@ -34,11 +33,12 @@ import {
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
+import { selectBudgetCategoriesSelected } from '@slices/budgetCategoriesSelectedSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
-import theme from '@themes/theme';
-
 import api from '@api/api';
+
+import theme from '@themes/theme';
 
 type Props = {
   id: string;
@@ -60,16 +60,8 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function RegisterBudget({ id, closeBudget }: Props) {
+export function RegisterBudget({ closeBudget }: Props) {
   const tenantId = useSelector(selectUserTenantId);
-  const [startDate, setStartDate] = useState(new Date());
-  const formattedDate = format(startDate, 'dd MMMM, yyyy', { locale: ptBR });
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const onChangeDate = (_: any, selectedDate: any) => {
-    const currentDate = selectedDate;
-    setShowDatePicker(false);
-    setStartDate(currentDate);
-  };
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const [accountSelected, setAccountSelected] = useState({
     id: '',
@@ -79,13 +71,15 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     },
   } as AccountProps);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [categorySelected, setCategorySelected] = useState({
-    id: '',
-    name: 'Todas as categorias',
-    color: {
-      hex: theme.colors.primary,
-    },
-  } as CategoryProps);
+  const budgetCategoriesSelected = useSelector(selectBudgetCategoriesSelected);
+  const [startDate, setStartDate] = useState(new Date());
+  const formattedDate = format(startDate, 'dd MMMM, yyyy', { locale: ptBR });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const onChangeDate = (_: any, selectedDate: any) => {
+    const currentDate = selectedDate;
+    setShowDatePicker(false);
+    setStartDate(currentDate);
+  };
   const periodBottomSheetRef = useRef<BottomSheetModal>(null);
   const [budgetPeriodSelected, setBudgetPeriodSelected] =
     useState<ChartPeriodProps>({
@@ -108,9 +102,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   ];
   const [currencySelected, setCurrencySelected] = useState('');
 
-  function handleOpenSelectAccountModal() {
+  console.log(budgetCategoriesSelected);
+
+  /*function handleOpenSelectAccountModal() {
     accountBottomSheetRef.current?.present();
-  }
+  }*/
 
   function handleCloseSelectAccountModal() {
     accountBottomSheetRef.current?.dismiss();
@@ -120,20 +116,32 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     categoryBottomSheetRef.current?.present();
   }
 
-  function handleCloseSelectCategoryModal() {
+  /*function handleCloseSelectCategoryModal() {
     categoryBottomSheetRef.current?.dismiss();
-  }
+  }*/
 
-  function handleOpenSelectChartPeriodModal() {
+  function handleOpenSelectRecurrencyPeriodModal() {
     periodBottomSheetRef.current?.present();
   }
 
-  function handleCloseSelectChartPeriodModal() {
+  function handleCloseSelectRecurrencyPeriodModal() {
     periodBottomSheetRef.current?.dismiss();
   }
 
   async function handleRegisterBudget(form: FormData) {
     setButtonIsLoading(true);
+
+    let categoriesList: any = [];
+    for (const item of budgetCategoriesSelected) {
+      const category_id = item.id;
+
+      if (!categoriesList.hasOwnProperty(category_id)) {
+        categoriesList[category_id] = {
+          category_id: item.id,
+        };
+      }
+    }
+    categoriesList = Object.values(categoriesList);
 
     try {
       const newBudget = {
@@ -141,7 +149,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         amount: form.amount,
         currency_id: 4,
         account_id: accountSelected.id,
-        category_id: categorySelected.id,
+        categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
         tenant_id: tenantId,
@@ -181,7 +189,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     <Container>
       <ControlledInputWithIcon
         icon='pencil'
-        color={categorySelected.color.hex}
+        color={
+          budgetCategoriesSelected[0]
+            ? budgetCategoriesSelected[0].color.hex
+            : theme.colors.primary
+        }
         placeholder='Nome do orçamento'
         autoCapitalize='sentences'
         autoCorrect={false}
@@ -195,10 +207,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <AmountGroup>
           <ControlledInputWithIcon
             icon='cash'
-            color={categorySelected.color.hex}
+            color={
+              budgetCategoriesSelected[0]
+                ? budgetCategoriesSelected[0].color.hex
+                : theme.colors.primary
+            }
             placeholder='Valor do orçamento'
-            autoCapitalize='sentences'
-            autoCorrect={false}
+            keyboardType='numeric'
             defaultValue=''
             name='amount'
             control={control}
@@ -252,9 +267,17 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
       <SelectButton
         title='Orçamento para'
-        subTitle={categorySelected.name}
+        subTitle={
+          budgetCategoriesSelected[0]
+            ? `${budgetCategoriesSelected.length} categorias`
+            : 'Selecione as categorias'
+        }
         icon='apps'
-        color={categorySelected.color.hex}
+        color={
+          budgetCategoriesSelected[0]
+            ? budgetCategoriesSelected[0].color.hex
+            : theme.colors.primary
+        }
         onPress={handleOpenSelectCategoryModal}
       />
 
@@ -262,7 +285,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         title='Data de início'
         subTitle={formattedDate}
         icon='calendar'
-        color={categorySelected.color.hex}
+        color={
+          budgetCategoriesSelected[0]
+            ? budgetCategoriesSelected[0].color.hex
+            : theme.colors.primary
+        }
         onPress={() => setShowDatePicker(true)}
       />
       {showDatePicker && (
@@ -281,8 +308,12 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         title='Repetir'
         subTitle={budgetPeriodSelected.name}
         icon='repeat'
-        color={categorySelected.color.hex}
-        onPress={handleOpenSelectChartPeriodModal}
+        color={
+          budgetCategoriesSelected[0]
+            ? budgetCategoriesSelected[0].color.hex
+            : theme.colors.primary
+        }
+        onPress={handleOpenSelectRecurrencyPeriodModal}
       />
 
       <Footer>
@@ -311,11 +342,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         bottomSheetRef={categoryBottomSheetRef}
         snapPoints={['50%']}
       >
-        <CategorySelect
-          category={categorySelected}
-          setCategory={setCategorySelected}
-          closeSelectCategory={handleCloseSelectCategoryModal}
-        />
+        <BudgetCategorySelect />
       </ModalViewSelection>
 
       <ModalViewSelection
@@ -326,7 +353,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <BudgetPeriodSelect
           period={budgetPeriodSelected}
           setPeriod={setBudgetPeriodSelected}
-          closeSelectPeriod={handleCloseSelectChartPeriodModal}
+          closeSelectPeriod={handleCloseSelectRecurrencyPeriodModal}
         />
       </ModalViewSelection>
     </Container>

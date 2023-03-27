@@ -37,8 +37,7 @@ export function Categories() {
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setCategories(data);
         setRefreshing(false);
       }

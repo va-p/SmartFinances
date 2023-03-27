@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  Tag,
-  Name
-} from './styles';
+import { Tag, Name } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
 
@@ -10,14 +7,19 @@ import { TagProps } from '@components/TagListItem';
 
 type Props = RectButtonProps & {
   data: TagProps;
-  isActive: boolean;
+  isChecked: boolean;
   color: string;
-}
+};
 
-export function TagListItemRegisterTransaction({ data, isActive, color, ...rest }: Props) {
+export function TagListItemRegisterTransaction({
+  data,
+  isChecked,
+  color,
+  ...rest
+}: Props) {
   return (
-    <Tag isActive={isActive} color={color} {...rest}>
-      <Name isActive={isActive}>{data.name}</Name>
+    <Tag isChecked={isChecked} color={color} {...rest}>
+      <Name isChecked={isChecked}>{data.name}</Name>
     </Tag>
   );
 }

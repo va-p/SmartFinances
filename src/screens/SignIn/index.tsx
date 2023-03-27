@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import {
   Container,
   Header,

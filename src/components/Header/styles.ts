@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 export type TypeProps = 'primary' | 'secondary';
@@ -23,11 +22,6 @@ export const Container = styled.View<ContainerProps>`
 export const BackButton = styled(BorderlessButton)`
   position: absolute;
   left: 0px;
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
-export const Icon = styled(Ionicons)`
-  font-size: ${RFValue(18)}px;
   color: ${({ theme }) => theme.colors.primary};
 `;
 

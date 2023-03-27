@@ -5,6 +5,7 @@ import { Container, ContentScroll, Title } from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useFocusEffect } from '@react-navigation/native';
+import * as Icon from 'phosphor-react-native';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 
@@ -122,31 +123,27 @@ export function OptionsMenu({ navigation }: any) {
       <ContentScroll>
         <Title>Conta</Title>
         <SelectButton
-          icon='wallet-outline'
+          icon={<Icon.Wallet color={theme.colors.primary} />}
           title='Contas Manuais'
-          color={theme.colors.primary}
           onPress={() => handleOpenAccounts()}
         />
 
         <SelectButton
-          icon='grid-outline'
+          icon={<Icon.CirclesFour color={theme.colors.primary} />}
           title='Categorias'
-          color={theme.colors.primary}
           onPress={() => handleOpenCategories()}
         />
 
         <SelectButton
-          icon='pricetags-outline'
+          icon={<Icon.Tag color={theme.colors.primary} />}
           title='Etiquetas'
-          color={theme.colors.primary}
           onPress={() => handleOpenTags()}
         />
 
         <Title>Configurações</Title>
         <ButtonToggle
-          icon='finger-print-outline'
+          icon={<Icon.Fingerprint color={theme.colors.primary} />}
           title='Touch / Face ID'
-          color={theme.colors.primary}
           onValueChnage={handleChangeUseLocalAuth}
           value={localAuthIsEnabled}
           isEnabled={localAuthIsEnabled}
@@ -154,30 +151,26 @@ export function OptionsMenu({ navigation }: any) {
 
         <Title>Sobre</Title>
         <SelectButton
-          icon='help-buoy-outline'
+          icon={<Icon.Lifebuoy color={theme.colors.primary} />}
           title='Central de Ajuda'
-          color={theme.colors.primary}
           onPress={() => handleClickHelpCenter()}
         />
 
         <SelectButton
-          icon='chatbubbles-outline'
+          icon={<Icon.ChatsCircle color={theme.colors.primary} />}
           title='Contatar Suporte'
-          color={theme.colors.primary}
           onPress={() => handleClickContactSupport()}
         />
 
         <SelectButton
-          icon='shield-checkmark-outline'
+          icon={<Icon.ShieldCheck color={theme.colors.primary} />}
           title='Termos de Uso'
-          color={theme.colors.primary}
           onPress={() => handleClickTermsOfUse()}
         />
 
         <SelectButton
-          icon='hand-left-outline'
+          icon={<Icon.Cookie color={theme.colors.primary} />}
           title='Política de Privacidade'
-          color={theme.colors.primary}
           onPress={() => handleClickPrivacyPolicy()}
         />
       </ContentScroll>

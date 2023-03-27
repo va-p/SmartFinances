@@ -10,10 +10,10 @@ export const Body = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  padding: 0 16px;
 `;
 
 export const Footer = styled.View`
   justify-content: flex-end;
-  padding: 12px;
+  padding: 16px;
 `;

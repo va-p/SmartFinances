@@ -5,12 +5,12 @@ import {
   ScrollContent,
   MonthSelect,
   MonthSelectButton,
-  MonthSelectIcon,
   Month,
   PieChartContainer,
 } from './styles';
 
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
 import { addMonths, subMonths, format } from 'date-fns';
@@ -75,8 +75,7 @@ export function OverviewExpenses() {
           tenant_id: tenantId,
         },
       });
-      if (!data) {
-      } else {
+      if (data) {
         setCategories(data);
       }
     } catch (error) {
@@ -201,13 +200,13 @@ export function OverviewExpenses() {
     <Container>
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>
-          <MonthSelectIcon name='chevron-back' />
+          <CaretLeft size={24} color={theme.colors.text} />
         </MonthSelectButton>
 
         <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
 
         <MonthSelectButton onPress={() => handleDateChange('next')}>
-          <MonthSelectIcon name='chevron-forward' />
+          <CaretRight size={24} color={theme.colors.text} />
         </MonthSelectButton>
       </MonthSelect>
 

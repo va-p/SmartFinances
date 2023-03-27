@@ -1,24 +1,19 @@
 import React from 'react';
-import {
-  Container,
-  Icon,
-  Title,
-  Button
-} from './styles';
+import { Container, Icon, Title, Button, TransactionTypeProps } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
 
 type Props = RectButtonProps & {
-  type: 'up' | 'down' | 'swap';
+  type: TransactionTypeProps;
   title: string;
   isActive: boolean;
-}
+};
 
 const icons = {
   up: 'arrow-up-circle-outline',
   down: 'arrow-down-circle-outline',
-  swap: 'swap-vertical-outline'
-}
+  swap: 'swap-vertical-outline',
+};
 
 export function TransactionTypeButton({
   type,
@@ -30,9 +25,7 @@ export function TransactionTypeButton({
     <Container isActive={isActive} type={type}>
       <Button {...rest}>
         <Icon name={icons[type]} type={type} />
-        <Title>
-          {title}
-        </Title>
+        <Title>{title}</Title>
       </Button>
     </Container>
   );
