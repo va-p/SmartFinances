@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import * as Icon from 'phosphor-react-native';
 import { useTheme } from 'styled-components';
 
 import { AppOverviewTopTabRoutes } from './app.overview.topTab.routes';
@@ -36,7 +36,7 @@ export function AppTabRoutes() {
         component={Home}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name='list-outline' size={size} color={color} />
+            <Icon.ListDashes size={size} color={color} />
           ),
         }}
       />
@@ -46,7 +46,7 @@ export function AppTabRoutes() {
         component={AppAccountStackRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name='wallet-outline' size={size} color={color} />
+            <Icon.Bank size={size} color={color} />
           ),
         }}
       />
@@ -56,7 +56,7 @@ export function AppTabRoutes() {
         component={AppBudgetStackRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name='disc-outline' size={size} color={color} />
+            <Icon.Target size={size} color={color} />
           ),
         }}
       />
@@ -66,7 +66,7 @@ export function AppTabRoutes() {
         component={AppOverviewTopTabRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name='pie-chart-outline' size={size} color={color} />
+            <Icon.ChartPieSlice size={size} color={color} />
           ),
         }}
       />
@@ -76,11 +76,7 @@ export function AppTabRoutes() {
         component={AppOptionsStackRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Ionicons
-              name='ellipsis-horizontal-outline'
-              size={size}
-              color={color}
-            />
+            <Icon.DotsThreeOutline size={size} color={color} />
           ),
         }}
       />
