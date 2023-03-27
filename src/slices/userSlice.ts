@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../store'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '../store';
 
 // Define a type for the slice state
 interface UserState {
@@ -12,7 +12,7 @@ interface UserState {
   userLocalAuthentication: boolean;
   userProfileImage: string | null;
   userTenantId: number | null;
-};
+}
 
 // Define the initial state using that type
 const initialState: UserState = {
@@ -24,7 +24,7 @@ const initialState: UserState = {
   userRole: null,
   userLocalAuthentication: false,
   userProfileImage: null,
-  userTenantId: null
+  userTenantId: null,
 };
 
 export const userSlice = createSlice({
@@ -39,7 +39,10 @@ export const userSlice = createSlice({
     setUserName: (state, action: PayloadAction<UserState['userName']>) => {
       state.userName = action.payload;
     },
-    setUserLastName: (state, action: PayloadAction<UserState['userLastName']>) => {
+    setUserLastName: (
+      state,
+      action: PayloadAction<UserState['userLastName']>
+    ) => {
       state.userLastName = action.payload;
     },
     setUserEmail: (state, action: PayloadAction<UserState['userEmail']>) => {
@@ -51,15 +54,24 @@ export const userSlice = createSlice({
     setUserRole: (state, action: PayloadAction<UserState['userRole']>) => {
       state.userRole = action.payload;
     },
-    setUserLocalAuthentication: (state, action: PayloadAction<UserState['userLocalAuthentication']>) => {
+    setUserLocalAuthentication: (
+      state,
+      action: PayloadAction<UserState['userLocalAuthentication']>
+    ) => {
       state.userLocalAuthentication = action.payload;
     },
-    setUserProfileImage: (state, action: PayloadAction<UserState['userProfileImage']>) => {
+    setUserProfileImage: (
+      state,
+      action: PayloadAction<UserState['userProfileImage']>
+    ) => {
       state.userProfileImage = action.payload;
     },
-    setUserTenantId: (state, action: PayloadAction<UserState['userTenantId']>) => {
+    setUserTenantId: (
+      state,
+      action: PayloadAction<UserState['userTenantId']>
+    ) => {
       state.userTenantId = action.payload;
-    }
+    },
   },
 });
 
@@ -73,7 +85,7 @@ export const {
   setUserRole,
   setUserLocalAuthentication,
   setUserProfileImage,
-  setUserTenantId
+  setUserTenantId,
 } = userSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
@@ -83,8 +95,10 @@ export const selectUserLastName = (state: RootState) => state.user.userLastName;
 export const selectUserEmail = (state: RootState) => state.user.userEmail;
 export const selectUserPhone = (state: RootState) => state.user.userPhone;
 export const selectUserRole = (state: RootState) => state.user.userRole;
-export const selectUserLocalAuthentication = (state: RootState) => state.user.userLocalAuthentication;
-export const selectUserImage = (state: RootState) => state.user.userProfileImage;
+export const selectUserLocalAuthentication = (state: RootState) =>
+  state.user.userLocalAuthentication;
+export const selectUserImage = (state: RootState) =>
+  state.user.userProfileImage;
 export const selectUserTenantId = (state: RootState) => state.user.userTenantId;
 
 export default userSlice.reducer;
