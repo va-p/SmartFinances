@@ -13,7 +13,7 @@ export const Header = styled.View`
   width: 100%;
   align-items: center;
   justify-content: flex-start;
-  padding: ${Platform.OS === 'ios' ? '24px 12px 0' : '12px 12px 0'};
+  padding: ${Platform.OS === 'ios' ? '24px 16px 0' : '12px 16px 0'};
 `;
 
 export const CashFlowContainer = styled.View``;
@@ -35,8 +35,8 @@ export const CashFlowDescription = styled.Text`
 
 export const HideDataButton = styled(BorderlessButton)`
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
 `;
 
 export const FiltersContainer = styled.View`
@@ -50,17 +50,4 @@ export const FilterButtonGroup = styled.View`
 
 export const Transactions = styled.View`
   flex: 1;
-`;
-
-export const TransactionsSectionHeader = styled.View`
-  flex: 1;
-  justify-content: center;
-  padding: 2px 10px;
-  background-color: ${({ theme }) => theme.colors.shape};
-`;
-
-export const TransactionsSectionText = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
-  color: ${({ theme }) => theme.colors.title};
 `;

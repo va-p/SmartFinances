@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { FlatList } from 'react-native';
 import {
   Container,
@@ -17,6 +17,7 @@ import {
   Account,
   AmountNotConvertedContainer,
   AmountNotConverted,
+  TransactionTypeProps,
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
@@ -33,7 +34,7 @@ export interface TransactionProps {
   amount_formatted: string | number;
   amount_not_converted?: string | number;
   currency: CurrencyProps;
-  type: 'credit' | 'debit' | 'transferDebit' | 'transferCredit';
+  type: TransactionTypeProps;
   account: AccountProps;
   category: CategoryProps;
   tags: [];
@@ -44,7 +45,10 @@ type Props = RectButtonProps & {
   data: TransactionProps;
 };
 
-export function TransactionListItem({ data, ...rest }: Props) {
+const TransactionListItem = memo(function TransactionListItem({
+  data,
+  ...rest
+}: Props) {
   return (
     <Container {...rest}>
       <IconContainer>
@@ -94,4 +98,6 @@ export function TransactionListItem({ data, ...rest }: Props) {
       </DetailsContainer>
     </Container>
   );
-}
+});
+
+export default TransactionListItem;

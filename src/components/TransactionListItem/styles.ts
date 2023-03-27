@@ -4,9 +4,15 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
-type TransactionProps = {
-  type: 'credit' | 'debit' | 'transferDebit' | 'transferCredit';
-}
+export type TransactionTypeProps =
+  | 'credit'
+  | 'debit'
+  | 'transferDebit'
+  | 'transferCredit';
+
+type Props = {
+  type: TransactionTypeProps;
+};
 
 export const Container = styled(RectButton)`
   flex: 1;
@@ -14,7 +20,7 @@ export const Container = styled(RectButton)`
   max-height: 88px;
   flex-direction: row;
   align-items: center;
-  padding: 8px 12px;
+  padding: 8px 16px;
 `;
 
 export const IconContainer = styled.View`
@@ -22,7 +28,7 @@ export const IconContainer = styled.View`
   height: 100%;
 `;
 
-export const Icon = styled(Ionicons) <TransactionProps>`
+export const Icon = styled(Ionicons)<Props>`
   position: absolute;
   font-size: ${RFValue(20)}px;
   color: ${({ theme, type }) =>
@@ -39,7 +45,7 @@ export const DescriptionAndAmountContainer = styled.View`
   justify-content: space-between;
 `;
 
-export const Description = styled.Text <TransactionProps>`
+export const Description = styled.Text<Props>`
   max-width: 80%;
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
@@ -57,7 +63,7 @@ export const TransferDirectionIcon = styled(Ionicons)`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const Amount = styled.Text <TransactionProps>`
+export const Amount = styled.Text<Props>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>

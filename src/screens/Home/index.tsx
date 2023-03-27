@@ -35,18 +35,18 @@ import {
 } from 'victory-native';
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { format, parse, parseISO } from 'date-fns';
-import { Ionicons } from '@expo/vector-icons';
 import { ptBR } from 'date-fns/locale';
 
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
-import { TransactionListItem } from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
+import TransactionListItem from '@components/TransactionListItem';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 
@@ -720,11 +720,11 @@ export function Home() {
           </CashFlowContainer>
 
           <HideDataButton onPress={() => handleHideData()}>
-            <Ionicons
-              name={visible ? 'eye-off-outline' : 'eye-outline'}
-              size={20}
-              color={theme.colors.primary}
-            />
+            {visible ? (
+              <EyeSlash size={20} color={theme.colors.primary} />
+            ) : (
+              <Eye size={20} color={theme.colors.primary} />
+            )}
           </HideDataButton>
         </Header>
 
@@ -808,7 +808,9 @@ export function Home() {
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={() => <ListEmptyComponent />}
-          initialNumToRender={150}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          initialNumToRender={200}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -839,11 +841,7 @@ export function Home() {
             onPress={handleOpenRegisterTransactionModal}
             style={styles.animatedButton}
           >
-            <Ionicons
-              name='add-outline'
-              size={32}
-              color={theme.colors.background}
-            />
+            <Plus size={24} color={theme.colors.background} />
           </ButtonAnimated>
         </Animated.View>
       </PanGestureHandler>

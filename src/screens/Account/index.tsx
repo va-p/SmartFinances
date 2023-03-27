@@ -4,7 +4,6 @@ import {
   Container,
   Header,
   BackButton,
-  Icon,
   TitleContainer,
   Title,
   Description,
@@ -36,9 +35,10 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
+import { CaretLeft, DotsThreeCircle, Plus } from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Ionicons } from '@expo/vector-icons';
+
 import { useSelector } from 'react-redux';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -46,9 +46,9 @@ import axios from 'axios';
 
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
-import { TransactionListItem } from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
+import TransactionListItem from '@components/TransactionListItem';
 import { SectionListHeader } from '@components/SectionListHeader';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { ModalView } from '@components/ModalView';
@@ -576,7 +576,7 @@ export function Account() {
       <Animated.View style={[headerStyleAnimation, styles.header]}>
         <Header>
           <BackButton onPress={handleClickBackButton}>
-            <Icon name='chevron-back-outline' />
+            <CaretLeft size={20} color={theme.colors.primary} />
           </BackButton>
 
           <TitleContainer>
@@ -585,7 +585,7 @@ export function Account() {
           </TitleContainer>
 
           <EditAccountButton onPress={handleOpenEditAccount}>
-            <Icon name='ellipsis-horizontal-circle-outline' />
+            <DotsThreeCircle size={20} color={theme.colors.primary} />
           </EditAccountButton>
         </Header>
 
@@ -631,7 +631,9 @@ export function Account() {
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={() => <ListEmptyComponent />}
-          initialNumToRender={100}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          initialNumToRender={200}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -662,11 +664,7 @@ export function Account() {
             onPress={handleOpenRegisterTransactionModal}
             style={styles.animatedButton}
           >
-            <Ionicons
-              name='add-outline'
-              size={32}
-              color={theme.colors.background}
-            />
+            <Plus size={24} color={theme.colors.background} />
           </ButtonAnimated>
         </Animated.View>
       </PanGestureHandler>

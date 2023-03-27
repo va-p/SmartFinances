@@ -3,7 +3,6 @@ import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
 
 type BalanceProps = {
   balanceIsPositive: boolean;
@@ -20,18 +19,13 @@ export const Header = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: ${Platform.OS === 'ios' ? '24px 12px 0' : '12px 12px 0'};
+  padding: ${Platform.OS === 'ios' ? '24px 16px 0' : '16px 16px 0'};
 `;
 
 export const BackButton = styled(BorderlessButton)`
   position: absolute;
-  top: ${Platform.OS === 'ios' ? '24px' : '12px'};
-  left: 12px;
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
-export const Icon = styled(Ionicons)`
-  font-size: ${RFValue(18)}px;
+  top: ${Platform.OS === 'ios' ? '24px' : '16px'};
+  left: 16px;
   color: ${({ theme }) => theme.colors.primary};
 `;
 
@@ -64,15 +58,15 @@ export const FilterButtonGroup = styled.View`
 
 export const EditAccountButton = styled(BorderlessButton)`
   position: absolute;
-  top: ${Platform.OS === 'ios' ? '24px' : '12px'};
-  right: 12px;
+  top: ${Platform.OS === 'ios' ? '24px' : '16px'};
+  right: 16px;
 `;
 
 export const AccountBalanceContainer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: 16px;
 `;
 
 export const AccountBalanceGroup = styled.View`
@@ -86,8 +80,8 @@ export const AccountBalanceGroup = styled.View`
 export const AccountBalanceSeparator = styled.View`
   min-width: 2px;
   max-width: 2px;
-  min-height: 45px;
-  max-height: 45px;
+  min-height: 40px;
+  max-height: 40px;
   background-color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -100,7 +94,7 @@ export const AccountBalance = styled.Text<BalanceProps>`
 
 export const AccountBalanceDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(11)}px;
+  font-size: ${RFValue(12)}px;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
@@ -114,7 +108,7 @@ export const AccountCashFlow = styled.Text<BalanceProps>`
 
 export const AccountCashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(11)}px;
+  font-size: ${RFValue(12)}px;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
