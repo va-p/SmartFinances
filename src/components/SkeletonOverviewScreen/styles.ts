@@ -35,7 +35,7 @@ export const Chart = styled.View`
 export const Category = styled.View`
   width: 100%;
   height: 60px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
