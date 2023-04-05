@@ -27,7 +27,7 @@ export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
       </TitleContainer>
       <SubtitleContainer>
         <SubTitle>{subTitle}</SubTitle>
-        <CaretRight size={20} color={theme.colors.text} />
+        <CaretRight size={16} color={theme.colors.text} />
       </SubtitleContainer>
     </Container>
   );
