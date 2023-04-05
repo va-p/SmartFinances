@@ -7,12 +7,12 @@
       "distribution": "internal",
       "developmentClient": true,
       "android": {
-        "buildType": "app-bundle",
-        "autoIncrement": "versionCode"
+        "buildType": "app-bundle"
       },
       "ios": {
         "simulator": true
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
@@ -23,7 +23,8 @@
       "ios": {
         "buildConfiguration": "Debug",
         "autoIncrement": "buildNumber"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "distribution": "store",
@@ -34,7 +35,8 @@
       "ios": {
         "buildConfiguration": "Debug",
         "autoIncrement": "buildNumber"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {
