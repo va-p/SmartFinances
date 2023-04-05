@@ -233,7 +233,7 @@ export function SignIn({ navigation }: any) {
           <Title>
             Controle suas {'\n'}
             finanças de forma {'\n'}
-            simples e precisa.
+            simples e precisa
           </Title>
         </TitleWrapper>
 
