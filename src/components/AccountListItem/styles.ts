@@ -32,7 +32,7 @@ export const IconContainer = styled.View`
 export const NameContainer = styled.View``;
 
 export const Name = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
+  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.title};
 `;
