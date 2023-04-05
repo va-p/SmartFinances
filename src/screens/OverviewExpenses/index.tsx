@@ -2,15 +2,15 @@ import React, { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
-  ScrollContent,
+  ContentScroll,
   MonthSelect,
   MonthSelectButton,
   Month,
   PieChartContainer,
 } from './styles';
 
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
 import { addMonths, subMonths, format } from 'date-fns';
@@ -45,17 +45,13 @@ interface CategoryData {
   percent: string;
 }
 
-export function OverviewExpenses() {
+export function OverviewExpenses({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
-  const [transactions, setTransactions] = useState<TransactionProps[]>([]);
-  const [expenses, setExpenses] = useState<TransactionProps[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<
     CategoryData[]
   >([]);
-  const [categorySelected, setCategorySelected] = useState('');
   const theme = useTheme();
 
   function handleDateChange(action: 'next' | 'prev'): void {
@@ -66,8 +62,11 @@ export function OverviewExpenses() {
     }
   }
 
-  async function fetchCategories() {
+  async function fetchTransactions() {
     setLoading(true);
+
+    // Fetch Categories
+    let categories: CategoryProps[] = [];
 
     try {
       const { data } = await api.get('category', {
@@ -76,7 +75,7 @@ export function OverviewExpenses() {
         },
       });
       if (data) {
-        setCategories(data);
+        categories = data;
       }
     } catch (error) {
       console.error(error);
@@ -84,13 +83,10 @@ export function OverviewExpenses() {
         'Categorias',
         'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
       );
-    } finally {
-      setLoading(false);
     }
-  }
 
-  async function fetchTransactions() {
-    setLoading(true);
+    // Fetch Transactions
+    let transactions: TransactionProps[] = [];
 
     try {
       const { data } = await api.get('transaction', {
@@ -99,13 +95,12 @@ export function OverviewExpenses() {
         },
       });
       if (data) {
-        setTransactions(data);
+        transactions = data;
       }
 
-      const expenses = transactions.filter(
+      /*const expenses = transactions.filter(
         (transaction: TransactionProps) => transaction.type == 'debit'
-      );
-      setExpenses(expenses);
+      );*/
 
       /**
        * Expenses by Selected Month - Start
@@ -181,13 +176,12 @@ export function OverviewExpenses() {
     }
   }
 
-  function handleCategoryOnPress(id: string) {
-    setCategorySelected((prev) => (prev === id ? '' : id));
+  function handleOpenCategory(id: string) {
+    navigation.navigate('Transações Por Categoria', { id });
   }
 
   useFocusEffect(
     useCallback(() => {
-      fetchCategories();
       fetchTransactions();
     }, [selectedDate])
   );
@@ -200,20 +194,20 @@ export function OverviewExpenses() {
     <Container>
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>
-          <CaretLeft size={24} color={theme.colors.text} />
+          <CaretLeft size={20} color={theme.colors.text} />
         </MonthSelectButton>
 
         <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
 
         <MonthSelectButton onPress={() => handleDateChange('next')}>
-          <CaretRight size={24} color={theme.colors.text} />
+          <CaretRight size={20} color={theme.colors.text} />
         </MonthSelectButton>
       </MonthSelect>
 
-      <ScrollContent
+      <ContentScroll
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingBottom: useBottomTabBarHeight(),
+          paddingBottom: getBottomSpace(),
         }}
       >
         <PieChartContainer>
@@ -237,17 +231,10 @@ export function OverviewExpenses() {
                 fill: theme.colors.primary,
               },
               data: {
-                fillOpacity: ({ datum }) =>
-                  datum.id === categorySelected || categorySelected === ''
-                    ? 1
-                    : 0.2,
-                stroke: ({ datum }) =>
-                  datum.id === categorySelected ? datum.color.hex : 'none',
-                strokeOpacity: 0.5,
-                strokeWidth: 10,
+                stroke: 'none',
               },
             }}
-            labelRadius={50}
+            labelRadius={150}
           />
         </PieChartContainer>
         {totalExpensesByCategories.map((item) => (
@@ -257,10 +244,10 @@ export function OverviewExpenses() {
             name={item.name}
             amount={item.totalFormatted}
             color={item.color.hex}
-            onPress={() => handleCategoryOnPress(item.id)}
+            onPress={() => handleOpenCategory(item.id)}
           />
         ))}
-      </ScrollContent>
+      </ContentScroll>
     </Container>
   );
 }
