@@ -267,14 +267,6 @@ export function RegisterTransaction({
     closeRegisterTransaction();
   }
 
-  /*function handleOpenSelectTagModal() {
-    tagBottomSheetRef.current?.present();
-  }
-
-  function handleCloseSelectTagModal() {
-    tagBottomSheetRef.current?.dismiss();
-  }*/
-
   function handleSelectTag(tag: TagProps) {
     const tagAlreadySelected = tagsSelected.includes(tag);
 
@@ -1392,7 +1384,7 @@ export function RegisterTransaction({
               <ProductImage source={{ uri: imageUrl }} />
             </ProductImageContainer>
           ) : (
-            <></>
+            ''
           )}
 
           <TransactionsTypes>

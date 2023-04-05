@@ -232,7 +232,7 @@ export function Accounts({ navigation }: any) {
   }
 
   function handleHideData() {
-    visible ? setVisible(false) : setVisible(true);
+    setVisible((prevState) => !prevState);
   }
 
   function handleOpenAccount(
@@ -276,7 +276,7 @@ export function Accounts({ navigation }: any) {
 
       <ChartContainer>
         <VictoryChart
-          height={220}
+          height={200}
           domainPadding={{ y: 12 }}
           containerComponent={
             <VictoryZoomContainer
@@ -303,8 +303,8 @@ export function Accounts({ navigation }: any) {
               },
             }}
             animate={{
-              onLoad: { duration: 10000 },
-              easing: 'backOut',
+              onLoad: { duration: 3000 },
+              easing: 'linear',
             }}
           />
         </VictoryChart>

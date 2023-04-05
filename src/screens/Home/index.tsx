@@ -686,7 +686,7 @@ export function Home() {
   }
 
   function handleHideData() {
-    visible ? setVisible(false) : setVisible(true);
+    setVisible((prevState) => !prevState);
   }
 
   useEffect(() => {
@@ -767,7 +767,7 @@ export function Home() {
                 }}
                 cornerRadius={{ top: 2, bottom: 2 }}
                 animate={{
-                  onLoad: { duration: 1500 },
+                  onLoad: { duration: 3000 },
                   easing: 'backOut',
                 }}
               />
