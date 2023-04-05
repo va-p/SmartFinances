@@ -4,18 +4,18 @@ import { AppRegistry, Platform, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider } from 'styled-components';
-import { Provider } from 'react-redux'
+import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
 
 import { AuthProvider } from './src/hooks/auth';
-import store from './src/store'
+import store from './src/store';
 
 import { Routes } from './src/routes';
 
 import {
   Poppins_400Regular,
   Poppins_500Medium,
-  Poppins_700Bold
+  Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/themes/theme';
@@ -44,7 +44,7 @@ export default function App() {
         await Font.loadAsync({
           Poppins_400Regular,
           Poppins_500Medium,
-          Poppins_700Bold
+          Poppins_700Bold,
         });
       } catch (error) {
         console.error(error);
@@ -65,12 +65,15 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <ThemeProvider theme={theme}>
-          <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
+          <StatusBar
+            barStyle='light-content'
+            backgroundColor={theme.colors.background}
+          />
           <AuthProvider>
             <Routes />
           </AuthProvider>
         </ThemeProvider>
       </Provider>
     </GestureHandlerRootView>
-  )
+  );
 }
