@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import {
   Container,
   Form,
@@ -24,6 +24,7 @@ type FormData = {
   name: string;
   lastName: string;
   email: string;
+  confirmEmail: string;
   phone: string;
   password: string;
   confirmPassword: string;
@@ -37,6 +38,9 @@ const schema = Yup.object().shape({
   email: Yup.string()
     .required('Digite o seu e-mail')
     .email('Digite um e-mail válido'),
+  confirmEmail: Yup.string()
+    .required('Confirme o seu e-mail')
+    .oneOf([Yup.ref('email'), null], 'Os emails não conferem'),
   phone: Yup.number()
     .required('Digite o seu telefone celular')
     .typeError('Digite apenas números'),
@@ -119,7 +123,7 @@ export function SignUp({ navigation }: any) {
   }
 
   return (
-    <Container>
+    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Header type='primary' title='Criar nova conta' />
 
       <Form>
@@ -158,6 +162,19 @@ export function SignUp({ navigation }: any) {
           name='email'
           control={control}
           error={errors.email}
+        />
+
+        <ControlledInput
+          type='primary'
+          placeholder='Confirme seu e-mail'
+          autoCapitalize='none'
+          keyboardType='email-address'
+          autoCorrect={false}
+          autoComplete='email'
+          textContentType='emailAddress'
+          name='confirmEmail'
+          control={control}
+          error={errors.confirmEmail}
         />
 
         <ControlledInput

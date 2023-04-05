@@ -1,13 +1,15 @@
 import styled from 'styled-components/native';
 
-export const Container = styled.View`
+export const Container = styled.KeyboardAvoidingView`
   flex: 1;
   justify-content: space-between;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const Form = styled.View``;
+export const Form = styled.ScrollView.attrs({
+  showsVerticalScrollIndicator: false,
+})``;
 
 export const TermsAndPolicyContainer = styled.View`
   align-items: center;
