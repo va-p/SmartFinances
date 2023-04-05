@@ -12,8 +12,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
+import * as Icon from 'phosphor-react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
@@ -33,7 +33,10 @@ import {
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
-import { selectBudgetCategoriesSelected } from '@slices/budgetCategoriesSelectedSlice';
+import {
+  selectBudgetCategoriesSelected,
+  setBudgetCategoriesSelected,
+} from '@slices/budgetCategoriesSelectedSlice';
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
@@ -100,9 +103,9 @@ export function RegisterBudget({ closeBudget }: Props) {
     'EUR - Euro',
     'USD - Dólar Americano',
   ];
-  const [currencySelected, setCurrencySelected] = useState('');
+  //const [currencySelected, setCurrencySelected] = useState('');
 
-  console.log(budgetCategoriesSelected);
+  const dispatch = useDispatch();
 
   /*function handleOpenSelectAccountModal() {
     accountBottomSheetRef.current?.present();
@@ -116,9 +119,9 @@ export function RegisterBudget({ closeBudget }: Props) {
     categoryBottomSheetRef.current?.present();
   }
 
-  /*function handleCloseSelectCategoryModal() {
-    categoryBottomSheetRef.current?.dismiss();
-  }*/
+  function handleCloseSelectCategoryModal() {
+    dispatch(setBudgetCategoriesSelected([]));
+  }
 
   function handleOpenSelectRecurrencyPeriodModal() {
     periodBottomSheetRef.current?.present();
@@ -148,7 +151,7 @@ export function RegisterBudget({ closeBudget }: Props) {
         name: form.name,
         amount: form.amount,
         currency_id: 4,
-        account_id: accountSelected.id,
+        //account_id: accountSelected.id,
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
@@ -188,12 +191,7 @@ export function RegisterBudget({ closeBudget }: Props) {
   return (
     <Container>
       <ControlledInputWithIcon
-        icon='pencil'
-        color={
-          budgetCategoriesSelected[0]
-            ? budgetCategoriesSelected[0].color.hex
-            : theme.colors.primary
-        }
+        icon={<Icon.PencilSimple color={theme.colors.primary} />}
         placeholder='Nome do orçamento'
         autoCapitalize='sentences'
         autoCorrect={false}
@@ -206,12 +204,7 @@ export function RegisterBudget({ closeBudget }: Props) {
       <AmountContainer>
         <AmountGroup>
           <ControlledInputWithIcon
-            icon='cash'
-            color={
-              budgetCategoriesSelected[0]
-                ? budgetCategoriesSelected[0].color.hex
-                : theme.colors.primary
-            }
+            icon={<Icon.Money color={theme.colors.primary} />}
             placeholder='Valor do orçamento'
             keyboardType='numeric'
             defaultValue=''
@@ -224,8 +217,8 @@ export function RegisterBudget({ closeBudget }: Props) {
         <CurrencyGroup>
           <SelectDropdown
             data={currencies}
-            onSelect={(selectedItem) => {
-              setCurrencySelected(selectedItem);
+            onSelect={() => {
+              //setCurrencySelected(selectedItem);
             }}
             defaultButtonText='Moeda'
             buttonTextAfterSelection={(selectedItem) => {
@@ -249,13 +242,7 @@ export function RegisterBudget({ closeBudget }: Props) {
               color: theme.colors.text,
             }}
             renderDropdownIcon={() => {
-              return (
-                <Ionicons
-                  name='chevron-down-outline'
-                  size={20}
-                  color={theme.colors.text}
-                />
-              );
+              return <Icon.CaretDown color={theme.colors.text} size={16} />;
             }}
             dropdownIconPosition='right'
             rowStyle={{ backgroundColor: theme.colors.background }}
@@ -266,30 +253,20 @@ export function RegisterBudget({ closeBudget }: Props) {
       </AmountContainer>
 
       <SelectButton
-        title='Orçamento para'
+        title='Orçamento para:'
         subTitle={
           budgetCategoriesSelected[0]
             ? `${budgetCategoriesSelected.length} categorias`
             : 'Selecione as categorias'
         }
-        icon='apps'
-        color={
-          budgetCategoriesSelected[0]
-            ? budgetCategoriesSelected[0].color.hex
-            : theme.colors.primary
-        }
+        icon={<Icon.CirclesFour color={theme.colors.primary} />}
         onPress={handleOpenSelectCategoryModal}
       />
 
       <SelectButton
         title='Data de início'
         subTitle={formattedDate}
-        icon='calendar'
-        color={
-          budgetCategoriesSelected[0]
-            ? budgetCategoriesSelected[0].color.hex
-            : theme.colors.primary
-        }
+        icon={<Icon.Calendar color={theme.colors.primary} />}
         onPress={() => setShowDatePicker(true)}
       />
       {showDatePicker && (
@@ -307,12 +284,7 @@ export function RegisterBudget({ closeBudget }: Props) {
       <SelectButton
         title='Repetir'
         subTitle={budgetPeriodSelected.name}
-        icon='repeat'
-        color={
-          budgetCategoriesSelected[0]
-            ? budgetCategoriesSelected[0].color.hex
-            : theme.colors.primary
-        }
+        icon={<Icon.Repeat color={theme.colors.primary} />}
         onPress={handleOpenSelectRecurrencyPeriodModal}
       />
 
@@ -326,6 +298,7 @@ export function RegisterBudget({ closeBudget }: Props) {
       </Footer>
 
       <ModalViewSelection
+        $modal
         title='Contas'
         bottomSheetRef={accountBottomSheetRef}
         snapPoints={['50%']}
@@ -338,9 +311,11 @@ export function RegisterBudget({ closeBudget }: Props) {
       </ModalViewSelection>
 
       <ModalViewSelection
+        $modal
         title='Categorias'
         bottomSheetRef={categoryBottomSheetRef}
         snapPoints={['50%']}
+        onClose={handleCloseSelectCategoryModal}
       >
         <BudgetCategorySelect />
       </ModalViewSelection>

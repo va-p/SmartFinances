@@ -33,7 +33,7 @@ export function Budgets() {
 
   async function checkBudgets() {
     //setLoading(true);
-    //setRefreshing(true);
+    setRefreshing(true);
 
     let budgets: any = [];
     try {
@@ -46,7 +46,7 @@ export function Budgets() {
       if (data) {
         budgets = data;
       } else {
-        budgets = [];
+        budgets = null;
       }
     } catch (error) {
       console.error(error);
@@ -67,7 +67,7 @@ export function Budgets() {
       if (data) {
         transactions = data;
       } else {
-        transactions = [];
+        transactions = null;
       }
     } catch (error) {
       console.error(error);
@@ -77,7 +77,7 @@ export function Budgets() {
       );
     }
 
-    if (budgets) {
+    if (budgets && transactions) {
       let budgetsFormatted: any = [];
       for (const budget of budgets) {
         let startDate = addDays(new Date(budget.start_date), 1);
@@ -137,14 +137,14 @@ export function Budgets() {
         const filteredTransactions = transactions.filter(
           (transaction: TransactionProps) =>
             transaction.type === 'debit' &&
-            //transaction.account.id === budget.account.id &&
-            //budget.categories.find((category: CategoryProps) => category.id === transaction.category.id) &&
-            budget.categories.includes(transaction.category) &&
+            //budget.accounts.find((accountId: any) => accountId.account_id === transaction.account.id) &&
+            budget.categories.find(
+              (categoryId: any) =>
+                categoryId.category_id === transaction.category.id
+            ) &&
             new Date(transaction.created_at) >= startDate &&
             new Date(transaction.created_at) <= endDate
         );
-
-        //console.log(filteredTransactions);
 
         const amountSpent = filteredTransactions.reduce(
           (acc: any, transaction: TransactionProps) => acc + transaction.amount,
@@ -195,7 +195,7 @@ export function Budgets() {
       setLoading(false);
       setRefreshing(false);
     }
-    return budgetsFormatted;
+    //return budgetsFormatted;
   }
 
   function handleOpenRegisterBudgetModal() {

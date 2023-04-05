@@ -14,8 +14,8 @@ import {
 import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
+import { BudgetPercentBar } from '@components/BudgetPercentBar';
 import { CategoryProps } from '@components/CategoryListItem';
-import { PercentBar } from '@components/PercentBar';
 
 export interface BudgetProps {
   id: string;
@@ -25,7 +25,7 @@ export interface BudgetProps {
   percentage: number;
   currency: CurrencyProps;
   account: AccountProps;
-  category: CategoryProps;
+  categories: CategoryProps[];
   start_date: string;
   end_date?: string;
   recurrence: string;
@@ -103,7 +103,7 @@ export function BudgetListItem({ data }: Props) {
         <AmountBudget>{`${amount} orçado`}</AmountBudget>
       </AmountContainer>
 
-      <PercentBar
+      <BudgetPercentBar
         is_amount_reached={isAmountReached}
         percentage={data.percentage}
       />

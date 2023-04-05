@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { useFocusEffect } from '@react-navigation/native';
+import { FlatList } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
@@ -19,11 +20,6 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
-/*type Props = {
-  //categoriesAlreadySelected: CategoryProps[];
-  closeSelectCategory: () => void;
-};*/
-
 export function BudgetCategorySelect() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
@@ -32,9 +28,7 @@ export function BudgetCategorySelect() {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
 
   const categoriesAlreadySelected = useSelector(selectBudgetCategoriesSelected);
-  const [categoriesSelected, setCategoriesSelected] = useState<CategoryProps[]>(
-    categoriesAlreadySelected
-  );
+
   const dispatch = useDispatch();
 
   async function fetchCategories() {
@@ -66,13 +60,15 @@ export function BudgetCategorySelect() {
       categoriesAlreadySelected.includes(category);
 
     if (!categoryAlreadySelected) {
-      setCategoriesSelected((prevState) => [...prevState, category]);
+      const updatedcategoriesAlreadySelected =
+        categoriesAlreadySelected.concat(category);
+      dispatch(setBudgetCategoriesSelected(updatedcategoriesAlreadySelected));
     } else {
-      setCategoriesSelected((prevState) =>
-        prevState.filter((item) => item.id !== category.id)
+      const updatedcategoriesAlreadySelected = categoriesAlreadySelected.filter(
+        (item) => item.id !== category.id
       );
+      dispatch(setBudgetCategoriesSelected(updatedcategoriesAlreadySelected));
     }
-    dispatch(setBudgetCategoriesSelected(categoriesSelected));
   }
 
   useFocusEffect(
