@@ -8,9 +8,9 @@
     <true/>
     <key>EXUpdatesLaunchWaitMs</key>
     <integer>0</integer>
-    <key>EXUpdatesSDKVersion</key>
-    <string>47.0.0</string>
     <key>EXUpdatesURL</key>
-    <string>https://exp.host/@va-p/smart-finances</string>
+    <string>https://u.expo.dev/b3fbc0d4-f20d-4cb4-8ea3-0093395774ac</string>
+    <key>EXUpdatesRuntimeVersion</key>
+    <string>1.0.0</string>
   </dict>
 </plist>
