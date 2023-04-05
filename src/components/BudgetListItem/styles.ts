@@ -19,7 +19,7 @@ export const AmountContainer = styled.View`
 `;
 
 export const AmountSpent = styled.Text<BudgetProps>`
-  font-family: ${({ theme }) => theme.fonts.medium};
+  font-family: ${({ theme }) => theme.fonts.bold};
   color: ${({ theme, is_amount_reached }) =>
     is_amount_reached ? theme.colors.attention : theme.colors.success};
 `;
