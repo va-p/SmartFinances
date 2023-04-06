@@ -23,8 +23,6 @@ import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
   const [localAuthIsEnabled, setLocalAuthIsEnabled] = useState(false);
-  const toggleSwitch = () =>
-    setLocalAuthIsEnabled((previousState) => !previousState);
   const userId = useSelector(selectUserId);
 
   function handleOpenAccounts() {
@@ -62,22 +60,19 @@ export function OptionsMenu({ navigation }: any) {
         cancelLabel: 'Cancelar',
       });
       if (biometricAuth.success) {
-        toggleSwitch();
-
         try {
           const { status } = await api.post('edit_use_local_auth', {
             user_id: userId,
-            use_local_authentication: localAuthIsEnabled ? false : true,
+            use_local_authentication: !localAuthIsEnabled,
           });
           if (status === 200) {
             try {
-              const loggedInUserDataFormatted = {
-                useLocalAuth: localAuthIsEnabled ? false : true,
-              };
               await AsyncStorage.mergeItem(
                 COLLECTION_USERS,
-                JSON.stringify(loggedInUserDataFormatted)
+                JSON.stringify({ useLocalAuth: !localAuthIsEnabled })
               );
+
+              setLocalAuthIsEnabled((prevState) => !prevState);
             } catch (error) {
               console.log(error);
               Alert.alert('Autenticação biométrica', `${error}`);
