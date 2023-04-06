@@ -34,6 +34,7 @@ import {
   VictoryZoomContainer,
 } from 'victory-native';
 import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -62,6 +63,8 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import apiQuotes from '@api/apiQuotes';
 import api from '@api/api';
+
+import { COLLECTION_USERS } from '@configs/database';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
@@ -685,8 +688,20 @@ export function Home() {
     setTransactionId('');
   }
 
-  function handleHideData() {
-    setVisible((prevState) => !prevState);
+  async function handleHideData() {
+    try {
+      await AsyncStorage.mergeItem(
+        COLLECTION_USERS,
+        JSON.stringify({ dataIsVisible: !visible })
+      );
+
+      setVisible((prevState) => !prevState);
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Não foi possível salvar suas configurações. Por favor, tente novamnte.'
+      );
+    }
   }
 
   useEffect(() => {
@@ -701,6 +716,14 @@ export function Home() {
       fetchEurQuote();
       fetchUsdQuote();
       fetchTransactions();
+
+      (async () => {
+        const userData = await AsyncStorage.getItem(COLLECTION_USERS);
+        if (userData) {
+          const userDataParsed = JSON.parse(userData);
+          setVisible(userDataParsed.dataIsVisible);
+        }
+      })();
     }, [chartPeriodSelected.period])
   );
 

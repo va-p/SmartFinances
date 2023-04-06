@@ -38,10 +38,7 @@ export const HideDataButton = styled(BorderlessButton)`
   right: 0px;
 `;
 
-export const ChartContainer = styled.View`
-  height: ${RFPercentage(20)}px;
-  justify-content: flex-end;
-`;
+export const ChartContainer = styled.View``;
 
 export const AccountsContainer = styled.View`
   flex: 1;
