@@ -13,7 +13,6 @@ import {
   LinkSignUp,
 } from './styles';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
@@ -24,16 +23,9 @@ import * as Yup from 'yup';
 import axios from 'axios';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
-import { SignInSocialButton } from '@components/SignInSocialButton';
 import { Button } from '@components/Button';
 
-import GoogleSvg from '@assets/google.svg';
-import AppleSvg from '@assets/apple.svg';
 import LogoSvg from '@assets/logo.svg';
-
-import { useAuth } from '@hooks/auth';
-
-import { COLLECTION_TOKENS, COLLECTION_USERS } from '@configs/database';
 
 import {
   setUserId,
@@ -46,6 +38,15 @@ import {
   setUserProfileImage,
   setUserTenantId,
 } from '@slices/userSlice';
+
+import {
+  DATABASE_CONFIGS,
+  DATABASE_TOKENS,
+  DATABASE_USERS,
+  storageConfig,
+  storageToken,
+  storageUser,
+} from '@database/database';
 
 import api from '@api/api';
 
@@ -72,7 +73,6 @@ export function SignIn({ navigation }: any) {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
-  const { signInWithGoogle, signInWithApple } = useAuth();
   const dispatch = useDispatch();
 
   async function handleSignInWithXano(form: FormData) {
@@ -87,8 +87,8 @@ export function SignIn({ navigation }: any) {
       const { data, status } = await api.post('auth/login', SignInUser);
       if (status === 200) {
         try {
-          await AsyncStorage.setItem(
-            COLLECTION_TOKENS,
+          storageToken.set(
+            `${DATABASE_TOKENS}`,
             JSON.stringify(data.authToken)
           );
         } catch (error) {
@@ -107,12 +107,11 @@ export function SignIn({ navigation }: any) {
         phone: userData.data.phone,
         role: userData.data.role,
         image: userData.data.image,
-        useLocalAuth: userData.data.use_local_authentication,
         tenantId: userData.data.tenant_id,
       };
 
-      await AsyncStorage.setItem(
-        COLLECTION_USERS,
+      storageUser.set(
+        `${DATABASE_USERS}`,
         JSON.stringify(loggedInUserDataFormatted)
       );
 
@@ -122,9 +121,6 @@ export function SignIn({ navigation }: any) {
       dispatch(setUserEmail(loggedInUserDataFormatted.email));
       dispatch(setUserPhone(loggedInUserDataFormatted.phone));
       dispatch(setUserRole(loggedInUserDataFormatted.role));
-      dispatch(
-        setUserLocalAuthentication(loggedInUserDataFormatted.useLocalAuth)
-      );
       dispatch(setUserProfileImage(loggedInUserDataFormatted.image));
       dispatch(setUserTenantId(loggedInUserDataFormatted.tenantId));
 
@@ -148,23 +144,21 @@ export function SignIn({ navigation }: any) {
       });
       if (biometricAuth.success) {
         try {
-          const userData = await AsyncStorage.getItem(COLLECTION_USERS);
-          if (userData) {
-            const userDataParsed = JSON.parse(userData);
+          const jsonUser = storageUser.getString('user');
+          if (jsonUser) {
+            const userObject = JSON.parse(jsonUser);
 
-            dispatch(setUserId(userDataParsed.id));
-            dispatch(setUserName(userDataParsed.name));
-            dispatch(setUserLastName(userDataParsed.lastName));
-            dispatch(setUserEmail(userDataParsed.email));
-            dispatch(setUserPhone(userDataParsed.phone));
-            dispatch(setUserRole(userDataParsed.role));
+            dispatch(setUserId(userObject.id));
+            dispatch(setUserName(userObject.name));
+            dispatch(setUserLastName(userObject.lastName));
+            dispatch(setUserEmail(userObject.email));
+            dispatch(setUserPhone(userObject.phone));
+            dispatch(setUserRole(userObject.role));
             dispatch(
-              setUserLocalAuthentication(
-                userDataParsed.use_local_authentication
-              )
+              setUserLocalAuthentication(userObject.use_local_authentication)
             );
-            dispatch(setUserProfileImage(userDataParsed.image));
-            dispatch(setUserTenantId(userDataParsed.tenantId));
+            dispatch(setUserProfileImage(userObject.image));
+            dispatch(setUserTenantId(userObject.tenantId));
           }
 
           navigation.navigate('Home');
@@ -187,7 +181,7 @@ export function SignIn({ navigation }: any) {
     }
   }
 
-  async function handleSignInWithGoogle() {
+  /*async function handleSignInWithGoogle() {
     try {
       await signInWithGoogle();
     } catch (error) {
@@ -203,7 +197,7 @@ export function SignIn({ navigation }: any) {
       console.error(error);
       Alert.alert('Não foi possível conectar a conta Apple');
     }
-  }
+  }*/
 
   useFocusEffect(
     useCallback(() => {
@@ -211,15 +205,12 @@ export function SignIn({ navigation }: any) {
         const compatible = await LocalAuthentication.hasHardwareAsync();
         const enroll = await LocalAuthentication.isEnrolledAsync();
 
-        const userData = await AsyncStorage.getItem(COLLECTION_USERS);
-        if (userData) {
-          const userDataParsed = JSON.parse(userData);
-          const localAuth = userDataParsed.useLocalAuth;
-
-          if (compatible && enroll && localAuth) {
-            handleSignInWithBiometric();
-          } else return;
-        }
+        const useLocalAuth = storageConfig.getBoolean(
+          `${DATABASE_CONFIGS}.useLocalAuth`
+        );
+        if (compatible && enroll && useLocalAuth) {
+          handleSignInWithBiometric();
+        } else return;
       })();
     }, [])
   );

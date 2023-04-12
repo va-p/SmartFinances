@@ -2,28 +2,20 @@ import React, { useCallback, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Icon from 'phosphor-react-native';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
 
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 import { Header } from '@components/Header';
 
-import { selectUserId } from '@slices/userSlice';
-
-import { COLLECTION_USERS } from '@configs/database';
-
-import api from '@api/api';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
   const [localAuthIsEnabled, setLocalAuthIsEnabled] = useState(false);
-  const userId = useSelector(selectUserId);
 
   function handleOpenAccounts() {
     navigation.navigate('Contas');
@@ -61,31 +53,15 @@ export function OptionsMenu({ navigation }: any) {
       });
       if (biometricAuth.success) {
         try {
-          const { status } = await api.post('edit_use_local_auth', {
-            user_id: userId,
-            use_local_authentication: !localAuthIsEnabled,
-          });
-          if (status === 200) {
-            try {
-              await AsyncStorage.mergeItem(
-                COLLECTION_USERS,
-                JSON.stringify({ useLocalAuth: !localAuthIsEnabled })
-              );
+          storageConfig.set(
+            `${DATABASE_CONFIGS}.useLocalAuth`,
+            !localAuthIsEnabled
+          );
 
-              setLocalAuthIsEnabled((prevState) => !prevState);
-            } catch (error) {
-              console.log(error);
-              Alert.alert('Autenticação biométrica', `${error}`);
-            }
-          }
+          setLocalAuthIsEnabled((prevState) => !prevState);
         } catch (error) {
           console.log(error);
-          if (axios.isAxiosError(error)) {
-            Alert.alert(
-              'Autenticação biométrica',
-              error.response?.data.message
-            );
-          }
+          Alert.alert('Autenticação biométrica', `${error}`);
         }
       }
     } catch (error) {
@@ -99,14 +75,14 @@ export function OptionsMenu({ navigation }: any) {
 
   useFocusEffect(
     useCallback(() => {
-      (async () => {
-        const userData = await AsyncStorage.getItem(COLLECTION_USERS);
-        if (userData) {
-          const userDataParsed = JSON.parse(userData);
-          if (userDataParsed.useLocalAuth) {
-            setLocalAuthIsEnabled(userDataParsed.useLocalAuth);
-          }
+      (() => {
+        const useLocalAuth = storageConfig.getBoolean(
+          `${DATABASE_CONFIGS}.useLocalAuth`
+        );
+        if (useLocalAuth != undefined) {
+          setLocalAuthIsEnabled(useLocalAuth);
         }
+        console.log(useLocalAuth);
       })();
     }, [])
   );

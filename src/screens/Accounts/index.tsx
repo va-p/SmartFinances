@@ -18,7 +18,6 @@ import {
   VictoryChart,
   VictoryZoomContainer,
 } from 'victory-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,7 +43,7 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
-import { COLLECTION_USERS } from '@configs/database';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
@@ -57,7 +56,6 @@ export function Accounts({ navigation }: any) {
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
-
   const [visible, setVisible] = useState(true);
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -234,22 +232,6 @@ export function Accounts({ navigation }: any) {
     fetchAccounts();
   }
 
-  async function handleHideData() {
-    try {
-      await AsyncStorage.mergeItem(
-        COLLECTION_USERS,
-        JSON.stringify({ dataIsVisible: !visible })
-      );
-
-      setVisible((prevState) => !prevState);
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Não foi possível salvar suas configurações. Por favor, tente novamnte.'
-      );
-    }
-  }
-
   function handleOpenAccount(
     id: string,
     name: string,
@@ -262,15 +244,29 @@ export function Accounts({ navigation }: any) {
     navigation.navigate('Conta', { id });
   }
 
+  function handleHideData() {
+    try {
+      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !visible);
+
+      setVisible((prevState) => !prevState);
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Não foi possível salvar suas configurações. Por favor, tente novamente.'
+      );
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       fetchAccounts();
 
-      (async () => {
-        const userData = await AsyncStorage.getItem(COLLECTION_USERS);
-        if (userData) {
-          const userDataParsed = JSON.parse(userData);
-          setVisible(userDataParsed.dataIsVisible);
+      (() => {
+        const dataIsVisible = storageConfig.getBoolean(
+          `${DATABASE_CONFIGS}.dataIsVisible`
+        );
+        if (dataIsVisible != undefined) {
+          setVisible(dataIsVisible);
         }
       })();
     }, [])

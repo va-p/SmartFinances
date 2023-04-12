@@ -13,7 +13,7 @@ module.exports = function (api) {
             '@themes': './src/global/themes',
             '@contexts': './src/contexts',
             '@services': './src/services',
-            '@configs': './src/configs',
+            '@database': './src/database',
             '@screens': './src/screens',
             '@routes': './src/routes',
             '@assets': './src/assets',

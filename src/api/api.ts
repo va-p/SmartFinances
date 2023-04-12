@@ -1,17 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-import { COLLECTION_TOKENS } from '@configs/database';
+import { storageToken } from '@database/database';
 
 const api = axios.create({
-  baseURL: 'https://x6if-pd9g-tkt7.n7.xano.io/api:ckiy-sBf'
+  baseURL: 'https://x6if-pd9g-tkt7.n7.xano.io/api:ckiy-sBf',
 });
 
 api.interceptors.request.use(async (config: any) => {
   try {
-    const jsonUserAuthToken = await AsyncStorage.getItem(COLLECTION_TOKENS);
-    if (jsonUserAuthToken) {
-      const loggedInUserAuthToken = JSON.parse(jsonUserAuthToken);
+    const jsonToken = storageToken.getString('token');
+    if (jsonToken) {
+      const loggedInUserAuthToken = JSON.parse(jsonToken);
       config.headers.Authorization = `Bearer ${loggedInUserAuthToken}`;
     }
   } catch (error) {
