@@ -118,8 +118,8 @@ android {
         applicationId 'com.digitaltech.smartfinances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 84
-        versionName "1.34.3"
+        versionCode 85
+        versionName "1.35.1"
     }
 
     splits {
