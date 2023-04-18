@@ -11,9 +11,9 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useDispatch, useSelector } from 'react-redux';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Icon from 'phosphor-react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
@@ -65,14 +65,6 @@ const schema = Yup.object().shape({
 
 export function RegisterBudget({ closeBudget }: Props) {
   const tenantId = useSelector(selectUserTenantId);
-  const accountBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [accountSelected, setAccountSelected] = useState({
-    id: '',
-    name: 'Todas as contas',
-    currency: {
-      symbol: 'R$',
-    },
-  } as AccountProps);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useSelector(selectBudgetCategoriesSelected);
   const [startDate, setStartDate] = useState(new Date());
@@ -103,17 +95,9 @@ export function RegisterBudget({ closeBudget }: Props) {
     'EUR - Euro',
     'USD - Dólar Americano',
   ];
-  //const [currencySelected, setCurrencySelected] = useState('');
+  const [currencySelected, setCurrencySelected] = useState('');
 
   const dispatch = useDispatch();
-
-  /*function handleOpenSelectAccountModal() {
-    accountBottomSheetRef.current?.present();
-  }*/
-
-  function handleCloseSelectAccountModal() {
-    accountBottomSheetRef.current?.dismiss();
-  }
 
   function handleOpenSelectCategoryModal() {
     categoryBottomSheetRef.current?.present();
@@ -151,7 +135,6 @@ export function RegisterBudget({ closeBudget }: Props) {
         name: form.name,
         amount: form.amount,
         currency_id: 4,
-        //account_id: accountSelected.id,
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
@@ -217,8 +200,8 @@ export function RegisterBudget({ closeBudget }: Props) {
         <CurrencyGroup>
           <SelectDropdown
             data={currencies}
-            onSelect={() => {
-              //setCurrencySelected(selectedItem);
+            onSelect={(selectedItem) => {
+              setCurrencySelected(selectedItem);
             }}
             defaultButtonText='Moeda'
             buttonTextAfterSelection={(selectedItem) => {
@@ -228,7 +211,7 @@ export function RegisterBudget({ closeBudget }: Props) {
               return item;
             }}
             buttonStyle={{
-              width: '100%',
+              width: '90%',
               minHeight: 40,
               maxHeight: 40,
               marginTop: 10,
@@ -253,7 +236,7 @@ export function RegisterBudget({ closeBudget }: Props) {
       </AmountContainer>
 
       <SelectButton
-        title='Orçamento para:'
+        title='Orçamento para'
         subTitle={
           budgetCategoriesSelected[0]
             ? `${budgetCategoriesSelected.length} categorias`
@@ -296,19 +279,6 @@ export function RegisterBudget({ closeBudget }: Props) {
           onPress={handleSubmit(handleRegisterBudget)}
         />
       </Footer>
-
-      <ModalViewSelection
-        $modal
-        title='Contas'
-        bottomSheetRef={accountBottomSheetRef}
-        snapPoints={['50%']}
-      >
-        <AccountSelect
-          account={accountSelected}
-          setAccount={setAccountSelected}
-          closeSelectAccount={handleCloseSelectAccountModal}
-        />
-      </ModalViewSelection>
 
       <ModalViewSelection
         $modal
