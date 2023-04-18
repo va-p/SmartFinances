@@ -126,8 +126,12 @@ export function Tags() {
       <FlatList
         data={tags}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TagListItem data={item} onPress={() => handleOpenTag(item.id)} />
+        renderItem={({ item, index }) => (
+          <TagListItem
+            data={item}
+            index={index}
+            onPress={() => handleOpenTag(item.id)}
+          />
         )}
         ListEmptyComponent={() => (
           <ListEmptyComponent text='Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui.' />

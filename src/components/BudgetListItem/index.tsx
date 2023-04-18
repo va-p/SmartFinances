@@ -16,6 +16,7 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { BudgetPercentBar } from '@components/BudgetPercentBar';
 import { CategoryProps } from '@components/CategoryListItem';
+import { FadeInUp } from 'react-native-reanimated';
 
 export interface BudgetProps {
   id: string;
@@ -34,12 +35,13 @@ export interface BudgetProps {
 
 type Props = RectButtonProps & {
   data: BudgetProps;
+  index: number;
 };
 let amount: string;
 
 let amountSpent: string;
 
-export function BudgetListItem({ data }: Props) {
+export function BudgetListItem({ data, index, ...rest }: Props) {
   const isAmountReached = data.amount_spent >= data.amount;
 
   // Format the currency
@@ -93,7 +95,7 @@ export function BudgetListItem({ data }: Props) {
   }
 
   return (
-    <Container>
+    <Container entering={FadeInUp.delay(index * 100)} {...rest}>
       <Name>{data.name}</Name>
       <AmountContainer>
         <AmountSpent is_amount_reached={isAmountReached}>

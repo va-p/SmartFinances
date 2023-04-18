@@ -787,7 +787,7 @@ export function Home() {
                 }}
                 cornerRadius={{ top: 2, bottom: 2 }}
                 animate={{
-                  onLoad: { duration: 3000 },
+                  onEnter: { duration: 3000 },
                   easing: 'backOut',
                 }}
               />
@@ -818,9 +818,10 @@ export function Home() {
         <AnimatedSectionList
           sections={transactionsFormattedBySelectedPeriod}
           keyExtractor={(item: any) => item.id}
-          renderItem={({ item }: any) => (
+          renderItem={({ item, index }: any) => (
             <TransactionListItem
               data={item}
+              index={index}
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}

@@ -25,6 +25,7 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CategoryProps } from '@components/CategoryListItem';
 import { TagTransaction } from '@components/TagTransaction';
+import { FadeInUp } from 'react-native-reanimated';
 
 export interface TransactionProps {
   id: string;
@@ -43,14 +44,16 @@ export interface TransactionProps {
 
 type Props = RectButtonProps & {
   data: TransactionProps;
+  index: number;
 };
 
 const TransactionListItem = memo(function TransactionListItem({
   data,
+  index,
   ...rest
 }: Props) {
   return (
-    <Container {...rest}>
+    <Container entering={FadeInUp.delay(index * 100)} {...rest}>
       <IconContainer>
         <Icon type={data.type} name={data.category.icon.name} />
       </IconContainer>

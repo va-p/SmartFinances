@@ -1,12 +1,8 @@
 import React from 'react';
-import {
-  Container,
-  Category,
-  Icon,
-  Name
-} from './styles';
+import { Container, Icon, Name } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
+import { FadeInUp } from 'react-native-reanimated';
 
 export interface IconProps {
   id: string;
@@ -30,18 +26,19 @@ export interface CategoryProps {
 
 type Props = RectButtonProps & {
   data: CategoryProps;
-}
+  index: number;
+};
 
-export function CategoryListItem({
-  data,
-  ...rest
-}: Props) {
+export function CategoryListItem({ data, index, ...rest }: Props) {
   return (
-    <Container>
-      <Category {...rest} icon={data.icon.name} color={data.color.hex}>
-        <Icon name={data.icon.name} color={data.color.hex} />
-        <Name>{data.name}</Name>
-      </Category>
-    </Container >
+    <Container
+      entering={FadeInUp.delay(index * 100)}
+      icon={data.icon.name}
+      color={data.color.hex}
+      {...rest}
+    >
+      <Icon name={data.icon.name} color={data.color.hex} />
+      <Name>{data.name}</Name>
+    </Container>
   );
 }

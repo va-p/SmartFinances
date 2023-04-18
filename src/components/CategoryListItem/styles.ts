@@ -1,21 +1,22 @@
+import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
+import Animated from 'react-native-reanimated';
 
 type Props = {
   color: string;
   icon: string;
 };
 
-export const Container = styled.View`
-  flex: 1;
-`;
+const TouchableOpacityAnimated =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
-export const Category = styled.TouchableOpacity.attrs({
+export const Container = styled(TouchableOpacityAnimated).attrs({
   activeOpacity: 0.6,
 })<Props>`
-  width: 100%;
+  flex: 1;
   min-height: 56px;
   max-height: 56px;
   flex-direction: row;
@@ -37,5 +38,5 @@ export const Icon = styled(Ionicons)<Props>`
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.title};
 `;

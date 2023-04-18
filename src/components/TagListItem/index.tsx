@@ -1,10 +1,8 @@
 import React from 'react';
-import {
-  Tag,
-  Name
-} from './styles';
+import { Tag, Name } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
+import { FadeInUp } from 'react-native-reanimated';
 
 export interface TagProps {
   id: string;
@@ -14,11 +12,12 @@ export interface TagProps {
 
 type Props = RectButtonProps & {
   data: TagProps;
-}
+  index: number;
+};
 
-export function TagListItem({ data, ...rest }: Props) {
+export function TagListItem({ data, index, ...rest }: Props) {
   return (
-    <Tag {...rest}>
+    <Tag entering={FadeInUp.delay(index * 100)} {...rest}>
       <Name>{data.name}</Name>
     </Tag>
   );

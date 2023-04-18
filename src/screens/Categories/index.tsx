@@ -125,9 +125,10 @@ export function Categories() {
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <CategoryListItem
             data={item}
+            index={index}
             onPress={() => handleOpenCategory(item.id)}
           />
         )}

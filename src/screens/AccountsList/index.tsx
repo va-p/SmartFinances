@@ -155,9 +155,10 @@ export function AccountsList() {
       <FlatList
         data={accounts}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }: any) => (
+        renderItem={({ item, index }: any) => (
           <AccountListItem
             data={item}
+            index={index}
             icon={<Icon.Wallet color={theme.colors.primary} />}
             onPress={() =>
               handleOpenAccount(

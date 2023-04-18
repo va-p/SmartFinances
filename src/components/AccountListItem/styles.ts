@@ -2,13 +2,12 @@ import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
+import Animated from 'react-native-reanimated';
 
-export const Container = styled.View`
+const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
+
+export const Container = styled(RectButtonAnimated)`
   flex: 1;
-`;
-
-export const Content = styled(RectButton)`
-  width: 100%;
   min-height: 56px;
   max-height: 56px;
   flex-direction: row;

@@ -1,10 +1,13 @@
 import styled from 'styled-components/native';
 
 import { RectButton } from 'react-native-gesture-handler';
+import Animated from 'react-native-reanimated';
 
 type BudgetProps = { is_amount_reached: boolean };
 
-export const Container = styled(RectButton)`
+const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
+
+export const Container = styled(RectButtonAnimated)`
   width: 100%;
   padding: 12px;
 `;

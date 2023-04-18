@@ -195,7 +195,6 @@ export function Budgets() {
       setLoading(false);
       setRefreshing(false);
     }
-    //return budgetsFormatted;
   }
 
   function handleOpenRegisterBudgetModal() {
@@ -261,7 +260,9 @@ export function Budgets() {
       <FlatList
         data={budgetsFormatted}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <BudgetListItem data={item} />}
+        renderItem={({ item, index }) => (
+          <BudgetListItem data={item} index={index} />
+        )}
         ListEmptyComponent={() => (
           <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />
         )}

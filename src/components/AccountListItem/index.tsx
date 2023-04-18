@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Container,
-  Content,
   DetailsContainer,
   IconContainer,
   NameContainer,
@@ -10,6 +9,7 @@ import {
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
+import { FadeInUp } from 'react-native-reanimated';
 import * as Icon from 'phosphor-react-native';
 
 import theme from '@themes/theme';
@@ -32,24 +32,23 @@ export interface AccountProps {
 
 type Props = RectButtonProps & {
   data: AccountProps;
+  index: number;
   icon: any;
 };
 
-export function AccountListItem({ data, icon, ...rest }: Props) {
+export function AccountListItem({ data, index, icon, ...rest }: Props) {
   return (
-    <Container>
-      <Content {...rest}>
-        <DetailsContainer>
-          <IconContainer>
-            <>{icon}</>
-          </IconContainer>
-          <NameContainer>
-            <Name>{data.name}</Name>
-            <Amount>{data.totalAccountAmount}</Amount>
-          </NameContainer>
-        </DetailsContainer>
-        <Icon.CaretRight size={16} color={theme.colors.text} />
-      </Content>
+    <Container entering={FadeInUp.delay(index * 100)} {...rest}>
+      <DetailsContainer>
+        <IconContainer>
+          <>{icon}</>
+        </IconContainer>
+        <NameContainer>
+          <Name>{data.name}</Name>
+          <Amount>{data.totalAccountAmount}</Amount>
+        </NameContainer>
+      </DetailsContainer>
+      <Icon.CaretRight size={16} color={theme.colors.text} />
     </Container>
   );
 }

@@ -2,7 +2,10 @@ import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+
+const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 export type TransactionTypeProps =
   | 'credit'
@@ -14,7 +17,7 @@ type Props = {
   type: TransactionTypeProps;
 };
 
-export const Container = styled(RectButton)`
+export const Container = styled(RectButtonAnimated)`
   flex: 1;
   min-height: 72px;
   max-height: 88px;
