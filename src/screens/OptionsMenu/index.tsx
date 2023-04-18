@@ -82,7 +82,6 @@ export function OptionsMenu({ navigation }: any) {
         if (useLocalAuth != undefined) {
           setLocalAuthIsEnabled(useLocalAuth);
         }
-        console.log(useLocalAuth);
       })();
     }, [])
   );
