@@ -11,7 +11,7 @@ import {
 import theme from '@themes/theme';
 
 type Props = {
-  onValueChnage: () => void;
+  onValueChange: () => void;
   value: boolean;
   isEnabled: boolean;
   title: string;
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export function ButtonToggle({
-  onValueChnage,
+  onValueChange,
   value,
   isEnabled,
   title,
@@ -39,7 +39,7 @@ export function ButtonToggle({
           trackColor={{ false: '#767577', true: theme.colors.title }}
           thumbColor={isEnabled ? theme.colors.primary : '#f4f3f4'}
           ios_backgroundColor='#3e3e3e'
-          onValueChange={onValueChnage}
+          onValueChange={onValueChange}
           value={value}
         />
       </SubtitleContainer>

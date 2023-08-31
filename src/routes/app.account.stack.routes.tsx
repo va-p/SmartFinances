@@ -14,26 +14,20 @@ export function AppAccountStackRoutes() {
   return (
     <Navigator
       screenOptions={{
-        headerShown: false
+        headerShown: false,
       }}
     >
-      <Screen
-        name="Todas as Contas"
-        component={Accounts}
-      />
+      <Screen name='Todas as Contas' component={Accounts} />
+
+      <Screen name='Conta' component={Account} />
 
       <Screen
-        name="Conta"
-        component={Account}
-      />
-
-      <Screen
-        name="Editar Conta"
+        name='Editar Conta'
         component={RegisterAccount}
         initialParams={{
-          id: ''
+          id: '',
         }}
       />
     </Navigator>
-  )
+  );
 }

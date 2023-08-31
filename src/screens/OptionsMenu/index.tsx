@@ -114,7 +114,7 @@ export function OptionsMenu({ navigation }: any) {
         <ButtonToggle
           icon={<Icon.Fingerprint color={theme.colors.primary} />}
           title='Touch / Face ID'
-          onValueChnage={handleChangeUseLocalAuth}
+          onValueChange={handleChangeUseLocalAuth}
           value={localAuthIsEnabled}
           isEnabled={localAuthIsEnabled}
         />

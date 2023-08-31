@@ -70,6 +70,7 @@ react {
 // Override `hermesEnabled` by `expo.jsEngine`
 ext {
   hermesEnabled = (findProperty('expo.jsEngine') ?: "hermes") == "hermes"
+  //enableHermes: (findProperty('expo.jsEngine') ?: "jsc") == "hermes",
 }
 
 /**
@@ -118,8 +119,8 @@ android {
         applicationId 'com.digitaltech.smartfinances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 85
-        versionName "1.35.1"
+        versionCode 87
+        versionName "1.36.2"
     }
 
     splits {

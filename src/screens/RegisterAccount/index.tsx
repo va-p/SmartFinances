@@ -25,6 +25,7 @@ import { selectUserTenantId } from '@slices/userSlice';
 import theme from '@themes/theme';
 
 import api from '@api/api';
+import { ButtonToggle } from '@components/ButtonToggle';
 
 type FormData = {
   name: string;
@@ -73,6 +74,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     code: 'BRL',
     symbol: 'R$',
   } as CurrencyProps);
+  const [hideAccount, setHideAccount] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
   function handleOpenSelectCurrencyModal() {
@@ -152,6 +154,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           type: typeSelected,
           currency_id: currencySelected.id,
           initial_amount: form.initialAmount,
+          hide: false,
           tenant_id: tenantId,
         };
         const { status } = await api.post('account', newAccount);
@@ -193,12 +196,38 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       setInitialAmount(data.initial_amount);
       setTypeSelected(data.type);
       setCurrencySelected(data.currency);
+      setHideAccount(data.hide);
     } catch (error) {
       console.error(error);
       Alert.alert(
         'Conta',
         'Não foi possível buscar a conta. Verifique sua conexão com a internet e tente novamente.'
       );
+    }
+  }
+
+  async function handleHideAccount() {
+    setButtonIsLoading(true);
+
+    const HideAccountOption = {
+      account_id: id,
+      hide: !hideAccount,
+    };
+    try {
+      const { status } = await api.post('edit_hide_account', HideAccountOption);
+
+      if (status === 200) {
+        Alert.alert('Edição de Conta', 'Conta editada com sucesso!');
+        setHideAccount((prevState) => !prevState);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Edição de Conta',
+        'Erro ao editar a conta. Por favor, tente novamente.'
+      );
+    } finally {
+      setButtonIsLoading(false);
     }
   }
 
@@ -278,6 +307,16 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           rowTextStyle={{ color: theme.colors.text }}
           dropdownStyle={{ borderRadius: 10 }}
         />
+
+        {id != '' && (
+          <ButtonToggle
+            icon={<Icon.EyeSlash color={theme.colors.primary} />}
+            title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
+            onValueChange={handleHideAccount}
+            value={hideAccount}
+            isEnabled={hideAccount}
+          />
+        )}
       </Form>
 
       <Footer>
@@ -293,7 +332,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         $modal
         title='Selecione a moeda'
         bottomSheetRef={currencyBottomSheetRef}
-        snapPoints={['50%']}
+        snapPoints={['75%']}
       >
         <CurrencySelect
           currency={currencySelected}

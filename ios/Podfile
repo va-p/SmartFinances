@@ -49,6 +49,10 @@ target 'SmartFinances' do
 
   use_react_native!(
     :path => config[:reactNativePath],
+    # Hermes is now enabled by default. Disable by setting this flag to false.
+    # Upcoming versions of React Native may rely on get_default_flags(), but
+    # we make it explicit here to aid in the React Native upgrade process.
+    #:hermes_enabled => true
     :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',
     :fabric_enabled => flags[:fabric_enabled],
     # An absolute path to your application root.

@@ -2,11 +2,15 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "version": "1.35.1",
+    "version": "1.36.2",
+    "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",
     "primaryColor": "#FF5200",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -14,7 +18,7 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 85,
+      "versionCode": 87,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -26,7 +30,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.digitaltech.smartfinances",
-      "buildNumber": "1.35.1",
+      "buildNumber": "1.36.2",
       "supportsTablet": true
     },
     "extra": {
@@ -34,7 +38,7 @@
         "projectId": "b3fbc0d4-f20d-4cb4-8ea3-0093395774ac"
       }
     },
-    "runtimeVersion": "2.1.0",
+    "runtimeVersion": "2.1.1",
     "updates": {
       "url": "https://u.expo.dev/b3fbc0d4-f20d-4cb4-8ea3-0093395774ac"
     }

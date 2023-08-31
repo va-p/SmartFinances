@@ -101,6 +101,7 @@ export function Accounts({ navigation }: any) {
               symbol: item.account.currency.symbol,
             },
             initial_amount: item.account.initial_amount,
+            hide: item.account.hide,
             totalRevenuesByAccount: 0,
             totalExpensesByAccount: 0,
             totalAccountAmount: 0,
@@ -136,6 +137,10 @@ export function Accounts({ navigation }: any) {
       });
 
       accounts = Object.values(accounts);
+      const filteredAccounts = accounts.filter(
+        (account: AccountProps) => !account.hide
+      );
+      console.log(`accounts`, accounts);
 
       // Runs from last to first, accumulating the total
       for (let i = accounts.length - 1; i >= 0; i--) {
@@ -154,7 +159,7 @@ export function Accounts({ navigation }: any) {
       }
 
       setTotal(totalFormattedPtbr);
-      setAccounts(accounts);
+      setAccounts(filteredAccounts);
       /**
        * All totals Grouped By Accounts/Wallets - End
        */

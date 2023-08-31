@@ -28,6 +28,7 @@ export interface AccountProps {
   initial_amount: string | number;
   totalAccountAmount?: string;
   tenant_id: number | null;
+  hide?: boolean;
 }
 
 type Props = RectButtonProps & {

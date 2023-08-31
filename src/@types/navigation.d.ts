@@ -14,6 +14,10 @@ export type EditBudgetNavigationProps = {
   id: string;
 };
 
+export type TransactionsByCategoryNavigationProps = {
+  id: string;
+};
+
 type RootParamList = {
   Timeline: undefined;
   Contas: undefined;
@@ -25,6 +29,10 @@ type RootParamList = {
   Orçamento: BudgetNavigationProps;
   'Editar Orçamento': EditBudgetNavigationProps;
   Resumo: undefined;
+  'Visão Geral das Despesas': undefined;
+  'Visão Geral das Receitas': undefined;
+  'Transações Por Categoria': ExpensesByCategoryNavigationProps;
+
   Mais: undefined;
   'Mais Opções': undefined;
   Categorias: undefined;
