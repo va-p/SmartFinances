@@ -4870,11 +4870,6 @@ expo-dev-menu@2.2.0:
     expo-dev-menu-interface "1.1.1"
     semver "^7.3.5"
 
-expo-eas-client@~0.5.0:
-  version "0.5.1"
-  resolved "https://registry.npmjs.org/expo-eas-client/-/expo-eas-client-0.5.1.tgz"
-  integrity sha512-i3L/iwhI6cFhSUpVsCxSU5qehNznL/rQFYoof6qUIh3CMyijCuTEwjEhwbw2a5W6obPBzQUXbomMSFDO6D5/0Q==
-
 expo-file-system@~15.2.0, expo-file-system@~15.2.2:
   version "15.2.2"
   resolved "https://registry.npmjs.org/expo-file-system/-/expo-file-system-15.2.2.tgz"
@@ -4957,32 +4952,10 @@ expo-splash-screen@~0.18.2:
     "@expo/configure-splash-screen" "^0.6.0"
     "@expo/prebuild-config" "6.0.1"
 
-expo-structured-headers@~3.1.0:
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/expo-structured-headers/-/expo-structured-headers-3.1.1.tgz"
-  integrity sha512-oV6yNGsJxQt7S9HYZTr+4L0I/yRwOF38USJ81I1KiN3GQI4C2z7P5OosyREA2VL9O+kUZVCCpNYsBLSa3/5bAQ==
-
 expo-updates-interface@~0.9.0:
   version "0.9.1"
   resolved "https://registry.npmjs.org/expo-updates-interface/-/expo-updates-interface-0.9.1.tgz"
   integrity sha512-wk88LLhseQ7LJvxdN7BTKiryyqALxnrvr+lyHK3/prg76Yy0EGi2Q/oE/rtFyyZ1JmQDRbO/5pdX0EE6QqVQXQ==
-
-expo-updates@~0.16.4:
-  version "0.16.4"
-  resolved "https://registry.npmjs.org/expo-updates/-/expo-updates-0.16.4.tgz"
-  integrity sha512-hEUotP10sBiYn6dvkYC2rIa+kAmsBuaMp32sIVNAYEwKMQJqEwqNAKTU6CpJ4Aoc//BYL2Hv8qNo/UsT4rATRg==
-  dependencies:
-    "@expo/code-signing-certificates" "0.0.5"
-    "@expo/config" "~8.0.0"
-    "@expo/config-plugins" "~6.0.0"
-    "@expo/metro-config" "~0.7.0"
-    arg "4.1.0"
-    expo-eas-client "~0.5.0"
-    expo-manifests "~0.5.0"
-    expo-structured-headers "~3.1.0"
-    expo-updates-interface "~0.9.0"
-    fbemitter "^3.0.0"
-    resolve-from "^5.0.0"
 
 expo@^48.0.0:
   version "48.0.10"
