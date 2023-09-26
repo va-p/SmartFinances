@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.digitaltech.smartfinances",
-      "versionCode": 89,
+      "versionCode": 90,
       "permissions": [
         "VIBRATE",
         "CAMERA",
