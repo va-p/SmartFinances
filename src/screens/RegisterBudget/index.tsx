@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -8,25 +8,25 @@ import {
   Footer,
 } from './styles';
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-import SelectDropdown from 'react-native-select-dropdown';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useDispatch, useSelector } from 'react-redux';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Icon from 'phosphor-react-native';
-import { useForm } from 'react-hook-form';
-import { ptBR } from 'date-fns/locale';
-import { format } from 'date-fns';
-import * as Yup from 'yup';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useForm } from 'react-hook-form';
+import * as Icon from 'phosphor-react-native';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import SelectDropdown from 'react-native-select-dropdown';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
-import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
-import { ModalViewSelection } from '@components/ModalViewSelection';
-import { AccountProps } from '@components/AccountListItem';
-import { SelectButton } from '@components/SelectButton';
-import { AccountSelect } from '@screens/AccountSelect';
 import { Button } from '@components/Button';
+import { AccountSelect } from '@screens/AccountSelect';
+import { SelectButton } from '@components/SelectButton';
+import { AccountProps } from '@components/AccountListItem';
+import { ModalViewSelection } from '@components/ModalViewSelection';
+import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
 import {
   BudgetPeriodSelect,
@@ -42,6 +42,8 @@ import { selectUserTenantId } from '@slices/userSlice';
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import { useFocusEffect } from '@react-navigation/native';
+import { BudgetProps } from '@components/BudgetListItem';
 
 type Props = {
   id: string;
@@ -57,14 +59,15 @@ type FormData = {
 const schema = Yup.object().shape({
   name: Yup.string().required('Digite o nome'),
   amount: Yup.number()
-    .typeError('Digite um valor númerico')
+    .typeError('Digite um valor numérico')
     .positive('O valor não pode ser negativo')
     .required('Digite o valor'),
 });
 /* Validation Form - End */
 
-export function RegisterBudget({ closeBudget }: Props) {
+export function RegisterBudget({ id, closeBudget }: Props) {
   const tenantId = useSelector(selectUserTenantId);
+  const [budget, setBudget] = useState<BudgetProps>();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useSelector(selectBudgetCategoriesSelected);
   const [startDate, setStartDate] = useState(new Date());
@@ -115,8 +118,126 @@ export function RegisterBudget({ closeBudget }: Props) {
     periodBottomSheetRef.current?.dismiss();
   }
 
+  async function fetchBudget() {
+    let totalByDate = { id: '4', name: 'Mensalmente', period: 'monthly' };
+
+    setButtonIsLoading(true);
+
+    try {
+      const { data } = await api.get('single_budget', {
+        params: {
+          budget_id: id,
+        },
+      });
+      setBudget(data);
+      switch (data.currency_id) {
+        case 1:
+          break;
+
+        default:
+          break;
+      }
+      setCurrencySelected(data.currency_id);
+      setStartDate(new Date(data.start_date));
+      switch (data.recurrence) {
+        case 'daily':
+          totalByDate = {
+            id: '1',
+            name: 'Diariamente',
+            period: 'monthly',
+          };
+          break;
+        case 'weekly':
+          totalByDate = {
+            id: '2',
+            name: 'Semanalmente',
+            period: 'monthly',
+          };
+          break;
+        case 'biweekly':
+          totalByDate = {
+            id: '3',
+            name: 'Quinzenalmente',
+            period: 'monthly',
+          };
+          break;
+        case 'monthly':
+          totalByDate = {
+            id: '4',
+            name: 'Mensalmente',
+            period: 'monthly',
+          };
+          break;
+        case 'semiannually':
+          totalByDate = {
+            id: '5',
+            name: 'Semestralmente',
+            period: 'monthly',
+          };
+          break;
+        case 'monthly':
+          totalByDate = {
+            id: '6',
+            name: 'Anualmente',
+            period: 'monthly',
+          };
+          break;
+      }
+      setBudgetPeriodSelected(totalByDate);
+      dispatch(setBudgetCategoriesSelected(data.categories));
+      console.log('single_budget, data >>>', data);
+    } catch (error) {
+    } finally {
+      setButtonIsLoading(false);
+    }
+  }
+
+  async function handleEditBudget(id: string, form: FormData) {
+    let categoriesList: any = [];
+    for (const item of budgetCategoriesSelected) {
+      const category_id = item.id;
+
+      if (!categoriesList.hasOwnProperty(category_id)) {
+        categoriesList[category_id] = {
+          category_id: item.id,
+        };
+      }
+    }
+    categoriesList = Object.values(categoriesList);
+
+    try {
+      const editedBudget = {
+        name: form.name,
+        amount: form.amount,
+        currency_id: 4,
+        categories: categoriesList,
+        start_date: startDate,
+        recurrence: budgetPeriodSelected.period,
+        tenant_id: tenantId,
+      };
+
+      const { status } = await api.post('edit_budget', editedBudget);
+      if (status === 200) {
+        Alert.alert('Edição de Orçamento', 'Orçamento editado com sucesso!', [
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: closeBudget,
+          },
+        ]);
+        reset();
+      }
+    } catch (error) {
+    } finally {
+      setButtonIsLoading(false);
+    }
+  }
+
   async function handleRegisterBudget(form: FormData) {
     setButtonIsLoading(true);
+
+    if (id != '') {
+      handleEditBudget(id, form);
+    }
 
     let categoriesList: any = [];
     for (const item of budgetCategoriesSelected) {
@@ -171,6 +292,14 @@ export function RegisterBudget({ closeBudget }: Props) {
     }
   }
 
+  useFocusEffect(
+    useCallback(() => {
+      if (id != '') {
+        fetchBudget();
+      }
+    }, [id])
+  );
+
   return (
     <Container>
       <ControlledInputWithIcon
@@ -178,7 +307,7 @@ export function RegisterBudget({ closeBudget }: Props) {
         placeholder='Nome do orçamento'
         autoCapitalize='sentences'
         autoCorrect={false}
-        defaultValue=''
+        defaultValue={budget?.name || ''}
         name='name'
         control={control}
         error={errors.name}
@@ -190,7 +319,7 @@ export function RegisterBudget({ closeBudget }: Props) {
             icon={<Icon.Money color={theme.colors.primary} />}
             placeholder='Valor do orçamento'
             keyboardType='numeric'
-            defaultValue=''
+            defaultValue={id != '' ? String(budget?.amount) : ''}
             name='amount'
             control={control}
             error={errors.amount}
@@ -239,7 +368,9 @@ export function RegisterBudget({ closeBudget }: Props) {
         title='Orçamento para'
         subTitle={
           budgetCategoriesSelected[0]
-            ? `${budgetCategoriesSelected.length} categorias`
+            ? budgetCategoriesSelected.length > 1
+              ? `${budgetCategoriesSelected.length} categorias`
+              : `${budgetCategoriesSelected.length} categoria`
             : 'Selecione as categorias'
         }
         icon={<Icon.CirclesFour color={theme.colors.primary} />}
@@ -274,7 +405,7 @@ export function RegisterBudget({ closeBudget }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title='Criar orçamento'
+          title={id != '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterBudget)}
         />

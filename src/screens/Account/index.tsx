@@ -67,6 +67,8 @@ import { selectUserTenantId } from '@slices/userSlice';
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import getTransactions from '@utils/getTransactions';
+import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 export function Account() {
   const [loading, setLoading] = useState(false);
@@ -142,11 +144,7 @@ export function Account() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
@@ -158,9 +156,8 @@ export function Account() {
 
       let transactionsByAccountFormattedPtbr: any = [];
       for (const item of data) {
-        // Format the date "dd/MM/yyyy"
         const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
-        // Format the currency
+
         switch (item.account.currency.code) {
           case 'BRL':
             amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
@@ -223,7 +220,7 @@ export function Account() {
             currency: 'USD',
           });
         }
-        // Create the objects
+
         if (!transactionsByAccountFormattedPtbr.hasOwnProperty(dmy)) {
           transactionsByAccountFormattedPtbr[item.id] = {
             id: item.id,
@@ -289,22 +286,30 @@ export function Account() {
           return secondDateParsed.getTime() - firstDateParsed.getTime();
         });
 
-      // Sum the total revenues and expenses by account
-      transactionsByAccountFormattedPtbr.forEach((cur: any) => {
-        if (cur.type === 'credit') {
-          totalRevenues += cur.amount;
-        } else if (cur.type === 'debit') {
-          totalExpenses += cur.amount;
-        } else if (cur.type === 'transferCredit') {
-          totalRevenues += cur.amount;
-        } else if (cur.type === 'transferDebit') {
-          totalExpenses += cur.amount;
-        }
-      });
-      // Sum balance total of account
+      transactionsByAccountFormattedPtbr
+        .filter(
+          (filteredTransaction: any) =>
+            parse(filteredTransaction.created_at, 'dd/MM/yyyy', new Date()) <=
+            new Date()
+        )
+        .forEach((cur: any) => {
+          switch (cur.type) {
+            case 'credit':
+              totalRevenues += cur.amount;
+              break;
+            case 'transferCredit':
+              totalRevenues += cur.amount;
+              break;
+            case 'debit':
+              totalExpenses += cur.amount;
+              break;
+            case 'transferDebit':
+              totalExpenses += cur.amount;
+              break;
+          }
+        });
       const total = accountInitialAmount + totalRevenues - totalExpenses;
 
-      // Verify if balance is positive
       total >= 0 ? setBalanceIsPositive(true) : setBalanceIsPositive(false);
 
       const totalAccountBalanceFormatted = Number(total).toLocaleString(
@@ -316,20 +321,9 @@ export function Account() {
       );
       setTotalAccountBalance(totalAccountBalanceFormatted);
 
-      // Group transactions by date to section list
-      const transactionsFormattedPtbrGroupedByDate =
-        transactionsByAccountFormattedPtbr.reduce((acc: any, cur: any) => {
-          const existObj = acc.find((obj: any) => obj.title === cur.created_at);
-          if (existObj) {
-            existObj.data.push(cur);
-          } else {
-            acc.push({
-              title: cur.created_at,
-              data: [cur],
-            });
-          }
-          return acc;
-        }, []);
+      const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
+        transactionsByAccountFormattedPtbr
+      );
       /**
        * All Transactions By Account Formatted in pt-BR - End
        */
@@ -352,7 +346,6 @@ export function Account() {
             ).getFullYear() === selectedDate.getFullYear()
         );
 
-      // Sum revenues and expenses
       let totalRevenuesByMonths = 0;
       let totalExpensesByMonths = 0;
 
@@ -373,11 +366,10 @@ export function Account() {
           });
         }
       }
-      // Sum account cash flow
+
       const cashFlowByMonths =
         accountInitialAmount + totalRevenuesByMonths - totalExpensesByMonths;
 
-      // Verify if balance is positive
       if (periodSelected.period === 'months') {
         cashFlowByMonths >= 0
           ? setCashFlowIsPositive(true)
@@ -407,7 +399,6 @@ export function Account() {
             ).getFullYear() === selectedDate.getFullYear()
         );
 
-      // Sum revenues and expenses
       let totalRevenuesByYears = 0;
       let totalExpensesByYears = 0;
 
@@ -428,11 +419,10 @@ export function Account() {
           });
         }
       }
-      // Sum account cash flow
+
       const cashFlowByYears =
         accountInitialAmount + totalRevenuesByYears - totalExpensesByYears;
 
-      // Verify if balance is positive
       if (periodSelected.period === 'years') {
         cashFlowByYears >= 0
           ? setCashFlowIsPositive(true)
@@ -567,9 +557,23 @@ export function Account() {
     }, [periodSelected])
   );
 
-  if (loading) {
-    return <SkeletonAccountsScreen />;
+  function _renderEmpty() {
+    return <ListEmptyComponent />;
   }
+
+  function _renderItem({ item, index }: any) {
+    return (
+      <TransactionListItem
+        data={item}
+        index={index}
+        onPress={() => handleOpenTransaction(item.id)}
+      />
+    );
+  }
+
+  //if (loading) {
+  //  return <SkeletonAccountsScreen />;
+  //}
 
   return (
     <Container>
@@ -603,7 +607,9 @@ export function Account() {
             <AccountBalance balanceIsPositive={balanceIsPositive}>
               {totalAccountBalance}
             </AccountBalance>
-            <AccountBalanceDescription>Sado da conta</AccountBalanceDescription>
+            <AccountBalanceDescription>
+              Saldo da conta
+            </AccountBalanceDescription>
           </AccountBalanceGroup>
 
           <AccountBalanceSeparator />
@@ -621,16 +627,11 @@ export function Account() {
         <AnimatedSectionList
           sections={transactionsFormattedBySelectedPeriod}
           keyExtractor={(item: any) => item.id}
-          renderItem={({ item }: any) => (
-            <TransactionListItem
-              data={item}
-              onPress={() => handleOpenTransaction(item.id)}
-            />
-          )}
+          renderItem={_renderItem}
           renderSectionHeader={({ section }) => (
             <SectionListHeader data={section} />
           )}
-          ListEmptyComponent={() => <ListEmptyComponent />}
+          ListEmptyComponent={_renderEmpty}
           removeClippedSubviews
           maxToRenderPerBatch={10}
           initialNumToRender={200}

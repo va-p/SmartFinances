@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import * as SplashScreen from 'expo-splash-screen';
-import { ThemeProvider } from 'styled-components';
-import CodePush from 'react-native-code-push';
-import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
+import { Provider } from 'react-redux';
+import * as Updates from 'expo-updates';
+//import CodePush from 'react-native-code-push';
+import { ThemeProvider } from 'styled-components';
+import * as SplashScreen from 'expo-splash-screen';
+import * as NavigationBar from 'expo-navigation-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import store from './src/store';
 
@@ -22,14 +24,35 @@ import theme from './src/global/themes/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-const CODE_PUSH_OPTIONS = {
+/*const CODE_PUSH_OPTIONS = {
   checkFrequency: CodePush.CheckFrequency.ON_APP_RESUME,
-};
+};*/
 
 function App() {
   const [appIsReady, setAppIsReady] = useState(false);
 
+  async function onFetchUpdateAsync() {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      }
+    } catch (error) {
+      // You can also add an alert() to see the error message in case of an error when fetching updates.
+      alert(`Error fetching latest Expo update: ${error}`);
+    }
+  }
+
   useEffect(() => {
+    onFetchUpdateAsync();
+
+    async () => {
+      await NavigationBar.setBackgroundColorAsync(theme.colors.background);
+      await NavigationBar.setButtonStyleAsync('light');
+    };
+
     async function prepare() {
       try {
         await Font.loadAsync({
@@ -67,4 +90,6 @@ function App() {
   );
 }
 
-export default CodePush(CODE_PUSH_OPTIONS)(App);
+//export default CodePush(CODE_PUSH_OPTIONS)(App);
+
+export default App;

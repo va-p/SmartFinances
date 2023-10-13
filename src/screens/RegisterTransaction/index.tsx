@@ -15,37 +15,37 @@ import {
   Footer,
 } from './styles';
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { BorderlessButton } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as ImagePicker from 'expo-image-picker';
-import * as Icon from 'phosphor-react-native';
-import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
-import { ptBR } from 'date-fns/locale';
-import { format } from 'date-fns';
-import * as Yup from 'yup';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useSelector } from 'react-redux';
+import { useForm } from 'react-hook-form';
+import * as Icon from 'phosphor-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
+import { BorderlessButton } from 'react-native-gesture-handler';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { TagListItemRegisterTransaction } from '@components/TagListItemRegisterTransaction';
-import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
-import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
-import { ControlledInputValue } from '@components/Form/ControlledInputValue';
-import { CategorySelectButton } from '@components/Form/CategorySelectButton';
-import { AccountProps, CurrencyProps } from '@components/AccountListItem';
-import { CurrencySelectButton } from '@components/CurrencySelectButton';
-import { ModalViewSelection } from '@components/ModalViewSelection';
-import { CategoryProps } from '@components/CategoryListItem';
-import { SelectButton } from '@components/SelectButton';
-import { TagProps } from '@components/TagListItem';
 import { Button } from '@components/Button';
+import { TagProps } from '@components/TagListItem';
+import { SelectButton } from '@components/SelectButton';
+import { CategoryProps } from '@components/CategoryListItem';
+import { ModalViewSelection } from '@components/ModalViewSelection';
+import { CurrencySelectButton } from '@components/CurrencySelectButton';
+import { AccountProps, CurrencyProps } from '@components/AccountListItem';
+import { CategorySelectButton } from '@components/Form/CategorySelectButton';
+import { ControlledInputValue } from '@components/Form/ControlledInputValue';
+import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
+import { TagListItemRegisterTransaction } from '@components/TagListItemRegisterTransaction';
 
-import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
-import { CurrencySelect } from '@screens/CurrencySelect';
-import { CategorySelect } from '@screens/CategorySelect';
 import { AccountSelect } from '@screens/AccountSelect';
+import { CategorySelect } from '@screens/CategorySelect';
+import { CurrencySelect } from '@screens/CurrencySelect';
+import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
 import { selectUserTenantId } from '@slices/userSlice';
 import {
@@ -88,7 +88,7 @@ type FormData = {
 const schema = Yup.object().shape({
   description: Yup.string().required('Digite a descrição'),
   amount: Yup.number()
-    .typeError('Digite um valor númerico')
+    .typeError('Digite um valor numérico')
     .positive('O valor não pode ser negativo')
     .required('Digite o valor'),
 });

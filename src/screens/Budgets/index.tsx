@@ -2,34 +2,37 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
-import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
-import { useFocusEffect } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useSelector } from 'react-redux';
-import { ptBR } from 'date-fns/locale';
 import axios from 'axios';
+import { ptBR } from 'date-fns/locale';
+import { useDispatch, useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
+import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 
-import { BudgetListItem, BudgetProps } from '@components/BudgetListItem';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { TransactionProps } from '@components/TransactionListItem';
-import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Button';
-import { Header } from '@components/Header';
 import { Load } from '@components/Load';
+import { Header } from '@components/Header';
+import { Button } from '@components/Button';
+import { ModalView } from '@components/ModalView';
+import { TransactionProps } from '@components/TransactionListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { BudgetListItem, BudgetProps } from '@components/BudgetListItem';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
+import { setBudgetCategoriesSelected } from '@slices/budgetCategoriesSelectedSlice';
 
-export function Budgets() {
+export function Budgets({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [budgetsFormatted, setBudgetsFormatted] = useState<BudgetProps[]>([]);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [budgetId, setBudgetId] = useState('');
+
+  const dispatch = useDispatch();
 
   async function checkBudgets() {
     //setLoading(true);
@@ -52,7 +55,7 @@ export function Budgets() {
       console.error(error);
       Alert.alert(
         'Orçamentos',
-        'Não foi possível buscar seus orçamntos. Verifique sua conexão com a internet e tente novamente.'
+        'Não foi possível buscar seus orçamentos. Verifique sua conexão com a internet e tente novamente.'
       );
     }
 
@@ -73,7 +76,7 @@ export function Budgets() {
       console.error(error);
       Alert.alert(
         'Transações',
-        'Não foi possível buscar suas transações. Verifique sua conexão com a internet e tente novamente.'
+        'Não foi possível buscar seus orçamentos. Verifique sua conexão com a internet e tente novamente.'
       );
     }
 
@@ -201,8 +204,14 @@ export function Budgets() {
     bottomSheetRef.current?.present();
   }
 
+  function handleOpenEditBudget(id: string) {
+    setBudgetId(id);
+    bottomSheetRef.current?.present();
+  }
+
   function handleCloseEditBudgetModal() {
     setBudgetId('');
+    dispatch(setBudgetCategoriesSelected([]));
     checkBudgets();
     bottomSheetRef.current?.dismiss();
   }
@@ -229,7 +238,7 @@ export function Budgets() {
     }
   }
 
-  async function handleClickDeleteCategory() {
+  async function handleClickDeleteBudget() {
     Alert.alert(
       'Exclusão de orçamento',
       'ATENÇÃO! Todas as informações deste orçamento serão excluídas. Tem certeza que deseja excluir o orçamento?',
@@ -261,7 +270,11 @@ export function Budgets() {
         data={budgetsFormatted}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <BudgetListItem data={item} index={index} />
+          <BudgetListItem
+            data={item}
+            index={index}
+            onPress={() => handleOpenEditBudget(item.id)}
+          />
         )}
         ListEmptyComponent={() => (
           <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />
@@ -291,7 +304,7 @@ export function Budgets() {
             ? handleCloseEditBudgetModal
             : () => bottomSheetRef.current?.dismiss()
         }
-        deleteChildren={handleClickDeleteCategory}
+        deleteChildren={handleClickDeleteBudget}
       >
         <RegisterBudget
           id={budgetId}

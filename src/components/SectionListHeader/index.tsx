@@ -1,24 +1,20 @@
 import React from 'react';
-import {
-  Container,
-  SectionText
-} from './styles';
+import { Container, SectionText } from './styles';
 
 interface SectionHeaderProps {
   title: string;
-  count?: number;
+  total: number;
 }
 
 type Props = {
-  data: SectionHeaderProps
-}
+  data: SectionHeaderProps;
+};
 
 export function SectionListHeader({ data }: Props) {
   return (
     <Container>
-      <SectionText>
-        {data.title}
-      </SectionText>
+      <SectionText>{data.title}</SectionText>
+      <SectionText>{data.total}</SectionText>
     </Container>
   );
 }

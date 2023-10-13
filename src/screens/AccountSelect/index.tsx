@@ -2,19 +2,19 @@ import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
-import { FlatList } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
+import { FlatList } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { AccountProps } from '@components/AccountListItem';
-import { ListSeparator } from '@components/ListSeparator';
-import { ListItem } from '@components/ListItem';
 import { Load } from '@components/Load';
+import { ListItem } from '@components/ListItem';
+import { ListSeparator } from '@components/ListSeparator';
+import { AccountProps } from '@components/AccountListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
-import api from '@api/api';
+import getAccounts from '@utils/getAccounts';
 
 type Props = {
   account: AccountProps;
@@ -36,12 +36,10 @@ export function AccountSelect({
     setLoading(true);
 
     try {
-      const { data } = await api.get('account', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getAccounts(tenantId);
+
       if (!data) {
+        return;
       } else {
         setAccounts(data);
         setRefreshing(false);

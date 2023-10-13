@@ -38,15 +38,16 @@ import {
   setAccountName,
   setAccountCurrency,
   setAccountInitialAmount,
+  setAccountType,
+  AccountType,
 } from '@slices/accountSlice';
 import { selectUserTenantId } from '@slices/userSlice';
-
-import api from '@api/api';
 
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
+import getTransactions from '@utils/getTransactions';
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -65,11 +66,7 @@ export function Accounts({ navigation }: any) {
     setLoading(true);
 
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
 
       /**
        * All totals Grouped By Accounts/Wallets - Start
@@ -79,7 +76,6 @@ export function Accounts({ navigation }: any) {
 
       let accounts: any = [];
       for (const item of data) {
-        // Sum the total revenues and expenses of all accounts
         if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
           totalRevenuesBRL += item.amount;
         } else if (
@@ -89,9 +85,7 @@ export function Accounts({ navigation }: any) {
           totalExpensesBRL += item.amount;
         }
 
-        // Group by account
         const account = item.account.id;
-        // Create the objects
         if (!accounts.hasOwnProperty(account)) {
           accounts[account] = {
             id: account,
@@ -101,6 +95,8 @@ export function Accounts({ navigation }: any) {
               symbol: item.account.currency.symbol,
             },
             initial_amount: item.account.initial_amount,
+            type: item.account.type,
+            transactions: [],
             hide: item.account.hide,
             totalRevenuesByAccount: 0,
             totalExpensesByAccount: 0,
@@ -108,7 +104,6 @@ export function Accounts({ navigation }: any) {
           };
         }
 
-        // Sum the total revenues and expenses by account
         if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
           accounts[account].totalRevenuesByAccount += item.amount;
         } else if (
@@ -129,7 +124,6 @@ export function Accounts({ navigation }: any) {
         }
       }
 
-      // Sum the total of all accounts
       const totalBRL = totalRevenuesBRL - totalExpensesBRL;
       const totalFormattedPtbr = Number(totalBRL).toLocaleString('pt-BR', {
         style: 'currency',
@@ -140,9 +134,7 @@ export function Accounts({ navigation }: any) {
       const filteredAccounts = accounts.filter(
         (account: AccountProps) => !account.hide
       );
-      console.log(`accounts`, accounts);
 
-      // Runs from last to first, accumulating the total
       for (let i = accounts.length - 1; i >= 0; i--) {
         const totalByAccount =
           accounts[i].initial_amount +
@@ -167,36 +159,33 @@ export function Accounts({ navigation }: any) {
       /**
        * All Totals Grouped By Months - Start
        */
-      // Group by month
       let totalsByMonths: any = [];
       for (const item of data) {
-        // Format the date to "aaaa-mm", easier to sort the array
-        const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
-        // Create the objects
-        if (!totalsByMonths.hasOwnProperty(ym)) {
-          totalsByMonths[ym] = {
-            date: ym,
-            totalRevenuesByMonth: 0,
-            totalExpensesByMonth: 0,
-            total: 0,
-          };
-        }
-        if (item.type === 'credit') {
-          totalsByMonths[ym].totalRevenuesByMonth += item.amount;
-        } else if (item.type === 'debit') {
-          totalsByMonths[ym].totalExpensesByMonth += item.amount;
+        if (new Date(item.created_at) <= new Date()) {
+          const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+          if (!totalsByMonths.hasOwnProperty(ym)) {
+            totalsByMonths[ym] = {
+              date: ym,
+              totalRevenuesByMonth: 0,
+              totalExpensesByMonth: 0,
+              total: 0,
+            };
+          }
+          if (item.type === 'credit') {
+            totalsByMonths[ym].totalRevenuesByMonth += item.amount;
+          } else if (item.type === 'debit') {
+            totalsByMonths[ym].totalExpensesByMonth += item.amount;
+          }
         }
       }
       totalsByMonths = Object.values(totalsByMonths);
 
-      // Runs from last to first, accumulating the total
       let total = 0;
       for (let i = totalsByMonths.length - 1; i >= 0; i--) {
         total +=
           totalsByMonths[i].totalRevenuesByMonth -
           totalsByMonths[i].totalExpensesByMonth;
         totalsByMonths[i].total = total;
-        // Converts the date to the final format
         totalsByMonths[i].date = format(
           parseISO(totalsByMonths[i].date),
           `MMM '\n' yyyy`,
@@ -240,10 +229,12 @@ export function Accounts({ navigation }: any) {
   function handleOpenAccount(
     id: string,
     name: string,
+    type: AccountType,
     currency: any,
     initialAmount: number
   ) {
     dispatch(setAccountName(name));
+    dispatch(setAccountType(type));
     dispatch(setAccountCurrency(currency));
     dispatch(setAccountInitialAmount(initialAmount));
     navigation.navigate('Conta', { id });
@@ -277,9 +268,53 @@ export function Accounts({ navigation }: any) {
     }, [])
   );
 
-  if (loading) {
-    return <SkeletonAccountsScreen />;
+  function _renderEmpty() {
+    return (
+      <ListEmptyComponent text='Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui' />
+    );
   }
+
+  function _renderItem({ item, index }: any) {
+    const getAccountIcon = () => {
+      switch (item.type) {
+        case 'Outro':
+        case 'Carteira':
+          return <Icon.Wallet color={theme.colors.primary} />;
+        case 'Carteira de Criptomoedas':
+          return <Icon.CurrencyBtc color={theme.colors.primary} />;
+        case 'Poupança':
+        case 'Investimentos':
+        case 'Conta Corrente':
+          return <Icon.Bank color={theme.colors.primary} />;
+        case 'Cartão de Crédito':
+          return <Icon.CreditCard color={theme.colors.primary} />;
+        default:
+          'Carteira';
+          break;
+      }
+    };
+
+    return (
+      <AccountListItem
+        data={item}
+        index={index}
+        icon={getAccountIcon()}
+        onPress={() =>
+          handleOpenAccount(
+            item.id,
+            item.name,
+            item.type,
+            item.currency,
+            item.initial_amount
+          )
+        }
+      />
+    );
+  }
+
+  //if (loading) {
+  //  return <SkeletonAccountsScreen />;
+  //}
 
   return (
     <Container>
@@ -340,24 +375,8 @@ export function Accounts({ navigation }: any) {
         <FlatList
           data={accounts}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index }: any) => (
-            <AccountListItem
-              data={item}
-              index={index}
-              icon={<Icon.Wallet color={theme.colors.primary} />}
-              onPress={() =>
-                handleOpenAccount(
-                  item.id,
-                  item.name,
-                  item.currency,
-                  item.initial_amount
-                )
-              }
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui' />
-          )}
+          renderItem={_renderItem}
+          ListEmptyComponent={_renderEmpty}
           initialNumToRender={10}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />

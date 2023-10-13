@@ -1,10 +1,21 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../store'
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "../store";
+
+export type AccountType =
+  | "Cartão de Crédito"
+  | "Carteira"
+  | "Carteira de Criptomoedas"
+  | "Conta Corrente"
+  | "Investimentos"
+  | "Poupança"
+  | "Outro"
+  | null;
 
 // Define a type for the slice state
 interface AccountState {
   accountId: string;
   accountName: string;
+  accountType: AccountType;
   accountCurrency: {
     id: string;
     name: string;
@@ -16,50 +27,78 @@ interface AccountState {
   accountTotalExpenses: string | null;
   accountTotalAmount: string | null;
   accountTenantId: string;
-};
+}
 
 // Define the initial state using that type
 const initialState: AccountState = {
-  accountId: '',
-  accountName: '',
-  accountCurrency: { id: '', name: '', code: '', symbol: 'R$' },
+  accountId: "",
+  accountName: "",
+  accountType: null,
+  accountCurrency: { id: "", name: "", code: "", symbol: "R$" },
   accountInitialAmount: 0,
   accountTotalRevenues: null,
   accountTotalExpenses: null,
   accountTotalAmount: "R$0",
-  accountTenantId: ''
+  accountTenantId: "",
 };
 
 export const accountSlice = createSlice({
-  name: 'account',
+  name: "account",
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    setAccountId: (state, action: PayloadAction<AccountState['accountId']>) => {
+    setAccountId: (state, action: PayloadAction<AccountState["accountId"]>) => {
       state.accountId = action.payload;
     },
-    setAccountName: (state, action: PayloadAction<AccountState['accountName']>) => {
+    setAccountName: (
+      state,
+      action: PayloadAction<AccountState["accountName"]>
+    ) => {
       state.accountName = action.payload;
     },
-    setAccountCurrency: (state, action: PayloadAction<AccountState['accountCurrency']>) => {
+    setAccountType: (
+      state,
+      action: PayloadAction<AccountState["accountType"]>
+    ) => {
+      state.accountType = action.payload;
+    },
+    setAccountCurrency: (
+      state,
+      action: PayloadAction<AccountState["accountCurrency"]>
+    ) => {
       state.accountCurrency = action.payload;
     },
-    setAccountInitialAmount: (state, action: PayloadAction<AccountState['accountInitialAmount']>) => {
+    setAccountInitialAmount: (
+      state,
+      action: PayloadAction<AccountState["accountInitialAmount"]>
+    ) => {
       state.accountInitialAmount = action.payload;
     },
-    setAccountTotalRevenues: (state, action: PayloadAction<AccountState['accountTotalRevenues']>) => {
+    setAccountTotalRevenues: (
+      state,
+      action: PayloadAction<AccountState["accountTotalRevenues"]>
+    ) => {
       state.accountTotalRevenues = action.payload;
     },
-    setAccountTotalExpenses: (state, action: PayloadAction<AccountState['accountTotalExpenses']>) => {
+    setAccountTotalExpenses: (
+      state,
+      action: PayloadAction<AccountState["accountTotalExpenses"]>
+    ) => {
       state.accountTotalExpenses = action.payload;
     },
-    setAccountTotalAmount: (state, action: PayloadAction<AccountState['accountTotalAmount']>) => {
+    setAccountTotalAmount: (
+      state,
+      action: PayloadAction<AccountState["accountTotalAmount"]>
+    ) => {
       state.accountTotalAmount = action.payload;
     },
-    setAccountTenantId: (state, action: PayloadAction<AccountState['accountTenantId']>) => {
+    setAccountTenantId: (
+      state,
+      action: PayloadAction<AccountState["accountTenantId"]>
+    ) => {
       state.accountTenantId = action.payload;
-    }
+    },
   },
 });
 
@@ -67,22 +106,32 @@ export const accountSlice = createSlice({
 export const {
   setAccountId,
   setAccountName,
+  setAccountType,
   setAccountCurrency,
   setAccountInitialAmount,
   setAccountTotalRevenues,
   setAccountTotalExpenses,
   setAccountTotalAmount,
-  setAccountTenantId
+  setAccountTenantId,
 } = accountSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
 export const selectAccountId = (state: RootState) => state.account.accountId;
-export const selectAccountName = (state: RootState) => state.account.accountName;
-export const selectAccountCurrency = (state: RootState) => state.account.accountCurrency;
-export const selectAccountInitialAmount = (state: RootState) => state.account.accountInitialAmount;
-export const selectAccountTotalRevenues = (state: RootState) => state.account.accountTotalRevenues;
-export const selectAccountTotalExpenses = (state: RootState) => state.account.accountTotalExpenses;
-export const selectAccountTotalAmount = (state: RootState) => state.account.accountTotalAmount;
-export const selectAccountTenantId = (state: RootState) => state.account.accountTenantId;
+export const selectAccountName = (state: RootState) =>
+  state.account.accountName;
+export const selectAccountType = (state: RootState) =>
+  state.account.accountType;
+export const selectAccountCurrency = (state: RootState) =>
+  state.account.accountCurrency;
+export const selectAccountInitialAmount = (state: RootState) =>
+  state.account.accountInitialAmount;
+export const selectAccountTotalRevenues = (state: RootState) =>
+  state.account.accountTotalRevenues;
+export const selectAccountTotalExpenses = (state: RootState) =>
+  state.account.accountTotalExpenses;
+export const selectAccountTotalAmount = (state: RootState) =>
+  state.account.accountTotalAmount;
+export const selectAccountTenantId = (state: RootState) =>
+  state.account.accountTenantId;
 
 export default accountSlice.reducer;

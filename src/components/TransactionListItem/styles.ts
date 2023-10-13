@@ -1,17 +1,17 @@
-import styled from 'styled-components/native';
+import styled from "styled-components/native";
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { RFValue } from "react-native-responsive-fontsize";
+import { RectButton } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 export type TransactionTypeProps =
-  | 'credit'
-  | 'debit'
-  | 'transferDebit'
-  | 'transferCredit';
+  | "credit"
+  | "debit"
+  | "transferDebit"
+  | "transferCredit";
 
 type Props = {
   type: TransactionTypeProps;
@@ -20,7 +20,7 @@ type Props = {
 export const Container = styled(RectButtonAnimated)`
   flex: 1;
   min-height: 72px;
-  max-height: 88px;
+  max-height: 104px;
   flex-direction: row;
   align-items: center;
   padding: 8px 16px;
@@ -35,7 +35,7 @@ export const Icon = styled(Ionicons)<Props>`
   position: absolute;
   font-size: ${RFValue(20)}px;
   color: ${({ theme, type }) =>
-    type === 'credit' ? theme.colors.success : theme.colors.primary};
+    type === "credit" ? theme.colors.success : theme.colors.primary};
 `;
 
 export const DetailsContainer = styled.View`
@@ -53,7 +53,7 @@ export const Description = styled.Text<Props>`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
-    type === 'credit' ? theme.colors.success : theme.colors.title};
+    type === "credit" ? theme.colors.success : theme.colors.title};
 `;
 
 export const AmountContainer = styled.View`
@@ -70,7 +70,7 @@ export const Amount = styled.Text<Props>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
-    type === 'credit' ? theme.colors.success : theme.colors.text};
+    type === "credit" ? theme.colors.success : theme.colors.text};
   margin-left: 5px;
 `;
 

@@ -46,7 +46,9 @@ import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
-import TransactionListItem from '@components/TransactionListItem';
+import TransactionListItem, {
+  TransactionProps,
+} from '@components/TransactionListItem';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 
@@ -67,6 +69,8 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
+import getTransactions from '@utils/getTransactions';
+import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 type PeriodData = {
   date: Date | number;
@@ -224,11 +228,7 @@ export function Home() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
 
       /**
        * All Transactions Formatted in pt-BR - Start
@@ -240,9 +240,8 @@ export function Home() {
 
       let transactionsFormattedPtbr: any = [];
       for (const item of data) {
-        // Format the date "dd/MM/yyyy"
         const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
-        // Format the currency
+
         switch (item.account.currency.code) {
           case 'BRL':
             amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
@@ -305,7 +304,7 @@ export function Home() {
             currency: 'USD',
           });
         }
-        // Create the objects
+
         if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
           transactionsFormattedPtbr[item.id] = {
             id: item.id,
@@ -353,7 +352,7 @@ export function Home() {
             tenant_id: item.tenant_id,
           };
         }
-        // Sum revenues and expenses of all transactions
+
         if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
           totalRevenues += item.amount;
         } else if (
@@ -381,23 +380,9 @@ export function Home() {
         currency: 'BRL',
       });
 
-      // Group transactions by date to section list
-      const transactionsFormattedPtbrGroupedByDate =
-        transactionsFormattedPtbr.reduce((acc: any, transaction: any) => {
-          const existObj = acc.find(
-            (obj: any) => obj.title === transaction.created_at
-          );
-
-          if (existObj) {
-            existObj.data.push(transaction);
-          } else {
-            acc.push({
-              title: transaction.created_at,
-              data: [transaction],
-            });
-          }
-          return acc;
-        }, []);
+      const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
+        transactionsFormattedPtbr
+      );
       /**
        * All Transactions Formatted in pt-BR - End
        */
@@ -420,7 +405,6 @@ export function Home() {
             ).getFullYear() === selectedPeriod.getFullYear()
         );
 
-      // Sum revenues and expenses
       let totalRevenuesByMonths = 0;
       let totalExpensesByMonths = 0;
 
@@ -466,7 +450,6 @@ export function Home() {
             ).getFullYear() === selectedPeriod.getFullYear()
         );
 
-      // Sum revenues and expenses
       let totalRevenuesByYears = 0;
       let totalExpensesByYears = 0;
 
@@ -507,9 +490,8 @@ export function Home() {
        */
       let totalsGroupedByMonths: any = [];
       for (const item of data) {
-        // Format the date to "yyyy-mm", easier to sort the array
         const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
-        // Create the objects
+
         if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
           totalsGroupedByMonths[ym] = {
             date: ym,
@@ -517,15 +499,17 @@ export function Home() {
             totalExpensesByPeriod: 0,
           };
         }
-        if (item.type === 'credit') {
+        if (new Date(item.created_at) < new Date() && item.type === 'credit') {
           totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'debit') {
+        } else if (
+          new Date(item.created_at) < new Date() &&
+          item.type === 'debit'
+        ) {
           totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
         }
       }
       totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
 
-      // Runs from last to first, formating the date to "MMM yyyy"
       for (let i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
         totalsGroupedByMonths[i].date = format(
           parseISO(totalsGroupedByMonths[i].date),
@@ -542,9 +526,8 @@ export function Home() {
        */
       let totalsGroupedByYears: any = [];
       for (const item of data) {
-        // Format the date to "yyyy", easier to sort the array
         const y = format(item.created_at, `yyyy`, { locale: ptBR });
-        // Create the objects
+
         if (!totalsGroupedByYears.hasOwnProperty(y)) {
           totalsGroupedByYears[y] = {
             date: y,
@@ -552,9 +535,12 @@ export function Home() {
             totalExpensesByPeriod: 0,
           };
         }
-        if (item.type === 'credit') {
+        if (new Date(item.created_at) < new Date() && item.type === 'credit') {
           totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
-        } else if (item.type === 'debit') {
+        } else if (
+          new Date(item.created_at) < new Date() &&
+          item.type === 'debit'
+        ) {
           totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
         }
       }
@@ -574,10 +560,9 @@ export function Home() {
        */
       let totalsGroupedByAllHistory: any = [];
       for (const item of data) {
-        // Format the date to "Todo o \n histórico"
         item.created_at = `Todo o \n histórico`;
         const allHistory = item.created_at;
-        // Create the objects
+
         if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
           totalsGroupedByAllHistory[allHistory] = {
             date: allHistory,
@@ -585,10 +570,13 @@ export function Home() {
             totalExpensesByPeriod: 0,
           };
         }
-        if (item.type === 'credit') {
+        if (new Date(item.created_at) < new Date() && item.type === 'credit') {
           totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod +=
             item.amount;
-        } else if (item.type === 'debit') {
+        } else if (
+          new Date(item.created_at) < new Date() &&
+          item.type === 'debit'
+        ) {
           totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod +=
             item.amount;
         }
@@ -760,7 +748,7 @@ export function Home() {
         <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
             height={200}
-            padding={{ top: 12, right: 12, bottom: 130, left: 40 }}
+            padding={{ top: 12, right: 12, bottom: 130, left: 48 }}
             domainPadding={{ x: 6, y: 6 }}
             containerComponent={
               <VictoryZoomContainer

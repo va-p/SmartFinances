@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>CFBundleAllowMixedLocalizations</key>
+    <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -19,7 +19,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.36.0</string>
+    <string>1.0.0</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -27,7 +27,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.digitaltech.smartfinances</string>
+          <string>com.vap.smartfinances</string>
         </array>
       </dict>
       <dict>
@@ -38,7 +38,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1.36.0</string>
+    <string>1.0.0</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>

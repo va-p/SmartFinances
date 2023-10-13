@@ -16,7 +16,7 @@ const colors = [
   lime300,
   lightGreen500,
   teal700,
-  cyan900
+  cyan900,
 ];
 const blueGrey50 = '#ECEFF1';
 const blueGrey300 = '#90A4AE';
@@ -26,8 +26,8 @@ const grey900 = '#212121';
 // * Typography
 // *
 const sansSerif = "'Helvetica Neue', 'Helvetica', sans-serif";
-const letterSpacing = "normal";
-const fontSize = 12;
+const letterSpacing = 'normal';
+const fontSize = 10;
 // *
 // * Layout
 // *
@@ -35,7 +35,7 @@ const padding = 8;
 const baseProps = {
   width: 350,
   height: 350,
-  padding: 50
+  padding: 50,
 };
 // *
 // * Labels
@@ -47,7 +47,7 @@ const baseLabelStyles = {
   padding,
   fill: blueGrey700,
   stroke: 'transparent',
-  strokeWidth: 0
+  strokeWidth: 0,
 };
 
 const centeredLabelStyles = assign({ textAnchor: 'middle' }, baseLabelStyles);
@@ -63,10 +63,10 @@ export default {
     {
       style: {
         data: {
-          fill: grey900
+          fill: grey900,
         },
-        labels: baseLabelStyles
-      }
+        labels: baseLabelStyles,
+      },
     },
     baseProps
   ),
@@ -78,11 +78,11 @@ export default {
           stroke: blueGrey700,
           strokeWidth: 1,
           strokeLinecap,
-          strokeLinejoin
+          strokeLinejoin,
         },
         axisLabel: assign({}, centeredLabelStyles, {
           padding,
-          stroke: 'transparent'
+          stroke: 'transparent',
         }),
         grid: {
           fill: 'none',
@@ -90,7 +90,7 @@ export default {
           strokeDasharray,
           strokeLinecap,
           strokeLinejoin,
-          pointerEvents: 'painted'
+          pointerEvents: 'painted',
         },
         ticks: {
           fill: 'transparent',
@@ -98,12 +98,12 @@ export default {
           stroke: 'transparent',
           strokeWidth: 0,
           strokeLinecap,
-          strokeLinejoin
+          strokeLinejoin,
         },
         tickLabels: assign({}, baseLabelStyles, {
-          fill: blueGrey300
-        })
-      }
+          fill: blueGrey300,
+        }),
+      },
     },
     baseProps
   ),
@@ -112,9 +112,9 @@ export default {
       ticks: {
         fill: 'transparent',
         size: 1,
-        stroke: 'transparent'
-      }
-    }
+        stroke: 'transparent',
+      },
+    },
   }),
   bar: assign(
     {
@@ -122,10 +122,10 @@ export default {
         data: {
           fill: blueGrey700,
           padding,
-          strokeWidth: 0
+          strokeWidth: 0,
         },
-        labels: baseLabelStyles
-      }
+        labels: baseLabelStyles,
+      },
     },
     baseProps
   ),
@@ -141,9 +141,9 @@ export default {
         q1: { padding, fill: blueGrey700 },
         q1Labels: assign({}, baseLabelStyles, { padding: 3 }),
         q3: { padding, fill: blueGrey700 },
-        q3Labels: assign({}, baseLabelStyles, { padding: 3 })
+        q3Labels: assign({}, baseLabelStyles, { padding: 3 }),
       },
-      boxWidth: 20
+      boxWidth: 20,
     },
     baseProps
   ),
@@ -151,14 +151,14 @@ export default {
     {
       style: {
         data: {
-          stroke: blueGrey700
+          stroke: blueGrey700,
         },
-        labels: assign({}, baseLabelStyles, { padding: 5 })
+        labels: assign({}, baseLabelStyles, { padding: 5 }),
       },
       candleColors: {
         positive: '#ffffff',
-        negative: blueGrey700
-      }
+        negative: blueGrey700,
+      },
     },
     baseProps
   ),
@@ -171,16 +171,16 @@ export default {
           fill: 'transparent',
           opacity: 1,
           stroke: blueGrey700,
-          strokeWidth: 2
+          strokeWidth: 2,
         },
-        labels: baseLabelStyles
-      }
+        labels: baseLabelStyles,
+      },
     },
     baseProps
   ),
   group: assign(
     {
-      colorScale: colors
+      colorScale: colors,
     },
     baseProps
   ),
@@ -190,10 +190,10 @@ export default {
         data: {
           fill: blueGrey700,
           stroke: grey900,
-          strokeWidth: 2
+          strokeWidth: 2,
         },
-        labels: baseLabelStyles
-      }
+        labels: baseLabelStyles,
+      },
     },
     baseProps
   ),
@@ -204,11 +204,11 @@ export default {
     titleOrientation: 'top',
     style: {
       data: {
-        type: 'circle'
+        type: 'circle',
       },
       labels: baseLabelStyles,
-      title: assign({}, baseLabelStyles, { padding: 5 })
-    }
+      title: assign({}, baseLabelStyles, { padding: 5 }),
+    },
   },
   line: assign(
     {
@@ -217,10 +217,10 @@ export default {
           fill: 'transparent',
           opacity: 1,
           stroke: blueGrey700,
-          strokeWidth: 2
+          strokeWidth: 2,
         },
-        labels: baseLabelStyles
-      }
+        labels: baseLabelStyles,
+      },
     },
     baseProps
   ),
@@ -231,10 +231,10 @@ export default {
         data: {
           padding,
           stroke: blueGrey50,
-          strokeWidth: 1
+          strokeWidth: 1,
         },
-        labels: assign({}, baseLabelStyles, { padding: 20 })
-      }
+        labels: assign({}, baseLabelStyles, { padding: 20 }),
+      },
     },
     baseProps
   ),
@@ -245,16 +245,16 @@ export default {
           fill: blueGrey700,
           opacity: 1,
           stroke: 'transparent',
-          strokeWidth: 0
+          strokeWidth: 0,
         },
-        labels: baseLabelStyles
-      }
+        labels: baseLabelStyles,
+      },
     },
     baseProps
   ),
   stack: assign(
     {
-      colorScale: colors
+      colorScale: colors,
     },
     baseProps
   ),
@@ -263,12 +263,12 @@ export default {
     flyoutStyle: {
       stroke: grey900,
       strokeWidth: 1,
-      fill: "#f0f0f0",
-      pointerEvents: 'none'
+      fill: '#f0f0f0',
+      pointerEvents: 'none',
     },
     flyoutPadding: 5,
     cornerRadius: 5,
-    pointerLength: 10
+    pointerLength: 10,
   },
   voronoi: assign(
     {
@@ -276,20 +276,20 @@ export default {
         data: {
           fill: 'transparent',
           stroke: 'transparent',
-          strokeWidth: 0
+          strokeWidth: 0,
         },
         labels: assign({}, baseLabelStyles, {
           padding: 5,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
         }),
         flyout: {
           stroke: grey900,
           strokeWidth: 1,
           fill: '#f0f0f0',
-          pointerEvents: 'none'
-        }
-      }
+          pointerEvents: 'none',
+        },
+      },
     },
     baseProps
-  )
+  ),
 };

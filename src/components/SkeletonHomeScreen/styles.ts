@@ -6,7 +6,7 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 export const Container = styled.View`
   flex: 1;
   padding: ${Platform.OS === 'ios' ? '24px 16px 0' : '16px 16px 0'};
-  align-items: center;
+  gap: 8px;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
