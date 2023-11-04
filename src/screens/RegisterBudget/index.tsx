@@ -21,9 +21,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Button } from '@components/Button';
-import { AccountSelect } from '@screens/AccountSelect';
 import { SelectButton } from '@components/SelectButton';
-import { AccountProps } from '@components/AccountListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';

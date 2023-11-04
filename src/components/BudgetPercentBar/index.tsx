@@ -49,6 +49,7 @@ export function BudgetPercentBar({ is_amount_reached, percentage }: Props) {
 
 const styles = StyleSheet.create({
   percentage: {
+    minWidth: '0%',
     maxWidth: '100%',
     minHeight: 24,
     maxHeight: 24,

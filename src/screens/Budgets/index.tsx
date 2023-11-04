@@ -80,7 +80,7 @@ export function Budgets() {
     if (budgets && transactions) {
       let budgetsFormatted: any = [];
       for (const budget of budgets) {
-        let startDate = addDays(new Date(budget.start_date), 1);
+        let startDate = new Date(budget.start_date);
         let endDate = new Date(startDate);
 
         switch (budget.recurrence) {
@@ -209,7 +209,7 @@ export function Budgets() {
     try {
       await api.delete('delete_budget', {
         params: {
-          category_id: id,
+          budget_id: id,
         },
       });
       Alert.alert('Exclusão de orçamento', 'Orçamento excluído com sucesso!');
