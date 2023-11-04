@@ -9,11 +9,13 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 - [x] Permite ao usuário adicionar, editar e excluir transações;
 - [x] Permite ao usuário adicionar imagens às transações;
 - [x] Lista as contas/carteiras do usuário;
-- [x] Permite ao usuário adicionar, editar e excluir contas/carteiras;
+- [x] Permite ao usuário adicionar, editar, excluir e ocultar contas/carteiras;
 - [x] Lista as categorias do usuário;
 - [x] Permite ao usuário adicionar, editar e excluir categorias;
 - [x] Lista as etiquetas do usuário;
 - [x] Permite ao usuário adicionar, editar e excluir etiquetas;
+- [x] Lista os orçamentos do usuário;
+- [x] Permite ao usuário adicionar, editar e excluir orçamentos;
 - [x] Exibe o fluxo de caixa;
 - [x] Exibe gráfico em barras com o histórico do fluxo de caixa;
 - [x] Exibe gráfico em linha com o total do patrimônio;
@@ -25,8 +27,8 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 
 ## ✨ Tecnologias
 
-- [x] React Native
 - [x] Typescript
+- [x] React Native
 - [x] Expo Bare Workflow
 - [x] Expo Updates
 - [x] Styled Components
@@ -42,6 +44,7 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 - [x] React Native Responsive Fontsize
 - [x] iPhone X Helper
 - [x] React Hook Form
+- [x] Yup Resolver
 - [x] Vector Icons
 - [x] React Native Svg e Svg Transform
 - [x] Expo Google Fonts

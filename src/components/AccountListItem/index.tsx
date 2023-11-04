@@ -6,30 +6,16 @@ import {
   NameContainer,
   Name,
   Amount,
+  AmountsContainer,
 } from './styles';
 
-import { RectButtonProps } from 'react-native-gesture-handler';
-import { FadeInUp } from 'react-native-reanimated';
+import { AccountProps } from '@interfaces/accounts';
+
 import * as Icon from 'phosphor-react-native';
+import { FadeInUp } from 'react-native-reanimated';
+import { RectButtonProps } from 'react-native-gesture-handler';
 
 import theme from '@themes/theme';
-
-export interface CurrencyProps {
-  id: string;
-  name: string;
-  code: string;
-  symbol: string;
-}
-
-export interface AccountProps {
-  id: string;
-  name: string;
-  currency: CurrencyProps;
-  initial_amount: string | number;
-  totalAccountAmount?: string;
-  tenant_id: number | null;
-  hide?: boolean;
-}
 
 type Props = RectButtonProps & {
   data: AccountProps;
@@ -46,7 +32,14 @@ export function AccountListItem({ data, index, icon, ...rest }: Props) {
         </IconContainer>
         <NameContainer>
           <Name>{data.name}</Name>
-          <Amount>{data.totalAccountAmount}</Amount>
+          <AmountsContainer>
+            <Amount>{data.totalAccountAmount}</Amount>
+            {data.totalAccountAmountConverted && (
+              <Amount style={{ fontSize: 12 }}>
+                ({data.totalAccountAmountConverted})
+              </Amount>
+            )}
+          </AmountsContainer>
         </NameContainer>
       </DetailsContainer>
       <Icon.CaretRight size={16} color={theme.colors.text} />

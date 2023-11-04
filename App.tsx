@@ -40,18 +40,17 @@ function App() {
         await Updates.reloadAsync();
       }
     } catch (error) {
-      // You can also add an alert() to see the error message in case of an error when fetching updates.
-      alert(`Error fetching latest Expo update: ${error}`);
+      console.error(`Error fetching latest Expo update: ${error}`);
     }
   }
 
   useEffect(() => {
     onFetchUpdateAsync();
 
-    async () => {
-      await NavigationBar.setBackgroundColorAsync(theme.colors.background);
+    (async () => {
+      await NavigationBar.setBackgroundColorAsync('#020027');
       await NavigationBar.setButtonStyleAsync('light');
-    };
+    })();
 
     async function prepare() {
       try {

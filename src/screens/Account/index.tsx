@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { RefreshControl, StyleSheet, SectionList, Alert } from 'react-native';
 import {
   Container,
@@ -85,6 +85,10 @@ export function Account() {
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
   ] = useState([]);
+  const optimizedTransactions = useMemo(
+    () => transactionsFormattedBySelectedPeriod,
+    [transactionsFormattedBySelectedPeriod]
+  );
   const [totalAccountBalance, setTotalAccountBalance] = useState('');
   const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] = useState('');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
@@ -295,14 +299,10 @@ export function Account() {
         .forEach((cur: any) => {
           switch (cur.type) {
             case 'credit':
-              totalRevenues += cur.amount;
-              break;
             case 'transferCredit':
               totalRevenues += cur.amount;
               break;
             case 'debit':
-              totalExpenses += cur.amount;
-              break;
             case 'transferDebit':
               totalExpenses += cur.amount;
               break;
@@ -350,21 +350,20 @@ export function Account() {
       let totalExpensesByMonths = 0;
 
       for (const item of transactionsByMonthsFormattedPtbr) {
-        if (item.data) {
-          item.data.forEach((cur: any) => {
-            if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'credit'
-            ) {
-              totalRevenuesByMonths += cur.amount;
-            } else if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'debit'
-            ) {
-              totalExpensesByMonths += cur.amount;
+        item.data.forEach((cur: any) => {
+          if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
+            switch (cur.type) {
+              case 'credit':
+              case 'transferCredit':
+                totalRevenuesByMonths += cur.amount;
+                break;
+              case 'debit':
+              case 'transferDebit':
+                totalExpensesByMonths += cur.amount;
+                break;
             }
-          });
-        }
+          }
+        });
       }
 
       const cashFlowByMonths =
@@ -403,21 +402,20 @@ export function Account() {
       let totalExpensesByYears = 0;
 
       for (const item of transactionsByYearsFormattedPtbr) {
-        if (item.data) {
-          item.data.forEach((cur: any) => {
-            if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'credit'
-            ) {
-              totalRevenuesByYears += cur.amount;
-            } else if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'debit'
-            ) {
-              totalExpensesByYears += cur.amount;
+        item.data.forEach((cur: any) => {
+          if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
+            switch (cur.type) {
+              case 'credit':
+              case 'transferCredit':
+                totalRevenuesByYears += cur.amount;
+                break;
+              case 'debit':
+              case 'transferDebit':
+                totalExpensesByYears += cur.amount;
+                break;
             }
-          });
-        }
+          }
+        });
       }
 
       const cashFlowByYears =
@@ -625,16 +623,14 @@ export function Account() {
 
       <Transactions>
         <AnimatedSectionList
-          sections={transactionsFormattedBySelectedPeriod}
+          sections={optimizedTransactions}
           keyExtractor={(item: any) => item.id}
           renderItem={_renderItem}
           renderSectionHeader={({ section }) => (
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={_renderEmpty}
-          removeClippedSubviews
-          maxToRenderPerBatch={10}
-          initialNumToRender={200}
+          initialNumToRender={2000}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

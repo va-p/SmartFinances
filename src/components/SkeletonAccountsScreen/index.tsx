@@ -1,122 +1,117 @@
-import React, { useEffect } from 'react';
-import {
-  Chart,
-  Container,
-  Header,
-  Title,
-  MainContent,
-  AccountsContainer,
-  Account,
-  Footer,
-  ButtonGroup,
-  AddAccountButton,
-} from './styles';
+import React from 'react';
+import { Container } from './styles';
 
-import Animated, { EasingNode } from 'react-native-reanimated';
+import {
+  Placeholder,
+  PlaceholderMedia,
+  PlaceholderLine,
+  Shine,
+} from 'rn-placeholder';
 
 import theme from '@themes/theme';
 
 export function SkeletonAccountsScreen() {
-  const skeletonAnimatedValue = new Animated.Value(0)
-
-  const skeletonAnimated = () => {
-    skeletonAnimatedValue.setValue(0)
-    Animated.timing(
-      skeletonAnimatedValue,
-      {
-        toValue: 1,
-        duration: 300,
-        easing: EasingNode.out(EasingNode.linear)
-      }
-    ).start(() => {
-      setTimeout(() => {
-        skeletonAnimated()
-      }, 500);
-    })
-  };
-
-  const translateX = skeletonAnimatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-30, 100]
-  });
-  const translateX2 = skeletonAnimatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-80, 380]
-  });
-  const translateX3 = skeletonAnimatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-10, 185]
-  });
-
-  useEffect(() => {
-    skeletonAnimated()
-  }, []);
-
   return (
     <Container>
-      <Header>
-        <Title>
-          <Animated.View style={{ width: '30%', height: 32, opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX }] }}></Animated.View>
-        </Title>
-      </Header>
+      <Placeholder Animation={Shine} style={{ padding: 8, gap: 8 }}>
+        <PlaceholderLine
+          width={24}
+          height={32}
+          noMargin
+          style={{
+            alignSelf: 'center',
+            marginBottom: 8,
+            backgroundColor: theme.colors.shape,
+          }}
+        />
+        <PlaceholderLine
+          width={16}
+          height={24}
+          style={{ alignSelf: 'center', backgroundColor: theme.colors.shape }}
+        />
+        <PlaceholderLine
+          width={96}
+          height={120}
+          noMargin
+          style={{ marginBottom: 16, backgroundColor: theme.colors.shape }}
+        />
+      </Placeholder>
 
-      <Chart>
-        <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-          <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-        </Animated.View>
-      </Chart>
+      <Placeholder
+        Animation={Shine}
+        Left={() => (
+          <PlaceholderMedia
+            style={{ backgroundColor: theme.colors.background }}
+          />
+        )}
+        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+      >
+        <PlaceholderLine
+          width={96}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+        <PlaceholderLine
+          width={48}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+      </Placeholder>
 
-      <MainContent>
-        <AccountsContainer>
-          <Account>
-            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-            </Animated.View>
-          </Account>
+      <Placeholder
+        Animation={Shine}
+        Left={() => (
+          <PlaceholderMedia
+            style={{ backgroundColor: theme.colors.background }}
+          />
+        )}
+        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+      >
+        <PlaceholderLine
+          width={96}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+        <PlaceholderLine
+          width={48}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+      </Placeholder>
 
-          <Account>
-            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-            </Animated.View>
-          </Account>
+      <Placeholder
+        Animation={Shine}
+        Left={() => (
+          <PlaceholderMedia
+            style={{ backgroundColor: theme.colors.background }}
+          />
+        )}
+        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+      >
+        <PlaceholderLine
+          width={96}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+        <PlaceholderLine
+          width={48}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+      </Placeholder>
 
-          <Account>
-            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-            </Animated.View>
-          </Account>
-
-          <Account>
-            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-            </Animated.View>
-          </Account>
-
-          <Account>
-            <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-              <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX2 }] }}></Animated.View>
-            </Animated.View>
-          </Account>
-        </AccountsContainer>
-
-        <Footer>
-          <ButtonGroup>
-            <AddAccountButton>
-              <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-                <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX3 }] }}></Animated.View>
-              </Animated.View>
-            </AddAccountButton>
-          </ButtonGroup>
-
-          <ButtonGroup>
-            <AddAccountButton>
-              <Animated.View style={{ height: '100%', backgroundColor: theme.colors.shape, borderRadius: 10 }}>
-                <Animated.View style={{ width: '20%', height: '100%', opacity: 0.5, backgroundColor: theme.colors.background, transform: [{ translateX: translateX3 }] }}></Animated.View>
-              </Animated.View>
-            </AddAccountButton>
-          </ButtonGroup>
-        </Footer>
-      </MainContent>
+      <Placeholder
+        Animation={Shine}
+        Left={() => (
+          <PlaceholderMedia
+            style={{ backgroundColor: theme.colors.background }}
+          />
+        )}
+        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+      >
+        <PlaceholderLine
+          width={96}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+        <PlaceholderLine
+          width={48}
+          style={{ marginBottom: 16, backgroundColor: theme.colors.background }}
+        />
+      </Placeholder>
     </Container>
   );
 }

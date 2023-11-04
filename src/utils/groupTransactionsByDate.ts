@@ -1,4 +1,4 @@
-import { TransactionProps } from '@components/TransactionListItem';
+import { TransactionProps } from '@interfaces/transactions';
 
 function groupTransactionsByDate(transactions: TransactionProps[]) {
   let totalByDate = 0;

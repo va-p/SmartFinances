@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
   RefreshControl,
@@ -46,9 +52,7 @@ import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
-import TransactionListItem, {
-  TransactionProps,
-} from '@components/TransactionListItem';
+import TransactionListItem from '@components/TransactionListItem';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 
@@ -56,6 +60,7 @@ import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import {
+  setBrlQuoteBtc,
   setBtcQuoteBrl,
   setEurQuoteBrl,
   setUsdQuoteBrl,
@@ -63,7 +68,6 @@ import {
 import { selectUserTenantId } from '@slices/userSlice';
 
 import apiQuotes from '@api/apiQuotes';
-import api from '@api/api';
 
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
@@ -71,6 +75,7 @@ import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+import formatDatePtBr from '@utils/formatDatePtBr';
 
 type PeriodData = {
   date: Date | number;
@@ -87,6 +92,10 @@ export function Home() {
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
   ] = useState([]);
+  const optimizedTransactions = useMemo(
+    () => transactionsFormattedBySelectedPeriod,
+    [transactionsFormattedBySelectedPeriod]
+  );
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
     id: '1',
@@ -161,18 +170,48 @@ export function Home() {
     },
   });
 
+  // const brlQuoteEur = useSelector(selectBrlQuoteEur);
+
+  // const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
+
+  async function fetchBrlQuote() {
+    try {
+      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
+        params: {
+          amount: 1,
+          symbol: 'BRL',
+          convert: 'BTC',
+        },
+      });
+      // console.log('BRL quote >>>', data.data[0].quote.BTC);
+      dispatch(setBrlQuoteBtc(data.data[0].quote.BTC));
+
+      /*console.log(
+        'brlQuoteBtc.price >>>',
+        brlQuoteBtc.price,
+        'brlQuoteBtc.last_updated >>>',
+        brlQuoteBtc.last_updated
+      );*/
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Cotação de moedas',
+        'Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.'
+      );
+    }
+  }
+
   async function fetchBtcQuote() {
     try {
       const { data } = await apiQuotes.get('v2/tools/price-conversion', {
         params: {
           amount: 1,
-          id: '1',
+          symbol: 'BTC',
           convert: 'BRL',
         },
       });
-      if (data) {
-        dispatch(setBtcQuoteBrl(data.data.quote.BRL));
-      }
+      // console.log('BTC quote >>>', data.data[0].quote.BRL);
+      dispatch(setBtcQuoteBrl(data.data[0].quote.BRL));
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -192,7 +231,7 @@ export function Home() {
         },
       });
       if (data) {
-        dispatch(setEurQuoteBrl(data.data['0'].quote.BRL));
+        dispatch(setEurQuoteBrl(data.data[0].quote.BRL));
       }
     } catch (error) {
       console.error(error);
@@ -213,7 +252,7 @@ export function Home() {
         },
       });
       if (data) {
-        dispatch(setUsdQuoteBrl(data.data['0'].quote.BRL));
+        dispatch(setUsdQuoteBrl(data.data[0].quote.BRL));
       }
     } catch (error) {
       console.error(error);
@@ -240,7 +279,7 @@ export function Home() {
 
       let transactionsFormattedPtbr: any = [];
       for (const item of data) {
-        const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
+        const dmy = formatDatePtBr().short(item.created_at);
 
         switch (item.account.currency.code) {
           case 'BRL':
@@ -253,8 +292,8 @@ export function Home() {
             amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
+              minimumFractionDigits: 6,
+              maximumSignificantDigits: 6,
             });
             break;
           case 'EUR':
@@ -454,21 +493,18 @@ export function Home() {
       let totalExpensesByYears = 0;
 
       for (const item of transactionsByYearsFormattedPtbr) {
-        if (item.data) {
-          item.data.forEach((cur: any) => {
-            if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'credit'
-            ) {
-              totalRevenuesByYears += cur.amount;
-            } else if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'debit'
-            ) {
-              totalExpensesByYears += cur.amount;
+        item.data.forEach((cur: any) => {
+          if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
+            switch (cur.type) {
+              case 'credit':
+                totalRevenuesByYears += cur.amount;
+                break;
+              case 'debit':
+                totalExpensesByYears += cur.amount;
+                break;
             }
-          });
-        }
+          }
+        });
       }
 
       const totalBRLByYears =
@@ -696,6 +732,7 @@ export function Home() {
 
   useFocusEffect(
     useCallback(() => {
+      fetchBrlQuote();
       fetchBtcQuote();
       fetchEurQuote();
       fetchUsdQuote();
@@ -748,7 +785,7 @@ export function Home() {
         <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
             height={200}
-            padding={{ top: 12, right: 12, bottom: 130, left: 48 }}
+            padding={{ top: 12, right: 12, bottom: 128, left: 48 }}
             domainPadding={{ x: 6, y: 6 }}
             containerComponent={
               <VictoryZoomContainer
@@ -804,7 +841,7 @@ export function Home() {
 
       <Transactions>
         <AnimatedSectionList
-          sections={transactionsFormattedBySelectedPeriod}
+          sections={optimizedTransactions}
           keyExtractor={(item: any) => item.id}
           renderItem={({ item, index }: any) => (
             <TransactionListItem
@@ -817,9 +854,7 @@ export function Home() {
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={() => <ListEmptyComponent />}
-          removeClippedSubviews
-          maxToRenderPerBatch={10}
-          initialNumToRender={200}
+          initialNumToRender={2000}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

@@ -1,8 +1,8 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
+import { RectButton } from 'react-native-gesture-handler';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
@@ -40,4 +40,10 @@ export const Amount = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
   color: ${({ theme }) => theme.colors.text};
+`;
+
+export const AmountsContainer = styled.View`
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
 `;

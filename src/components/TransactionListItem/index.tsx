@@ -17,30 +17,15 @@ import {
   Account,
   AmountNotConvertedContainer,
   AmountNotConverted,
-  TransactionTypeProps,
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
 
-import { AccountProps, CurrencyProps } from '@components/AccountListItem';
-import { CategoryProps } from '@components/CategoryListItem';
-import { TagTransaction } from '@components/TagTransaction';
 import { FadeInUp } from 'react-native-reanimated';
 
-export interface TransactionProps {
-  id: string;
-  created_at: any;
-  description: string;
-  amount: number;
-  amount_formatted: string | number;
-  amount_not_converted?: string | number;
-  currency: CurrencyProps;
-  type: TransactionTypeProps;
-  account: AccountProps;
-  category: CategoryProps;
-  tags: [];
-  tenant_id: string;
-}
+import { TagTransaction } from '@components/TagTransaction';
+import { CategoryProps } from '@components/CategoryListItem';
+import { TransactionProps } from '@interfaces/transactions';
 
 type Props = RectButtonProps & {
   data: TransactionProps;

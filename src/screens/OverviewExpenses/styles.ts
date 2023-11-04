@@ -10,7 +10,9 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const ContentScroll = styled.ScrollView``;
+export const ContentScroll = styled.ScrollView.attrs({
+  showsVerticalScrollIndicator: false,
+})``;
 
 export const MonthSelect = styled.View`
   width: 100%;
@@ -28,6 +30,5 @@ export const Month = styled.Text`
 `;
 
 export const PieChartContainer = styled.View`
-  width: 100%;
   align-items: center;
 `;

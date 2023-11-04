@@ -583,89 +583,69 @@ export function RegisterTransaction({
     // Edit Transaction
     if (id != '') {
       handleEditTransaction(id, form);
-    }
-    // Add Transaction
-    else {
-      // Credit or Debit Transaction
+      // Add Transaction
+    } else {
       if (transactionType != 'transfer') {
         // Need conversion
         if (currencySelected.code !== accountSelected.currency.code) {
-          // Converted BRL
           let amountConverted = 0;
-          if (
-            currencySelected.code === 'BTC' &&
-            accountSelected.currency.code === 'BRL'
-          ) {
-            amountConverted = Number(form.amount) * btcQuoteBrl.price;
-          }
-          if (
-            currencySelected.code === 'EUR' &&
-            accountSelected.currency.code === 'BRL'
-          ) {
-            amountConverted = Number(form.amount) * eurQuoteBrl.price;
-          }
-          if (
-            currencySelected.code === 'USD' &&
-            accountSelected.currency.code === 'BRL'
-          ) {
-            amountConverted = Number(form.amount) * usdQuoteBrl.price;
-          }
-          // Converted BTC
-          if (
-            currencySelected.code === 'BRL' &&
-            accountSelected.currency.code === 'BTC'
-          ) {
-            amountConverted = Number(form.amount) * brlQuoteBtc.price;
-          }
-          if (
-            currencySelected.code === 'EUR' &&
-            accountSelected.currency.code === 'BTC'
-          ) {
-            amountConverted = Number(form.amount) * eurQuoteBtc.price;
-          }
-          if (
-            currencySelected.code === 'USD' &&
-            accountSelected.currency.code === 'BTC'
-          ) {
-            amountConverted = Number(form.amount) * usdQuoteBtc.price;
-          }
-          // Converted EUR
-          if (
-            currencySelected.code === 'BRL' &&
-            accountSelected.currency.code === 'EUR'
-          ) {
-            amountConverted = Number(form.amount) * brlQuoteEur.price;
-          }
-          if (
-            currencySelected.code === 'BTC' &&
-            accountSelected.currency.code === 'EUR'
-          ) {
-            amountConverted = Number(form.amount) * btcQuoteEur.price;
-          }
-          if (
-            currencySelected.code === 'USD' &&
-            accountSelected.currency.code === 'EUR'
-          ) {
-            amountConverted = Number(form.amount) * usdQuoteEur.price;
-          }
-          // Converted USD
-          if (
-            currencySelected.code === 'BRL' &&
-            accountSelected.currency.code === 'USD'
-          ) {
-            amountConverted = Number(form.amount) * brlQuoteUsd.price;
-          }
-          if (
-            currencySelected.code === 'BTC' &&
-            accountSelected.currency.code === 'USD'
-          ) {
-            amountConverted = Number(form.amount) * btcQuoteUsd.price;
-          }
-          if (
-            currencySelected.code === 'EUR' &&
-            accountSelected.currency.code === 'USD'
-          ) {
-            amountConverted = Number(form.amount) * eurQuoteUsd.price;
+          switch (accountSelected.currency.code) {
+            // Converted BTC
+            case 'BTC':
+              switch (currencySelected.code) {
+                case 'BRL':
+                  amountConverted = Number(form.amount) * brlQuoteBtc.price;
+                  break;
+                case 'EUR':
+                  amountConverted = Number(form.amount) * eurQuoteBtc.price;
+                  break;
+                case 'USD':
+                  amountConverted = Number(form.amount) * usdQuoteBtc.price;
+                  break;
+              }
+              break;
+            // Converted BRL
+            case 'BRL':
+              switch (currencySelected.code) {
+                case 'BTC':
+                  amountConverted = Number(form.amount) * btcQuoteBrl.price;
+                  break;
+                case 'EUR':
+                  amountConverted = Number(form.amount) * eurQuoteBrl.price;
+                  break;
+                case 'USD':
+                  amountConverted = Number(form.amount) * usdQuoteBrl.price;
+                  break;
+              }
+              break;
+            // Converted EUR
+            case 'EUR':
+              switch (currencySelected.code) {
+                case 'BTC':
+                  amountConverted = Number(form.amount) * btcQuoteEur.price;
+                  break;
+                case 'BRL':
+                  amountConverted = Number(form.amount) * brlQuoteEur.price;
+                  break;
+                case 'USD':
+                  amountConverted = Number(form.amount) * usdQuoteEur.price;
+                  break;
+              }
+              break;
+            // Converted USD
+            case 'USD':
+              switch (currencySelected.code) {
+                case 'BTC':
+                  amountConverted = Number(form.amount) * btcQuoteUsd.price;
+                  break;
+                case 'BRL':
+                  amountConverted = Number(form.amount) * brlQuoteUsd.price;
+                  break;
+                case 'EUR':
+                  amountConverted = Number(form.amount) * eurQuoteUsd.price;
+                  break;
+              }
+              break;
           }
 
           try {
@@ -912,90 +892,75 @@ export function RegisterTransaction({
             setButtonIsLoading(false);
           }
         }
-      }
-      // Transfer Transaction
-      else {
+        // Transfer Transaction
+      } else {
         // Need conversion
         let amountConverted = 0;
+
         if (
           accountSelected.currency.code !==
           accountDestinationSelected.currency.code
         ) {
-          //Converted BRL
-          if (
-            accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'BTC'
-          ) {
-            amountConverted = Number(form.amount) * brlQuoteBtc.price;
-          }
-          if (
-            accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'EUR'
-          ) {
-            amountConverted = Number(form.amount) * brlQuoteEur.price;
-          }
-          if (
-            accountSelected.currency.code === 'BRL' &&
-            accountDestinationSelected.currency.code === 'USD'
-          ) {
-            amountConverted = Number(form.amount) * brlQuoteUsd.price;
-          }
-          //Converted BTC
-          if (
-            accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'BRL'
-          ) {
-            amountConverted = Number(form.amount) * btcQuoteBrl.price;
-          }
-          if (
-            accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'EUR'
-          ) {
-            amountConverted = Number(form.amount) * btcQuoteEur.price;
-          }
-          if (
-            accountSelected.currency.code === 'BTC' &&
-            accountDestinationSelected.currency.code === 'USD'
-          ) {
-            amountConverted = Number(form.amount) * btcQuoteUsd.price;
-          }
-          //Converted EUR
-          if (
-            accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'BTC'
-          ) {
-            amountConverted = Number(form.amount) * eurQuoteBtc.price;
-          }
-          if (
-            accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'BRL'
-          ) {
-            amountConverted = Number(form.amount) * eurQuoteBrl.price;
-          }
-          if (
-            accountSelected.currency.code === 'EUR' &&
-            accountDestinationSelected.currency.code === 'USD'
-          ) {
-            amountConverted = Number(form.amount) * eurQuoteUsd.price;
-          }
-          //Converted USD
-          if (
-            accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'BTC'
-          ) {
-            amountConverted = Number(form.amount) * usdQuoteBtc.price;
-          }
-          if (
-            accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'BRL'
-          ) {
-            amountConverted = Number(form.amount) * usdQuoteBrl.price;
-          }
-          if (
-            accountSelected.currency.code === 'USD' &&
-            accountDestinationSelected.currency.code === 'EUR'
-          ) {
-            amountConverted = Number(form.amount) * usdQuoteEur.price;
+          switch (accountSelected.currency.code) {
+            // Converted BTC
+            case 'BTC':
+              switch (accountDestinationSelected.currency.code) {
+                case 'BRL':
+                  amountConverted = Number(form.amount) * btcQuoteBrl.price;
+                  break;
+                case 'EUR':
+                  amountConverted = Number(form.amount) * btcQuoteEur.price;
+                  break;
+                case 'USD':
+                  amountConverted = Number(form.amount) * btcQuoteUsd.price;
+                  break;
+              }
+              break;
+            // Converted BRL
+            case 'BRL':
+              switch (accountDestinationSelected.currency.code) {
+                case 'BTC':
+                  amountConverted = Number(form.amount) * brlQuoteBtc.price;
+
+                  console.log('brlQuoteBtc.price >>>', brlQuoteBtc.price);
+                  console.log('amountConverted >>>', amountConverted);
+                  break;
+                case 'EUR':
+                  amountConverted = Number(form.amount) * brlQuoteEur.price;
+                  break;
+                case 'USD':
+                  amountConverted = Number(form.amount) * brlQuoteUsd.price;
+                  break;
+              }
+              break;
+            // Converted EUR
+            case 'EUR':
+              switch (accountDestinationSelected.currency.code) {
+                case 'BTC':
+                  amountConverted = Number(form.amount) * eurQuoteBtc.price;
+                  break;
+                case 'BRL':
+                  amountConverted = Number(form.amount) * eurQuoteBrl.price;
+                  break;
+                case 'USD':
+                  amountConverted = Number(form.amount) * eurQuoteUsd.price;
+                  break;
+              }
+              break;
+            // Converted USD
+            case 'USD':
+              switch (accountDestinationSelected.currency.code) {
+                case 'BTC':
+                  amountConverted = Number(form.amount) * usdQuoteBtc.price;
+                  break;
+                case 'BRL':
+                  amountConverted = Number(form.amount) * usdQuoteBrl.price;
+                  break;
+                case 'EUR':
+                  amountConverted = Number(form.amount) * usdQuoteEur.price;
+                  break;
+              }
+              break;
           }
         }
         // No need conversion
@@ -1078,7 +1043,8 @@ export function RegisterTransaction({
             created_at: date,
             description: form.description,
             amount: amountConverted,
-            currency_id: currencySelected.id,
+            amount_not_converted: form.amount,
+            currency_id: accountDestinationResponse.data.currency_id,
             type: 'transferCredit',
             account_id: accountDestinationResponse.data.id,
             category_id: categorySelected.id,

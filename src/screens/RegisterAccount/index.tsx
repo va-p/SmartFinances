@@ -2,30 +2,31 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Container, Form, Footer } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
-import SelectDropdown from 'react-native-select-dropdown';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Icon from 'phosphor-react-native';
-import { useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import * as Yup from 'yup';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
+import * as Icon from 'phosphor-react-native';
+import { yupResolver } from '@hookform/resolvers/yup';
+import SelectDropdown from 'react-native-select-dropdown';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
-import { ModalViewSelection } from '@components/ModalViewSelection';
-import { CurrencyProps } from '@components/AccountListItem';
-import { SelectButton } from '@components/SelectButton';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Button } from '@components/Button';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { ButtonToggle } from '@components/ButtonToggle';
+import { SelectButton } from '@components/SelectButton';
+import { ModalViewSelection } from '@components/ModalViewSelection';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
 import { CurrencySelect } from '@screens/CurrencySelect';
+
+import { CurrencyProps } from '@interfaces/currencies';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import theme from '@themes/theme';
 
 import api from '@api/api';
-import { ButtonToggle } from '@components/ButtonToggle';
 
 type FormData = {
   name: string;

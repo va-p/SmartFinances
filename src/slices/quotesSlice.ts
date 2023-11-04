@@ -1,108 +1,108 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../store'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '../store';
 
 // Define a type for the slice state
 interface QuotesState {
   brlQuoteBtc: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   brlQuoteEur: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   brlQuoteUsd: {
-    price: number,
-    last_updated: string
-  },
+    price: number;
+    last_updated: string;
+  };
   btcQuoteBrl: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   btcQuoteEur: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   btcQuoteUsd: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   eurQuoteBrl: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   eurQuoteBtc: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   eurQuoteUsd: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   usdQuoteBrl: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   usdQuoteBtc: {
-    price: number,
+    price: number;
     last_updated: string;
-  },
+  };
   usdQuoteEur: {
-    price: number,
+    price: number;
     last_updated: string;
-  }
-};
+  };
+}
 
 // Define the initial state using that type
 const initialState: QuotesState = {
   brlQuoteBtc: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   brlQuoteEur: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   brlQuoteUsd: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   btcQuoteBrl: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   btcQuoteEur: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   btcQuoteUsd: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   eurQuoteBrl: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   eurQuoteBtc: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   eurQuoteUsd: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   usdQuoteBrl: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   usdQuoteBtc: {
     price: 0,
-    last_updated: ''
+    last_updated: '',
   },
   usdQuoteEur: {
     price: 0,
-    last_updated: ''
-  }
+    last_updated: '',
+  },
 };
 
 export const quotesSlice = createSlice({
@@ -111,42 +111,78 @@ export const quotesSlice = createSlice({
   initialState,
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    setBrlQuoteBtc: (state, action: PayloadAction<QuotesState['brlQuoteBtc']>) => {
+    setBrlQuoteBtc: (
+      state,
+      action: PayloadAction<QuotesState['brlQuoteBtc']>
+    ) => {
+      state.brlQuoteBtc = action.payload;
+    },
+    setBrlQuoteEur: (
+      state,
+      action: PayloadAction<QuotesState['brlQuoteEur']>
+    ) => {
+      state.brlQuoteEur = action.payload;
+    },
+    setBrlQuoteUsd: (
+      state,
+      action: PayloadAction<QuotesState['brlQuoteUsd']>
+    ) => {
+      state.brlQuoteUsd = action.payload;
+    },
+    setBtcQuoteBrl: (
+      state,
+      action: PayloadAction<QuotesState['btcQuoteBrl']>
+    ) => {
       state.btcQuoteBrl = action.payload;
     },
-    setBrlQuoteEur: (state, action: PayloadAction<QuotesState['brlQuoteEur']>) => {
-      state.eurQuoteBrl = action.payload;
-    },
-    setBrlQuoteUsd: (state, action: PayloadAction<QuotesState['brlQuoteUsd']>) => {
-      state.usdQuoteBrl = action.payload;
-    },
-    setBtcQuoteBrl: (state, action: PayloadAction<QuotesState['btcQuoteBrl']>) => {
-      state.btcQuoteBrl = action.payload;
-    },
-    setBtcQuoteEur: (state, action: PayloadAction<QuotesState['btcQuoteEur']>) => {
+    setBtcQuoteEur: (
+      state,
+      action: PayloadAction<QuotesState['btcQuoteEur']>
+    ) => {
       state.btcQuoteEur = action.payload;
     },
-    setBtcQuoteUsd: (state, action: PayloadAction<QuotesState['btcQuoteUsd']>) => {
+    setBtcQuoteUsd: (
+      state,
+      action: PayloadAction<QuotesState['btcQuoteUsd']>
+    ) => {
       state.btcQuoteUsd = action.payload;
     },
-    setEurQuoteBrl: (state, action: PayloadAction<QuotesState['eurQuoteBrl']>) => {
+    setEurQuoteBrl: (
+      state,
+      action: PayloadAction<QuotesState['eurQuoteBrl']>
+    ) => {
       state.eurQuoteBrl = action.payload;
     },
-    setEurQuoteBtc: (state, action: PayloadAction<QuotesState['eurQuoteBtc']>) => {
+    setEurQuoteBtc: (
+      state,
+      action: PayloadAction<QuotesState['eurQuoteBtc']>
+    ) => {
       state.eurQuoteBtc = action.payload;
     },
-    setEurQuoteUsd: (state, action: PayloadAction<QuotesState['eurQuoteUsd']>) => {
+    setEurQuoteUsd: (
+      state,
+      action: PayloadAction<QuotesState['eurQuoteUsd']>
+    ) => {
       state.eurQuoteUsd = action.payload;
     },
-    setUsdQuoteBrl: (state, action: PayloadAction<QuotesState['usdQuoteBrl']>) => {
+    setUsdQuoteBrl: (
+      state,
+      action: PayloadAction<QuotesState['usdQuoteBrl']>
+    ) => {
       state.usdQuoteBrl = action.payload;
     },
-    setUsdQuoteBtc: (state, action: PayloadAction<QuotesState['usdQuoteBtc']>) => {
+    setUsdQuoteBtc: (
+      state,
+      action: PayloadAction<QuotesState['usdQuoteBtc']>
+    ) => {
       state.usdQuoteBtc = action.payload;
     },
-    setUsdQuoteEur: (state, action: PayloadAction<QuotesState['usdQuoteEur']>) => {
+    setUsdQuoteEur: (
+      state,
+      action: PayloadAction<QuotesState['usdQuoteEur']>
+    ) => {
       state.usdQuoteEur = action.payload;
-    }
+    },
   },
 });
 
@@ -163,7 +199,7 @@ export const {
   setEurQuoteUsd,
   setUsdQuoteBrl,
   setUsdQuoteBtc,
-  setUsdQuoteEur
+  setUsdQuoteEur,
 } = quotesSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type

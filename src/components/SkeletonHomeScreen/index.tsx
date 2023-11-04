@@ -42,7 +42,7 @@ export function SkeletonHomeScreen() {
             style={{ backgroundColor: theme.colors.background }}
           />
         )}
-        style={{ padding: 8, backgroundColor: theme.colors.shape }}
+        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
       >
         <PlaceholderLine
           width={96}

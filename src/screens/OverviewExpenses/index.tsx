@@ -9,24 +9,24 @@ import {
   PieChartContainer,
 } from './styles';
 
-import { CaretLeft, CaretRight } from 'phosphor-react-native';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { useFocusEffect } from '@react-navigation/native';
-import { addMonths, subMonths, format } from 'date-fns';
-import { useTheme } from 'styled-components';
-import { VictoryPie } from 'victory-native';
-import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
+import { useSelector } from 'react-redux';
+import { VictoryPie } from 'victory-native';
+import { useTheme } from 'styled-components';
+import { addMonths, subMonths, format } from 'date-fns';
+import { useFocusEffect } from '@react-navigation/native';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
+import { HistoryCard } from '@components/HistoryCard';
+import { TransactionProps } from '@components/TransactionListItem';
+import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 import {
   CategoryProps,
   ColorProps,
   IconProps,
 } from '@components/CategoryListItem';
-import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
-import { TransactionProps } from '@components/TransactionListItem';
-import { HistoryCard } from '@components/HistoryCard';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -65,7 +65,6 @@ export function OverviewExpenses({ navigation }: any) {
   async function fetchTransactions() {
     setLoading(true);
 
-    // Fetch Categories
     let categories: CategoryProps[] = [];
 
     try {
@@ -85,7 +84,6 @@ export function OverviewExpenses({ navigation }: any) {
       );
     }
 
-    // Fetch Transactions
     let transactions: TransactionProps[] = [];
 
     try {
@@ -97,10 +95,6 @@ export function OverviewExpenses({ navigation }: any) {
       if (data) {
         transactions = data;
       }
-
-      /*const expenses = transactions.filter(
-        (transaction: TransactionProps) => transaction.type == 'debit'
-      );*/
 
       /**
        * Expenses by Selected Month - Start
@@ -187,7 +181,7 @@ export function OverviewExpenses({ navigation }: any) {
   );
 
   if (loading) {
-    return <SkeletonOverviewScreen />;
+    // return <SkeletonOverviewScreen />;
   }
 
   return (
@@ -205,7 +199,6 @@ export function OverviewExpenses({ navigation }: any) {
       </MonthSelect>
 
       <ContentScroll
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: getBottomSpace(),
         }}
@@ -218,7 +211,9 @@ export function OverviewExpenses({ navigation }: any) {
             )}
             x='percent'
             y='total'
+            width={384}
             innerRadius={80}
+            labelRadius={150}
             animate={{
               duration: 2000,
               easing: 'backOut',
@@ -226,7 +221,7 @@ export function OverviewExpenses({ navigation }: any) {
             theme={smartFinancesChartTheme}
             style={{
               labels: {
-                fontSize: RFValue(18),
+                fontSize: RFValue(12),
                 fontWeight: 'bold',
                 fill: theme.colors.primary,
               },
@@ -234,7 +229,6 @@ export function OverviewExpenses({ navigation }: any) {
                 stroke: 'none',
               },
             }}
-            labelRadius={150}
           />
         </PieChartContainer>
         {totalExpensesByCategories.map((item) => (

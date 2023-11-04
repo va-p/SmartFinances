@@ -3,17 +3,15 @@ import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
 import axios from 'axios';
-import { ptBR } from 'date-fns/locale';
 import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
-import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
+import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
 
 import { Load } from '@components/Load';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
-import { TransactionProps } from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { BudgetListItem, BudgetProps } from '@components/BudgetListItem';
 
@@ -23,8 +21,11 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 import { setBudgetCategoriesSelected } from '@slices/budgetCategoriesSelectedSlice';
+import { TransactionProps } from '@interfaces/transactions';
+import formatDatePtBr from '@utils/formatDatePtBr';
+import getTransactions from '@utils/getTransactions';
 
-export function Budgets({ navigation }: any) {
+export function Budgets() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
@@ -61,11 +62,7 @@ export function Budgets({ navigation }: any) {
 
     let transactions: any = [];
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
 
       if (data) {
         transactions = data;
@@ -105,9 +102,6 @@ export function Budgets({ navigation }: any) {
           case 'annually':
             endDate = addYears(new Date(endDate), 1);
             break;
-          default:
-            'monthly';
-            break;
         }
 
         while (endDate < new Date()) {
@@ -131,16 +125,12 @@ export function Budgets({ navigation }: any) {
             case 'annually':
               endDate = addYears(new Date(endDate), 1);
               break;
-            default:
-              'monthly';
-              break;
           }
         }
 
         const filteredTransactions = transactions.filter(
           (transaction: TransactionProps) =>
-            transaction.type === 'debit' &&
-            //budget.accounts.find((accountId: any) => accountId.account_id === transaction.account.id) &&
+            // budget.accounts.find((accountId: any) => accountId.account_id === transaction.account.id) &&
             budget.categories.find(
               (categoryId: any) =>
                 categoryId.category_id === transaction.category.id
@@ -149,28 +139,27 @@ export function Budgets({ navigation }: any) {
             new Date(transaction.created_at) <= endDate
         );
 
-        const amountSpent = filteredTransactions.reduce(
-          (acc: any, transaction: TransactionProps) => acc + transaction.amount,
-          0
-        );
+        let totalRevenues = 0;
+        let totalExpenses = 0;
+        for (const transaction of filteredTransactions) {
+          switch (transaction.type) {
+            case 'credit':
+              totalRevenues += transaction.amount;
+              break;
+            case 'debit':
+              totalExpenses += transaction.amount;
+              break;
+          }
+        }
+        const amountSpent = totalExpenses - totalRevenues;
 
         const percentage = `${((amountSpent / budget.amount) * 100).toFixed(
           2
         )}%`;
 
-        // Format the date
-        const start_date = format(
-          new Date(startDate),
-          "dd 'de' MMMM 'de' yyyy",
-          {
-            locale: ptBR,
-          }
-        );
-        const end_date = format(endDate, "dd 'de' MMMM 'de' yyyy", {
-          locale: ptBR,
-        });
+        const start_date = formatDatePtBr().extensive(startDate);
+        const end_date = formatDatePtBr().extensive(endDate);
 
-        // Create the objects
         if (!budgetsFormatted.hasOwnProperty(endDate)) {
           budgetsFormatted[budget.id] = {
             id: budget.id,
@@ -283,6 +272,7 @@ export function Budgets({ navigation }: any) {
           <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
         }
         showsVerticalScrollIndicator={false}
+        initialNumToRender={20}
       />
 
       <Footer>

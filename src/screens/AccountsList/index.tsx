@@ -71,7 +71,7 @@ export function AccountsList() {
   function handleOpenRegisterAccountModal() {
     dispatch(setAccountId(''));
     dispatch(setAccountName(''));
-    dispatch(setAccountInitialAmount(''));
+    dispatch(setAccountInitialAmount(0));
     editAccountBottomSheetRef.current?.present();
   }
 

@@ -1,11 +1,11 @@
 import React from 'react';
+import { FlatList } from 'react-native';
 import { Container } from './styles';
 
-import { FlatList } from 'react-native-gesture-handler';
+import { CurrencyProps } from '@interfaces/currencies';
 
-import { CurrencyProps } from '@components/AccountListItem';
-import { ListSeparator } from '@components/ListSeparator';
 import { ListItem } from '@components/ListItem';
+import { ListSeparator } from '@components/ListSeparator';
 
 import { currencies } from '@utils/currencies';
 

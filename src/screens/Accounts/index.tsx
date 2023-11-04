@@ -13,27 +13,29 @@ import {
   ButtonGroup,
 } from './styles';
 
+import { ptBR } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns';
+import * as Icon from 'phosphor-react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   VictoryArea,
   VictoryChart,
   VictoryZoomContainer,
 } from 'victory-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useDispatch, useSelector } from 'react-redux';
-import * as Icon from 'phosphor-react-native';
-import { format, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
-import { AccountListItem, AccountProps } from '@components/AccountListItem';
-import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { AddAccountButton } from '@components/AddAccountButton';
 import { ModalView } from '@components/ModalView';
+import { AccountListItem } from '@components/AccountListItem';
+import { AddAccountButton } from '@components/AddAccountButton';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
-import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 
+import { selectUserTenantId } from '@slices/userSlice';
+import { selectBtcQuoteBrl } from '@slices/quotesSlice';
 import {
   setAccountName,
   setAccountCurrency,
@@ -41,13 +43,15 @@ import {
   setAccountType,
   AccountType,
 } from '@slices/accountSlice';
-import { selectUserTenantId } from '@slices/userSlice';
+
+import { AccountProps } from '@interfaces/accounts';
 
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
-import theme from '@themes/theme';
 import getTransactions from '@utils/getTransactions';
+
+import theme from '@themes/theme';
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -61,6 +65,8 @@ export function Accounts({ navigation }: any) {
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
 
   async function fetchAccounts() {
     setLoading(true);
@@ -76,51 +82,61 @@ export function Accounts({ navigation }: any) {
 
       let accounts: any = [];
       for (const item of data) {
-        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
-          totalRevenuesBRL += item.amount;
-        } else if (
-          new Date(item.created_at) <= new Date() &&
-          item.type === 'debit'
-        ) {
-          totalExpensesBRL += item.amount;
-        }
+        if (new Date(item.created_at) <= new Date()) {
+          switch (item.type) {
+            case 'credit':
+              totalRevenuesBRL += item.amount;
+              break;
+            case 'debit':
+              totalExpensesBRL += item.amount;
+              break;
+          }
 
-        const account = item.account.id;
-        if (!accounts.hasOwnProperty(account)) {
-          accounts[account] = {
-            id: account,
-            name: item.account.name,
-            currency: {
-              code: item.account.currency.code,
-              symbol: item.account.currency.symbol,
-            },
-            initial_amount: item.account.initial_amount,
-            type: item.account.type,
-            transactions: [],
-            hide: item.account.hide,
-            totalRevenuesByAccount: 0,
-            totalExpensesByAccount: 0,
-            totalAccountAmount: 0,
-          };
-        }
+          const account = item.account.id;
+          if (!accounts.hasOwnProperty(account)) {
+            accounts[account] = {
+              id: account,
+              name: item.account.name,
+              currency: {
+                code: item.account.currency.code,
+                symbol: item.account.currency.symbol,
+              },
+              initial_amount: item.account.initial_amount,
+              type: item.account.type,
+              transactions: [],
+              hide: item.account.hide,
+              totalRevenuesByAccount: 0,
+              totalExpensesByAccount: 0,
+              totalAccountAmount: 0,
+              totalAccountAmountConverted: null,
+            };
+          }
 
-        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
-          accounts[account].totalRevenuesByAccount += item.amount;
-        } else if (
-          new Date(item.created_at) <= new Date() &&
-          item.type === 'debit'
-        ) {
-          accounts[account].totalExpensesByAccount += item.amount;
-        } else if (
-          new Date(item.created_at) <= new Date() &&
-          item.type === 'transferCredit'
-        ) {
-          accounts[account].totalRevenuesByAccount += item.amount;
-        } else if (
-          new Date(item.created_at) <= new Date() &&
-          item.type === 'transferDebit'
-        ) {
-          accounts[account].totalExpensesByAccount += item.amount;
+          switch (item.currency.code) {
+            case 'BRL':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  accounts[account].totalRevenuesByAccount += item.amount;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  accounts[account].totalExpensesByAccount += item.amount;
+                  break;
+              }
+              break;
+            case 'BTC':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  accounts[account].totalRevenuesByAccount += item.amount;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  accounts[account].totalExpensesByAccount += item.amount;
+                  break;
+              }
+          }
         }
       }
 
@@ -141,13 +157,32 @@ export function Accounts({ navigation }: any) {
           accounts[i].totalRevenuesByAccount -
           accounts[i].totalExpensesByAccount;
 
-        accounts[i].totalAccountAmount = Number(totalByAccount).toLocaleString(
-          'pt-BR',
-          {
-            style: 'currency',
-            currency: 'BRL',
-          }
-        );
+        switch (accounts[i].currency.code) {
+          case 'BTC':
+            accounts[i].totalAccountAmount = Number(
+              totalByAccount
+            ).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BTC',
+              minimumFractionDigits: 8,
+              maximumSignificantDigits: 8,
+            });
+            accounts[i].totalAccountAmountConverted = Number(
+              totalByAccount * btcQuoteBrl.price
+            ).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            });
+            break;
+          default:
+            accounts[i].totalAccountAmount = Number(
+              totalByAccount
+            ).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            });
+            break;
+        }
       }
 
       setTotal(totalFormattedPtbr);
@@ -171,10 +206,13 @@ export function Accounts({ navigation }: any) {
               total: 0,
             };
           }
-          if (item.type === 'credit') {
-            totalsByMonths[ym].totalRevenuesByMonth += item.amount;
-          } else if (item.type === 'debit') {
-            totalsByMonths[ym].totalExpensesByMonth += item.amount;
+          switch (item.type) {
+            case 'credit':
+              totalsByMonths[ym].totalRevenuesByMonth += item.amount;
+              break;
+            case 'debit':
+              totalsByMonths[ym].totalExpensesByMonth += item.amount;
+              break;
           }
         }
       }
@@ -312,9 +350,9 @@ export function Accounts({ navigation }: any) {
     );
   }
 
-  //if (loading) {
-  //  return <SkeletonAccountsScreen />;
-  //}
+  if (loading) {
+    return <SkeletonAccountsScreen />;
+  }
 
   return (
     <Container>

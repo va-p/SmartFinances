@@ -60,14 +60,14 @@ export function BudgetCategorySelect() {
       categoriesAlreadySelected.includes(category);
 
     if (!categoryAlreadySelected) {
-      const updatedcategoriesAlreadySelected =
+      const updatedCategoriesAlreadySelected =
         categoriesAlreadySelected.concat(category);
-      dispatch(setBudgetCategoriesSelected(updatedcategoriesAlreadySelected));
+      dispatch(setBudgetCategoriesSelected(updatedCategoriesAlreadySelected));
     } else {
-      const updatedcategoriesAlreadySelected = categoriesAlreadySelected.filter(
+      const updatedCategoriesAlreadySelected = categoriesAlreadySelected.filter(
         (item) => item.id !== category.id
       );
-      dispatch(setBudgetCategoriesSelected(updatedcategoriesAlreadySelected));
+      dispatch(setBudgetCategoriesSelected(updatedCategoriesAlreadySelected));
     }
   }
 

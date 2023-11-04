@@ -133,9 +133,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       switch (data.currency_id) {
         case 1:
           break;
-
-        default:
-          break;
       }
       setCurrencySelected(data.currency_id);
       setStartDate(new Date(data.start_date));
@@ -184,8 +181,9 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           break;
       }
       setBudgetPeriodSelected(totalByDate);
+      // TODO Corrigir erro de tipagem, causando ter que clicar duas vezes para
+      // desmarcar uma categoria
       dispatch(setBudgetCategoriesSelected(data.categories));
-      console.log('single_budget, data >>>', data);
     } catch (error) {
     } finally {
       setButtonIsLoading(false);
@@ -207,13 +205,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
     try {
       const editedBudget = {
+        budget_id: id,
         name: form.name,
         amount: form.amount,
         currency_id: 4,
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
-        tenant_id: tenantId,
       };
 
       const { status } = await api.post('edit_budget', editedBudget);
@@ -227,6 +225,15 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         reset();
       }
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        Alert.alert('Edição de Orçamento', error.response?.data.message, [
+          { text: 'Tentar novamente' },
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: closeBudget,
+          },
+        ]);
+      }
     } finally {
       setButtonIsLoading(false);
     }
@@ -235,8 +242,9 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   async function handleRegisterBudget(form: FormData) {
     setButtonIsLoading(true);
 
-    if (id != '') {
+    if (id !== '') {
       handleEditBudget(id, form);
+      return;
     }
 
     let categoriesList: any = [];
