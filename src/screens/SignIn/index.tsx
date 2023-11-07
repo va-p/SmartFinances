@@ -124,7 +124,7 @@ export function SignIn({ navigation }: any) {
       dispatch(setUserProfileImage(loggedInUserDataFormatted.image));
       dispatch(setUserTenantId(loggedInUserDataFormatted.tenantId));
 
-      navigation.navigate('Home');
+      navigation.navigate('Main');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         Alert.alert('Login', error.response?.data.message);

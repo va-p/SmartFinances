@@ -4,7 +4,6 @@ import { StatusBar } from 'react-native';
 import * as Font from 'expo-font';
 import { Provider } from 'react-redux';
 import * as Updates from 'expo-updates';
-//import CodePush from 'react-native-code-push';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -23,10 +22,6 @@ import {
 import theme from './src/global/themes/theme';
 
 SplashScreen.preventAutoHideAsync();
-
-/*const CODE_PUSH_OPTIONS = {
-  checkFrequency: CodePush.CheckFrequency.ON_APP_RESUME,
-};*/
 
 function App() {
   const [appIsReady, setAppIsReady] = useState(false);
@@ -88,7 +83,5 @@ function App() {
     </GestureHandlerRootView>
   );
 }
-
-//export default CodePush(CODE_PUSH_OPTIONS)(App);
 
 export default App;

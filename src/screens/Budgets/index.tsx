@@ -8,22 +8,24 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
 
-import { Load } from '@components/Load';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { BudgetListItem, BudgetProps } from '@components/BudgetListItem';
+import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
 import { selectUserTenantId } from '@slices/userSlice';
-
-import api from '@api/api';
 import { setBudgetCategoriesSelected } from '@slices/budgetCategoriesSelectedSlice';
-import { TransactionProps } from '@interfaces/transactions';
+
 import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
+
+import api from '@api/api';
+
+import { TransactionProps } from '@interfaces/transactions';
 
 export function Budgets() {
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export function Budgets() {
   const dispatch = useDispatch();
 
   async function checkBudgets() {
-    //setLoading(true);
+    setLoading(true);
     setRefreshing(true);
 
     let budgets: any = [];
@@ -248,7 +250,7 @@ export function Budgets() {
   );
 
   if (loading) {
-    return <Load />;
+    return <SkeletonCategoriesAndTagsScreen />;
   }
 
   return (

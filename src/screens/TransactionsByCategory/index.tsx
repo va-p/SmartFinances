@@ -1,14 +1,20 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { BackHandler, RefreshControl, SectionList } from 'react-native';
 import { Container, Month, MonthSelect, MonthSelectButton } from './styles';
 
-import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
-
-import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { addMonths, format, parse, subMonths } from 'date-fns';
-import { CaretLeft, CaretRight } from 'phosphor-react-native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
+import { useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { CaretLeft, CaretRight } from 'phosphor-react-native';
+import { addMonths, format, parse, subMonths } from 'date-fns';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+
+import { Header } from '@components/Header';
+import { SectionListHeader } from '@components/SectionListHeader';
+import TransactionListItem from '@components/TransactionListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { PeriodProps } from '@screens/ChartPeriodSelect';
 
@@ -17,18 +23,18 @@ import { selectUserTenantId } from '@slices/userSlice';
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import { RefreshControl, SectionList } from 'react-native';
-import TransactionListItem from '@components/TransactionListItem';
-import { SectionListHeader } from '@components/SectionListHeader';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { TransactionProps } from '@interfaces/transactions';
+import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+import getTransactions from '@utils/getTransactions';
+import formatDatePtBr from '@utils/formatDatePtBr';
 
-export function TransactionsByCategory() {
+export function TransactionsByCategory({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
   const [refreshing, setRefreshing] = useState(true);
   const route = useRoute();
   const categoryId = route.params?.id;
+  const [categoryName, setCategoryName] = useState<string>('');
   const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
     name: 'Meses',
@@ -53,11 +59,7 @@ export function TransactionsByCategory() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
@@ -69,9 +71,8 @@ export function TransactionsByCategory() {
 
       let transactionsByCategoryFormattedPtbr: any = [];
       for (const item of data) {
-        // Format the date "dd/MM/yyyy"
-        const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
-        // Format the currency
+        const dmy = formatDatePtBr().short(item.created_at);
+
         switch (item.account.currency.code) {
           case 'BRL':
             amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
@@ -83,8 +84,8 @@ export function TransactionsByCategory() {
             amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
+              minimumFractionDigits: 6,
+              maximumSignificantDigits: 6,
             });
             break;
           case 'EUR':
@@ -134,6 +135,7 @@ export function TransactionsByCategory() {
             currency: 'USD',
           });
         }
+
         // Create the objects
         if (!transactionsByCategoryFormattedPtbr.hasOwnProperty(dmy)) {
           transactionsByCategoryFormattedPtbr[item.id] = {
@@ -212,35 +214,12 @@ export function TransactionsByCategory() {
           totalExpenses += cur.amount;
         }
       });
-      // Sum balance total of account
-      /*const total = accountInitialAmount + totalRevenues - totalExpenses;
-
-      // Verify if balance is positive
-      total >= 0 ? setBalanceIsPositive(true) : setBalanceIsPositive(false);
-
-      const totalAccountBalanceFormatted = Number(total).toLocaleString(
-        'pt-BR',
-        {
-          style: 'currency',
-          currency: 'BRL',
-        }
-      );
-      setTotalAccountBalance(totalAccountBalanceFormatted);*/
 
       // Group transactions by date to section list
-      const transactionsFormattedPtbrGroupedByDate =
-        transactionsByCategoryFormattedPtbr.reduce((acc: any, cur: any) => {
-          const existObj = acc.find((obj: any) => obj.title === cur.created_at);
-          if (existObj) {
-            existObj.data.push(cur);
-          } else {
-            acc.push({
-              title: cur.created_at,
-              data: [cur],
-            });
-          }
-          return acc;
-        }, []);
+      const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
+        transactionsByCategoryFormattedPtbr
+      );
+      setCategoryName(transactionsByCategoryFormattedPtbr[0].category.name);
       /**
        * All Transactions By Account Formatted in pt-BR - End
        */
@@ -284,23 +263,6 @@ export function TransactionsByCategory() {
           });
         }
       }
-      // Sum category cash flow
-      /* const cashFlowByMonths =
-        accountInitialAmount + totalRevenuesByMonths - totalExpensesByMonths;
-
-      // Verify if balance is positive
-      if (periodSelected.period === 'months') {
-        cashFlowByMonths >= 0
-          ? setCashFlowIsPositive(true)
-          : setCashFlowIsPositive(false);
-      }
-
-      const cashFlowFormattedPtbrByMonths = Number(
-        cashFlowByMonths
-      ).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });*/
       /**
        * Transactions By Months Formatted in pt-BR - End
        */
@@ -339,23 +301,6 @@ export function TransactionsByCategory() {
           });
         }
       }
-      // Sum category cash flow
-      /*const cashFlowByYears =
-        accountInitialAmount + totalRevenuesByYears - totalExpensesByYears;
-
-      // Verify if balance is positive
-      if (periodSelected.period === 'years') {
-        cashFlowByYears >= 0
-          ? setCashFlowIsPositive(true)
-          : setCashFlowIsPositive(false);
-      }
-
-      const cashFlowFormattedPtbrByYears = Number(
-        cashFlowByYears
-      ).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });*/
       /**
        * Transactions By Years Formatted in pt-BR - End
        */
@@ -400,12 +345,20 @@ export function TransactionsByCategory() {
     }, [periodSelected, selectedDate])
   );
 
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', () =>
+      navigation.goBack()
+    );
+  }, []);
+
   if (loading) {
     return <SkeletonAccountsScreen />;
   }
 
   return (
     <Container>
+      <Header type='primary' title={`Categoria ${categoryName}`} />
+
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>
           <CaretLeft size={20} color={theme.colors.text} />
@@ -421,7 +374,9 @@ export function TransactionsByCategory() {
       <SectionList
         sections={transactionsFormattedBySelectedPeriod}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <TransactionListItem data={item} />}
+        renderItem={({ item, index }) => (
+          <TransactionListItem data={item} index={index} />
+        )}
         renderSectionHeader={({ section }) => (
           <SectionListHeader data={section} />
         )}

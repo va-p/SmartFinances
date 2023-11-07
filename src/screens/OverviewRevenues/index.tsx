@@ -9,30 +9,27 @@ import {
   PieChartContainer,
 } from './styles';
 
-import { CaretLeft, CaretRight } from 'phosphor-react-native';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { useFocusEffect } from '@react-navigation/native';
-import { addMonths, subMonths, format } from 'date-fns';
-import { useTheme } from 'styled-components';
-import { VictoryPie } from 'victory-native';
-import { useSelector } from 'react-redux';
 import { ptBR } from 'date-fns/locale';
+import { useSelector } from 'react-redux';
+import { VictoryPie } from 'victory-native';
+import { useTheme } from 'styled-components';
+import { addMonths, subMonths, format } from 'date-fns';
+import { useFocusEffect } from '@react-navigation/native';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
-import {
-  CategoryProps,
-  ColorProps,
-  IconProps,
-} from '@components/CategoryListItem';
-import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
-import { TransactionProps } from '@components/TransactionListItem';
 import { HistoryCard } from '@components/HistoryCard';
+import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+
+import { TransactionProps } from '@interfaces/transactions';
+import { CategoryProps, ColorProps, IconProps } from '@interfaces/categories';
 
 interface CategoryData {
   id: string;
@@ -187,7 +184,7 @@ export function OverviewRevenues({ navigation }: any) {
   );
 
   if (loading) {
-    return <SkeletonOverviewScreen />;
+    // return <SkeletonOverviewScreen />;
   }
 
   return (

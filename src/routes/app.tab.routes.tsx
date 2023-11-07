@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as Icon from 'phosphor-react-native';
 import { useTheme } from 'styled-components';
+import * as Icon from 'phosphor-react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { AppOverviewTopTabRoutes } from './app.overview.topTab.routes';
-import { AppAccountStackRoutes } from './app.account.stack.routes';
-import { AppOptionsStackRoutes } from './app.options.stack.routes';
-import { AppBudgetStackRoutes } from './app.budget.stack.routes';
 import { Home } from '@screens/Home';
+import { AppBudgetStackRoutes } from './app.budget.stack.routes';
+import { AppOptionsStackRoutes } from './app.options.stack.routes';
+import { AppAccountStackRoutes } from './app.account.stack.routes';
+import { AppOverviewTopTabRoutes } from './app.overview.topTab.routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 

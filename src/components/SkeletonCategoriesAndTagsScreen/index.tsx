@@ -1,14 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
-import {
-  Container,
-  Header,
-  Title,
-  Body,
-  Tag,
-  Footer,
-  AddTagButton,
-} from './styles';
+import { Container, Header } from './styles';
 
 import {
   Placeholder,
@@ -23,20 +14,10 @@ export function SkeletonCategoriesAndTagsScreen() {
   return (
     <Container>
       <Header>
-        <Title>
-          <View
-            style={{
-              width: '30%',
-              height: '100%',
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-            }}
-          />
-        </Title>
-      </Header>
-
-      <Body>
-        <Placeholder Animation={Shine} style={{ padding: 8, gap: 8 }}>
+        <Placeholder
+          Animation={Shine}
+          style={{ padding: 8, gap: 8, marginBottom: 80 }}
+        >
           <PlaceholderLine
             width={24}
             height={32}
@@ -47,19 +28,10 @@ export function SkeletonCategoriesAndTagsScreen() {
               backgroundColor: theme.colors.shape,
             }}
           />
-          <PlaceholderLine
-            width={16}
-            height={24}
-            style={{ alignSelf: 'center', backgroundColor: theme.colors.shape }}
-          />
-          <PlaceholderLine
-            width={96}
-            height={120}
-            noMargin
-            style={{ marginBottom: 16, backgroundColor: theme.colors.shape }}
-          />
         </Placeholder>
+      </Header>
 
+      <Placeholder Animation={Shine} style={{ marginBottom: 160 }}>
         <Placeholder
           Animation={Shine}
           Left={() => (
@@ -67,33 +39,16 @@ export function SkeletonCategoriesAndTagsScreen() {
               style={{ backgroundColor: theme.colors.background }}
             />
           )}
-          style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+          style={{
+            padding: 8,
+            gap: 8,
+            marginBottom: 8,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10,
+          }}
         >
           <PlaceholderLine
             width={96}
-            style={{ backgroundColor: theme.colors.background }}
-          />
-          <PlaceholderLine
-            width={48}
-            style={{ backgroundColor: theme.colors.background }}
-          />
-        </Placeholder>
-
-        <Placeholder
-          Animation={Shine}
-          Left={() => (
-            <PlaceholderMedia
-              style={{ backgroundColor: theme.colors.background }}
-            />
-          )}
-          style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
-        >
-          <PlaceholderLine
-            width={96}
-            style={{ backgroundColor: theme.colors.background }}
-          />
-          <PlaceholderLine
-            width={48}
             style={{ backgroundColor: theme.colors.background }}
           />
         </Placeholder>
@@ -105,14 +60,16 @@ export function SkeletonCategoriesAndTagsScreen() {
               style={{ backgroundColor: theme.colors.background }}
             />
           )}
-          style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+          style={{
+            padding: 8,
+            gap: 8,
+            marginBottom: 8,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10,
+          }}
         >
           <PlaceholderLine
             width={96}
-            style={{ backgroundColor: theme.colors.background }}
-          />
-          <PlaceholderLine
-            width={48}
             style={{ backgroundColor: theme.colors.background }}
           />
         </Placeholder>
@@ -124,42 +81,78 @@ export function SkeletonCategoriesAndTagsScreen() {
               style={{ backgroundColor: theme.colors.background }}
             />
           )}
-          style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+          style={{
+            padding: 8,
+            gap: 8,
+            marginBottom: 8,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10,
+          }}
         >
           <PlaceholderLine
             width={96}
             style={{ backgroundColor: theme.colors.background }}
           />
+        </Placeholder>
+
+        <Placeholder
+          Animation={Shine}
+          Left={() => (
+            <PlaceholderMedia
+              style={{ backgroundColor: theme.colors.background }}
+            />
+          )}
+          style={{
+            padding: 8,
+            gap: 8,
+            marginBottom: 8,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10,
+          }}
+        >
           <PlaceholderLine
-            width={48}
-            style={{
-              marginBottom: 16,
-              backgroundColor: theme.colors.background,
-            }}
+            width={96}
+            style={{ backgroundColor: theme.colors.background }}
           />
         </Placeholder>
-      </Body>
 
-      <Footer>
-        <AddTagButton>
-          <View
-            style={{
-              height: '100%',
-              backgroundColor: theme.colors.shape,
-              borderRadius: 10,
-            }}
-          >
-            <View
-              style={{
-                width: '20%',
-                height: '100%',
-                opacity: 0.5,
-                backgroundColor: theme.colors.background,
-              }}
+        <Placeholder
+          Animation={Shine}
+          Left={() => (
+            <PlaceholderMedia
+              style={{ backgroundColor: theme.colors.background }}
             />
-          </View>
-        </AddTagButton>
-      </Footer>
+          )}
+          style={{
+            padding: 8,
+            gap: 8,
+            backgroundColor: theme.colors.shape,
+            borderRadius: 10,
+          }}
+        >
+          <PlaceholderLine
+            width={96}
+            style={{ backgroundColor: theme.colors.background }}
+          />
+        </Placeholder>
+      </Placeholder>
+
+      <Placeholder
+        Animation={Shine}
+        style={{
+          padding: 8,
+          backgroundColor: theme.colors.shape,
+          borderRadius: 10,
+        }}
+      >
+        <PlaceholderLine
+          width={40}
+          style={{
+            alignSelf: 'center',
+            backgroundColor: theme.colors.background,
+          }}
+        />
+      </Placeholder>
     </Container>
   );
 }

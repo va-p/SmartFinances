@@ -110,6 +110,25 @@ export function SkeletonHomeScreen() {
           style={{ backgroundColor: theme.colors.background }}
         />
       </Placeholder>
+
+      <Placeholder
+        Animation={Shine}
+        Left={() => (
+          <PlaceholderMedia
+            style={{ backgroundColor: theme.colors.background }}
+          />
+        )}
+        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+      >
+        <PlaceholderLine
+          width={96}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+        <PlaceholderLine
+          width={48}
+          style={{ backgroundColor: theme.colors.background }}
+        />
+      </Placeholder>
     </Container>
   );
 }
