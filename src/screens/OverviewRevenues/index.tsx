@@ -20,7 +20,6 @@ import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
 import { HistoryCard } from '@components/HistoryCard';
-import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
@@ -215,7 +214,9 @@ export function OverviewRevenues({ navigation }: any) {
             )}
             x='percent'
             y='total'
+            width={384}
             innerRadius={80}
+            labelRadius={150}
             animate={{
               duration: 2000,
               easing: 'backOut',
@@ -223,7 +224,7 @@ export function OverviewRevenues({ navigation }: any) {
             theme={smartFinancesChartTheme}
             style={{
               labels: {
-                fontSize: RFValue(18),
+                fontSize: RFValue(12),
                 fontWeight: 'bold',
                 fill: theme.colors.primary,
               },
@@ -231,7 +232,6 @@ export function OverviewRevenues({ navigation }: any) {
                 stroke: 'none',
               },
             }}
-            labelRadius={150}
           />
         </PieChartContainer>
         {totalRevenuesByCategories.map((item) => (

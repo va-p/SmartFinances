@@ -21,9 +21,16 @@ type Props = RectButtonProps & {
   data: AccountProps;
   index: number;
   icon: any;
+  hide_amount: boolean;
 };
 
-export function AccountListItem({ data, index, icon, ...rest }: Props) {
+export function AccountListItem({
+  data,
+  index,
+  icon,
+  hide_amount,
+  ...rest
+}: Props) {
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>
       <DetailsContainer>
@@ -33,10 +40,10 @@ export function AccountListItem({ data, index, icon, ...rest }: Props) {
         <NameContainer>
           <Name>{data.name}</Name>
           <AmountsContainer>
-            <Amount>{data.totalAccountAmount}</Amount>
+            <Amount>{!hide_amount ? data.totalAccountAmount : '•••••'}</Amount>
             {data.totalAccountAmountConverted && (
               <Amount style={{ fontSize: 12 }}>
-                ({data.totalAccountAmountConverted})
+                ({!hide_amount ? data.totalAccountAmountConverted : '•••••'})
               </Amount>
             )}
           </AmountsContainer>

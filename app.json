@@ -2,16 +2,13 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "1.0.1(14)",
-    "version": "1.0.1",
+    "runtimeVersion": "1.1.0(15)",
+    "version": "1.1.8",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",
     "primaryColor": "#FF5200",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -19,7 +16,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 14,
+      "versionCode": 15,
       "permissions": [
         "VIBRATE",
         "CAMERA",

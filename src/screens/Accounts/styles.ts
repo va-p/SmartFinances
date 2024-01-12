@@ -1,18 +1,17 @@
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
-  padding: ${Platform.OS === 'ios' ? '24px 16px 16px' : '16px'};
+  padding: ${Platform.OS === 'ios' ? '24px 16px 16px' : '12px 16px 16px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Header = styled.View`
   align-items: center;
-  justify-content: center;
 `;
 
 export const CashFlowContainer = styled.View``;
@@ -34,7 +33,7 @@ export const CashFlowDescription = styled.Text`
 
 export const HideDataButton = styled(BorderlessButton)`
   position: absolute;
-  top: 0px;
+  top: 4px;
   right: 0px;
 `;
 

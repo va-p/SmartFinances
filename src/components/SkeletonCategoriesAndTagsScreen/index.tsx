@@ -138,15 +138,17 @@ export function SkeletonCategoriesAndTagsScreen() {
       </Placeholder>
 
       <Placeholder
+        height={56}
         Animation={Shine}
         style={{
+          alignItems: 'center',
           padding: 8,
           backgroundColor: theme.colors.shape,
           borderRadius: 10,
         }}
       >
         <PlaceholderLine
-          width={40}
+          width={50}
           style={{
             alignSelf: 'center',
             backgroundColor: theme.colors.background,

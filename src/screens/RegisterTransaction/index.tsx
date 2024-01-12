@@ -9,8 +9,8 @@ import {
   HeaderRow,
   InputTransactionValueContainer,
   ContentScroll,
-  ProductImageContainer,
-  ProductImage,
+  TransactionImageContainer,
+  TransactionImage,
   TransactionsTypes,
   Footer,
 } from './styles';
@@ -23,6 +23,7 @@ import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Icon from 'phosphor-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import ImageView from 'react-native-image-viewing';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
@@ -32,10 +33,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button } from '@components/Button';
 import { TagProps } from '@components/TagListItem';
 import { SelectButton } from '@components/SelectButton';
-import { CategoryProps } from '@components/CategoryListItem';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { CurrencySelectButton } from '@components/CurrencySelectButton';
-import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
@@ -70,6 +69,10 @@ import {
 import api from '@api/api';
 
 import theme from '@themes/theme';
+
+import { AccountProps } from '@interfaces/accounts';
+import { CategoryProps } from '@interfaces/categories';
+import { CurrencyProps } from '@interfaces/currencies';
 
 type Props = {
   id: string;
@@ -320,6 +323,14 @@ export function RegisterTransaction({
       { text: 'Tirar foto', onPress: handleTakePhoto },
       { text: 'Selecionar da biblioteca', onPress: handleSelectImage },
     ]);
+  }
+
+  function handleOpenImage() {
+    setOpenImage(true);
+  }
+
+  function handleCloseImage() {
+    setOpenImage(false);
   }
 
   async function handleEditTransaction(id: string, form: FormData) {
@@ -585,8 +596,8 @@ export function RegisterTransaction({
       handleEditTransaction(id, form);
       // Add Transaction
     } else {
+      // Need conversion
       if (transactionType != 'transfer') {
-        // Need conversion
         if (currencySelected.code !== accountSelected.currency.code) {
           let amountConverted = 0;
           switch (accountSelected.currency.code) {
@@ -1346,12 +1357,10 @@ export function RegisterTransaction({
             onPress={handleClickSelectImage}
           />
           {imageUrl != '' ? (
-            <ProductImageContainer onPress={() => setOpenImage(!openImage)}>
-              <ProductImage source={{ uri: imageUrl }} />
-            </ProductImageContainer>
-          ) : (
-            ''
-          )}
+            <TransactionImageContainer onPress={handleOpenImage}>
+              <TransactionImage source={{ uri: imageUrl }} />
+            </TransactionImageContainer>
+          ) : null}
 
           <TransactionsTypes>
             <TransactionTypeButton
@@ -1445,6 +1454,14 @@ export function RegisterTransaction({
           }
         />
       </ModalViewSelection>
+
+      <ImageView
+        images={[{ uri: imageUrl }]}
+        imageIndex={0}
+        visible={openImage}
+        onRequestClose={handleCloseImage}
+        swipeToCloseEnabled={false}
+      />
     </Container>
   );
 }

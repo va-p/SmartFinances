@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
@@ -18,7 +18,6 @@ import { format, parseISO } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import {
   VictoryArea,
   VictoryChart,
@@ -52,6 +51,7 @@ import getTransactions from '@utils/getTransactions';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+import { useFocusEffect } from '@react-navigation/native';
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ export function Accounts({ navigation }: any) {
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
-  const [visible, setVisible] = useState(true);
+  const [hideAmount, setHideAmount] = useState(true);
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -83,12 +83,30 @@ export function Accounts({ navigation }: any) {
       let accounts: any = [];
       for (const item of data) {
         if (new Date(item.created_at) <= new Date()) {
-          switch (item.type) {
-            case 'credit':
-              totalRevenuesBRL += item.amount;
+          switch (item.currency.code) {
+            case 'BRL':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  totalRevenuesBRL += item.amount;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  totalExpensesBRL += item.amount;
+                  break;
+              }
               break;
-            case 'debit':
-              totalExpensesBRL += item.amount;
+            case 'BTC':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  totalRevenuesBRL += item.amount * btcQuoteBrl.price;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  totalExpensesBRL += item.amount * btcQuoteBrl.price;
+                  break;
+              }
               break;
           }
 
@@ -278,11 +296,22 @@ export function Accounts({ navigation }: any) {
     navigation.navigate('Conta', { id });
   }
 
+  // TODO Remover essa função e buscar ias configs do Zustand!!!
+  function getUserConfig() {
+    (() => {
+      const dataIsVisible = storageConfig.getBoolean(
+        `${DATABASE_CONFIGS}.dataIsVisible`
+      );
+      if (dataIsVisible != undefined) {
+        setHideAmount(dataIsVisible);
+      }
+    })();
+  }
   function handleHideData() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !visible);
+      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !hideAmount);
 
-      setVisible((prevState) => !prevState);
+      setHideAmount((prevState) => !prevState);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -290,21 +319,6 @@ export function Accounts({ navigation }: any) {
       );
     }
   }
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchAccounts();
-
-      (() => {
-        const dataIsVisible = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.dataIsVisible`
-        );
-        if (dataIsVisible != undefined) {
-          setVisible(dataIsVisible);
-        }
-      })();
-    }, [])
-  );
 
   function _renderEmpty() {
     return (
@@ -337,6 +351,7 @@ export function Accounts({ navigation }: any) {
         data={item}
         index={index}
         icon={getAccountIcon()}
+        hide_amount={hideAmount}
         onPress={() =>
           handleOpenAccount(
             item.id,
@@ -350,6 +365,16 @@ export function Accounts({ navigation }: any) {
     );
   }
 
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      getUserConfig();
+    }, [])
+  );
+
   if (loading) {
     return <SkeletonAccountsScreen />;
   }
@@ -358,12 +383,12 @@ export function Accounts({ navigation }: any) {
     <Container>
       <Header>
         <CashFlowContainer>
-          <CashFlowTotal>{visible ? total : '•••••'}</CashFlowTotal>
+          <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal>
           <CashFlowDescription>Patrimônio Total</CashFlowDescription>
         </CashFlowContainer>
 
         <HideDataButton onPress={() => handleHideData()}>
-          {visible ? (
+          {!hideAmount ? (
             <Icon.EyeSlash size={20} color={theme.colors.primary} />
           ) : (
             <Icon.Eye size={20} color={theme.colors.primary} />
@@ -417,7 +442,13 @@ export function Accounts({ navigation }: any) {
           ListEmptyComponent={_renderEmpty}
           initialNumToRender={10}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                fetchAccounts();
+                getUserConfig();
+              }}
+            />
           }
           showsVerticalScrollIndicator={false}
         />

@@ -57,11 +57,11 @@ export const ContentScroll = styled.ScrollView.attrs({
   shownsVerticalScrollIndicator: false,
 })``;
 
-export const ProductImageContainer = styled.Pressable`
+export const TransactionImageContainer = styled.Pressable`
   padding: 0 16px 16px;
 `;
 
-export const ProductImage = styled.Image`
+export const TransactionImage = styled.Image`
   width: 100%;
   height: 100px;
   border-radius: 10px;

@@ -20,19 +20,15 @@ import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
 import { HistoryCard } from '@components/HistoryCard';
-import { TransactionProps } from '@components/TransactionListItem';
-import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
-import {
-  CategoryProps,
-  ColorProps,
-  IconProps,
-} from '@components/CategoryListItem';
 
 import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+
+import { TransactionProps } from '@interfaces/transactions';
+import { CategoryProps, ColorProps, IconProps } from '@interfaces/categories';
 
 interface CategoryData {
   id: string;
@@ -99,20 +95,26 @@ export function OverviewExpenses({ navigation }: any) {
       /**
        * Expenses by Selected Month - Start
        */
-      const expensesBySelectedMonth = transactions.filter(
+      const transactionsBySelectedMonth = transactions.filter(
         (transaction: TransactionProps) =>
-          transaction.type === 'debit' &&
           new Date(transaction.created_at).getMonth() ===
             selectedDate.getMonth() &&
           new Date(transaction.created_at).getFullYear() ===
             selectedDate.getFullYear()
       );
-      const expensesTotalBySelectedMonth = expensesBySelectedMonth.reduce(
-        (acc: number, expense: TransactionProps) => {
-          return (acc += Number(expense.amount));
-        },
-        0
-      );
+      let totalExpenses = 0;
+      let totalRevenues = 0;
+      for (const transaction of transactionsBySelectedMonth) {
+        switch (transaction.type) {
+          case 'debit':
+            totalExpenses += Number(transaction.amount);
+            break;
+          case 'credit':
+            totalRevenues += Number(transaction.amount);
+            break;
+        }
+      }
+      const expensesTotalBySelectedMonth = totalRevenues - totalExpenses;
       /**
        * Expenses by Selected Month - End
        */
@@ -124,10 +126,20 @@ export function OverviewExpenses({ navigation }: any) {
 
       categories.forEach((category) => {
         let categorySum = 0;
+        let categoryExpensesSum = 0;
+        let categoryRevenuesSum = 0;
 
-        expensesBySelectedMonth.forEach((expense: TransactionProps) => {
-          if (expense.category.id === category.id) {
-            categorySum += Number(expense.amount);
+        transactionsBySelectedMonth.forEach((transaction: TransactionProps) => {
+          if (transaction.category.id === category.id) {
+            switch (transaction.type) {
+              case 'debit':
+                categoryExpensesSum += Number(transaction.amount);
+                break;
+              case 'credit':
+                categoryRevenuesSum += Number(transaction.amount);
+                break;
+            }
+            categorySum = categoryExpensesSum - categoryRevenuesSum;
           }
         });
 

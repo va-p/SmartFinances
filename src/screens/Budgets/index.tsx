@@ -1,11 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
 
 import { Header } from '@components/Header';
@@ -243,11 +242,9 @@ export function Budgets() {
     );
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      checkBudgets();
-    }, [])
-  );
+  useEffect(() => {
+    checkBudgets();
+  }, []);
 
   if (loading) {
     return <SkeletonCategoriesAndTagsScreen />;

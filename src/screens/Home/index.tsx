@@ -22,6 +22,10 @@ import {
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
+  CloseCashFlowAlertButton,
+  CashFlowAlertContainer,
+  CashFlowAlertTitle,
+  CashFlowAlertText,
 } from './styles';
 
 import Animated, {
@@ -39,25 +43,38 @@ import {
   VictoryGroup,
   VictoryZoomContainer,
 } from 'victory-native';
-import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useDispatch, useSelector } from 'react-redux';
-import { format, parse, parseISO } from 'date-fns';
+import {
+  RectButton,
+  PanGestureHandler,
+  // Swipeable,
+} from 'react-native-gesture-handler';
+import {
+  addMonths,
+  addYears,
+  format,
+  getDay,
+  parse,
+  parseISO,
+  subMonths,
+  subYears,
+} from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useDispatch, useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
+import { Plus, Eye, EyeSlash, X } from 'phosphor-react-native';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 
-import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
+import { SectionListHeader } from '@components/SectionListHeader';
+import { ChartSelectButton } from '@components/ChartSelectButton';
+import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
-import TransactionListItem from '@components/TransactionListItem';
-import { ChartSelectButton } from '@components/ChartSelectButton';
-import { SectionListHeader } from '@components/SectionListHeader';
+import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
-import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
+import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 import {
   setBrlQuoteBtc,
@@ -71,11 +88,12 @@ import apiQuotes from '@api/apiQuotes';
 
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import theme from '@themes/theme';
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+
+import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
-import formatDatePtBr from '@utils/formatDatePtBr';
 
 type PeriodData = {
   date: Date | number;
@@ -122,7 +140,11 @@ export function Home() {
     useState('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
-  const [visible, setVisible] = useState(true);
+  const [hideAmount, setHideAmount] = useState(true);
+  const [hideCashFlowAlert, setHideCashFlowAlert] = useState(false);
+  const isFirstOrSecondDayOfMonth =
+    getDay(new Date()) === 0 || getDay(new Date()) === 1;
+
   // Animated header, chart and transactions list
   const scrollY = useSharedValue(0);
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {
@@ -170,10 +192,6 @@ export function Home() {
     },
   });
 
-  // const brlQuoteEur = useSelector(selectBrlQuoteEur);
-
-  // const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
-
   async function fetchBrlQuote() {
     try {
       const { data } = await apiQuotes.get('v2/tools/price-conversion', {
@@ -183,15 +201,7 @@ export function Home() {
           convert: 'BTC',
         },
       });
-      // console.log('BRL quote >>>', data.data[0].quote.BTC);
       dispatch(setBrlQuoteBtc(data.data[0].quote.BTC));
-
-      /*console.log(
-        'brlQuoteBtc.price >>>',
-        brlQuoteBtc.price,
-        'brlQuoteBtc.last_updated >>>',
-        brlQuoteBtc.last_updated
-      );*/
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -686,36 +696,61 @@ export function Home() {
     registerTransactionBottomSheetRef.current?.present();
   }
 
-  /*function handleDateChange(action: 'next' | 'prev'): void {
+  function handleDateChange(action: 'prev' | 'next'): void {
     switch (chartPeriodSelected.period) {
-    case 'months':
-      if (action === 'next') {
-        setSelectedPeriod(addMonths(selectedPeriod, 1));
-      } else {
-        setSelectedPeriod(subMonths(selectedPeriod, 1));
-      }
-      break;
-    case 'years':
-      if (action === 'next') {
-        setSelectedPeriod(addYears(selectedPeriod, 1));
-      } else {
-        setSelectedPeriod(subYears(selectedPeriod, 1));
-      }
-      break;
-    default: 'months';
-      break;
+      case 'months':
+        switch (action) {
+          case 'prev':
+            setSelectedPeriod(subMonths(selectedPeriod, 1));
+            break;
+          case 'next':
+            setSelectedPeriod(addMonths(selectedPeriod, 1));
+            break;
+        }
+        break;
+      case 'years':
+        switch (action) {
+          case 'prev':
+            setSelectedPeriod(subYears(selectedPeriod, 1));
+            break;
+          case 'next':
+            setSelectedPeriod(addYears(selectedPeriod, 1));
+            break;
+        }
+        break;
     }
-  };*/
+  }
+
+  function handleGesture(evt: any) {
+    const { nativeevent } = evt;
+
+    if (nativeevent.velocityX > 0) {
+      console.log('swipe right');
+    } else {
+      console.log('swipe left');
+    }
+  }
 
   function ClearTransactionId() {
     setTransactionId('');
   }
 
+  // TODO Configurar Zustand e passar as configs por ele!!!
+  function getUserConfig() {
+    (() => {
+      const dataIsVisible = storageConfig.getBoolean(
+        `${DATABASE_CONFIGS}.dataIsVisible`
+      );
+      if (dataIsVisible != undefined) {
+        setHideAmount(dataIsVisible);
+      }
+    })();
+  }
   function handleHideData() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !visible);
+      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !hideAmount);
 
-      setVisible((prevState) => !prevState);
+      setHideAmount((prevState) => !prevState);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -724,29 +759,47 @@ export function Home() {
     }
   }
 
+  function _renderEmpty() {
+    return <ListEmptyComponent />;
+  }
+
+  function _renderCashFlowAlertContainer() {
+    return (
+      <CashFlowAlertContainer>
+        <CloseCashFlowAlertButton>
+          <X size={20} color={theme.colors.primary} />
+        </CloseCashFlowAlertButton>
+        <CashFlowAlertTitle>
+          Parabéns! 🎉 Você fechou o mês positivo!
+        </CashFlowAlertTitle>
+        <CashFlowAlertText>
+          Continue assim nos próximos meses e invista parte do dinheiro que
+          sobrou para aumentar seu patrimônio!
+        </CashFlowAlertText>
+      </CashFlowAlertContainer>
+    );
+  }
+
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', () => {
       return true;
     });
   }, []);
 
+  useEffect(() => {
+    fetchBrlQuote();
+    fetchBtcQuote();
+    fetchEurQuote();
+    fetchUsdQuote();
+    fetchTransactions();
+  }, [chartPeriodSelected.period]);
+
   useFocusEffect(
     useCallback(() => {
-      fetchBrlQuote();
-      fetchBtcQuote();
-      fetchEurQuote();
-      fetchUsdQuote();
-      fetchTransactions();
-
-      (() => {
-        const dataIsVisible = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.dataIsVisible`
-        );
-        if (dataIsVisible != undefined) {
-          setVisible(dataIsVisible);
-        }
-      })();
-    }, [chartPeriodSelected.period])
+      setLoading(true);
+      getUserConfig();
+      setLoading(false);
+    }, [])
   );
 
   if (loading) {
@@ -759,13 +812,13 @@ export function Home() {
         <Header>
           <CashFlowContainer>
             <CashFlowTotal>
-              {visible ? cashFlowTotalBySelectedPeriod : '•••••'}
+              {!hideAmount ? cashFlowTotalBySelectedPeriod : '•••••'}
             </CashFlowTotal>
             <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
           </CashFlowContainer>
 
           <HideDataButton onPress={() => handleHideData()}>
-            {visible ? (
+            {!hideAmount ? (
               <EyeSlash size={20} color={theme.colors.primary} />
             ) : (
               <Eye size={20} color={theme.colors.primary} />
@@ -839,6 +892,10 @@ export function Home() {
         </Animated.View>
       </Animated.View>
 
+      {/*!hideCashFlowAlert &&
+        !isFirstOrSecondDayOfMonth &&
+              _renderCashFlowAlertContainer()*/}
+
       <Transactions>
         <AnimatedSectionList
           sections={optimizedTransactions}
@@ -847,18 +904,22 @@ export function Home() {
             <TransactionListItem
               data={item}
               index={index}
+              hide_amount={hideAmount}
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}
-          renderSectionHeader={({ section }) => (
+          renderSectionHeader={({ section }: any) => (
             <SectionListHeader data={section} />
           )}
-          ListEmptyComponent={() => <ListEmptyComponent />}
+          ListEmptyComponent={_renderEmpty}
           initialNumToRender={2000}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={fetchTransactions}
+              onRefresh={() => {
+                fetchTransactions();
+                getUserConfig();
+              }}
             />
           }
           showsVerticalScrollIndicator={false}

@@ -24,17 +24,18 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 import { FadeInUp } from 'react-native-reanimated';
 
 import { TagTransaction } from '@components/TagTransaction';
-import { CategoryProps } from '@components/CategoryListItem';
 import { TransactionProps } from '@interfaces/transactions';
 
 type Props = RectButtonProps & {
   data: TransactionProps;
   index: number;
+  hide_amount: boolean;
 };
 
 const TransactionListItem = memo(function TransactionListItem({
   data,
   index,
+  hide_amount,
   ...rest
 }: Props) {
   return (
@@ -54,8 +55,8 @@ const TransactionListItem = memo(function TransactionListItem({
               <TransferDirectionIcon name='arrow-down-outline' />
             )}
             <Amount type={data.type}>
-              {data.type === 'debit' && '-'}
-              {data.amount_formatted}
+              {!hide_amount && data.type === 'debit' && '-'}
+              {!hide_amount ? data.amount_formatted : '•••••'}
             </Amount>
           </AmountContainer>
         </DescriptionAndAmountContainer>
