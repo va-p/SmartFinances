@@ -796,9 +796,9 @@ export function Home() {
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
+      // setLoading(true);
       getUserConfig();
-      setLoading(false);
+      // setLoading(false);
     }, [])
   );
 

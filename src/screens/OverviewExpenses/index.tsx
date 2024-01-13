@@ -29,6 +29,7 @@ import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 import { TransactionProps } from '@interfaces/transactions';
 import { CategoryProps, ColorProps, IconProps } from '@interfaces/categories';
+import getTransactions from '@utils/getTransactions';
 
 interface CategoryData {
   id: string;
@@ -83,11 +84,7 @@ export function OverviewExpenses({ navigation }: any) {
     let transactions: TransactionProps[] = [];
 
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
       if (data) {
         transactions = data;
       }
@@ -102,19 +99,14 @@ export function OverviewExpenses({ navigation }: any) {
           new Date(transaction.created_at).getFullYear() ===
             selectedDate.getFullYear()
       );
-      let totalExpenses = 0;
-      let totalRevenues = 0;
+      let totalExpensesBySelectedMonth = 0;
       for (const transaction of transactionsBySelectedMonth) {
         switch (transaction.type) {
           case 'debit':
-            totalExpenses += Number(transaction.amount);
-            break;
-          case 'credit':
-            totalRevenues += Number(transaction.amount);
+            totalExpensesBySelectedMonth += Number(transaction.amount);
             break;
         }
       }
-      const expensesTotalBySelectedMonth = totalRevenues - totalExpenses;
       /**
        * Expenses by Selected Month - End
        */
@@ -150,7 +142,7 @@ export function OverviewExpenses({ navigation }: any) {
           });
 
           const percent = `${(
-            (categorySum / expensesTotalBySelectedMonth) *
+            (categorySum / totalExpensesBySelectedMonth) *
             100
           ).toFixed(2)}%`;
 

@@ -29,6 +29,7 @@ import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 import { TransactionProps } from '@interfaces/transactions';
 import { CategoryProps, ColorProps, IconProps } from '@interfaces/categories';
+import getTransactions from '@utils/getTransactions';
 
 interface CategoryData {
   id: string;
@@ -61,7 +62,6 @@ export function OverviewRevenues({ navigation }: any) {
   async function fetchTransactions() {
     setLoading(true);
 
-    // Fetch Categories
     let categories: CategoryProps[] = [];
 
     try {
@@ -81,22 +81,13 @@ export function OverviewRevenues({ navigation }: any) {
       );
     }
 
-    // Fetch Transactions
     let transactions: TransactionProps[] = [];
 
     try {
-      const { data } = await api.get('transaction', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
+      const data = await getTransactions(tenantId);
       if (data) {
         transactions = data;
       }
-
-      /*const revenues = transactions.filter((transaction: TransactionProps) => {
-        transaction.type == 'credit';
-      });*/
 
       /**
        * Revenues by Selected Month - Start
