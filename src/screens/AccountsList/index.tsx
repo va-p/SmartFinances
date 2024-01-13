@@ -9,7 +9,7 @@ import * as Icon from 'phosphor-react-native';
 import axios from 'axios';
 
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
-import { AccountListItem, AccountProps } from '@components/AccountListItem';
+import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalView } from '@components/ModalView';
 import { Header } from '@components/Header';
@@ -29,6 +29,8 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import api from '@api/api';
 
+import { AccountProps } from '@interfaces/accounts';
+
 import theme from '@themes/theme';
 
 export function AccountsList() {
@@ -45,7 +47,7 @@ export function AccountsList() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('account', {
+      const { data } = await api.get('all_accounts', {
         params: {
           tenant_id: tenantId,
         },
