@@ -1,21 +1,35 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { Alert, Linking } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
-import * as LocalAuthentication from 'expo-local-authentication';
-import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
 import * as Icon from 'phosphor-react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
 
+import { Header } from '@components/Header';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
-import { Header } from '@components/Header';
 
+import { selectUserId } from '@slices/userSlice';
+
+import { useUserConfigsStore } from '../../stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+
+import api from '@api/api';
 
 import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
-  const [localAuthIsEnabled, setLocalAuthIsEnabled] = useState(false);
+  const hideAmount = useUserConfigsStore((state) => state.hideAmount);
+  const setHideAmount = useUserConfigsStore((state) => state.setHideAmount);
+
+  const useLocalAuth = useUserConfigsStore((state) => state.useLocalAuth);
+  const setUseLocalAuth = useUserConfigsStore((state) => state.setUseLocalAuth);
+
+  const hideInsights = useUserConfigsStore((state) => state.hideInsights);
+  const setHideInsights = useUserConfigsStore((state) => state.setHideInsights);
+  const userId = useSelector(selectUserId);
 
   function handleOpenAccounts() {
     navigation.navigate('Contas');
@@ -53,15 +67,26 @@ export function OptionsMenu({ navigation }: any) {
       });
       if (biometricAuth.success) {
         try {
-          storageConfig.set(
-            `${DATABASE_CONFIGS}.useLocalAuth`,
-            !localAuthIsEnabled
-          );
+          const { status } = await api.post('edit_use_local_auth', {
+            user_id: userId,
+            use_local_authentication: !useLocalAuth,
+          });
 
-          setLocalAuthIsEnabled((prevState) => !prevState);
+          if (status === 200) {
+            storageConfig.set(
+              `${DATABASE_CONFIGS}.useLocalAuth`,
+              !useLocalAuth
+            );
+
+            setUseLocalAuth();
+          }
         } catch (error) {
-          console.log(error);
-          Alert.alert('Autenticação biométrica', `${error}`);
+          if (axios.isAxiosError(error)) {
+            Alert.alert(
+              'Autenticação biométrica',
+              error.response?.data.message
+            );
+          }
         }
       }
     } catch (error) {
@@ -73,18 +98,19 @@ export function OptionsMenu({ navigation }: any) {
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      (() => {
-        const useLocalAuth = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.useLocalAuth`
-        );
-        if (useLocalAuth != undefined) {
-          setLocalAuthIsEnabled(useLocalAuth);
-        }
-      })();
-    }, [])
-  );
+  async function handleChangeSmartInsights() {
+    try {
+      storageConfig.set(`${DATABASE_CONFIGS}.hideInsights`, !hideInsights);
+
+      setHideInsights();
+    } catch (error) {
+      console.log(error);
+      Alert.alert(
+        'Insights Inteligentes',
+        'Não foi possível alterar a configuração, por favor, tente novamente.'
+      );
+    }
+  }
 
   return (
     <Container>
@@ -115,8 +141,16 @@ export function OptionsMenu({ navigation }: any) {
           icon={<Icon.Fingerprint color={theme.colors.primary} />}
           title='Touch / Face ID'
           onValueChange={handleChangeUseLocalAuth}
-          value={localAuthIsEnabled}
-          isEnabled={localAuthIsEnabled}
+          value={useLocalAuth}
+          isEnabled={useLocalAuth}
+        />
+
+        <ButtonToggle
+          icon={<Icon.Sparkle color={theme.colors.primary} />}
+          title='Insights Inteligentes'
+          onValueChange={handleChangeSmartInsights}
+          value={hideInsights}
+          isEnabled={hideInsights}
         />
 
         <Title>Sobre</Title>

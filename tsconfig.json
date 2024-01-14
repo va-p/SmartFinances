@@ -16,7 +16,8 @@
       "@contexts/*": ["./src/contexts/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@components/*": ["./src/components/*"],
-      "@themes/*": ["./src/global/themes/*"]
+      "@themes/*": ["./src/global/themes/*"],
+      "@stores/*": ["./src/stores/*"]
     }
   }
 }

@@ -95,6 +95,8 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
+import { useUserConfigsStore } from '@stores/userConfigsStore';
+
 type PeriodData = {
   date: Date | number;
   totalRevenuesByPeriod: number;
@@ -104,6 +106,13 @@ type PeriodData = {
 export function Home() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
+
+  const hideAmount = useUserConfigsStore((state) => state.hideAmount);
+  const setHideAmount = useUserConfigsStore((state) => state.setHideAmount);
+
+  const hideInsights = useUserConfigsStore((state) => state.hideInsights);
+  const setHideInsights = useUserConfigsStore((state) => state.setHideInsights);
+
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
   const [
@@ -140,7 +149,7 @@ export function Home() {
     useState('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
-  const [hideAmount, setHideAmount] = useState(true);
+  // const [hideAmount, setHideAmount] = useState(true);
   const [hideCashFlowAlert, setHideCashFlowAlert] = useState(false);
   const isFirstOrSecondDayOfMonth =
     getDay(new Date()) === 0 || getDay(new Date()) === 1;
@@ -736,21 +745,33 @@ export function Home() {
   }
 
   // TODO Configurar Zustand e passar as configs por ele!!!
-  function getUserConfig() {
-    (() => {
+  function getUserConfigs() {
+    /*(() => {
       const dataIsVisible = storageConfig.getBoolean(
         `${DATABASE_CONFIGS}.dataIsVisible`
       );
-      if (dataIsVisible != undefined) {
+      if (dataIsVisible !== undefined) {
         setHideAmount(dataIsVisible);
+        const updatedUserConfigs = {
+          ...userConfigs,
+          hideAmount: dataIsVisible,
+        };
+        setUserConfigs(updatedUserConfigs);
       }
-    })();
+    })();*/
   }
   function handleHideData() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !hideAmount);
+      // storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !hideAmount);
+      storageConfig.set(
+        // `${DATABASE_CONFIGS}.dataIsVisible`,
+        `${DATABASE_CONFIGS}.hideAmount`,
+        !hideAmount
+      );
 
-      setHideAmount((prevState) => !prevState);
+      // setHideAmount((prevState) => !prevState);
+      //useUserConfigsStore((state: UserConfigs) => state.setHideAmount);
+      setHideAmount();
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -797,7 +818,7 @@ export function Home() {
   useFocusEffect(
     useCallback(() => {
       // setLoading(true);
-      getUserConfig();
+      getUserConfigs();
       // setLoading(false);
     }, [])
   );
@@ -918,7 +939,7 @@ export function Home() {
               refreshing={refreshing}
               onRefresh={() => {
                 fetchTransactions();
-                getUserConfig();
+                getUserConfigs();
               }}
             />
           }

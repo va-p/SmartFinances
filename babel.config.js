@@ -22,6 +22,7 @@ module.exports = function (api) {
             '@themes': './src/global/themes',
             '@interfaces': './src/interfaces',
             '@components': './src/components',
+            '@stores': './src/stores',
           },
         },
       ],

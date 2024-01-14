@@ -49,6 +49,7 @@ import {
 } from '@database/database';
 
 import api from '@api/api';
+import { useUserConfigsStore } from '../../stores/userConfigsStore';
 
 type FormData = {
   email: string;
@@ -65,6 +66,12 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
+  const setHideAmount = useUserConfigsStore((state) => state.setHideAmount);
+  const setUseLocalAuth = useUserConfigsStore((state) => state.setUseLocalAuth);
+  const setEnableLocalAuth = useUserConfigsStore(
+    (state) => state.setEnableLocalAuth
+  );
+
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const {
     control,
@@ -115,6 +122,10 @@ export function SignIn({ navigation }: any) {
         JSON.stringify(loggedInUserDataFormatted)
       );
 
+      if (userData.data.use_local_authentication === true) {
+        setEnableLocalAuth();
+      }
+
       dispatch(setUserId(loggedInUserDataFormatted.id));
       dispatch(setUserName(loggedInUserDataFormatted.name));
       dispatch(setUserLastName(loggedInUserDataFormatted.lastName));
@@ -146,6 +157,13 @@ export function SignIn({ navigation }: any) {
         try {
           const jsonUser = storageUser.getString('user');
           if (jsonUser) {
+            const hideAmount = storageConfig.getBoolean(
+              `${DATABASE_CONFIGS}.hideAmount`
+            );
+            if (hideAmount) {
+              setHideAmount();
+            }
+
             const userObject = JSON.parse(jsonUser);
 
             dispatch(setUserId(userObject.id));
@@ -160,6 +178,8 @@ export function SignIn({ navigation }: any) {
             dispatch(setUserProfileImage(userObject.image));
             dispatch(setUserTenantId(userObject.tenantId));
           }
+
+          setUseLocalAuth();
 
           navigation.navigate('Home');
         } catch (error) {
