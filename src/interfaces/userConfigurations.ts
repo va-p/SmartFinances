@@ -4,6 +4,6 @@ export interface UserConfigs {
   setEnableLocalAuth: () => void;
   hideAmount: boolean;
   setHideAmount: () => void;
-  hideInsights: boolean;
-  setHideInsights: () => void;
+  insights: boolean;
+  setInsights: () => void;
 }

@@ -71,7 +71,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
       let transactionsByCategoryFormattedPtbr: any = [];
       for (const item of data) {
-        const dmy = formatDatePtBr().short(item.created_at);
+        const dmy = formatDatePtBr(item.created_at).short();
 
         switch (item.account.currency.code) {
           case 'BRL':

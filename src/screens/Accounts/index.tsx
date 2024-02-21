@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
@@ -43,25 +43,26 @@ import {
   AccountType,
 } from '@slices/accountSlice';
 
-import { AccountProps } from '@interfaces/accounts';
-
+import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import getTransactions from '@utils/getTransactions';
 
+import { AccountProps } from '@interfaces/accounts';
+
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
-import { useFocusEffect } from '@react-navigation/native';
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
+  const hideAmount = useUserConfigs((state) => state.hideAmount);
+  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState([]);
-  const [hideAmount, setHideAmount] = useState(true);
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -296,22 +297,11 @@ export function Accounts({ navigation }: any) {
     navigation.navigate('Conta', { id });
   }
 
-  // TODO Remover essa função e buscar ias configs do Zustand!!!
-  function getUserConfig() {
-    (() => {
-      const dataIsVisible = storageConfig.getBoolean(
-        `${DATABASE_CONFIGS}.dataIsVisible`
-      );
-      if (dataIsVisible != undefined) {
-        setHideAmount(dataIsVisible);
-      }
-    })();
-  }
   function handleHideData() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !hideAmount);
+      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
 
-      setHideAmount((prevState) => !prevState);
+      setHideAmount();
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -368,12 +358,6 @@ export function Accounts({ navigation }: any) {
   useEffect(() => {
     fetchAccounts();
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      getUserConfig();
-    }, [])
-  );
 
   if (loading) {
     return <SkeletonAccountsScreen />;
@@ -446,7 +430,6 @@ export function Accounts({ navigation }: any) {
               refreshing={refreshing}
               onRefresh={() => {
                 fetchAccounts();
-                getUserConfig();
               }}
             />
           }

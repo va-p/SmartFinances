@@ -2,18 +2,14 @@ import { create } from 'zustand';
 
 import { UserConfigs } from '@interfaces/userConfigurations';
 
-export const useUserConfigsStore = create<UserConfigs>((set) => ({
+export const useUserConfigs = create<UserConfigs>((set) => ({
   useLocalAuth: false,
   hideAmount: false,
-  hideInsights: false,
-  bears: 0,
-  // increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-  // removeAllBears: () => set({ bears: 0 }),
+  insights: true,
   setUseLocalAuth: () =>
     set((state) => ({ useLocalAuth: !state.useLocalAuth })),
   setEnableLocalAuth: () =>
     set((state) => ({ useLocalAuth: (state.useLocalAuth = true) })),
   setHideAmount: () => set((state) => ({ hideAmount: !state.hideAmount })),
-  setHideInsights: () =>
-    set((state) => ({ hideInsights: !state.hideInsights })),
+  setInsights: () => set((state) => ({ insights: !state.insights })),
 }));

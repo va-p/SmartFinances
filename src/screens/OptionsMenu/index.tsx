@@ -13,7 +13,7 @@ import { SelectButton } from '@components/SelectButton';
 
 import { selectUserId } from '@slices/userSlice';
 
-import { useUserConfigsStore } from '../../stores/userConfigsStore';
+import { useUserConfigs } from '../../stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
@@ -21,15 +21,16 @@ import api from '@api/api';
 import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
-  const hideAmount = useUserConfigsStore((state) => state.hideAmount);
-  const setHideAmount = useUserConfigsStore((state) => state.setHideAmount);
-
-  const useLocalAuth = useUserConfigsStore((state) => state.useLocalAuth);
-  const setUseLocalAuth = useUserConfigsStore((state) => state.setUseLocalAuth);
-
-  const hideInsights = useUserConfigsStore((state) => state.hideInsights);
-  const setHideInsights = useUserConfigsStore((state) => state.setHideInsights);
   const userId = useSelector(selectUserId);
+
+  const hideAmount = useUserConfigs((state) => state.hideAmount);
+  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
+
+  const useLocalAuth = useUserConfigs((state) => state.useLocalAuth);
+  const setUseLocalAuth = useUserConfigs((state) => state.setUseLocalAuth);
+
+  const insights = useUserConfigs((state) => state.insights);
+  const setInsights = useUserConfigs((state) => state.setInsights);
 
   function handleOpenAccounts() {
     navigation.navigate('Contas');
@@ -100,13 +101,27 @@ export function OptionsMenu({ navigation }: any) {
 
   async function handleChangeSmartInsights() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.hideInsights`, !hideInsights);
+      storageConfig.set(`${DATABASE_CONFIGS}.insights`, !insights);
 
-      setHideInsights();
+      setInsights();
     } catch (error) {
       console.log(error);
       Alert.alert(
         'Insights Inteligentes',
+        'Não foi possível alterar a configuração, por favor, tente novamente.'
+      );
+    }
+  }
+
+  async function handleChangeHideAmount() {
+    try {
+      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+
+      setHideAmount();
+    } catch (error) {
+      console.log(error);
+      Alert.alert(
+        'Ocultar informações',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
       );
     }
@@ -138,6 +153,14 @@ export function OptionsMenu({ navigation }: any) {
 
         <Title>Configurações</Title>
         <ButtonToggle
+          icon={<Icon.Sparkle color={theme.colors.primary} />}
+          title='Insights Inteligentes'
+          onValueChange={handleChangeSmartInsights}
+          value={insights}
+          isEnabled={insights}
+        />
+
+        <ButtonToggle
           icon={<Icon.Fingerprint color={theme.colors.primary} />}
           title='Touch / Face ID'
           onValueChange={handleChangeUseLocalAuth}
@@ -146,11 +169,11 @@ export function OptionsMenu({ navigation }: any) {
         />
 
         <ButtonToggle
-          icon={<Icon.Sparkle color={theme.colors.primary} />}
-          title='Insights Inteligentes'
-          onValueChange={handleChangeSmartInsights}
-          value={hideInsights}
-          isEnabled={hideInsights}
+          icon={<Icon.EyeSlash color={theme.colors.primary} />}
+          title='Ocultar informações'
+          onValueChange={handleChangeHideAmount}
+          value={hideAmount}
+          isEnabled={hideAmount}
         />
 
         <Title>Sobre</Title>

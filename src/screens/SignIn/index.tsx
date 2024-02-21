@@ -13,17 +13,17 @@ import {
   LinkSignUp,
 } from './styles';
 
-import * as LocalAuthentication from 'expo-local-authentication';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { useFocusEffect } from '@react-navigation/native';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import * as Yup from 'yup';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { useDispatch } from 'react-redux';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useFocusEffect } from '@react-navigation/native';
+import { RFValue } from 'react-native-responsive-fontsize';
+import * as LocalAuthentication from 'expo-local-authentication';
 
-import { ControlledInput } from '@components/Form/ControlledInput';
 import { Button } from '@components/Button';
+import { ControlledInput } from '@components/Form/ControlledInput';
 
 import LogoSvg from '@assets/logo.svg';
 
@@ -48,8 +48,9 @@ import {
   storageUser,
 } from '@database/database';
 
+import { useUserConfigs } from '../../stores/userConfigsStore';
+
 import api from '@api/api';
-import { useUserConfigsStore } from '../../stores/userConfigsStore';
 
 type FormData = {
   email: string;
@@ -66,9 +67,8 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
-  const setHideAmount = useUserConfigsStore((state) => state.setHideAmount);
-  const setUseLocalAuth = useUserConfigsStore((state) => state.setUseLocalAuth);
-  const setEnableLocalAuth = useUserConfigsStore(
+  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
+  const setEnableLocalAuth = useUserConfigs(
     (state) => state.setEnableLocalAuth
   );
 
@@ -179,7 +179,7 @@ export function SignIn({ navigation }: any) {
             dispatch(setUserTenantId(userObject.tenantId));
           }
 
-          setUseLocalAuth();
+          setEnableLocalAuth();
 
           navigation.navigate('Home');
         } catch (error) {

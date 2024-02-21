@@ -1,16 +1,11 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   RefreshControl,
   StyleSheet,
   BackHandler,
   SectionList,
+  Dimensions,
 } from 'react-native';
 import {
   Container,
@@ -53,6 +48,8 @@ import {
   addYears,
   format,
   getDay,
+  getDaysInMonth,
+  isFirstDayOfMonth,
   parse,
   parseISO,
   subMonths,
@@ -61,7 +58,6 @@ import {
 import { ptBR } from 'date-fns/locale';
 import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import { Plus, Eye, EyeSlash, X } from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 
@@ -86,16 +82,21 @@ import { selectUserTenantId } from '@slices/userSlice';
 
 import apiQuotes from '@api/apiQuotes';
 
+import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
+import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
-import { useUserConfigsStore } from '@stores/userConfigsStore';
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.38;
+const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.25;
 
 type PeriodData = {
   date: Date | number;
@@ -106,13 +107,10 @@ type PeriodData = {
 export function Home() {
   const [loading, setLoading] = useState(false);
   const tenantId = useSelector(selectUserTenantId);
-
-  const hideAmount = useUserConfigsStore((state) => state.hideAmount);
-  const setHideAmount = useUserConfigsStore((state) => state.setHideAmount);
-
-  const hideInsights = useUserConfigsStore((state) => state.hideInsights);
-  const setHideInsights = useUserConfigsStore((state) => state.setHideInsights);
-
+  const hideAmount = useUserConfigs((state) => state.hideAmount);
+  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
+  const insights = useUserConfigs((state) => state.insights);
+  const [showInsights, setShowInsights] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
   const dispatch = useDispatch();
   const [
@@ -149,25 +147,38 @@ export function Home() {
     useState('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
-  // const [hideAmount, setHideAmount] = useState(true);
-  const [hideCashFlowAlert, setHideCashFlowAlert] = useState(false);
-  const isFirstOrSecondDayOfMonth =
-    getDay(new Date()) === 0 || getDay(new Date()) === 1;
+  // const isFirstOrSecondDayOfMonth =
+  //  getDay(new Date()) === 0 || getDay(new Date()) === 1;
+  const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
 
-  // Animated header, chart and transactions list
+  // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
+  const AnimatedViewInitialHeight =
+    insights && showInsights /* && firstDayOfMonth */
+      ? SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS
+      : SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS;
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(scrollY.value, [0, 400], [200, 0], Extrapolate.CLAMP),
+      height: interpolate(
+        scrollY.value,
+        [0, 400],
+        [AnimatedViewInitialHeight, 0],
+        Extrapolate.CLAMP
+      ),
       opacity: interpolate(scrollY.value, [0, 370], [1, 0], Extrapolate.CLAMP),
     };
   });
   const chartStyleAnimationOpacity = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [0, 220], [1, 0], Extrapolate.CLAMP),
+      opacity: interpolate(scrollY.value, [0, 300], [1, 0], Extrapolate.CLAMP),
+    };
+  });
+  const insightsStyleAnimationOpacity = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(scrollY.value, [0, 100], [1, 0], Extrapolate.CLAMP),
     };
   });
   // Animated section list
@@ -291,76 +302,25 @@ export function Home() {
       /**
        * All Transactions Formatted in pt-BR - Start
        */
-      let amount_formatted: any;
       let amountNotConvertedFormatted = '';
       let totalRevenues = 0;
       let totalExpenses = 0;
 
       let transactionsFormattedPtbr: any = [];
       for (const item of data) {
-        const dmy = formatDatePtBr().short(item.created_at);
+        const dmy = formatDatePtBr(item.created_at).short();
 
-        switch (item.account.currency.code) {
-          case 'BRL':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            break;
-          case 'BTC':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 6,
-              maximumSignificantDigits: 6,
-            });
-            break;
-          case 'EUR':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR',
-            });
-            break;
-          case 'USD':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD',
-            });
-            break;
-        }
-        if (item.amount_not_converted && item.currency.code === 'BRL') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'BTC') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BTC',
-            minimumFractionDigits: 8,
-            maximumSignificantDigits: 8,
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'EUR') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'EUR',
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'USD') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'USD',
-          });
+        const amount_formatted = formatCurrency(
+          item.account.currency.code,
+          item.amount
+        ).formatAmountConverted();
+
+        if (item.amount_not_converted) {
+          amountNotConvertedFormatted =
+            formatCurrency(
+              item.currency.code,
+              item.amount_not_converted
+            ).formatAmountNotConverted() || '';
         }
 
         if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
@@ -744,33 +704,10 @@ export function Home() {
     setTransactionId('');
   }
 
-  // TODO Configurar Zustand e passar as configs por ele!!!
-  function getUserConfigs() {
-    /*(() => {
-      const dataIsVisible = storageConfig.getBoolean(
-        `${DATABASE_CONFIGS}.dataIsVisible`
-      );
-      if (dataIsVisible !== undefined) {
-        setHideAmount(dataIsVisible);
-        const updatedUserConfigs = {
-          ...userConfigs,
-          hideAmount: dataIsVisible,
-        };
-        setUserConfigs(updatedUserConfigs);
-      }
-    })();*/
-  }
   function handleHideData() {
     try {
-      // storageConfig.set(`${DATABASE_CONFIGS}.dataIsVisible`, !hideAmount);
-      storageConfig.set(
-        // `${DATABASE_CONFIGS}.dataIsVisible`,
-        `${DATABASE_CONFIGS}.hideAmount`,
-        !hideAmount
-      );
+      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
 
-      // setHideAmount((prevState) => !prevState);
-      //useUserConfigsStore((state: UserConfigs) => state.setHideAmount);
       setHideAmount();
     } catch (error) {
       console.error(error);
@@ -780,14 +717,18 @@ export function Home() {
     }
   }
 
+  function handleHideCashFlowInsights() {
+    setShowInsights(false);
+  }
+
   function _renderEmpty() {
     return <ListEmptyComponent />;
   }
 
-  function _renderCashFlowAlertContainer() {
+  function _renderCashFlowInsightContainer() {
     return (
       <CashFlowAlertContainer>
-        <CloseCashFlowAlertButton>
+        <CloseCashFlowAlertButton onPress={handleHideCashFlowInsights}>
           <X size={20} color={theme.colors.primary} />
         </CloseCashFlowAlertButton>
         <CashFlowAlertTitle>
@@ -814,14 +755,6 @@ export function Home() {
     fetchUsdQuote();
     fetchTransactions();
   }, [chartPeriodSelected.period]);
-
-  useFocusEffect(
-    useCallback(() => {
-      // setLoading(true);
-      getUserConfigs();
-      // setLoading(false);
-    }, [])
-  );
 
   if (loading) {
     return <SkeletonHomeScreen />;
@@ -858,9 +791,9 @@ export function Home() {
 
         <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
-            height={200}
-            padding={{ top: 12, right: 12, bottom: 128, left: 48 }}
-            domainPadding={{ x: 6, y: 6 }}
+            height={120}
+            padding={{ top: 16, right: 16, bottom: 40, left: 40 }}
+            //domainPadding={{ x: 6, y: 6 }}
             containerComponent={
               <VictoryZoomContainer
                 allowZoom={false}
@@ -911,11 +844,14 @@ export function Home() {
             </VictoryGroup>
           </VictoryChart>
         </Animated.View>
-      </Animated.View>
 
-      {/*!hideCashFlowAlert &&
-        !isFirstOrSecondDayOfMonth &&
-              _renderCashFlowAlertContainer()*/}
+        <Animated.View style={insightsStyleAnimationOpacity}>
+          {insights &&
+            showInsights &&
+            // firstDayOfMonth &&
+            _renderCashFlowInsightContainer()}
+        </Animated.View>
+      </Animated.View>
 
       <Transactions>
         <AnimatedSectionList
@@ -939,7 +875,6 @@ export function Home() {
               refreshing={refreshing}
               onRefresh={() => {
                 fetchTransactions();
-                getUserConfigs();
               }}
             />
           }

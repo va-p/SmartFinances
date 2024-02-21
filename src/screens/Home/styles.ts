@@ -59,8 +59,8 @@ export const CloseCashFlowAlertButton = styled(BorderlessButton)`
 export const CashFlowAlertContainer = styled.View`
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 8px;
+  margin: 0 8px;
   border: 1px solid ${({ theme }) => theme.colors.text};
   border-radius: 8px;
 `;

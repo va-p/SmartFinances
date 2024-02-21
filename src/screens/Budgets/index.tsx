@@ -158,8 +158,8 @@ export function Budgets() {
           2
         )}%`;
 
-        const start_date = formatDatePtBr().extensive(startDate);
-        const end_date = formatDatePtBr().extensive(endDate);
+        const start_date = formatDatePtBr(startDate).extensive();
+        const end_date = formatDatePtBr(endDate).extensive();
 
         if (!budgetsFormatted.hasOwnProperty(endDate)) {
           budgetsFormatted[budget.id] = {
