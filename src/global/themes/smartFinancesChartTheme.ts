@@ -1,5 +1,4 @@
 import { assign } from 'lodash';
-import theme from './theme';
 
 // *
 // * Colors
@@ -19,8 +18,8 @@ const colors = [
   cyan900,
 ];
 const blueGrey50 = '#ECEFF1';
-const blueGrey300 = '#90A4AE';
-const blueGrey700 = '#455A64';
+const blueGrey300 = '#90A4AE'; //Text (axis)
+const blueGrey700 = '#455A64'; // Lines
 const grey900 = '#212121';
 // *
 // * Typography

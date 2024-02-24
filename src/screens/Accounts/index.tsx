@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import { Alert, Dimensions, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
@@ -17,12 +17,8 @@ import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import {
-  VictoryArea,
-  VictoryChart,
-  VictoryZoomContainer,
-} from 'victory-native';
 
 import { ModalView } from '@components/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
@@ -33,8 +29,6 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 
-import { selectUserTenantId } from '@slices/userSlice';
-import { selectBtcQuoteBrl } from '@slices/quotesSlice';
 import {
   setAccountName,
   setAccountCurrency,
@@ -42,6 +36,8 @@ import {
   setAccountType,
   AccountType,
 } from '@slices/accountSlice';
+import { selectUserTenantId } from '@slices/userSlice';
+import { selectBtcQuoteBrl, selectUsdQuoteBrl } from '@slices/quotesSlice';
 
 import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
@@ -51,7 +47,17 @@ import getTransactions from '@utils/getTransactions';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HORIZONTAL_PADDING = 32;
+const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
+
+type TotalByMonths = {
+  date: string;
+  totalRevenuesByMonth: number;
+  totalExpensesByMonth: number;
+  total: number;
+};
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -62,12 +68,13 @@ export function Accounts({ navigation }: any) {
   const dispatch = useDispatch();
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
-  const [totalByMonths, setTotalByMonths] = useState([]);
+  const [totalByMonths, setTotalByMonths] = useState<TotalByMonths[]>([]);
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
+  const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
 
   async function fetchAccounts() {
     setLoading(true);
@@ -84,7 +91,7 @@ export function Accounts({ navigation }: any) {
       let accounts: any = [];
       for (const item of data) {
         if (new Date(item.created_at) <= new Date()) {
-          switch (item.currency.code) {
+          switch (item.account.currency.code) {
             case 'BRL':
               switch (item.type) {
                 case 'credit':
@@ -106,6 +113,17 @@ export function Accounts({ navigation }: any) {
                 case 'debit':
                 case 'transferDebit':
                   totalExpensesBRL += item.amount * btcQuoteBrl.price;
+                  break;
+              }
+            case 'USD':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  totalRevenuesBRL += item.amount * usdQuoteBrl.price;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  totalExpensesBRL += item.amount * usdQuoteBrl.price;
                   break;
               }
               break;
@@ -131,30 +149,15 @@ export function Accounts({ navigation }: any) {
             };
           }
 
-          switch (item.currency.code) {
-            case 'BRL':
-              switch (item.type) {
-                case 'credit':
-                case 'transferCredit':
-                  accounts[account].totalRevenuesByAccount += item.amount;
-                  break;
-                case 'debit':
-                case 'transferDebit':
-                  accounts[account].totalExpensesByAccount += item.amount;
-                  break;
-              }
+          switch (item.type) {
+            case 'credit':
+            case 'transferCredit':
+              accounts[account].totalRevenuesByAccount += item.amount;
               break;
-            case 'BTC':
-              switch (item.type) {
-                case 'credit':
-                case 'transferCredit':
-                  accounts[account].totalRevenuesByAccount += item.amount;
-                  break;
-                case 'debit':
-                case 'transferDebit':
-                  accounts[account].totalExpensesByAccount += item.amount;
-                  break;
-              }
+            case 'debit':
+            case 'transferDebit':
+              accounts[account].totalExpensesByAccount += item.amount;
+              break;
           }
         }
       }
@@ -381,41 +384,48 @@ export function Accounts({ navigation }: any) {
       </Header>
 
       <ChartContainer>
-        <VictoryChart
+        <LineChart
+          data={totalByMonths
+            .map((item) => {
+              return { value: item.total };
+            })
+            .reverse()}
+          xAxisLabelTexts={totalByMonths
+            .map((item) => {
+              return item.date;
+            })
+            .reverse()}
           height={180}
-          padding={{ top: 16, bottom: 16, left: 48, right: 48 }}
-          domainPadding={{ y: 12 }}
-          containerComponent={
-            <VictoryZoomContainer
-              height={200}
-              allowZoom={false}
-              zoomDomain={{ x: [6, 12] }}
-              zoomDimension='x'
-            />
-          }
-          theme={smartFinancesChartTheme}
-        >
-          <VictoryArea
-            data={totalByMonths}
-            x='date'
-            y='total'
-            sortKey='x'
-            sortOrder='descending'
-            interpolation='natural'
-            style={{
-              data: {
-                fill: theme.colors.primary,
-                fillOpacity: 0.1,
-                stroke: theme.colors.primary,
-                strokeWidth: 2,
-              },
-            }}
-            animate={{
-              onEnter: { duration: 3000 },
-              easing: 'linear',
-            }}
-          />
-        </VictoryChart>
+          width={GRAPH_WIDTH}
+          xAxisColor='#455A64'
+          yAxisColor='#455A64'
+          areaChart
+          curved
+          showVerticalLines
+          verticalLinesUptoDataPoint
+          initialSpacing={16}
+          endSpacing={0}
+          focusEnabled
+          showStripOnFocus
+          showValuesAsDataPointsText
+          showTextOnFocus
+          xAxisTextNumberOfLines={2}
+          xAxisLabelTextStyle={{
+            fontSize: 10,
+            color: '#90A4AE',
+            paddingRight: 10,
+          }}
+          yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+          rulesColor='#455A64'
+          verticalLinesColor='#455A64'
+          color1={theme.colors.primary}
+          dataPointsColor1={theme.colors.primary}
+          startFillColor1={theme.colors.primary}
+          startOpacity={0.6}
+          endOpacity={0.1}
+          isAnimated
+          animationDuration={5000}
+        />
       </ChartContainer>
 
       <AccountsContainer>
