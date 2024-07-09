@@ -38,17 +38,11 @@ import {
   VictoryGroup,
   VictoryZoomContainer,
 } from 'victory-native';
-import {
-  RectButton,
-  PanGestureHandler,
-  // Swipeable,
-} from 'react-native-gesture-handler';
+import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
 import {
   addMonths,
   addYears,
   format,
-  getDay,
-  getDaysInMonth,
   isFirstDayOfMonth,
   parse,
   parseISO,
@@ -56,7 +50,7 @@ import {
   subYears,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Plus, Eye, EyeSlash, X } from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
@@ -78,10 +72,10 @@ import {
   setEurQuoteBrl,
   setUsdQuoteBrl,
 } from '@slices/quotesSlice';
-import { selectUserTenantId } from '@slices/userSlice';
 
 import apiQuotes from '@api/apiQuotes';
 
+import { useUser } from '@stores/userStore';
 import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
@@ -92,6 +86,8 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+
+import api from '@api/api';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -106,7 +102,8 @@ type PeriodData = {
 
 export function Home() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
+  const userId = useUser((state) => state.id);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
   const insights = useUserConfigs((state) => state.insights);
@@ -147,8 +144,6 @@ export function Home() {
     useState('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
-  // const isFirstOrSecondDayOfMonth =
-  //  getDay(new Date()) === 0 || getDay(new Date()) === 1;
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
 
   // Animated header, chart and insights container
@@ -156,8 +151,9 @@ export function Home() {
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
-  const AnimatedViewInitialHeight =
-    insights && showInsights /* && firstDayOfMonth */
+  let AnimatedViewInitialHeight = SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS;
+  AnimatedViewInitialHeight =
+    insights && showInsights && firstDayOfMonth
       ? SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS
       : SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS;
   const headerStyleAnimation = useAnimatedStyle(() => {
@@ -704,11 +700,17 @@ export function Home() {
     setTransactionId('');
   }
 
-  function handleHideData() {
+  async function handleHideData() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+      const { status } = await api.post('edit_hide_amount', {
+        user_id: userId,
+        hide_amount: !hideAmount,
+      });
 
-      setHideAmount();
+      if (status === 200) {
+        storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+        setHideAmount(!hideAmount);
+      }
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -848,7 +850,7 @@ export function Home() {
         <Animated.View style={insightsStyleAnimationOpacity}>
           {insights &&
             showInsights &&
-            // firstDayOfMonth &&
+            firstDayOfMonth &&
             _renderCashFlowInsightContainer()}
         </Animated.View>
       </Animated.View>
@@ -861,7 +863,7 @@ export function Home() {
             <TransactionListItem
               data={item}
               index={index}
-              hide_amount={hideAmount}
+              hideAmount={hideAmount}
               onPress={() => handleOpenTransaction(item.id)}
             />
           )}

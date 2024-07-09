@@ -2,17 +2,16 @@ import React, { useCallback, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Container, Body, Footer } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import * as Yup from 'yup';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 import { Button } from '@components/Button';
+import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
 
@@ -32,7 +31,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterTag({ id, closeTag }: Props) {
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [name, setName] = useState('');
   const {
     control,

@@ -21,14 +21,14 @@ type Props = RectButtonProps & {
   data: AccountProps;
   index: number;
   icon: any;
-  hide_amount: boolean;
+  hideAmount?: boolean;
 };
 
 export function AccountListItem({
   data,
   index,
   icon,
-  hide_amount,
+  hideAmount = false,
   ...rest
 }: Props) {
   return (
@@ -40,10 +40,10 @@ export function AccountListItem({
         <NameContainer>
           <Name>{data.name}</Name>
           <AmountsContainer>
-            <Amount>{!hide_amount ? data.totalAccountAmount : '•••••'}</Amount>
+            <Amount>{!hideAmount ? data.totalAccountAmount : '•••••'}</Amount>
             {data.totalAccountAmountConverted && (
               <Amount style={{ fontSize: 12 }}>
-                ({!hide_amount ? data.totalAccountAmountConverted : '•••••'})
+                ({!hideAmount ? data.totalAccountAmountConverted : '•••••'})
               </Amount>
             )}
           </AmountsContainer>

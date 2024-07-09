@@ -10,7 +10,6 @@ import {
 } from './styles';
 
 import { ptBR } from 'date-fns/locale';
-import { useSelector } from 'react-redux';
 import { VictoryPie } from 'victory-native';
 import { useTheme } from 'styled-components';
 import { addMonths, subMonths, format } from 'date-fns';
@@ -21,7 +20,7 @@ import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
 import { HistoryCard } from '@components/HistoryCard';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
 
@@ -44,7 +43,7 @@ interface CategoryData {
 
 export function OverviewExpenses({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<
     CategoryData[]

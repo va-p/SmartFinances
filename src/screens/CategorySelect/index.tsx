@@ -2,17 +2,17 @@ import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 
-import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { CategoryProps } from '@components/CategoryListItem';
 import { Load } from '@components/Load';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
+
+import { CategoryProps } from '@interfaces/categories';
 
 import api from '@api/api';
 
@@ -29,7 +29,7 @@ export function CategorySelect({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
 
   async function fetchCategories() {

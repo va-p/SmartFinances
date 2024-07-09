@@ -14,21 +14,21 @@ import {
   Footer,
 } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import * as Yup from 'yup';
-import axios from 'axios';
-
-import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
-import { ColorProps, IconProps } from '@components/CategoryListItem';
-import { Button } from '@components/Button';
-
-import { selectUserTenantId } from '@slices/userSlice';
-
-import { colors } from '@utils/colors';
 import { icons } from '@utils/icons';
+import { colors } from '@utils/colors';
+
+import axios from 'axios';
+import * as Yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useFocusEffect } from '@react-navigation/native';
+
+import { Button } from '@components/Button';
+import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
+
+import { useUser } from '@stores/userStore';
+
+import { ColorProps, IconProps } from '@interfaces/categories';
 
 import api from '@api/api';
 
@@ -49,7 +49,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterCategory({ id, closeCategory }: Props) {
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [name, setName] = useState('');
   const [iconSelected, setIconSelected] = useState({
     id: '',
@@ -154,7 +154,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     /* Validation Form - End */
 
     // Edit Category
-    if (id != '') {
+    if (id !== '') {
       handleEditCategory(id, form);
     }
     // Add Category

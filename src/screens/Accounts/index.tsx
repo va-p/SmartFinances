@@ -36,9 +36,9 @@ import {
   setAccountType,
   AccountType,
 } from '@slices/accountSlice';
-import { selectUserTenantId } from '@slices/userSlice';
 import { selectBtcQuoteBrl, selectUsdQuoteBrl } from '@slices/quotesSlice';
 
+import { useUser } from '@stores/userStore';
 import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
@@ -47,6 +47,7 @@ import getTransactions from '@utils/getTransactions';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
+import api from '@api/api';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 32;
@@ -61,7 +62,8 @@ type TotalByMonths = {
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
+  const userId = useUser((state) => state.id);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
   const [refreshing, setRefreshing] = useState(true);
@@ -77,9 +79,9 @@ export function Accounts({ navigation }: any) {
   const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
 
   async function fetchAccounts() {
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       const data = await getTransactions(tenantId);
 
       /**
@@ -300,11 +302,17 @@ export function Accounts({ navigation }: any) {
     navigation.navigate('Conta', { id });
   }
 
-  function handleHideData() {
+  async function handleHideData() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+      const { status } = await api.post('edit_hide_amount', {
+        user_id: userId,
+        hide_amount: !hideAmount,
+      });
 
-      setHideAmount();
+      if (status === 200) {
+        storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+        setHideAmount(!hideAmount);
+      }
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -344,7 +352,7 @@ export function Accounts({ navigation }: any) {
         data={item}
         index={index}
         icon={getAccountIcon()}
-        hide_amount={hideAmount}
+        hideAmount={hideAmount}
         onPress={() =>
           handleOpenAccount(
             item.id,

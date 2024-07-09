@@ -2,27 +2,26 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { TagListItem, TagProps } from '@components/TagListItem';
-import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Button';
 import { Header } from '@components/Header';
+import { Button } from '@components/Button';
+import { ModalView } from '@components/ModalView';
+import { TagListItem, TagProps } from '@components/TagListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterTag } from '@screens/RegisterTag';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
 
 export function Tags() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [tags, setTags] = useState<TagProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -141,9 +140,6 @@ export function Tags() {
           <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
         }
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 24,
-        }}
       />
 
       <Footer>
@@ -155,8 +151,8 @@ export function Tags() {
       </Footer>
 
       <ModalView
-        type={tagId != '' ? 'secondary' : 'primary'}
-        title={tagId != '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
+        type={tagId !== '' ? 'secondary' : 'primary'}
+        title={tagId !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
         bottomSheetRef={bottomSheetRef}
         snapPoints={['50%']}
         closeModal={handleCloseRegisterTagModal}

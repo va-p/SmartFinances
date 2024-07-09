@@ -29,13 +29,13 @@ import { TransactionProps } from '@interfaces/transactions';
 type Props = RectButtonProps & {
   data: TransactionProps;
   index: number;
-  hide_amount: boolean;
+  hideAmount: boolean;
 };
 
 const TransactionListItem = memo(function TransactionListItem({
   data,
   index,
-  hide_amount,
+  hideAmount,
   ...rest
 }: Props) {
   return (
@@ -55,8 +55,8 @@ const TransactionListItem = memo(function TransactionListItem({
               <TransferDirectionIcon name='arrow-down-outline' />
             )}
             <Amount type={data.type}>
-              {!hide_amount && data.type === 'debit' && '-'}
-              {!hide_amount ? data.amount_formatted : '•••••'}
+              {!hideAmount && data.type === 'debit' && '-'}
+              {!hideAmount ? data.amount_formatted : '•••••'}
             </Amount>
           </AmountContainer>
         </DescriptionAndAmountContainer>

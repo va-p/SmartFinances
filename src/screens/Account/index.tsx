@@ -34,35 +34,35 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
-import { CaretLeft, DotsThreeCircle, Plus } from 'phosphor-react-native';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-
-import { useSelector } from 'react-redux';
-import { format, parse } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import axios from 'axios';
+import { ptBR } from 'date-fns/locale';
+import { format, parse } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
+import { CaretLeft, DotsThreeCircle, Plus } from 'phosphor-react-native';
+import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
 
-import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
-import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { ModalViewSelection } from '@components/ModalViewSelection';
-import TransactionListItem from '@components/TransactionListItem';
-import { SectionListHeader } from '@components/SectionListHeader';
-import { ChartSelectButton } from '@components/ChartSelectButton';
 import { ModalView } from '@components/ModalView';
+import { ChartSelectButton } from '@components/ChartSelectButton';
+import { SectionListHeader } from '@components/SectionListHeader';
+import TransactionListItem from '@components/TransactionListItem';
+import { ModalViewSelection } from '@components/ModalViewSelection';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
+import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
-import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
-import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { RegisterTransaction } from '@screens/RegisterTransaction';
+import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 
 import {
   selectAccountCurrency,
   selectAccountInitialAmount,
   selectAccountName,
 } from '@slices/accountSlice';
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
+import { useUserConfigs } from '@stores/userConfigsStore';
 
 import api from '@api/api';
 
@@ -72,7 +72,7 @@ import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 export function Account() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [refreshing, setRefreshing] = useState(true);
   const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
@@ -99,9 +99,12 @@ export function Account() {
   const navigation = useNavigation();
   const route = useRoute();
   const accountId = route.params?.id;
+  const hideAmount = useUserConfigs((state) => state.hideAmount);
+  // TODO: Changes to Zustand! --- START ---
   const accountName = useSelector(selectAccountName);
   const accountCurrency = useSelector(selectAccountCurrency);
   const accountInitialAmount = useSelector(selectAccountInitialAmount);
+  // TODO: Changes to Zustand! --- END ---
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -564,6 +567,7 @@ export function Account() {
       <TransactionListItem
         data={item}
         index={index}
+        hideAmount={hideAmount}
         onPress={() => handleOpenTransaction(item.id)}
       />
     );
@@ -603,7 +607,7 @@ export function Account() {
         <AccountBalanceContainer>
           <AccountBalanceGroup>
             <AccountBalance balanceIsPositive={balanceIsPositive}>
-              {totalAccountBalance}
+              {!hideAmount ? totalAccountBalance : '•••••'}
             </AccountBalance>
             <AccountBalanceDescription>
               Saldo da conta
@@ -614,7 +618,7 @@ export function Account() {
 
           <AccountBalanceGroup>
             <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>
-              {cashFlowBySelectedPeriod}
+              {!hideAmount ? cashFlowBySelectedPeriod : '•••••'}
             </AccountCashFlow>
             <AccountCashFlowDescription>{`Fluxo de caixa por ${periodSelected.name}`}</AccountCashFlowDescription>
           </AccountBalanceGroup>
@@ -701,8 +705,8 @@ export function Account() {
             id: accountId,
             name: accountName,
             currency: accountCurrency,
-            initial_amount: accountInitialAmount,
-            tenant_id: tenantId,
+            initialAmount: accountInitialAmount,
+            tenantId: tenantId,
           }}
           closeRegisterTransaction={handleCloseTransaction}
           closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}

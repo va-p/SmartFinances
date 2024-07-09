@@ -2,17 +2,17 @@ import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { AccountProps } from '@components/AccountListItem';
-import { ListSeparator } from '@components/ListSeparator';
-import { ListItem } from '@components/ListItem';
 import { Load } from '@components/Load';
+import { ListItem } from '@components/ListItem';
+import { ListSeparator } from '@components/ListSeparator';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
+
+import { AccountProps } from '@interfaces/accounts';
 
 import api from '@api/api';
 
@@ -29,7 +29,7 @@ export function AccountDestinationSelect({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
 
   async function fetchAccounts() {

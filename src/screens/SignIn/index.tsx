@@ -15,7 +15,6 @@ import {
 
 import axios from 'axios';
 import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
@@ -28,18 +27,6 @@ import { ControlledInput } from '@components/Form/ControlledInput';
 import LogoSvg from '@assets/logo.svg';
 
 import {
-  setUserId,
-  setUserName,
-  setUserLastName,
-  setUserEmail,
-  setUserPhone,
-  setUserRole,
-  setUserLocalAuthentication,
-  setUserProfileImage,
-  setUserTenantId,
-} from '@slices/userSlice';
-
-import {
   DATABASE_CONFIGS,
   DATABASE_TOKENS,
   DATABASE_USERS,
@@ -48,7 +35,8 @@ import {
   storageUser,
 } from '@database/database';
 
-import { useUserConfigs } from '../../stores/userConfigsStore';
+import { useUser } from '@stores/userStore';
+import { useUserConfigs } from '@stores/userConfigsStore';
 
 import api from '@api/api';
 
@@ -67,10 +55,18 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
+  const setUseLocalAuth = useUserConfigs((state) => state.setUseLocalAuth);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
-  const setEnableLocalAuth = useUserConfigs(
-    (state) => state.setEnableLocalAuth
-  );
+  const setInsights = useUserConfigs((state) => state.setInsights);
+
+  const setTenantId = useUser((state) => state.setTenantId);
+  const setId = useUser((state) => state.setId);
+  const setName = useUser((state) => state.setName);
+  const setLastName = useUser((state) => state.setLastName);
+  const setEmail = useUser((state) => state.setEmail);
+  const setPhone = useUser((state) => state.setPhone);
+  const setRole = useUser((state) => state.setRole);
+  const setProfileImage = useUser((state) => state.setProfileImage);
 
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const {
@@ -80,17 +76,16 @@ export function SignIn({ navigation }: any) {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
-  const dispatch = useDispatch();
 
   async function handleSignInWithXano(form: FormData) {
-    setButtonIsLoading(true);
-
-    const SignInUser = {
-      email: form.email,
-      password: form.password,
-    };
-
     try {
+      setButtonIsLoading(true);
+
+      const SignInUser = {
+        email: form.email,
+        password: form.password,
+      };
+
       const { data, status } = await api.post('auth/login', SignInUser);
       if (status === 200) {
         try {
@@ -104,36 +99,42 @@ export function SignIn({ navigation }: any) {
         }
       }
 
-      const userData = await api.get('auth/me');
+      const userData = (await api.get('auth/me')).data;
 
+      // User Data
       const loggedInUserDataFormatted = {
-        id: userData.data.id,
-        name: userData.data.name,
-        lastName: userData.data.last_name,
-        email: userData.data.email,
-        phone: userData.data.phone,
-        role: userData.data.role,
-        image: userData.data.image,
-        tenantId: userData.data.tenant_id,
+        id: userData.id,
+        name: userData.name,
+        lastName: userData.last_name,
+        email: userData.email,
+        phone: userData.phone,
+        role: userData.role,
+        image: userData.image,
+        tenantId: userData.tenant_id,
       };
-
       storageUser.set(
         `${DATABASE_USERS}`,
         JSON.stringify(loggedInUserDataFormatted)
       );
+      setTenantId(loggedInUserDataFormatted.tenantId);
+      setId(loggedInUserDataFormatted.id);
+      setName(loggedInUserDataFormatted.name);
+      setLastName(loggedInUserDataFormatted.lastName);
+      setEmail(loggedInUserDataFormatted.email);
+      setPhone(loggedInUserDataFormatted.phone);
+      setRole(loggedInUserDataFormatted.role);
+      setProfileImage(loggedInUserDataFormatted.image);
 
-      if (userData.data.use_local_authentication === true) {
-        setEnableLocalAuth();
-      }
-
-      dispatch(setUserId(loggedInUserDataFormatted.id));
-      dispatch(setUserName(loggedInUserDataFormatted.name));
-      dispatch(setUserLastName(loggedInUserDataFormatted.lastName));
-      dispatch(setUserEmail(loggedInUserDataFormatted.email));
-      dispatch(setUserPhone(loggedInUserDataFormatted.phone));
-      dispatch(setUserRole(loggedInUserDataFormatted.role));
-      dispatch(setUserProfileImage(loggedInUserDataFormatted.image));
-      dispatch(setUserTenantId(loggedInUserDataFormatted.tenantId));
+      // User Configs
+      storageConfig.set(
+        `${DATABASE_CONFIGS}.useLocalAuth`,
+        userData.use_local_authentication
+      );
+      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, userData.hide_amount);
+      storageConfig.set(`${DATABASE_CONFIGS}.insights`, userData.insights);
+      setUseLocalAuth(userData.use_local_authentication);
+      setHideAmount(userData.hide_amount);
+      setInsights(userData.insights);
 
       navigation.navigate('Main');
     } catch (error) {
@@ -146,9 +147,8 @@ export function SignIn({ navigation }: any) {
   }
 
   async function handleSignInWithBiometric() {
-    setButtonIsLoading(true);
-
     try {
+      setButtonIsLoading(true);
       const biometricAuth = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Entrar com Biometria',
         cancelLabel: 'Cancelar',
@@ -156,30 +156,37 @@ export function SignIn({ navigation }: any) {
       if (biometricAuth.success) {
         try {
           const jsonUser = storageUser.getString('user');
-          if (jsonUser) {
-            const hideAmount = storageConfig.getBoolean(
-              `${DATABASE_CONFIGS}.hideAmount`
-            );
-            if (hideAmount) {
-              setHideAmount();
-            }
 
+          const useLocalAuth = storageConfig.getBoolean(
+            `${DATABASE_CONFIGS}.useLocalAuth`
+          );
+          const hideAmount = storageConfig.getBoolean(
+            `${DATABASE_CONFIGS}.hideAmount`
+          );
+          const insights = storageConfig.getBoolean(
+            `${DATABASE_CONFIGS}.insights`
+          );
+          const userConfigObject = {
+            useLocalAuth: useLocalAuth || false,
+            hideAmount: hideAmount || false,
+            insights: insights || false,
+          };
+          if (jsonUser && userConfigObject) {
             const userObject = JSON.parse(jsonUser);
 
-            dispatch(setUserId(userObject.id));
-            dispatch(setUserName(userObject.name));
-            dispatch(setUserLastName(userObject.lastName));
-            dispatch(setUserEmail(userObject.email));
-            dispatch(setUserPhone(userObject.phone));
-            dispatch(setUserRole(userObject.role));
-            dispatch(
-              setUserLocalAuthentication(userObject.use_local_authentication)
-            );
-            dispatch(setUserProfileImage(userObject.image));
-            dispatch(setUserTenantId(userObject.tenantId));
-          }
+            setTenantId(userObject.tenantId);
+            setId(userObject.id);
+            setName(userObject.name);
+            setLastName(userObject.lastName);
+            setEmail(userObject.email);
+            setPhone(userObject.phone);
+            setRole(userObject.role);
+            setProfileImage(userObject.image);
 
-          setEnableLocalAuth();
+            setUseLocalAuth(userConfigObject.useLocalAuth);
+            setHideAmount(userConfigObject.hideAmount);
+            setInsights(userConfigObject.insights);
+          }
 
           navigation.navigate('Home');
         } catch (error) {
@@ -200,24 +207,6 @@ export function SignIn({ navigation }: any) {
       setButtonIsLoading(false);
     }
   }
-
-  /*async function handleSignInWithGoogle() {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Não foi possível conectar a conta Google');
-    }
-  }
-
-  async function handleSignInWithApple() {
-    try {
-      await signInWithApple();
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Não foi possível conectar a conta Apple');
-    }
-  }*/
 
   useFocusEffect(
     useCallback(() => {

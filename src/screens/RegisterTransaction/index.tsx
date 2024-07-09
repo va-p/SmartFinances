@@ -46,7 +46,6 @@ import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
-import { selectUserTenantId } from '@slices/userSlice';
 import {
   //BRL Quotes
   selectBrlQuoteBtc,
@@ -65,6 +64,7 @@ import {
   selectUsdQuoteBtc,
   selectUsdQuoteEur,
 } from '@slices/quotesSlice';
+import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
 
@@ -109,13 +109,13 @@ export function RegisterTransaction({
       code: 'BRL',
       symbol: 'R$',
     },
-    initial_amount: 0,
-    tenant_id: null,
+    initialAmount: 0,
+    tenantId: null,
   },
   closeRegisterTransaction,
   closeModal,
 }: Props) {
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
   const brlQuoteEur = useSelector(selectBrlQuoteEur);
   const brlQuoteUsd = useSelector(selectBrlQuoteUsd);
@@ -248,8 +248,8 @@ export function RegisterTransaction({
         code: '',
         symbol: '',
       },
-      initial_amount: 0,
-      tenant_id: null,
+      initialAmount: 0,
+      tenantId: null,
     });
     setCategorySelected({
       id: '',
@@ -478,8 +478,8 @@ export function RegisterTransaction({
             code: '',
             symbol: '',
           },
-          initial_amount: 0,
-          tenant_id: null,
+          initialAmount: 0,
+          tenantId: null,
         });
         setCategorySelected({
           id: '',
@@ -557,8 +557,8 @@ export function RegisterTransaction({
             code: '',
             symbol: '',
           },
-          initial_amount: 0,
-          tenant_id: null,
+          initialAmount: 0,
+          tenantId: null,
         });
         setCategorySelected({
           id: '',
@@ -785,8 +785,6 @@ export function RegisterTransaction({
             ]);
           }
         } finally {
-          setButtonIsLoading(false);
-
           reset();
           setTransactionType('');
           setAccountSelected({
@@ -798,8 +796,8 @@ export function RegisterTransaction({
               code: '',
               symbol: '',
             },
-            initial_amount: 0,
-            tenant_id: null,
+            initialAmount: 0,
+            tenantId: null,
           });
           setCategorySelected({
             id: '',
@@ -819,6 +817,9 @@ export function RegisterTransaction({
           setTagsSelected([]);
           tagsList = [];
           setImage('');
+          setImageUrl('');
+
+          setButtonIsLoading(false);
         }
       }
       // No need conversion
@@ -869,8 +870,6 @@ export function RegisterTransaction({
             ]);
           }
         } finally {
-          setButtonIsLoading(false);
-
           reset();
           setTransactionType('');
           setAccountSelected({
@@ -882,8 +881,8 @@ export function RegisterTransaction({
               code: '',
               symbol: '',
             },
-            initial_amount: 0,
-            tenant_id: null,
+            initialAmount: 0,
+            tenantId: null,
           });
           setCategorySelected({
             id: '',
@@ -903,6 +902,9 @@ export function RegisterTransaction({
           setTagsSelected([]);
           tagsList = [];
           setImage('');
+          setImageUrl('');
+
+          setButtonIsLoading(false);
         }
       }
       return;
@@ -1067,8 +1069,6 @@ export function RegisterTransaction({
             ]);
           }
         } finally {
-          setButtonIsLoading(false);
-
           reset();
           setTransactionType('');
           setAccountSelected({
@@ -1080,8 +1080,8 @@ export function RegisterTransaction({
               code: '',
               symbol: '',
             },
-            initial_amount: 0,
-            tenant_id: null,
+            initialAmount: 0,
+            tenantId: null,
           });
           setAccountDestinationSelected({
             id: '',
@@ -1092,8 +1092,8 @@ export function RegisterTransaction({
               code: '',
               symbol: '',
             },
-            initial_amount: 0,
-            tenant_id: null,
+            initialAmount: 0,
+            tenantId: null,
           });
           setCategorySelected({
             id: '',
@@ -1113,6 +1113,9 @@ export function RegisterTransaction({
           setTagsSelected([]);
           tagsList = [];
           setImage('');
+          setImageUrl('');
+
+          setButtonIsLoading(false);
         }
       }
       // No need conversion
@@ -1206,8 +1209,6 @@ export function RegisterTransaction({
             ]);
           }
         } finally {
-          setButtonIsLoading(false);
-
           reset();
           setTransactionType('');
           setAccountSelected({
@@ -1219,8 +1220,8 @@ export function RegisterTransaction({
               code: '',
               symbol: '',
             },
-            initial_amount: 0,
-            tenant_id: null,
+            initialAmount: 0,
+            tenantId: null,
           });
           setAccountDestinationSelected({
             id: '',
@@ -1231,8 +1232,8 @@ export function RegisterTransaction({
               code: '',
               symbol: '',
             },
-            initial_amount: 0,
-            tenant_id: null,
+            initialAmount: 0,
+            tenantId: null,
           });
           setCategorySelected({
             id: '',
@@ -1252,6 +1253,9 @@ export function RegisterTransaction({
           setTagsSelected([]);
           tagsList = [];
           setImage('');
+          setImageUrl('');
+
+          setButtonIsLoading(false);
         }
       }
 
@@ -1471,7 +1475,7 @@ export function RegisterTransaction({
 
           <TransactionsTypes>
             <TransactionTypeButton
-              type='up'
+              type='down'
               title='Crédito'
               onPress={() => handleTransactionsTypeSelect('credit')}
               isActive={
@@ -1486,7 +1490,7 @@ export function RegisterTransaction({
               isActive={transactionType === 'transfer'}
             />
             <TransactionTypeButton
-              type='down'
+              type='up'
               title='Débito'
               onPress={() => handleTransactionsTypeSelect('debit')}
               isActive={
@@ -1501,7 +1505,7 @@ export function RegisterTransaction({
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar Transação' : 'Adicionar Transação'}
+          title={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTransaction)}
         />

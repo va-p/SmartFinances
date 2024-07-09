@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { BackHandler, RefreshControl, SectionList } from 'react-native';
 import { Container, Month, MonthSelect, MonthSelectButton } from './styles';
 
+import formatDatePtBr from '@utils/formatDatePtBr';
+import getTransactions from '@utils/getTransactions';
+import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+
 import { ptBR } from 'date-fns/locale';
-import { useSelector } from 'react-redux';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
@@ -18,19 +20,13 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { PeriodProps } from '@screens/ChartPeriodSelect';
 
-import { selectUserTenantId } from '@slices/userSlice';
-
-import api from '@api/api';
+import { useUser } from '@stores/userStore';
 
 import theme from '@themes/theme';
-import { TransactionProps } from '@interfaces/transactions';
-import groupTransactionsByDate from '@utils/groupTransactionsByDate';
-import getTransactions from '@utils/getTransactions';
-import formatDatePtBr from '@utils/formatDatePtBr';
 
 export function TransactionsByCategory({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [refreshing, setRefreshing] = useState(true);
   const route = useRoute();
   const categoryId = route.params?.id;
@@ -40,7 +36,6 @@ export function TransactionsByCategory({ navigation }: any) {
     name: 'Meses',
     period: 'months',
   });
-  const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [
     transactionsFormattedBySelectedPeriod,
@@ -66,8 +61,8 @@ export function TransactionsByCategory({ navigation }: any) {
        */
       let amount_formatted: any;
       let amountNotConvertedFormatted = '';
-      let totalRevenues = 0;
-      let totalExpenses = 0;
+      //let totalRevenues = 0;
+      //let totalExpenses = 0;
 
       let transactionsByCategoryFormattedPtbr: any = [];
       for (const item of data) {
@@ -205,13 +200,13 @@ export function TransactionsByCategory({ navigation }: any) {
       // Sum the total revenues and expenses by category
       transactionsByCategoryFormattedPtbr.forEach((cur: any) => {
         if (cur.type === 'credit') {
-          totalRevenues += cur.amount;
+          //totalRevenues += cur.amount;
         } else if (cur.type === 'debit') {
-          totalExpenses += cur.amount;
+          //totalExpenses += cur.amount;
         } else if (cur.type === 'transferCredit') {
-          totalRevenues += cur.amount;
+          //totalRevenues += cur.amount;
         } else if (cur.type === 'transferDebit') {
-          totalExpenses += cur.amount;
+          //totalExpenses += cur.amount;
         }
       });
 
@@ -243,8 +238,8 @@ export function TransactionsByCategory({ navigation }: any) {
         );
 
       // Sum revenues and expenses
-      let totalRevenuesByMonths = 0;
-      let totalExpensesByMonths = 0;
+      //let totalRevenuesByMonths = 0;
+      //let totalExpensesByMonths = 0;
 
       for (const item of transactionsByMonthsFormattedPtbr) {
         if (item.data) {
@@ -253,12 +248,12 @@ export function TransactionsByCategory({ navigation }: any) {
               parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
               cur.type === 'credit'
             ) {
-              totalRevenuesByMonths += cur.amount;
+              //totalRevenuesByMonths += cur.amount;
             } else if (
               parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
               cur.type === 'debit'
             ) {
-              totalExpensesByMonths += cur.amount;
+              //totalExpensesByMonths += cur.amount;
             }
           });
         }
@@ -281,8 +276,8 @@ export function TransactionsByCategory({ navigation }: any) {
         );
 
       // Sum revenues and expenses
-      let totalRevenuesByYears = 0;
-      let totalExpensesByYears = 0;
+      //let totalRevenuesByYears = 0;
+      //let totalExpensesByYears = 0;
 
       for (const item of transactionsByYearsFormattedPtbr) {
         if (item.data) {
@@ -291,12 +286,12 @@ export function TransactionsByCategory({ navigation }: any) {
               parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
               cur.type === 'credit'
             ) {
-              totalRevenuesByYears += cur.amount;
+              //totalRevenuesByYears += cur.amount;
             } else if (
               parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
               cur.type === 'debit'
             ) {
-              totalExpensesByYears += cur.amount;
+              //totalExpensesByYears += cur.amount;
             }
           });
         }
@@ -375,7 +370,7 @@ export function TransactionsByCategory({ navigation }: any) {
         sections={transactionsFormattedBySelectedPeriod}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <TransactionListItem data={item} index={index} />
+          <TransactionListItem data={item} index={index} hideAmount={false} />
         )}
         renderSectionHeader={({ section }) => (
           <SectionListHeader data={section} />

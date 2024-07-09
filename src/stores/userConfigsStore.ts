@@ -1,15 +1,20 @@
 import { create } from 'zustand';
 
-import { UserConfigs } from '@interfaces/userConfigurations';
+type UserConfigs = {
+  useLocalAuth: boolean;
+  setUseLocalAuth: (useLocalAuth: boolean) => void;
+  hideAmount: boolean;
+  setHideAmount: (hideAmount: boolean) => void;
+  insights: boolean;
+  setInsights: (insights: boolean) => void;
+};
 
 export const useUserConfigs = create<UserConfigs>((set) => ({
   useLocalAuth: false,
   hideAmount: false,
   insights: true,
-  setUseLocalAuth: () =>
-    set((state) => ({ useLocalAuth: !state.useLocalAuth })),
-  setEnableLocalAuth: () =>
-    set((state) => ({ useLocalAuth: (state.useLocalAuth = true) })),
-  setHideAmount: () => set((state) => ({ hideAmount: !state.hideAmount })),
-  setInsights: () => set((state) => ({ insights: !state.insights })),
+  setUseLocalAuth: (useLocalAuth) =>
+    set(() => ({ useLocalAuth: useLocalAuth })),
+  setHideAmount: (hideAmount) => set(() => ({ hideAmount: hideAmount })),
+  setInsights: (insights) => set(() => ({ insights: insights })),
 }));

@@ -5,7 +5,6 @@ import { Container, Form, Footer } from './styles';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
 import * as Icon from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -22,7 +21,7 @@ import { CurrencySelect } from '@screens/CurrencySelect';
 
 import { CurrencyProps } from '@interfaces/currencies';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
 import theme from '@themes/theme';
 
@@ -49,7 +48,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterAccount({ id, closeAccount }: Props) {
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const {
     control,
     handleSubmit,

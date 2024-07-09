@@ -2,27 +2,28 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
-import { CategoryListItem, CategoryProps } from '@components/CategoryListItem';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { ModalView } from '@components/ModalView';
-import { Button } from '@components/Button';
 import { Header } from '@components/Header';
+import { Button } from '@components/Button';
+import { ModalView } from '@components/ModalView';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { CategoryListItem } from '@components/CategoryListItem';
+import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterCategory } from '@screens/RegisterCategory';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
+
+import { CategoryProps } from '@interfaces/categories';
 
 import api from '@api/api';
 
 export function Categories() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -140,9 +141,6 @@ export function Categories() {
           <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
         }
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 24,
-        }}
       />
 
       <Footer>
@@ -154,13 +152,13 @@ export function Categories() {
       </Footer>
 
       <ModalView
-        type={categoryId != '' ? 'secondary' : 'primary'}
-        title={categoryId != '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
+        type={categoryId !== '' ? 'secondary' : 'primary'}
+        title={categoryId !== '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
         snapPoints={['100%']}
         closeModal={
-          categoryId != ''
+          categoryId !== ''
             ? handleCloseRegisterCategoryModal
             : () => bottomSheetRef.current?.dismiss()
         }

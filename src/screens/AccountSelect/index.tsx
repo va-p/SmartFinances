@@ -2,19 +2,19 @@ import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import { useSelector } from 'react-redux';
+import getAccounts from '@utils/getAccounts';
+
 import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Load } from '@components/Load';
 import { ListItem } from '@components/ListItem';
 import { ListSeparator } from '@components/ListSeparator';
-import { AccountProps } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
-import getAccounts from '@utils/getAccounts';
+import { AccountProps } from '@interfaces/accounts';
 
 type Props = {
   account: AccountProps;
@@ -29,7 +29,7 @@ export function AccountSelect({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
 
   async function fetchAccounts() {

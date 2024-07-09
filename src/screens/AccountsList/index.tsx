@@ -2,18 +2,18 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useDispatch, useSelector } from 'react-redux';
-import * as Icon from 'phosphor-react-native';
 import axios from 'axios';
+import * as Icon from 'phosphor-react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
+import { Button } from '@components/Button';
+import { Header } from '@components/Header';
+import { ModalView } from '@components/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { ModalView } from '@components/ModalView';
-import { Header } from '@components/Header';
-import { Button } from '@components/Button';
+import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
@@ -25,7 +25,7 @@ import {
   setAccountId,
   selectAccountId,
 } from '@slices/accountSlice';
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
 
@@ -35,7 +35,7 @@ import theme from '@themes/theme';
 
 export function AccountsList() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -181,9 +181,6 @@ export function AccountsList() {
           <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
         }
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 24,
-        }}
       />
 
       <Footer>
@@ -195,8 +192,8 @@ export function AccountsList() {
       </Footer>
 
       <ModalView
-        type={accountId != '' ? 'secondary' : 'primary'}
-        title={accountId != '' ? 'Editar Conta' : 'Criar Nova Conta'}
+        type={accountId !== '' ? 'secondary' : 'primary'}
+        title={accountId !== '' ? 'Editar Conta' : 'Criar Nova Conta'}
         bottomSheetRef={editAccountBottomSheetRef}
         snapPoints={['50%', '75%']}
         closeModal={handleCloseRegisterAccountModal}

@@ -2,17 +2,16 @@ import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { ListSeparator } from '@components/ListSeparator';
-import { TagProps } from '@components/TagListItem';
-import { ListItem } from '@components/ListItem';
 import { Load } from '@components/Load';
+import { ListItem } from '@components/ListItem';
+import { TagProps } from '@components/TagListItem';
+import { ListSeparator } from '@components/ListSeparator';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
 
@@ -25,7 +24,7 @@ type Props = {
 export function TagSelect({ tag, setTag, closeSelectTag }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [tags, setTags] = useState<TagProps[]>([]);
 
   async function fetchTags() {

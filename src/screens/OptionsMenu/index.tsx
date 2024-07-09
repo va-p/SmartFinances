@@ -3,7 +3,6 @@ import { Alert, Linking } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import * as Icon from 'phosphor-react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 
@@ -11,9 +10,8 @@ import { Header } from '@components/Header';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
-import { selectUserId } from '@slices/userSlice';
-
-import { useUserConfigs } from '../../stores/userConfigsStore';
+import { useUser } from '@stores/userStore';
+import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
@@ -21,7 +19,7 @@ import api from '@api/api';
 import theme from '@themes/theme';
 
 export function OptionsMenu({ navigation }: any) {
-  const userId = useSelector(selectUserId);
+  const userId = useUser((state) => state.id);
 
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
@@ -31,6 +29,10 @@ export function OptionsMenu({ navigation }: any) {
 
   const insights = useUserConfigs((state) => state.insights);
   const setInsights = useUserConfigs((state) => state.setInsights);
+
+  function handleOpenProfile() {
+    navigation.navigate('Meus Dados');
+  }
 
   function handleOpenAccounts() {
     navigation.navigate('Contas');
@@ -79,7 +81,7 @@ export function OptionsMenu({ navigation }: any) {
               !useLocalAuth
             );
 
-            setUseLocalAuth();
+            setUseLocalAuth(!useLocalAuth);
           }
         } catch (error) {
           if (axios.isAxiosError(error)) {
@@ -101,9 +103,15 @@ export function OptionsMenu({ navigation }: any) {
 
   async function handleChangeSmartInsights() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.insights`, !insights);
+      const { status } = await api.post('edit_insights', {
+        user_id: userId,
+        insights: !insights,
+      });
 
-      setInsights();
+      if (status === 200) {
+        storageConfig.set(`${DATABASE_CONFIGS}.insights`, !insights);
+        setInsights(!insights);
+      }
     } catch (error) {
       console.log(error);
       Alert.alert(
@@ -115,9 +123,15 @@ export function OptionsMenu({ navigation }: any) {
 
   async function handleChangeHideAmount() {
     try {
-      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+      const { status } = await api.post('edit_hide_amount', {
+        user_id: userId,
+        hide_amount: !hideAmount,
+      });
 
-      setHideAmount();
+      if (status === 200) {
+        storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+        setHideAmount(!hideAmount);
+      }
     } catch (error) {
       console.log(error);
       Alert.alert(
@@ -133,6 +147,12 @@ export function OptionsMenu({ navigation }: any) {
 
       <ContentScroll>
         <Title>Conta</Title>
+        <SelectButton
+          icon={<Icon.User color={theme.colors.primary} />}
+          title='Meus Dados'
+          onPress={() => handleOpenProfile()}
+        />
+
         <SelectButton
           icon={<Icon.Wallet color={theme.colors.primary} />}
           title='Contas Manuais'

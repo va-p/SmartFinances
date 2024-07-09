@@ -2,13 +2,14 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { PrivacyPolicy } from '@screens/PrivacyPolicy';
-import { AccountsList } from '@screens/AccountsList';
-import { OptionsMenu } from '@screens/OptionsMenu';
-import { TermsOfUse } from '@screens/TermsOfUse';
+import { Tags } from '@screens/Tags';
+import { Profile } from '@screens/Profile';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
-import { Tags } from '@screens/Tags';
+import { TermsOfUse } from '@screens/TermsOfUse';
+import { OptionsMenu } from '@screens/OptionsMenu';
+import { AccountsList } from '@screens/AccountsList';
+import { PrivacyPolicy } from '@screens/PrivacyPolicy';
 
 import theme from '@themes/theme';
 
@@ -25,6 +26,8 @@ export function AppOptionsStackRoutes() {
       }}
     >
       <Screen name='Mais Opções' component={OptionsMenu} />
+
+      <Screen name='Meus Dados' component={Profile} />
 
       <Screen name='Contas' component={AccountsList} />
 
