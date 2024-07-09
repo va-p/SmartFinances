@@ -23,6 +23,7 @@ export const Input = styled(TextInput).attrs(({ theme }) => ({
   placeholderTextColor: theme.colors.text,
 }))`
   width: 100%;
+  font-size: ${RFValue(12)}px;
   padding-left: 8px;
   color: ${({ theme }) => theme.colors.text};
 `;

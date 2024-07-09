@@ -11,27 +11,12 @@ import {
   EndPeriod,
 } from './styles';
 
+import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
-import { AccountProps, CurrencyProps } from '@components/AccountListItem';
 import { BudgetPercentBar } from '@components/BudgetPercentBar';
-import { CategoryProps } from '@components/CategoryListItem';
-import { FadeInUp } from 'react-native-reanimated';
 
-export interface BudgetProps {
-  id: string;
-  name: string;
-  amount: number | string;
-  amount_spent: number | string;
-  percentage: number;
-  currency: CurrencyProps;
-  account: AccountProps;
-  categories: CategoryProps[];
-  start_date: string;
-  end_date?: string;
-  recurrence: string;
-  tenant_id: string;
-}
+import { BudgetProps } from '@interfaces/budget';
 
 type Props = RectButtonProps & {
   data: BudgetProps;
@@ -44,9 +29,6 @@ let amountSpent: string;
 export function BudgetListItem({ data, index, ...rest }: Props) {
   const isAmountReached = data.amount_spent >= data.amount;
 
-  // Format the currency
-  //let amount: string;
-  //let amountSpent: string;
   switch (data.currency.code) {
     case 'BRL':
       amount = data.amount.toLocaleString('pt-BR', {
@@ -105,10 +87,7 @@ export function BudgetListItem({ data, index, ...rest }: Props) {
         <AmountBudget>{`${amount} orçado`}</AmountBudget>
       </AmountContainer>
 
-      <BudgetPercentBar
-        is_amount_reached={isAmountReached}
-        percentage={data.percentage}
-      />
+      <BudgetPercentBar is_amount_reached={isAmountReached} data={data} />
       <PeriodContainer>
         <StartPeriod>{data.start_date}</StartPeriod>
         <EndPeriod>{data.end_date}</EndPeriod>

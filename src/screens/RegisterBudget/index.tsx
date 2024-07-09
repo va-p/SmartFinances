@@ -15,9 +15,9 @@ import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import * as Icon from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import SelectDropdown from 'react-native-select-dropdown';
+import { useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Button } from '@components/Button';
@@ -31,17 +31,14 @@ import {
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
-import {
-  selectBudgetCategoriesSelected,
-  setBudgetCategoriesSelected,
-} from '@slices/budgetCategoriesSelectedSlice';
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
+import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 import api from '@api/api';
 
+import { BudgetProps } from '@interfaces/budget';
+
 import theme from '@themes/theme';
-import { useFocusEffect } from '@react-navigation/native';
-import { BudgetProps } from '@components/BudgetListItem';
 
 type Props = {
   id: string;
@@ -64,10 +61,16 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterBudget({ id, closeBudget }: Props) {
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [budget, setBudget] = useState<BudgetProps>();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
-  const budgetCategoriesSelected = useSelector(selectBudgetCategoriesSelected);
+  const budgetCategoriesSelected = useBudgetCategoriesSelected(
+    (state) => state.budgetCategoriesSelected
+  );
+  const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
+    (state) => state.setBudgetCategoriesSelected
+  );
+
   const [startDate, setStartDate] = useState(new Date());
   const formattedDate = format(startDate, 'dd MMMM, yyyy', { locale: ptBR });
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -98,21 +101,19 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   ];
   const [currencySelected, setCurrencySelected] = useState('');
 
-  const dispatch = useDispatch();
-
   function handleOpenSelectCategoryModal() {
     categoryBottomSheetRef.current?.present();
   }
 
   function handleCloseSelectCategoryModal() {
-    dispatch(setBudgetCategoriesSelected([]));
+    setBudgetCategoriesSelected([]);
   }
 
-  function handleOpenSelectRecurrencyPeriodModal() {
+  function handleOpenSelectRecurrencePeriodModal() {
     periodBottomSheetRef.current?.present();
   }
 
-  function handleCloseSelectRecurrencyPeriodModal() {
+  function handleCloseSelectRecurrencePeriodModal() {
     periodBottomSheetRef.current?.dismiss();
   }
 
@@ -128,10 +129,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         },
       });
       setBudget(data);
-      switch (data.currency_id) {
-        case 1:
-          break;
-      }
       setCurrencySelected(data.currency_id);
       setStartDate(new Date(data.start_date));
       switch (data.recurrence) {
@@ -179,10 +176,9 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           break;
       }
       setBudgetPeriodSelected(totalByDate);
-      // TODO Corrigir erro de tipagem, causando ter que clicar duas vezes para
-      // desmarcar uma categoria
-      dispatch(setBudgetCategoriesSelected(data.categories));
+      setBudgetCategoriesSelected(data.categories);
     } catch (error) {
+      console.error('Error fetching budget', error);
     } finally {
       setButtonIsLoading(false);
     }
@@ -300,7 +296,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      if (id != '') {
+      if (id !== '') {
         fetchBudget();
       }
     }, [id])
@@ -325,7 +321,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             icon={<Icon.Money color={theme.colors.primary} />}
             placeholder='Valor do orçamento'
             keyboardType='numeric'
-            defaultValue={id != '' ? String(budget?.amount) : ''}
+            defaultValue={id !== '' ? String(budget?.amount) : ''}
             name='amount'
             control={control}
             error={errors.amount}
@@ -338,6 +334,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             onSelect={(selectedItem) => {
               setCurrencySelected(selectedItem);
             }}
+            // defaultValue={currencySelected}
             defaultButtonText='Moeda'
             buttonTextAfterSelection={(selectedItem) => {
               return selectedItem;
@@ -405,13 +402,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         title='Repetir'
         subTitle={budgetPeriodSelected.name}
         icon={<Icon.Repeat color={theme.colors.primary} />}
-        onPress={handleOpenSelectRecurrencyPeriodModal}
+        onPress={handleOpenSelectRecurrencePeriodModal}
       />
 
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+          title={id !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterBudget)}
         />
@@ -430,12 +427,12 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       <ModalViewSelection
         title='Período do orçamento'
         bottomSheetRef={periodBottomSheetRef}
-        snapPoints={['30%', '50%']}
+        snapPoints={['50%']}
       >
         <BudgetPeriodSelect
           period={budgetPeriodSelected}
           setPeriod={setBudgetPeriodSelected}
-          closeSelectPeriod={handleCloseSelectRecurrencyPeriodModal}
+          closeSelectPeriod={handleCloseSelectRecurrencePeriodModal}
         />
       </ModalViewSelection>
     </Container>

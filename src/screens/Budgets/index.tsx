@@ -2,8 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
+import { BudgetProps } from '@interfaces/budget';
+import { TransactionProps } from '@interfaces/transactions';
+
+import formatDatePtBr from '@utils/formatDatePtBr';
+import getTransactions from '@utils/getTransactions';
+
 import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
 
@@ -11,44 +16,41 @@ import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { BudgetListItem, BudgetProps } from '@components/BudgetListItem';
+import { BudgetListItem } from '@components/BudgetListItem';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
-import { selectUserTenantId } from '@slices/userSlice';
-import { setBudgetCategoriesSelected } from '@slices/budgetCategoriesSelectedSlice';
-
-import formatDatePtBr from '@utils/formatDatePtBr';
-import getTransactions from '@utils/getTransactions';
+import { useUser } from '@stores/userStore';
+import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 import api from '@api/api';
-
-import { TransactionProps } from '@interfaces/transactions';
 
 export function Budgets() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
   const [budgetsFormatted, setBudgetsFormatted] = useState<BudgetProps[]>([]);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [budgetId, setBudgetId] = useState('');
-
-  const dispatch = useDispatch();
+  const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
+    (state) => state.setBudgetCategoriesSelected
+  );
 
   async function checkBudgets() {
-    setLoading(true);
-    setRefreshing(true);
-
     let budgets: any = [];
+
     try {
+      setLoading(true);
+      setRefreshing(true);
+
       const { data } = await api.get('budget', {
         params: {
           tenant_id: tenantId,
         },
       });
 
-      if (data) {
+      if (data.length > 0) {
         budgets = data;
       } else {
         budgets = null;
@@ -65,7 +67,7 @@ export function Budgets() {
     try {
       const data = await getTransactions(tenantId);
 
-      if (data) {
+      if (data && data.length > 0) {
         transactions = data;
       } else {
         transactions = null;
@@ -78,7 +80,7 @@ export function Budgets() {
       );
     }
 
-    if (budgets && transactions) {
+    if (!!budgets && !!transactions) {
       let budgetsFormatted: any = [];
       for (const budget of budgets) {
         let startDate = new Date(budget.start_date);
@@ -201,8 +203,7 @@ export function Budgets() {
 
   function handleCloseEditBudgetModal() {
     setBudgetId('');
-    dispatch(setBudgetCategoriesSelected([]));
-    checkBudgets();
+    setBudgetCategoriesSelected([]);
     bottomSheetRef.current?.dismiss();
   }
 
@@ -283,13 +284,13 @@ export function Budgets() {
       </Footer>
 
       <ModalView
-        type={budgetId != '' ? 'secondary' : 'primary'}
-        title={budgetId != '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+        type={budgetId !== '' ? 'secondary' : 'primary'}
+        title={budgetId !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
         snapPoints={['75%']}
         closeModal={
-          budgetId != ''
+          budgetId !== ''
             ? handleCloseEditBudgetModal
             : () => bottomSheetRef.current?.dismiss()
         }

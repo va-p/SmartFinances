@@ -11,6 +11,7 @@ type Props = {
 
 export const Label = styled.Text<Props>`
   font-size: ${RFValue(14)}px;
+  margin: 16px 0 -12px;
   ${({ theme, type }) => css`
     font-family: ${theme.fonts.regular};
     color: ${type === 'primary' ? theme.colors.title : theme.colors.shape};
@@ -22,7 +23,7 @@ export const Container = styled(TextInput).attrs<Props>(({ theme, type }) => ({
 }))<Props>`
   width: 100%;
   height: 56px;
-  padding: 7px 0;
+  padding: 8px 0;
   padding-left: 20px;
   margin-top: 12px;
   font-size: ${RFValue(14)}px;

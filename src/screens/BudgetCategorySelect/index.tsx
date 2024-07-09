@@ -2,34 +2,34 @@ import React, { useCallback, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { useFocusEffect } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
-import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { getBottomSpace } from 'react-native-iphone-x-helper';
 
-import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { CategoryProps } from '@components/CategoryListItem';
 import { Load } from '@components/Load';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import {
-  selectBudgetCategoriesSelected,
-  setBudgetCategoriesSelected,
-} from '@slices/budgetCategoriesSelectedSlice';
-import { selectUserTenantId } from '@slices/userSlice';
+import { useUser } from '@stores/userStore';
+import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
+
+import { CategoryProps } from '@interfaces/categories';
 
 import api from '@api/api';
 
 export function BudgetCategorySelect() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useSelector(selectUserTenantId);
+  const tenantId = useUser((state) => state.tenantId);
 
   const [categories, setCategories] = useState<CategoryProps[]>([]);
 
-  const categoriesAlreadySelected = useSelector(selectBudgetCategoriesSelected);
-
-  const dispatch = useDispatch();
+  const currentCategoriesAlreadySelected = useBudgetCategoriesSelected(
+    (state) => state.budgetCategoriesSelected
+  );
+  const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
+    (state) => state.setBudgetCategoriesSelected
+  );
 
   async function fetchCategories() {
     setLoading(true);
@@ -57,17 +57,18 @@ export function BudgetCategorySelect() {
 
   function handleSelectCategory(category: CategoryProps) {
     const categoryAlreadySelected =
-      categoriesAlreadySelected.includes(category);
+      currentCategoriesAlreadySelected.includes(category);
 
     if (!categoryAlreadySelected) {
-      const updatedCategoriesAlreadySelected =
-        categoriesAlreadySelected.concat(category);
-      dispatch(setBudgetCategoriesSelected(updatedCategoriesAlreadySelected));
+      const categoriesAlreadySelectedUpdated =
+        currentCategoriesAlreadySelected.concat(category);
+      setBudgetCategoriesSelected(categoriesAlreadySelectedUpdated);
     } else {
-      const updatedCategoriesAlreadySelected = categoriesAlreadySelected.filter(
-        (item) => item.id !== category.id
-      );
-      dispatch(setBudgetCategoriesSelected(updatedCategoriesAlreadySelected));
+      const categoriesAlreadySelectedUpdated =
+        currentCategoriesAlreadySelected.filter(
+          (item) => item.id !== category.id
+        );
+      setBudgetCategoriesSelected(categoriesAlreadySelectedUpdated);
     }
   }
 
@@ -89,7 +90,7 @@ export function BudgetCategorySelect() {
         renderItem={({ item }) => (
           <CategoryListItemRegisterTransaction
             data={item}
-            isChecked={categoriesAlreadySelected.find(
+            isChecked={currentCategoriesAlreadySelected.find(
               (category) => category.id === item.id
             )}
             onPress={() => handleSelectCategory(item)}

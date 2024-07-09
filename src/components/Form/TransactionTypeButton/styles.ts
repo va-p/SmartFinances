@@ -20,13 +20,13 @@ export const Container = styled.View<ContainerProps>`
 
   ${({ isActive, type }) =>
     isActive &&
-    type === 'up' &&
+    type === 'down' &&
     css`
       background-color: ${({ theme }) => theme.colors.success_light};
     `};
   ${({ isActive, type }) =>
     isActive &&
-    type === 'down' &&
+    type === 'up' &&
     css`
       background-color: ${({ theme }) => theme.colors.attention_light};
     `};
@@ -49,12 +49,12 @@ export const Icon = styled(Ionicons)<ContainerProps>`
   font-size: ${RFValue(24)}px;
   margin-right: 5px;
   ${({ type }) =>
-    type === 'up' &&
+    type === 'down' &&
     css`
       color: ${({ theme }) => theme.colors.success};
     `};
   ${({ type }) =>
-    type === 'down' &&
+    type === 'up' &&
     css`
       color: ${({ theme }) => theme.colors.attention};
     `};

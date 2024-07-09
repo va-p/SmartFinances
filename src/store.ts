@@ -1,13 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import budgetCategoriesSelectedReducer from './slices/budgetCategoriesSelectedSlice';
 import accountReducer from './slices/accountSlice';
 import quotesReducer from './slices/quotesSlice';
 import userReducer from './slices/userSlice';
 
 const store = configureStore({
   reducer: {
-    budgetCategoriesSelected: budgetCategoriesSelectedReducer,
     account: accountReducer,
     quotes: quotesReducer,
     user: userReducer,
