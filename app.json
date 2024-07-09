@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 22,
+      "versionCode": 23,
       "permissions": [
         "VIBRATE",
         "CAMERA",

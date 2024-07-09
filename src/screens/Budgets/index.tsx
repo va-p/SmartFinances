@@ -288,12 +288,14 @@ export function Budgets() {
         title={budgetId !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
+        enablePanDownToClose
         snapPoints={['75%']}
         closeModal={
           budgetId !== ''
             ? handleCloseEditBudgetModal
             : () => bottomSheetRef.current?.dismiss()
         }
+        onClose={budgetId !== '' ? handleCloseEditBudgetModal : () => null}
         deleteChildren={handleClickDeleteBudget}
       >
         <RegisterBudget
