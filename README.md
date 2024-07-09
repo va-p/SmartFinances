@@ -34,6 +34,7 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 - [x] Styled Components
 - [x] React Native Testing Library
 - [x] Redux
+- [x] Zustand
 - [x] Axios
 - [x] ESLint
 - [x] Prettier
