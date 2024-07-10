@@ -74,6 +74,12 @@ import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
+type CurrencyConversionRates = {
+  [fromCurrency: string]: {
+    [toCurrency: string]: (amount: number) => number;
+  };
+};
+
 type Props = {
   id: string;
   resetId: () => void;
@@ -84,7 +90,7 @@ type Props = {
 
 type FormData = {
   description: string;
-  amount: string;
+  amount: number;
 };
 
 /* Validation Form - Start */
@@ -333,6 +339,47 @@ export function RegisterTransaction({
     setOpenImage(false);
   }
 
+  const currencyConversionRates: CurrencyConversionRates = {
+    BRL: {
+      BTC: (amount: number) => amount * brlQuoteBtc.price,
+      EUR: (amount: number) => amount * brlQuoteEur.price,
+      USD: (amount: number) => amount * brlQuoteUsd.price,
+    },
+    BTC: {
+      BRL: (amount: number) => amount * btcQuoteBrl.price,
+      EUR: (amount: number) => amount * btcQuoteEur.price,
+      USD: (amount: number) => amount * btcQuoteUsd.price,
+    },
+    EUR: {
+      BRL: (amount: number) => amount * eurQuoteBrl.price,
+      BTC: (amount: number) => amount * eurQuoteBtc.price,
+      USD: (amount: number) => amount * eurQuoteUsd.price,
+    },
+    USD: {
+      BRL: (amount: number) => amount * usdQuoteBrl.price,
+      EUR: (amount: number) => amount * usdQuoteEur.price,
+      BTC: (amount: number) => amount * usdQuoteBtc.price,
+    },
+  };
+
+  function convertCurrency(
+    amount: number,
+    fromCurrency: string,
+    toCurrency: string
+  ): number {
+    if (fromCurrency === toCurrency) {
+      return amount; // Não precisa converter se as moedas forem iguais
+    }
+    const conversionFunction =
+      currencyConversionRates[fromCurrency][toCurrency];
+    if (!conversionFunction) {
+      throw new Error(
+        `Conversão de ${fromCurrency} para ${toCurrency} não suportada.`
+      );
+    }
+    return conversionFunction(amount);
+  }
+
   async function handleEditTransaction(id: string, form: FormData) {
     setButtonIsLoading(true);
 
@@ -365,220 +412,93 @@ export function RegisterTransaction({
       }
     }
 
-    // Need conversion
+    let amountConverted = Number(form.amount);
     if (currencySelected.code !== accountSelected.currency.code) {
-      let amountConverted = 0;
-
-      switch (accountSelected.currency.code) {
-        // Converted BTC
-        case 'BTC':
-          switch (currencySelected.code) {
-            case 'BRL':
-              amountConverted = Number(form.amount) * brlQuoteBtc.price;
-              break;
-            case 'EUR':
-              amountConverted = Number(form.amount) * eurQuoteBtc.price;
-              break;
-            case 'USD':
-              amountConverted = Number(form.amount) * usdQuoteBtc.price;
-              break;
-          }
-          break;
-        // Converted BRL
-        case 'BRL':
-          switch (currencySelected.code) {
-            case 'BTC':
-              amountConverted = Number(form.amount) * btcQuoteBrl.price;
-              break;
-            case 'EUR':
-              amountConverted = Number(form.amount) * eurQuoteBrl.price;
-              break;
-            case 'USD':
-              amountConverted = Number(form.amount) * usdQuoteBrl.price;
-              break;
-          }
-          break;
-        // Converted EUR
-        case 'EUR':
-          switch (currencySelected.code) {
-            case 'BTC':
-              amountConverted = Number(form.amount) * btcQuoteEur.price;
-              break;
-            case 'BRL':
-              amountConverted = Number(form.amount) * brlQuoteEur.price;
-              break;
-            case 'USD':
-              amountConverted = Number(form.amount) * usdQuoteEur.price;
-              break;
-          }
-          break;
-        // Converted USD
-        case 'USD':
-          switch (currencySelected.code) {
-            case 'BTC':
-              amountConverted = Number(form.amount) * btcQuoteUsd.price;
-              break;
-            case 'BRL':
-              amountConverted = Number(form.amount) * brlQuoteUsd.price;
-              break;
-            case 'EUR':
-              amountConverted = Number(form.amount) * eurQuoteUsd.price;
-              break;
-          }
-          break;
-      }
-
-      try {
-        const transactionEdited = {
-          transaction_id: id,
-          created_at: date,
-          description: form.description,
-          amount: amountConverted,
-          amount_not_converted: form.amount,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountSelected.id,
-          category_id: categorySelected.id,
-          tags: tagsList,
-          transaction_image_id,
-          tenant_id: tenantId,
-        };
-
-        const { status } = await api.post(
-          'edit_transaction',
-          transactionEdited
-        );
-        if (status === 200) {
-          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Edição de Transação', error.response?.data.message, [
-            { text: 'Tentar novamente' },
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } finally {
-        reset();
-        setTransactionType('');
-        setAccountSelected({
-          id: '',
-          name: 'Selecione a conta',
-          currency: {
-            id: '',
-            name: '',
-            code: '',
-            symbol: '',
-          },
-          initialAmount: 0,
-          tenantId: null,
-        });
-        setCategorySelected({
-          id: '',
-          name: 'Selecione a categoria',
-          icon: {
-            id: '',
-            title: '',
-            name: '',
-          },
-          color: {
-            id: '',
-            name: '',
-            hex: theme.colors.primary,
-          },
-          tenant_id: '',
-        });
-        setTagsSelected([]);
-        tagsList = [];
-        setImage('');
-
-        setButtonIsLoading(false);
-      }
+      amountConverted = convertCurrency(
+        Number(form.amount),
+        currencySelected.code,
+        accountSelected.currency.code
+      );
     }
-    // No need conversion
-    else {
-      try {
-        const transactionEdited = {
-          transaction_id: id,
-          created_at: date,
-          description: form.description,
-          amount: form.amount,
-          amount_not_converted: null,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountSelected.id,
-          category_id: categorySelected.id,
-          tags: tagsList,
-          transaction_image_id,
-          tenant_id: tenantId,
-        };
 
-        const { status } = await api.post(
-          'edit_transaction',
-          transactionEdited
-        );
-        if (status === 200) {
-          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseRegisterTransaction,
-            },
-          ]);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Edição de Transação', error.response?.data.message, [
+    try {
+      const transactionEdited = {
+        transaction_id: id,
+        created_at: date,
+        description: form.description,
+        amount: amountConverted, // Usar valor convertido
+        amount_not_converted:
+          currencySelected.code !== accountSelected.currency.code
+            ? form.amount
+            : null, // Valor original, se houver conversão
+        currency_id: currencySelected.id,
+        type: transactionType,
+        account_id: accountSelected.id,
+        category_id: categorySelected.id,
+        tags: tagsList,
+        transaction_image_id,
+        tenant_id: tenantId,
+      };
+
+      const { status } = await api.post('edit_transaction', transactionEdited);
+
+      if (status === 200) {
+        Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: handleCloseRegisterTransaction,
+          },
+        ]);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        Alert.alert(
+          'Edição de Transação',
+          (error.response?.data as { message: string }).message,
+          [
             { text: 'Tentar novamente' },
             {
               text: 'Voltar para a tela anterior',
               onPress: handleCloseRegisterTransaction,
             },
-          ]);
-        }
-      } finally {
-        setButtonIsLoading(false);
-
-        reset();
-        setTransactionType('');
-        setAccountSelected({
-          id: '',
-          name: 'Selecione a conta',
-          currency: {
-            id: '',
-            name: '',
-            code: '',
-            symbol: '',
-          },
-          initialAmount: 0,
-          tenantId: null,
-        });
-        setCategorySelected({
-          id: '',
-          name: 'Selecione a categoria',
-          icon: {
-            id: '',
-            title: '',
-            name: '',
-          },
-          color: {
-            id: '',
-            name: '',
-            hex: theme.colors.primary,
-          },
-          tenant_id: '',
-        });
-        setTagsSelected([]);
-        tagsList = [];
-        setImage('');
+          ]
+        );
       }
+    } finally {
+      reset();
+      setTransactionType('');
+      setAccountSelected({
+        id: '',
+        name: 'Selecione a conta',
+        currency: {
+          id: '',
+          name: '',
+          code: '',
+          symbol: '',
+        },
+        initialAmount: 0,
+        tenantId: null,
+      });
+      setCategorySelected({
+        id: '',
+        name: 'Selecione a categoria',
+        icon: {
+          id: '',
+          title: '',
+          name: '',
+        },
+        color: {
+          id: '',
+          name: '',
+          hex: theme.colors.primary,
+        },
+        tenant_id: '',
+      });
+      setTagsSelected([]);
+      tagsList = [];
+      setImage('');
+
+      setButtonIsLoading(false);
     }
   }
 
@@ -672,591 +592,196 @@ export function RegisterTransaction({
       }
     }
 
-    // Add Transaction
-    if (transactionType !== 'transfer') {
-      // Need conversion
-      if (currencySelected.code !== accountSelected.currency.code) {
-        let amountConverted = 0;
-        switch (accountSelected.currency.code) {
-          // Converted BTC
-          case 'BTC':
-            switch (currencySelected.code) {
-              case 'BRL':
-                amountConverted = Number(form.amount) * brlQuoteBtc.price;
-                break;
-              case 'EUR':
-                amountConverted = Number(form.amount) * eurQuoteBtc.price;
-                break;
-              case 'USD':
-                amountConverted = Number(form.amount) * usdQuoteBtc.price;
-                break;
-            }
-            break;
-          // Converted BRL
-          case 'BRL':
-            switch (currencySelected.code) {
-              case 'BTC':
-                amountConverted = Number(form.amount) * btcQuoteBrl.price;
-                break;
-              case 'EUR':
-                amountConverted = Number(form.amount) * eurQuoteBrl.price;
-                break;
-              case 'USD':
-                amountConverted = Number(form.amount) * usdQuoteBrl.price;
-                break;
-            }
-            break;
-          // Converted EUR
-          case 'EUR':
-            switch (currencySelected.code) {
-              case 'BTC':
-                amountConverted = Number(form.amount) * btcQuoteEur.price;
-                break;
-              case 'BRL':
-                amountConverted = Number(form.amount) * brlQuoteEur.price;
-                break;
-              case 'USD':
-                amountConverted = Number(form.amount) * usdQuoteEur.price;
-                break;
-            }
-            break;
-          // Converted USD
-          case 'USD':
-            switch (currencySelected.code) {
-              case 'BTC':
-                amountConverted = Number(form.amount) * btcQuoteUsd.price;
-                break;
-              case 'BRL':
-                amountConverted = Number(form.amount) * brlQuoteUsd.price;
-                break;
-              case 'EUR':
-                amountConverted = Number(form.amount) * eurQuoteUsd.price;
-                break;
-            }
-            break;
+    try {
+      let amountConverted = Number(form.amount);
+
+      if (transactionType === 'transfer') {
+        // Lógica de transferência
+        if (
+          accountSelected.currency.code !==
+          accountDestinationSelected.currency.code
+        ) {
+          amountConverted = convertCurrency(
+            Number(form.amount),
+            accountSelected.currency.code, // Conversão da origem para o destino
+            accountDestinationSelected.currency.code
+          );
         }
 
-        try {
-          const accountResponse = await api.get('single_account_get_id', {
+        const accountResponse = await api.get('single_account_get_id', {
+          params: {
+            tenant_id: tenantId,
+            name: accountSelected.name,
+          },
+        });
+        const accountDestinationResponse = await api.get(
+          'single_account_get_id',
+          {
             params: {
               tenant_id: tenantId,
-              name: accountSelected.name,
+              name: accountDestinationSelected.name,
             },
-          });
-
-          const newTransaction = {
-            created_at: date,
-            description: form.description,
-            amount: amountConverted,
-            amount_not_converted: form.amount,
-            currency_id: currencySelected.id,
-            type: transactionType,
-            account_id: accountResponse.data.id,
-            category_id: categorySelected.id,
-            tags: tagsList,
-            transaction_image_id,
-            tenant_id: tenantId,
-          };
-          const { status } = await api.post('transaction', newTransaction);
-          if (status === 200) {
-            Alert.alert(
-              'Cadastro de Transação',
-              'Transação cadastrada com sucesso!',
-              [
-                { text: 'Cadastrar nova transação' },
-                {
-                  text: 'Voltar para a tela anterior',
-                  onPress: closeRegisterTransaction,
-                },
-              ]
-            );
           }
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            Alert.alert('Cadastro de Transação', error.response?.data.message, [
-              { text: 'Tentar novamente' },
+        );
+        if (
+          accountResponse.status &&
+          accountDestinationResponse.status !== 200
+        ) {
+          Alert.alert(
+            'Conta',
+            'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
+          );
+        }
+
+        const transferDebit = {
+          created_at: date,
+          description: form.description,
+          amount: form.amount,
+          amount_not_converted: null,
+          currency_id: currencySelected.id,
+          type: 'transferDebit',
+          account_id: accountResponse.data.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId,
+        };
+
+        const transferCredit = {
+          created_at: date,
+          description: form.description,
+          amount: amountConverted,
+          amount_not_converted: form.amount,
+          currency_id: accountDestinationResponse.data.currency_id,
+          type: 'transferCredit',
+          account_id: accountDestinationResponse.data.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId,
+        };
+
+        const [transferDebitResponse, transferCreditResponse] =
+          await Promise.all([
+            api.post('transaction', transferDebit),
+            api.post('transaction', transferCredit),
+          ]);
+
+        if (
+          transferDebitResponse.status &&
+          transferCreditResponse.status === 200
+        ) {
+          Alert.alert(
+            'Cadastro de Transação',
+            'Transação cadastrada com sucesso!',
+            [
+              { text: 'Cadastrar nova transação' },
               {
                 text: 'Voltar para a tela anterior',
                 onPress: closeRegisterTransaction,
               },
-            ]);
-          }
-        } finally {
-          reset();
-          setTransactionType('');
-          setAccountSelected({
-            id: '',
-            name: 'Selecione a conta',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
-            },
-            initialAmount: 0,
-            tenantId: null,
-          });
-          setCategorySelected({
-            id: '',
-            name: 'Selecione a categoria',
-            icon: {
-              id: '',
-              title: '',
-              name: '',
-            },
-            color: {
-              id: '',
-              name: '',
-              hex: theme.colors.primary,
-            },
-            tenant_id: '',
-          });
-          setTagsSelected([]);
-          tagsList = [];
-          setImage('');
-          setImageUrl('');
-
-          setButtonIsLoading(false);
+            ]
+          );
         }
-      }
-      // No need conversion
-      else {
-        try {
-          const accountResponse = await api.get('single_account_get_id', {
-            params: {
-              tenant_id: tenantId,
-              name: accountSelected.name,
-            },
-          });
+      } else {
+        // Lógica de adição de transação
+        if (currencySelected.code !== accountSelected.currency.code) {
+          amountConverted = convertCurrency(
+            Number(form.amount),
+            currencySelected.code,
+            accountSelected.currency.code
+          );
+        }
 
-          const newTransaction = {
-            created_at: date,
-            description: form.description,
-            amount: form.amount,
-            amount_not_converted: null,
-            currency_id: currencySelected.id,
-            type: transactionType,
-            account_id: accountResponse.data.id,
-            category_id: categorySelected.id,
-            tags: tagsList,
-            transaction_image_id,
+        const accountResponse = await api.get('single_account_get_id', {
+          params: {
             tenant_id: tenantId,
-          };
-          const { status } = await api.post('transaction', newTransaction);
-          if (status === 200) {
-            Alert.alert(
-              'Cadastro de Transação',
-              'Transação cadastrada com sucesso!',
-              [
-                { text: 'Cadastrar nova transação' },
-                {
-                  text: 'Voltar para a tela anterior',
-                  onPress: closeRegisterTransaction,
-                },
-              ]
-            );
-          }
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            Alert.alert('Cadastro de Transação', error.response?.data.message, [
-              { text: 'Tentar novamente' },
+            name: accountSelected.name,
+          },
+        });
+
+        const transactionData = {
+          created_at: date,
+          description: form.description,
+          amount: amountConverted,
+          amount_not_converted:
+            currencySelected.code !== accountSelected.currency.code
+              ? form.amount
+              : null,
+          currency_id: currencySelected.id,
+          type: transactionType,
+          account_id: accountResponse.data.id,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantId,
+        };
+
+        const { status } = await api.post('transaction', transactionData);
+        if (status === 200) {
+          Alert.alert(
+            'Cadastro de Transação',
+            'Transação cadastrada com sucesso!',
+            [
+              { text: 'Cadastrar nova transação' },
               {
                 text: 'Voltar para a tela anterior',
                 onPress: closeRegisterTransaction,
               },
-            ]);
-          }
-        } finally {
-          reset();
-          setTransactionType('');
-          setAccountSelected({
-            id: '',
-            name: 'Selecione a conta',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
-            },
-            initialAmount: 0,
-            tenantId: null,
-          });
-          setCategorySelected({
-            id: '',
-            name: 'Selecione a categoria',
-            icon: {
-              id: '',
-              title: '',
-              name: '',
-            },
-            color: {
-              id: '',
-              name: '',
-              hex: theme.colors.primary,
-            },
-            tenant_id: '',
-          });
-          setTagsSelected([]);
-          tagsList = [];
-          setImage('');
-          setImageUrl('');
-
-          setButtonIsLoading(false);
+            ]
+          );
         }
       }
-      return;
-    }
-
-    // Transfer Transaction
-    if (transactionType === 'transfer') {
-      // Need conversion
-      if (
-        accountSelected.currency.code !==
-        accountDestinationSelected.currency.code
-      ) {
-        let amountConverted = 0;
-        switch (accountSelected.currency.code) {
-          // Converted BTC
-          case 'BTC':
-            switch (accountDestinationSelected.currency.code) {
-              case 'BRL':
-                amountConverted = Number(form.amount) * btcQuoteBrl.price;
-                break;
-              case 'EUR':
-                amountConverted = Number(form.amount) * btcQuoteEur.price;
-                break;
-              case 'USD':
-                amountConverted = Number(form.amount) * btcQuoteUsd.price;
-                break;
-            }
-            break;
-          // Converted BRL
-          case 'BRL':
-            switch (accountDestinationSelected.currency.code) {
-              case 'BTC':
-                amountConverted = Number(form.amount) * brlQuoteBtc.price;
-
-                console.log('brlQuoteBtc.price >>>', brlQuoteBtc.price);
-                console.log('amountConverted >>>', amountConverted);
-                break;
-              case 'EUR':
-                amountConverted = Number(form.amount) * brlQuoteEur.price;
-                break;
-              case 'USD':
-                amountConverted = Number(form.amount) * brlQuoteUsd.price;
-                break;
-            }
-            break;
-          // Converted EUR
-          case 'EUR':
-            switch (accountDestinationSelected.currency.code) {
-              case 'BTC':
-                amountConverted = Number(form.amount) * eurQuoteBtc.price;
-                break;
-              case 'BRL':
-                amountConverted = Number(form.amount) * eurQuoteBrl.price;
-                break;
-              case 'USD':
-                amountConverted = Number(form.amount) * eurQuoteUsd.price;
-                break;
-            }
-            break;
-          // Converted USD
-          case 'USD':
-            switch (accountDestinationSelected.currency.code) {
-              case 'BTC':
-                amountConverted = Number(form.amount) * usdQuoteBtc.price;
-                break;
-              case 'BRL':
-                amountConverted = Number(form.amount) * usdQuoteBrl.price;
-                break;
-              case 'EUR':
-                amountConverted = Number(form.amount) * usdQuoteEur.price;
-                break;
-            }
-            break;
-        }
-
-        try {
-          const accountResponse = await api.get('single_account_get_id', {
-            params: {
-              tenant_id: tenantId,
-              name: accountSelected.name,
-            },
-          });
-          const accountDestinationResponse = await api.get(
-            'single_account_get_id',
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        Alert.alert(
+          'Cadastro de Transação',
+          (error.response?.data as { message: string }).message,
+          [
+            { text: 'Tentar novamente' },
             {
-              params: {
-                tenant_id: tenantId,
-                name: accountDestinationSelected.name,
-              },
-            }
-          );
-          if (
-            accountResponse.status &&
-            accountDestinationResponse.status !== 200
-          ) {
-            Alert.alert(
-              'Conta',
-              'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
-            );
-          }
-
-          const transferDebit = {
-            created_at: date,
-            description: form.description,
-            amount: form.amount,
-            amount_not_converted: null,
-            currency_id: currencySelected.id,
-            type: 'transferDebit',
-            account_id: accountResponse.data.id,
-            category_id: categorySelected.id,
-            tags: tagsList,
-            transaction_image_id,
-            tenant_id: tenantId,
-          };
-
-          const transferCredit = {
-            created_at: date,
-            description: form.description,
-            amount: amountConverted,
-            amount_not_converted: form.amount,
-            currency_id: accountDestinationResponse.data.currency_id,
-            type: 'transferCredit',
-            account_id: accountDestinationResponse.data.id,
-            category_id: categorySelected.id,
-            tags: tagsList,
-            transaction_image_id,
-            tenant_id: tenantId,
-          };
-
-          const transferDebitResponse = await api.post(
-            'transaction',
-            transferDebit
-          );
-          const transferCreditResponse = await api.post(
-            'transaction',
-            transferCredit
-          );
-          if (
-            transferDebitResponse.status &&
-            transferCreditResponse.status === 200
-          ) {
-            Alert.alert(
-              'Cadastro de Transação',
-              'Transação cadastrada com sucesso!',
-              [
-                { text: 'Cadastrar nova transação' },
-                {
-                  text: 'Voltar para a tela anterior',
-                  onPress: closeRegisterTransaction,
-                },
-              ]
-            );
-          }
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            Alert.alert('Cadastro de Transação', error.response?.data.message, [
-              { text: 'Tentar novamente' },
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeRegisterTransaction,
-              },
-            ]);
-          }
-        } finally {
-          reset();
-          setTransactionType('');
-          setAccountSelected({
-            id: '',
-            name: 'Selecione a conta',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
+              text: 'Voltar para a tela anterior',
+              onPress: closeRegisterTransaction,
             },
-            initialAmount: 0,
-            tenantId: null,
-          });
-          setAccountDestinationSelected({
-            id: '',
-            name: 'Selecione a conta de destino',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
-            },
-            initialAmount: 0,
-            tenantId: null,
-          });
-          setCategorySelected({
-            id: '',
-            name: 'Selecione a categoria',
-            icon: {
-              id: '',
-              title: '',
-              name: '',
-            },
-            color: {
-              id: '',
-              name: '',
-              hex: theme.colors.primary,
-            },
-            tenant_id: '',
-          });
-          setTagsSelected([]);
-          tagsList = [];
-          setImage('');
-          setImageUrl('');
-
-          setButtonIsLoading(false);
-        }
+          ]
+        );
       }
-      // No need conversion
-      else {
-        try {
-          const accountResponse = await api.get('single_account_get_id', {
-            params: {
-              tenant_id: tenantId,
-              name: accountSelected.name,
-            },
-          });
-          const accountDestinationResponse = await api.get(
-            'single_account_get_id',
-            {
-              params: {
-                tenant_id: tenantId,
-                name: accountDestinationSelected.name,
-              },
-            }
-          );
-          if (
-            accountResponse.status &&
-            accountDestinationResponse.status !== 200
-          ) {
-            Alert.alert(
-              'Conta',
-              'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
-            );
-          }
+    } finally {
+      reset();
+      setTransactionType('');
+      setAccountSelected({
+        id: '',
+        name: 'Selecione a conta',
+        currency: {
+          id: '',
+          name: '',
+          code: '',
+          symbol: '',
+        },
+        initialAmount: 0,
+        tenantId: null,
+      });
+      setCategorySelected({
+        id: '',
+        name: 'Selecione a categoria',
+        icon: {
+          id: '',
+          title: '',
+          name: '',
+        },
+        color: {
+          id: '',
+          name: '',
+          hex: theme.colors.primary,
+        },
+        tenant_id: '',
+      });
+      setTagsSelected([]);
+      tagsList = [];
+      setImage('');
+      setImageUrl('');
 
-          const transferDebit = {
-            created_at: date,
-            description: form.description,
-            amount: form.amount,
-            amount_not_converted: null,
-            currency_id: currencySelected.id,
-            type: 'transferDebit',
-            account_id: accountResponse.data.id,
-            category_id: categorySelected.id,
-            tags: tagsList,
-            transaction_image_id,
-            tenant_id: tenantId,
-          };
-
-          const transferCredit = {
-            created_at: date,
-            description: form.description,
-            amount: form.amount,
-            amount_not_converted: null,
-            currency_id: accountDestinationResponse.data.currency_id,
-            type: 'transferCredit',
-            account_id: accountDestinationResponse.data.id,
-            category_id: categorySelected.id,
-            tags: tagsList,
-            transaction_image_id,
-            tenant_id: tenantId,
-          };
-
-          const transferDebitResponse = await api.post(
-            'transaction',
-            transferDebit
-          );
-          const transferCreditResponse = await api.post(
-            'transaction',
-            transferCredit
-          );
-          if (
-            transferDebitResponse.status &&
-            transferCreditResponse.status === 200
-          ) {
-            Alert.alert(
-              'Cadastro de Transação',
-              'Transação cadastrada com sucesso!',
-              [
-                { text: 'Cadastrar nova transação' },
-                {
-                  text: 'Voltar para a tela anterior',
-                  onPress: closeRegisterTransaction,
-                },
-              ]
-            );
-          }
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            Alert.alert('Cadastro de Transação', error.response?.data.message, [
-              { text: 'Tentar novamente' },
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeRegisterTransaction,
-              },
-            ]);
-          }
-        } finally {
-          reset();
-          setTransactionType('');
-          setAccountSelected({
-            id: '',
-            name: 'Selecione a conta',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
-            },
-            initialAmount: 0,
-            tenantId: null,
-          });
-          setAccountDestinationSelected({
-            id: '',
-            name: 'Selecione a conta de destino',
-            currency: {
-              id: '',
-              name: '',
-              code: '',
-              symbol: '',
-            },
-            initialAmount: 0,
-            tenantId: null,
-          });
-          setCategorySelected({
-            id: '',
-            name: 'Selecione a categoria',
-            icon: {
-              id: '',
-              title: '',
-              name: '',
-            },
-            color: {
-              id: '',
-              name: '',
-              hex: theme.colors.primary,
-            },
-            tenant_id: '',
-          });
-          setTagsSelected([]);
-          tagsList = [];
-          setImage('');
-          setImageUrl('');
-
-          setButtonIsLoading(false);
-        }
-      }
-
-      return;
+      setButtonIsLoading(false);
     }
   }
 

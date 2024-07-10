@@ -51,6 +51,7 @@ export const InputTransactionValueContainer = styled.View`
   flex-direction: row;
   align-items: center;
   margin-left: 16px;
+  position: relative;
 `;
 
 export const ContentScroll = styled.ScrollView.attrs({

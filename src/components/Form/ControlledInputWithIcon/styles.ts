@@ -8,7 +8,7 @@ export const Container = styled.View`
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${RFValue(13)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.attention};
 `;
 

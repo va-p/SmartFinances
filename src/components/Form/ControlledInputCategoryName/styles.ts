@@ -8,7 +8,7 @@ export const Container = styled.View`
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.attention};
 `;
 
@@ -18,7 +18,7 @@ export const Input = styled(TextInput).attrs(({ theme }) => ({
   width: 100%;
   padding: 4px 0;
   padding-left: 16px;
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(12)}px;
   ${({ theme }) => css`
     font-family: ${theme.fonts.regular};
     border: 1px solid ${theme.colors.shape};

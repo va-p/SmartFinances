@@ -10,12 +10,16 @@ export const Container = styled.View`
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${RFValue(13)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.background};
+  position: absolute;
+  top: -20px;
+  right: 0;
+  z-index: 1;
 `;
 
 export const Input = styled(TextInput).attrs({
-  placeholderTextColor: theme.colors.background
+  placeholderTextColor: theme.colors.background,
 })`
   width: 100%;
   min-height: 56px;
