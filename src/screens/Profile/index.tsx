@@ -11,8 +11,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
 import { Button } from '@components/Button';
+import { Header } from '@components/Header';
 
-const DEFAULT_AVATAR_URL = '@assets/images/user_default.png';
+import api from '@api/api';
+
+import DefaultAvatar from '@assets/user_default.svg';
 
 type FormData = {
   name: string;
@@ -31,9 +34,10 @@ export function Profile() {
   const phone = useUser((state) => state.phone);
   const profileImage = useUser((state) => state.profileImage);
   const tenantId = useUser((state) => state.tenantId);
+  const [loading, setLoading] = useState(false);
 
   const [image, setImage] = useState('');
-  const [imageUrl, setImageUrl] = useState(DEFAULT_AVATAR_URL);
+  const [imageUrl, setImageUrl] = useState('@assets/user_default.png');
 
   const schema = Yup.object().shape({
     email: Yup.string().email('Digite um e-mail válido'),
@@ -77,16 +81,16 @@ export function Profile() {
 
   async function handleTakePhoto() {
     try {
-      const photoTaked = await ImagePicker.launchCameraAsync({
+      const photoTacked = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
         base64: true,
       });
 
-      if (!photoTaked.canceled && photoTaked.assets[0].base64) {
-        setImage(photoTaked.assets[0].base64);
-        setImageUrl(photoTaked.assets[0].uri);
+      if (!photoTacked.canceled && photoTacked.assets[0].base64) {
+        setImage(photoTacked.assets[0].base64);
+        setImageUrl(photoTacked.assets[0].uri);
       }
     } catch (error) {
       console.error(error);
@@ -100,36 +104,56 @@ export function Profile() {
     ]);
   }
 
-  console.log('name >>>', name);
-  console.log('lastName >>>', lastName);
-  console.log('email >>>', email);
-  console.log('phone >>>', phone);
-  console.log('profileImage >>>', profileImage);
-  console.log('tenantId >>>', tenantId);
+  // console.log('name >>>', name);
+  // console.log('lastName >>>', lastName);
+  // console.log('email >>>', email);
+  // console.log('phone >>>', phone);
+  // console.log('profileImage >>>', profileImage);
+  // console.log('tenantId >>>', tenantId);
   console.log('imageUrl >>>', imageUrl);
 
-  /*let imageResponse: any = null;
-  let transaction_image_id: number | null = null;
-  if (image !== '') {
-    const newImage = {
-      file: `data:image/jpeg;base64,${image}`,
-      tenant_id: tenantId,
-    };
-    const uploadImage = await api.post('upload/transaction_image', newImage);
-    if (uploadImage.status === 200) {
-      imageResponse = await api.get('single_transaction_image_get_id', {
-        params: {
+  async function handleSaveProfile(data: FormData) {
+    try {
+      let profile_image_id: number | null = null;
+      if (image !== '') {
+        const newImage = {
+          file: `data:image/jpeg;base64,${image}`,
           tenant_id: tenantId,
-        },
-      });
-      transaction_image_id = imageResponse.data.id;
+        };
+        const { data, status } = await api.post(
+          'upload/user_profile_image',
+          newImage
+        );
+        if (status === 200) {
+          profile_image_id = data.id;
+        }
+      }
+
+      const profileEdited = {
+        name: data.name,
+        last_name: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        profile_image_id,
+        tenant_id: tenantId,
+      };
+    } catch (error) {
+      console.error(error);
+      // Alert.alert('Perfil', error.response?.data.message);
     }
-  }*/
+  }
 
   return (
     <Container>
+      <Header type='primary' title='Perfil' />
+
       <ImageContainer onPress={handleClickSelectImage}>
-        <ProfileImage source={{ uri: DEFAULT_AVATAR_URL }} />
+        {image === '' ? (
+          <DefaultAvatar />
+        ) : (
+          <ProfileImage source={{ uri: imageUrl }} />
+        )}
       </ImageContainer>
 
       <Form>
@@ -176,6 +200,20 @@ export function Profile() {
 
         <ControlledInput
           type='primary'
+          placeholder='Confirme seu e-mail'
+          autoCapitalize='none'
+          keyboardType='email-address'
+          autoCorrect={false}
+          autoComplete='email'
+          textContentType='emailAddress'
+          label='Confirme seu e-mail'
+          name='confirmEmail'
+          control={control}
+          error={errors.confirmEmail}
+        />
+
+        <ControlledInput
+          type='primary'
           placeholder='Celular'
           keyboardType='phone-pad'
           value={String(phone)}
@@ -183,6 +221,13 @@ export function Profile() {
           name='phone'
           control={control}
           error={errors.phone}
+        />
+
+        <Button
+          type='secondary'
+          isLoading={loading}
+          title='Salvar Perfil'
+          onPress={handleSubmit(handleSaveProfile)}
         />
       </Form>
     </Container>

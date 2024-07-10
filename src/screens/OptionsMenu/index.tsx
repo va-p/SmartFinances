@@ -31,7 +31,7 @@ export function OptionsMenu({ navigation }: any) {
   const setInsights = useUserConfigs((state) => state.setInsights);
 
   function handleOpenProfile() {
-    navigation.navigate('Meus Dados');
+    navigation.navigate('Perfil');
   }
 
   function handleOpenAccounts() {
@@ -149,7 +149,7 @@ export function OptionsMenu({ navigation }: any) {
         <Title>Conta</Title>
         <SelectButton
           icon={<Icon.User color={theme.colors.primary} />}
-          title='Meus Dados'
+          title='Perfil'
           onPress={() => handleOpenProfile()}
         />
 

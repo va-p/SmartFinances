@@ -2,8 +2,8 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "1.4.1(22)",
-    "version": "1.4.1",
+    "runtimeVersion": "1.5.0(23)",
+    "version": "1.5.0",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",

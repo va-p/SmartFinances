@@ -27,7 +27,7 @@ export function AppOptionsStackRoutes() {
     >
       <Screen name='Mais Opções' component={OptionsMenu} />
 
-      <Screen name='Meus Dados' component={Profile} />
+      <Screen name='Perfil' component={Profile} />
 
       <Screen name='Contas' component={AccountsList} />
 

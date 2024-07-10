@@ -143,7 +143,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     /* Validation Form - End */
 
     // Edit account
-    if (id != '') {
+    if (id !== '') {
       handleEditAccount(id, form);
     }
     // Add account

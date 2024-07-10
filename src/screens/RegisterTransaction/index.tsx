@@ -302,16 +302,16 @@ export function RegisterTransaction({
 
   async function handleTakePhoto() {
     try {
-      const photoTaked = await ImagePicker.launchCameraAsync({
+      const photoTacked = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
         base64: true,
       });
 
-      if (!photoTaked.canceled && photoTaked.assets[0].base64) {
-        setImage(photoTaked.assets[0].base64);
-        setImageUrl(photoTaked.assets[0].uri);
+      if (!photoTacked.canceled && photoTacked.assets[0].base64) {
+        setImage(photoTacked.assets[0].base64);
+        setImageUrl(photoTacked.assets[0].uri);
       }
     } catch (error) {
       console.error(error);
@@ -349,7 +349,7 @@ export function RegisterTransaction({
 
     let imageResponse: any = null;
     let transaction_image_id: number | null = null;
-    if (image != '') {
+    if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
         tenant_id: tenantId,
@@ -657,21 +657,18 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    let imageResponse: any = null;
     let transaction_image_id: number | null = null;
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
         tenant_id: tenantId,
       };
-      const uploadImage = await api.post('upload/transaction_image', newImage);
-      if (uploadImage.status === 200) {
-        imageResponse = await api.get('single_transaction_image_get_id', {
-          params: {
-            tenant_id: tenantId,
-          },
-        });
-        transaction_image_id = imageResponse.data.id;
+      const { data, status } = await api.post(
+        'upload/transaction_image',
+        newImage
+      );
+      if (status === 200) {
+        transaction_image_id = data.id;
       }
     }
 
