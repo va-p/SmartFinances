@@ -13,10 +13,12 @@ import {
   ButtonGroup,
 } from './styles';
 
+import getTransactions from '@utils/getTransactions';
+
 import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
@@ -36,18 +38,18 @@ import {
   setAccountType,
   AccountType,
 } from '@slices/accountSlice';
-import { selectBtcQuoteBrl, selectUsdQuoteBrl } from '@slices/quotesSlice';
 
 import { useUser } from '@stores/userStore';
+import { useQuotes } from '@stores/quotesStore';
 import { useUserConfigs } from '@stores/userConfigsStore';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
-import getTransactions from '@utils/getTransactions';
+import api from '@api/api';
 
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import api from '@api/api';
+import { ConvertCurrency } from '@utils/convertCurrency';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 32;
@@ -75,8 +77,8 @@ export function Accounts({ navigation }: any) {
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
-  const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
-  const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
+  const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
+  const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
 
   async function fetchAccounts() {
     try {
@@ -87,49 +89,49 @@ export function Accounts({ navigation }: any) {
       /**
        * All totals Grouped By Accounts/Wallets - Start
        */
-      let totalRevenuesBRL = 0;
-      let totalExpensesBRL = 0;
+      const totalRevenuesBRL = 0;
+      const totalExpensesBRL = 0;
 
       let accounts: any = [];
       for (const item of data) {
         if (new Date(item.created_at) <= new Date()) {
-          switch (item.account.currency.code) {
-            case 'BRL':
-              switch (item.type) {
-                case 'credit':
-                case 'transferCredit':
-                  totalRevenuesBRL += item.amount;
-                  break;
-                case 'debit':
-                case 'transferDebit':
-                  totalExpensesBRL += item.amount;
-                  break;
-              }
-              break;
-            case 'BTC':
-              switch (item.type) {
-                case 'credit':
-                case 'transferCredit':
-                  totalRevenuesBRL += item.amount * btcQuoteBrl.price;
-                  break;
-                case 'debit':
-                case 'transferDebit':
-                  totalExpensesBRL += item.amount * btcQuoteBrl.price;
-                  break;
-              }
-            case 'USD':
-              switch (item.type) {
-                case 'credit':
-                case 'transferCredit':
-                  totalRevenuesBRL += item.amount * usdQuoteBrl.price;
-                  break;
-                case 'debit':
-                case 'transferDebit':
-                  totalExpensesBRL += item.amount * usdQuoteBrl.price;
-                  break;
-              }
-              break;
-          }
+          // switch (item.account.currency.code) {
+          //   case 'BRL':
+          //     switch (item.type) {
+          //       case 'credit':
+          //       case 'transferCredit':
+          //         totalRevenuesBRL += item.amount;
+          //         break;
+          //       case 'debit':
+          //       case 'transferDebit':
+          //         totalExpensesBRL += item.amount;
+          //         break;
+          //     }
+          //     break;
+          //   case 'BTC':
+          //     switch (item.type) {
+          //       case 'credit':
+          //       case 'transferCredit':
+          //         totalRevenuesBRL += item.amount * btcQuoteBrl.price;
+          //         break;
+          //       case 'debit':
+          //       case 'transferDebit':
+          //         totalExpensesBRL += item.amount * btcQuoteBrl.price;
+          //         break;
+          //     }
+          //   case 'USD':
+          //     switch (item.type) {
+          //       case 'credit':
+          //       case 'transferCredit':
+          //         totalRevenuesBRL += item.amount * usdQuoteBrl.price;
+          //         break;
+          //       case 'debit':
+          //       case 'transferDebit':
+          //         totalExpensesBRL += item.amount * usdQuoteBrl.price;
+          //         break;
+          //     }
+          //     break;
+          // }
 
           const account = item.account.id;
           if (!accounts.hasOwnProperty(account)) {
@@ -151,14 +153,32 @@ export function Accounts({ navigation }: any) {
             };
           }
 
+          // switch (item.type) {
+          //   case 'credit':
+          //   case 'transferCredit':
+          //     accounts[account].totalRevenuesByAccount += item.amount;
+          //     break;
+          //   case 'debit':
+          //   case 'transferDebit':
+          //     accounts[account].totalExpensesByAccount += item.amount;
+          //     break;
+          // }
           switch (item.type) {
             case 'credit':
             case 'transferCredit':
-              accounts[account].totalRevenuesByAccount += item.amount;
+              accounts[account].totalRevenuesByAccount += ConvertCurrency(
+                item.amount,
+                item.account.currency.code,
+                'BRL'
+              ); // Converte para BRL
               break;
             case 'debit':
             case 'transferDebit':
-              accounts[account].totalExpensesByAccount += item.amount;
+              accounts[account].totalExpensesByAccount += ConvertCurrency(
+                item.amount,
+                item.account.currency.code,
+                'BRL'
+              ); // Converte para BRL
               break;
           }
         }
@@ -181,31 +201,51 @@ export function Accounts({ navigation }: any) {
           accounts[i].totalRevenuesByAccount -
           accounts[i].totalExpensesByAccount;
 
-        switch (accounts[i].currency.code) {
-          case 'BTC':
-            accounts[i].totalAccountAmount = Number(
-              totalByAccount
-            ).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
-            });
-            accounts[i].totalAccountAmountConverted = Number(
-              totalByAccount * btcQuoteBrl.price
-            ).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            break;
-          default:
-            accounts[i].totalAccountAmount = Number(
-              totalByAccount
-            ).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            break;
+        // switch (accounts[i].currency.code) {
+        //   case 'BTC':
+        //     accounts[i].totalAccountAmount = Number(
+        //       totalByAccount
+        //     ).toLocaleString('pt-BR', {
+        //       style: 'currency',
+        //       currency: 'BTC',
+        //       minimumFractionDigits: 8,
+        //       maximumSignificantDigits: 8,
+        //     });
+        //     accounts[i].totalAccountAmountConverted = Number(
+        //       totalByAccount * btcQuoteBrl.price
+        //     ).toLocaleString('pt-BR', {
+        //       style: 'currency',
+        //       currency: 'BRL',
+        //     });
+        //     break;
+        //   default:
+        //     accounts[i].totalAccountAmount = Number(
+        //       totalByAccount
+        //     ).toLocaleString('pt-BR', {
+        //       style: 'currency',
+        //       currency: 'BRL',
+        //     });
+        //     break;
+        // }
+        accounts[i].totalAccountAmount = Number(totalByAccount).toLocaleString(
+          'pt-BR',
+          {
+            style: 'currency',
+            currency: accounts[i].currency.code, // Usa o código da moeda da conta
+            minimumFractionDigits: accounts[i].currency.code === 'BTC' ? 8 : 2, // Define casas decimais conforme a moeda
+            maximumSignificantDigits:
+              accounts[i].currency.code === 'BTC' ? 8 : undefined,
+          }
+        );
+
+        // Converte para BRL se a moeda original não for BRL
+        if (accounts[i].currency.code !== 'BRL') {
+          accounts[i].totalAccountAmountConverted = Number(
+            ConvertCurrency(totalByAccount, accounts[i].currency.code, 'BRL') // Converte para BRL
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          });
         }
       }
 

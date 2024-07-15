@@ -21,6 +21,10 @@ import {
   CashFlowAlertContainer,
   CashFlowAlertTitle,
   CashFlowAlertText,
+  PeriodRulerContainer,
+  PeriodRulerList,
+  PeriodRulerListItem,
+  PeriodRulerListDivisor,
 } from './styles';
 
 import Animated, {
@@ -50,7 +54,6 @@ import {
   subYears,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useDispatch } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Plus, Eye, EyeSlash, X } from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
@@ -65,13 +68,6 @@ import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
-
-import {
-  setBrlQuoteBtc,
-  setBtcQuoteBrl,
-  setEurQuoteBrl,
-  setUsdQuoteBrl,
-} from '@slices/quotesSlice';
 
 import apiQuotes from '@api/apiQuotes';
 
@@ -88,7 +84,11 @@ import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 import api from '@api/api';
+import { useQuotes } from '@stores/quotesStore';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+// PeriodRulerList Column
+const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 5;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.38;
@@ -104,12 +104,17 @@ export function Home() {
   const [loading, setLoading] = useState(false);
   const tenantId = useUser((state) => state.tenantId);
   const userId = useUser((state) => state.id);
+
+  const setBrlQuoteBtc = useQuotes((state) => state.setBrlQuoteBtc);
+  const setBtcQuoteBrl = useQuotes((state) => state.setBtcQuoteBrl);
+  const setEurQuoteBrl = useQuotes((state) => state.setEurQuoteBrl);
+  const setUsdQuoteBrl = useQuotes((state) => state.setUsdQuoteBrl);
+
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
   const insights = useUserConfigs((state) => state.insights);
   const [showInsights, setShowInsights] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
-  const dispatch = useDispatch();
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
@@ -217,7 +222,7 @@ export function Home() {
           convert: 'BTC',
         },
       });
-      dispatch(setBrlQuoteBtc(data.data[0].quote.BTC));
+      setBrlQuoteBtc(data.data[0].quote.BTC);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -236,8 +241,7 @@ export function Home() {
           convert: 'BRL',
         },
       });
-      // console.log('BTC quote >>>', data.data[0].quote.BRL);
-      dispatch(setBtcQuoteBrl(data.data[0].quote.BRL));
+      setBtcQuoteBrl(data.data[0].quote.BRL);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -257,7 +261,7 @@ export function Home() {
         },
       });
       if (data) {
-        dispatch(setEurQuoteBrl(data.data[0].quote.BRL));
+        setEurQuoteBrl(data.data[0].quote.BRL);
       }
     } catch (error) {
       console.error(error);
@@ -278,7 +282,7 @@ export function Home() {
         },
       });
       if (data) {
-        dispatch(setUsdQuoteBrl(data.data[0].quote.BRL));
+        setUsdQuoteBrl(data.data[0].quote.BRL);
       }
     } catch (error) {
       console.error(error);
@@ -723,8 +727,30 @@ export function Home() {
     setShowInsights(false);
   }
 
-  function _renderEmpty() {
-    return <ListEmptyComponent />;
+  const arrayAux = ['mai', 'jun', 'jul', 'ago', 'set'];
+
+  function _renderPeriodRuler() {
+    return (
+      <PeriodRulerContainer>
+        <PeriodRulerList
+          data={arrayAux}
+          keyExtractor={(item: any) => item.id}
+          renderItem={({ item, index }: any) => (
+            <PeriodRulerListItem
+              // data={item}
+              // index={index}
+              width={PERIOD_RULER_LIST_COLUMN_WIDTH}
+              isActive={false}
+              // onPress={() => handleOpenTransaction(item.id)}
+            >
+              {item}
+            </PeriodRulerListItem>
+            // <Text style={{ color: '#FFF' }}>a</Text>
+          )}
+          ListFooterComponent={<PeriodRulerListDivisor />}
+        />
+      </PeriodRulerContainer>
+    );
   }
 
   function _renderCashFlowInsightContainer() {
@@ -742,6 +768,10 @@ export function Home() {
         </CashFlowAlertText>
       </CashFlowAlertContainer>
     );
+  }
+
+  function _renderEmpty() {
+    return <ListEmptyComponent />;
   }
 
   useEffect(() => {
@@ -846,6 +876,10 @@ export function Home() {
             </VictoryGroup>
           </VictoryChart>
         </Animated.View>
+
+        {/* <Animated.View>
+          {_renderPeriodRuler()}
+        </Animated.View> */}
 
         <Animated.View style={insightsStyleAnimationOpacity}>
           {insights &&

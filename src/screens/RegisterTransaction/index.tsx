@@ -15,11 +15,12 @@ import {
   Footer,
 } from './styles';
 
+import { ConvertCurrency } from '@utils/convertCurrency';
+
 import axios from 'axios';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import * as Icon from 'phosphor-react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -46,39 +47,15 @@ import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
-import {
-  //BRL Quotes
-  selectBrlQuoteBtc,
-  selectBrlQuoteEur,
-  selectBrlQuoteUsd,
-  //BTC Quotes
-  selectBtcQuoteBrl,
-  selectBtcQuoteEur,
-  selectBtcQuoteUsd,
-  //EUR Quotes
-  selectEurQuoteBrl,
-  selectEurQuoteBtc,
-  selectEurQuoteUsd,
-  //USD Quotes
-  selectUsdQuoteBrl,
-  selectUsdQuoteBtc,
-  selectUsdQuoteEur,
-} from '@slices/quotesSlice';
 import { useUser } from '@stores/userStore';
 
 import api from '@api/api';
-
-import theme from '@themes/theme';
 
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
-type CurrencyConversionRates = {
-  [fromCurrency: string]: {
-    [toCurrency: string]: (amount: number) => number;
-  };
-};
+import theme from '@themes/theme';
 
 type Props = {
   id: string;
@@ -122,18 +99,6 @@ export function RegisterTransaction({
   closeModal,
 }: Props) {
   const tenantId = useUser((state) => state.tenantId);
-  const brlQuoteBtc = useSelector(selectBrlQuoteBtc);
-  const brlQuoteEur = useSelector(selectBrlQuoteEur);
-  const brlQuoteUsd = useSelector(selectBrlQuoteUsd);
-  const btcQuoteBrl = useSelector(selectBtcQuoteBrl);
-  const btcQuoteEur = useSelector(selectBtcQuoteEur);
-  const btcQuoteUsd = useSelector(selectBtcQuoteUsd);
-  const eurQuoteBrl = useSelector(selectEurQuoteBrl);
-  const eurQuoteBtc = useSelector(selectEurQuoteBtc);
-  const eurQuoteUsd = useSelector(selectEurQuoteUsd);
-  const usdQuoteBrl = useSelector(selectUsdQuoteBrl);
-  const usdQuoteBtc = useSelector(selectUsdQuoteBtc);
-  const usdQuoteEur = useSelector(selectUsdQuoteEur);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -339,47 +304,6 @@ export function RegisterTransaction({
     setOpenImage(false);
   }
 
-  const currencyConversionRates: CurrencyConversionRates = {
-    BRL: {
-      BTC: (amount: number) => amount * brlQuoteBtc.price,
-      EUR: (amount: number) => amount * brlQuoteEur.price,
-      USD: (amount: number) => amount * brlQuoteUsd.price,
-    },
-    BTC: {
-      BRL: (amount: number) => amount * btcQuoteBrl.price,
-      EUR: (amount: number) => amount * btcQuoteEur.price,
-      USD: (amount: number) => amount * btcQuoteUsd.price,
-    },
-    EUR: {
-      BRL: (amount: number) => amount * eurQuoteBrl.price,
-      BTC: (amount: number) => amount * eurQuoteBtc.price,
-      USD: (amount: number) => amount * eurQuoteUsd.price,
-    },
-    USD: {
-      BRL: (amount: number) => amount * usdQuoteBrl.price,
-      EUR: (amount: number) => amount * usdQuoteEur.price,
-      BTC: (amount: number) => amount * usdQuoteBtc.price,
-    },
-  };
-
-  function convertCurrency(
-    amount: number,
-    fromCurrency: string,
-    toCurrency: string
-  ): number {
-    if (fromCurrency === toCurrency) {
-      return amount; // Não precisa converter se as moedas forem iguais
-    }
-    const conversionFunction =
-      currencyConversionRates[fromCurrency][toCurrency];
-    if (!conversionFunction) {
-      throw new Error(
-        `Conversão de ${fromCurrency} para ${toCurrency} não suportada.`
-      );
-    }
-    return conversionFunction(amount);
-  }
-
   async function handleEditTransaction(id: string, form: FormData) {
     setButtonIsLoading(true);
 
@@ -414,7 +338,7 @@ export function RegisterTransaction({
 
     let amountConverted = Number(form.amount);
     if (currencySelected.code !== accountSelected.currency.code) {
-      amountConverted = convertCurrency(
+      amountConverted = ConvertCurrency(
         Number(form.amount),
         currencySelected.code,
         accountSelected.currency.code
@@ -601,7 +525,7 @@ export function RegisterTransaction({
           accountSelected.currency.code !==
           accountDestinationSelected.currency.code
         ) {
-          amountConverted = convertCurrency(
+          amountConverted = ConvertCurrency(
             Number(form.amount),
             accountSelected.currency.code, // Conversão da origem para o destino
             accountDestinationSelected.currency.code
@@ -686,7 +610,7 @@ export function RegisterTransaction({
       } else {
         // Lógica de adição de transação
         if (currencySelected.code !== accountSelected.currency.code) {
-          amountConverted = convertCurrency(
+          amountConverted = ConvertCurrency(
             Number(form.amount),
             currencySelected.code,
             accountSelected.currency.code

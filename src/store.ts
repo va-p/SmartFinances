@@ -1,14 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import accountReducer from './slices/accountSlice';
-import quotesReducer from './slices/quotesSlice';
-import userReducer from './slices/userSlice';
 
 const store = configureStore({
   reducer: {
     account: accountReducer,
-    quotes: quotesReducer,
-    user: userReducer,
   },
 });
 
