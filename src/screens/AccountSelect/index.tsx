@@ -12,7 +12,7 @@ import { ListItem } from '@components/ListItem';
 import { ListSeparator } from '@components/ListSeparator';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 

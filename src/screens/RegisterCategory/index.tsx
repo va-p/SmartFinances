@@ -26,7 +26,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Button } from '@components/Button';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import { ColorProps, IconProps } from '@interfaces/categories';
 

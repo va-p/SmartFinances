@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
   RefreshControl,
@@ -23,8 +29,7 @@ import {
   CashFlowAlertText,
   PeriodRulerContainer,
   PeriodRulerList,
-  PeriodRulerListItem,
-  PeriodRulerListDivisor,
+  MonthSelectButton,
 } from './styles';
 
 import Animated, {
@@ -33,7 +38,6 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  useAnimatedGestureHandler,
   withSpring,
 } from 'react-native-reanimated';
 import {
@@ -42,11 +46,17 @@ import {
   VictoryGroup,
   VictoryZoomContainer,
 } from 'victory-native';
-import { RectButton, PanGestureHandler } from 'react-native-gesture-handler';
+import {
+  RectButton,
+  Gesture,
+  GestureDetector,
+} from 'react-native-gesture-handler';
 import {
   addMonths,
   addYears,
   format,
+  getMonth,
+  getYear,
   isFirstDayOfMonth,
   parse,
   parseISO,
@@ -55,7 +65,14 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Plus, Eye, EyeSlash, X } from 'phosphor-react-native';
+import {
+  Plus,
+  Eye,
+  EyeSlash,
+  X,
+  CaretLeft,
+  CaretRight,
+} from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -64,38 +81,40 @@ import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
+import { PeriodRulerListItem } from '@components/PeriodRulerListItem';
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
-
-import apiQuotes from '@api/apiQuotes';
-
-import { useUser } from '@stores/userStore';
-import { useUserConfigs } from '@stores/userConfigsStore';
-import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-
-import theme from '@themes/theme';
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
+import { useUser } from 'src/storage/userStorage';
+import { useQuotes } from 'src/storage/quotesStorage';
+import { useUserConfigs } from 'src/storage/userConfigsStorage';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+
+import apiQuotes from '@api/apiQuotes';
+
+import theme from '@themes/theme';
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+
 import api from '@api/api';
-import { useQuotes } from '@stores/quotesStore';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
-const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 5;
+const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.38;
 const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.25;
 
 type PeriodData = {
-  date: Date | number;
+  date: Date | string | number;
   totalRevenuesByPeriod: number;
   totalExpensesByPeriod: number;
 };
@@ -112,6 +131,10 @@ export function Home() {
 
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
+  const setAccountID = useCurrentAccountSelected((state) => state.setAccountId);
+  const setAccountName = useCurrentAccountSelected(
+    (state) => state.setAccountName
+  );
   const insights = useUserConfigs((state) => state.insights);
   const [showInsights, setShowInsights] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
@@ -134,12 +157,12 @@ export function Home() {
     setTotalAmountsGroupedBySelectedPeriod,
   ] = useState<PeriodData[]>([
     {
-      date: 0,
+      date: '0',
       totalRevenuesByPeriod: 0,
       totalExpensesByPeriod: 0,
     },
     {
-      date: 1,
+      date: '1',
       totalRevenuesByPeriod: 0,
       totalExpensesByPeriod: 0,
     },
@@ -196,22 +219,20 @@ export function Home() {
       ],
     };
   });
-  const OnMoveRegisterTransactionButton = useAnimatedGestureHandler({
-    onStart(_, ctx: any) {
-      ctx.positionX = registerTransactionButtonPositionX.value;
-      ctx.positionY = registerTransactionButtonPositionY.value;
-    },
-    onActive(event, ctx: any) {
-      registerTransactionButtonPositionX.value =
-        ctx.positionX + event.translationX;
-      registerTransactionButtonPositionY.value =
-        ctx.positionY + event.translationY;
-    },
-    onEnd() {
+
+  const onMoveRegisterTransactionButton = Gesture.Pan()
+    .onStart((e) => {
+      e.absoluteX = registerTransactionButtonPositionX.value;
+      e.absoluteY = registerTransactionButtonPositionY.value;
+    })
+    .onUpdate((e) => {
+      registerTransactionButtonPositionX.value = e.absoluteX + e.translationX;
+      registerTransactionButtonPositionY.value = e.absoluteY + e.translationY;
+    })
+    .onEnd(() => {
       registerTransactionButtonPositionX.value = withSpring(0);
       registerTransactionButtonPositionY.value = withSpring(0);
-    },
-  });
+    });
 
   async function fetchBrlQuote() {
     try {
@@ -646,16 +667,14 @@ export function Home() {
     chartPeriodSelectedBottomSheetRef.current?.present();
   }
 
-  /*function handleClosePeriodSelectedModal() {
-    chartPeriodSelectedBottomSheetRef.current?.dismiss();
-  };*/
-
   function handleOpenRegisterTransactionModal() {
     setTransactionId('');
     registerTransactionBottomSheetRef.current?.present();
   }
 
   function handleCloseRegisterTransactionModal() {
+    setAccountID(null);
+    setAccountName(null);
     fetchTransactions();
     registerTransactionBottomSheetRef.current?.dismiss();
   }
@@ -690,16 +709,6 @@ export function Home() {
     }
   }
 
-  function handleGesture(evt: any) {
-    const { nativeevent } = evt;
-
-    if (nativeevent.velocityX > 0) {
-      console.log('swipe right');
-    } else {
-      console.log('swipe left');
-    }
-  }
-
   function ClearTransactionId() {
     setTransactionId('');
   }
@@ -727,31 +736,77 @@ export function Home() {
     setShowInsights(false);
   }
 
-  const arrayAux = ['mai', 'jun', 'jul', 'ago', 'set'];
+  const _renderPeriodRuler = useCallback(() => {
+    const dates = totalAmountsGroupedBySelectedPeriod?.map((item: any) => {
+      const dateSplit = item.date.split('\n');
+      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
+      const dateAux = trimmedDateParts.join(' ');
+      const parsedDate = parse(dateAux, 'MMM yyyy', selectedPeriod);
 
-  function _renderPeriodRuler() {
+      const sameMonthYear = (selectedPeriod: Date, parsedDate: Date) => {
+        return (
+          getYear(selectedPeriod) === getYear(parsedDate) &&
+          getMonth(selectedPeriod) === getMonth(parsedDate)
+        );
+      };
+
+      const isActive = sameMonthYear(parsedDate, selectedPeriod);
+
+      return {
+        date: item.date,
+        isActive,
+      };
+    });
+
     return (
       <PeriodRulerContainer>
+        <MonthSelectButton onPress={() => handleDateChange('prev')}>
+          <CaretLeft size={20} color={theme.colors.text} />
+        </MonthSelectButton>
         <PeriodRulerList
-          data={arrayAux}
+          data={dates}
           keyExtractor={(item: any) => item.id}
-          renderItem={({ item, index }: any) => (
+          renderItem={({ item }: any) => (
             <PeriodRulerListItem
-              // data={item}
-              // index={index}
+              data={item}
               width={PERIOD_RULER_LIST_COLUMN_WIDTH}
-              isActive={false}
-              // onPress={() => handleOpenTransaction(item.id)}
-            >
-              {item}
-            </PeriodRulerListItem>
-            // <Text style={{ color: '#FFF' }}>a</Text>
+            />
           )}
-          ListFooterComponent={<PeriodRulerListDivisor />}
+          inverted
         />
+        <MonthSelectButton onPress={() => handleDateChange('next')}>
+          <CaretRight size={20} color={theme.colors.text} />
+        </MonthSelectButton>
       </PeriodRulerContainer>
     );
-  }
+  }, [selectedPeriod, totalAmountsGroupedBySelectedPeriod]);
+  // function _renderPeriodRuler() {
+  //   const dates = totalAmountsGroupedBySelectedPeriod?.map((item: any) => {
+  //     return item.date;
+  //   });
+
+  //   return (
+  //     <PeriodRulerContainer>
+  //       <MonthSelectButton onPress={() => handleDateChange('prev')}>
+  //         <CaretLeft size={20} color={theme.colors.text} />
+  //       </MonthSelectButton>
+  //       <PeriodRulerList
+  //         data={dates}
+  //         keyExtractor={(item: any) => item.id}
+  //         renderItem={({ item }: any) => (
+  //           <PeriodRulerListItem
+  //             date={item}
+  //             width={PERIOD_RULER_LIST_COLUMN_WIDTH}
+  //           />
+  //         )}
+  //         inverted
+  //       />
+  //       <MonthSelectButton onPress={() => handleDateChange('next')}>
+  //         <CaretRight size={20} color={theme.colors.text} />
+  //       </MonthSelectButton>
+  //     </PeriodRulerContainer>
+  //   );
+  // }
 
   function _renderCashFlowInsightContainer() {
     return (
@@ -786,7 +841,7 @@ export function Home() {
     fetchEurQuote();
     fetchUsdQuote();
     fetchTransactions();
-  }, [chartPeriodSelected.period]);
+  }, [selectedPeriod, chartPeriodSelected.period]);
 
   if (loading) {
     return <SkeletonHomeScreen />;
@@ -825,7 +880,6 @@ export function Home() {
           <VictoryChart
             height={120}
             padding={{ top: 16, right: 16, bottom: 40, left: 40 }}
-            //domainPadding={{ x: 6, y: 6 }}
             containerComponent={
               <VictoryZoomContainer
                 allowZoom={false}
@@ -877,9 +931,7 @@ export function Home() {
           </VictoryChart>
         </Animated.View>
 
-        {/* <Animated.View>
-          {_renderPeriodRuler()}
-        </Animated.View> */}
+        <Animated.View>{_renderPeriodRuler()}</Animated.View>
 
         <Animated.View style={insightsStyleAnimationOpacity}>
           {insights &&
@@ -890,6 +942,7 @@ export function Home() {
       </Animated.View>
 
       <Transactions>
+        {/* <GestureDetector gesture={onMoveToChangeDate}> */}
         <AnimatedSectionList
           sections={optimizedTransactions}
           keyExtractor={(item: any) => item.id}
@@ -921,9 +974,10 @@ export function Home() {
           onScroll={scrollHandlerToTop}
           scrollEventThrottle={16}
         />
+        {/* </GestureDetector> */}
       </Transactions>
 
-      <PanGestureHandler onGestureEvent={OnMoveRegisterTransactionButton}>
+      <GestureDetector gesture={onMoveRegisterTransactionButton}>
         <Animated.View
           style={[
             registerTransactionButtonStyle,
@@ -941,7 +995,7 @@ export function Home() {
             <Plus size={24} color={theme.colors.background} />
           </ButtonAnimated>
         </Animated.View>
-      </PanGestureHandler>
+      </GestureDetector>
 
       <ModalViewSelection
         title='Selecione o período'
@@ -963,9 +1017,7 @@ export function Home() {
           id={transactionId}
           resetId={ClearTransactionId}
           closeRegisterTransaction={handleCloseRegisterTransactionModal}
-          closeModal={() =>
-            registerTransactionBottomSheetRef.current?.dismiss()
-          }
+          closeModal={handleCloseRegisterTransactionModal}
         />
       </ModalViewWithoutHeader>
     </Container>

@@ -4,7 +4,6 @@ import { Container, Footer } from './styles';
 
 import axios from 'axios';
 import * as Icon from 'phosphor-react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
@@ -18,14 +17,10 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 import { RegisterAccount } from '@screens/RegisterAccount';
 
 import {
-  setAccountName,
-  setAccountCurrency,
-  setAccountTotalAmount,
-  setAccountInitialAmount,
-  setAccountId,
-  selectAccountId,
-} from '@slices/accountSlice';
-import { useUser } from '@stores/userStore';
+  AccountType,
+  useCurrentAccountSelected,
+} from '@storage/currentAccountSelectedStorage';
+import { useUser } from 'src/storage/userStorage';
 
 import api from '@api/api';
 
@@ -39,9 +34,24 @@ export function AccountsList() {
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
-  const accountId = useSelector(selectAccountId);
+  const accountID = useCurrentAccountSelected((state) => state.accountId);
+  const setAccountId = useCurrentAccountSelected((state) => state.setAccountId);
+  const setAccountName = useCurrentAccountSelected(
+    (state) => state.setAccountName
+  );
+  const setAccountType = useCurrentAccountSelected(
+    (state) => state.setAccountType
+  );
+  const setAccountCurrency = useCurrentAccountSelected(
+    (state) => state.setAccountCurrency
+  );
+  const setAccountInitialAmount = useCurrentAccountSelected(
+    (state) => state.setAccountInitialAmount
+  );
+  const setAccountTotalAmount = useCurrentAccountSelected(
+    (state) => state.setAccountTotalAmount
+  );
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   async function fetchAccounts() {
     setLoading(true);
@@ -71,9 +81,9 @@ export function AccountsList() {
   }
 
   function handleOpenRegisterAccountModal() {
-    dispatch(setAccountId(''));
-    dispatch(setAccountName(''));
-    dispatch(setAccountInitialAmount(0));
+    setAccountId('');
+    setAccountName('');
+    setAccountInitialAmount(0);
     editAccountBottomSheetRef.current?.present();
   }
 
@@ -84,26 +94,28 @@ export function AccountsList() {
   function handleOpenAccount(
     id: string,
     name: string,
+    type: AccountType,
     currency: any,
     initialAmount: number,
     total: any
   ) {
-    dispatch(setAccountId(id));
-    dispatch(setAccountName(name));
-    dispatch(setAccountCurrency(currency));
-    dispatch(setAccountInitialAmount(initialAmount));
-    dispatch(setAccountTotalAmount(total));
+    setAccountId(id);
+    setAccountName(name);
+    setAccountType(type);
+    setAccountCurrency(currency);
+    setAccountInitialAmount(initialAmount);
+    setAccountTotalAmount(total);
 
     editAccountBottomSheetRef.current?.present();
   }
 
   function handleCloseEditAccount() {
-    dispatch(setAccountId(''));
+    setAccountId('');
     fetchAccounts();
     editAccountBottomSheetRef.current?.dismiss();
   }
 
-  async function handleDeleteAccount(id: string) {
+  async function handleDeleteAccount(id: string | null) {
     try {
       const { status } = await api.delete('delete_account', {
         params: {
@@ -134,7 +146,7 @@ export function AccountsList() {
         { text: 'Não, cancelar a exclusão' },
         {
           text: 'Sim, excluir a conta',
-          onPress: () => handleDeleteAccount(accountId),
+          onPress: () => handleDeleteAccount(accountID),
         },
       ]
     );
@@ -156,7 +168,7 @@ export function AccountsList() {
 
       <FlatList
         data={accounts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(_, idx) => String(idx)}
         renderItem={({ item, index }: any) => (
           <AccountListItem
             data={item}
@@ -166,6 +178,7 @@ export function AccountsList() {
               handleOpenAccount(
                 item.id,
                 item.name,
+                item.type,
                 item.currency,
                 item.initial_amount,
                 item.totalAccountAmount
@@ -192,14 +205,14 @@ export function AccountsList() {
       </Footer>
 
       <ModalView
-        type={accountId !== '' ? 'secondary' : 'primary'}
-        title={accountId !== '' ? 'Editar Conta' : 'Criar Nova Conta'}
+        type={accountID !== '' ? 'secondary' : 'primary'}
+        title={accountID !== '' ? 'Editar Conta' : 'Criar Nova Conta'}
         bottomSheetRef={editAccountBottomSheetRef}
         snapPoints={['50%', '75%']}
         closeModal={handleCloseRegisterAccountModal}
         deleteChildren={handleClickDeleteAccount}
       >
-        <RegisterAccount id={accountId} closeAccount={handleCloseEditAccount} />
+        <RegisterAccount id={accountID} closeAccount={handleCloseEditAccount} />
       </ModalView>
     </Container>
   );

@@ -15,7 +15,7 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterCategory } from '@screens/RegisterCategory';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import { CategoryProps } from '@interfaces/categories';
 

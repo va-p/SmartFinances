@@ -11,7 +11,7 @@ import { TagProps } from '@components/TagListItem';
 import { ListSeparator } from '@components/ListSeparator';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import api from '@api/api';
 

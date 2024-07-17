@@ -20,7 +20,7 @@ import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
 import { HistoryCard } from '@components/HistoryCard';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import api from '@api/api';
 

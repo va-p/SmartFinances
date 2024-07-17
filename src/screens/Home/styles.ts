@@ -50,33 +50,16 @@ export const Transactions = styled.View`
   flex: 1;
 `;
 
-export const PeriodRulerContainer = styled.View``;
+export const PeriodRulerContainer = styled.View`
+  flex-direction: row;
+`;
+
+export const MonthSelectButton = styled(BorderlessButton)``;
 
 export const PeriodRulerList = styled.FlatList.attrs({
   horizontal: true,
   showsHorizontalScrollIndicator: false,
 })``;
-
-export type PeriodRulerListItemProps = {
-  width: number;
-  isActive: boolean;
-};
-export const PeriodRulerListItem = styled.Text<PeriodRulerListItemProps>`
-  width: ${({ width }) => width};
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
-  text-align: center;
-  margin-right: 8px;
-  margin-bottom: 8px;
-  color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary : theme.colors.text};
-`;
-
-export const PeriodRulerListDivisor = styled.View`
-  width: 100%;
-  height: 10px;
-  background-color: ${({ theme }) => theme.colors.text};
-`;
 
 export const CloseCashFlowAlertButton = styled(BorderlessButton)`
   position: absolute;

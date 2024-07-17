@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 
 import * as Font from 'expo-font';
-import { Provider } from 'react-redux';
 import * as Updates from 'expo-updates';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-import store from './src/store';
 
 import { Routes } from './src/routes';
 
@@ -71,15 +68,13 @@ function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <StatusBar
-            barStyle='light-content'
-            backgroundColor={theme.colors.background}
-          />
-          <Routes />
-        </ThemeProvider>
-      </Provider>
+      <ThemeProvider theme={theme}>
+        <StatusBar
+          barStyle='light-content'
+          backgroundColor={theme.colors.background}
+        />
+        <Routes />
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

@@ -20,7 +20,7 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { PeriodProps } from '@screens/ChartPeriodSelect';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import theme from '@themes/theme';
 

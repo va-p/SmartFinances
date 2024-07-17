@@ -10,8 +10,8 @@ import { Load } from '@components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import { useUser } from '@stores/userStore';
-import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
+import { useUser } from 'src/storage/userStorage';
+import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelected';
 
 import { CategoryProps } from '@interfaces/categories';
 

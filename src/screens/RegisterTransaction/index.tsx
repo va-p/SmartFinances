@@ -47,7 +47,7 @@ import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import api from '@api/api';
 
@@ -56,11 +56,11 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 type Props = {
   id: string;
   resetId: () => void;
-  account?: AccountProps;
   closeRegisterTransaction: () => void;
   closeModal?: () => void;
 };
@@ -83,18 +83,6 @@ const schema = Yup.object().shape({
 export function RegisterTransaction({
   id,
   resetId,
-  account = {
-    id: '',
-    name: 'Selecione a conta',
-    currency: {
-      id: '4',
-      name: 'Real Brasileiro',
-      code: 'BRL',
-      symbol: 'R$',
-    },
-    initialAmount: 0,
-    tenantId: null,
-  },
   closeRegisterTransaction,
   closeModal,
 }: Props) {
@@ -118,7 +106,27 @@ export function RegisterTransaction({
     code: 'BRL',
     symbol: 'R$',
   } as CurrencyProps);
-  const [accountSelected, setAccountSelected] = useState(account);
+  const accountID = useCurrentAccountSelected((state) => state.accountId);
+  const accountName = useCurrentAccountSelected((state) => state.accountName);
+  const accountCurrency = useCurrentAccountSelected(
+    (state) => state.accountCurrency
+  );
+  const accountInitialAmount = useCurrentAccountSelected(
+    (state) => state.accountInitialAmount
+  );
+  const accountTenantID = useCurrentAccountSelected(
+    (state) => state.accountTenantId
+  );
+  const setAccountID = useCurrentAccountSelected((state) => state.setAccountId);
+  const setAccountName = useCurrentAccountSelected(
+    (state) => state.setAccountName
+  );
+  const setAccountCurrency = useCurrentAccountSelected(
+    (state) => state.setAccountCurrency
+  );
+  const setAccountInitialAmount = useCurrentAccountSelected(
+    (state) => state.setAccountInitialAmount
+  );
   const [accountDestinationSelected, setAccountDestinationSelected] = useState({
     id: '',
     name: 'Selecione a conta de destino',
@@ -210,18 +218,10 @@ export function RegisterTransaction({
     resetId();
     reset();
     setTransactionType('');
-    setAccountSelected({
-      id: '',
-      name: 'Selecione a conta',
-      currency: {
-        id: '',
-        name: '',
-        code: '',
-        symbol: '',
-      },
-      initialAmount: 0,
-      tenantId: null,
-    });
+    setAccountID(null);
+    setAccountName(null);
+    setAccountCurrency(null);
+    setAccountInitialAmount(0);
     setCategorySelected({
       id: '',
       name: 'Selecione a categoria',
@@ -337,11 +337,11 @@ export function RegisterTransaction({
     }
 
     let amountConverted = Number(form.amount);
-    if (currencySelected.code !== accountSelected.currency.code) {
+    if (currencySelected.code !== accountCurrency?.code) {
       amountConverted = ConvertCurrency(
         Number(form.amount),
         currencySelected.code,
-        accountSelected.currency.code
+        accountCurrency?.code || 'BRL'
       );
     }
 
@@ -352,12 +352,10 @@ export function RegisterTransaction({
         description: form.description,
         amount: amountConverted, // Usar valor convertido
         amount_not_converted:
-          currencySelected.code !== accountSelected.currency.code
-            ? form.amount
-            : null, // Valor original, se houver conversão
+          currencySelected.code !== accountCurrency?.code ? form.amount : null, // Valor original, se houver conversão
         currency_id: currencySelected.id,
         type: transactionType,
-        account_id: accountSelected.id,
+        account_id: accountID,
         category_id: categorySelected.id,
         tags: tagsList,
         transaction_image_id,
@@ -391,18 +389,6 @@ export function RegisterTransaction({
     } finally {
       reset();
       setTransactionType('');
-      setAccountSelected({
-        id: '',
-        name: 'Selecione a conta',
-        currency: {
-          id: '',
-          name: '',
-          code: '',
-          symbol: '',
-        },
-        initialAmount: 0,
-        tenantId: null,
-      });
       setCategorySelected({
         id: '',
         name: 'Selecione a categoria',
@@ -443,7 +429,7 @@ export function RegisterTransaction({
       );
     }
 
-    if (accountSelected.id === '') {
+    if (accountID === null) {
       return Alert.alert(
         'Cadastro de Transação',
         'Selecione a conta da transação',
@@ -522,12 +508,11 @@ export function RegisterTransaction({
       if (transactionType === 'transfer') {
         // Lógica de transferência
         if (
-          accountSelected.currency.code !==
-          accountDestinationSelected.currency.code
+          accountCurrency?.code !== accountDestinationSelected.currency.code
         ) {
           amountConverted = ConvertCurrency(
             Number(form.amount),
-            accountSelected.currency.code, // Conversão da origem para o destino
+            accountCurrency?.code || 'BRL', // Conversão da origem para o destino
             accountDestinationSelected.currency.code
           );
         }
@@ -535,7 +520,7 @@ export function RegisterTransaction({
         const accountResponse = await api.get('single_account_get_id', {
           params: {
             tenant_id: tenantId,
-            name: accountSelected.name,
+            name: accountName,
           },
         });
         const accountDestinationResponse = await api.get(
@@ -609,18 +594,18 @@ export function RegisterTransaction({
         }
       } else {
         // Lógica de adição de transação
-        if (currencySelected.code !== accountSelected.currency.code) {
+        if (currencySelected.code !== accountCurrency?.code) {
           amountConverted = ConvertCurrency(
             Number(form.amount),
             currencySelected.code,
-            accountSelected.currency.code
+            accountCurrency?.code || 'BRL'
           );
         }
 
         const accountResponse = await api.get('single_account_get_id', {
           params: {
             tenant_id: tenantId,
-            name: accountSelected.name,
+            name: accountName,
           },
         });
 
@@ -629,7 +614,7 @@ export function RegisterTransaction({
           description: form.description,
           amount: amountConverted,
           amount_not_converted:
-            currencySelected.code !== accountSelected.currency.code
+            currencySelected.code !== accountCurrency?.code
               ? form.amount
               : null,
           currency_id: currencySelected.id,
@@ -673,18 +658,6 @@ export function RegisterTransaction({
     } finally {
       reset();
       setTransactionType('');
-      setAccountSelected({
-        id: '',
-        name: 'Selecione a conta',
-        currency: {
-          id: '',
-          name: '',
-          code: '',
-          symbol: '',
-        },
-        initialAmount: 0,
-        tenantId: null,
-      });
       setCategorySelected({
         id: '',
         name: 'Selecione a categoria',
@@ -722,7 +695,9 @@ export function RegisterTransaction({
       setAmount(data.amount);
       setAmountNotConverted(data.amount_not_converted);
       setCurrencySelected(data.currency);
-      setAccountSelected(data.account);
+      setAccountID(data.account.id);
+      setAccountName(data.account.name);
+      setAccountCurrency(data.account.currency);
       const parsedDate = new Date(data.created_at);
       setDate(parsedDate);
       setDescription(data.description);
@@ -843,7 +818,7 @@ export function RegisterTransaction({
 
         <ContentScroll>
           <SelectButton
-            title={accountSelected.name}
+            title={accountName || 'Selecione a conta'}
             icon={<Icon.Wallet color={theme.colors.primary} />}
             onPress={handleOpenSelectAccountModal}
           />
@@ -990,8 +965,24 @@ export function RegisterTransaction({
         snapPoints={['50%']}
       >
         <AccountSelect
-          account={accountSelected}
-          setAccount={setAccountSelected}
+          account={{
+            id: accountID,
+            name: accountName || 'Selecione a conta',
+            currency: accountCurrency || {
+              id: '4',
+              name: 'Real Brasileiro',
+              code: 'BRL',
+              symbol: 'R$',
+            },
+            initialAmount: accountInitialAmount,
+            tenantId: accountTenantID,
+          }}
+          setAccount={(account: AccountProps) => {
+            setAccountID(account.id);
+            setAccountName(account.name);
+            setAccountCurrency(account.currency);
+            setAccountInitialAmount(account.initialAmount || 0);
+          }}
           closeSelectAccount={handleCloseSelectAccountModal}
         />
       </ModalViewSelection>

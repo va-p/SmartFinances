@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Dimensions, FlatList, RefreshControl } from 'react-native';
+import { Alert, FlatList, RefreshControl } from 'react-native';
 import {
   Container,
   Header,
@@ -18,7 +18,6 @@ import getTransactions from '@utils/getTransactions';
 import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
-import { useDispatch } from 'react-redux';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
@@ -31,17 +30,8 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 
-import {
-  setAccountName,
-  setAccountCurrency,
-  setAccountInitialAmount,
-  setAccountType,
-  AccountType,
-} from '@slices/accountSlice';
-
-import { useUser } from '@stores/userStore';
-import { useQuotes } from '@stores/quotesStore';
-import { useUserConfigs } from '@stores/userConfigsStore';
+import { useUser } from '@storage/userStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
@@ -50,10 +40,12 @@ import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
 import { ConvertCurrency } from '@utils/convertCurrency';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HORIZONTAL_PADDING = 32;
-const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
+import {
+  AccountType,
+  useCurrentAccountSelected,
+} from '@storage/currentAccountSelectedStorage';
+import { Dimensions } from 'react-native';
+import { useQuotes } from '@storage/quotesStorage';
 
 type TotalByMonths = {
   date: string;
@@ -62,23 +54,38 @@ type TotalByMonths = {
   total: number;
 };
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HORIZONTAL_PADDING = 32;
+const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
+
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const tenantId = useUser((state) => state.tenantId);
   const userId = useUser((state) => state.id);
+  const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
+  const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const setHideAmount = useUserConfigs((state) => state.setHideAmount);
+  const setAccountId = useCurrentAccountSelected((state) => state.setAccountId);
+  const setAccountName = useCurrentAccountSelected(
+    (state) => state.setAccountName
+  );
+  const setAccountType = useCurrentAccountSelected(
+    (state) => state.setAccountType
+  );
+  const setAccountCurrency = useCurrentAccountSelected(
+    (state) => state.setAccountCurrency
+  );
+  const setAccountInitialAmount = useCurrentAccountSelected(
+    (state) => state.setAccountInitialAmount
+  );
   const [refreshing, setRefreshing] = useState(true);
-  const dispatch = useDispatch();
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState<TotalByMonths[]>([]);
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
-
-  const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
-  const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
 
   async function fetchAccounts() {
     try {
@@ -89,49 +96,49 @@ export function Accounts({ navigation }: any) {
       /**
        * All totals Grouped By Accounts/Wallets - Start
        */
-      const totalRevenuesBRL = 0;
-      const totalExpensesBRL = 0;
+      let totalRevenuesBRL = 0;
+      let totalExpensesBRL = 0;
 
       let accounts: any = [];
       for (const item of data) {
         if (new Date(item.created_at) <= new Date()) {
-          // switch (item.account.currency.code) {
-          //   case 'BRL':
-          //     switch (item.type) {
-          //       case 'credit':
-          //       case 'transferCredit':
-          //         totalRevenuesBRL += item.amount;
-          //         break;
-          //       case 'debit':
-          //       case 'transferDebit':
-          //         totalExpensesBRL += item.amount;
-          //         break;
-          //     }
-          //     break;
-          //   case 'BTC':
-          //     switch (item.type) {
-          //       case 'credit':
-          //       case 'transferCredit':
-          //         totalRevenuesBRL += item.amount * btcQuoteBrl.price;
-          //         break;
-          //       case 'debit':
-          //       case 'transferDebit':
-          //         totalExpensesBRL += item.amount * btcQuoteBrl.price;
-          //         break;
-          //     }
-          //   case 'USD':
-          //     switch (item.type) {
-          //       case 'credit':
-          //       case 'transferCredit':
-          //         totalRevenuesBRL += item.amount * usdQuoteBrl.price;
-          //         break;
-          //       case 'debit':
-          //       case 'transferDebit':
-          //         totalExpensesBRL += item.amount * usdQuoteBrl.price;
-          //         break;
-          //     }
-          //     break;
-          // }
+          switch (item.account.currency.code) {
+            case 'BRL':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  totalRevenuesBRL += item.amount;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  totalExpensesBRL += item.amount;
+                  break;
+              }
+              break;
+            case 'BTC':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  totalRevenuesBRL += item.amount * btcQuoteBrl.price;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  totalExpensesBRL += item.amount * btcQuoteBrl.price;
+                  break;
+              }
+            case 'USD':
+              switch (item.type) {
+                case 'credit':
+                case 'transferCredit':
+                  totalRevenuesBRL += item.amount * usdQuoteBrl.price;
+                  break;
+                case 'debit':
+                case 'transferDebit':
+                  totalExpensesBRL += item.amount * usdQuoteBrl.price;
+                  break;
+              }
+              break;
+          }
 
           const account = item.account.id;
           if (!accounts.hasOwnProperty(account)) {
@@ -153,32 +160,14 @@ export function Accounts({ navigation }: any) {
             };
           }
 
-          // switch (item.type) {
-          //   case 'credit':
-          //   case 'transferCredit':
-          //     accounts[account].totalRevenuesByAccount += item.amount;
-          //     break;
-          //   case 'debit':
-          //   case 'transferDebit':
-          //     accounts[account].totalExpensesByAccount += item.amount;
-          //     break;
-          // }
           switch (item.type) {
             case 'credit':
             case 'transferCredit':
-              accounts[account].totalRevenuesByAccount += ConvertCurrency(
-                item.amount,
-                item.account.currency.code,
-                'BRL'
-              ); // Converte para BRL
+              accounts[account].totalRevenuesByAccount += item.amount;
               break;
             case 'debit':
             case 'transferDebit':
-              accounts[account].totalExpensesByAccount += ConvertCurrency(
-                item.amount,
-                item.account.currency.code,
-                'BRL'
-              ); // Converte para BRL
+              accounts[account].totalExpensesByAccount += item.amount;
               break;
           }
         }
@@ -201,32 +190,6 @@ export function Accounts({ navigation }: any) {
           accounts[i].totalRevenuesByAccount -
           accounts[i].totalExpensesByAccount;
 
-        // switch (accounts[i].currency.code) {
-        //   case 'BTC':
-        //     accounts[i].totalAccountAmount = Number(
-        //       totalByAccount
-        //     ).toLocaleString('pt-BR', {
-        //       style: 'currency',
-        //       currency: 'BTC',
-        //       minimumFractionDigits: 8,
-        //       maximumSignificantDigits: 8,
-        //     });
-        //     accounts[i].totalAccountAmountConverted = Number(
-        //       totalByAccount * btcQuoteBrl.price
-        //     ).toLocaleString('pt-BR', {
-        //       style: 'currency',
-        //       currency: 'BRL',
-        //     });
-        //     break;
-        //   default:
-        //     accounts[i].totalAccountAmount = Number(
-        //       totalByAccount
-        //     ).toLocaleString('pt-BR', {
-        //       style: 'currency',
-        //       currency: 'BRL',
-        //     });
-        //     break;
-        // }
         accounts[i].totalAccountAmount = Number(totalByAccount).toLocaleString(
           'pt-BR',
           {
@@ -238,10 +201,9 @@ export function Accounts({ navigation }: any) {
           }
         );
 
-        // Converte para BRL se a moeda original não for BRL
-        if (accounts[i].currency.code !== 'BRL') {
+        if (accounts[i].currency.code === 'BTC') {
           accounts[i].totalAccountAmountConverted = Number(
-            ConvertCurrency(totalByAccount, accounts[i].currency.code, 'BRL') // Converte para BRL
+            totalByAccount * btcQuoteBrl.price
           ).toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
@@ -335,11 +297,12 @@ export function Accounts({ navigation }: any) {
     currency: any,
     initialAmount: number
   ) {
-    dispatch(setAccountName(name));
-    dispatch(setAccountType(type));
-    dispatch(setAccountCurrency(currency));
-    dispatch(setAccountInitialAmount(initialAmount));
-    navigation.navigate('Conta', { id });
+    setAccountId(id);
+    setAccountName(name);
+    setAccountType(type);
+    setAccountCurrency(currency);
+    setAccountInitialAmount(initialAmount);
+    navigation.navigate('Conta');
   }
 
   async function handleHideData() {
@@ -479,7 +442,7 @@ export function Accounts({ navigation }: any) {
       <AccountsContainer>
         <FlatList
           data={accounts}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={_renderItem}
           ListEmptyComponent={_renderEmpty}
           initialNumToRender={10}

@@ -31,8 +31,8 @@ import {
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
-import { useUser } from '@stores/userStore';
-import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
+import { useUser } from 'src/storage/userStorage';
+import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelected';
 
 import api from '@api/api';
 

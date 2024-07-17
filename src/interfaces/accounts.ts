@@ -1,10 +1,10 @@
 import { CurrencyProps } from './currencies';
 
 export interface AccountProps {
-  id: string;
+  id: string | null;
   name: string;
   currency: CurrencyProps;
-  initialAmount: string | number;
+  initialAmount: number | null;
   totalAccountAmount?: string;
   totalAccountAmountConverted?: string;
   tenantId: string | null;

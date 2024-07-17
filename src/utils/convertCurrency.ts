@@ -1,6 +1,4 @@
-// import { currencyConversionRates } from './currencyConversionRates';
-
-import { useQuotes } from '@stores/quotesStore';
+import { useQuotes } from 'src/storage/quotesStorage';
 
 import { CurrencyConversionRates } from '@interfaces/CurrencyConversionRates';
 

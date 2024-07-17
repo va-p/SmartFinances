@@ -21,7 +21,7 @@ import { CurrencySelect } from '@screens/CurrencySelect';
 
 import { CurrencyProps } from '@interfaces/currencies';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
 
 import theme from '@themes/theme';
 
@@ -34,7 +34,7 @@ type FormData = {
 };
 
 type Props = {
-  id: string;
+  id: string | null;
   closeAccount: () => void;
 };
 
@@ -90,7 +90,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     closeAccount();
   }
 
-  async function handleEditAccount(id: string, form: FormData) {
+  async function handleEditAccount(id: string | null, form: FormData) {
     const AccountEdited = {
       account_id: id,
       name: form.name,

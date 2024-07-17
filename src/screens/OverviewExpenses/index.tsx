@@ -20,7 +20,8 @@ import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
 import { HistoryCard } from '@components/HistoryCard';
 
-import { useUser } from '@stores/userStore';
+import { useUser } from 'src/storage/userStorage';
+import getTransactions from '@utils/getTransactions';
 
 import api from '@api/api';
 
@@ -28,7 +29,6 @@ import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 import { TransactionProps } from '@interfaces/transactions';
 import { CategoryProps, ColorProps, IconProps } from '@interfaces/categories';
-import getTransactions from '@utils/getTransactions';
 
 interface CategoryData {
   id: string;

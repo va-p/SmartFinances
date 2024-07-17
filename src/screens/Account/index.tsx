@@ -29,15 +29,10 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
-import { useSelector } from 'react-redux';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, DotsThreeCircle, Plus } from 'phosphor-react-native';
@@ -56,19 +51,15 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 
-import {
-  selectAccountCurrency,
-  selectAccountInitialAmount,
-  selectAccountName,
-} from '@slices/accountSlice';
-import { useUser } from '@stores/userStore';
-import { useUserConfigs } from '@stores/userConfigsStore';
+import { useUser } from 'src/storage/userStorage';
+import { useUserConfigs } from 'src/storage/userConfigsStorage';
 
 import api from '@api/api';
 
 import theme from '@themes/theme';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 export function Account() {
   const [loading, setLoading] = useState(false);
@@ -97,14 +88,12 @@ export function Account() {
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const navigation = useNavigation();
-  const route = useRoute();
-  const accountId = route.params?.id;
   const hideAmount = useUserConfigs((state) => state.hideAmount);
-  // TODO: Changes to Zustand! --- START ---
-  const accountName = useSelector(selectAccountName);
-  const accountCurrency = useSelector(selectAccountCurrency);
-  const accountInitialAmount = useSelector(selectAccountInitialAmount);
-  // TODO: Changes to Zustand! --- END ---
+  const accountID = useCurrentAccountSelected((state) => state.accountId);
+  const accountName = useCurrentAccountSelected((state) => state.accountName);
+  const accountInitialAmount = useCurrentAccountSelected(
+    (state) => state.accountInitialAmount
+  );
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -281,7 +270,7 @@ export function Account() {
       )
         .filter(
           (transactionFormattedPtbr: any) =>
-            transactionFormattedPtbr.account.id === accountId
+            transactionFormattedPtbr.account.id === accountID
         )
         .sort((a: any, b: any) => {
           const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
@@ -509,7 +498,7 @@ export function Account() {
     addTransactionBottomSheetRef.current?.present();
   }
 
-  async function handleDeleteAccount(id: string) {
+  async function handleDeleteAccount(id: string | null) {
     try {
       const { status } = await api.delete('delete_account', {
         params: {
@@ -542,7 +531,7 @@ export function Account() {
         { text: 'Não, cancelar a exclusão' },
         {
           text: 'Sim, excluir a conta',
-          onPress: () => handleDeleteAccount(accountId),
+          onPress: () => handleDeleteAccount(accountID),
         },
       ]
     );
@@ -691,7 +680,7 @@ export function Account() {
         closeModal={handleCloseEditAccount}
         deleteChildren={handleClickDeleteAccount}
       >
-        <RegisterAccount id={accountId} closeAccount={handleCloseEditAccount} />
+        <RegisterAccount id={accountID} closeAccount={handleCloseEditAccount} />
       </ModalView>
 
       <ModalViewWithoutHeader
@@ -701,13 +690,6 @@ export function Account() {
         <RegisterTransaction
           id={transactionId}
           resetId={ClearTransactionId}
-          account={{
-            id: accountId,
-            name: accountName,
-            currency: accountCurrency,
-            initialAmount: accountInitialAmount,
-            tenantId: tenantId,
-          }}
           closeRegisterTransaction={handleCloseTransaction}
           closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}
         />

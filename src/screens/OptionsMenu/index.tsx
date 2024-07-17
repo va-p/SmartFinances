@@ -10,8 +10,8 @@ import { Header } from '@components/Header';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
-import { useUser } from '@stores/userStore';
-import { useUserConfigs } from '@stores/userConfigsStore';
+import { useUser } from 'src/storage/userStorage';
+import { useUserConfigs } from 'src/storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
