@@ -60,6 +60,7 @@ import theme from '@themes/theme';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
+import formatCurrency from '@utils/formatCurrency';
 
 export function Account() {
   const [loading, setLoading] = useState(false);
@@ -150,129 +151,162 @@ export function Account() {
       let totalRevenues = 0;
       let totalExpenses = 0;
 
-      let transactionsByAccountFormattedPtbr: any = [];
-      for (const item of data) {
-        const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
+      // let transactionsByAccountFormattedPtbr: any = [];
+      // for (const item of data) {
+      //   const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
 
-        switch (item.account.currency.code) {
-          case 'BRL':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            break;
-          case 'BTC':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 8,
-              maximumSignificantDigits: 8,
-            });
-            break;
-          case 'EUR':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR',
-            });
-            break;
-          case 'USD':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD',
-            });
-            break;
-        }
-        if (item.amount_not_converted && item.currency.code === 'BRL') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'BTC') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BTC',
-            minimumFractionDigits: 8,
-            maximumSignificantDigits: 8,
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'EUR') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'EUR',
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'USD') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'USD',
-          });
-        }
+      //   switch (item.account.currency.code) {
+      //     case 'BRL':
+      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+      //         style: 'currency',
+      //         currency: 'BRL',
+      //       });
+      //       break;
+      //     case 'BTC':
+      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+      //         style: 'currency',
+      //         currency: 'BTC',
+      //         minimumFractionDigits: 8,
+      //         maximumSignificantDigits: 8,
+      //       });
+      //       break;
+      //     case 'EUR':
+      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+      //         style: 'currency',
+      //         currency: 'EUR',
+      //       });
+      //       break;
+      //     case 'USD':
+      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
+      //         style: 'currency',
+      //         currency: 'USD',
+      //       });
+      //       break;
+      //   }
+      //   if (item.amount_not_converted && item.currency.code === 'BRL') {
+      //     amountNotConvertedFormatted = Number(
+      //       item.amount_not_converted
+      //     ).toLocaleString('pt-BR', {
+      //       style: 'currency',
+      //       currency: 'BRL',
+      //     });
+      //   }
+      //   if (item.amount_not_converted && item.currency.code === 'BTC') {
+      //     amountNotConvertedFormatted = Number(
+      //       item.amount_not_converted
+      //     ).toLocaleString('pt-BR', {
+      //       style: 'currency',
+      //       currency: 'BTC',
+      //       minimumFractionDigits: 8,
+      //       maximumSignificantDigits: 8,
+      //     });
+      //   }
+      //   if (item.amount_not_converted && item.currency.code === 'EUR') {
+      //     amountNotConvertedFormatted = Number(
+      //       item.amount_not_converted
+      //     ).toLocaleString('pt-BR', {
+      //       style: 'currency',
+      //       currency: 'EUR',
+      //     });
+      //   }
+      //   if (item.amount_not_converted && item.currency.code === 'USD') {
+      //     amountNotConvertedFormatted = Number(
+      //       item.amount_not_converted
+      //     ).toLocaleString('pt-BR', {
+      //       style: 'currency',
+      //       currency: 'USD',
+      //     });
+      //   }
 
-        if (!transactionsByAccountFormattedPtbr.hasOwnProperty(dmy)) {
-          transactionsByAccountFormattedPtbr[item.id] = {
-            id: item.id,
-            created_at: dmy,
-            description: item.description,
-            amount: item.amount,
-            amount_formatted,
-            amount_not_converted: amountNotConvertedFormatted,
-            currency: {
-              id: item.currency.id,
-              name: item.currency.name,
-              code: item.currency.code,
-              symbol: item.currency.symbol,
-            },
-            type: item.type,
-            account: {
-              id: item.account.id,
-              name: item.account.name,
-              currency: {
-                id: item.account.currency.id,
-                name: item.account.currency.name,
-                code: item.account.currency.code,
-                symbol: item.account.currency.symbol,
-              },
-              initial_amount: item.account.initial_amount,
-              totalAccountAmount: 0,
-              tenant_id: item.account.tenant_id,
-            },
-            category: {
-              id: item.category.id,
-              name: item.category.name,
-              icon: {
-                id: item.category.icon.id,
-                title: item.category.icon.title,
-                name: item.category.icon.name,
-              },
-              color: {
-                id: item.category.color.id,
-                name: item.category.color.name,
-                hex: item.category.color.hex,
-              },
-              tenant_id: item.category.tenant_id,
-            },
-            tags: item.tags,
-            tenant_id: item.tenant_id,
+      //   if (!transactionsByAccountFormattedPtbr.hasOwnProperty(dmy)) {
+      //     transactionsByAccountFormattedPtbr[item.id] = {
+      //       id: item.id,
+      //       created_at: dmy,
+      //       description: item.description,
+      //       amount: item.amount,
+      //       amount_formatted,
+      //       amount_not_converted: amountNotConvertedFormatted,
+      //       currency: {
+      //         id: item.currency.id,
+      //         name: item.currency.name,
+      //         code: item.currency.code,
+      //         symbol: item.currency.symbol,
+      //       },
+      //       type: item.type,
+      //       account: {
+      //         id: item.account.id,
+      //         name: item.account.name,
+      //         currency: {
+      //           id: item.account.currency.id,
+      //           name: item.account.currency.name,
+      //           code: item.account.currency.code,
+      //           symbol: item.account.currency.symbol,
+      //         },
+      //         initial_amount: item.account.initial_amount,
+      //         totalAccountAmount: 0,
+      //         tenant_id: item.account.tenant_id,
+      //       },
+      //       category: {
+      //         id: item.category.id,
+      //         name: item.category.name,
+      //         icon: {
+      //           id: item.category.icon.id,
+      //           title: item.category.icon.title,
+      //           name: item.category.icon.name,
+      //         },
+      //         color: {
+      //           id: item.category.color.id,
+      //           name: item.category.color.name,
+      //           hex: item.category.color.hex,
+      //         },
+      //         tenant_id: item.category.tenant_id,
+      //       },
+      //       tags: item.tags,
+      //       tenant_id: item.tenant_id,
+      //     };
+      //   }
+      // }
+      // transactionsByAccountFormattedPtbr = Object.values(
+      //   transactionsByAccountFormattedPtbr
+      // )
+      //   .filter(
+      //     (transactionFormattedPtbr: any) =>
+      //       transactionFormattedPtbr.account.id === accountID
+      //   )
+      //   .sort((a: any, b: any) => {
+      //     const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
+      //     const secondDateParsed = parse(
+      //       b.created_at,
+      //       'dd/MM/yyyy',
+      //       new Date()
+      //     );
+      //     return secondDateParsed.getTime() - firstDateParsed.getTime();
+      //   });
+      const transactionsByAccountFormattedPtbr = data
+        .filter((transaction: any) => transaction.account.id === accountID)
+        .map((item: any) => {
+          const formattedAmount = formatCurrency(
+            item.account.currency.code, // Moeda da conta
+            item.amount
+          );
+
+          const formattedAmountNotConverted = item.amount_not_converted
+            ? formatCurrency(
+                item.currency.code, // Moeda original da transação
+                item.amount_not_converted,
+                false // Indica que é o valor não convertido
+              )
+            : '';
+
+          return {
+            ...item,
+            amount_formatted: formattedAmount,
+            amount_not_converted: formattedAmountNotConverted,
+            created_at: format(item.created_at, 'dd/MM/yyyy', { locale: ptBR }),
           };
-        }
-      }
-      transactionsByAccountFormattedPtbr = Object.values(
-        transactionsByAccountFormattedPtbr
-      )
-        .filter(
-          (transactionFormattedPtbr: any) =>
-            transactionFormattedPtbr.account.id === accountID
-        )
+        })
         .sort((a: any, b: any) => {
+          // ... (lógica de ordenação)
           const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
           const secondDateParsed = parse(
             b.created_at,

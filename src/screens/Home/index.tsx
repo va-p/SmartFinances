@@ -346,14 +346,15 @@ export function Home() {
         const amount_formatted = formatCurrency(
           item.account.currency.code,
           item.amount
-        ).formatAmountConverted();
+        );
 
         if (item.amount_not_converted) {
           amountNotConvertedFormatted =
             formatCurrency(
               item.currency.code,
-              item.amount_not_converted
-            ).formatAmountNotConverted() || '';
+              item.amount_not_converted,
+              false
+            ) || '';
         }
 
         if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
@@ -759,7 +760,6 @@ export function Home() {
         parsedDate = parse(dateAux, 'MMM yyyy', selectedPeriod, {
           locale: ptBR,
         });
-        console.log('parsedDate:', parsedDate);
         if (!isValid(parsedDate)) {
           console.warn('Data inválida:', dateAux);
         }
