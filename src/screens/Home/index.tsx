@@ -33,7 +33,7 @@ import {
 } from './styles';
 
 import Animated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -58,6 +58,7 @@ import {
   getMonth,
   getYear,
   isFirstDayOfMonth,
+  isValid,
   parse,
   parseISO,
   subMonths,
@@ -190,19 +191,34 @@ export function Home() {
         scrollY.value,
         [0, 400],
         [AnimatedViewInitialHeight, 0],
-        Extrapolate.CLAMP
+        Extrapolation.CLAMP
       ),
-      opacity: interpolate(scrollY.value, [0, 370], [1, 0], Extrapolate.CLAMP),
+      opacity: interpolate(
+        scrollY.value,
+        [0, 370],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
     };
   });
   const chartStyleAnimationOpacity = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [0, 300], [1, 0], Extrapolate.CLAMP),
+      opacity: interpolate(
+        scrollY.value,
+        [0, 300],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
     };
   });
   const insightsStyleAnimationOpacity = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [0, 100], [1, 0], Extrapolate.CLAMP),
+      opacity: interpolate(
+        scrollY.value,
+        [0, 100],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
     };
   });
   // Animated section list
@@ -221,13 +237,9 @@ export function Home() {
   });
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
-    .onStart((e) => {
-      e.absoluteX = registerTransactionButtonPositionX.value;
-      e.absoluteY = registerTransactionButtonPositionY.value;
-    })
     .onUpdate((e) => {
-      registerTransactionButtonPositionX.value = e.absoluteX + e.translationX;
-      registerTransactionButtonPositionY.value = e.absoluteY + e.translationY;
+      registerTransactionButtonPositionX.value = e.x + e.translationX;
+      registerTransactionButtonPositionY.value = e.y + e.translationY;
     })
     .onEnd(() => {
       registerTransactionButtonPositionX.value = withSpring(0);
@@ -741,16 +753,24 @@ export function Home() {
       const dateSplit = item.date.split('\n');
       const trimmedDateParts = dateSplit.map((part: string) => part.trim());
       const dateAux = trimmedDateParts.join(' ');
-      const parsedDate = parse(dateAux, 'MMM yyyy', selectedPeriod);
 
-      const sameMonthYear = (selectedPeriod: Date, parsedDate: Date) => {
-        return (
-          getYear(selectedPeriod) === getYear(parsedDate) &&
+      let parsedDate: Date | null = null;
+      try {
+        parsedDate = parse(dateAux, 'MMM yyyy', selectedPeriod, {
+          locale: ptBR,
+        });
+        console.log('parsedDate:', parsedDate);
+        if (!isValid(parsedDate)) {
+          console.warn('Data inválida:', dateAux);
+        }
+      } catch (error) {
+        console.error('Erro ao converter data, _renderPeriodRuler:', error);
+      }
+
+      const isActive = parsedDate
+        ? getYear(selectedPeriod) === getYear(parsedDate) &&
           getMonth(selectedPeriod) === getMonth(parsedDate)
-        );
-      };
-
-      const isActive = sameMonthYear(parsedDate, selectedPeriod);
+        : false;
 
       return {
         date: item.date,
@@ -780,33 +800,6 @@ export function Home() {
       </PeriodRulerContainer>
     );
   }, [selectedPeriod, totalAmountsGroupedBySelectedPeriod]);
-  // function _renderPeriodRuler() {
-  //   const dates = totalAmountsGroupedBySelectedPeriod?.map((item: any) => {
-  //     return item.date;
-  //   });
-
-  //   return (
-  //     <PeriodRulerContainer>
-  //       <MonthSelectButton onPress={() => handleDateChange('prev')}>
-  //         <CaretLeft size={20} color={theme.colors.text} />
-  //       </MonthSelectButton>
-  //       <PeriodRulerList
-  //         data={dates}
-  //         keyExtractor={(item: any) => item.id}
-  //         renderItem={({ item }: any) => (
-  //           <PeriodRulerListItem
-  //             date={item}
-  //             width={PERIOD_RULER_LIST_COLUMN_WIDTH}
-  //           />
-  //         )}
-  //         inverted
-  //       />
-  //       <MonthSelectButton onPress={() => handleDateChange('next')}>
-  //         <CaretRight size={20} color={theme.colors.text} />
-  //       </MonthSelectButton>
-  //     </PeriodRulerContainer>
-  //   );
-  // }
 
   function _renderCashFlowInsightContainer() {
     return (

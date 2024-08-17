@@ -13,7 +13,7 @@ export const Container = styled.View`
 export const PeriodRulerDate = styled.Text<Props>`
   width: ${({ width }) => width}px;
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${RFValue(10)}px;
   text-align: center;
   margin-right: 8px;
   margin-bottom: 8px;

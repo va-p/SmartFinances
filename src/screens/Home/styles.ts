@@ -52,6 +52,7 @@ export const Transactions = styled.View`
 
 export const PeriodRulerContainer = styled.View`
   flex-direction: row;
+  align-items: center;
 `;
 
 export const MonthSelectButton = styled(BorderlessButton)``;
