@@ -193,11 +193,11 @@ if "$cygwin" || "$msys" ; then
     done
 fi
 
-# Collect all arguments for the java command;
-#   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
-#     shell script including quotes and variable substitutions, so put them in
-#     double quotes to make sure that they get re-expanded; and
-#   * put everything else in single quotes, so that it's not re-expanded.
+# Collect all arguments for the java command:
+#   * DEFAULT_JVM_OPTS, JAVA_OPTS, JAVA_OPTS, and optsEnvironmentVar are not allowed to contain shell fragments,
+#     and any embedded shellness will be escaped.
+#   * For example: A user cannot expect ${Hostname} to be expanded, as it is an environment variable and will be
+#     treated as '${Hostname}' itself on the command line.
 
 set -- \
         "-Dorg.gradle.appname=$APP_BASE_NAME" \
