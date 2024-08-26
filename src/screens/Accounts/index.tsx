@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
 import {
   Container,
   Header,
@@ -30,7 +30,12 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 
+import {
+  AccountType,
+  useCurrentAccountSelected,
+} from '@storage/currentAccountSelectedStorage';
 import { useUser } from '@storage/userStorage';
+import { useQuotes } from '@storage/quotesStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
@@ -39,13 +44,6 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import { ConvertCurrency } from '@utils/convertCurrency';
-import {
-  AccountType,
-  useCurrentAccountSelected,
-} from '@storage/currentAccountSelectedStorage';
-import { Dimensions } from 'react-native';
-import { useQuotes } from '@storage/quotesStorage';
 
 type TotalByMonths = {
   date: string;

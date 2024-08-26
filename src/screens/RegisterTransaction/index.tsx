@@ -15,7 +15,7 @@ import {
   Footer,
 } from './styles';
 
-import { ConvertCurrency } from '@utils/convertCurrency';
+import { convertCurrency } from '@utils/convertCurrency';
 
 import axios from 'axios';
 import * as Yup from 'yup';
@@ -47,7 +47,9 @@ import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
+import { useQuotes } from '@storage/quotesStorage';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import api from '@api/api';
 
@@ -56,7 +58,6 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 type Props = {
   id: string;
@@ -154,6 +155,12 @@ export function RegisterTransaction({
     formState: { errors },
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+
+  // Currency Quotes
+  const brlQuoteBtc = useQuotes((state) => state.brlQuoteBtc);
+  const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
+  const eurQuoteBrl = useQuotes((state) => state.eurQuoteBrl);
+  const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
 
   async function fetchTags() {
     setButtonIsLoading(true);
@@ -338,11 +345,12 @@ export function RegisterTransaction({
 
     let amountConverted = Number(form.amount);
     if (currencySelected.code !== accountCurrency?.code) {
-      amountConverted = ConvertCurrency(
-        Number(form.amount),
-        currencySelected.code,
-        accountCurrency?.code || 'BRL'
-      );
+      amountConverted = convertCurrency({
+        amount: Number(form.amount),
+        fromCurrency: currencySelected.code,
+        toCurrency: accountCurrency!!.code,
+        quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+      });
     }
 
     try {
@@ -506,15 +514,15 @@ export function RegisterTransaction({
       let amountConverted = Number(form.amount);
 
       if (transactionType === 'transfer') {
-        // Lógica de transferência
         if (
-          accountCurrency?.code !== accountDestinationSelected.currency.code
+          accountCurrency!!.code !== accountDestinationSelected.currency.code
         ) {
-          amountConverted = ConvertCurrency(
-            Number(form.amount),
-            accountCurrency?.code || 'BRL', // Conversão da origem para o destino
-            accountDestinationSelected.currency.code
-          );
+          amountConverted = convertCurrency({
+            amount: Number(form.amount),
+            fromCurrency: accountCurrency!!.code,
+            toCurrency: accountDestinationSelected.currency.code,
+            quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+          });
         }
 
         const accountResponse = await api.get('single_account_get_id', {
@@ -593,13 +601,13 @@ export function RegisterTransaction({
           );
         }
       } else {
-        // Lógica de adição de transação
-        if (currencySelected.code !== accountCurrency?.code) {
-          amountConverted = ConvertCurrency(
-            Number(form.amount),
-            currencySelected.code,
-            accountCurrency?.code || 'BRL'
-          );
+        if (currencySelected.code !== accountCurrency!!.code) {
+          amountConverted = convertCurrency({
+            amount: Number(form.amount),
+            fromCurrency: currencySelected.code,
+            toCurrency: accountCurrency!!.code,
+            quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+          });
         }
 
         const accountResponse = await api.get('single_account_get_id', {
@@ -798,11 +806,7 @@ export function RegisterTransaction({
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
-                defaultValue={
-                  amountNotConverted
-                    ? String(amountNotConverted)
-                    : String(amount)
-                }
+                defaultValue={String(amount)}
                 name='amount'
                 control={control}
                 error={errors.amount}

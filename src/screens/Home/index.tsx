@@ -93,18 +93,18 @@ import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
-import { useUser } from 'src/storage/userStorage';
-import { useQuotes } from 'src/storage/quotesStorage';
-import { useUserConfigs } from 'src/storage/userConfigsStorage';
+import { useUser } from '@storage/userStorage';
+import { useQuotes } from '@storage/quotesStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+import api from '@api/api';
 import apiQuotes from '@api/apiQuotes';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
-import api from '@api/api';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -255,7 +255,10 @@ export function Home() {
           convert: 'BTC',
         },
       });
-      setBrlQuoteBtc(data.data[0].quote.BTC);
+      setBrlQuoteBtc({
+        price: data.data[0].quote.BTC.price.toFixed(8),
+        last_updated: data.data[0].quote.BTC.last_updated
+      });
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -274,7 +277,10 @@ export function Home() {
           convert: 'BRL',
         },
       });
-      setBtcQuoteBrl(data.data[0].quote.BRL);
+      setBtcQuoteBrl({
+        price: data.data[0].quote.BRL.price.toFixed(2),
+        last_updated: data.data[0].quote.BRL.last_updated
+      });
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -294,7 +300,10 @@ export function Home() {
         },
       });
       if (data) {
-        setEurQuoteBrl(data.data[0].quote.BRL);
+        setEurQuoteBrl({
+          price: data.data[0].quote.BRL.price.toFixed(2),
+          last_updated: data.data[0].quote.BRL.last_updated
+        });
       }
     } catch (error) {
       console.error(error);
@@ -315,7 +324,10 @@ export function Home() {
         },
       });
       if (data) {
-        setUsdQuoteBrl(data.data[0].quote.BRL);
+        setUsdQuoteBrl({
+          price: data.data[0].quote.BRL.price.toFixed(2),
+          last_updated: data.data[0].quote.BRL.last_updated
+        });
       }
     } catch (error) {
       console.error(error);
