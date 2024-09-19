@@ -568,7 +568,7 @@ export function RegisterTransaction({
           created_at: date,
           description: form.description,
           amount: amountConverted,
-          amount_not_converted: form.amount,
+          amount_not_converted: accountCurrency!!.code !== accountDestinationSelected.currency.code ? form.amount : null,
           currency_id: accountDestinationResponse.data.currency_id,
           type: 'transferCredit',
           account_id: accountDestinationResponse.data.id,
