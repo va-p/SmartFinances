@@ -23,10 +23,6 @@ import {
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
-  CloseCashFlowAlertButton,
-  CashFlowAlertContainer,
-  CashFlowAlertTitle,
-  CashFlowAlertText,
   PeriodRulerContainer,
   PeriodRulerList,
   MonthSelectButton,
@@ -76,6 +72,7 @@ import {
 } from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 
+import { InsightCard } from '@components/InsightCard';
 import { SectionListHeader } from '@components/SectionListHeader';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import TransactionListItem from '@components/TransactionListItem';
@@ -104,7 +101,6 @@ import apiQuotes from '@api/apiQuotes';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
-
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -256,8 +252,8 @@ export function Home() {
         },
       });
       setBrlQuoteBtc({
-        price: data.data[0].quote.BTC.price.toFixed(8),
-        last_updated: data.data[0].quote.BTC.last_updated
+        price: Number(data.data[0].quote.BTC.price.toFixed(8)),
+        last_updated: data.data[0].quote.BTC.last_updated,
       });
     } catch (error) {
       console.error(error);
@@ -278,8 +274,8 @@ export function Home() {
         },
       });
       setBtcQuoteBrl({
-        price: data.data[0].quote.BRL.price.toFixed(2),
-        last_updated: data.data[0].quote.BRL.last_updated
+        price: Number(data.data[0].quote.BRL.price.toFixed(2)),
+        last_updated: data.data[0].quote.BRL.last_updated,
       });
     } catch (error) {
       console.error(error);
@@ -302,7 +298,7 @@ export function Home() {
       if (data) {
         setEurQuoteBrl({
           price: data.data[0].quote.BRL.price.toFixed(2),
-          last_updated: data.data[0].quote.BRL.last_updated
+          last_updated: data.data[0].quote.BRL.last_updated,
         });
       }
     } catch (error) {
@@ -326,7 +322,7 @@ export function Home() {
       if (data) {
         setUsdQuoteBrl({
           price: data.data[0].quote.BRL.price.toFixed(2),
-          last_updated: data.data[0].quote.BRL.last_updated
+          last_updated: data.data[0].quote.BRL.last_updated,
         });
       }
     } catch (error) {
@@ -813,23 +809,6 @@ export function Home() {
     );
   }, [selectedPeriod, totalAmountsGroupedBySelectedPeriod]);
 
-  function _renderCashFlowInsightContainer() {
-    return (
-      <CashFlowAlertContainer>
-        <CloseCashFlowAlertButton onPress={handleHideCashFlowInsights}>
-          <X size={20} color={theme.colors.primary} />
-        </CloseCashFlowAlertButton>
-        <CashFlowAlertTitle>
-          Parabéns! 🎉 Você fechou o mês positivo!
-        </CashFlowAlertTitle>
-        <CashFlowAlertText>
-          Continue assim nos próximos meses e invista parte do dinheiro que
-          sobrou para aumentar seu patrimônio!
-        </CashFlowAlertText>
-      </CashFlowAlertContainer>
-    );
-  }
-
   function _renderEmpty() {
     return <ListEmptyComponent />;
   }
@@ -939,10 +918,15 @@ export function Home() {
         <Animated.View>{_renderPeriodRuler()}</Animated.View>
 
         <Animated.View style={insightsStyleAnimationOpacity}>
-          {insights &&
-            showInsights &&
-            firstDayOfMonth &&
-            _renderCashFlowInsightContainer()}
+          {insights && showInsights && firstDayOfMonth && (
+            <InsightCard.Root>
+              <InsightCard.CloseButton onPress={handleHideCashFlowInsights} />
+              <InsightCard.Title
+                title='Parabéns! 🎉 Você fechou o mês positivo!'
+                text='Continue assim nos próximos meses e invista parte do dinheiro que sobrou para aumentar seu patrimônio!'
+              />
+            </InsightCard.Root>
+          )}
         </Animated.View>
       </Animated.View>
 

@@ -61,34 +61,3 @@ export const PeriodRulerList = styled.FlatList.attrs({
   horizontal: true,
   showsHorizontalScrollIndicator: false,
 })``;
-
-export const CloseCashFlowAlertButton = styled(BorderlessButton)`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-`;
-
-export const CashFlowAlertContainer = styled.View`
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  margin: 0 8px;
-  border: 1px solid ${({ theme }) => theme.colors.text};
-  border-radius: 8px;
-`;
-
-export const CashFlowAlertTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
-  text-align: center;
-  margin-bottom: 8px;
-  color: ${({ theme }) => theme.colors.title};
-`;
-
-export const CashFlowAlertText = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
-  text-align: center;
-  margin-top: -8px;
-  color: ${({ theme }) => theme.colors.text};
-`;
