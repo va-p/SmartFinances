@@ -8,15 +8,14 @@ import { TransactionProps } from '@interfaces/transactions';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
 
-import axios from 'axios';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { BudgetListItem } from '@components/BudgetListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
@@ -26,13 +25,14 @@ import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelecte
 
 import api from '@api/api';
 
-export function Budgets() {
+export function Budgets({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const tenantId = useUser((state) => state.tenantId);
   const [budgetsFormatted, setBudgetsFormatted] = useState<BudgetProps[]>([]);
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const [budgetId, setBudgetId] = useState('');
+
+  const budgetRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
+
   const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.setBudgetCategoriesSelected
   );
@@ -193,54 +193,18 @@ export function Budgets() {
   }
 
   function handleOpenRegisterBudgetModal() {
-    bottomSheetRef.current?.present();
+    budgetRegisterBottomSheetRef.current?.present();
   }
 
-  function handleOpenEditBudget(id: string) {
-    setBudgetId(id);
-    bottomSheetRef.current?.present();
-  }
-
-  function handleCloseEditBudgetModal() {
-    setBudgetId('');
+  function handleCloseRegisterBudgetModal() {
     setBudgetCategoriesSelected([]);
-    bottomSheetRef.current?.dismiss();
+    budgetRegisterBottomSheetRef.current?.dismiss();
   }
 
-  async function handleDeleteBudget(id: string) {
-    try {
-      await api.delete('delete_budget', {
-        params: {
-          budget_id: id,
-        },
-      });
-      Alert.alert('Exclusão de orçamento', 'Orçamento excluído com sucesso!');
-      handleCloseEditBudgetModal();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Exclusão de orçamento', error.response?.data.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: handleCloseEditBudgetModal,
-          },
-        ]);
-      }
-    }
-  }
-
-  async function handleClickDeleteBudget() {
-    Alert.alert(
-      'Exclusão de orçamento',
-      'ATENÇÃO! Todas as informações deste orçamento serão excluídas. Tem certeza que deseja excluir o orçamento?',
-      [
-        { text: 'Não, cancelar a exclusão' },
-        {
-          text: 'Sim, excluir o orçamento',
-          onPress: () => handleDeleteBudget(budgetId),
-        },
-      ]
-    );
+  function handleOpenBudget(budget: BudgetProps) {
+    navigation.navigate('Orçamento', {
+      budget: budget,
+    });
   }
 
   useEffect(() => {
@@ -253,7 +217,9 @@ export function Budgets() {
 
   return (
     <Container>
-      <Header type='secondary' title='Orçamentos' />
+      <Header.Root>
+        <Header.Title title='Orçamentos' />
+      </Header.Root>
 
       <FlatList
         data={budgetsFormatted}
@@ -262,7 +228,7 @@ export function Budgets() {
           <BudgetListItem
             data={item}
             index={index}
-            onPress={() => handleOpenEditBudget(item.id)}
+            onPress={() => handleOpenBudget(item)}
           />
         )}
         ListEmptyComponent={() => (
@@ -284,23 +250,18 @@ export function Budgets() {
       </Footer>
 
       <ModalView
-        type={budgetId !== '' ? 'secondary' : 'primary'}
-        title={budgetId !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
-        bottomSheetRef={bottomSheetRef}
+        type={'primary'}
+        title={'Criar Novo Orçamento'}
+        bottomSheetRef={budgetRegisterBottomSheetRef}
         enableContentPanningGesture={false}
         enablePanDownToClose
         snapPoints={['75%']}
-        closeModal={
-          budgetId !== ''
-            ? handleCloseEditBudgetModal
-            : () => bottomSheetRef.current?.dismiss()
-        }
-        onClose={budgetId !== '' ? handleCloseEditBudgetModal : () => null}
-        deleteChildren={handleClickDeleteBudget}
+        closeModal={handleCloseRegisterBudgetModal}
+        onClose={handleCloseRegisterBudgetModal}
       >
         <RegisterBudget
-          id={budgetId}
-          closeBudget={handleCloseEditBudgetModal}
+          id={null}
+          closeBudget={handleCloseRegisterBudgetModal}
         />
       </ModalView>
     </Container>

@@ -2,11 +2,11 @@ import React from 'react';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { RegisterBudget } from '@screens/RegisterBudget';
 import { Budgets } from '@screens/Budgets';
-import { Account } from '@screens/Account';
+import { RegisterBudget } from '@screens/RegisterBudget';
 
 import { RootParamList } from 'src/@types/navigation';
+import { BudgetDetails } from '@screens/BudgetDetails';
 
 const { Navigator, Screen } = createStackNavigator<RootParamList>();
 
@@ -19,14 +19,12 @@ export function AppBudgetStackRoutes() {
     >
       <Screen name='Todos os Orçamentos' component={Budgets} />
 
-      <Screen name='Orçamento' component={Account} />
+      <Screen name='Orçamento' component={BudgetDetails} initialParams={{}} />
 
       <Screen
         name='Editar Orçamento'
         component={RegisterBudget}
-        initialParams={{
-          id: '',
-        }}
+        initialParams={{}}
       />
     </Navigator>
   );

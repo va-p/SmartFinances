@@ -17,6 +17,7 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 import { BudgetPercentBar } from '@components/BudgetPercentBar';
 
 import { BudgetProps } from '@interfaces/budget';
+import formatCurrency from '@utils/formatCurrency';
 
 type Props = RectButtonProps & {
   data: BudgetProps;
@@ -29,52 +30,8 @@ let amountSpent: string;
 export function BudgetListItem({ data, index, ...rest }: Props) {
   const isAmountReached = data.amount_spent >= data.amount;
 
-  switch (data.currency.code) {
-    case 'BRL':
-      amount = data.amount.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
-      amountSpent = data.amount_spent.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
-      break;
-    case 'BTC':
-      amount = data.amount.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BTC',
-        minimumFractionDigits: 8,
-        maximumSignificantDigits: 8,
-      });
-      amountSpent = data.amount_spent.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BTC',
-        minimumFractionDigits: 8,
-        maximumSignificantDigits: 8,
-      });
-      break;
-    case 'EUR':
-      amount = data.amount.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'EUR',
-      });
-      amountSpent = data.amount_spent.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'EUR',
-      });
-      break;
-    case 'USD':
-      amount = data.amount.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'USD',
-      });
-      amountSpent = data.amount_spent.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'USD',
-      });
-      break;
-  }
+  amount = formatCurrency(data.currency.code, data.amount, false);
+  amountSpent = formatCurrency(data.currency.code, data.amount_spent, false);
 
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>

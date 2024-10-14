@@ -1,20 +1,14 @@
+import { BudgetProps } from '@interfaces/budget';
+
 export type AccountNavigationProps = {
   id: string;
 };
 
-export type EditAccountNavigationProps = {
-  id: string;
-};
-
 export type BudgetNavigationProps = {
-  id: string;
+  budget: BudgetProps;
 };
 
 export type EditBudgetNavigationProps = {
-  id: string;
-};
-
-export type TransactionsByCategoryNavigationProps = {
   id: string;
 };
 
@@ -23,16 +17,15 @@ type RootParamList = {
   Contas: undefined;
   'Todas as Contas': undefined;
   Conta: AccountNavigationProps;
-  'Editar Conta': EditAccountNavigationProps;
+  'Editar Conta': undefined;
   Orçamentos: undefined;
   'Todos os Orçamentos': undefined;
   Orçamento: BudgetNavigationProps;
-  'Editar Orçamento': EditBudgetNavigationProps;
+  'Editar Orçamento': BudgetNavigationProps;
   Resumo: undefined;
   'Visão Geral das Despesas': undefined;
   'Visão Geral das Receitas': undefined;
-  'Transações Por Categoria': ExpensesByCategoryNavigationProps;
-
+  'Transações Por Categoria': undefined;
   Mais: undefined;
   'Mais Opções': undefined;
   Categorias: undefined;

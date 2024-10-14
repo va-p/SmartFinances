@@ -14,7 +14,9 @@ const { Navigator, Screen } = createMaterialTopTabNavigator();
 export function AppOverviewTopTabRoutes() {
   return (
     <>
-      <Header type='secondary' title='Resumo' />
+      <Header.Root>
+        <Header.Title title='Resumo' />
+      </Header.Root>
 
       <Navigator
         screenOptions={{

@@ -20,18 +20,18 @@ interface Props {
 }
 
 export function BudgetPercentBar({ is_amount_reached, data }: Props) {
-  const percent = useSharedValue(0);
+  const animatedWidth = useSharedValue(0);
 
-  async function calculatePercentage(data: any) {
+  function calculatePercentage(data: BudgetProps) {
     const totalSpent = data.amount_spent;
     const totalBudget = data.amount;
 
-    return Math.round((totalSpent / totalBudget) * 100);
+    return Math.round((Number(totalSpent) / Number(totalBudget)) * 100);
   }
 
-  async function updateProgress() {
-    const calculatedPercentage = await calculatePercentage(data);
-    percent.value = withTiming(calculatedPercentage, {
+  function updateProgress() {
+    const calculatedPercentage = calculatePercentage(data);
+    animatedWidth.value = withTiming(calculatedPercentage, {
       duration: 2000,
       easing: Easing.inOut(Easing.quad),
     });
@@ -39,14 +39,14 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      percent.value = 0;
+      animatedWidth.value = 0;
 
       updateProgress();
     }, [data])
   );
 
   const AnimatedContainerStyle = useAnimatedStyle(() => ({
-    width: `${percent.value}%`,
+    width: `${animatedWidth.value}%`,
     maxWidth: '100%',
   }));
 
@@ -63,7 +63,9 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
           },
         ]}
       >
-        <Percent numberOfLines={1}>{Number(percent.value).toFixed(2)}%</Percent>
+        <Percent numberOfLines={1}>
+          {calculatePercentage(data).toFixed(2)}%
+        </Percent>
       </Animated.View>
     </Container>
   );

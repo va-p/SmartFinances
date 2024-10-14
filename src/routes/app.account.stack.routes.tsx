@@ -21,13 +21,7 @@ export function AppAccountStackRoutes() {
 
       <Screen name='Conta' component={Account} />
 
-      <Screen
-        name='Editar Conta'
-        component={RegisterAccount}
-        initialParams={{
-          id: '',
-        }}
-      />
+      <Screen name='Editar Conta' component={RegisterAccount} />
     </Navigator>
   );
 }
