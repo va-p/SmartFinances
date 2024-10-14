@@ -13,38 +13,8 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const Header = styled.View`
-  width: 100%;
-  min-height: ${RFPercentage(8)}px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: ${Platform.OS === 'ios' ? '24px 16px 0' : '16px 16px 0'};
-`;
-
-export const BackButton = styled(BorderlessButton)`
-  position: absolute;
-  top: ${Platform.OS === 'ios' ? '24px' : '16px'};
-  left: 16px;
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
-export const TitleContainer = styled.View`
-  height: 100%;
-`;
-
-export const Title = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(18)}px;
-  text-align: center;
-  color: ${({ theme }) => theme.colors.title};
-`;
-
-export const Description = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text};
+export const HeaderContainer = styled.View`
+  padding: 0 16px;
 `;
 
 export const FiltersContainer = styled.View`
@@ -54,12 +24,6 @@ export const FiltersContainer = styled.View`
 
 export const FilterButtonGroup = styled.View`
   width: ${RFPercentage(12)}px;
-`;
-
-export const EditAccountButton = styled(BorderlessButton)`
-  position: absolute;
-  top: ${Platform.OS === 'ios' ? '24px' : '16px'};
-  right: 16px;
 `;
 
 export const AccountBalanceContainer = styled.View`

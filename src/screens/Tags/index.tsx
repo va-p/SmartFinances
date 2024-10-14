@@ -120,7 +120,10 @@ export function Tags() {
 
   return (
     <Container>
-      <Header type='primary' title='Etiquetas' />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title={'Etiquetas'} />
+      </Header.Root>
 
       <FlatList
         data={tags}

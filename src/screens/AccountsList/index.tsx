@@ -164,7 +164,10 @@ export function AccountsList() {
 
   return (
     <Container>
-      <Header type='primary' title='Contas' />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title={'Contas'} />
+      </Header.Root>
 
       <FlatList
         data={accounts}

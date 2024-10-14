@@ -360,7 +360,9 @@ export function RegisterTransaction({
         description: form.description,
         amount: amountConverted, // Usar valor convertido
         amount_not_converted:
-          currencySelected.code !== accountCurrency?.code ? form.amount : null, // Valor original, se houver conversão
+          currencySelected.code !== accountDestinationSelected?.currency?.code
+            ? form.amount
+            : null, // Valor original, se houver conversão
         currency_id: currencySelected.id,
         type: transactionType,
         account_id: accountID,
@@ -514,16 +516,22 @@ export function RegisterTransaction({
       let amountConverted = Number(form.amount);
 
       if (transactionType === 'transfer') {
-        if (
-          accountCurrency!!.code !== accountDestinationSelected.currency.code
-        ) {
-          amountConverted = convertCurrency({
-            amount: Number(form.amount),
-            fromCurrency: accountCurrency!!.code,
-            toCurrency: accountDestinationSelected.currency.code,
-            quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
-          });
-        }
+        const fromCurrency = accountCurrency!!.code; // Moeda da conta de origem
+        const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
+
+        // Converte o valor independentemente da moeda selecionada na tela
+        amountConverted = convertCurrency({
+          amount: Number(amountNotConverted),
+          fromCurrency,
+          toCurrency,
+          quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+        });
+        /*amountConverted = convertCurrency({
+          amount: Number(form.amount),
+          fromCurrency: accountCurrency!!.code,
+          toCurrency: accountDestinationSelected.currency.code,
+          quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+        });*/
 
         const accountResponse = await api.get('single_account_get_id', {
           params: {
@@ -553,7 +561,7 @@ export function RegisterTransaction({
         const transferDebit = {
           created_at: date,
           description: form.description,
-          amount: form.amount,
+          amount: Math.round(form.amount),
           amount_not_converted: null,
           currency_id: currencySelected.id,
           type: 'transferDebit',
@@ -568,7 +576,10 @@ export function RegisterTransaction({
           created_at: date,
           description: form.description,
           amount: amountConverted,
-          amount_not_converted: accountCurrency!!.code !== accountDestinationSelected.currency.code ? form.amount : null,
+          amount_not_converted:
+            accountCurrency!!.code !== accountDestinationSelected.currency.code
+              ? Math.round(form.amount)
+              : null,
           currency_id: accountDestinationResponse.data.currency_id,
           type: 'transferCredit',
           account_id: accountDestinationResponse.data.id,
@@ -603,7 +614,7 @@ export function RegisterTransaction({
       } else {
         if (currencySelected.code !== accountCurrency!!.code) {
           amountConverted = convertCurrency({
-            amount: Number(form.amount),
+            amount: Math.round(form.amount),
             fromCurrency: currencySelected.code,
             toCurrency: accountCurrency!!.code,
             quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
@@ -623,7 +634,7 @@ export function RegisterTransaction({
           amount: amountConverted,
           amount_not_converted:
             currencySelected.code !== accountCurrency?.code
-              ? form.amount
+              ? Math.round(form.amount)
               : null,
           currency_id: currencySelected.id,
           type: transactionType,

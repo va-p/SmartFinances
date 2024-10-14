@@ -110,7 +110,7 @@ export function Profile() {
   // console.log('phone >>>', phone);
   // console.log('profileImage >>>', profileImage);
   // console.log('tenantId >>>', tenantId);
-  console.log('imageUrl >>>', imageUrl);
+  // console.log('imageUrl >>>', imageUrl);
 
   async function handleSaveProfile(data: FormData) {
     try {
@@ -146,7 +146,10 @@ export function Profile() {
 
   return (
     <Container>
-      <Header type='primary' title='Perfil' />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title={'Perfil'} />
+      </Header.Root>
 
       <ImageContainer onPress={handleClickSelectImage}>
         {image === '' ? (

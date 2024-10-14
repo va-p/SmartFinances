@@ -6,7 +6,10 @@ import { Header } from '@components/Header';
 export function HelpCenter() {
   return (
     <Container>
-      <Header type='primary' title='Central de Ajuda' />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title='Central de Ajuda' />
+      </Header.Root>
     </Container>
   );
 }

@@ -121,7 +121,10 @@ export function Categories() {
 
   return (
     <Container>
-      <Header type='primary' title='Categorias' />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title='Categorias' />
+      </Header.Root>
 
       <FlatList
         data={categories}

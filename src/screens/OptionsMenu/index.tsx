@@ -143,7 +143,9 @@ export function OptionsMenu({ navigation }: any) {
 
   return (
     <Container>
-      <Header type='secondary' title='Mais opções' />
+      <Header.Root>
+        <Header.Title title='Mais opções' />
+      </Header.Root>
 
       <ContentScroll>
         <Title>Conta</Title>

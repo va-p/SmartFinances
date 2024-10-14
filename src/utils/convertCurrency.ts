@@ -10,7 +10,7 @@ type Props = {
     eurQuoteBrl: { price: number };
     usdQuoteBrl: { price: number };
   };
-}
+};
 
 export const convertCurrency = ({
   amount,
@@ -20,7 +20,8 @@ export const convertCurrency = ({
 }: Props): number => {
   const currencyConversionRates: CurrencyConversionRates = {
     BRL: {
-      BTC: (amount: number) => amount * quotes.brlQuoteBtc.price,
+      BTC: (amount: number) =>
+        amount * Number(quotes.brlQuoteBtc.price.toFixed(8)),
       // EUR: (amount: number) => amount * brlQuoteEur.price,
       // USD: (amount: number) => amount * brlQuoteUsd.price,
     },
@@ -45,7 +46,8 @@ export const convertCurrency = ({
     return amount; // No need conversion if currencies are the same
   }
 
-  const conversionFunction = currencyConversionRates[fromCurrency]?.[toCurrency];
+  const conversionFunction =
+    currencyConversionRates[fromCurrency]?.[toCurrency];
 
   if (!conversionFunction) {
     throw new Error(

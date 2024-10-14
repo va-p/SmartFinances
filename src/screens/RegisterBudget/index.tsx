@@ -41,7 +41,7 @@ import { BudgetProps } from '@interfaces/budget';
 import theme from '@themes/theme';
 
 type Props = {
-  id: string;
+  id: string | null;
   closeBudget: () => void;
 };
 
@@ -236,7 +236,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   async function handleRegisterBudget(form: FormData) {
     setButtonIsLoading(true);
 
-    if (id !== '') {
+    if (!!id) {
       handleEditBudget(id, form);
       return;
     }
@@ -296,7 +296,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      if (id !== '') {
+      if (!!id) {
         fetchBudget();
       }
     }, [id])

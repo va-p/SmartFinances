@@ -1,4 +1,8 @@
-function formatCurrency(currencyCode: string, value: number, isConverted = true) {
+function formatCurrency(
+  currencyCode: string,
+  value: number | string,
+  isConverted = true
+) {
   const options: Intl.NumberFormatOptions = {
     style: 'currency',
     currency: currencyCode,

@@ -2,12 +2,6 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { RefreshControl, StyleSheet, SectionList, Alert } from 'react-native';
 import {
   Container,
-  Header,
-  BackButton,
-  TitleContainer,
-  Title,
-  Description,
-  EditAccountButton,
   FiltersContainer,
   FilterButtonGroup,
   AccountBalanceContainer,
@@ -18,6 +12,7 @@ import {
   AccountCashFlow,
   AccountCashFlowDescription,
   Transactions,
+  HeaderContainer,
 } from './styles';
 
 import Animated, {
@@ -38,6 +33,7 @@ import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, DotsThreeCircle, Plus } from 'phosphor-react-native';
 import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
 
+import { Header } from '@components/Header';
 import { ModalView } from '@components/ModalView';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -603,20 +599,16 @@ export function Account() {
   return (
     <Container>
       <Animated.View style={[headerStyleAnimation, styles.header]}>
-        <Header>
-          <BackButton onPress={handleClickBackButton}>
-            <CaretLeft size={20} color={theme.colors.primary} />
-          </BackButton>
-
-          <TitleContainer>
-            <Title>{accountName}</Title>
-            <Description>Transações</Description>
-          </TitleContainer>
-
-          <EditAccountButton onPress={handleOpenEditAccount}>
-            <DotsThreeCircle size={20} color={theme.colors.primary} />
-          </EditAccountButton>
-        </Header>
+        <HeaderContainer>
+          <Header.Root>
+            <Header.BackButton />
+            <Header.Title
+              title={accountName || ''}
+              description={'Transações'}
+            />
+            <Header.Icon onPress={handleOpenEditAccount} />
+          </Header.Root>
+        </HeaderContainer>
 
         <FiltersContainer>
           <FilterButtonGroup>
