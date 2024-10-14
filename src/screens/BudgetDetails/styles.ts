@@ -22,7 +22,3 @@ export const BudgetTotalDescription = styled.Text`
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
-
-export const BudgetInsightCardContainer = styled.View``;
-
-export const BudgetInsightCardText = styled.Text``;

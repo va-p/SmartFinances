@@ -1,37 +1,34 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
-import {
-  BudgetInsightCardContainer,
-  BudgetInsightCardText,
-  BudgetTotal,
-  BudgetTotalDescription,
-  Container,
-} from './styles';
+import { BudgetTotal, BudgetTotalDescription, Container } from './styles';
 
 import { BudgetProps } from '@interfaces/budget';
 
 import axios from 'axios';
+import { ptBR } from 'date-fns/locale';
 import { VictoryPie } from 'victory-native';
 import { useRoute } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { formatDistanceToNowStrict, parse } from 'date-fns';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-import { Header } from '@components/Header';
-import { ModalView } from '@components/ModalView';
-
-import { RegisterBudget } from '@screens/RegisterBudget';
-
-import api from '@api/api';
-
-import theme from '@themes/theme';
-import { BudgetPercentBar } from '@components/BudgetPercentBar';
-import formatCurrency from '@utils/formatCurrency';
 import {
   EndPeriod,
   PeriodContainer,
   StartPeriod,
 } from '@components/BudgetListItem/styles';
+import { Header } from '@components/Header';
+import { ModalView } from '@components/ModalView';
 import { InsightCard } from '@components/InsightCard';
+import { BudgetPercentBar } from '@components/BudgetPercentBar';
+
+import { RegisterBudget } from '@screens/RegisterBudget';
+
+import api from '@api/api';
+
+import formatCurrency from '@utils/formatCurrency';
+
+import theme from '@themes/theme';
 
 export function BudgetDetails() {
   const route = useRoute();
@@ -40,11 +37,28 @@ export function BudgetDetails() {
 
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
 
-  console.log('budget ====>', budget);
-
-  function calculateBudget() {
+  function calculateRemainderBudget() {
     const value = Number(budget.amount) - Number(budget.amount_spent);
-    return formatCurrency(budget.currency.code, value.toFixed(2), false);
+    return Number(
+      formatCurrency(budget.currency.code, value.toFixed(2), false)
+    );
+  }
+
+  function calculateRemainderBudgetPerDay() {
+    const now = new Date();
+    const endDate = parse(budget.end_date!, "dd 'de' MMMM 'de' yyyy", now, {
+      locale: ptBR,
+    });
+
+    const daysToEndDate = formatDistanceToNowStrict(endDate, {
+      unit: 'day',
+      locale: ptBR,
+    }).split(' ')[0];
+
+    const RemainderBudgetPerDay = (
+      calculateRemainderBudget() / Number(daysToEndDate)
+    ).toFixed(2);
+    return RemainderBudgetPerDay;
   }
 
   function handleOpenEditBudgetModal() {
@@ -102,11 +116,15 @@ export function BudgetDetails() {
 
       <BudgetTotal>{`${budget.currency.symbol} ${budget.amount}`}</BudgetTotal>
       <BudgetTotalDescription>
-        {`Restam ${budget.currency.symbol} ${calculateBudget()}`}
+        {`Restam ${budget.currency.symbol} ${calculateRemainderBudget()}`}
       </BudgetTotalDescription>
 
       <InsightCard.Root>
-        <InsightCard.Title text='Você ainda pode gastar X por dia até o final do período deste orçamento' />
+        <InsightCard.Title
+          text={`Você ainda pode gastar ${
+            budget.currency.symbol
+          } ${calculateRemainderBudgetPerDay()} por dia até o final do período do orçamento`}
+        />
       </InsightCard.Root>
 
       <BudgetPercentBar is_amount_reached={false} data={budget} />
