@@ -9,7 +9,14 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { addDays, addMonths, addWeeks, addYears } from 'date-fns';
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  addYears,
+  endOfMonth,
+  subDays,
+} from 'date-fns';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -39,7 +46,6 @@ export function Budgets({ navigation }: any) {
 
   async function checkBudgets() {
     let budgets: any = [];
-
     try {
       setLoading(true);
       setRefreshing(true);
@@ -84,7 +90,7 @@ export function Budgets({ navigation }: any) {
       let budgetsFormatted: any = [];
       for (const budget of budgets) {
         let startDate = new Date(budget.start_date);
-        let endDate = new Date(startDate);
+        let endDate = startDate;
 
         switch (budget.recurrence) {
           case 'daily':
@@ -97,7 +103,7 @@ export function Budgets({ navigation }: any) {
             endDate = addDays(new Date(endDate), 15);
             break;
           case 'monthly':
-            endDate = addMonths(new Date(endDate), 1);
+            endDate = endOfMonth(endDate);
             break;
           case 'semiannually':
             endDate = addMonths(new Date(endDate), 6);
@@ -108,25 +114,30 @@ export function Budgets({ navigation }: any) {
         }
 
         while (endDate < new Date()) {
-          startDate = endDate;
           switch (budget.recurrence) {
             case 'daily':
-              endDate = addDays(new Date(endDate), 1);
+              startDate = endDate;
+              endDate = addDays(new Date(startDate), 1);
               break;
             case 'weekly':
-              endDate = addWeeks(new Date(endDate), 1);
+              startDate = endDate;
+              endDate = addWeeks(new Date(startDate), 1);
               break;
             case 'biweekly':
-              endDate = addDays(new Date(endDate), 15);
+              startDate = endDate;
+              endDate = addDays(new Date(startDate), 15);
               break;
             case 'monthly':
-              endDate = addMonths(new Date(endDate), 1);
+              startDate = addMonths(new Date(startDate), 1);
+              endDate = endOfMonth(startDate);
               break;
             case 'semiannually':
-              endDate = addMonths(new Date(endDate), 6);
+              startDate = endDate;
+              endDate = addMonths(new Date(startDate), 6);
               break;
             case 'annually':
-              endDate = addYears(new Date(endDate), 1);
+              startDate = endDate;
+              endDate = addYears(new Date(startDate), 1);
               break;
           }
         }

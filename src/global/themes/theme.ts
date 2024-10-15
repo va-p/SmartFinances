@@ -20,6 +20,7 @@ export default {
 
     overlay: 'rgba(0, 0, 0, 0.7)',
     overlay_light: 'rgba(0, 0, 0, 0.1)',
+    overlay_light2: 'rgba(150, 156, 178, 0.1)',
   },
 
   fonts: {

@@ -33,8 +33,7 @@ import theme from '@themes/theme';
 export function BudgetDetails() {
   const route = useRoute();
   const budget: BudgetProps = route.params?.budget;
-  const [loading, setLoading] = useState(false);
-
+  const budgetAmountReached = budget.amount_spent >= budget.amount;
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
 
   function calculateRemainderBudget() {
@@ -110,24 +109,34 @@ export function BudgetDetails() {
     <Container>
       <Header.Root>
         <Header.BackButton />
-        <Header.Title title={`Orçamento ${budget.name}`} />
+        <Header.Title title={budget.name} />
         <Header.Icon onPress={handleOpenEditBudgetModal} />
       </Header.Root>
 
-      <BudgetTotal>{`${budget.currency.symbol} ${budget.amount}`}</BudgetTotal>
+      <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>{`${
+        budget.currency.symbol
+      } ${Number(budget.amount_spent).toFixed(2)}`}</BudgetTotal>
       <BudgetTotalDescription>
         {`Restam ${budget.currency.symbol} ${calculateRemainderBudget()}`}
       </BudgetTotalDescription>
 
       <InsightCard.Root>
         <InsightCard.Title
-          text={`Você ainda pode gastar ${
-            budget.currency.symbol
-          } ${calculateRemainderBudgetPerDay()} por dia até o final do período do orçamento`}
+          text={
+            !budgetAmountReached
+              ? `
+            Você ainda pode gastar ${
+              budget.currency.symbol
+            } ${calculateRemainderBudgetPerDay()} por dia até o final do período do orçamento`
+              : `
+            O seu orçamento foi excedido em ${budget.currency.symbol} ${
+                  calculateRemainderBudget() * -1
+                }. Pare de gastar!`
+          }
         />
       </InsightCard.Root>
 
-      <BudgetPercentBar is_amount_reached={false} data={budget} />
+      <BudgetPercentBar is_amount_reached={budgetAmountReached} data={budget} />
       <PeriodContainer>
         <StartPeriod>{budget.start_date}</StartPeriod>
         <EndPeriod>{budget.end_date}</EndPeriod>
