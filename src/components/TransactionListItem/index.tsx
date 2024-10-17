@@ -71,7 +71,7 @@ const TransactionListItem = memo(function TransactionListItem({
           </CategoryAndAccountContainer>
           <AmountNotConvertedContainer>
             <AmountNotConverted>
-              {data.account.currency.code != data.currency.code &&
+              {data.account.currency.code !== data.currency.code &&
                 `${data.amount_not_converted}`}
             </AmountNotConverted>
           </AmountNotConvertedContainer>

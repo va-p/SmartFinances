@@ -100,7 +100,6 @@ export function RegisterTransaction({
     },
   } as CategoryProps);
   const [amount, setAmount] = useState('');
-  const [amountNotConverted, setAmountNotConverted] = useState();
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
     name: 'Real Brasileiro',
@@ -343,15 +342,14 @@ export function RegisterTransaction({
       }
     }
 
-    let amountConverted = Number(form.amount);
-    if (currencySelected.code !== accountCurrency?.code) {
-      amountConverted = convertCurrency({
-        amount: Number(form.amount),
-        fromCurrency: currencySelected.code,
-        toCurrency: accountCurrency!!.code,
-        quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
-      });
-    }
+    let amountConverted = form.amount;
+    amountConverted = convertCurrency({
+      amount: form.amount,
+      fromCurrency: currencySelected.code,
+      toCurrency: accountCurrency!.code,
+      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
+      quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+    });
 
     try {
       const transactionEdited = {
@@ -513,25 +511,20 @@ export function RegisterTransaction({
     }
 
     try {
-      let amountConverted = Number(form.amount);
+      let amountConverted = form.amount;
 
       if (transactionType === 'transfer') {
-        const fromCurrency = accountCurrency!!.code; // Moeda da conta de origem
+        const fromCurrency = currencySelected.code; // Moeda selecionada
         const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
 
-        // Converte o valor independentemente da moeda selecionada na tela
         amountConverted = convertCurrency({
-          amount: Number(amountNotConverted),
+          amount: form.amount,
           fromCurrency,
           toCurrency,
+          accountCurrency: accountCurrency!.code,
           quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
         });
-        /*amountConverted = convertCurrency({
-          amount: Number(form.amount),
-          fromCurrency: accountCurrency!!.code,
-          toCurrency: accountDestinationSelected.currency.code,
-          quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
-        });*/
+        console.log('amountConverted ===>>', amountConverted);
 
         const accountResponse = await api.get('single_account_get_id', {
           params: {
@@ -561,8 +554,15 @@ export function RegisterTransaction({
         const transferDebit = {
           created_at: date,
           description: form.description,
-          amount: Math.round(form.amount),
-          amount_not_converted: null,
+          // amount: form.amount,
+          amount:
+            accountCurrency!.code !== fromCurrency
+              ? amountConverted
+              : form.amount,
+          amount_not_converted:
+            accountCurrency!.code !== accountDestinationSelected.currency.code
+              ? form.amount
+              : null,
           currency_id: currencySelected.id,
           type: 'transferDebit',
           account_id: accountResponse.data.id,
@@ -575,12 +575,16 @@ export function RegisterTransaction({
         const transferCredit = {
           created_at: date,
           description: form.description,
-          amount: amountConverted,
+          // amount: amountConverted,
+          amount:
+            accountCurrency!.code !== fromCurrency
+              ? form.amount
+              : amountConverted,
           amount_not_converted:
-            accountCurrency!!.code !== accountDestinationSelected.currency.code
-              ? Math.round(form.amount)
+            accountCurrency!.code !== accountDestinationSelected.currency.code
+              ? form.amount
               : null,
-          currency_id: accountDestinationResponse.data.currency_id,
+          currency_id: currencySelected.id,
           type: 'transferCredit',
           account_id: accountDestinationResponse.data.id,
           category_id: categorySelected.id,
@@ -612,14 +616,13 @@ export function RegisterTransaction({
           );
         }
       } else {
-        if (currencySelected.code !== accountCurrency!!.code) {
-          amountConverted = convertCurrency({
-            amount: Math.round(form.amount),
-            fromCurrency: currencySelected.code,
-            toCurrency: accountCurrency!!.code,
-            quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
-          });
-        }
+        amountConverted = convertCurrency({
+          amount: form.amount,
+          fromCurrency: currencySelected.code,
+          toCurrency: accountCurrency!.code,
+          accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
+          quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+        });
 
         const accountResponse = await api.get('single_account_get_id', {
           params: {
@@ -633,8 +636,8 @@ export function RegisterTransaction({
           description: form.description,
           amount: amountConverted,
           amount_not_converted:
-            currencySelected.code !== accountCurrency?.code
-              ? Math.round(form.amount)
+            currencySelected.code !== accountCurrency!.code
+              ? form.amount
               : null,
           currency_id: currencySelected.id,
           type: transactionType,
@@ -712,8 +715,7 @@ export function RegisterTransaction({
       });
       setCategorySelected(data.category);
       setAmount(data.amount);
-      setAmountNotConverted(data.amount_not_converted);
-      setCurrencySelected(data.currency);
+      setCurrencySelected(data.account.currency);
       setAccountID(data.account.id);
       setAccountName(data.account.name);
       setAccountCurrency(data.account.currency);
@@ -996,6 +998,7 @@ export function RegisterTransaction({
             setAccountID(account.id);
             setAccountName(account.name);
             setAccountCurrency(account.currency);
+            setCurrencySelected(account.currency);
             setAccountInitialAmount(account.initialAmount || 0);
           }}
           closeSelectAccount={handleCloseSelectAccountModal}
