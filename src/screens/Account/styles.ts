@@ -1,8 +1,6 @@
-import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-import { BorderlessButton } from 'react-native-gesture-handler';
 
 type BalanceProps = {
   balanceIsPositive: boolean;
@@ -14,7 +12,7 @@ export const Container = styled.View`
 `;
 
 export const HeaderContainer = styled.View`
-  padding: 0 16px;
+  margin: 0 16px;
 `;
 
 export const FiltersContainer = styled.View`
@@ -58,7 +56,7 @@ export const AccountBalance = styled.Text<BalanceProps>`
 
 export const AccountBalanceDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(12)}px;
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
@@ -73,7 +71,7 @@ export const AccountCashFlow = styled.Text<BalanceProps>`
 
 export const AccountCashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(12)}px;
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};

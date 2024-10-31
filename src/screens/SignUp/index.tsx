@@ -124,7 +124,10 @@ export function SignUp({ navigation }: any) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Header type='primary' title='Criar nova conta' />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title={'Criar nova conta'} />
+      </Header.Root>
 
       <Form>
         <ControlledInput

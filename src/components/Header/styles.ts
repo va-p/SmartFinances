@@ -15,6 +15,7 @@ export const Container = styled.View`
 
 export const BackButton = styled(BorderlessButton)`
   position: absolute;
+  top: 12px;
   left: 0px;
   color: ${({ theme }) => theme.colors.primary};
 `;
@@ -31,12 +32,13 @@ export const Title = styled.Text`
 
 export const Description = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(12)}px;
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const EditButton = styled(BorderlessButton)`
   position: absolute;
+  top: 12px;
   right: 0px;
 `;

@@ -58,25 +58,16 @@ const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
-  const userId = useUser((state) => state.id);
-  const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
-  const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
-  const hideAmount = useUserConfigs((state) => state.hideAmount);
-  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
-  const setAccountId = useCurrentAccountSelected((state) => state.setAccountId);
-  const setAccountName = useCurrentAccountSelected(
-    (state) => state.setAccountName
-  );
-  const setAccountType = useCurrentAccountSelected(
-    (state) => state.setAccountType
-  );
-  const setAccountCurrency = useCurrentAccountSelected(
-    (state) => state.setAccountCurrency
-  );
-  const setAccountInitialAmount = useCurrentAccountSelected(
-    (state) => state.setAccountInitialAmount
-  );
+  const { tenantId, id: userId } = useUser();
+  const { btcQuoteBrl, usdQuoteBrl } = useQuotes();
+  const { hideAmount, setHideAmount } = useUserConfigs();
+  const {
+    setAccountId,
+    setAccountName,
+    setAccountType,
+    setAccountCurrency,
+    setAccountInitialAmount,
+  } = useCurrentAccountSelected();
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const [total, setTotal] = useState('R$0');

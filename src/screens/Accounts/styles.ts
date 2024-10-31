@@ -6,7 +6,7 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
-  padding: ${Platform.OS === 'ios' ? '24px 16px 16px' : '12px 16px 16px'};
+  padding: ${Platform.OS === 'ios' ? '20px 16px 16px' : '8px 16px 16px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -25,9 +25,9 @@ export const CashFlowTotal = styled.Text`
 
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(12)}px;
   text-align: center;
-  margin-top: -8px;
+  /* margin-top: -8px; */
   color: ${({ theme }) => theme.colors.text};
 `;
 

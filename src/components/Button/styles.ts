@@ -21,7 +21,7 @@ export const Container = styled(RectButton)<ContainerProps>`
   border-radius: 10px;
 `;
 
-export const Title = styled.Text<ContainerProps>`
+export const Text = styled.Text<ContainerProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
   color: ${({ theme, type }) =>

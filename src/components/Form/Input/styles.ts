@@ -26,7 +26,7 @@ export const Container = styled(TextInput).attrs<Props>(({ theme }) => ({
   padding: 8px 0;
   padding-left: 20px;
   margin-top: 12px;
-  font-size: ${RFValue(12)}px;
+  font-size: ${RFValue(14)}px;
   ${({ theme, type }) => css`
     font-family: ${theme.fonts.regular};
     color: ${type === 'primary' ? theme.colors.title : theme.colors.title};

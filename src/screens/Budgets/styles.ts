@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
-  padding: ${Platform.OS === 'ios' ? '24px 0 0' : '8px 0 0'};
+  padding: ${Platform.OS === 'ios' ? '20px 0' : '4px 0'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 

@@ -23,9 +23,6 @@ import {
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
-  PeriodRulerContainer,
-  PeriodRulerList,
-  MonthSelectButton,
 } from './styles';
 
 import Animated, {
@@ -62,24 +59,17 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import {
-  Plus,
-  Eye,
-  EyeSlash,
-  X,
-  CaretLeft,
-  CaretRight,
-} from 'phosphor-react-native';
+import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
 
 import { InsightCard } from '@components/InsightCard';
+import { PeriodRuler } from '@components/PeriodRuler';
 import { SectionListHeader } from '@components/SectionListHeader';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
-import { PeriodRulerListItem } from '@components/PeriodRulerListItem';
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
 import { RegisterTransaction } from '@screens/RegisterTransaction';
@@ -107,8 +97,8 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.43;
-const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.3;
+const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.44;
+const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
 
 type PeriodData = {
   date: Date | string | number;
@@ -118,21 +108,12 @@ type PeriodData = {
 
 export function Home() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
-  const userId = useUser((state) => state.id);
-
-  const setBrlQuoteBtc = useQuotes((state) => state.setBrlQuoteBtc);
-  const setBtcQuoteBrl = useQuotes((state) => state.setBtcQuoteBrl);
-  const setEurQuoteBrl = useQuotes((state) => state.setEurQuoteBrl);
-  const setUsdQuoteBrl = useQuotes((state) => state.setUsdQuoteBrl);
-
-  const hideAmount = useUserConfigs((state) => state.hideAmount);
-  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
-  const setAccountID = useCurrentAccountSelected((state) => state.setAccountId);
-  const setAccountName = useCurrentAccountSelected(
-    (state) => state.setAccountName
-  );
-  const insights = useUserConfigs((state) => state.insights);
+  const { tenantId, id: userId } = useUser();
+  const { setBrlQuoteBtc, setBtcQuoteBrl, setEurQuoteBrl, setUsdQuoteBrl } =
+    useQuotes();
+  const { hideAmount, setHideAmount, insights } = useUserConfigs();
+  const { setAccountId: setAccountID, setAccountName } =
+    useCurrentAccountSelected();
   const [showInsights, setShowInsights] = useState(true);
   const [refreshing, setRefreshing] = useState(true);
   const [
@@ -222,6 +203,8 @@ export function Home() {
   // Animated button register transaction
   const registerTransactionButtonPositionX = useSharedValue(0);
   const registerTransactionButtonPositionY = useSharedValue(0);
+  const initialX = useRef(0);
+  const initialY = useRef(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
   const registerTransactionButtonStyle = useAnimatedStyle(() => {
     return {
@@ -233,9 +216,15 @@ export function Home() {
   });
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
+    .onStart((e) => {
+      initialX.current = registerTransactionButtonPositionX.value;
+      initialY.current = registerTransactionButtonPositionY.value;
+    })
     .onUpdate((e) => {
-      registerTransactionButtonPositionX.value = e.x + e.translationX;
-      registerTransactionButtonPositionY.value = e.y + e.translationY;
+      registerTransactionButtonPositionX.value =
+        initialX.current + e.translationX;
+      registerTransactionButtonPositionY.value =
+        initialY.current + e.translationY;
     })
     .onEnd(() => {
       registerTransactionButtonPositionX.value = withSpring(0);
@@ -787,25 +776,11 @@ export function Home() {
     });
 
     return (
-      <PeriodRulerContainer>
-        <MonthSelectButton onPress={() => handleDateChange('prev')}>
-          <CaretLeft size={20} color={theme.colors.text} />
-        </MonthSelectButton>
-        <PeriodRulerList
-          data={dates}
-          keyExtractor={(item: any) => item.id}
-          renderItem={({ item }: any) => (
-            <PeriodRulerListItem
-              data={item}
-              width={PERIOD_RULER_LIST_COLUMN_WIDTH}
-            />
-          )}
-          inverted
-        />
-        <MonthSelectButton onPress={() => handleDateChange('next')}>
-          <CaretRight size={20} color={theme.colors.text} />
-        </MonthSelectButton>
-      </PeriodRulerContainer>
+      <PeriodRuler
+        dates={dates}
+        handleDateChange={handleDateChange}
+        periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+      />
     );
   }, [selectedPeriod, totalAmountsGroupedBySelectedPeriod]);
 
@@ -931,7 +906,6 @@ export function Home() {
       </Animated.View>
 
       <Transactions>
-        {/* <GestureDetector gesture={onMoveToChangeDate}> */}
         <AnimatedSectionList
           sections={optimizedTransactions}
           keyExtractor={(item: any) => item.id}
@@ -963,7 +937,6 @@ export function Home() {
           onScroll={scrollHandlerToTop}
           scrollEventThrottle={16}
         />
-        {/* </GestureDetector> */}
       </Transactions>
 
       <GestureDetector gesture={onMoveRegisterTransactionButton}>

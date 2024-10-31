@@ -18,7 +18,6 @@ import {
 import Animated, {
   Extrapolate,
   interpolate,
-  useAnimatedGestureHandler,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -28,10 +27,14 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
+import { Plus } from 'phosphor-react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { CaretLeft, DotsThreeCircle, Plus } from 'phosphor-react-native';
-import { PanGestureHandler, RectButton } from 'react-native-gesture-handler';
+import {
+  Gesture,
+  GestureDetector,
+  RectButton,
+} from 'react-native-gesture-handler';
 
 import { Header } from '@components/Header';
 import { ModalView } from '@components/ModalView';
@@ -98,7 +101,7 @@ export function Account() {
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(scrollY.value, [0, 340], [170, 0], Extrapolate.CLAMP),
+      height: interpolate(scrollY.value, [0, 340], [200, 0], Extrapolate.CLAMP),
       opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolate.CLAMP),
     };
   });
@@ -107,6 +110,8 @@ export function Account() {
   // Animated button register transaction
   const registerTransactionButtonPositionX = useSharedValue(0);
   const registerTransactionButtonPositionY = useSharedValue(0);
+  const initialX = useRef(0);
+  const initialY = useRef(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
   const registerTransactionButtonStyle = useAnimatedStyle(() => {
     return {
@@ -116,22 +121,22 @@ export function Account() {
       ],
     };
   });
-  const OnMoveRegisterTransactionButton = useAnimatedGestureHandler({
-    onStart(_, ctx: any) {
-      ctx.positionX = registerTransactionButtonPositionX.value;
-      ctx.positionY = registerTransactionButtonPositionY.value;
-    },
-    onActive(event, ctx: any) {
+
+  const onMoveRegisterTransactionButton = Gesture.Pan()
+    .onStart((e) => {
+      initialX.current = registerTransactionButtonPositionX.value;
+      initialY.current = registerTransactionButtonPositionY.value;
+    })
+    .onUpdate((e) => {
       registerTransactionButtonPositionX.value =
-        ctx.positionX + event.translationX;
+        initialX.current + e.translationX;
       registerTransactionButtonPositionY.value =
-        ctx.positionY + event.translationY;
-    },
-    onEnd() {
+        initialY.current + e.translationY;
+    })
+    .onEnd(() => {
       registerTransactionButtonPositionX.value = withSpring(0);
       registerTransactionButtonPositionY.value = withSpring(0);
-    },
-  });
+    });
 
   async function fetchTransactions() {
     setLoading(true);
@@ -142,142 +147,9 @@ export function Account() {
       /**
        * All Transactions By Account Formatted in pt-BR - Start
        */
-      let amount_formatted: any;
-      let amountNotConvertedFormatted = '';
       let totalRevenues = 0;
       let totalExpenses = 0;
 
-      // let transactionsByAccountFormattedPtbr: any = [];
-      // for (const item of data) {
-      //   const dmy = format(item.created_at, 'dd/MM/yyyy', { locale: ptBR });
-
-      //   switch (item.account.currency.code) {
-      //     case 'BRL':
-      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-      //         style: 'currency',
-      //         currency: 'BRL',
-      //       });
-      //       break;
-      //     case 'BTC':
-      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-      //         style: 'currency',
-      //         currency: 'BTC',
-      //         minimumFractionDigits: 8,
-      //         maximumSignificantDigits: 8,
-      //       });
-      //       break;
-      //     case 'EUR':
-      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-      //         style: 'currency',
-      //         currency: 'EUR',
-      //       });
-      //       break;
-      //     case 'USD':
-      //       amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-      //         style: 'currency',
-      //         currency: 'USD',
-      //       });
-      //       break;
-      //   }
-      //   if (item.amount_not_converted && item.currency.code === 'BRL') {
-      //     amountNotConvertedFormatted = Number(
-      //       item.amount_not_converted
-      //     ).toLocaleString('pt-BR', {
-      //       style: 'currency',
-      //       currency: 'BRL',
-      //     });
-      //   }
-      //   if (item.amount_not_converted && item.currency.code === 'BTC') {
-      //     amountNotConvertedFormatted = Number(
-      //       item.amount_not_converted
-      //     ).toLocaleString('pt-BR', {
-      //       style: 'currency',
-      //       currency: 'BTC',
-      //       minimumFractionDigits: 8,
-      //       maximumSignificantDigits: 8,
-      //     });
-      //   }
-      //   if (item.amount_not_converted && item.currency.code === 'EUR') {
-      //     amountNotConvertedFormatted = Number(
-      //       item.amount_not_converted
-      //     ).toLocaleString('pt-BR', {
-      //       style: 'currency',
-      //       currency: 'EUR',
-      //     });
-      //   }
-      //   if (item.amount_not_converted && item.currency.code === 'USD') {
-      //     amountNotConvertedFormatted = Number(
-      //       item.amount_not_converted
-      //     ).toLocaleString('pt-BR', {
-      //       style: 'currency',
-      //       currency: 'USD',
-      //     });
-      //   }
-
-      //   if (!transactionsByAccountFormattedPtbr.hasOwnProperty(dmy)) {
-      //     transactionsByAccountFormattedPtbr[item.id] = {
-      //       id: item.id,
-      //       created_at: dmy,
-      //       description: item.description,
-      //       amount: item.amount,
-      //       amount_formatted,
-      //       amount_not_converted: amountNotConvertedFormatted,
-      //       currency: {
-      //         id: item.currency.id,
-      //         name: item.currency.name,
-      //         code: item.currency.code,
-      //         symbol: item.currency.symbol,
-      //       },
-      //       type: item.type,
-      //       account: {
-      //         id: item.account.id,
-      //         name: item.account.name,
-      //         currency: {
-      //           id: item.account.currency.id,
-      //           name: item.account.currency.name,
-      //           code: item.account.currency.code,
-      //           symbol: item.account.currency.symbol,
-      //         },
-      //         initial_amount: item.account.initial_amount,
-      //         totalAccountAmount: 0,
-      //         tenant_id: item.account.tenant_id,
-      //       },
-      //       category: {
-      //         id: item.category.id,
-      //         name: item.category.name,
-      //         icon: {
-      //           id: item.category.icon.id,
-      //           title: item.category.icon.title,
-      //           name: item.category.icon.name,
-      //         },
-      //         color: {
-      //           id: item.category.color.id,
-      //           name: item.category.color.name,
-      //           hex: item.category.color.hex,
-      //         },
-      //         tenant_id: item.category.tenant_id,
-      //       },
-      //       tags: item.tags,
-      //       tenant_id: item.tenant_id,
-      //     };
-      //   }
-      // }
-      // transactionsByAccountFormattedPtbr = Object.values(
-      //   transactionsByAccountFormattedPtbr
-      // )
-      //   .filter(
-      //     (transactionFormattedPtbr: any) =>
-      //       transactionFormattedPtbr.account.id === accountID
-      //   )
-      //   .sort((a: any, b: any) => {
-      //     const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
-      //     const secondDateParsed = parse(
-      //       b.created_at,
-      //       'dd/MM/yyyy',
-      //       new Date()
-      //     );
-      //     return secondDateParsed.getTime() - firstDateParsed.getTime();
-      //   });
       const transactionsByAccountFormattedPtbr = data
         .filter((transaction: any) => transaction.account.id === accountID)
         .map((item: any) => {
@@ -493,10 +365,6 @@ export function Account() {
     }
   }
 
-  function handleClickBackButton() {
-    navigation.goBack();
-  }
-
   function handleOpenEditAccount() {
     editAccountBottomSheetRef.current?.present();
   }
@@ -645,7 +513,7 @@ export function Account() {
           sections={optimizedTransactions}
           keyExtractor={(item: any) => item.id}
           renderItem={_renderItem}
-          renderSectionHeader={({ section }) => (
+          renderSectionHeader={({ section }: any) => (
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={_renderEmpty}
@@ -665,7 +533,7 @@ export function Account() {
         />
       </Transactions>
 
-      <PanGestureHandler onGestureEvent={OnMoveRegisterTransactionButton}>
+      <GestureDetector gesture={onMoveRegisterTransactionButton}>
         <Animated.View
           style={[
             registerTransactionButtonStyle,
@@ -683,7 +551,7 @@ export function Account() {
             <Plus size={24} color={theme.colors.background} />
           </ButtonAnimated>
         </Animated.View>
-      </PanGestureHandler>
+      </GestureDetector>
 
       <ModalViewSelection
         title='Selecione o período'
