@@ -12,7 +12,7 @@ export const Container = styled.View`
 
 export const Header = styled.View`
   align-items: center;
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 `;
 
 export const CashFlowContainer = styled.View``;
