@@ -29,7 +29,6 @@ import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 import { Plus } from 'phosphor-react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 import {
   Gesture,
   GestureDetector,
@@ -525,9 +524,7 @@ export function Account() {
             />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: getBottomSpace(),
-          }}
+          contentContainerStyle={{}}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
         />

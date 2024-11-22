@@ -15,7 +15,6 @@ import { useTheme } from 'styled-components';
 import { addMonths, subMonths, format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 
 import { HistoryCard } from '@components/HistoryCard';
@@ -201,11 +200,7 @@ export function OverviewExpenses({ navigation }: any) {
         </MonthSelectButton>
       </MonthSelect>
 
-      <ContentScroll
-        contentContainerStyle={{
-          paddingBottom: getBottomSpace(),
-        }}
-      >
+      <ContentScroll>
         <PieChartContainer>
           <VictoryPie
             data={totalExpensesByCategories}

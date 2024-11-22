@@ -7,7 +7,6 @@ import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 import { ptBR } from 'date-fns/locale';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -386,9 +385,6 @@ export function TransactionsByCategory({ navigation }: any) {
           />
         }
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: getBottomSpace(),
-        }}
       />
     </Container>
   );

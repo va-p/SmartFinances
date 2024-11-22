@@ -23,7 +23,7 @@ import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
 import { BudgetListItem } from '@components/BudgetListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
+import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
@@ -223,7 +223,7 @@ export function Budgets({ navigation }: any) {
   }, []);
 
   if (loading) {
-    return <SkeletonCategoriesAndTagsScreen />;
+    return <SkeletonBudgetsScreen />;
   }
 
   return (

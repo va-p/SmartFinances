@@ -4,7 +4,6 @@ import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 
 import { Load } from '@components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -94,7 +93,6 @@ export function CategorySelect({
           justifyContent: 'center',
           paddingTop: 12,
           paddingHorizontal: 12,
-          paddingBottom: getBottomSpace(),
         }}
         style={{ flex: 1, width: '100%' }}
       />

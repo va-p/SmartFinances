@@ -7,9 +7,17 @@ type Props = {
   accountCurrency: string;
   quotes: {
     brlQuoteBtc: { price: number };
+    brlQuoteEur: { price: number };
+    brlQuoteUsd: { price: number };
     btcQuoteBrl: { price: number };
+    btcQuoteEur: { price: number };
+    btcQuoteUsd: { price: number };
     eurQuoteBrl: { price: number };
+    eurQuoteBtc: { price: number };
+    eurQuoteUsd: { price: number };
     usdQuoteBrl: { price: number };
+    usdQuoteBtc: { price: number };
+    usdQuoteEur: { price: number };
   };
 };
 

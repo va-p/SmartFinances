@@ -60,7 +60,6 @@ import {
 import { ptBR } from 'date-fns/locale';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
-import { getBottomSpace } from 'react-native-iphone-x-helper';
 
 import { InsightCard } from '@components/InsightCard';
 import { PeriodRuler } from '@components/PeriodRuler';
@@ -75,6 +74,7 @@ import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
+import fetchQuote from '@utils/fetchQuotes';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
@@ -87,7 +87,6 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import api from '@api/api';
-import apiQuotes from '@api/apiQuotes';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
@@ -109,8 +108,20 @@ type PeriodData = {
 export function Home() {
   const [loading, setLoading] = useState(false);
   const { tenantId, id: userId } = useUser();
-  const { setBrlQuoteBtc, setBtcQuoteBrl, setEurQuoteBrl, setUsdQuoteBrl } =
-    useQuotes();
+  const {
+    setBrlQuoteBtc,
+    setBrlQuoteEur,
+    setBrlQuoteUsd,
+    setBtcQuoteBrl,
+    setBtcQuoteEur,
+    setBtcQuoteUsd,
+    setEurQuoteBrl,
+    setEurQuoteBtc,
+    setEurQuoteUsd,
+    setUsdQuoteBrl,
+    setUsdQuoteBtc,
+    setUsdQuoteEur,
+  } = useQuotes();
   const { hideAmount, setHideAmount, insights } = useUserConfigs();
   const { setAccountId: setAccountID, setAccountName } =
     useCurrentAccountSelected();
@@ -230,98 +241,6 @@ export function Home() {
       registerTransactionButtonPositionX.value = withSpring(0);
       registerTransactionButtonPositionY.value = withSpring(0);
     });
-
-  async function fetchBrlQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          symbol: 'BRL',
-          convert: 'BTC',
-        },
-      });
-      setBrlQuoteBtc({
-        price: Number(data.data[0].quote.BTC.price.toFixed(8)),
-        last_updated: data.data[0].quote.BTC.last_updated,
-      });
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Cotação de moedas',
-        'Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.'
-      );
-    }
-  }
-
-  async function fetchBtcQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          symbol: 'BTC',
-          convert: 'BRL',
-        },
-      });
-      setBtcQuoteBrl({
-        price: Number(data.data[0].quote.BRL.price.toFixed(2)),
-        last_updated: data.data[0].quote.BRL.last_updated,
-      });
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Cotação de moedas',
-        'Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.'
-      );
-    }
-  }
-
-  async function fetchEurQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          symbol: 'EUR',
-          convert: 'BRL',
-        },
-      });
-      if (data) {
-        setEurQuoteBrl({
-          price: data.data[0].quote.BRL.price.toFixed(2),
-          last_updated: data.data[0].quote.BRL.last_updated,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Cotação de moedas',
-        'Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.'
-      );
-    }
-  }
-
-  async function fetchUsdQuote() {
-    try {
-      const { data } = await apiQuotes.get('v2/tools/price-conversion', {
-        params: {
-          amount: 1,
-          symbol: 'USD',
-          convert: 'BRL',
-        },
-      });
-      if (data) {
-        setUsdQuoteBrl({
-          price: data.data[0].quote.BRL.price.toFixed(2),
-          last_updated: data.data[0].quote.BRL.last_updated,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Cotação de moedas',
-        'Não foi possível buscar a cotação de moedas. Por favor, verifique sua internet e tente novamente.'
-      );
-    }
-  }
 
   async function fetchTransactions() {
     setLoading(true);
@@ -795,10 +714,27 @@ export function Home() {
   }, []);
 
   useEffect(() => {
-    fetchBrlQuote();
-    fetchBtcQuote();
-    fetchEurQuote();
-    fetchUsdQuote();
+    // fetchBrlQuote();
+    // fetchBtcQuote();
+    // fetchEurQuote();
+    // fetchUsdQuote();
+
+    fetchQuote('BRL', 'BTC', setBrlQuoteBtc);
+    fetchQuote('BRL', 'EUR', setBrlQuoteEur);
+    fetchQuote('BRL', 'USD', setBrlQuoteUsd);
+
+    fetchQuote('BTC', 'BRL', setBtcQuoteBrl);
+    fetchQuote('BTC', 'EUR', setBtcQuoteEur);
+    fetchQuote('BTC', 'USD', setBtcQuoteUsd);
+
+    fetchQuote('EUR', 'BRL', setEurQuoteBrl);
+    fetchQuote('EUR', 'BTC', setEurQuoteBtc);
+    fetchQuote('EUR', 'USD', setEurQuoteUsd);
+
+    fetchQuote('USD', 'BRL', setUsdQuoteBrl);
+    fetchQuote('USD', 'BTC', setUsdQuoteBtc);
+    fetchQuote('USD', 'EUR', setUsdQuoteEur);
+
     fetchTransactions();
   }, [selectedPeriod, chartPeriodSelected.period]);
 
@@ -931,9 +867,6 @@ export function Home() {
             />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: getBottomSpace(),
-          }}
           onScroll={scrollHandlerToTop}
           scrollEventThrottle={16}
         />

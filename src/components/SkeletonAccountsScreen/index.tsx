@@ -1,117 +1,84 @@
 import React from 'react';
 import { Container } from './styles';
 
-import {
-  Placeholder,
-  PlaceholderMedia,
-  PlaceholderLine,
-  Shine,
-} from 'rn-placeholder';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import theme from '@themes/theme';
 
 export function SkeletonAccountsScreen() {
   return (
     <Container>
-      <Placeholder Animation={Shine} style={{ padding: 8, gap: 8 }}>
-        <PlaceholderLine
-          width={24}
-          height={32}
-          noMargin
-          style={{
-            alignSelf: 'center',
-            marginBottom: 8,
-            backgroundColor: theme.colors.shape,
-          }}
-        />
-        <PlaceholderLine
-          width={16}
-          height={24}
-          style={{ alignSelf: 'center', backgroundColor: theme.colors.shape }}
-        />
-        <PlaceholderLine
-          width={96}
-          height={120}
-          noMargin
-          style={{ marginBottom: 16, backgroundColor: theme.colors.shape }}
-        />
-      </Placeholder>
-
-      <Placeholder
-        Animation={Shine}
-        Left={() => (
-          <PlaceholderMedia
-            style={{ backgroundColor: theme.colors.background }}
-          />
-        )}
-        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
+      <SkeletonPlaceholder
+        highlightColor={theme.colors.overlay}
+        backgroundColor={theme.colors.shape}
       >
-        <PlaceholderLine
-          width={96}
-          style={{ backgroundColor: theme.colors.background }}
-        />
-        <PlaceholderLine
-          width={48}
-          style={{ backgroundColor: theme.colors.background }}
-        />
-      </Placeholder>
+        <SkeletonPlaceholder.Item
+          alignItems='center'
+          justifyContent='center'
+          marginBottom={12}
+        >
+          <SkeletonPlaceholder.Item width={80} height={20} />
+          <SkeletonPlaceholder.Item width={50} height={20} marginTop={8} />
+        </SkeletonPlaceholder.Item>
 
-      <Placeholder
-        Animation={Shine}
-        Left={() => (
-          <PlaceholderMedia
-            style={{ backgroundColor: theme.colors.background }}
-          />
-        )}
-        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
-      >
-        <PlaceholderLine
-          width={96}
-          style={{ backgroundColor: theme.colors.background }}
+        <SkeletonPlaceholder.Item
+          marginTop={6}
+          width={400}
+          height={80}
+          borderRadius={5}
+          marginBottom={60}
         />
-        <PlaceholderLine
-          width={48}
-          style={{ backgroundColor: theme.colors.background }}
-        />
-      </Placeholder>
 
-      <Placeholder
-        Animation={Shine}
-        Left={() => (
-          <PlaceholderMedia
-            style={{ backgroundColor: theme.colors.background }}
-          />
-        )}
-        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
-      >
-        <PlaceholderLine
-          width={96}
-          style={{ backgroundColor: theme.colors.background }}
-        />
-        <PlaceholderLine
-          width={48}
-          style={{ backgroundColor: theme.colors.background }}
-        />
-      </Placeholder>
+        <SkeletonPlaceholder.Item>
+          <SkeletonPlaceholder.Item flexDirection='row'>
+            <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+            <SkeletonPlaceholder.Item justifyContent='center'>
+              <SkeletonPlaceholder.Item width={300} height={20} />
+              <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
 
-      <Placeholder
-        Animation={Shine}
-        Left={() => (
-          <PlaceholderMedia
-            style={{ backgroundColor: theme.colors.background }}
-          />
-        )}
-        style={{ padding: 8, gap: 8, backgroundColor: theme.colors.shape }}
-      >
-        <PlaceholderLine
-          width={96}
-          style={{ backgroundColor: theme.colors.background }}
-        />
-        <PlaceholderLine
-          width={48}
-          style={{ marginBottom: 16, backgroundColor: theme.colors.background }}
-        />
-      </Placeholder>
+        <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+          <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+          <SkeletonPlaceholder.Item justifyContent='center'>
+            <SkeletonPlaceholder.Item width={300} height={20} />
+            <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
+
+        <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+          <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+          <SkeletonPlaceholder.Item justifyContent='center'>
+            <SkeletonPlaceholder.Item width={300} height={20} />
+            <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
+
+        <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+          <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+          <SkeletonPlaceholder.Item justifyContent='center'>
+            <SkeletonPlaceholder.Item width={300} height={20} />
+            <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
+
+        <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+          <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+          <SkeletonPlaceholder.Item justifyContent='center'>
+            <SkeletonPlaceholder.Item width={300} height={20} />
+            <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
+
+        <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+          <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+          <SkeletonPlaceholder.Item justifyContent='center'>
+            <SkeletonPlaceholder.Item width={300} height={20} />
+            <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder.Item>
+      </SkeletonPlaceholder>
     </Container>
   );
 }

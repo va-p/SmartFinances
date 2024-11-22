@@ -156,10 +156,24 @@ export function RegisterTransaction({
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
   // Currency Quotes
-  const brlQuoteBtc = useQuotes((state) => state.brlQuoteBtc);
-  const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
-  const eurQuoteBrl = useQuotes((state) => state.eurQuoteBrl);
-  const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
+  // const brlQuoteBtc = useQuotes((state) => state.brlQuoteBtc);
+  // const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
+  // const eurQuoteBrl = useQuotes((state) => state.eurQuoteBrl);
+  // const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
+  const {
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteEur,
+    usdQuoteBtc,
+  } = useQuotes();
 
   async function fetchTags() {
     setButtonIsLoading(true);
@@ -348,7 +362,20 @@ export function RegisterTransaction({
       fromCurrency: currencySelected.code,
       toCurrency: accountCurrency!.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
-      quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
     });
 
     try {
@@ -522,7 +549,20 @@ export function RegisterTransaction({
           fromCurrency,
           toCurrency,
           accountCurrency: accountCurrency!.code,
-          quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+          quotes: {
+            brlQuoteBtc,
+            brlQuoteEur,
+            brlQuoteUsd,
+            btcQuoteBrl,
+            btcQuoteEur,
+            btcQuoteUsd,
+            eurQuoteBrl,
+            eurQuoteBtc,
+            eurQuoteUsd,
+            usdQuoteBrl,
+            usdQuoteBtc,
+            usdQuoteEur,
+          },
         });
         console.log('amountConverted ===>>', amountConverted);
 
@@ -554,7 +594,6 @@ export function RegisterTransaction({
         const transferDebit = {
           created_at: date,
           description: form.description,
-          // amount: form.amount,
           amount:
             accountCurrency!.code !== fromCurrency
               ? amountConverted
@@ -621,7 +660,20 @@ export function RegisterTransaction({
           fromCurrency: currencySelected.code,
           toCurrency: accountCurrency!.code,
           accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
-          quotes: { brlQuoteBtc, btcQuoteBrl, eurQuoteBrl, usdQuoteBrl },
+          quotes: {
+            brlQuoteBtc,
+            brlQuoteEur,
+            brlQuoteUsd,
+            btcQuoteBrl,
+            btcQuoteEur,
+            btcQuoteUsd,
+            eurQuoteBrl,
+            eurQuoteBtc,
+            eurQuoteUsd,
+            usdQuoteBrl,
+            usdQuoteBtc,
+            usdQuoteEur,
+          },
         });
 
         const accountResponse = await api.get('single_account_get_id', {

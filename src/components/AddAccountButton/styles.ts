@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export const Container = styled(RectButton)`
   width: 100%;
-  height: 100px;
+  height: 60px;
   align-items: center;
   justify-content: center;
   padding: 8px;
@@ -15,7 +15,7 @@ export const Container = styled(RectButton)`
 `;
 
 export const Icon = styled(Ionicons)`
-  font-size: ${RFValue(40)}px;
+  font-size: ${RFValue(24)}px;
   color: ${({ theme }) => theme.colors.primary};
 `;
 
