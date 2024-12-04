@@ -17,6 +17,7 @@ import {
   Account,
   AmountNotConvertedContainer,
   AmountNotConverted,
+  CategoryAndAccountSeparator,
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
@@ -63,10 +64,8 @@ const TransactionListItem = memo(function TransactionListItem({
 
         <Footer>
           <CategoryAndAccountContainer>
-            <Category>
-              {data.category.name}
-              {' | '}
-            </Category>
+            <Category>{data.category.name}</Category>
+            <CategoryAndAccountSeparator>{' | '}</CategoryAndAccountSeparator>
             <Account>{data.account.name}</Account>
           </CategoryAndAccountContainer>
           <AmountNotConvertedContainer>

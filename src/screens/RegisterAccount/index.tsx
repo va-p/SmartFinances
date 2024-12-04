@@ -26,6 +26,7 @@ import { useUser } from 'src/storage/userStorage';
 import theme from '@themes/theme';
 
 import api from '@api/api';
+import { AccountTypes } from '@interfaces/accounts';
 
 type FormData = {
   name: string;
@@ -57,7 +58,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } = useForm<FormData>({ resolver: yupResolver(schema) });
   const [name, setName] = useState('');
   const [initialAmount, setInitialAmount] = useState('');
-  const accountTypes = [
+  const accountTypes: AccountTypes[] = [
     'Cartão de Crédito',
     'Carteira',
     'Carteira de Criptomoedas',

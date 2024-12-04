@@ -351,7 +351,10 @@ export function TransactionsByCategory({ navigation }: any) {
 
   return (
     <Container>
-      <Header type='primary' title={`Categoria ${categoryName}`} />
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title={'Resumo'} />
+      </Header.Root>
 
       <MonthSelect>
         <MonthSelectButton onPress={() => handleDateChange('prev')}>

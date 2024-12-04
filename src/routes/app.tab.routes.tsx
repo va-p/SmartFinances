@@ -8,7 +8,7 @@ import { Home } from '@screens/Home';
 import { AppBudgetStackRoutes } from './app.budget.stack.routes';
 import { AppOptionsStackRoutes } from './app.options.stack.routes';
 import { AppAccountStackRoutes } from './app.account.stack.routes';
-import { AppOverviewTopTabRoutes } from './app.overview.topTab.routes';
+import { AppOverviewStackRoutes } from './app.overview.stack.routes';
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -63,7 +63,7 @@ export function AppTabRoutes() {
 
       <Screen
         name='Resumo'
-        component={AppOverviewTopTabRoutes}
+        component={AppOverviewStackRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
             <Icon.ChartPieSlice size={size} color={color} />

@@ -152,17 +152,17 @@ export function Account() {
       const transactionsByAccountFormattedPtbr = data
         .filter((transaction: any) => transaction.account.id === accountID)
         .map((item: any) => {
-          const formattedAmount = formatCurrency(
-            item.account.currency.code, // Moeda da conta
-            item.amount
-          );
+          const formattedAmount = formatCurrency({
+            currencyCode: item.account.currency.code, // Moeda da conta
+            value: item.amount,
+          });
 
           const formattedAmountNotConverted = item.amount_not_converted
-            ? formatCurrency(
-                item.currency.code, // Moeda original da transação
-                item.amount_not_converted,
-                false // Indica que é o valor não convertido
-              )
+            ? formatCurrency({
+                currencyCode: item.currency.code, // Moeda original da transação
+                value: item.amount_not_converted,
+                isConverted: false, // Indica que é o valor não convertido
+              })
             : '';
 
           return {

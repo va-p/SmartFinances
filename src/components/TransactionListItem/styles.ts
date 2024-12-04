@@ -1,9 +1,10 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import Animated from 'react-native-reanimated';
+import { RectButton } from 'react-native-gesture-handler';
+import { RFValue } from 'react-native-responsive-fontsize';
+
 import { TransactionTypeProps } from '@interfaces/transactions';
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
@@ -43,8 +44,11 @@ export const DescriptionAndAmountContainer = styled.View`
   justify-content: space-between;
 `;
 
-export const Description = styled.Text<Props>`
-  max-width: 80%;
+export const Description = styled.Text.attrs({
+  // numberOfLines: 2,
+  // ellipsizeMode: 'tail',
+})<Props>`
+  max-width: 75%;
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
@@ -66,7 +70,7 @@ export const Amount = styled.Text<Props>`
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
     type === 'credit' ? theme.colors.success : theme.colors.text};
-  margin-left: 5px;
+  margin-left: 4px;
 `;
 
 export const Footer = styled.View`
@@ -77,24 +81,39 @@ export const Footer = styled.View`
 
 export const CategoryAndAccountContainer = styled.View`
   flex-direction: row;
+  max-width: 80%;
+  padding: 10px 4px;
 `;
 
-export const Category = styled.Text`
+export const Category = styled.Text.attrs({
+  numberOfLines: 1,
+  ellipsizeMode: 'tail',
+})`
+  max-width: 60%;
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const Account = styled.Text`
+export const CategoryAndAccountSeparator = styled.Text.attrs({
+  numberOfLines: 1,
+})`
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const AmountNotConvertedContainer = styled.View`
-  align-items: flex-end;
+export const Account = styled.Text.attrs({
+  numberOfLines: 1,
+  ellipsizeMode: 'tail',
+})`
+  max-width: 52%;
+  font-size: ${RFValue(12)}px;
+  color: ${({ theme }) => theme.colors.text};
 `;
+
+export const AmountNotConvertedContainer = styled.View``;
 
 export const AmountNotConverted = styled.Text`
-  font-size: ${RFValue(12)}px;
+  font-size: ${RFValue(10)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 

@@ -28,7 +28,6 @@ export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   text-align: center;
-  /* margin-top: -8px; */
   color: ${({ theme }) => theme.colors.text};
 `;
 

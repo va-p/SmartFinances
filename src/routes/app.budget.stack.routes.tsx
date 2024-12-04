@@ -7,6 +7,9 @@ import { RegisterBudget } from '@screens/RegisterBudget';
 
 import { RootParamList } from 'src/@types/navigation';
 import { BudgetDetails } from '@screens/BudgetDetails';
+import { CurrencyProps } from '@interfaces/currencies';
+import { AccountProps } from '@interfaces/accounts';
+import { CategoryProps } from '@interfaces/categories';
 
 const { Navigator, Screen } = createStackNavigator<RootParamList>();
 
@@ -19,13 +22,9 @@ export function AppBudgetStackRoutes() {
     >
       <Screen name='Todos os Orçamentos' component={Budgets} />
 
-      <Screen name='Orçamento' component={BudgetDetails} initialParams={{}} />
+      <Screen name='Orçamento' component={BudgetDetails} />
 
-      <Screen
-        name='Editar Orçamento'
-        component={RegisterBudget}
-        initialParams={{}}
-      />
+      <Screen name='Editar Orçamento' component={RegisterBudget} />
     </Navigator>
   );
 }

@@ -17,14 +17,13 @@ type RootParamList = {
   Contas: undefined;
   'Todas as Contas': undefined;
   Conta: AccountNavigationProps;
-  'Editar Conta': undefined;
+  'Editar Conta': AccountNavigationProps;
   Orçamentos: undefined;
   'Todos os Orçamentos': undefined;
   Orçamento: BudgetNavigationProps;
   'Editar Orçamento': BudgetNavigationProps;
   Resumo: undefined;
-  'Visão Geral das Despesas': undefined;
-  'Visão Geral das Receitas': undefined;
+  'Visão Geral': undefined;
   'Transações Por Categoria': undefined;
   Mais: undefined;
   'Mais Opções': undefined;

@@ -99,34 +99,25 @@ export function RegisterTransaction({
       hex: theme.colors.primary,
     },
   } as CategoryProps);
-  const [amount, setAmount] = useState('');
   const [currencySelected, setCurrencySelected] = useState({
     id: '4',
     name: 'Real Brasileiro',
     code: 'BRL',
     symbol: 'R$',
   } as CurrencyProps);
-  const accountID = useCurrentAccountSelected((state) => state.accountId);
-  const accountName = useCurrentAccountSelected((state) => state.accountName);
-  const accountCurrency = useCurrentAccountSelected(
-    (state) => state.accountCurrency
-  );
-  const accountInitialAmount = useCurrentAccountSelected(
-    (state) => state.accountInitialAmount
-  );
-  const accountTenantID = useCurrentAccountSelected(
-    (state) => state.accountTenantId
-  );
-  const setAccountID = useCurrentAccountSelected((state) => state.setAccountId);
-  const setAccountName = useCurrentAccountSelected(
-    (state) => state.setAccountName
-  );
-  const setAccountCurrency = useCurrentAccountSelected(
-    (state) => state.setAccountCurrency
-  );
-  const setAccountInitialAmount = useCurrentAccountSelected(
-    (state) => state.setAccountInitialAmount
-  );
+  const {
+    accountId: accountID,
+    accountName,
+    accountCurrency,
+    accountType,
+    accountInitialAmount,
+    accountTenantId: accountTenantID,
+    setAccountId: setAccountID,
+    setAccountName,
+    setAccountCurrency,
+    setAccountType,
+    setAccountInitialAmount,
+  } = useCurrentAccountSelected();
   const [accountDestinationSelected, setAccountDestinationSelected] = useState({
     id: '',
     name: 'Selecione a conta de destino',
@@ -140,7 +131,6 @@ export function RegisterTransaction({
     setShowDatePicker(false);
     setDate(selectedDate);
   };
-  const [description, setDescription] = useState('');
   const [transactionType, setTransactionType] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
@@ -149,17 +139,20 @@ export function RegisterTransaction({
   const [openImage, setOpenImage] = useState(false);
   const {
     control,
+    setValue,
+    getValues,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      description: '',
+      amount: 0,
+    },
+  });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
-
   // Currency Quotes
-  // const brlQuoteBtc = useQuotes((state) => state.brlQuoteBtc);
-  // const btcQuoteBrl = useQuotes((state) => state.btcQuoteBrl);
-  // const eurQuoteBrl = useQuotes((state) => state.eurQuoteBrl);
-  // const usdQuoteBrl = useQuotes((state) => state.usdQuoteBrl);
   const {
     brlQuoteBtc,
     brlQuoteEur,
@@ -766,14 +759,17 @@ export function RegisterTransaction({
         },
       });
       setCategorySelected(data.category);
-      setAmount(data.amount);
+      // setAmount(data.amount);
+      setValue('amount', data.amount);
       setCurrencySelected(data.account.currency);
       setAccountID(data.account.id);
       setAccountName(data.account.name);
       setAccountCurrency(data.account.currency);
+      setAccountType(data.account.type);
       const parsedDate = new Date(data.created_at);
       setDate(parsedDate);
-      setDescription(data.description);
+      // setDescription(data.description);
+      setValue('description', data.description);
       setTagsSelected(data.tags);
       {
         data.image && setImageUrl(data.image.url);
@@ -841,7 +837,7 @@ export function RegisterTransaction({
             </BorderlessButton>
             <Title>
               {id !== ''
-                ? `Editar Transação \n ${description}`
+                ? `Editar Transação \n ${getValues('description')}`
                 : 'Adicionar Transação'}
             </Title>
             {id !== '' && (
@@ -871,7 +867,8 @@ export function RegisterTransaction({
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
-                defaultValue={String(amount)}
+                // defaultValue={String(amount)}
+                defaultValue={String(getValues('amount'))}
                 name='amount'
                 control={control}
                 error={errors.amount}
@@ -922,7 +919,8 @@ export function RegisterTransaction({
             autoCapitalize='sentences'
             autoCorrect={false}
             returnKeyType='go'
-            defaultValue={description}
+            // defaultValue={description}
+            defaultValue={String(getValues('description'))}
             name='description'
             control={control}
             error={errors.description}
@@ -1043,6 +1041,7 @@ export function RegisterTransaction({
               code: 'BRL',
               symbol: 'R$',
             },
+            type: accountType || 'Conta Corrente',
             initialAmount: accountInitialAmount,
             tenantId: accountTenantID,
           }}
@@ -1050,6 +1049,7 @@ export function RegisterTransaction({
             setAccountID(account.id);
             setAccountName(account.name);
             setAccountCurrency(account.currency);
+            setAccountType(account.type);
             setCurrencySelected(account.currency);
             setAccountInitialAmount(account.initialAmount || 0);
           }}

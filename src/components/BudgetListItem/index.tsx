@@ -30,8 +30,12 @@ let amountSpent: string;
 export function BudgetListItem({ data, index, ...rest }: Props) {
   const isAmountReached = data.amount_spent >= data.amount;
 
-  amount = formatCurrency(data.currency.code, data.amount, false);
-  amountSpent = formatCurrency(data.currency.code, data.amount_spent, false);
+  amount = formatCurrency(data.currency.code, Number(data.amount), false);
+  amountSpent = formatCurrency(
+    data.currency.code,
+    Number(data.amount_spent),
+    false
+  );
 
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>

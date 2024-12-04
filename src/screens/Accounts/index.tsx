@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Alert, FlatList, RefreshControl, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
 import {
   Container,
   Header,
@@ -11,48 +11,48 @@ import {
   AccountsContainer,
   Footer,
   ButtonGroup,
-} from "./styles";
+} from './styles';
 
-import getTransactions from "@utils/getTransactions";
+import getTransactions from '@utils/getTransactions';
 
-import { ptBR } from "date-fns/locale";
-import { format, parseISO } from "date-fns";
-import * as Icon from "phosphor-react-native";
-import { LineChart } from "react-native-gifted-charts";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { ptBR } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns';
+import * as Icon from 'phosphor-react-native';
+import { LineChart } from 'react-native-gifted-charts';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
-import { ModalView } from "@components/ModalView";
-import { AccountListItem } from "@components/AccountListItem";
-import { AddAccountButton } from "@components/AddAccountButton";
-import { ListEmptyComponent } from "@components/ListEmptyComponent";
-import { SkeletonAccountsScreen } from "@components/SkeletonAccountsScreen";
+import { ModalView } from '@components/ModalView';
+import { AccountListItem } from '@components/AccountListItem';
+import { AddAccountButton } from '@components/AddAccountButton';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
-import { RegisterAccount } from "@screens/RegisterAccount";
-import { SelectConnectAccount } from "@screens/SelectConnectAccount";
+import { RegisterAccount } from '@screens/RegisterAccount';
+import { SelectConnectAccount } from '@screens/SelectConnectAccount';
 
 import {
   AccountType,
   useCurrentAccountSelected,
-} from "@storage/currentAccountSelectedStorage";
-import { useUser } from "@storage/userStorage";
-import { useQuotes } from "@storage/quotesStorage";
-import { useUserConfigs } from "@storage/userConfigsStorage";
-import { DATABASE_CONFIGS, storageConfig } from "@database/database";
+} from '@storage/currentAccountSelectedStorage';
+import { useUser } from '@storage/userStorage';
+import { useQuotes } from '@storage/quotesStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
-import api from "@api/api";
+import api from '@api/api';
 
-import { AccountProps } from "@interfaces/accounts";
+import { AccountProps } from '@interfaces/accounts';
 
-import theme from "@themes/theme";
+import theme from '@themes/theme';
 
-type TotalByMonths = {
+export type TotalByMonths = {
   date: string;
   totalRevenuesByMonth: number;
   totalExpensesByMonth: number;
   total: number;
 };
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 32;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
 
@@ -70,7 +70,7 @@ export function Accounts({ navigation }: any) {
   } = useCurrentAccountSelected();
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
-  const [total, setTotal] = useState("R$0");
+  const [total, setTotal] = useState('R$0');
   const [totalByMonths, setTotalByMonths] = useState<TotalByMonths[]>([]);
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -92,37 +92,37 @@ export function Accounts({ navigation }: any) {
       for (const item of data) {
         if (new Date(item.created_at) <= new Date()) {
           switch (item.account.currency.code) {
-            case "BRL":
+            case 'BRL':
               switch (item.type) {
-                case "credit":
-                case "transferCredit":
+                case 'credit':
+                case 'transferCredit':
                   totalRevenuesBRL += item.amount;
                   break;
-                case "debit":
-                case "transferDebit":
+                case 'debit':
+                case 'transferDebit':
                   totalExpensesBRL += item.amount;
                   break;
               }
               break;
-            case "BTC":
+            case 'BTC':
               switch (item.type) {
-                case "credit":
-                case "transferCredit":
+                case 'credit':
+                case 'transferCredit':
                   totalRevenuesBRL += item.amount * btcQuoteBrl.price;
                   break;
-                case "debit":
-                case "transferDebit":
+                case 'debit':
+                case 'transferDebit':
                   totalExpensesBRL += item.amount * btcQuoteBrl.price;
                   break;
               }
-            case "USD":
+            case 'USD':
               switch (item.type) {
-                case "credit":
-                case "transferCredit":
+                case 'credit':
+                case 'transferCredit':
                   totalRevenuesBRL += item.amount * usdQuoteBrl.price;
                   break;
-                case "debit":
-                case "transferDebit":
+                case 'debit':
+                case 'transferDebit':
                   totalExpensesBRL += item.amount * usdQuoteBrl.price;
                   break;
               }
@@ -150,12 +150,12 @@ export function Accounts({ navigation }: any) {
           }
 
           switch (item.type) {
-            case "credit":
-            case "transferCredit":
+            case 'credit':
+            case 'transferCredit':
               accounts[account].totalRevenuesByAccount += item.amount;
               break;
-            case "debit":
-            case "transferDebit":
+            case 'debit':
+            case 'transferDebit':
               accounts[account].totalExpensesByAccount += item.amount;
               break;
           }
@@ -163,9 +163,9 @@ export function Accounts({ navigation }: any) {
       }
 
       const totalBRL = totalRevenuesBRL - totalExpensesBRL;
-      const totalFormattedPtbr = Number(totalBRL).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
+      const totalFormattedPtbr = Number(totalBRL).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
       });
 
       accounts = Object.values(accounts);
@@ -180,40 +180,40 @@ export function Accounts({ navigation }: any) {
           accounts[i].totalExpensesByAccount;
 
         accounts[i].totalAccountAmount = Number(totalByAccount).toLocaleString(
-          "pt-BR",
+          'pt-BR',
           {
-            style: "currency",
+            style: 'currency',
             currency: accounts[i].currency.code, // Usa o código da moeda da conta
-            minimumFractionDigits: accounts[i].currency.code === "BTC" ? 8 : 2, // Define casas decimais conforme a moeda
+            minimumFractionDigits: accounts[i].currency.code === 'BTC' ? 8 : 2, // Define casas decimais conforme a moeda
             maximumSignificantDigits:
-              accounts[i].currency.code === "BTC" ? 8 : undefined,
+              accounts[i].currency.code === 'BTC' ? 8 : undefined,
           }
         );
 
-        if (accounts[i].currency.code === "BTC") {
+        if (accounts[i].currency.code === 'BTC') {
           accounts[i].totalAccountAmountConverted = Number(
             totalByAccount * btcQuoteBrl.price
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
           });
         }
 
-        if (accounts[i].currency.code === "EUR") {
+        if (accounts[i].currency.code === 'EUR') {
           accounts[i].totalAccountAmountConverted = Number(
             totalByAccount * eurQuoteBrl.price
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
           });
         }
 
-        if (accounts[i].currency.code === "USD") {
+        if (accounts[i].currency.code === 'USD') {
           accounts[i].totalAccountAmountConverted = Number(
             totalByAccount * usdQuoteBrl.price
-          ).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
+          ).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
           });
         }
       }
@@ -240,11 +240,20 @@ export function Accounts({ navigation }: any) {
             };
           }
           switch (item.type) {
-            case "credit":
-              totalsByMonths[ym].totalRevenuesByMonth += item.amount;
+            case 'credit':
+              totalsByMonths[ym].totalRevenuesByMonth = parseFloat(
+                (totalsByMonths[ym].totalRevenuesByMonth + item.amount).toFixed(
+                  2
+                )
+              );
+
               break;
-            case "debit":
-              totalsByMonths[ym].totalExpensesByMonth += item.amount;
+            case 'debit':
+              totalsByMonths[ym].totalExpensesByMonth = parseFloat(
+                (totalsByMonths[ym].totalExpensesByMonth + item.amount).toFixed(
+                  2
+                )
+              );
               break;
           }
         }
@@ -271,8 +280,8 @@ export function Accounts({ navigation }: any) {
     } catch (error) {
       console.error(error);
       Alert.alert(
-        "Contas",
-        "Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente."
+        'Contas',
+        'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
       );
     } finally {
       setLoading(false);
@@ -309,12 +318,12 @@ export function Accounts({ navigation }: any) {
     setAccountType(type);
     setAccountCurrency(currency);
     setAccountInitialAmount(initialAmount);
-    navigation.navigate("Conta");
+    navigation.navigate('Conta');
   }
 
   async function handleHideData() {
     try {
-      const { status } = await api.post("edit_hide_amount", {
+      const { status } = await api.post('edit_hide_amount', {
         user_id: userId,
         hide_amount: !hideAmount,
       });
@@ -326,33 +335,33 @@ export function Accounts({ navigation }: any) {
     } catch (error) {
       console.error(error);
       Alert.alert(
-        "Não foi possível salvar suas configurações. Por favor, tente novamente."
+        'Não foi possível salvar suas configurações. Por favor, tente novamente.'
       );
     }
   }
 
   function _renderEmpty() {
     return (
-      <ListEmptyComponent text="Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui" />
+      <ListEmptyComponent text='Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui' />
     );
   }
 
   function _renderItem({ item, index }: any) {
     const getAccountIcon = () => {
       switch (item.type) {
-        case "Outro":
-        case "Carteira":
+        case 'Outro':
+        case 'Carteira':
           return <Icon.Wallet color={theme.colors.primary} />;
-        case "Carteira de Criptomoedas":
+        case 'Carteira de Criptomoedas':
           return <Icon.CurrencyBtc color={theme.colors.primary} />;
-        case "Poupança":
-        case "Investimentos":
-        case "Conta Corrente":
+        case 'Poupança':
+        case 'Investimentos':
+        case 'Conta Corrente':
           return <Icon.Bank color={theme.colors.primary} />;
-        case "Cartão de Crédito":
+        case 'Cartão de Crédito':
           return <Icon.CreditCard color={theme.colors.primary} />;
         default:
-          "Carteira";
+          'Carteira';
           break;
       }
     };
@@ -388,7 +397,7 @@ export function Accounts({ navigation }: any) {
     <Container>
       <Header>
         <CashFlowContainer>
-          <CashFlowTotal>{!hideAmount ? total : "•••••"}</CashFlowTotal>
+          <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal>
           <CashFlowDescription>Patrimônio Total</CashFlowDescription>
         </CashFlowContainer>
 
@@ -415,8 +424,8 @@ export function Accounts({ navigation }: any) {
             .reverse()}
           height={180}
           width={GRAPH_WIDTH}
-          xAxisColor="#455A64"
-          yAxisColor="#455A64"
+          xAxisColor='#455A64'
+          yAxisColor='#455A64'
           areaChart
           curved
           showVerticalLines
@@ -430,12 +439,12 @@ export function Accounts({ navigation }: any) {
           xAxisTextNumberOfLines={2}
           xAxisLabelTextStyle={{
             fontSize: 10,
-            color: "#90A4AE",
+            color: '#90A4AE',
             paddingRight: 10,
           }}
-          yAxisTextStyle={{ fontSize: 11, color: "#90A4AE" }}
-          rulesColor="#455A64"
-          verticalLinesColor="#455A64"
+          yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+          rulesColor='#455A64'
+          verticalLinesColor='#455A64'
           color1={theme.colors.primary}
           dataPointsColor1={theme.colors.primary}
           startFillColor1={theme.colors.primary}
@@ -467,16 +476,16 @@ export function Accounts({ navigation }: any) {
         <Footer>
           <ButtonGroup>
             <AddAccountButton
-              icon="card"
-              title="Conectar conta bancária"
+              icon='card'
+              title='Conectar conta bancária'
               onPress={handleOpenConnectAccountModal}
             />
           </ButtonGroup>
 
           <ButtonGroup>
             <AddAccountButton
-              icon="wallet"
-              title="Criar conta manual"
+              icon='wallet'
+              title='Criar conta manual'
               onPress={handleOpenRegisterAccountModal}
             />
           </ButtonGroup>
@@ -485,20 +494,20 @@ export function Accounts({ navigation }: any) {
 
       <ModalView
         bottomSheetRef={connectAccountBottomSheetRef}
-        snapPoints={["50%", "75%"]}
+        snapPoints={['50%', '75%']}
         closeModal={handleCloseConnectAccountModal}
-        title="Conectar Conta Bancária"
+        title='Conectar Conta Bancária'
       >
         <SelectConnectAccount />
       </ModalView>
 
       <ModalView
         bottomSheetRef={registerAccountBottomSheetRef}
-        snapPoints={["50%", "75%"]}
+        snapPoints={['50%', '75%']}
         closeModal={handleCloseRegisterAccountModal}
-        title="Criar Conta Manual"
+        title='Criar Conta Manual'
       >
-        <RegisterAccount id="" closeAccount={handleCloseRegisterAccountModal} />
+        <RegisterAccount id='' closeAccount={handleCloseRegisterAccountModal} />
       </ModalView>
     </Container>
   );

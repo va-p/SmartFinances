@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Alert } from 'react-native';
 import { BudgetTotal, BudgetTotalDescription, Container } from './styles';
 
@@ -6,11 +6,9 @@ import { BudgetProps } from '@interfaces/budget';
 
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
-import { VictoryPie } from 'victory-native';
 import { useRoute } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { formatDistanceToNowStrict, parse } from 'date-fns';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import {
   EndPeriod,
@@ -28,8 +26,6 @@ import api from '@api/api';
 
 import formatCurrency from '@utils/formatCurrency';
 
-import theme from '@themes/theme';
-
 export function BudgetDetails() {
   const route = useRoute();
   const budget: BudgetProps = route.params?.budget;
@@ -39,7 +35,11 @@ export function BudgetDetails() {
   function calculateRemainderBudget() {
     const value = Number(budget.amount) - Number(budget.amount_spent);
     return Number(
-      formatCurrency(budget.currency.code, value.toFixed(2), false)
+      formatCurrency({
+        currencyCode: budget.currency.code,
+        value: value.toFixed(2),
+        isConverted: false,
+      })
     );
   }
 
@@ -65,7 +65,6 @@ export function BudgetDetails() {
   }
 
   function handleCloseEditBudgetModal() {
-    // setBudgetCategoriesSelected([]);
     budgetEditBottomSheetRef.current?.dismiss();
   }
 

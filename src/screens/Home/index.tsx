@@ -38,6 +38,7 @@ import {
   VictoryBar,
   VictoryGroup,
   VictoryZoomContainer,
+  VictoryAxis,
 } from 'victory-native';
 import {
   RectButton,
@@ -99,10 +100,12 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.44;
 const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
 
-type PeriodData = {
+export type CashFLowData = {
   date: Date | string | number;
   totalRevenuesByPeriod: number;
   totalExpensesByPeriod: number;
+  total: number;
+  cashFlow: string;
 };
 
 export function Home() {
@@ -144,16 +147,20 @@ export function Home() {
   const [
     totalAmountsGroupedBySelectedPeriod,
     setTotalAmountsGroupedBySelectedPeriod,
-  ] = useState<PeriodData[]>([
+  ] = useState<CashFLowData[]>([
     {
       date: '0',
       totalRevenuesByPeriod: 0,
       totalExpensesByPeriod: 0,
+      total: 0,
+      cashFlow: '',
     },
     {
       date: '1',
       totalRevenuesByPeriod: 0,
       totalExpensesByPeriod: 0,
+      total: 0,
+      cashFlow: '',
     },
   ]);
   const [selectedPeriod, setSelectedPeriod] = useState(new Date());
@@ -162,7 +169,6 @@ export function Home() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
-
   // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {
@@ -394,13 +400,12 @@ export function Home() {
         }
       }
 
-      const totalByMonths =
-        //initialTotalAmountByMonths +
-        totalRevenuesByMonths - totalExpensesByMonths;
-      const totalFormattedPtbrByMonths = totalByMonths.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
+      const totalByMonths = totalRevenuesByMonths - totalExpensesByMonths;
+      const totalFormattedPtbrByMonths = formatCurrency(
+        'BRL',
+        totalByMonths,
+        false
+      );
       /**
        * Transactions By Months Formatted in pt-BR - End
        */
@@ -436,15 +441,11 @@ export function Home() {
         });
       }
 
-      const totalBRLByYears =
-        //initialTotalAmountBRLByYears +
-        totalRevenuesByYears - totalExpensesByYears;
-      const totalFormattedPtbrByYears = totalBRLByYears.toLocaleString(
-        'pt-BR',
-        {
-          style: 'currency',
-          currency: 'BRL',
-        }
+      const totalBRLByYears = totalRevenuesByYears - totalExpensesByYears;
+      const totalFormattedPtbrByYears = formatCurrency(
+        'BRL',
+        totalBRLByYears,
+        false
       );
       /**
        * Transactions By Years Formatted in pt-BR - End
@@ -453,34 +454,48 @@ export function Home() {
       /**
        * All Totals Grouped By Months - Start
        */
-      let totalsGroupedByMonths: any = [];
-      for (const item of data) {
-        const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+      if (chartPeriodSelected.period === 'months') {
+        let totalsGroupedByMonths: any = [];
+        for (const item of data) {
+          const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
 
-        if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
-          totalsGroupedByMonths[ym] = {
-            date: ym,
-            totalRevenuesByPeriod: 0,
-            totalExpensesByPeriod: 0,
-          };
+          if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
+            totalsGroupedByMonths[ym] = {
+              date: ym,
+              totalRevenuesByPeriod: 0,
+              totalExpensesByPeriod: 0,
+              total: 0,
+            };
+          }
+          if (
+            new Date(item.created_at) < new Date() &&
+            item.type === 'credit'
+          ) {
+            totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
+          } else if (
+            new Date(item.created_at) < new Date() &&
+            item.type === 'debit'
+          ) {
+            totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
+          }
         }
-        if (new Date(item.created_at) < new Date() && item.type === 'credit') {
-          totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
-        } else if (
-          new Date(item.created_at) < new Date() &&
-          item.type === 'debit'
-        ) {
-          totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
-        }
-      }
-      totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
+        totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
 
-      for (let i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
-        totalsGroupedByMonths[i].date = format(
-          parseISO(totalsGroupedByMonths[i].date),
-          `MMM '\n' yyyy`,
-          { locale: ptBR }
+        for (let i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
+          totalsGroupedByMonths[i].date = format(
+            parseISO(totalsGroupedByMonths[i].date),
+            `MMM '\n' yyyy`,
+            { locale: ptBR }
+          );
+        }
+
+        setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByMonths);
+        setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
+        setTransactionsFormattedBySelectedPeriod(
+          transactionsByMonthsFormattedPtbr
         );
+
+        return;
       }
       /**
        * All Totals Grouped By Months - End
@@ -489,33 +504,47 @@ export function Home() {
       /**
        * All Totals Grouped By Years - Start
        */
-      let totalsGroupedByYears: any = [];
-      for (const item of data) {
-        const y = format(item.created_at, `yyyy`, { locale: ptBR });
+      if (chartPeriodSelected.period === 'years') {
+        let totalsGroupedByYears: any = [];
+        for (const item of data) {
+          const y = format(item.created_at, `yyyy`, { locale: ptBR });
 
-        if (!totalsGroupedByYears.hasOwnProperty(y)) {
-          totalsGroupedByYears[y] = {
-            date: y,
-            totalRevenuesByPeriod: 0,
-            totalExpensesByPeriod: 0,
-          };
+          if (!totalsGroupedByYears.hasOwnProperty(y)) {
+            totalsGroupedByYears[y] = {
+              date: y,
+              totalRevenuesByPeriod: 0,
+              totalExpensesByPeriod: 0,
+              total: 0,
+            };
+          }
+          if (
+            new Date(item.created_at) < new Date() &&
+            item.type === 'credit'
+          ) {
+            totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
+          } else if (
+            new Date(item.created_at) < new Date() &&
+            item.type === 'debit'
+          ) {
+            totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
+          }
         }
-        if (new Date(item.created_at) < new Date() && item.type === 'credit') {
-          totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
-        } else if (
-          new Date(item.created_at) < new Date() &&
-          item.type === 'debit'
-        ) {
-          totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
-        }
+        totalsGroupedByYears = Object.values(totalsGroupedByYears).sort(
+          (a: any, b: any) => {
+            const firstDateParsed = parse(a.date, 'yyyy', new Date());
+            const secondDateParsed = parse(b.date, 'yyyy', new Date());
+            return secondDateParsed.getTime() - firstDateParsed.getTime();
+          }
+        );
+
+        setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByYears);
+        setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByYears);
+        setTransactionsFormattedBySelectedPeriod(
+          transactionsByYearsFormattedPtbr
+        );
+
+        return;
       }
-      totalsGroupedByYears = Object.values(totalsGroupedByYears).sort(
-        (a: any, b: any) => {
-          const firstDateParsed = parse(a.date, 'yyyy', new Date());
-          const secondDateParsed = parse(b.date, 'yyyy', new Date());
-          return secondDateParsed.getTime() - firstDateParsed.getTime();
-        }
-      );
       /**
        * All Totals Grouped By Years - End
        */
@@ -523,62 +552,45 @@ export function Home() {
       /**
        * All Totals Grouped By All History - Start
        */
-      let totalsGroupedByAllHistory: any = [];
-      for (const item of data) {
-        item.created_at = `Todo o \n histórico`;
-        const allHistory = item.created_at;
+      if (chartPeriodSelected.period === 'all') {
+        let totalsGroupedByAllHistory: any = [];
+        for (const item of data) {
+          item.created_at = `Todo o \n histórico`;
+          const allHistory = item.created_at;
 
-        if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
-          totalsGroupedByAllHistory[allHistory] = {
-            date: allHistory,
-            totalRevenuesByPeriod: 0,
-            totalExpensesByPeriod: 0,
-          };
+          if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
+            totalsGroupedByAllHistory[allHistory] = {
+              date: allHistory,
+              totalRevenuesByPeriod: 0,
+              totalExpensesByPeriod: 0,
+            };
+          }
+          if (
+            new Date(item.created_at) < new Date() &&
+            item.type === 'credit'
+          ) {
+            totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod +=
+              item.amount;
+          } else if (
+            new Date(item.created_at) < new Date() &&
+            item.type === 'debit'
+          ) {
+            totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod +=
+              item.amount;
+          }
         }
-        if (new Date(item.created_at) < new Date() && item.type === 'credit') {
-          totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod +=
-            item.amount;
-        } else if (
-          new Date(item.created_at) < new Date() &&
-          item.type === 'debit'
-        ) {
-          totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod +=
-            item.amount;
-        }
+        totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);
+
+        setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByAllHistory);
+        setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByAllHistory);
+        setTransactionsFormattedBySelectedPeriod(
+          transactionsFormattedPtbrGroupedByDate
+        );
+
+        return;
       }
-      totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);
       /**
        * All Totals Grouped All History - End
-       */
-
-      /**
-       * Set Transactions and Totals by Selected Period - Start
-       */
-      switch (chartPeriodSelected.period) {
-        case 'months':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByMonths);
-          setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsByMonthsFormattedPtbr
-          );
-          break;
-        case 'years':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByYears);
-          setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByYears);
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsByYearsFormattedPtbr
-          );
-          break;
-        case 'all':
-          setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByAllHistory);
-          setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByAllHistory);
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsFormattedPtbrGroupedByDate
-          );
-          break;
-      }
-      /**
-       * Set Transactions and Totals by Selected Period  - End
        */
     } catch (error) {
       console.error(error);
@@ -714,11 +726,6 @@ export function Home() {
   }, []);
 
   useEffect(() => {
-    // fetchBrlQuote();
-    // fetchBtcQuote();
-    // fetchEurQuote();
-    // fetchUsdQuote();
-
     fetchQuote('BRL', 'BTC', setBrlQuoteBtc);
     fetchQuote('BRL', 'EUR', setBrlQuoteEur);
     fetchQuote('BRL', 'USD', setBrlQuoteUsd);
@@ -774,7 +781,7 @@ export function Home() {
         <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
             height={120}
-            padding={{ top: 16, right: 16, bottom: 40, left: 40 }}
+            padding={{ top: 16, right: 16, bottom: 40, left: 56 }}
             containerComponent={
               <VictoryZoomContainer
                 allowZoom={false}
@@ -784,6 +791,11 @@ export function Home() {
             }
             theme={smartFinancesChartTheme}
           >
+            <VictoryAxis
+              dependentAxis
+              tickFormat={(tick) => formatCurrency('BRL', tick, false, false)}
+            />
+            <VictoryAxis tickFormat={(tick) => tick} />
             <VictoryGroup offset={12}>
               <VictoryBar
                 data={totalAmountsGroupedBySelectedPeriod}
@@ -818,7 +830,7 @@ export function Home() {
                 }}
                 cornerRadius={{ top: 2, bottom: 2 }}
                 animate={{
-                  onLoad: { duration: 1500 },
+                  onLoad: { duration: 3000 },
                   easing: 'backOut',
                 }}
               />

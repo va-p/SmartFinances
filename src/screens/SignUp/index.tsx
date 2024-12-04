@@ -80,20 +80,6 @@ export function SignUp({ navigation }: any) {
         subscription_id: 1,
         contact_1: form.name,
       };
-      // const tenantRegister = await api.post('tenant', newTenant);
-
-      // if (tenantRegister.status === 200) {
-      //   var responseTenantRegister = await api.get('single_tenant', {
-      //     params: {
-      //       email: form.email,
-      //     },
-      //   });
-      // } else {
-      //   return Alert.alert(
-      //     'Cadastro de usuário',
-      //     'Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.'
-      //   );
-      // }
 
       const newUser = {
         name: form.name,
@@ -101,10 +87,7 @@ export function SignUp({ navigation }: any) {
         email: form.email,
         phone: form.phone,
         password: form.password,
-        // use_local_authentication: false,
-        // tenant_id: responseTenantRegister.data.id,
       };
-      // const { status } = await api.post('auth/signup', newUser);
 
       const tenantAndUser = { ...newTenant, ...newUser };
       const { status } = await api.post('auth/register_user', tenantAndUser);
