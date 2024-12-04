@@ -3,7 +3,7 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "runtimeVersion": "2.0.0(30)",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",

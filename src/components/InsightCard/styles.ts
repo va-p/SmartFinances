@@ -4,8 +4,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
-  align-items: flex-start;
-  padding: 0 8px 8px 0;
+  padding: 16px;
   margin: 16px 0;
   border: 1px solid ${({ theme }) => theme.colors.overlay_light2};
   border-radius: 8px;
@@ -21,6 +20,7 @@ export const CloseInsightButton = styled(BorderlessButton)`
 export const TitleContainer = styled.View``;
 
 export const InsightTitle = styled.Text`
+  box-sizing: border-box;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   text-align: center;
@@ -28,9 +28,9 @@ export const InsightTitle = styled.Text`
 `;
 
 export const InsightText = styled.Text`
+  box-sizing: border-box;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(11)}px;
   text-align: center;
-  margin-top: -10px;
   color: ${({ theme }) => theme.colors.text};
 `;

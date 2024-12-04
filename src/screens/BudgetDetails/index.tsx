@@ -33,14 +33,7 @@ export function BudgetDetails() {
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
 
   function calculateRemainderBudget() {
-    const value = Number(budget.amount) - Number(budget.amount_spent);
-    return Number(
-      formatCurrency({
-        currencyCode: budget.currency.code,
-        value: value.toFixed(2),
-        isConverted: false,
-      })
-    );
+    return Number(budget.amount) - Number(budget.amount_spent);
   }
 
   function calculateRemainderBudgetPerDay() {
@@ -57,7 +50,7 @@ export function BudgetDetails() {
     const RemainderBudgetPerDay = (
       calculateRemainderBudget() / Number(daysToEndDate)
     ).toFixed(2);
-    return RemainderBudgetPerDay;
+    return Number(RemainderBudgetPerDay);
   }
 
   function handleOpenEditBudgetModal() {
@@ -112,25 +105,35 @@ export function BudgetDetails() {
         <Header.Icon onPress={handleOpenEditBudgetModal} />
       </Header.Root>
 
-      <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>{`${
-        budget.currency.symbol
-      } ${Number(budget.amount_spent).toFixed(2)}`}</BudgetTotal>
+      <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
+        {formatCurrency(
+          budget.currency.code,
+          Number(budget.amount_spent),
+          false
+        )}
+      </BudgetTotal>
       <BudgetTotalDescription>
-        {`Restam ${budget.currency.symbol} ${calculateRemainderBudget()}`}
+        {`Restam ${formatCurrency(
+          budget.currency.code,
+          calculateRemainderBudget(),
+          false
+        )}`}
       </BudgetTotalDescription>
 
       <InsightCard.Root>
         <InsightCard.Title
           text={
             !budgetAmountReached
-              ? `
-            Você ainda pode gastar ${
-              budget.currency.symbol
-            } ${calculateRemainderBudgetPerDay()} por dia até o final do período do orçamento`
-              : `
-            O seu orçamento foi excedido em ${budget.currency.symbol} ${
-                  calculateRemainderBudget() * -1
-                }. Pare de gastar!`
+              ? `Você ainda pode gastar ${formatCurrency(
+                  budget.currency.code,
+                  calculateRemainderBudgetPerDay(),
+                  false
+                )} por dia até o final do período do orçamento`
+              : `O seu orçamento foi excedido em ${formatCurrency(
+                  budget.currency.code,
+                  calculateRemainderBudgetPerDay() * -1,
+                  false
+                )}. Pare de gastar!`
           }
         />
       </InsightCard.Root>
