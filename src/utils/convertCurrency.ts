@@ -63,6 +63,10 @@ export const convertCurrency = ({
     },
   };
 
+  console.log('fromCurrency =>', fromCurrency)
+  console.log('accountCurrency =>', accountCurrency)
+  console.log('fromCurrency !== accountCurrency ? =>', fromCurrency !== accountCurrency)
+
   // 1. Verificar se a moeda da transação é diferente da moeda da conta de origem
   if (fromCurrency !== accountCurrency) {
     // Converter para a moeda da conta de origem

@@ -593,7 +593,7 @@ export function Home() {
        * All Totals Grouped All History - End
        */
     } catch (error) {
-      console.error(error);
+      console.error('Home fetchTransactions error =>', error);
       Alert.alert(
         'Transações',
         'Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.'

@@ -44,6 +44,7 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
+import { convertCurrency } from '@utils/convertCurrency';
 
 export type TotalByMonths = {
   date: string;
@@ -59,7 +60,20 @@ const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const { tenantId, id: userId } = useUser();
-  const { btcQuoteBrl, eurQuoteBrl, usdQuoteBrl } = useQuotes();
+  const {
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteEur,
+    usdQuoteBtc,
+  } = useQuotes();
   const { hideAmount, setHideAmount } = useUserConfigs();
   const {
     setAccountId,
@@ -95,10 +109,12 @@ export function Accounts({ navigation }: any) {
             case 'BRL':
               switch (item.type) {
                 case 'credit':
+                case 'CREDIT':
                 case 'transferCredit':
                   totalRevenuesBRL += item.amount;
                   break;
                 case 'debit':
+                case 'DEBIT':
                 case 'transferDebit':
                   totalExpensesBRL += item.amount;
                   break;
@@ -107,10 +123,12 @@ export function Accounts({ navigation }: any) {
             case 'BTC':
               switch (item.type) {
                 case 'credit':
+                case 'CREDIT':
                 case 'transferCredit':
                   totalRevenuesBRL += item.amount * btcQuoteBrl.price;
                   break;
                 case 'debit':
+                case 'DEBIT':
                 case 'transferDebit':
                   totalExpensesBRL += item.amount * btcQuoteBrl.price;
                   break;
@@ -118,10 +136,12 @@ export function Accounts({ navigation }: any) {
             case 'USD':
               switch (item.type) {
                 case 'credit':
+                case 'CREDIT':
                 case 'transferCredit':
                   totalRevenuesBRL += item.amount * usdQuoteBrl.price;
                   break;
                 case 'debit':
+                case 'DEBIT':
                 case 'transferDebit':
                   totalExpensesBRL += item.amount * usdQuoteBrl.price;
                   break;
@@ -151,10 +171,12 @@ export function Accounts({ navigation }: any) {
 
           switch (item.type) {
             case 'credit':
+            case 'CREDIT':
             case 'transferCredit':
               accounts[account].totalRevenuesByAccount += item.amount;
               break;
             case 'debit':
+            case 'DEBIT':
             case 'transferDebit':
               accounts[account].totalExpensesByAccount += item.amount;
               break;
@@ -172,12 +194,14 @@ export function Accounts({ navigation }: any) {
       const filteredAccounts = accounts.filter(
         (account: AccountProps) => !account.hide
       );
+      // console.log('accounts ===>', accounts);
 
       for (let i = accounts.length - 1; i >= 0; i--) {
         const totalByAccount =
-          accounts[i].initial_amount +
-          accounts[i].totalRevenuesByAccount -
-          accounts[i].totalExpensesByAccount;
+          Number(accounts[i].totalRevenuesByAccount) -
+          Number(accounts[i].totalExpensesByAccount);
+
+        // console.log('totalByAccount ===>', totalByAccount);
 
         accounts[i].totalAccountAmount = Number(totalByAccount).toLocaleString(
           'pt-BR',
@@ -191,9 +215,26 @@ export function Accounts({ navigation }: any) {
         );
 
         if (accounts[i].currency.code === 'BTC') {
-          accounts[i].totalAccountAmountConverted = Number(
-            totalByAccount * btcQuoteBrl.price
-          ).toLocaleString('pt-BR', {
+          accounts[i].totalAccountAmountConverted = convertCurrency({
+            amount: totalByAccount,
+            fromCurrency: accounts[i].currency.code,
+            toCurrency: 'BRL',
+            accountCurrency: accounts[i].currency.code,
+            quotes: {
+              brlQuoteBtc,
+              brlQuoteEur,
+              brlQuoteUsd,
+              btcQuoteBrl,
+              btcQuoteEur,
+              btcQuoteUsd,
+              eurQuoteBrl,
+              eurQuoteBtc,
+              eurQuoteUsd,
+              usdQuoteBrl,
+              usdQuoteBtc,
+              usdQuoteEur,
+            },
+          }).toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
           });
@@ -209,12 +250,35 @@ export function Accounts({ navigation }: any) {
         }
 
         if (accounts[i].currency.code === 'USD') {
-          accounts[i].totalAccountAmountConverted = Number(
-            totalByAccount * usdQuoteBrl.price
-          ).toLocaleString('pt-BR', {
+          accounts[i].totalAccountAmountConverted = convertCurrency({
+            amount: totalByAccount,
+            fromCurrency: accounts[i].currency.code,
+            toCurrency: 'BRL',
+            accountCurrency: accounts[i].currency.code,
+            quotes: {
+              brlQuoteBtc,
+              brlQuoteEur,
+              brlQuoteUsd,
+              btcQuoteBrl,
+              btcQuoteEur,
+              btcQuoteUsd,
+              eurQuoteBrl,
+              eurQuoteBtc,
+              eurQuoteUsd,
+              usdQuoteBrl,
+              usdQuoteBtc,
+              usdQuoteEur,
+            },
+          }).toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
           });
+          // accounts[i].totalAccountAmountConverted = Number(
+          //   totalByAccount * usdQuoteBrl.price
+          // ).toLocaleString('pt-BR', {
+          //   style: 'currency',
+          //   currency: 'BRL',
+          // });
         }
       }
 
@@ -241,19 +305,13 @@ export function Accounts({ navigation }: any) {
           }
           switch (item.type) {
             case 'credit':
-              totalsByMonths[ym].totalRevenuesByMonth = parseFloat(
-                (totalsByMonths[ym].totalRevenuesByMonth + item.amount).toFixed(
-                  2
-                )
-              );
+              totalsByMonths[ym].totalRevenuesByMonth =
+                totalsByMonths[ym].totalRevenuesByMonth + item.amount;
 
               break;
             case 'debit':
-              totalsByMonths[ym].totalExpensesByMonth = parseFloat(
-                (totalsByMonths[ym].totalExpensesByMonth + item.amount).toFixed(
-                  2
-                )
-              );
+              totalsByMonths[ym].totalExpensesByMonth =
+                totalsByMonths[ym].totalExpensesByMonth + item.amount;
               break;
           }
         }
@@ -265,7 +323,7 @@ export function Accounts({ navigation }: any) {
         total +=
           totalsByMonths[i].totalRevenuesByMonth -
           totalsByMonths[i].totalExpensesByMonth;
-        totalsByMonths[i].total = total;
+        totalsByMonths[i].total = parseFloat(total.toFixed(2));
         totalsByMonths[i].date = format(
           parseISO(totalsByMonths[i].date),
           `MMM '\n' yyyy`,
@@ -357,8 +415,10 @@ export function Accounts({ navigation }: any) {
         case 'Poupança':
         case 'Investimentos':
         case 'Conta Corrente':
+        case 'BANK':
           return <Icon.Bank color={theme.colors.primary} />;
         case 'Cartão de Crédito':
+        case 'CREDIT':
           return <Icon.CreditCard color={theme.colors.primary} />;
         default:
           'Carteira';
@@ -461,7 +521,7 @@ export function Accounts({ navigation }: any) {
           keyExtractor={(item) => String(item.id)}
           renderItem={_renderItem}
           ListEmptyComponent={_renderEmpty}
-          initialNumToRender={10}
+          initialNumToRender={25}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -494,7 +554,8 @@ export function Accounts({ navigation }: any) {
 
       <ModalView
         bottomSheetRef={connectAccountBottomSheetRef}
-        snapPoints={['50%', '75%']}
+        snapPoints={['100%']}
+        enableContentPanningGesture={false}
         closeModal={handleCloseConnectAccountModal}
         title='Conectar Conta Bancária'
       >
