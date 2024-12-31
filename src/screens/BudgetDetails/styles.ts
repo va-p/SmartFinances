@@ -28,3 +28,10 @@ export const BudgetTotalDescription = styled.Text`
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
+
+export const BudgetTransactionsContainer = styled.View``;
+
+export const BudgetTransactions = styled.FlatList.attrs({
+  showsVerticalScrollIndicator: false,
+  initialNumToRender: 20,
+})``;

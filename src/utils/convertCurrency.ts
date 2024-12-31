@@ -34,38 +34,34 @@ export const convertCurrency = ({
         const result = (amount * quotes.brlQuoteBtc.price).toFixed(8);
         return Number(result);
       },
-      // EUR: (amount: number) => amount * brlQuoteEur.price,
-      // USD: (amount: number) => amount * brlQuoteUsd.price,
+      EUR: (amount: number) => amount * quotes.brlQuoteEur.price,
+      USD: (amount: number) => amount * quotes.brlQuoteUsd.price,
     },
     BTC: {
       BRL: (amount: number) => {
         const result = amount * quotes.btcQuoteBrl.price;
         return Number(result.toFixed(2));
       },
-      // EUR: (amount: number) => amount * btcQuoteEur.price,
-      // USD: (amount: number) => amount * btcQuoteUsd.price,
+      EUR: (amount: number) => amount * quotes.btcQuoteEur.price,
+      USD: (amount: number) => amount * quotes.btcQuoteUsd.price,
     },
     EUR: {
       BRL: (amount: number) => {
         const result = amount * quotes.eurQuoteBrl.price;
         return Number(result.toFixed(2));
       },
-      // BTC: (amount: number) => amount * eurQuoteBtc.price,
-      // USD: (amount: number) => amount * eurQuoteUsd.price,
+      BTC: (amount: number) => amount * quotes.eurQuoteBtc.price,
+      USD: (amount: number) => amount * quotes.eurQuoteUsd.price,
     },
     USD: {
       BRL: (amount: number) => {
         const result = amount * quotes.usdQuoteBrl.price;
         return Number(result.toFixed(2));
       },
-      // EUR: (amount: number) => amount * usdQuoteEur.price,
-      // BTC: (amount: number) => amount * usdQuoteBtc.price,
+      EUR: (amount: number) => amount * quotes.usdQuoteEur.price,
+      BTC: (amount: number) => amount * quotes.usdQuoteBtc.price,
     },
   };
-
-  console.log('fromCurrency =>', fromCurrency)
-  console.log('accountCurrency =>', accountCurrency)
-  console.log('fromCurrency !== accountCurrency ? =>', fromCurrency !== accountCurrency)
 
   // 1. Verificar se a moeda da transação é diferente da moeda da conta de origem
   if (fromCurrency !== accountCurrency) {

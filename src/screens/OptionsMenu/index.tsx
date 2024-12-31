@@ -34,8 +34,19 @@ export function OptionsMenu({ navigation }: any) {
     navigation.navigate('Perfil');
   }
 
+  function handleOpenSubscription() {
+    navigation.navigate('Assinatura');
+  }
+
   function handleOpenAccounts() {
     navigation.navigate('Contas');
+  }
+
+  function handleOpenConnectedAccounts() {
+    // navigation.navigate('Contas Conectadas');
+    navigation.navigate('Contas Conectadas', {
+      showHeader: true,
+    });
   }
 
   function handleOpenCategories() {
@@ -156,9 +167,21 @@ export function OptionsMenu({ navigation }: any) {
         />
 
         <SelectButton
+          icon={<Icon.Trophy color={theme.colors.primary} />}
+          title='Assinatura Premium'
+          onPress={() => handleOpenSubscription()}
+        />
+
+        <SelectButton
           icon={<Icon.Wallet color={theme.colors.primary} />}
           title='Contas Manuais'
           onPress={() => handleOpenAccounts()}
+        />
+
+        <SelectButton
+          icon={<Icon.Plugs color={theme.colors.primary} />}
+          title='Contas Conectadas (automáticas)'
+          onPress={() => handleOpenConnectedAccounts()}
         />
 
         <SelectButton

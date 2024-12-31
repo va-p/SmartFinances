@@ -17,7 +17,7 @@ import {
 
 import { convertCurrency } from '@utils/convertCurrency';
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -76,7 +76,6 @@ const schema = Yup.object().shape({
   description: Yup.string().required('Digite a descrição'),
   amount: Yup.number()
     .typeError('Digite um valor numérico')
-    .positive('O valor não pode ser negativo')
     .required('Digite o valor'),
 });
 /* Validation Form - End */
@@ -87,7 +86,7 @@ export function RegisterTransaction({
   closeRegisterTransaction,
   closeModal,
 }: Props) {
-  const tenantId = useUser((state) => state.tenantId);
+  const { tenantId: tenantID, id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -131,6 +130,9 @@ export function RegisterTransaction({
     setShowDatePicker(false);
     setDate(selectedDate);
   };
+  const [bankTransactionID, setBankTransactionID] = useState('');
+  const [transactionDate, setTransactionDate] = useState('');
+  const [amountInAccountCurrency, setAmountInAccountCurrency] = useState('');
   const [transactionType, setTransactionType] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
@@ -174,7 +176,7 @@ export function RegisterTransaction({
     try {
       const { data } = await api.get('tag', {
         params: {
-          tenant_id: tenantId,
+          tenant_id: tenantID,
         },
       });
       if (data) {
@@ -191,7 +193,7 @@ export function RegisterTransaction({
     }
   }
 
-  function handleTransactionsTypeSelect(type: 'credit' | 'debit' | 'transfer') {
+  function handleTransactionsTypeSelect(type: 'CREDIT' | 'DEBIT' | 'transfer') {
     setTransactionType(type);
   }
 
@@ -228,13 +230,15 @@ export function RegisterTransaction({
   }
 
   function handleCloseRegisterTransaction() {
+    setButtonIsLoading(true);
+
     resetId();
     reset();
     setTransactionType('');
     setAccountID(null);
     setAccountName(null);
     setAccountCurrency(null);
-    setAccountInitialAmount(0);
+    // setAccountInitialAmount(0);
     setCategorySelected({
       id: '',
       name: 'Selecione a categoria',
@@ -331,21 +335,18 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    let imageResponse: any = null;
     let transaction_image_id: number | null = null;
+    // TODO: Gets current image transaction ID, delete and then adds new
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
-        tenant_id: tenantId,
+        user_id: userID,
       };
-      const uploadImage = await api.post('upload/transaction_image', newImage);
+      const uploadImage = await api.post('transaction/image', newImage);
       if (uploadImage.status === 200) {
-        imageResponse = await api.get('single_transaction_image_get_id', {
-          params: {
-            tenant_id: tenantId,
-          },
-        });
-        transaction_image_id = imageResponse.data.id;
+        const imageData = uploadImage.data;
+
+        transaction_image_id = imageData.id;
       }
     }
 
@@ -372,25 +373,130 @@ export function RegisterTransaction({
     });
 
     try {
+      if (transactionType === 'transfer') {
+        const transferEdited = {
+          transaction_id: id,
+          created_at: date,
+          bank_transaction_id: bankTransactionID,
+          date: transactionDate,
+          description: form.description,
+          amount: amountConverted, // Usar valor convertido
+          amount_not_converted:
+            currencySelected.code !== accountDestinationSelected?.currency?.code
+              ? form.amount
+              : null, // Valor original, se houver conversão
+          amount_in_account_currency: amountInAccountCurrency,
+          currency_id: currencySelected.id,
+          type:
+            accountType === 'CREDIT' // Credit Card Account
+              ? form.amount > 0
+                ? 'TRANSFER_DEBIT' // Credit Card with POSITIVE value is DEBIT transaction
+                : 'TRANSFER_CREDIT' // Credit Card with NEGATIVE value is CREDIT transaction
+              : form.amount > 0 // Another accounts
+              ? 'TRANSFER_CREDIT'
+              : 'TRANSFER_DEBIT',
+          account_id: accountID,
+          category_id: categorySelected.id,
+          tags: tagsList,
+          transaction_image_id,
+          tenant_id: tenantID,
+          user_id: userID,
+        };
+
+        const transferEditedResponse = await api.post(
+          'transaction/edit',
+          transferEdited
+        );
+
+        if (accountDestinationSelected.id !== '') {
+          const newTransfer = {
+            created_at: date,
+            bank_transaction_id: bankTransactionID,
+            date: transactionDate,
+            description: form.description,
+            amount: amountConverted * -1, // Usar valor convertido
+            amount_not_converted:
+              currencySelected.code !==
+              accountDestinationSelected?.currency?.code
+                ? form.amount
+                : null, // Valor original, se houver conversão
+            amount_in_account_currency: amountInAccountCurrency,
+            currency_id: currencySelected.id,
+            type:
+              transferEdited.type === 'TRANSFER_DEBIT'
+                ? 'TRANSFER_CREDIT'
+                : 'TRANSFER_DEBIT',
+            account_id: accountDestinationSelected.id,
+            category_id: categorySelected.id,
+            tags: tagsList,
+            transaction_image_id,
+            tenant_id: tenantID,
+            user_id: userID,
+          };
+
+          const newTransferResponse = await api.post(
+            'transaction',
+            newTransfer
+          );
+
+          if (
+            transferEditedResponse.status &&
+            newTransferResponse.status === 200
+          ) {
+            Alert.alert(
+              'Cadastro de Transação',
+              'Transação cadastrada com sucesso!',
+              [
+                { text: 'Cadastrar nova transação' },
+                {
+                  text: 'Voltar para a tela anterior',
+                  onPress: closeRegisterTransaction,
+                },
+              ]
+            );
+          }
+          return;
+        }
+
+        if (transferEditedResponse.status === 200) {
+          Alert.alert(
+            'Cadastro de Transação',
+            'Transação cadastrada com sucesso!',
+            [
+              { text: 'Cadastrar nova transação' },
+              {
+                text: 'Voltar para a tela anterior',
+                onPress: closeRegisterTransaction,
+              },
+            ]
+          );
+        }
+        return;
+      }
+
       const transactionEdited = {
         transaction_id: id,
         created_at: date,
+        bank_transaction_id: bankTransactionID,
+        date: transactionDate,
         description: form.description,
         amount: amountConverted, // Usar valor convertido
         amount_not_converted:
           currencySelected.code !== accountDestinationSelected?.currency?.code
             ? form.amount
             : null, // Valor original, se houver conversão
+        amount_in_account_currency: amountInAccountCurrency,
         currency_id: currencySelected.id,
         type: transactionType,
         account_id: accountID,
         category_id: categorySelected.id,
         tags: tagsList,
         transaction_image_id,
-        tenant_id: tenantId,
+        tenant_id: tenantID,
+        user_id: userID,
       };
 
-      const { status } = await api.post('edit_transaction', transactionEdited);
+      const { status } = await api.post('transaction/edit', transactionEdited);
 
       if (status === 200) {
         Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
@@ -402,6 +508,7 @@ export function RegisterTransaction({
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.error('handleEditTransaction error =>', error);
         Alert.alert(
           'Edição de Transação',
           (error.response?.data as { message: string }).message,
@@ -470,20 +577,6 @@ export function RegisterTransaction({
       );
     }
 
-    if (transactionType === 'transfer') {
-      if (accountDestinationSelected.id === '')
-        return Alert.alert(
-          'Cadastro de Transação',
-          'Selecione a conta de destino da transação',
-          [
-            {
-              text: 'OK',
-              onPress: () => setButtonIsLoading(false),
-            },
-          ]
-        );
-    }
-
     if (categorySelected.id === '') {
       return Alert.alert(
         'Cadastro de Transação',
@@ -519,12 +612,9 @@ export function RegisterTransaction({
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
-        tenant_id: tenantId,
+        user_id: userID,
       };
-      const { data, status } = await api.post(
-        'upload/transaction_image',
-        newImage
-      );
+      const { data, status } = await api.post('transaction/image', newImage);
       if (status === 200) {
         transaction_image_id = data.id;
       }
@@ -557,27 +647,17 @@ export function RegisterTransaction({
             usdQuoteEur,
           },
         });
-        console.log('amountConverted ===>>', amountConverted);
 
-        const accountResponse = await api.get('single_account_get_id', {
-          params: {
-            tenant_id: tenantId,
-            name: accountName,
-          },
-        });
         const accountDestinationResponse = await api.get(
           'single_account_get_id',
           {
             params: {
-              tenant_id: tenantId,
+              user_id: userID,
               name: accountDestinationSelected.name,
             },
           }
         );
-        if (
-          accountResponse.status &&
-          accountDestinationResponse.status !== 200
-        ) {
+        if (accountDestinationResponse.status !== 200) {
           Alert.alert(
             'Conta',
             'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
@@ -587,42 +667,35 @@ export function RegisterTransaction({
         const transferDebit = {
           created_at: date,
           description: form.description,
-          amount:
-            accountCurrency!.code !== fromCurrency
+          amount: form.amount,
+          amount_in_account_currency:
+            fromCurrency !== accountCurrency!.code // If transaction currency is different to account currency
               ? amountConverted
-              : form.amount,
-          amount_not_converted:
-            accountCurrency!.code !== accountDestinationSelected.currency.code
-              ? form.amount
               : null,
           currency_id: currencySelected.id,
-          type: 'transferDebit',
-          account_id: accountResponse.data.id,
+          type: 'TRANSFER_DEBIT',
+          account_id: accountID,
           category_id: categorySelected.id,
           tags: tagsList,
           transaction_image_id,
-          tenant_id: tenantId,
+          user_id: userID,
         };
 
         const transferCredit = {
           created_at: date,
           description: form.description,
-          // amount: amountConverted,
-          amount:
-            accountCurrency!.code !== fromCurrency
-              ? form.amount
-              : amountConverted,
-          amount_not_converted:
-            accountCurrency!.code !== accountDestinationSelected.currency.code
-              ? form.amount
+          amount: form.amount,
+          amount_in_account_currency:
+            fromCurrency !== accountCurrency!.code // If transaction currency is different to account currency
+              ? amountConverted
               : null,
           currency_id: currencySelected.id,
-          type: 'transferCredit',
-          account_id: accountDestinationResponse.data.id,
+          type: 'TRANSFER_CREDIT',
+          account_id: accountDestinationSelected.id,
           category_id: categorySelected.id,
           tags: tagsList,
           transaction_image_id,
-          tenant_id: tenantId,
+          user_id: userID,
         };
 
         const [transferDebitResponse, transferCreditResponse] =
@@ -646,6 +719,7 @@ export function RegisterTransaction({
               },
             ]
           );
+          return;
         }
       } else {
         amountConverted = convertCurrency({
@@ -671,7 +745,7 @@ export function RegisterTransaction({
 
         const accountResponse = await api.get('single_account_get_id', {
           params: {
-            tenant_id: tenantId,
+            user_id: userID,
             name: accountName,
           },
         });
@@ -679,10 +753,10 @@ export function RegisterTransaction({
         const transactionData = {
           created_at: date,
           description: form.description,
-          amount: amountConverted,
-          amount_not_converted:
-            currencySelected.code !== accountCurrency!.code
-              ? form.amount
+          amount: form.amount,
+          amount_in_account_currency:
+            currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
+              ? amountConverted
               : null,
           currency_id: currencySelected.id,
           type: transactionType,
@@ -690,7 +764,7 @@ export function RegisterTransaction({
           category_id: categorySelected.id,
           tags: tagsList,
           transaction_image_id,
-          tenant_id: tenantId,
+          user_id: userID,
         };
 
         const { status } = await api.post('transaction', transactionData);
@@ -750,16 +824,15 @@ export function RegisterTransaction({
   }
 
   async function fetchTransaction() {
-    setButtonIsLoading(true);
-
     try {
+      setButtonIsLoading(true);
+
       const { data } = await api.get('single_transaction', {
         params: {
           transaction_id: id,
         },
       });
       setCategorySelected(data.category);
-      // setAmount(data.amount);
       setValue('amount', data.amount);
       setCurrencySelected(data.account.currency);
       setAccountID(data.account.id);
@@ -768,13 +841,15 @@ export function RegisterTransaction({
       setAccountType(data.account.type);
       const parsedDate = new Date(data.created_at);
       setDate(parsedDate);
-      // setDescription(data.description);
       setValue('description', data.description);
       setTagsSelected(data.tags);
       {
         data.image && setImageUrl(data.image.url);
       }
       setTransactionType(data.type);
+      setTransactionDate(data.date);
+      setBankTransactionID(data.bank_transaction_id);
+      setAmountInAccountCurrency(data.amount_in_account_currency);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -965,26 +1040,24 @@ export function RegisterTransaction({
             <TransactionTypeButton
               type='down'
               title='Crédito'
-              onPress={() => handleTransactionsTypeSelect('credit')}
-              isActive={
-                transactionType === 'credit' ||
-                transactionType === 'transferCredit'
-              }
+              onPress={() => handleTransactionsTypeSelect('CREDIT')}
+              isActive={transactionType === 'CREDIT'}
             />
             <TransactionTypeButton
               type='swap'
               title='Transf'
               onPress={() => handleTransactionsTypeSelect('transfer')}
-              isActive={transactionType === 'transfer'}
+              isActive={
+                transactionType === 'transfer' ||
+                transactionType === 'TRANSFER_CREDIT' ||
+                transactionType === 'TRANSFER_DEBIT'
+              }
             />
             <TransactionTypeButton
               type='up'
               title='Débito'
-              onPress={() => handleTransactionsTypeSelect('debit')}
-              isActive={
-                transactionType === 'debit' ||
-                transactionType === 'transferDebit'
-              }
+              onPress={() => handleTransactionsTypeSelect('DEBIT')}
+              isActive={transactionType === 'DEBIT'}
             />
           </TransactionsTypes>
         </ContentScroll>
@@ -1041,7 +1114,8 @@ export function RegisterTransaction({
               code: 'BRL',
               symbol: 'R$',
             },
-            type: accountType || 'Conta Corrente',
+            type: accountType || 'BANK',
+            balance: 0,
             initialAmount: accountInitialAmount,
             tenantId: accountTenantID,
           }}

@@ -2,8 +2,8 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "2.0.0(30)",
-    "version": "2.1.1",
+    "runtimeVersion": "2.3.0(32)",
+    "version": "2.3.1",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",
@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 30,
+      "versionCode": 33,
       "permissions": [
         "VIBRATE",
         "CAMERA",

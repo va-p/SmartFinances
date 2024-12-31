@@ -7,13 +7,16 @@ export type AccountTypes =
   | 'Conta Corrente'
   | 'Investimentos'
   | 'Poupança'
-  | 'Outro';
+  | 'Outro'
+  | 'BANK'
+  | 'CREDIT';
 
 export interface AccountProps {
   id: string | null;
   name: string;
   currency: CurrencyProps;
   type: AccountTypes;
+  balance: number;
   initialAmount: number | null;
   totalAccountAmount?: string;
   totalAccountAmountConverted?: string;

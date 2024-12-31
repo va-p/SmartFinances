@@ -8,6 +8,8 @@ export type AccountType =
   | 'Investimentos'
   | 'Poupança'
   | 'Outro'
+  | 'CREDIT'
+  | 'BANK'
   | null;
 
 type AccountCurrency = {
@@ -26,6 +28,8 @@ type CurrentAccountSelected = {
   setAccountType: (accountType: AccountType) => void;
   accountCurrency: AccountCurrency | null;
   setAccountCurrency: (accountCurrency: AccountCurrency | null) => void;
+  accountBalance: number | null;
+  setAccountBalance: (accountBalance: number | null) => void;
   accountInitialAmount: number;
   setAccountInitialAmount: (accountInitialAmount: number) => void;
   accountTotalRevenues: string | null;
@@ -49,6 +53,9 @@ export const useCurrentAccountSelected = create<CurrentAccountSelected>(
     accountCurrency: null,
     setAccountCurrency: (accountCurrency) =>
       set(() => ({ accountCurrency: accountCurrency })),
+    accountBalance: null,
+    setAccountBalance: (accountBalance) =>
+      set(() => ({ accountBalance: accountBalance })),
     accountInitialAmount: 0,
     setAccountInitialAmount: (accountInitialAmount) =>
       set(() => ({ accountInitialAmount: accountInitialAmount })),

@@ -31,7 +31,7 @@ export const Icon = styled(Ionicons)<Props>`
   position: absolute;
   font-size: ${RFValue(20)}px;
   color: ${({ theme, type }) =>
-    type === 'credit' ? theme.colors.success : theme.colors.primary};
+    type === 'CREDIT' ? theme.colors.success : theme.colors.primary};
 `;
 
 export const DetailsContainer = styled.View`
@@ -52,7 +52,7 @@ export const Description = styled.Text.attrs({
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
-    type === 'credit' ? theme.colors.success : theme.colors.title};
+    type === 'CREDIT' ? theme.colors.success : theme.colors.title};
 `;
 
 export const AmountContainer = styled.View`
@@ -69,7 +69,7 @@ export const Amount = styled.Text<Props>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
-    type === 'credit' ? theme.colors.success : theme.colors.text};
+    type === 'CREDIT' ? theme.colors.success : theme.colors.text};
   margin-left: 4px;
 `;
 

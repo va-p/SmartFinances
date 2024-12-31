@@ -40,7 +40,7 @@ export function AccountListItem({
         <NameContainer>
           <Name>{data.name}</Name>
           <AmountsContainer>
-            <Amount>{!hideAmount ? data.totalAccountAmount : '•••••'}</Amount>
+            <Amount>{!hideAmount ? data.balance : '•••••'}</Amount>
             {data.totalAccountAmountConverted && (
               <Amount style={{ fontSize: 12 }}>
                 ({!hideAmount ? data.totalAccountAmountConverted : '•••••'})

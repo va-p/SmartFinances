@@ -1,9 +1,9 @@
 import api from '@api/api';
 
-async function getAccounts(tenantId: string | null) {
+async function getAccounts(userID: string | null) {
   const { data } = await api.get('account', {
     params: {
-      tenant_id: tenantId,
+      user_id: userID,
     },
   });
 

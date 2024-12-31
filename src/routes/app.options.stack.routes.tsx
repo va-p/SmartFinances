@@ -10,6 +10,8 @@ import { TermsOfUse } from '@screens/TermsOfUse';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { AccountsList } from '@screens/AccountsList';
 import { PrivacyPolicy } from '@screens/PrivacyPolicy';
+import { PremiumBenefits } from '@screens/PremiumBenefits';
+import { ConnectedAccounts } from '@screens/ConnectedAccounts';
 
 import theme from '@themes/theme';
 
@@ -29,7 +31,11 @@ export function AppOptionsStackRoutes() {
 
       <Screen name='Perfil' component={Profile} />
 
+      <Screen name='Assinatura' component={PremiumBenefits} />
+
       <Screen name='Contas' component={AccountsList} />
+
+      <Screen name='Contas Conectadas' component={ConnectedAccounts} />
 
       <Screen name='Categorias' component={Categories} />
 

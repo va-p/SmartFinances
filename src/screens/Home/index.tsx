@@ -91,6 +91,8 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+import Decimal from 'decimal.js';
+import { TransactionProps } from '@interfaces/transactions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -102,15 +104,16 @@ const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
 
 export type CashFLowData = {
   date: Date | string | number;
-  totalRevenuesByPeriod: number;
-  totalExpensesByPeriod: number;
-  total: number;
+  totalRevenuesByPeriod: Decimal;
+  totalExpensesByPeriod: Decimal;
+  total: Decimal;
+  // total: number;
   cashFlow: string;
 };
 
 export function Home() {
   const [loading, setLoading] = useState(false);
-  const { tenantId, id: userId } = useUser();
+  const { tenantId: tenantID, id: userID } = useUser();
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,
@@ -149,17 +152,17 @@ export function Home() {
     setTotalAmountsGroupedBySelectedPeriod,
   ] = useState<CashFLowData[]>([
     {
-      date: '0',
-      totalRevenuesByPeriod: 0,
-      totalExpensesByPeriod: 0,
-      total: 0,
+      date: String(new Date()),
+      totalRevenuesByPeriod: new Decimal(0),
+      totalExpensesByPeriod: new Decimal(0),
+      total: new Decimal(0),
       cashFlow: '',
     },
     {
-      date: '1',
-      totalRevenuesByPeriod: 0,
-      totalExpensesByPeriod: 0,
-      total: 0,
+      date: String(new Date()),
+      totalRevenuesByPeriod: new Decimal(0),
+      totalExpensesByPeriod: new Decimal(0),
+      total: new Decimal(0),
       cashFlow: '',
     },
   ]);
@@ -248,20 +251,19 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  async function fetchTransactions() {
-    setLoading(true);
-
+  async function fetchTransactions(transactions?: TransactionProps[]) {
     try {
-      const data = await getTransactions(tenantId);
+      setLoading(true);
+
+      const data = transactions ? transactions : await getTransactions(userID);
 
       /**
        * All Transactions Formatted in pt-BR - Start
        */
+      let total = 0;
       let amountNotConvertedFormatted = '';
-      let totalRevenues = 0;
-      let totalExpenses = 0;
 
-      let transactionsFormattedPtbr: any = [];
+      let transactionsFormattedPtbr: any = {};
       for (const item of data) {
         const dmy = formatDatePtBr(item.created_at).short();
 
@@ -287,6 +289,7 @@ export function Home() {
             amount: item.amount,
             amount_formatted,
             amount_not_converted: amountNotConvertedFormatted,
+            amount_in_account_currency: item.amount_in_account_currency,
             currency: {
               id: item.currency.id,
               name: item.currency.name,
@@ -297,6 +300,7 @@ export function Home() {
             account: {
               id: item.account.id,
               name: item.account.name,
+              type: item.account.type,
               currency: {
                 id: item.account.currency.id,
                 name: item.account.currency.name,
@@ -323,17 +327,24 @@ export function Home() {
               tenant_id: item.category.tenant_id,
             },
             tags: item.tags,
-            tenant_id: item.tenant_id,
+            // tenant_id: item.tenant_id,
+            user_id: item.user_id,
           };
         }
 
-        if (new Date(item.created_at) <= new Date() && item.type === 'credit') {
-          totalRevenues += item.amount;
-        } else if (
+        // Cartão de crédito
+        if (
           new Date(item.created_at) <= new Date() &&
-          item.type === 'debit'
+          item.account.type === 'CREDIT'
         ) {
-          totalExpenses += item.amount;
+          total -= item.amount; //Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
+        }
+        // Outros tipos de conta
+        if (
+          new Date(item.created_at) <= new Date() &&
+          item.account.type !== 'CREDIT'
+        ) {
+          total += item.amount;
         }
       }
       transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr).sort(
@@ -348,7 +359,6 @@ export function Home() {
         }
       );
 
-      const total = totalRevenues - totalExpenses;
       const totalFormattedPtbrByAllHistory = total.toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -379,31 +389,16 @@ export function Home() {
             ).getFullYear() === selectedPeriod.getFullYear()
         );
 
-      let totalRevenuesByMonths = 0;
-      let totalExpensesByMonths = 0;
+      let cashFlowByMonth = 0;
 
       for (const item of transactionsByMonthsFormattedPtbr) {
-        if (item.data) {
-          item.data.forEach((cur: any) => {
-            if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'credit'
-            ) {
-              totalRevenuesByMonths += cur.amount;
-            } else if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'debit'
-            ) {
-              totalExpensesByMonths += cur.amount;
-            }
-          });
-        }
+        const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
+        cashFlowByMonth += parseFloat(cleanTotal);
       }
 
-      const totalByMonths = totalRevenuesByMonths - totalExpensesByMonths;
-      const totalFormattedPtbrByMonths = formatCurrency(
+      const totalByMonthsFormattedPtbr = formatCurrency(
         'BRL',
-        totalByMonths,
+        cashFlowByMonth,
         false
       );
       /**
@@ -423,28 +418,16 @@ export function Home() {
             ).getFullYear() === selectedPeriod.getFullYear()
         );
 
-      let totalRevenuesByYears = 0;
-      let totalExpensesByYears = 0;
+      let cashFlowByYear = 0;
 
       for (const item of transactionsByYearsFormattedPtbr) {
-        item.data.forEach((cur: any) => {
-          if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
-            switch (cur.type) {
-              case 'credit':
-                totalRevenuesByYears += cur.amount;
-                break;
-              case 'debit':
-                totalExpensesByYears += cur.amount;
-                break;
-            }
-          }
-        });
+        const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
+        cashFlowByYear += parseFloat(cleanTotal);
       }
 
-      const totalBRLByYears = totalRevenuesByYears - totalExpensesByYears;
-      const totalFormattedPtbrByYears = formatCurrency(
+      const totalByYearsFormattedPtbr = formatCurrency(
         'BRL',
-        totalBRLByYears,
+        cashFlowByYear,
         false
       );
       /**
@@ -452,10 +435,10 @@ export function Home() {
        */
 
       /**
-       * All Totals Grouped By Months - Start
+       * All Cash Flows Grouped By Months (Chart Data) - Start
        */
       if (chartPeriodSelected.period === 'months') {
-        let totalsGroupedByMonths: any = [];
+        let totalsGroupedByMonths: any = {};
         for (const item of data) {
           const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
 
@@ -467,16 +450,23 @@ export function Home() {
               total: 0,
             };
           }
-          if (
-            new Date(item.created_at) < new Date() &&
-            item.type === 'credit'
-          ) {
-            totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
-          } else if (
-            new Date(item.created_at) < new Date() &&
-            item.type === 'debit'
-          ) {
-            totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount;
+
+          if (new Date(item.created_at) < new Date()) {
+            // Credit card
+            if (item.account.type === 'CREDIT' && item.type === 'CREDIT') {
+              totalsGroupedByMonths[ym].totalRevenuesByPeriod -= item.amount; // Lógica invertida para Cartão de Crédito
+            }
+            if (item.account.type === 'CREDIT' && item.type === 'DEBIT') {
+              totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount; // Lógica invertida para Cartão de Crédito
+            }
+
+            // Other account types
+            if (item.account.type !== 'CREDIT' && item.type === 'CREDIT') {
+              totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
+            }
+            if (item.account.type !== 'CREDIT' && item.type === 'DEBIT') {
+              totalsGroupedByMonths[ym].totalExpensesByPeriod -= item.amount;
+            }
           }
         }
         totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
@@ -489,7 +479,7 @@ export function Home() {
           );
         }
 
-        setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByMonths);
+        setCashFlowTotalBySelectedPeriod(totalByMonthsFormattedPtbr);
         setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
         setTransactionsFormattedBySelectedPeriod(
           transactionsByMonthsFormattedPtbr
@@ -498,14 +488,14 @@ export function Home() {
         return;
       }
       /**
-       * All Totals Grouped By Months - End
+       * All Cash Flows Grouped By Months (Chart Data) - End
        */
 
       /**
        * All Totals Grouped By Years - Start
        */
       if (chartPeriodSelected.period === 'years') {
-        let totalsGroupedByYears: any = [];
+        let totalsGroupedByYears: any = {};
         for (const item of data) {
           const y = format(item.created_at, `yyyy`, { locale: ptBR });
 
@@ -517,16 +507,20 @@ export function Home() {
               total: 0,
             };
           }
+
           if (
-            new Date(item.created_at) < new Date() &&
-            item.type === 'credit'
+            new Date(item.created_at) <= new Date() &&
+            item.account.type === 'CREDIT'
           ) {
-            totalsGroupedByYears[y].totalRevenuesByPeriod += item.amount;
-          } else if (
-            new Date(item.created_at) < new Date() &&
-            item.type === 'debit'
+            totalsGroupedByYears[y].total -= item.amount; //Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
+          }
+
+          // Outros tipos de conta
+          if (
+            new Date(item.created_at) <= new Date() &&
+            item.account.type !== 'CREDIT'
           ) {
-            totalsGroupedByYears[y].totalExpensesByPeriod += item.amount;
+            totalsGroupedByYears[y].total += item.amount;
           }
         }
         totalsGroupedByYears = Object.values(totalsGroupedByYears).sort(
@@ -537,7 +531,7 @@ export function Home() {
           }
         );
 
-        setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByYears);
+        setCashFlowTotalBySelectedPeriod(totalByYearsFormattedPtbr);
         setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByYears);
         setTransactionsFormattedBySelectedPeriod(
           transactionsByYearsFormattedPtbr
@@ -553,7 +547,7 @@ export function Home() {
        * All Totals Grouped By All History - Start
        */
       if (chartPeriodSelected.period === 'all') {
-        let totalsGroupedByAllHistory: any = [];
+        let totalsGroupedByAllHistory: any = {};
         for (const item of data) {
           item.created_at = `Todo o \n histórico`;
           const allHistory = item.created_at;
@@ -563,20 +557,22 @@ export function Home() {
               date: allHistory,
               totalRevenuesByPeriod: 0,
               totalExpensesByPeriod: 0,
+              total: 0,
             };
           }
           if (
-            new Date(item.created_at) < new Date() &&
-            item.type === 'credit'
+            new Date(item.created_at) <= new Date() &&
+            item.account.type === 'CREDIT'
           ) {
-            totalsGroupedByAllHistory[allHistory].totalRevenuesByPeriod +=
-              item.amount;
-          } else if (
-            new Date(item.created_at) < new Date() &&
-            item.type === 'debit'
+            totalsGroupedByAllHistory[allHistory].total -= item.amount; //Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
+          }
+
+          // Outros tipos de conta
+          if (
+            new Date(item.created_at) <= new Date() &&
+            item.account.type !== 'CREDIT'
           ) {
-            totalsGroupedByAllHistory[allHistory].totalExpensesByPeriod +=
-              item.amount;
+            totalsGroupedByAllHistory[allHistory].total += item.amount;
           }
         }
         totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);
@@ -601,6 +597,35 @@ export function Home() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  }
+
+  async function fetchBankingIntegrations(isRefresh: boolean = false) {
+    try {
+      setLoading(true);
+
+      const { data, status } = await api.get(
+        '/banking_integration/get_and_sync_integrations',
+        {
+          params: {
+            user_id: userID,
+          },
+        }
+      );
+
+      if (status === 200 && data.length > 0) {
+        fetchTransactions(data);
+      }
+
+      fetchTransactions();
+
+      return;
+    } catch (error) {
+      console.error('Erro ao verificar contas conectadas:', error);
+      Alert.alert(
+        'Transações',
+        'Não foi possível buscar suas conexões bancárias. Verifique sua conexão com a internet e tente novamente.'
+      );
     }
   }
 
@@ -657,7 +682,7 @@ export function Home() {
   async function handleHideData() {
     try {
       const { status } = await api.post('edit_hide_amount', {
-        user_id: userId,
+        user_id: userID,
         hide_amount: !hideAmount,
       });
 
@@ -742,8 +767,8 @@ export function Home() {
     fetchQuote('USD', 'BTC', setUsdQuoteBtc);
     fetchQuote('USD', 'EUR', setUsdQuoteEur);
 
-    fetchTransactions();
-  }, [selectedPeriod, chartPeriodSelected.period]);
+    fetchBankingIntegrations();
+  }, [selectedPeriod, chartPeriodSelected.period, userID, tenantID]);
 
   if (loading) {
     return <SkeletonHomeScreen />;
@@ -874,7 +899,7 @@ export function Home() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => {
-                fetchTransactions();
+                fetchBankingIntegrations(true);
               }}
             />
           }

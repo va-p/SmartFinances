@@ -28,7 +28,7 @@ export function CategorySelect({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useUser((state) => state.tenantId);
+  const userID = useUser((state) => state.id);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
 
   async function fetchCategories() {
@@ -37,7 +37,7 @@ export function CategorySelect({
     try {
       const { data } = await api.get('category', {
         params: {
-          tenant_id: tenantId,
+          user_id: userID,
         },
       });
       if (data) {

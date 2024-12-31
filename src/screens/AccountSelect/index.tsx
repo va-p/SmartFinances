@@ -29,14 +29,14 @@ export function AccountSelect({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useUser((state) => state.tenantId);
+  const { id: userID } = useUser();
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
 
   async function fetchAccounts() {
     setLoading(true);
 
     try {
-      const data = await getAccounts(tenantId);
+      const data = await getAccounts(userID);
 
       if (!data) {
         return;

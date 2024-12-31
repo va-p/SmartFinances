@@ -30,7 +30,7 @@ import theme from '@themes/theme';
 
 export function AccountsList() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
+  const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -59,7 +59,7 @@ export function AccountsList() {
     try {
       const { data } = await api.get('all_accounts', {
         params: {
-          tenant_id: tenantId,
+          user_id: userID,
         },
       });
       if (data) {

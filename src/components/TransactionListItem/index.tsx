@@ -49,15 +49,23 @@ const TransactionListItem = memo(function TransactionListItem({
           <Description type={data.type}>{data.description}</Description>
 
           <AmountContainer>
-            {data.type === 'transferDebit' && (
+            {data.type === 'TRANSFER_DEBIT' && (
               <TransferDirectionIcon name='arrow-up-outline' />
             )}
-            {data.type === 'transferCredit' && (
+            {data.type === 'TRANSFER_CREDIT' && (
               <TransferDirectionIcon name='arrow-down-outline' />
             )}
             <Amount type={data.type}>
-              {!hideAmount && data.type === 'debit' && '-'}
-              {!hideAmount ? data.amount_formatted : '•••••'}
+              {!hideAmount &&
+                data.account.type === 'CREDIT' &&
+                data.type === 'DEBIT' &&
+                '-'}
+              {/* {!hideAmount ? data.amount_formatted : '•••••'} */}
+              {!hideAmount
+                ? data.amount_in_account_currency
+                  ? data.amount_in_account_currency
+                  : data.amount_formatted
+                : '•••••'}
             </Amount>
           </AmountContainer>
         </DescriptionAndAmountContainer>
@@ -70,8 +78,9 @@ const TransactionListItem = memo(function TransactionListItem({
           </CategoryAndAccountContainer>
           <AmountNotConvertedContainer>
             <AmountNotConverted>
-              {data.account.currency.code !== data.currency.code &&
-                `${data.amount_not_converted}`}
+              {/* {data.account.currency.code !== data.currency.code &&
+                `${data.amount_not_converted}`} */}
+              {data.amount_in_account_currency && `${data.amount_formatted}`}
             </AmountNotConverted>
           </AmountNotConvertedContainer>
         </Footer>

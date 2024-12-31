@@ -25,7 +25,7 @@ import theme from '@themes/theme';
 
 export function TransactionsByCategory({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
+  const { tenantId: tenantID, id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const route = useRoute();
   const categoryId = route.params?.id;
@@ -53,7 +53,7 @@ export function TransactionsByCategory({ navigation }: any) {
     setLoading(true);
 
     try {
-      const data = await getTransactions(tenantId);
+      const data = await getTransactions(tenantID, userID);
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
@@ -198,13 +198,13 @@ export function TransactionsByCategory({ navigation }: any) {
 
       // Sum the total revenues and expenses by category
       transactionsByCategoryFormattedPtbr.forEach((cur: any) => {
-        if (cur.type === 'credit') {
+        if (cur.type === 'CREDIT') {
           //totalRevenues += cur.amount;
-        } else if (cur.type === 'debit') {
+        } else if (cur.type === 'DEBIT') {
           //totalExpenses += cur.amount;
-        } else if (cur.type === 'transferCredit') {
+        } else if (cur.type === 'TRANSFER_CREDIT') {
           //totalRevenues += cur.amount;
-        } else if (cur.type === 'transferDebit') {
+        } else if (cur.type === 'TRANSFER_DEBIT') {
           //totalExpenses += cur.amount;
         }
       });

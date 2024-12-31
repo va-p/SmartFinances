@@ -1,6 +1,12 @@
 import React, { useRef } from 'react';
 import { Alert } from 'react-native';
-import { BudgetTotal, BudgetTotalDescription, Container } from './styles';
+import {
+  BudgetTotal,
+  BudgetTotalDescription,
+  BudgetTransactions,
+  BudgetTransactionsContainer,
+  Container,
+} from './styles';
 
 import { BudgetProps } from '@interfaces/budget';
 
@@ -25,9 +31,20 @@ import { RegisterBudget } from '@screens/RegisterBudget';
 import api from '@api/api';
 
 import formatCurrency from '@utils/formatCurrency';
+import TransactionListItem from '@components/TransactionListItem';
+import { TransactionProps } from '@interfaces/transactions';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { useUserConfigs } from '@storage/userConfigsStorage';
+import { SectionTitle } from '@screens/Overview/styles';
+
+type ItemList = {
+  item: TransactionProps;
+  index: number;
+};
 
 export function BudgetDetails() {
   const route = useRoute();
+  const { hideAmount, setHideAmount } = useUserConfigs();
   const budget: BudgetProps = route.params?.budget;
   const budgetAmountReached = budget.amount_spent >= budget.amount;
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -144,32 +161,25 @@ export function BudgetDetails() {
         <EndPeriod>{budget.end_date}</EndPeriod>
       </PeriodContainer>
 
-      {/* <VictoryPie
-        data={[]}
-        // colorScale={totalExpensesByCategories.map(
-        //   (category) => category.color.hex
-        // )}
-        x='percentage'
-        y='amount_spent'
-        width={384}
-        innerRadius={80}
-        labelRadius={150}
-        animate={{
-          duration: 2000,
-          easing: 'backOut',
-        }}
-        // theme={smartFinancesChartTheme}
-        style={{
-          labels: {
-            fontSize: RFValue(12),
-            fontWeight: 'bold',
-            fill: theme.colors.primary,
-          },
-          data: {
-            stroke: 'none',
-          },
-        }}
-      /> */}
+      <SectionTitle>Transações</SectionTitle>
+      <BudgetTransactions
+        data={budget.transactions}
+        keyExtractor={(item: any) => item.id}
+        renderItem={({ item, index }: any) => (
+          <TransactionListItem
+            data={item}
+            index={index}
+            hideAmount={hideAmount}
+            // onPress={() => handleOpenBudget(item)}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+        )}
+        // refreshControl={
+        //   <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
+        // }
+      />
 
       <ModalView
         type={'primary'}

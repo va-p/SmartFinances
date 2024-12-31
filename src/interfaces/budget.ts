@@ -1,6 +1,7 @@
-import { AccountProps } from '@interfaces/accounts';
-import { CurrencyProps } from '@interfaces/currencies';
-import { CategoryProps } from '@interfaces/categories';
+import { AccountProps } from './accounts';
+import { CurrencyProps } from './currencies';
+import { CategoryProps } from './categories';
+import { TransactionProps } from './transactions';
 
 export interface BudgetProps {
   id: string;
@@ -15,4 +16,6 @@ export interface BudgetProps {
   end_date?: string;
   recurrence: string;
   tenant_id: string;
+  user_id: string;
+  transactions: TransactionProps[];
 }

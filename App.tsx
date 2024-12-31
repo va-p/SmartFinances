@@ -17,6 +17,7 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/themes/theme';
+import { RevenueCatProvider } from 'src/providers/RevenueCatProvider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -69,11 +70,13 @@ function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider theme={theme}>
-        <StatusBar
-          barStyle='light-content'
-          backgroundColor={theme.colors.background}
-        />
-        <Routes />
+        <RevenueCatProvider>
+          <StatusBar
+            barStyle='light-content'
+            backgroundColor={theme.colors.background}
+          />
+          <Routes />
+        </RevenueCatProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

@@ -1,9 +1,5 @@
 import { BudgetProps } from '@interfaces/budget';
 
-export type AccountNavigationProps = {
-  id: string;
-};
-
 export type BudgetNavigationProps = {
   budget: BudgetProps;
 };
@@ -12,12 +8,17 @@ export type EditBudgetNavigationProps = {
   id: string;
 };
 
+export type SubscriptionNavigationProps = {
+  showHeader?: boolean;
+};
+
 type RootParamList = {
-  Timeline: undefined;
+  Transações: undefined;
   Contas: undefined;
   'Todas as Contas': undefined;
-  Conta: AccountNavigationProps;
+  Conta: undefined;
   'Editar Conta': AccountNavigationProps;
+  'Contas Conectadas': undefined;
   Orçamentos: undefined;
   'Todos os Orçamentos': undefined;
   Orçamento: BudgetNavigationProps;
@@ -27,6 +28,8 @@ type RootParamList = {
   'Transações Por Categoria': undefined;
   Mais: undefined;
   'Mais Opções': undefined;
+  Profile: undefined;
+  Assinatura: SubscriptionNavigationProps;
   Categorias: undefined;
   Etiquetas: undefined;
   'Central de Ajuda': undefined;

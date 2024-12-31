@@ -49,7 +49,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterCategory({ id, closeCategory }: Props) {
-  const tenantId = useUser((state) => state.tenantId);
+  const userID = useUser((state) => state.id);
   const [name, setName] = useState('');
   const [iconSelected, setIconSelected] = useState({
     id: '',
@@ -164,7 +164,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
           name: form.name,
           icon: iconSelected,
           color: colorSelected,
-          tenant_id: tenantId,
+          user_id: userID,
         };
         const { status } = await api.post('category', newCategory);
         if (status === 200) {
@@ -222,7 +222,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      if (id != '') {
+      if (id !== '') {
         fetchCategory();
       }
     }, [id])
@@ -302,7 +302,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar Categoria' : 'Criar Categoria'}
+          title={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterCategory)}
         />

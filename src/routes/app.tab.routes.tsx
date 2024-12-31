@@ -32,7 +32,7 @@ export function AppTabRoutes() {
       }}
     >
       <Screen
-        name='Timeline'
+        name='Transações'
         component={Home}
         options={{
           tabBarIcon: ({ size, color }) => (

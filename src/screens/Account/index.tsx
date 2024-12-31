@@ -62,7 +62,7 @@ import formatCurrency from '@utils/formatCurrency';
 
 export function Account() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
+  const { tenantId: tenantID, id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
     id: '1',
@@ -88,11 +88,14 @@ export function Account() {
   const [transactionId, setTransactionId] = useState('');
   const navigation = useNavigation();
   const hideAmount = useUserConfigs((state) => state.hideAmount);
-  const accountID = useCurrentAccountSelected((state) => state.accountId);
-  const accountName = useCurrentAccountSelected((state) => state.accountName);
-  const accountInitialAmount = useCurrentAccountSelected(
-    (state) => state.accountInitialAmount
-  );
+  const {
+    accountId: accountID,
+    accountName,
+    accountBalance,
+  } = useCurrentAccountSelected();
+  // const accountInitialAmount = useCurrentAccountSelected(
+  //   (state) => state.accountInitialAmount
+  // );
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -137,32 +140,35 @@ export function Account() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
+  console.log('accountID ===>', accountID);
+
   async function fetchTransactions() {
     setLoading(true);
 
     try {
-      const data = await getTransactions(tenantId);
+      const data = await getTransactions(tenantID, userID);
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
        */
       let totalRevenues = 0;
       let totalExpenses = 0;
+      let totalAccountBalance = 0;
 
       const transactionsByAccountFormattedPtbr = data
         .filter((transaction: any) => transaction.account.id === accountID)
         .map((item: any) => {
-          const formattedAmount = formatCurrency({
-            currencyCode: item.account.currency.code, // Moeda da conta
-            value: item.amount,
-          });
+          const formattedAmount = formatCurrency(
+            item.account.currency.code, // Moeda da conta
+            item.amount
+          );
 
           const formattedAmountNotConverted = item.amount_not_converted
-            ? formatCurrency({
-                currencyCode: item.currency.code, // Moeda original da transação
-                value: item.amount_not_converted,
-                isConverted: false, // Indica que é o valor não convertido
-              })
+            ? formatCurrency(
+                item.currency.code, // Moeda original da transação
+                item.amount_not_converted,
+                false // Indica que é o valor não convertido
+              )
             : '';
 
           return {
@@ -190,28 +196,39 @@ export function Account() {
             new Date()
         )
         .forEach((cur: any) => {
-          switch (cur.type) {
-            case 'credit':
-            case 'transferCredit':
-              totalRevenues += cur.amount;
-              break;
-            case 'debit':
-            case 'transferDebit':
-              totalExpenses += cur.amount;
-              break;
+          // switch (cur.type) {
+          //   case 'CREDIT':
+          //   case 'transferCredit':
+          //   case 'TRANSFER_CREDIT':
+          //     totalRevenues += cur.amount;
+          //     break;
+          //   case 'DEBIT':
+          //   case 'transferDebit':
+          //   case 'TRANSFER_DEBIT':
+          //     totalExpenses += cur.amount;
+          //     break;
+          // }
+          // Credit card
+          if (cur.account.type === 'CREDIT') {
+            totalAccountBalance -= cur.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
+          }
+          // Other account types
+          if (cur.account.type !== 'CREDIT') {
+            totalAccountBalance += cur.amount;
           }
         });
-      const total = accountInitialAmount + totalRevenues - totalExpenses;
+      // const total = accountInitialAmount + totalRevenues - totalExpenses;
 
-      total >= 0 ? setBalanceIsPositive(true) : setBalanceIsPositive(false);
+      totalAccountBalance >= 0
+        ? setBalanceIsPositive(true)
+        : setBalanceIsPositive(false);
 
-      const totalAccountBalanceFormatted = Number(total).toLocaleString(
-        'pt-BR',
-        {
-          style: 'currency',
-          currency: 'BRL',
-        }
-      );
+      const totalAccountBalanceFormatted = Number(
+        totalAccountBalance
+      ).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
       setTotalAccountBalance(totalAccountBalanceFormatted);
 
       const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
@@ -246,11 +263,13 @@ export function Account() {
         item.data.forEach((cur: any) => {
           if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
             switch (cur.type) {
-              case 'credit':
+              case 'CREDIT':
+              case 'TRANSFER_CREDIT':
               case 'transferCredit':
                 totalRevenuesByMonths += cur.amount;
                 break;
-              case 'debit':
+              case 'DEBIT':
+              case 'TRANSFER_DEBIT':
               case 'transferDebit':
                 totalExpensesByMonths += cur.amount;
                 break;
@@ -259,8 +278,7 @@ export function Account() {
         });
       }
 
-      const cashFlowByMonths =
-        accountInitialAmount + totalRevenuesByMonths - totalExpensesByMonths;
+      const cashFlowByMonths = totalRevenuesByMonths - totalExpensesByMonths;
 
       if (periodSelected.period === 'months') {
         cashFlowByMonths >= 0
@@ -298,11 +316,13 @@ export function Account() {
         item.data.forEach((cur: any) => {
           if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
             switch (cur.type) {
-              case 'credit':
+              case 'CREDIT':
+              case 'TRANSFER_CREDIT':
               case 'transferCredit':
                 totalRevenuesByYears += cur.amount;
                 break;
-              case 'debit':
+              case 'DEBIT':
+              case 'TRANSFER_DEBIT':
               case 'transferDebit':
                 totalExpensesByYears += cur.amount;
                 break;
@@ -311,8 +331,7 @@ export function Account() {
         });
       }
 
-      const cashFlowByYears =
-        accountInitialAmount + totalRevenuesByYears - totalExpensesByYears;
+      const cashFlowByYears = totalRevenuesByYears - totalExpensesByYears;
 
       if (periodSelected.period === 'years') {
         cashFlowByYears >= 0
@@ -489,7 +508,13 @@ export function Account() {
         <AccountBalanceContainer>
           <AccountBalanceGroup>
             <AccountBalance balanceIsPositive={balanceIsPositive}>
-              {!hideAmount ? totalAccountBalance : '•••••'}
+              {/* {!hideAmount ? totalAccountBalance : '•••••'} */}
+              {!hideAmount
+                ? Number(accountBalance).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })
+                : '•••••'}
             </AccountBalance>
             <AccountBalanceDescription>
               Saldo da conta

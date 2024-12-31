@@ -37,7 +37,10 @@ export const HideDataButton = styled(BorderlessButton)`
   right: 0px;
 `;
 
-export const ChartContainer = styled.View``;
+export const ChartContainer = styled.View`
+  min-height: 200px;
+  max-height: 200px;
+`;
 
 export const AccountsContainer = styled.View`
   flex: 1;
@@ -47,7 +50,7 @@ export const Footer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-top: 16px;
+  padding-top: 8px;
 `;
 
 export const ButtonGroup = styled.View`

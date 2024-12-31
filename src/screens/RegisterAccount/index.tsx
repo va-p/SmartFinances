@@ -31,7 +31,7 @@ import { AccountTypes } from '@interfaces/accounts';
 type FormData = {
   name: string;
   currency: string;
-  initialAmount: number;
+  balance: number;
 };
 
 type Props = {
@@ -42,22 +42,29 @@ type Props = {
 /* Validation Form - Start */
 const schema = Yup.object().shape({
   name: Yup.string().required('Digite o nome da conta'),
-  initialAmount: Yup.number()
-    .required('Digite o saldo inicial da conta')
+  balance: Yup.number()
+    .required('Digite o saldo da conta')
     .typeError('Digite somente números e pontos.'),
 });
 /* Validation Form - End */
 
 export function RegisterAccount({ id, closeAccount }: Props) {
-  const tenantId = useUser((state) => state.tenantId);
+  const { id: userID } = useUser();
   const {
     control,
+    setValue,
+    getValues,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      balance: 0,
+      // amount: 0,
+    },
+  });
   const [name, setName] = useState('');
-  const [initialAmount, setInitialAmount] = useState('');
   const accountTypes: AccountTypes[] = [
     'Cartão de Crédito',
     'Carteira',
@@ -97,7 +104,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       name: form.name,
       type: typeSelected,
       currency_id: currencySelected.id,
-      initial_amount: form.initialAmount,
+      balance: form.balance,
     };
     try {
       const { status } = await api.post('edit_account', AccountEdited);
@@ -154,9 +161,9 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           name: form.name,
           type: typeSelected,
           currency_id: currencySelected.id,
-          initial_amount: form.initialAmount,
+          balance: form.balance,
           hide: false,
-          tenant_id: tenantId,
+          user_id: userID,
         };
         const { status } = await api.post('account', newAccount);
         if (status === 200) {
@@ -194,7 +201,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       });
 
       setName(data.name);
-      setInitialAmount(data.initial_amount);
+      setValue('balance', data.balance);
       setTypeSelected(data.type);
       setCurrencySelected(data.currency);
       setHideAccount(data.hide);
@@ -234,7 +241,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      if (id != '') {
+      if (id !== '') {
         fetchAccount();
       }
     }, [id])
@@ -256,13 +263,13 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
         <ControlledInputWithIcon
           icon={<Icon.Money color={theme.colors.primary} />}
-          placeholder='Saldo inicial'
+          placeholder='Saldo da conta'
           keyboardType='numeric'
           returnKeyType='go'
-          defaultValue={initialAmount}
-          name='initialAmount'
+          defaultValue={String(getValues('balance'))}
+          name='balance'
           control={control}
-          error={errors.initialAmount}
+          error={errors.balance}
           onSubmitEditing={handleSubmit(handleRegisterAccount)}
         />
 
@@ -278,7 +285,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             setTypeSelected(selectedItem);
           }}
           defaultButtonText={
-            id != '' ? typeSelected : 'Selecione o tipo da conta'
+            id !== '' ? typeSelected : 'Selecione o tipo da conta'
           }
           buttonTextAfterSelection={(selectedItem) => {
             return selectedItem;
@@ -309,7 +316,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           dropdownStyle={{ borderRadius: 10 }}
         />
 
-        {id != '' && (
+        {id !== '' && (
           <ButtonToggle
             icon={<Icon.EyeSlash color={theme.colors.primary} />}
             title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
@@ -323,7 +330,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar Conta' : 'Criar Conta'}
+          title={id !== '' ? 'Editar Conta' : 'Criar Conta'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterAccount)}
         />

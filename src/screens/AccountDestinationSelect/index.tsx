@@ -15,6 +15,7 @@ import { useUser } from 'src/storage/userStorage';
 import { AccountProps } from '@interfaces/accounts';
 
 import api from '@api/api';
+import getAccounts from '@utils/getAccounts';
 
 type Props = {
   accountDestination: AccountProps;
@@ -29,20 +30,15 @@ export function AccountDestinationSelect({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
-  const tenantId = useUser((state) => state.tenantId);
+  const { id: userID } = useUser();
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
 
   async function fetchAccounts() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('account', {
-        params: {
-          tenant_id: tenantId,
-        },
-      });
-      if (!data) {
-      } else {
+      const data = await getAccounts(userID);
+      if (!!data) {
         setAccounts(data);
         setRefreshing(false);
       }

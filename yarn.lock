@@ -1882,6 +1882,11 @@
     color "^4.2.3"
     warn-once "^0.1.0"
 
+"@revenuecat/purchases-typescript-internal@13.13.0":
+  version "13.13.0"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-13.13.0.tgz#a7fea38baf820008db31f31aa3aac4b31405e620"
+  integrity sha512-neX/4KFrSvgHRXJ1oNop56v5BdO18/YcqlIl+l0LL/mYQOjdI85+Y71+mPilVQ4Kh+5PEuOz+3pkQawkhXhAJA==
+
 "@segment/loosely-validate-event@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@segment/loosely-validate-event/-/loosely-validate-event-2.0.0.tgz#87dfc979e5b4e7b82c5f1d8b722dfd5d77644681"
@@ -3634,7 +3639,7 @@ debug@^3.1.0:
   dependencies:
     ms "^2.1.1"
 
-decimal.js@^10.4.2:
+decimal.js@^10.4.2, decimal.js@^10.4.3:
   version "10.4.3"
   resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
   integrity sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==
@@ -7527,6 +7532,13 @@ react-native-pluggy-connect@^1.3.2:
     lodash.isequal "^4.5.0"
     pluggy-connect-sdk "^2.3.0"
     react-native-url-polyfill "^1.3.0"
+
+react-native-purchases@^8.4.2:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-8.4.2.tgz#deccf6a7828f34009f6131c321729eda20989a94"
+  integrity sha512-oDUw4WCR+HF/29GEXSlpKgPFTMOJUrFwPQICnbdV4KBzQXuj+DK3QDXd0A24jABwMAntNN+aLh9Cdv+K9QzRaQ==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "13.13.0"
 
 react-native-reanimated@~3.16.1:
   version "3.16.3"

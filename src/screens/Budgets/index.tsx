@@ -7,16 +7,10 @@ import { TransactionProps } from '@interfaces/transactions';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
+import { convertCurrency } from '@utils/convertCurrency';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import {
-  addDays,
-  addMonths,
-  addWeeks,
-  addYears,
-  endOfMonth,
-  subDays,
-} from 'date-fns';
+import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -27,15 +21,16 @@ import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
-import { useUser } from 'src/storage/userStorage';
-import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelected';
+import { useUser } from '@storage/userStorage';
+import { useQuotes } from '@storage/quotesStorage';
+import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import api from '@api/api';
 
 export function Budgets({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
+  const { tenantId: tenantID, id: userID } = useUser();
   const [budgetsFormatted, setBudgetsFormatted] = useState<BudgetProps[]>([]);
 
   const budgetRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -52,7 +47,7 @@ export function Budgets({ navigation }: any) {
 
       const { data } = await api.get('budget', {
         params: {
-          tenant_id: tenantId,
+          tenant_id: tenantID,
         },
       });
 
@@ -71,7 +66,7 @@ export function Budgets({ navigation }: any) {
 
     let transactions: any = [];
     try {
-      const data = await getTransactions(tenantId);
+      const data = await getTransactions(tenantID, userID);
 
       if (data && data.length > 0) {
         transactions = data;
@@ -142,7 +137,7 @@ export function Budgets({ navigation }: any) {
           }
         }
 
-        const filteredTransactions = transactions.filter(
+        const filteredTransactions: TransactionProps[] = transactions.filter(
           (transaction: TransactionProps) =>
             // budget.accounts.find((accountId: any) => accountId.account_id === transaction.account.id) &&
             budget.categories.find(
@@ -153,19 +148,29 @@ export function Budgets({ navigation }: any) {
             new Date(transaction.created_at) <= endDate
         );
 
-        let totalRevenues = 0;
-        let totalExpenses = 0;
+        let amountSpent = 0;
         for (const transaction of filteredTransactions) {
-          switch (transaction.type) {
-            case 'credit':
-              totalRevenues += transaction.amount;
-              break;
-            case 'debit':
-              totalExpenses += transaction.amount;
-              break;
+          const isTransactionInAnotherCurrency =
+            transaction.currency.code !== transaction.account.currency.code;
+
+          // Cartão de crédito
+          if (transaction.account.type === 'CREDIT') {
+            // amountSpent += transaction.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy, PORÉM, neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
+            isTransactionInAnotherCurrency &&
+            transaction.amount_in_account_currency
+              ? (amountSpent += transaction.amount_in_account_currency)
+              : (amountSpent += transaction.amount);
+          }
+
+          // Outros tipos de conta
+          if (transaction.account.type !== 'CREDIT') {
+            // amountSpent -= transaction.amount; // Neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
+            isTransactionInAnotherCurrency &&
+            transaction.amount_in_account_currency
+              ? (amountSpent -= transaction.amount_in_account_currency)
+              : (amountSpent -= transaction.amount);
           }
         }
-        const amountSpent = totalExpenses - totalRevenues;
 
         const percentage = `${((amountSpent / budget.amount) * 100).toFixed(
           2
@@ -188,6 +193,8 @@ export function Budgets({ navigation }: any) {
             end_date,
             recurrence: budget.recurrence,
             tenantId: budget.tenant_id,
+            user_id: userID,
+            transactions: filteredTransactions,
           };
         }
 
