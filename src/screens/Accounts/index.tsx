@@ -298,6 +298,7 @@ export function Accounts({ navigation }: any) {
       switch (item.type) {
         case 'Outro':
         case 'Carteira':
+        case 'WALLET':
           return <Icon.Wallet color={theme.colors.primary} />;
         case 'Carteira de Criptomoedas':
           return <Icon.CurrencyBtc color={theme.colors.primary} />;

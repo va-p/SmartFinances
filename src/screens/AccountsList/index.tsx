@@ -147,6 +147,41 @@ export function AccountsList() {
     );
   }
 
+  function _renderItem({ item, index }: any) {
+    const getAccountIcon = () => {
+      switch (item.type) {
+        case 'Outro':
+        case 'Carteira':
+        case 'WALLET':
+          return <Icon.Wallet color={theme.colors.primary} />;
+        case 'Carteira de Criptomoedas':
+          return <Icon.CurrencyBtc color={theme.colors.primary} />;
+        case 'Poupança':
+        case 'Investimentos':
+        case 'Conta Corrente':
+        case 'BANK':
+          return <Icon.Bank color={theme.colors.primary} />;
+        case 'Cartão de Crédito':
+        case 'CREDIT':
+          return <Icon.CreditCard color={theme.colors.primary} />;
+        default:
+          'Carteira';
+          break;
+      }
+    };
+
+    return (
+      <AccountListItem
+        data={item}
+        index={index}
+        icon={getAccountIcon()}
+        onPress={() =>
+          handleOpenAccount(item.id, item.name, item.type, item.currency)
+        }
+      />
+    );
+  }
+
   useFocusEffect(
     useCallback(() => {
       fetchAccounts();
@@ -167,16 +202,7 @@ export function AccountsList() {
       <FlatList
         data={accounts}
         keyExtractor={(_, idx) => String(idx)}
-        renderItem={({ item, index }: any) => (
-          <AccountListItem
-            data={item}
-            index={index}
-            icon={<Icon.Wallet color={theme.colors.primary} />}
-            onPress={() =>
-              handleOpenAccount(item.id, item.name, item.type, item.currency)
-            }
-          />
-        )}
+        renderItem={_renderItem}
         ListEmptyComponent={() => (
           <ListEmptyComponent text='Nenhuma conta criada. Crie contas para visualizá-la aqui.' />
         )}

@@ -61,7 +61,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     resolver: yupResolver(schema),
     defaultValues: {
       balance: 0,
-      // amount: 0,
     },
   });
   const accountTypes: AccountTypes[] = [
@@ -282,7 +281,27 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         <SelectDropdown
           data={accountTypes}
           onSelect={(selectedItem) => {
-            setTypeSelected(selectedItem);
+            switch (selectedItem) {
+              case 'Cartão de Crédito':
+                setTypeSelected('CREDIT');
+                break;
+              case 'Carteira':
+                setTypeSelected('WALLET');
+                break;
+              case 'Carteira de Criptomoedas':
+                setTypeSelected('CRYPTOCURRENCY WALLET');
+                break;
+              case 'Conta Corrente':
+                setTypeSelected('BANK');
+                break;
+              case 'Investimentos':
+              case 'Poupança':
+                setTypeSelected('INVESTMENTS');
+                break;
+              case 'Outro':
+                setTypeSelected('OTHER');
+                break;
+            }
           }}
           defaultButtonText={
             id !== '' ? typeSelected : 'Selecione o tipo da conta'

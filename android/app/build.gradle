@@ -92,7 +92,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 34
-        versionName "2.3.2"
+        versionName "2.3.3"
     }
     signingConfigs {
         debug {
