@@ -245,38 +245,20 @@ export function Account() {
             ).getFullYear() === selectedDate.getFullYear()
         );
 
-      let totalRevenuesByMonths = 0;
-      let totalExpensesByMonths = 0;
-
+      let cashFlowByMonth = 0;
       for (const item of transactionsByMonthsFormattedPtbr) {
-        item.data.forEach((cur: any) => {
-          if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
-            switch (cur.type) {
-              case 'CREDIT':
-              case 'TRANSFER_CREDIT':
-              case 'transferCredit':
-                totalRevenuesByMonths += cur.amount;
-                break;
-              case 'DEBIT':
-              case 'TRANSFER_DEBIT':
-              case 'transferDebit':
-                totalExpensesByMonths += cur.amount;
-                break;
-            }
-          }
-        });
+        const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
+        cashFlowByMonth += parseFloat(cleanTotal);
       }
 
-      const cashFlowByMonths = totalRevenuesByMonths - totalExpensesByMonths;
-
       if (selectedPeriod.period === 'months') {
-        cashFlowByMonths >= 0
+        cashFlowByMonth >= 0
           ? setCashFlowIsPositive(true)
           : setCashFlowIsPositive(false);
       }
 
-      const cashFlowFormattedPtbrByMonths = Number(
-        cashFlowByMonths
+      const cashFlowFormattedPtbrByMonth = Number(
+        cashFlowByMonth
       ).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -343,7 +325,7 @@ export function Account() {
        */
       switch (selectedPeriod.period) {
         case 'months':
-          setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonths);
+          setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonth);
           setTransactionsFormattedBySelectedPeriod(
             transactionsByMonthsFormattedPtbr
           );
