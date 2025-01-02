@@ -475,7 +475,13 @@ export function Home() {
             }
           }
         }
-        totalsGroupedByMonths = Object.values(totalsGroupedByMonths);
+        totalsGroupedByMonths = Object.values(totalsGroupedByMonths).sort(
+          (a: any, b: any) => {
+            const firstDateParsed = parse(a.date, 'yyyy-MM', new Date());
+            const secondDateParsed = parse(b.date, 'yyyy-MM', new Date());
+            return secondDateParsed.getTime() - firstDateParsed.getTime();
+          }
+        );
 
         for (let i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
           totalsGroupedByMonths[i].date = format(
@@ -484,6 +490,8 @@ export function Home() {
             { locale: ptBR }
           );
         }
+
+        console.log('totalsGroupedByMonths =>', totalsGroupedByMonths);
 
         setCashFlowTotalBySelectedPeriod(totalByMonthsFormattedPtbr);
         setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
