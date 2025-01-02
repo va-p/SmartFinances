@@ -10,6 +10,8 @@ export const Container = styled.View`
 export const MonthSelectButton = styled(BorderlessButton)``;
 
 export const PeriodRulerList = styled.FlatList.attrs({
+  inverted: true,
   horizontal: true,
   showsHorizontalScrollIndicator: false,
+  contentContainerStyle: { alignItems: 'center' },
 })``;

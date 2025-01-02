@@ -1,154 +1,115 @@
-import React, { useEffect } from 'react';
-import { Chart, Container, Header, Title, Category } from './styles';
+import React from 'react';
+import { Container } from './styles';
 
-import Animated, { EasingNode } from 'react-native-reanimated';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import theme from '@themes/theme';
 
-export function SkeletonOverviewScreen() {
-  const skeletonAnimatedValue = new Animated.Value(0);
-
-  const skeletonAnimated = () => {
-    skeletonAnimatedValue.setValue(0);
-    Animated.timing(skeletonAnimatedValue, {
-      toValue: 1,
-      duration: 300,
-      easing: EasingNode.out(EasingNode.linear),
-    }).start(() => {
-      setTimeout(() => {
-        skeletonAnimated();
-      }, 500);
-    });
-  };
-
-  const translateX = skeletonAnimatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-30, 100],
-  });
-  const translateX2 = skeletonAnimatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-80, 380],
-  });
-
-  useEffect(() => {
-    skeletonAnimated();
-  }, []);
-
+export function SkeletonHomeScreen() {
   return (
     <Container>
-      <Header>
-        <Title>
-          <Animated.View
-            style={{
-              width: '30%',
-              height: 32,
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-              transform: [{ translateX: translateX }],
-            }}
-          ></Animated.View>
-        </Title>
-      </Header>
+      <SkeletonPlaceholder
+        speed={1000}
+        highlightColor={theme.colors.overlay}
+        backgroundColor={theme.colors.shape}
+      >
+        <>
+          <SkeletonPlaceholder.Item
+            alignItems='center'
+            justifyContent='center'
+            marginBottom={12}
+          >
+            <SkeletonPlaceholder.Item width={80} height={20} />
+            <SkeletonPlaceholder.Item width={50} height={20} marginTop={8} />
+          </SkeletonPlaceholder.Item>
+          <SkeletonPlaceholder.Item
+            flexDirection='row'
+            alignItems='center'
+            justifyContent='center'
+            marginBottom={50}
+          >
+            <SkeletonPlaceholder.Item
+              width={80}
+              height={30}
+              marginTop={6}
+              marginRight={6}
+              borderRadius={50}
+            />
+            <SkeletonPlaceholder.Item
+              width={80}
+              height={30}
+              marginTop={6}
+              borderRadius={50}
+            />
+          </SkeletonPlaceholder.Item>
 
-      <Chart>
-        <Animated.View
-          style={{
-            height: '100%',
-            backgroundColor: theme.colors.shape,
-            borderRadius: 125,
-          }}
-        >
-          <Animated.View
-            style={{
-              width: '30%',
-              height: '100%',
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-              transform: [{ translateX: translateX2 }],
-            }}
-          ></Animated.View>
-        </Animated.View>
-      </Chart>
+          <SkeletonPlaceholder.Item
+            marginTop={6}
+            width={380}
+            height={80}
+            borderRadius={5}
+            marginBottom={60}
+          />
 
-      <Category>
-        <Animated.View
-          style={{
-            height: '100%',
-            backgroundColor: theme.colors.shape,
-            borderRadius: 10,
-          }}
-        >
-          <Animated.View
-            style={{
-              width: '20%',
-              height: '100%',
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-              transform: [{ translateX: translateX2 }],
-            }}
-          ></Animated.View>
-        </Animated.View>
-      </Category>
+          <SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item flexDirection='row'>
+              <SkeletonPlaceholder.Item
+                width={50}
+                height={50}
+                marginRight={8}
+              />
+              <SkeletonPlaceholder.Item justifyContent='center'>
+                <SkeletonPlaceholder.Item width={300} height={20} />
+                <SkeletonPlaceholder.Item
+                  width={200}
+                  height={20}
+                  marginTop={6}
+                />
+              </SkeletonPlaceholder.Item>
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
 
-      <Category>
-        <Animated.View
-          style={{
-            height: '100%',
-            backgroundColor: theme.colors.shape,
-            borderRadius: 10,
-          }}
-        >
-          <Animated.View
-            style={{
-              width: '20%',
-              height: '100%',
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-              transform: [{ translateX: translateX2 }],
-            }}
-          ></Animated.View>
-        </Animated.View>
-      </Category>
+          <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+            <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+            <SkeletonPlaceholder.Item justifyContent='center'>
+              <SkeletonPlaceholder.Item width={300} height={20} />
+              <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
 
-      <Category>
-        <Animated.View
-          style={{
-            height: '100%',
-            backgroundColor: theme.colors.shape,
-            borderRadius: 10,
-          }}
-        >
-          <Animated.View
-            style={{
-              width: '20%',
-              height: '100%',
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-              transform: [{ translateX: translateX2 }],
-            }}
-          ></Animated.View>
-        </Animated.View>
-      </Category>
+          <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+            <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+            <SkeletonPlaceholder.Item justifyContent='center'>
+              <SkeletonPlaceholder.Item width={300} height={20} />
+              <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
 
-      <Category>
-        <Animated.View
-          style={{
-            height: '100%',
-            backgroundColor: theme.colors.shape,
-            borderRadius: 10,
-          }}
-        >
-          <Animated.View
-            style={{
-              width: '20%',
-              height: '100%',
-              opacity: 0.5,
-              backgroundColor: theme.colors.background,
-              transform: [{ translateX: translateX2 }],
-            }}
-          ></Animated.View>
-        </Animated.View>
-      </Category>
+          <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+            <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+            <SkeletonPlaceholder.Item justifyContent='center'>
+              <SkeletonPlaceholder.Item width={300} height={20} />
+              <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+
+          <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+            <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+            <SkeletonPlaceholder.Item justifyContent='center'>
+              <SkeletonPlaceholder.Item width={300} height={20} />
+              <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+
+          <SkeletonPlaceholder.Item flexDirection='row' marginTop={20}>
+            <SkeletonPlaceholder.Item width={50} height={50} marginRight={8} />
+            <SkeletonPlaceholder.Item justifyContent='center'>
+              <SkeletonPlaceholder.Item width={300} height={20} />
+              <SkeletonPlaceholder.Item width={200} height={20} marginTop={6} />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+        </>
+      </SkeletonPlaceholder>
     </Container>
   );
 }

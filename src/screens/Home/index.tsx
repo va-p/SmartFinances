@@ -491,8 +491,6 @@ export function Home() {
           );
         }
 
-        console.log('totalsGroupedByMonths =>', totalsGroupedByMonths);
-
         setCashFlowTotalBySelectedPeriod(totalByMonthsFormattedPtbr);
         setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
         setTransactionsFormattedBySelectedPeriod(

@@ -45,7 +45,7 @@ export function SkeletonHomeScreen() {
 
           <SkeletonPlaceholder.Item
             marginTop={6}
-            width={400}
+            width={380}
             height={80}
             borderRadius={5}
             marginBottom={60}

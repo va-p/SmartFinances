@@ -48,10 +48,10 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
       if (offerings.current) {
         setPackages(offerings.current.availablePackages);
-        console.log(
-          'OFERTAS CARREGADAS: ',
-          offerings.current.availablePackages
-        );
+        // console.log(
+        //   'OFERTAS CARREGADAS: ',
+        //   offerings.current.availablePackages
+        // );
       }
     } catch (error) {
       console.error('RevenueCatProvider loadOfferings error =>', error);
@@ -82,7 +82,6 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
       const customer = await Purchases.restorePurchases();
       const activeSubscription = customer.activeSubscriptions;
-      console.log('Active Subscription =>', activeSubscription);
 
       const newUser: UserProps = { items: [], premium: false };
       if (activeSubscription.length > 0) {
@@ -111,7 +110,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
   async function purchasePackage(pack: PurchasesPackage) {
     try {
       await Purchases.purchasePackage(pack);
-      console.log('PACKAGE PARA COMPRA: ', pack);
+      // console.log('PACKAGE PARA COMPRA: ', pack);
 
       if (pack.product.identifier === 'pro') {
         setUser({ ...user });
@@ -125,7 +124,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
   async function restorePurchasesUser() {
     const customer = await Purchases.restorePurchases();
-    console.log('RESTORE PURCHASES: ', customer);
+    // console.log('RESTORE PURCHASES: ', customer);
     return customer;
   }
 
