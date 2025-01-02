@@ -44,14 +44,11 @@ export function ConnectedAccounts({ navigation }: any) {
   const { tenantId: tenantID, id: userID } = useUser();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [freeLimitReached, setFreeLimitReached] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const [token, setToken] = useState<string>();
 
   const [integrations, setIntegrations] = useState<BankingIntegration[]>([]);
-
-  console.log('freeLimitReached =>', freeLimitReached);
 
   async function syncAccounts() {
     try {
@@ -87,10 +84,6 @@ export function ConnectedAccounts({ navigation }: any) {
       });
 
       if (!!response.data && response.data.length > 0) {
-        if (!user.premium) {
-          setFreeLimitReached(true);
-        }
-
         const data = response.data;
         setIntegrations(data);
         await syncAccounts();
@@ -133,7 +126,7 @@ export function ConnectedAccounts({ navigation }: any) {
   }, []);
 
   function handlePressConnectNewAccount() {
-    if (freeLimitReached) {
+    if (!user.premium) {
       navigation.navigate('Assinatura');
       return;
     }
@@ -218,7 +211,7 @@ export function ConnectedAccounts({ navigation }: any) {
         </Header.Root>
       )}
 
-      {token && showModal && (
+      {user.premium && token && showModal && (
         <PluggyConnect
           connectToken={token}
           includeSandbox={true}
@@ -253,8 +246,8 @@ export function ConnectedAccounts({ navigation }: any) {
           <Button
             type='secondary'
             title={
-              freeLimitReached
-                ? 'Assine o Premium para mais conexões'
+              !user.premium
+                ? 'Assine o Premium para novas conexões'
                 : 'Conectar nova conta'
             }
             onPress={handlePressConnectNewAccount}
