@@ -82,7 +82,7 @@ export const Footer = styled.View`
 export const CategoryAndAccountContainer = styled.View`
   flex-direction: row;
   max-width: 80%;
-  padding: 10px 4px;
+  padding: 0 4px;
 `;
 
 export const Category = styled.Text.attrs({

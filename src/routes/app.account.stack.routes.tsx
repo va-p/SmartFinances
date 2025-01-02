@@ -4,10 +4,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { Account } from '@screens/Account';
 import { Accounts } from '@screens/Accounts';
+import { PremiumBenefits } from '@screens/PremiumBenefits';
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { ConnectedAccounts } from '@screens/ConnectedAccounts';
 
 import { RootParamList } from 'src/@types/navigation';
-import { ConnectedAccounts } from '@screens/ConnectedAccounts';
 
 const { Navigator, Screen } = createStackNavigator<RootParamList>();
 
@@ -25,6 +26,8 @@ export function AppAccountStackRoutes() {
       <Screen name='Editar Conta' component={RegisterAccount} />
 
       <Screen name='Contas Conectadas' component={ConnectedAccounts} />
+
+      <Screen name='Assinatura' component={PremiumBenefits} />
     </Navigator>
   );
 }

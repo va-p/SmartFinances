@@ -3,12 +3,15 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "runtimeVersion": "2.3.0(32)",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",
     "primaryColor": "#FF5200",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -16,7 +19,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 33,
+      "versionCode": 34,
       "permissions": [
         "VIBRATE",
         "CAMERA",

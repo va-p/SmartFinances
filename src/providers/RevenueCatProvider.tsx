@@ -1,3 +1,4 @@
+import { useUser } from '@storage/userStorage';
 import {
   createContext,
   ReactNode,
@@ -5,7 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Platform, View, Text } from 'react-native';
+import { Platform, View, Text, Alert } from 'react-native';
 
 import Purchases, {
   LOG_LEVEL,
@@ -14,8 +15,8 @@ import Purchases, {
 } from 'react-native-purchases';
 
 const API_KEYS = {
-  apple: 'SUA_CHAVE',
-  google: 'SUA_CHAVE',
+  apple: '',
+  google: 'goog_yACJEerdROBKywaVVejvqfPBHDY',
 };
 
 export interface UserProps {
@@ -33,6 +34,7 @@ interface RevenueCatProps {
 const RevenueCatContext = createContext<RevenueCatProps | null>(null);
 
 export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
+  const { id: userID } = useUser();
   const [user, setUser] = useState<UserProps>({
     items: [],
     premium: false,
@@ -40,13 +42,33 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
   const [isReady, setIsReady] = useState(false);
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
 
+  async function loadOfferings() {
+    try {
+      const offerings = await Purchases.getOfferings();
+
+      if (offerings.current) {
+        setPackages(offerings.current.availablePackages);
+        console.log(
+          'OFERTAS CARREGADAS: ',
+          offerings.current.availablePackages
+        );
+      }
+    } catch (error) {
+      console.error('RevenueCatProvider loadOfferings error =>', error);
+      Alert.alert(
+        'Erro',
+        'Não foi possível buscar as ofertas. Por favor, tente novamente mais tarde.'
+      );
+    }
+  }
+
   useEffect(() => {
     async function init() {
       if (Platform.OS === 'android') {
-        Purchases.configure({ apiKey: API_KEYS.google });
+        Purchases.configure({ apiKey: API_KEYS.google, appUserID: userID });
       }
       if (Platform.OS === 'ios') {
-        Purchases.configure({ apiKey: API_KEYS.apple });
+        Purchases.configure({ apiKey: API_KEYS.apple, appUserID: userID });
       }
 
       setIsReady(true);
@@ -60,7 +82,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
       const customer = await Purchases.restorePurchases();
       const activeSubscription = customer.activeSubscriptions;
-      //console.log("ACTIVE SUBSCRIPTION: ", activeSubscription)
+      console.log('Active Subscription =>', activeSubscription);
 
       const newUser: UserProps = { items: [], premium: false };
       if (activeSubscription.length > 0) {
@@ -73,19 +95,6 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
     init();
   }, []);
-
-  async function loadOfferings() {
-    try {
-      const offerings = await Purchases.getOfferings();
-
-      if (offerings.current) {
-        setPackages(offerings.current.availablePackages);
-        //console.log("OFERTAS CARREGADAS: ", offerings.current.availablePackages)
-      }
-    } catch (err) {
-      console.log('ERRO CARREGAR OFERTAS: ', err);
-    }
-  }
 
   async function updateCustomerInfo(customerInfo: CustomerInfo) {
     const newUser: UserProps = { items: [], premium: false };

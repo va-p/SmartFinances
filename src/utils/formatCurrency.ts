@@ -1,3 +1,5 @@
+type CurrencyCodes = 'BTC' | 'BRL' | 'EUR' | 'USD';
+
 type Props = {
   currencyCode: string;
   value: number | string;
@@ -6,7 +8,7 @@ type Props = {
 };
 
 function formatCurrency(
-  currencyCode: string,
+  currencyCode: CurrencyCodes,
   value: number,
   isConverted = true,
   withFraction = true

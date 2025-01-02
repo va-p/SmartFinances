@@ -251,11 +251,18 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  async function fetchTransactions(transactions?: TransactionProps[]) {
+  async function fetchTransactions() {
     try {
       setLoading(true);
 
-      const data = transactions ? transactions : await getTransactions(userID);
+      const { data } = await api.get(
+        '/banking_integration/get_integrations_and_sync_transactions',
+        {
+          params: {
+            user_id: userID,
+          },
+        }
+      );
 
       /**
        * All Transactions Formatted in pt-BR - Start
@@ -327,7 +334,6 @@ export function Home() {
               tenant_id: item.category.tenant_id,
             },
             tags: item.tags,
-            // tenant_id: item.tenant_id,
             user_id: item.user_id,
           };
         }
@@ -600,35 +606,6 @@ export function Home() {
     }
   }
 
-  async function fetchBankingIntegrations(isRefresh: boolean = false) {
-    try {
-      setLoading(true);
-
-      const { data, status } = await api.get(
-        '/banking_integration/get_and_sync_integrations',
-        {
-          params: {
-            user_id: userID,
-          },
-        }
-      );
-
-      if (status === 200 && data.length > 0) {
-        fetchTransactions(data);
-      }
-
-      fetchTransactions();
-
-      return;
-    } catch (error) {
-      console.error('Erro ao verificar contas conectadas:', error);
-      Alert.alert(
-        'Transações',
-        'Não foi possível buscar suas conexões bancárias. Verifique sua conexão com a internet e tente novamente.'
-      );
-    }
-  }
-
   function handleOpenPeriodSelectedModal() {
     chartPeriodSelectedBottomSheetRef.current?.present();
   }
@@ -767,8 +744,8 @@ export function Home() {
     fetchQuote('USD', 'BTC', setUsdQuoteBtc);
     fetchQuote('USD', 'EUR', setUsdQuoteEur);
 
-    fetchBankingIntegrations();
-  }, [selectedPeriod, chartPeriodSelected.period, userID, tenantID]);
+    fetchTransactions();
+  }, [selectedPeriod, chartPeriodSelected.period, userID]);
 
   if (loading) {
     return <SkeletonHomeScreen />;
@@ -806,7 +783,7 @@ export function Home() {
         <Animated.View style={chartStyleAnimationOpacity}>
           <VictoryChart
             height={120}
-            padding={{ top: 16, right: 16, bottom: 40, left: 56 }}
+            padding={{ top: 16, right: 16, bottom: 40, left: 32 }}
             containerComponent={
               <VictoryZoomContainer
                 allowZoom={false}
@@ -818,7 +795,13 @@ export function Home() {
           >
             <VictoryAxis
               dependentAxis
-              tickFormat={(tick) => formatCurrency('BRL', tick, false, false)}
+              tickFormat={(tick) =>
+                tick.toLocaleString('en-US', {
+                  maximumFractionDigits: 2,
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                })
+              }
             />
             <VictoryAxis tickFormat={(tick) => tick} />
             <VictoryGroup offset={12}>
@@ -898,9 +881,7 @@ export function Home() {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={() => {
-                fetchBankingIntegrations(true);
-              }}
+              onRefresh={fetchTransactions}
             />
           }
           showsVerticalScrollIndicator={false}

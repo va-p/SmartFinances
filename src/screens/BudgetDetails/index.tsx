@@ -80,7 +80,7 @@ export function BudgetDetails() {
 
   async function handleDeleteBudget(id: string) {
     try {
-      await api.delete('delete_budget', {
+      await api.delete('budget/delete', {
         params: {
           budget_id: id,
         },

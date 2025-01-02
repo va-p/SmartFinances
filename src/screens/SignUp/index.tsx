@@ -90,7 +90,7 @@ export function SignUp({ navigation }: any) {
       };
 
       const tenantAndUser = { ...newTenant, ...newUser };
-      const { status } = await api.post('auth/register_user', tenantAndUser);
+      const { status } = await api.post('auth/signup', tenantAndUser);
 
       if (status === 200) {
         Alert.alert(

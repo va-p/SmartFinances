@@ -57,7 +57,7 @@ export function AccountsList() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('all_accounts', {
+      const { data } = await api.get('account/manual_accounts', {
         params: {
           user_id: userID,
         },
@@ -95,17 +95,12 @@ export function AccountsList() {
     id: string,
     name: string,
     type: AccountType,
-    currency: any,
-    initialAmount: number,
-    total: any
+    currency: any
   ) {
     setAccountId(id);
     setAccountName(name);
     setAccountType(type);
     setAccountCurrency(currency);
-    setAccountInitialAmount(initialAmount);
-    setAccountTotalAmount(total);
-
     editAccountBottomSheetRef.current?.present();
   }
 
@@ -117,7 +112,7 @@ export function AccountsList() {
 
   async function handleDeleteAccount(id: string | null) {
     try {
-      const { status } = await api.delete('delete_account', {
+      const { status } = await api.delete('account/delete', {
         params: {
           account_id: id,
         },
@@ -178,14 +173,7 @@ export function AccountsList() {
             index={index}
             icon={<Icon.Wallet color={theme.colors.primary} />}
             onPress={() =>
-              handleOpenAccount(
-                item.id,
-                item.name,
-                item.type,
-                item.currency,
-                item.initial_amount,
-                item.totalAccountAmount
-              )
+              handleOpenAccount(item.id, item.name, item.type, item.currency)
             }
           />
         )}

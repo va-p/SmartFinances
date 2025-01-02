@@ -23,7 +23,7 @@ import api from '@api/api';
 
 export function Categories() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
+  const userID = useUser((state) => state.id);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -35,7 +35,7 @@ export function Categories() {
     try {
       const { data } = await api.get('category', {
         params: {
-          tenant_id: tenantId,
+          user_id: userID,
         },
       });
       if (data) {
@@ -75,7 +75,7 @@ export function Categories() {
 
   async function handleDeleteCategory(id: string) {
     try {
-      await api.delete('delete_category', {
+      await api.delete('ctegory/delete', {
         params: {
           category_id: id,
         },

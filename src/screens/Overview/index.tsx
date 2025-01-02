@@ -643,12 +643,18 @@ export function Overview({ navigation }: any) {
           <ChartContainer>
             <VictoryChart
               height={200}
-              padding={{ top: 16, right: 40, bottom: 32, left: 56 }}
+              padding={{ top: 16, right: 40, bottom: 32, left: 32 }}
               theme={smartFinancesChartTheme}
             >
               <VictoryAxis
                 dependentAxis
-                tickFormat={(tick) => formatCurrency('BRL', tick, false)}
+                tickFormat={(tick) =>
+                  tick.toLocaleString('en-US', {
+                    maximumFractionDigits: 2,
+                    notation: 'compact',
+                    compactDisplay: 'short',
+                  })
+                }
               />
               <VictoryAxis tickFormat={(tick) => tick} />
               <VictoryGroup offset={16}>

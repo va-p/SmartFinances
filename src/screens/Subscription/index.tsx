@@ -16,6 +16,7 @@ import { SectionTitle } from '@components/SectionTitle';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { PurchasesPackage } from 'react-native-purchases';
 import { useRevenueCat } from 'src/providers/RevenueCatProvider';
+
 import theme from '@themes/theme';
 
 export function Subscription() {
@@ -23,6 +24,8 @@ export function Subscription() {
 
   const { user, packages, purchasePackage, restorePurchasesUser } =
     useRevenueCat();
+  console.log('user ===>', user);
+  console.log('packages ===>', packages);
 
   async function handlePurchase(pack: PurchasesPackage) {
     await purchasePackage(pack);
@@ -40,35 +43,35 @@ export function Subscription() {
       {/* <Button type='secondary' title={'Assinar'} onPress={() => null} /> */}
 
       <ScrollView>
-        <View style={styles.container}>
-          {packages.map((pack) => (
-            <TouchableOpacity
-              key={pack.identifier}
-              style={styles.button}
-              onPress={() => handlePurchase(pack)}
-            >
-              <View style={styles.text}>
-                <Text
-                  style={{
-                    color: '#FFFFFF',
-                    fontWeight: 'bold',
-                    fontSize: 16,
-                  }}
-                >
-                  {pack.product.title}
-                </Text>
-                <Text style={styles.desc}>{pack.product.description}</Text>
-              </View>
-              <View style={styles.price}>
-                <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
-                  {pack.product.priceString}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* <View style={styles.container}> */}
+        {packages.map((pack) => (
+          <TouchableOpacity
+            key={pack.identifier}
+            style={styles.button}
+            onPress={() => handlePurchase(pack)}
+          >
+            <View style={styles.text}>
+              <Text
+                style={{
+                  color: '#FFFFFF',
+                  fontWeight: 'bold',
+                  fontSize: 14,
+                }}
+              >
+                {pack.product.title}
+              </Text>
+              <Text style={styles.desc}>{pack.product.description}</Text>
+            </View>
+            <View style={styles.price}>
+              <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+                {pack.product.priceString}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+        {/* </View> */}
 
-        <Text>{JSON.stringify(user, null, 2)}</Text>
+        {/* <Text>{JSON.stringify(user, null, 2)}</Text> */}
 
         <Button
           title='Buscar dados Restore'
@@ -97,6 +100,7 @@ const styles = StyleSheet.create({
   desc: {
     color: '#FFFFFF',
     paddingVertical: 4,
+    fontSize: 12,
   },
   button: {
     backgroundColor: theme.colors.shape,

@@ -50,7 +50,6 @@ const schema = Yup.object().shape({
 
 export function RegisterCategory({ id, closeCategory }: Props) {
   const userID = useUser((state) => state.id);
-  const [name, setName] = useState('');
   const [iconSelected, setIconSelected] = useState({
     id: '',
     title: 'Selecione o ícone',
@@ -63,10 +62,17 @@ export function RegisterCategory({ id, closeCategory }: Props) {
   } as ColorProps);
   const {
     control,
+    setValue,
+    getValues,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: '',
+    },
+  });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
   function handleColorSelect(color: ColorProps) {
@@ -102,7 +108,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       color: colorSelected,
     };
     try {
-      const { status } = await api.post('edit_category', categoryEdited);
+      const { status } = await api.patch('category/edit', categoryEdited);
 
       if (status === 200) {
         Alert.alert('Edição de categoria', 'Categoria editada com sucesso!', [
@@ -201,12 +207,12 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     setButtonIsLoading(true);
 
     try {
-      const { data } = await api.get('single_category', {
+      const { data } = await api.get('category/single', {
         params: {
           category_id: id,
         },
       });
-      setName(data.name);
+      setValue('name', data.name);
       setIconSelected(data.icon);
       setColorSelected(data.color);
     } catch (error) {
@@ -243,7 +249,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
           placeholder='Nome da categoria'
           autoCapitalize='sentences'
           autoCorrect={false}
-          defaultValue={name}
+          defaultValue={getValues('name')}
           name='name'
           control={control}
           error={errors.name}

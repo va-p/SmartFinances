@@ -43,7 +43,6 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   function handleOpenConnectedAccounts() {
-    // navigation.navigate('Contas Conectadas');
     navigation.navigate('Contas Conectadas', {
       showHeader: true,
     });

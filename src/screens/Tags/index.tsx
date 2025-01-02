@@ -21,7 +21,7 @@ import api from '@api/api';
 
 export function Tags() {
   const [loading, setLoading] = useState(false);
-  const tenantId = useUser((state) => state.tenantId);
+  const userID = useUser((state) => state.id);
   const [tags, setTags] = useState<TagProps[]>([]);
   const [refreshing, setRefreshing] = useState(true);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -33,7 +33,7 @@ export function Tags() {
     try {
       const { data } = await api.get('tag', {
         params: {
-          tenant_id: tenantId,
+          user_id: userID,
         },
       });
       if (!data) {
@@ -74,7 +74,7 @@ export function Tags() {
 
   async function handleDeleteTag(id: string) {
     try {
-      await api.delete('delete_tag', {
+      await api.delete('tag/delete', {
         params: {
           tag_id: id,
         },

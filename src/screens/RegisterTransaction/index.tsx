@@ -132,7 +132,6 @@ export function RegisterTransaction({
   };
   const [bankTransactionID, setBankTransactionID] = useState('');
   const [transactionDate, setTransactionDate] = useState('');
-  const [amountInAccountCurrency, setAmountInAccountCurrency] = useState('');
   const [transactionType, setTransactionType] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
@@ -377,15 +376,11 @@ export function RegisterTransaction({
         const transferEdited = {
           transaction_id: id,
           created_at: date,
-          bank_transaction_id: bankTransactionID,
           date: transactionDate,
           description: form.description,
-          amount: amountConverted, // Usar valor convertido
-          amount_not_converted:
-            currencySelected.code !== accountDestinationSelected?.currency?.code
-              ? form.amount
-              : null, // Valor original, se houver conversão
-          amount_in_account_currency: amountInAccountCurrency,
+          amount: form.amount, // Usar valor convertido
+          // amount_in_account_currency: amountInAccountCurrency,
+          amount_in_account_currency: amountConverted,
           currency_id: currencySelected.id,
           type:
             accountType === 'CREDIT' // Credit Card Account
@@ -399,11 +394,10 @@ export function RegisterTransaction({
           category_id: categorySelected.id,
           tags: tagsList,
           transaction_image_id,
-          tenant_id: tenantID,
           user_id: userID,
         };
 
-        const transferEditedResponse = await api.post(
+        const transferEditedResponse = await api.patch(
           'transaction/edit',
           transferEdited
         );
@@ -414,13 +408,9 @@ export function RegisterTransaction({
             bank_transaction_id: bankTransactionID,
             date: transactionDate,
             description: form.description,
-            amount: amountConverted * -1, // Usar valor convertido
-            amount_not_converted:
-              currencySelected.code !==
-              accountDestinationSelected?.currency?.code
-                ? form.amount
-                : null, // Valor original, se houver conversão
-            amount_in_account_currency: amountInAccountCurrency,
+            amount: form.amount,
+            // amount_in_account_currency: amountInAccountCurrency,
+            amount_in_account_currency: amountConverted,
             currency_id: currencySelected.id,
             type:
               transferEdited.type === 'TRANSFER_DEBIT'
@@ -477,26 +467,20 @@ export function RegisterTransaction({
       const transactionEdited = {
         transaction_id: id,
         created_at: date,
-        bank_transaction_id: bankTransactionID,
         date: transactionDate,
         description: form.description,
-        amount: amountConverted, // Usar valor convertido
-        amount_not_converted:
-          currencySelected.code !== accountDestinationSelected?.currency?.code
-            ? form.amount
-            : null, // Valor original, se houver conversão
-        amount_in_account_currency: amountInAccountCurrency,
+        amount: form.amount,
+        amount_in_account_currency: amountConverted,
         currency_id: currencySelected.id,
         type: transactionType,
         account_id: accountID,
         category_id: categorySelected.id,
         tags: tagsList,
         transaction_image_id,
-        tenant_id: tenantID,
         user_id: userID,
       };
 
-      const { status } = await api.post('transaction/edit', transactionEdited);
+      const { status } = await api.patch('transaction/edit', transactionEdited);
 
       if (status === 200) {
         Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
@@ -743,7 +727,7 @@ export function RegisterTransaction({
           },
         });
 
-        const accountResponse = await api.get('single_account_get_id', {
+        const accountResponse = await api.get('account/single_account_get_id', {
           params: {
             user_id: userID,
             name: accountName,
@@ -827,7 +811,7 @@ export function RegisterTransaction({
     try {
       setButtonIsLoading(true);
 
-      const { data } = await api.get('single_transaction', {
+      const { data } = await api.get('transaction/single', {
         params: {
           transaction_id: id,
         },
@@ -849,7 +833,7 @@ export function RegisterTransaction({
       setTransactionType(data.type);
       setTransactionDate(data.date);
       setBankTransactionID(data.bank_transaction_id);
-      setAmountInAccountCurrency(data.amount_in_account_currency);
+      setValue('amount', data.amount_in_account_currency);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -863,7 +847,7 @@ export function RegisterTransaction({
 
   async function handleDeleteTransaction(id: string) {
     try {
-      await api.delete('delete_transaction', {
+      await api.delete('transaction/delete', {
         params: {
           transaction_id: id,
         },

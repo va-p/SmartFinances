@@ -30,7 +30,7 @@ import api from '@api/api';
 export function Budgets({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const { tenantId: tenantID, id: userID } = useUser();
+  const { id: userID } = useUser();
   const [budgetsFormatted, setBudgetsFormatted] = useState<BudgetProps[]>([]);
 
   const budgetRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -47,7 +47,7 @@ export function Budgets({ navigation }: any) {
 
       const { data } = await api.get('budget', {
         params: {
-          tenant_id: tenantID,
+          user_id: userID,
         },
       });
 
@@ -66,7 +66,7 @@ export function Budgets({ navigation }: any) {
 
     let transactions: any = [];
     try {
-      const data = await getTransactions(tenantID, userID);
+      const data = await getTransactions(userID);
 
       if (data && data.length > 0) {
         transactions = data;

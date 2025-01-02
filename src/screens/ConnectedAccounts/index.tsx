@@ -15,6 +15,7 @@ import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import { useRevenueCat } from 'src/providers/RevenueCatProvider';
 
 interface Connection {
   item: {
@@ -36,17 +37,21 @@ interface BankingIntegration {
   status: string;
 }
 
-export function ConnectedAccounts() {
+export function ConnectedAccounts({ navigation }: any) {
   const route = useRoute();
   const showHeader: boolean = route.params?.showHeader;
+  const { user } = useRevenueCat();
   const { tenantId: tenantID, id: userID } = useUser();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [freeLimitReached, setFreeLimitReached] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const [token, setToken] = useState<string>();
 
   const [integrations, setIntegrations] = useState<BankingIntegration[]>([]);
+
+  console.log('freeLimitReached =>', freeLimitReached);
 
   async function syncAccounts() {
     try {
@@ -82,6 +87,10 @@ export function ConnectedAccounts() {
       });
 
       if (!!response.data && response.data.length > 0) {
+        if (!user.premium) {
+          setFreeLimitReached(true);
+        }
+
         const data = response.data;
         setIntegrations(data);
         await syncAccounts();
@@ -123,7 +132,12 @@ export function ConnectedAccounts() {
     fetchBankingIntegrations();
   }, []);
 
-  function handleConnectNewAccount() {
+  function handlePressConnectNewAccount() {
+    if (freeLimitReached) {
+      navigation.navigate('Assinatura');
+      return;
+    }
+
     setShowModal(true);
   }
 
@@ -144,7 +158,6 @@ export function ConnectedAccounts() {
       );
 
       if (status === 200) {
-        console.log('newConnectedAccounts =>', newConnectedAccounts);
         Alert.alert(
           'Contas conectadas com sucesso!',
           'A instituição financeira foi conectada com sucesso e suas contas foram importadas!'
@@ -177,7 +190,7 @@ export function ConnectedAccounts() {
     setShowModal(false);
   }, []);
 
-  function _renderItem({ item, index }: any) {
+  function _renderItem({ item }: any) {
     const account = {
       bankName: item.bank_name,
       connectorId: item.connector_id,
@@ -239,8 +252,12 @@ export function ConnectedAccounts() {
 
           <Button
             type='secondary'
-            title={'Conectar nova conta'}
-            onPress={handleConnectNewAccount}
+            title={
+              freeLimitReached
+                ? 'Assine o Premium para mais conexões'
+                : 'Conectar nova conta'
+            }
+            onPress={handlePressConnectNewAccount}
           />
         </>
       )}

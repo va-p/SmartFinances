@@ -31,14 +31,20 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterTag({ id, closeTag }: Props) {
-  const tenantId = useUser((state) => state.tenantId);
-  const [name, setName] = useState('');
+  const userID = useUser((state) => state.id);
   const {
     control,
+    setValue,
+    getValues,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: '',
+    },
+  });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
 
   function handleCloseTag() {
@@ -47,15 +53,15 @@ export function RegisterTag({ id, closeTag }: Props) {
   }
 
   async function handleEditTag(id: string, form: FormData) {
-    setButtonIsLoading(true);
-
-    const tagEdited = {
-      tag_id: id,
-      name: form.name,
-    };
-
     try {
-      const { status } = await api.post('edit_tag', tagEdited);
+      setButtonIsLoading(true);
+
+      const tagEdited = {
+        tag_id: id,
+        name: form.name,
+      };
+
+      const { status } = await api.patch('tag/edit', tagEdited);
 
       if (status === 200) {
         Alert.alert('Edição de Etiqueta', 'Etiqueta editada com sucesso!', [
@@ -78,7 +84,7 @@ export function RegisterTag({ id, closeTag }: Props) {
     setButtonIsLoading(true);
 
     // Edit Tag
-    if (id != '') {
+    if (id !== '') {
       handleEditTag(id, form);
     }
     // Add Tag
@@ -86,7 +92,7 @@ export function RegisterTag({ id, closeTag }: Props) {
       try {
         const newTag = {
           name: form.name,
-          tenant_id: tenantId,
+          user_id: userID,
         };
         const { status } = await api.post('tag', newTag);
         if (status === 200) {
@@ -115,12 +121,12 @@ export function RegisterTag({ id, closeTag }: Props) {
 
   async function fetchTag() {
     try {
-      const { data } = await api.get('single_tag', {
+      const { data } = await api.get('tag/single', {
         params: {
           tag_id: id,
         },
       });
-      setName(data.name);
+      setValue('name', data.name);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -132,7 +138,7 @@ export function RegisterTag({ id, closeTag }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      if (id != '') {
+      if (id !== '') {
         fetchTag();
       }
     }, [id])
@@ -145,7 +151,7 @@ export function RegisterTag({ id, closeTag }: Props) {
           placeholder='Nome da etiqueta'
           autoCapitalize='sentences'
           autoCorrect={false}
-          defaultValue={name}
+          defaultValue={getValues('name')}
           name='name'
           control={control}
           error={errors.name}
@@ -157,7 +163,7 @@ export function RegisterTag({ id, closeTag }: Props) {
       <Footer>
         <Button
           type='secondary'
-          title={id != '' ? 'Editar Etiqueta' : 'Criar Etiqueta'}
+          title={id !== '' ? 'Editar Etiqueta' : 'Criar Etiqueta'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTag)}
         />

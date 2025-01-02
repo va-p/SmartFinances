@@ -190,8 +190,6 @@ export function Accounts({ navigation }: any) {
             }
           }
 
-          console.log('totalsByMonths ===>', totalsByMonths);
-
           // Ordena os meses e acumula o total
           const sortedMonths = Object.keys(totalsByMonths).sort(
             (a, b) =>
@@ -225,7 +223,6 @@ export function Accounts({ navigation }: any) {
           //     total: monthData.total.toNumber(),
           //   })
           // );
-          console.log('formattedTotalByMonths ===>', formattedTotalByMonths);
           setTotalByMonths(formattedTotalByMonths);
           /**
            * Totals Grouped By Months - End
@@ -383,6 +380,13 @@ export function Accounts({ navigation }: any) {
           xAxisLabelTexts={totalByMonths.map((item) => {
             return item.date;
           })}
+          yAxisLabelTexts={totalByMonths.map((item) => {
+            return item.total.toLocaleString('en-US', {
+              maximumFractionDigits: 2,
+              notation: 'compact',
+              compactDisplay: 'short',
+            });
+          })}
           height={128}
           width={GRAPH_WIDTH}
           xAxisColor='#455A64'
@@ -391,7 +395,7 @@ export function Accounts({ navigation }: any) {
           curved
           showVerticalLines
           verticalLinesUptoDataPoint
-          initialSpacing={16}
+          initialSpacing={8}
           endSpacing={8}
           focusEnabled
           showStripOnFocus
@@ -439,7 +443,6 @@ export function Accounts({ navigation }: any) {
             <AddAccountButton
               icon='card'
               title='Conectar conta bancária'
-              // onPress={handleOpenConnectAccountModal}
               onPress={handleTouchConnectAccountModal}
             />
           </ButtonGroup>

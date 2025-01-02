@@ -64,7 +64,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       // amount: 0,
     },
   });
-  const [name, setName] = useState('');
   const accountTypes: AccountTypes[] = [
     'Cartão de Crédito',
     'Carteira',
@@ -103,11 +102,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       account_id: id,
       name: form.name,
       type: typeSelected,
-      currency_id: currencySelected.id,
+      currency_id: currencySelected.id, // TODO: only if is manual account
       balance: form.balance,
+      hide: hideAccount,
     };
     try {
-      const { status } = await api.post('edit_account', AccountEdited);
+      const { status } = await api.patch('account/edit', AccountEdited);
 
       if (status === 200) {
         Alert.alert('Edição de Conta', 'Conta editada com sucesso!', [
@@ -194,13 +194,13 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
   async function fetchAccount() {
     try {
-      const { data } = await api.get('single_account', {
+      const { data } = await api.get('account/single', {
         params: {
           account_id: id,
         },
       });
 
-      setName(data.name);
+      setValue('name', data.name);
       setValue('balance', data.balance);
       setTypeSelected(data.type);
       setCurrencySelected(data.currency);
@@ -255,7 +255,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           placeholder='Nome'
           autoCapitalize='sentences'
           autoCorrect={false}
-          defaultValue={name}
+          defaultValue={String(getValues('name'))}
           name='name'
           control={control}
           error={errors.name}

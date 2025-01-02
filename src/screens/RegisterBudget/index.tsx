@@ -61,7 +61,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterBudget({ id, closeBudget }: Props) {
-  const tenantId = useUser((state) => state.tenantId);
+  const userID = useUser((state) => state.id);
   const [budget, setBudget] = useState<BudgetProps>();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
@@ -118,12 +118,12 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   }
 
   async function fetchBudget() {
-    let totalByDate = { id: '4', name: 'Mensalmente', period: 'monthly' };
-
-    setButtonIsLoading(true);
-
     try {
-      const { data } = await api.get('single_budget', {
+      let totalByDate = { id: '4', name: 'Mensalmente', period: 'monthly' };
+
+      setButtonIsLoading(true);
+
+      const { data } = await api.get('budget/single', {
         params: {
           budget_id: id,
         },
@@ -208,7 +208,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         recurrence: budgetPeriodSelected.period,
       };
 
-      const { status } = await api.post('edit_budget', editedBudget);
+      const { status } = await api.patch('budget/edit', editedBudget);
       if (status === 200) {
         Alert.alert('Edição de Orçamento', 'Orçamento editado com sucesso!', [
           {
@@ -261,7 +261,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
-        tenant_id: tenantId,
+        user_id: userID,
       };
 
       const { status } = await api.post('budget', newBudget);
