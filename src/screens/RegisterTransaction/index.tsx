@@ -378,9 +378,11 @@ export function RegisterTransaction({
           created_at: date,
           date: transactionDate,
           description: form.description,
-          amount: form.amount, // Usar valor convertido
-          // amount_in_account_currency: amountInAccountCurrency,
-          amount_in_account_currency: amountConverted,
+          amount: form.amount, // Usar valor original (da transação)
+          amount_in_account_currency:
+            currencySelected.code !== accountCurrency?.code
+              ? amountConverted
+              : null,
           currency_id: currencySelected.id,
           type:
             accountType === 'CREDIT' // Credit Card Account
@@ -408,9 +410,11 @@ export function RegisterTransaction({
             bank_transaction_id: bankTransactionID,
             date: transactionDate,
             description: form.description,
-            amount: form.amount,
-            // amount_in_account_currency: amountInAccountCurrency,
-            amount_in_account_currency: amountConverted,
+            amount: form.amount, // Usar valor original (da transação)
+            amount_in_account_currency:
+              currencySelected.code !== accountCurrency?.code
+                ? amountConverted
+                : null,
             currency_id: currencySelected.id,
             type:
               transferEdited.type === 'TRANSFER_DEBIT'
@@ -470,7 +474,10 @@ export function RegisterTransaction({
         date: transactionDate,
         description: form.description,
         amount: form.amount,
-        amount_in_account_currency: amountConverted,
+        amount_in_account_currency:
+          currencySelected.code !== accountCurrency?.code
+            ? amountConverted
+            : null,
         currency_id: currencySelected.id,
         type: transactionType,
         account_id: accountID,
@@ -833,7 +840,7 @@ export function RegisterTransaction({
       setTransactionType(data.type);
       setTransactionDate(data.date);
       setBankTransactionID(data.bank_transaction_id);
-      setValue('amount', data.amount_in_account_currency);
+      // setValue('amount', data.amount_in_account_currency);
     } catch (error) {
       console.error(error);
       Alert.alert(
