@@ -511,8 +511,6 @@ export function Account() {
       };
     });
 
-    console.log('renderizou!!');
-
     return (
       <PeriodRuler
         dates={dates}
