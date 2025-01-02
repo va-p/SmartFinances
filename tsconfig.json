@@ -9,14 +9,15 @@
       "@slices/*": ["./src/slices/*"],
       "@assets/*": ["./src/assets/*"],
       "@routes/*": ["./src/routes/*"],
+      "@storage/*": ["src/storage/*"],
       "@screens/*": ["./src/screens/*"],
       "@database/*": ["./src/database/*"],
       "@services/*": ["./src/services/*"],
       "@contexts/*": ["./src/contexts/*"],
+      "@providers/*": ["src/providers/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@components/*": ["./src/components/*"],
-      "@themes/*": ["./src/global/themes/*"],
-      "@storage/*": ["src/storage/*"]
+      "@themes/*": ["./src/global/themes/*"]
     }
   },
   "extends": "expo/tsconfig.base"

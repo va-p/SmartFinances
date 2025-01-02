@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, Text } from 'react-native';
 import { ConnectedAccountsList, Container } from './styles';
 
-import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useRoute } from '@react-navigation/native';
+import { PluggyConnect } from 'react-native-pluggy-connect';
 
 import { useUser } from '@storage/userStorage';
 
@@ -13,9 +13,9 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 
 import api from '@api/api';
+import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import theme from '@themes/theme';
-import { useRevenueCat } from 'src/providers/RevenueCatProvider';
 
 interface Connection {
   item: {
@@ -74,8 +74,7 @@ export function ConnectedAccounts({ navigation }: any) {
 
   async function fetchBankingIntegrations(isRefresh: boolean = false) {
     try {
-      !isRefresh && setLoading(true);
-      isRefresh && setRefreshing(true);
+      isRefresh ? setRefreshing(true) : setLoading(true);
 
       const response = await api.get('/banking_integration/get_integrations', {
         params: {
