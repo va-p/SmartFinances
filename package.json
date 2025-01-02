@@ -1,5 +1,5 @@
 {
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "android": "expo run:android",
     "ios": "expo run:ios",
