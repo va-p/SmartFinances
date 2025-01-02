@@ -63,7 +63,8 @@ const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const { tenantId: tenantID, id: userID } = useUser();
+  const [refreshing, setRefreshing] = useState(false);
+  const { id: userID } = useUser();
   const {
     brlQuoteBtc,
     brlQuoteEur,
@@ -78,7 +79,6 @@ export function Accounts({ navigation }: any) {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const { hideAmount, setHideAmount } = useUserConfigs();
   const {
     setAccountId,
     setAccountName,
@@ -86,17 +86,17 @@ export function Accounts({ navigation }: any) {
     setAccountCurrency,
     setAccountBalance,
   } = useCurrentAccountSelected();
-  const [refreshing, setRefreshing] = useState(true);
+  const { hideAmount, setHideAmount } = useUserConfigs();
   const [total, setTotal] = useState('R$0'); // Total assets
-  const [accounts, setAccounts] = useState<AccountProps[]>([]); // Account list
-  const [totalByMonths, setTotalByMonths] = useState<TotalByMonths[]>([]); // Total equity chart
+  const [accounts, setAccounts] = useState<AccountProps[]>([]); // Accounts list
+  const [totalsByMonths, setTotalsByMonths] = useState<TotalByMonths[]>([]); // Totals equity chart
 
   const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
-  async function fetchAccounts() {
+  async function fetchAccounts(isRefresh: boolean = false) {
     try {
-      setLoading(true);
+      isRefresh ? setRefreshing(true) : setLoading(true);
 
       const accountsData = await getAccounts(userID);
 
@@ -177,7 +177,7 @@ export function Accounts({ navigation }: any) {
                 transaction.type === 'TRANSFER_CREDIT' ||
                 transaction.type === 'TRANSFER_DEBIT'
               ) {
-                continue; // Pula para a próxima transação
+                continue;
               }
 
               if (transaction.account.type === 'CREDIT') {
@@ -190,7 +190,6 @@ export function Accounts({ navigation }: any) {
             }
           }
 
-          // Ordena os meses e acumula o total
           const sortedMonths = Object.keys(totalsByMonths).sort(
             (a, b) =>
               parse(a, 'yyyy-MM', new Date()).getTime() -
@@ -212,18 +211,7 @@ export function Accounts({ navigation }: any) {
             };
           });
 
-          // const formattedTotalByMonths = Object.values(totalsByMonths).map(
-          //   (monthData: any) => ({
-          //     date: format(
-          //       parse(`${monthData.date}-01`, 'yyyy-MM-dd', new Date(), {
-          //         locale: ptBR,
-          //       }),
-          //       "MMM '\n' yyyy"
-          //     ), // Formata a data
-          //     total: monthData.total.toNumber(),
-          //   })
-          // );
-          setTotalByMonths(formattedTotalByMonths);
+          setTotalsByMonths(formattedTotalByMonths);
           /**
            * Totals Grouped By Months - End
            */
@@ -262,7 +250,7 @@ export function Accounts({ navigation }: any) {
 
   function handleCloseRegisterAccountModal() {
     registerAccountBottomSheetRef.current?.dismiss();
-    fetchAccounts();
+    fetchAccounts(true);
   }
 
   function handleOpenAccount(
@@ -374,13 +362,13 @@ export function Accounts({ navigation }: any) {
 
       <ChartContainer>
         <LineChart
-          data={totalByMonths.map((item) => {
+          data={totalsByMonths.map((item) => {
             return { value: item.total };
           })}
-          xAxisLabelTexts={totalByMonths.map((item) => {
+          xAxisLabelTexts={totalsByMonths.map((item) => {
             return item.date;
           })}
-          yAxisLabelTexts={totalByMonths.map((item) => {
+          yAxisLabelTexts={totalsByMonths.map((item) => {
             return item.total.toLocaleString('en-US', {
               maximumFractionDigits: 2,
               notation: 'compact',
@@ -431,7 +419,7 @@ export function Accounts({ navigation }: any) {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => {
-                fetchAccounts();
+                fetchAccounts(true);
               }}
             />
           }
