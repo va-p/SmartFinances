@@ -58,6 +58,7 @@ import {
   subMonths,
   subYears,
 } from 'date-fns';
+import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
@@ -72,18 +73,18 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
+import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
-import { PeriodProps, ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 import fetchQuote from '@utils/fetchQuotes';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
-import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
@@ -91,8 +92,6 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
-import Decimal from 'decimal.js';
-import { TransactionProps } from '@interfaces/transactions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -107,13 +106,12 @@ export type CashFLowData = {
   totalRevenuesByPeriod: Decimal;
   totalExpensesByPeriod: Decimal;
   total: Decimal;
-  // total: number;
   cashFlow: string;
 };
 
 export function Home() {
   const [loading, setLoading] = useState(false);
-  const { tenantId: tenantID, id: userID } = useUser();
+  const { id: userID } = useUser();
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,
@@ -142,11 +140,8 @@ export function Home() {
     [transactionsFormattedBySelectedPeriod]
   );
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
-    id: '1',
-    name: 'Meses',
-    period: 'months',
-  });
+  const { selectedPeriod, setSelectedPeriod, selectedDate, setSelectedDate } =
+    useSelectedPeriod();
   const [
     totalAmountsGroupedBySelectedPeriod,
     setTotalAmountsGroupedBySelectedPeriod,
@@ -166,7 +161,6 @@ export function Home() {
       cashFlow: '',
     },
   ]);
-  const [selectedPeriod, setSelectedPeriod] = useState(new Date());
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] =
     useState('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -387,16 +381,15 @@ export function Home() {
               transactionByMonthsPtBr.title,
               'dd/MM/yyyy',
               new Date()
-            ).getMonth() === selectedPeriod.getMonth() &&
+            ).getMonth() === selectedDate.getMonth() &&
             parse(
               transactionByMonthsPtBr.title,
               'dd/MM/yyyy',
               new Date()
-            ).getFullYear() === selectedPeriod.getFullYear()
+            ).getFullYear() === selectedDate.getFullYear()
         );
 
       let cashFlowByMonth = 0;
-
       for (const item of transactionsByMonthsFormattedPtbr) {
         const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
         cashFlowByMonth += parseFloat(cleanTotal);
@@ -421,7 +414,7 @@ export function Home() {
               transactionByYearsPtBr.title,
               'dd/MM/yyyy',
               new Date()
-            ).getFullYear() === selectedPeriod.getFullYear()
+            ).getFullYear() === selectedDate.getFullYear()
         );
 
       let cashFlowByYear = 0;
@@ -443,7 +436,7 @@ export function Home() {
       /**
        * All Cash Flows Grouped By Months (Chart Data) - Start
        */
-      if (chartPeriodSelected.period === 'months') {
+      if (selectedPeriod.period === 'months') {
         let totalsGroupedByMonths: any = {};
         for (const item of data) {
           const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
@@ -506,7 +499,7 @@ export function Home() {
       /**
        * All Totals Grouped By Years - Start
        */
-      if (chartPeriodSelected.period === 'years') {
+      if (selectedPeriod.period === 'years') {
         let totalsGroupedByYears: any = {};
         for (const item of data) {
           const y = format(item.created_at, `yyyy`, { locale: ptBR });
@@ -558,7 +551,7 @@ export function Home() {
       /**
        * All Totals Grouped By All History - Start
        */
-      if (chartPeriodSelected.period === 'all') {
+      if (selectedPeriod.period === 'all') {
         let totalsGroupedByAllHistory: any = {};
         for (const item of data) {
           item.created_at = `Todo o \n histórico`;
@@ -634,24 +627,24 @@ export function Home() {
   }
 
   function handleDateChange(action: 'prev' | 'next'): void {
-    switch (chartPeriodSelected.period) {
+    switch (selectedPeriod.period) {
       case 'months':
         switch (action) {
           case 'prev':
-            setSelectedPeriod(subMonths(selectedPeriod, 1));
+            setSelectedDate(subMonths(selectedDate, 1));
             break;
           case 'next':
-            setSelectedPeriod(addMonths(selectedPeriod, 1));
+            setSelectedDate(addMonths(selectedDate, 1));
             break;
         }
         break;
       case 'years':
         switch (action) {
           case 'prev':
-            setSelectedPeriod(subYears(selectedPeriod, 1));
+            setSelectedDate(subYears(selectedDate, 1));
             break;
           case 'next':
-            setSelectedPeriod(addYears(selectedPeriod, 1));
+            setSelectedDate(addYears(selectedDate, 1));
             break;
         }
         break;
@@ -693,7 +686,7 @@ export function Home() {
 
       let parsedDate: Date | null = null;
       try {
-        parsedDate = parse(dateAux, 'MMM yyyy', selectedPeriod, {
+        parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
           locale: ptBR,
         });
         if (!isValid(parsedDate)) {
@@ -704,8 +697,8 @@ export function Home() {
       }
 
       const isActive = parsedDate
-        ? getYear(selectedPeriod) === getYear(parsedDate) &&
-          getMonth(selectedPeriod) === getMonth(parsedDate)
+        ? getYear(selectedDate) === getYear(parsedDate) &&
+          getMonth(selectedDate) === getMonth(parsedDate)
         : false;
 
       return {
@@ -721,7 +714,7 @@ export function Home() {
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
       />
     );
-  }, [selectedPeriod, totalAmountsGroupedBySelectedPeriod]);
+  }, [selectedDate, totalAmountsGroupedBySelectedPeriod]);
 
   function _renderEmpty() {
     return <ListEmptyComponent />;
@@ -751,7 +744,7 @@ export function Home() {
     fetchQuote('USD', 'EUR', setUsdQuoteEur);
 
     fetchTransactions();
-  }, [selectedPeriod, chartPeriodSelected.period, userID]);
+  }, [selectedDate, selectedPeriod.period, userID]);
 
   if (loading) {
     return <SkeletonHomeScreen />;
@@ -780,7 +773,7 @@ export function Home() {
         <FiltersContainer>
           <FilterButtonGroup>
             <ChartSelectButton
-              title={`Por ${chartPeriodSelected.name}`}
+              title={`Por ${selectedPeriod.name}`}
               onPress={handleOpenPeriodSelectedModal}
             />
           </FilterButtonGroup>
@@ -922,8 +915,8 @@ export function Home() {
         snapPoints={['30%', '50%']}
       >
         <ChartPeriodSelect
-          period={chartPeriodSelected}
-          setPeriod={setChartPeriodSelected}
+          period={selectedPeriod}
+          setPeriod={setSelectedPeriod}
           closeSelectPeriod={handleOpenPeriodSelectedModal}
         />
       </ModalViewSelection>

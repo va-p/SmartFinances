@@ -1,5 +1,11 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { RefreshControl, StyleSheet, SectionList, Alert } from 'react-native';
+import {
+  RefreshControl,
+  StyleSheet,
+  SectionList,
+  Alert,
+  Dimensions,
+} from 'react-native';
 import {
   Container,
   FiltersContainer,
@@ -26,7 +32,18 @@ import Animated, {
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
-import { format, parse } from 'date-fns';
+import {
+  addMonths,
+  addYears,
+  format,
+  getMonth,
+  getYear,
+  isValid,
+  parse,
+  parseISO,
+  subMonths,
+  subYears,
+} from 'date-fns';
 import { Plus } from 'phosphor-react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
@@ -37,6 +54,7 @@ import {
 
 import { Header } from '@components/Header';
 import { ModalView } from '@components/ModalView';
+import { PeriodRuler } from '@components/PeriodRuler';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
@@ -46,31 +64,33 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
-import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 
-import { useUser } from 'src/storage/userStorage';
-import { useUserConfigs } from 'src/storage/userConfigsStorage';
+import formatCurrency from '@utils/formatCurrency';
+import getTransactions from '@utils/getTransactions';
+import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+
+import { useUser } from '@storage/userStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import getTransactions from '@utils/getTransactions';
-import groupTransactionsByDate from '@utils/groupTransactionsByDate';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
-import formatCurrency from '@utils/formatCurrency';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function Account() {
   const [loading, setLoading] = useState(false);
-  const { tenantId: tenantID, id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
-  const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
-    id: '1',
-    name: 'Meses',
-    period: 'months',
-  });
+  const { id: userID } = useUser();
+  const { selectedPeriod, setSelectedPeriod, selectedDate, setSelectedDate } =
+    useSelectedPeriod();
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
@@ -79,7 +99,6 @@ export function Account() {
     () => transactionsFormattedBySelectedPeriod,
     [transactionsFormattedBySelectedPeriod]
   );
-  const [totalAccountBalance, setTotalAccountBalance] = useState('');
   const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] = useState('');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
   const [balanceIsPositive, setBalanceIsPositive] = useState(true);
@@ -93,9 +112,6 @@ export function Account() {
     accountName,
     accountBalance,
   } = useCurrentAccountSelected();
-  // const accountInitialAmount = useCurrentAccountSelected(
-  //   (state) => state.accountInitialAmount
-  // );
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -140,19 +156,16 @@ export function Account() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  console.log('accountID ===>', accountID);
-
   async function fetchTransactions() {
     setLoading(true);
 
     try {
-      const data = await getTransactions(tenantID, userID);
+      const data = await getTransactions(userID);
+      setTransactions(data);
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
        */
-      let totalRevenues = 0;
-      let totalExpenses = 0;
       let totalAccountBalance = 0;
 
       const transactionsByAccountFormattedPtbr = data
@@ -163,23 +176,13 @@ export function Account() {
             item.amount
           );
 
-          const formattedAmountNotConverted = item.amount_not_converted
-            ? formatCurrency(
-                item.currency.code, // Moeda original da transação
-                item.amount_not_converted,
-                false // Indica que é o valor não convertido
-              )
-            : '';
-
           return {
             ...item,
             amount_formatted: formattedAmount,
-            amount_not_converted: formattedAmountNotConverted,
             created_at: format(item.created_at, 'dd/MM/yyyy', { locale: ptBR }),
           };
         })
         .sort((a: any, b: any) => {
-          // ... (lógica de ordenação)
           const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
           const secondDateParsed = parse(
             b.created_at,
@@ -196,18 +199,6 @@ export function Account() {
             new Date()
         )
         .forEach((cur: any) => {
-          // switch (cur.type) {
-          //   case 'CREDIT':
-          //   case 'transferCredit':
-          //   case 'TRANSFER_CREDIT':
-          //     totalRevenues += cur.amount;
-          //     break;
-          //   case 'DEBIT':
-          //   case 'transferDebit':
-          //   case 'TRANSFER_DEBIT':
-          //     totalExpenses += cur.amount;
-          //     break;
-          // }
           // Credit card
           if (cur.account.type === 'CREDIT') {
             totalAccountBalance -= cur.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
@@ -217,7 +208,6 @@ export function Account() {
             totalAccountBalance += cur.amount;
           }
         });
-      // const total = accountInitialAmount + totalRevenues - totalExpenses;
 
       totalAccountBalance >= 0
         ? setBalanceIsPositive(true)
@@ -229,7 +219,6 @@ export function Account() {
         style: 'currency',
         currency: 'BRL',
       });
-      setTotalAccountBalance(totalAccountBalanceFormatted);
 
       const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
         transactionsByAccountFormattedPtbr
@@ -280,7 +269,7 @@ export function Account() {
 
       const cashFlowByMonths = totalRevenuesByMonths - totalExpensesByMonths;
 
-      if (periodSelected.period === 'months') {
+      if (selectedPeriod.period === 'months') {
         cashFlowByMonths >= 0
           ? setCashFlowIsPositive(true)
           : setCashFlowIsPositive(false);
@@ -333,7 +322,7 @@ export function Account() {
 
       const cashFlowByYears = totalRevenuesByYears - totalExpensesByYears;
 
-      if (periodSelected.period === 'years') {
+      if (selectedPeriod.period === 'years') {
         cashFlowByYears >= 0
           ? setCashFlowIsPositive(true)
           : setCashFlowIsPositive(false);
@@ -352,7 +341,7 @@ export function Account() {
       /**
        * Set Transactions and Totals by Selected Period - Start
        */
-      switch (periodSelected.period) {
+      switch (selectedPeriod.period) {
         case 'months':
           setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonths);
           setTransactionsFormattedBySelectedPeriod(
@@ -457,11 +446,99 @@ export function Account() {
     setTransactionId('');
   }
 
+  function handleDateChange(action: 'prev' | 'next'): void {
+    switch (selectedPeriod.period) {
+      case 'months':
+        switch (action) {
+          case 'prev':
+            setSelectedDate(subMonths(selectedDate, 1));
+            break;
+          case 'next':
+            setSelectedDate(addMonths(selectedDate, 1));
+            break;
+        }
+        break;
+      case 'years':
+        switch (action) {
+          case 'prev':
+            setSelectedDate(subYears(selectedDate, 1));
+            break;
+          case 'next':
+            setSelectedDate(addYears(selectedDate, 1));
+            break;
+        }
+        break;
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       fetchTransactions();
-    }, [periodSelected])
+    }, [selectedPeriod, selectedDate])
   );
+
+  const _renderPeriodRuler = useCallback(() => {
+    let months: any = {};
+    for (const item of transactions) {
+      const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+
+      if (!months.hasOwnProperty(ym)) {
+        months[ym] = {
+          date: ym,
+        };
+      }
+    }
+
+    months = Object.values(months).sort((a: any, b: any) => {
+      const firstDateParsed = parse(a.date, 'yyyy-MM', new Date());
+      const secondDateParsed = parse(b.date, 'yyyy-MM', new Date());
+      return secondDateParsed.getTime() - firstDateParsed.getTime();
+    });
+
+    for (let i = months.length - 1; i >= 0; i--) {
+      months[i].date = format(parseISO(months[i].date), `MMM '\n' yyyy`, {
+        locale: ptBR,
+      });
+    }
+
+    const dates = months?.map((item: any) => {
+      const dateSplit = item.date.split('\n');
+      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
+      const dateAux = trimmedDateParts.join(' ');
+
+      let parsedDate: Date | null = null;
+      try {
+        parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
+          locale: ptBR,
+        });
+        if (!isValid(parsedDate)) {
+          console.warn('Data inválida:', dateAux);
+        }
+      } catch (error) {
+        console.error('Erro ao converter data, _renderPeriodRuler:', error);
+      }
+
+      const isActive = parsedDate
+        ? getYear(selectedDate) === getYear(parsedDate) &&
+          getMonth(selectedDate) === getMonth(parsedDate)
+        : false;
+
+      return {
+        date: item.date,
+        isActive,
+      };
+    });
+
+    console.log('renderizou!!');
+
+    return (
+      <PeriodRuler
+        dates={dates}
+        handleDateChange={handleDateChange}
+        periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+      />
+    );
+  }, [selectedDate]);
 
   function _renderEmpty() {
     return <ListEmptyComponent />;
@@ -499,7 +576,7 @@ export function Account() {
         <FiltersContainer>
           <FilterButtonGroup>
             <ChartSelectButton
-              title={`Por ${periodSelected.name}`}
+              title={`Por ${selectedPeriod.name}`}
               onPress={handleOpenPeriodSelectedModal}
             />
           </FilterButtonGroup>
@@ -508,13 +585,7 @@ export function Account() {
         <AccountBalanceContainer>
           <AccountBalanceGroup>
             <AccountBalance balanceIsPositive={balanceIsPositive}>
-              {/* {!hideAmount ? totalAccountBalance : '•••••'} */}
-              {!hideAmount
-                ? Number(accountBalance).toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                  })
-                : '•••••'}
+              {!hideAmount ? accountBalance : '•••••'}
             </AccountBalance>
             <AccountBalanceDescription>
               Saldo da conta
@@ -527,10 +598,12 @@ export function Account() {
             <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>
               {!hideAmount ? cashFlowBySelectedPeriod : '•••••'}
             </AccountCashFlow>
-            <AccountCashFlowDescription>{`Fluxo de caixa por ${periodSelected.name}`}</AccountCashFlowDescription>
+            <AccountCashFlowDescription>{`Fluxo de caixa por ${selectedPeriod.name}`}</AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>
       </Animated.View>
+
+      <Animated.View>{_renderPeriodRuler()}</Animated.View>
 
       <Transactions>
         <AnimatedSectionList
@@ -582,8 +655,8 @@ export function Account() {
         onClose={handleClosePeriodSelectedModal}
       >
         <ChartPeriodSelect
-          period={periodSelected}
-          setPeriod={setPeriodSelected}
+          period={selectedPeriod}
+          setPeriod={setSelectedPeriod}
           closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>

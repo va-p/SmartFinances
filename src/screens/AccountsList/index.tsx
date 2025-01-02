@@ -150,22 +150,18 @@ export function AccountsList() {
   function _renderItem({ item, index }: any) {
     const getAccountIcon = () => {
       switch (item.type) {
-        case 'Outro':
-        case 'Carteira':
+        case 'OTHER':
         case 'WALLET':
           return <Icon.Wallet color={theme.colors.primary} />;
-        case 'Carteira de Criptomoedas':
+        case 'CRYPTOCURRENCY WALLET':
           return <Icon.CurrencyBtc color={theme.colors.primary} />;
-        case 'Poupança':
-        case 'Investimentos':
-        case 'Conta Corrente':
+        case 'INVESTMENTS':
         case 'BANK':
           return <Icon.Bank color={theme.colors.primary} />;
-        case 'Cartão de Crédito':
         case 'CREDIT':
           return <Icon.CreditCard color={theme.colors.primary} />;
         default:
-          'Carteira';
+          'WALLET';
           break;
       }
     };
