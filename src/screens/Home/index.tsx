@@ -262,34 +262,22 @@ export function Home() {
        * All Transactions Formatted in pt-BR - Start
        */
       let total = 0;
-      let amountNotConvertedFormatted = '';
 
       let transactionsFormattedPtbr: any = {};
       for (const item of data) {
         const dmy = formatDatePtBr(item.created_at).short();
 
         const amount_formatted = formatCurrency(
-          item.account.currency.code,
+          item.currency.code,
           item.amount
         );
-
-        if (item.amount_not_converted) {
-          amountNotConvertedFormatted =
-            formatCurrency(
-              item.currency.code,
-              item.amount_not_converted,
-              false
-            ) || '';
-        }
 
         if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
           transactionsFormattedPtbr[item.id] = {
             id: item.id,
             created_at: dmy,
             description: item.description,
-            amount: item.amount,
-            amount_formatted,
-            amount_not_converted: amountNotConvertedFormatted,
+            amount_formatted, // formatted on account currency
             amount_in_account_currency: item.amount_in_account_currency,
             currency: {
               id: item.currency.id,

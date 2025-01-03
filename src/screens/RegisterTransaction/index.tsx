@@ -17,7 +17,7 @@ import {
 
 import { convertCurrency } from '@utils/convertCurrency';
 
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -86,7 +86,7 @@ export function RegisterTransaction({
   closeRegisterTransaction,
   closeModal,
 }: Props) {
-  const { tenantId: tenantID, id: userID } = useUser();
+  const { id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -175,7 +175,7 @@ export function RegisterTransaction({
     try {
       const { data } = await api.get('tag', {
         params: {
-          tenant_id: tenantID,
+          tenant_id: userID,
         },
       });
       if (data) {
@@ -424,7 +424,6 @@ export function RegisterTransaction({
             category_id: categorySelected.id,
             tags: tagsList,
             transaction_image_id,
-            tenant_id: tenantID,
             user_id: userID,
           };
 
@@ -933,7 +932,6 @@ export function RegisterTransaction({
                 placeholder='0'
                 keyboardType='numeric'
                 textAlign='right'
-                // defaultValue={String(amount)}
                 defaultValue={String(getValues('amount'))}
                 name='amount'
                 control={control}
@@ -985,7 +983,6 @@ export function RegisterTransaction({
             autoCapitalize='sentences'
             autoCorrect={false}
             returnKeyType='go'
-            // defaultValue={description}
             defaultValue={String(getValues('description'))}
             name='description'
             control={control}

@@ -60,12 +60,12 @@ const TransactionListItem = memo(function TransactionListItem({
                 data.account.type === 'CREDIT' &&
                 data.type === 'DEBIT' &&
                 '-'}
-              {/* {!hideAmount ? data.amount_formatted : '•••••'} */}
-              {!hideAmount
+              {/* {!hideAmount
                 ? data.amount_in_account_currency
                   ? data.amount_in_account_currency
                   : data.amount_formatted
-                : '•••••'}
+                : '•••••'} */}
+              {!hideAmount ? data.amount_formatted : '•••••'}
             </Amount>
           </AmountContainer>
         </DescriptionAndAmountContainer>
@@ -78,9 +78,8 @@ const TransactionListItem = memo(function TransactionListItem({
           </CategoryAndAccountContainer>
           <AmountNotConvertedContainer>
             <AmountNotConverted>
-              {/* {data.account.currency.code !== data.currency.code &&
-                `${data.amount_not_converted}`} */}
-              {data.amount_in_account_currency && `${data.amount_formatted}`}
+              {data.amount_in_account_currency &&
+                `${data.amount_in_account_currency}`}
             </AmountNotConverted>
           </AmountNotConvertedContainer>
         </Footer>
