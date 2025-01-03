@@ -277,6 +277,7 @@ export function Home() {
             id: item.id,
             created_at: dmy,
             description: item.description,
+            amount: item.amount,
             amount_formatted, // formatted on account currency
             amount_in_account_currency: item.amount_in_account_currency,
             currency: {
