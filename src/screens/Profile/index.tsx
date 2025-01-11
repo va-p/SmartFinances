@@ -226,12 +226,9 @@ export function Profile() {
           error={errors.phone}
         />
 
-        <Button
-          type='secondary'
-          isLoading={loading}
-          title='Salvar Perfil'
-          onPress={handleSubmit(handleSaveProfile)}
-        />
+        <Button.Root ype='secondary' onPress={handleSubmit(handleSaveProfile)}>
+          <Button.Text type='secondary' text='Salvar Perfil' />
+        </Button.Root>
       </Form>
     </Container>
   );

@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Dimensions, Platform, View } from 'react-native';
 import {
   Container,
   Header,
@@ -16,13 +16,30 @@ import {
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useAuth, useOAuth } from '@clerk/clerk-expo';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleLogo } from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  Easing,
+  runOnJS,
+} from 'react-native-reanimated';
 
 import { Button } from '@components/Button';
 import { ControlledInput } from '@components/Form/ControlledInput';
+
+import {
+  Link,
+  TermsAndPolicy,
+  TermsAndPolicyContainer,
+} from '@screens/SignUp/styles';
 
 import LogoSvg from '@assets/logo.svg';
 
@@ -35,15 +52,19 @@ import {
   storageUser,
 } from '@database/database';
 
-import { useUser } from 'src/storage/userStorage';
-import { useUserConfigs } from 'src/storage/userConfigsStorage';
+import { useUser } from '@storage/userStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
 
 import api from '@api/api';
+
+import theme from '@themes/theme';
 
 type FormData = {
   email: string;
   password: string;
 };
+
+WebBrowser.maybeCompleteAuthSession();
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
@@ -55,20 +76,10 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
-  const setUseLocalAuth = useUserConfigs((state) => state.setUseLocalAuth);
-  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
-  const setInsights = useUserConfigs((state) => state.setInsights);
+  const { isSignedIn } = useAuth();
+  console.log('isSignedIn ???', isSignedIn);
 
-  const setTenantId = useUser((state) => state.setTenantId);
-  const setId = useUser((state) => state.setId);
-  const setName = useUser((state) => state.setName);
-  const setLastName = useUser((state) => state.setLastName);
-  const setEmail = useUser((state) => state.setEmail);
-  const setPhone = useUser((state) => state.setPhone);
-  const setRole = useUser((state) => state.setRole);
-  const setProfileImage = useUser((state) => state.setProfileImage);
-
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -77,9 +88,58 @@ export function SignIn({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
+  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+
+  const SCREEN_WIDTH = Dimensions.get('window').width - 64;
+  const formPositionX = useSharedValue(0);
+  const initialPositionX = useSharedValue(formPositionX.value);
+
+  const animatedEmailLoginButton = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: formPositionX.value }],
+      width: SCREEN_WIDTH,
+    };
+  });
+
+  const animatedEmailLoginStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: formPositionX.value }],
+      width: SCREEN_WIDTH,
+    };
+  });
+
+  const gesture = Gesture.Pan()
+    .onBegin(() => {
+      initialPositionX.value = formPositionX.value;
+    })
+    .onUpdate((e) => {
+      formPositionX.value = initialPositionX.value + e.translationX;
+    })
+    .onEnd(() => {
+      if (formPositionX.value < -SCREEN_WIDTH / 2) {
+        runOnJS(showForm)();
+      } else {
+        runOnJS(hideForm)();
+      }
+    });
+
+  function showForm() {
+    formPositionX.value = withTiming(-SCREEN_WIDTH, {
+      duration: 500,
+      easing: Easing.inOut(Easing.cubic),
+    });
+  }
+
+  function hideForm() {
+    formPositionX.value = withTiming(0, {
+      duration: 500,
+      easing: Easing.inOut(Easing.cubic),
+    });
+  }
+
   async function handleSignInWithXano(form: FormData) {
     try {
-      setButtonIsLoading(true);
+      setLoading(true);
 
       const SignInUser = {
         email: form.email,
@@ -96,6 +156,8 @@ export function SignIn({ navigation }: any) {
         } catch (error) {
           console.error(error);
           Alert.alert(`Erro: ${error}`);
+        } finally {
+          setLoading(false);
         }
       }
 
@@ -116,14 +178,16 @@ export function SignIn({ navigation }: any) {
         `${DATABASE_USERS}`,
         JSON.stringify(loggedInUserDataFormatted)
       );
-      setTenantId(loggedInUserDataFormatted.tenantId);
-      setId(loggedInUserDataFormatted.id);
-      setName(loggedInUserDataFormatted.name);
-      setLastName(loggedInUserDataFormatted.lastName);
-      setEmail(loggedInUserDataFormatted.email);
-      setPhone(loggedInUserDataFormatted.phone);
-      setRole(loggedInUserDataFormatted.role);
-      setProfileImage(loggedInUserDataFormatted.image);
+      useUser.setState(() => ({
+        id: loggedInUserDataFormatted.id,
+        name: loggedInUserDataFormatted.name,
+        lastName: loggedInUserDataFormatted.lastName,
+        email: loggedInUserDataFormatted.email,
+        phone: loggedInUserDataFormatted.phone,
+        role: loggedInUserDataFormatted.role,
+        profileImage: loggedInUserDataFormatted.image,
+        tenantId: loggedInUserDataFormatted.tenantId,
+      }));
 
       // User Configs
       storageConfig.set(
@@ -132,23 +196,25 @@ export function SignIn({ navigation }: any) {
       );
       storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, userData.hide_amount);
       storageConfig.set(`${DATABASE_CONFIGS}.insights`, userData.insights);
-      setUseLocalAuth(userData.use_local_authentication);
-      setHideAmount(userData.hide_amount);
-      setInsights(userData.insights);
+      useUserConfigs.setState(() => ({
+        useLocalAuth: userData.use_local_authentication,
+        hideAmount: userData.hide_amount,
+        insights: userData.insights,
+      }));
 
       navigation.navigate('Main');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert('Login', error.response?.data.message);
+        Alert.alert('Login', error.response?.data?.message);
       }
     } finally {
-      setButtonIsLoading(false);
+      setLoading(false);
     }
   }
 
   async function handleSignInWithBiometric() {
     try {
-      setButtonIsLoading(true);
+      setLoading(true);
       const biometricAuth = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Entrar com Biometria',
         cancelLabel: 'Cancelar',
@@ -174,18 +240,22 @@ export function SignIn({ navigation }: any) {
           if (jsonUser && userConfigObject) {
             const userObject = JSON.parse(jsonUser);
 
-            setTenantId(userObject.tenantId);
-            setId(userObject.id);
-            setName(userObject.name);
-            setLastName(userObject.lastName);
-            setEmail(userObject.email);
-            setPhone(userObject.phone);
-            setRole(userObject.role);
-            setProfileImage(userObject.image);
+            useUser.setState(() => ({
+              id: userObject.id,
+              name: userObject.name,
+              lastName: userObject.lastName,
+              email: userObject.email,
+              phone: userObject.phone,
+              role: userObject.role,
+              profileImage: userObject.image,
+              tenantId: userObject.tenantId,
+            }));
 
-            setUseLocalAuth(userConfigObject.useLocalAuth);
-            setHideAmount(userConfigObject.hideAmount);
-            setInsights(userConfigObject.insights);
+            useUserConfigs.setState(() => ({
+              insights: userConfigObject.insights,
+              hideAmount: userConfigObject.hideAmount,
+              useLocalAuth: userConfigObject.useLocalAuth,
+            }));
           }
 
           navigation.navigate('Home');
@@ -204,9 +274,39 @@ export function SignIn({ navigation }: any) {
         'Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.'
       );
     } finally {
-      setButtonIsLoading(false);
+      setLoading(false);
     }
   }
+
+  async function handleContinueWithGoogle() {
+    try {
+      setLoading(true);
+      const oAuthFlow = await googleOAuth.startOAuthFlow();
+
+      if (oAuthFlow.authSessionResult?.type === 'success') {
+        if (oAuthFlow.setActive) {
+          await oAuthFlow.setActive({
+            session: oAuthFlow.createdSessionId,
+          });
+          // TODO: If is new account, create a new user on Xano and then get the user token (auth/me api)
+          // If is not a new account, get the user token (auth/me api)
+        }
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('SignIn onGoogleSignIn error =>', error);
+      Alert.alert('Erro', 'Erro ao logar com o Google.');
+    }
+  }
+
+  useEffect(() => {
+    WebBrowser.warmUpAsync();
+
+    return () => {
+      WebBrowser.coolDownAsync();
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -241,49 +341,95 @@ export function SignIn({ navigation }: any) {
       </Header>
 
       <Footer>
-        <FooterWrapper>
-          <ControlledInput
-            type='primary'
-            placeholder='E-mail'
-            autoCapitalize='none'
-            autoCorrect={false}
-            autoComplete='email'
-            keyboardType='email-address'
-            textContentType='emailAddress'
-            name='email'
-            control={control}
-            error={errors.email}
-          />
+        <FooterWrapper style={{ paddingTop: 32 }}>
+          <GestureDetector gesture={gesture}>
+            <View style={{ flexDirection: 'row', overflow: 'hidden' }}>
+              {/* First section */}
+              <Animated.View style={animatedEmailLoginButton}>
+                <Button.Root
+                  type='primary'
+                  isLoading={loading}
+                  onPress={handleContinueWithGoogle}
+                >
+                  <Button.Icon
+                    icon={GoogleLogo}
+                    size={24}
+                    color={theme.colors.text_light}
+                  />
+                  <Button.Text type='primary' text='Entrar com o Google' />
+                </Button.Root>
 
-          <ControlledInput
-            type='secondary'
-            placeholder='Senha'
-            autoCapitalize='none'
-            autoCorrect={false}
-            secureTextEntry={true}
-            textContentType='password'
-            name='password'
-            control={control}
-            error={errors.password}
-            returnKeyType='go'
-            onSubmitEditing={handleSubmit(handleSignInWithXano)}
-          />
+                <Button.Root
+                  type='primary'
+                  isLoading={loading}
+                  onPress={showForm}
+                >
+                  <Button.Text type='primary' text='Entrar com email' />
+                </Button.Root>
+                <TermsAndPolicyContainer>
+                  <TermsAndPolicy>
+                    Ao me cadastrar, eu declaro que li e concordo com os{' '}
+                    <Link onPress={() => navigation.navigate('Termos de Uso')}>
+                      Termos de Uso
+                    </Link>{' '}
+                    e{' '}
+                    <Link
+                      onPress={() =>
+                        navigation.navigate('Política de Privacidade')
+                      }
+                    >
+                      Política de Privacidade
+                    </Link>
+                    .
+                  </TermsAndPolicy>
+                </TermsAndPolicyContainer>
+              </Animated.View>
 
-          <Button
-            title='Entrar'
-            type='primary'
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleSignInWithXano)}
-          />
+              {/* Second section */}
+              <Animated.View style={animatedEmailLoginStyle}>
+                <ControlledInput
+                  type='primary'
+                  placeholder='E-mail'
+                  autoCapitalize='none'
+                  autoCorrect={false}
+                  autoComplete='email'
+                  keyboardType='email-address'
+                  textContentType='emailAddress'
+                  name='email'
+                  control={control}
+                  error={errors.email}
+                />
+                <ControlledInput
+                  type='secondary'
+                  placeholder='Senha'
+                  autoCapitalize='none'
+                  autoCorrect={false}
+                  secureTextEntry={true}
+                  textContentType='password'
+                  name='password'
+                  control={control}
+                  error={errors.password}
+                  returnKeyType='go'
+                  onSubmitEditing={handleSubmit(handleSignInWithXano)}
+                />
+                <Button.Root
+                  isLoading={loading}
+                  onPress={handleSubmit(handleSignInWithXano)}
+                >
+                  <Button.Text text='Entrar' />
+                </Button.Root>
 
-          <WrapperTextSignUp>
-            <TextSignUp>
-              Não tem uma conta?{' '}
-              <LinkSignUp onPress={() => navigation.navigate('SignUp')}>
-                Cadastre-se
-              </LinkSignUp>
-            </TextSignUp>
-          </WrapperTextSignUp>
+                <WrapperTextSignUp>
+                  <TextSignUp>
+                    Não tem uma conta?{' '}
+                    <LinkSignUp onPress={() => navigation.navigate('SignUp')}>
+                      Cadastre-se
+                    </LinkSignUp>
+                  </TextSignUp>
+                </WrapperTextSignUp>
+              </Animated.View>
+            </View>
+          </GestureDetector>
         </FooterWrapper>
       </Footer>
     </Container>

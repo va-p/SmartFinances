@@ -347,12 +347,16 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       </Form>
 
       <Footer>
-        <Button
+        <Button.Root
           type='secondary'
-          title={id !== '' ? 'Editar Conta' : 'Criar Conta'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterAccount)}
-        />
+        >
+          <Button.Text
+            type='secondary'
+            text={id !== '' ? 'Editar Conta' : 'Criar Conta'}
+          />
+        </Button.Root>
       </Footer>
 
       <ModalViewSelection

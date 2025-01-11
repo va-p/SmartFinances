@@ -6,16 +6,16 @@ import {
   Description,
   Title,
   Icon,
-  IconChevronDown
+  IconChevronDown,
 } from './styles';
 
-import { CategoryProps } from '@components/CategoryListItem';
+import { CategoryProps } from '@interfaces/categories';
 
 type Props = TouchableOpacityProps & {
   categorySelected: CategoryProps;
   icon: string;
   color: string;
-}
+};
 
 export function CategorySelectButton({
   categorySelected,
@@ -24,8 +24,8 @@ export function CategorySelectButton({
   ...rest
 }: Props) {
   if (categorySelected.id === '') {
-    return <Placeholder {...rest}/>
-  };
+    return <Placeholder {...rest} />;
+  }
   return (
     <Container {...rest}>
       <Icon name={icon} color={color} />

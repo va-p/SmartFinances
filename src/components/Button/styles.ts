@@ -13,8 +13,10 @@ export const Container = styled(RectButton)<ContainerProps>`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
+  flex-direction: row;
   align-items: center;
-  padding: 18px;
+  justify-content: center;
+  padding: 16px;
   margin-top: 12px;
   background-color: ${({ theme, type }) =>
     type === 'primary' ? theme.colors.shape : theme.colors.primary};
@@ -24,6 +26,7 @@ export const Container = styled(RectButton)<ContainerProps>`
 export const Text = styled.Text<ContainerProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
+  margin: 0 8px;
   color: ${({ theme, type }) =>
     type === 'primary' ? theme.colors.title : theme.colors.text_light};
 `;

@@ -62,7 +62,6 @@ const schema = Yup.object().shape({
 
 export function RegisterBudget({ id, closeBudget }: Props) {
   const userID = useUser((state) => state.id);
-  const [budget, setBudget] = useState<BudgetProps>();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.budgetCategoriesSelected
@@ -88,10 +87,18 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     });
   const {
     control,
+    setValue,
+    getValues,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      amount: '0',
+      name: '',
+    },
+  });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const currencies = [
     'BRL - Real Brasileiro',
@@ -128,7 +135,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           budget_id: id,
         },
       });
-      setBudget(data);
+      setValue('name', data.name);
+      setValue('amount', data.amount);
       setCurrencySelected(data.currency_id);
       setStartDate(new Date(data.start_date));
       switch (data.recurrence) {
@@ -220,7 +228,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de Orçamento', error.response?.data.message, [
+        Alert.alert('Edição de Orçamento', error.response?.data?.message, [
           { text: 'Tentar novamente' },
           {
             text: 'Voltar para a tela anterior',
@@ -281,7 +289,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert('Cadastro de Orçamento', error.response?.data.message, [
+        Alert.alert('Cadastro de Orçamento', error.response?.data?.message, [
           { text: 'Tentar novamente' },
           {
             text: 'Voltar para a tela anterior',
@@ -309,7 +317,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         placeholder='Nome do orçamento'
         autoCapitalize='sentences'
         autoCorrect={false}
-        defaultValue={budget?.name || ''}
+        defaultValue={getValues('name')}
         name='name'
         control={control}
         error={errors.name}
@@ -321,7 +329,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             icon={<Icon.Money color={theme.colors.primary} />}
             placeholder='Valor do orçamento'
             keyboardType='numeric'
-            defaultValue={id !== '' ? String(budget?.amount) : ''}
+            defaultValue={getValues('amount')}
             name='amount'
             control={control}
             error={errors.amount}
@@ -406,12 +414,16 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       />
 
       <Footer>
-        <Button
+        <Button.Root
           type='secondary'
-          title={id !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterBudget)}
-        />
+        >
+          <Button.Text
+            type='secondary'
+            text={id !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+          />
+        </Button.Root>
       </Footer>
 
       <ModalViewSelection

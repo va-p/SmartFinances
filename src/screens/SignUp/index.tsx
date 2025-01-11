@@ -46,7 +46,10 @@ const schema = Yup.object().shape({
     .typeError('Digite apenas números'),
   password: Yup.string()
     .required('Digite a sua senha')
-    .min(8, 'A senha deve ter no mínimo 8 caracteres'),
+    .min(8, 'A senha deve ter no mínimo 8 caracteres')
+    .matches(/[A-Z]/, 'A senha deve ter uma letra maiúscula')
+    .matches(/[a-z]/, 'A senha deve ter uma letra minúscula')
+    .matches(/[0-9]/, 'A senha deve ter um número'),
   confirmPassword: Yup.string()
     .required('Confirme a sua senha')
     .oneOf([Yup.ref('password'), null], 'As senhas não conferem'),
@@ -103,11 +106,12 @@ export function SignUp({ navigation }: any) {
       if (axios.isAxiosError(error)) {
         console.error(
           'SignUp handleRegisterUser error =>',
-          error.response?.data.message
+          error.response?.data?.message
         );
         Alert.alert(
           'Cadastro de usuário',
-          'Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.'
+          `Não foi possível concluir o cadastro: ${error.response?.data?.message}. Por favor, tente novamente.`
+          // 'Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.'
         );
       }
     } finally {
@@ -226,12 +230,13 @@ export function SignUp({ navigation }: any) {
       </Form>
 
       <Footer>
-        <Button
+        <Button.Root
           type='secondary'
           isLoading={buttonIsLoading}
-          title='Cadastrar'
           onPress={handleSubmit(handleRegisterUser)}
-        />
+        >
+          <Button.Text type='secondary' text='Cadastrar' />
+        </Button.Root>
       </Footer>
     </Container>
   );

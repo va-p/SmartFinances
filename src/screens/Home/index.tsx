@@ -696,9 +696,68 @@ export function Home() {
       };
     });
 
+    function checkIsActive(month: string) {
+      const isActive =
+        getMonth(selectedDate) === getMonth(parse(month, 'MMM', selectedDate))
+          ? true
+          : false;
+      return isActive;
+    }
+
+    const mocks = [
+      {
+        date: `Dez \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Dez'),
+      },
+      {
+        date: `Nov \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Nov'),
+      },
+      {
+        date: `Out \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Out'),
+      },
+      {
+        date: `Set \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Set'),
+      },
+      {
+        date: `Ago \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Ago'),
+      },
+      {
+        date: `Jul \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Jul'),
+      },
+      {
+        date: `Jun \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Jun'),
+      },
+      {
+        date: `Mai \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Mai'),
+      },
+      {
+        date: `Abr \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Abr'),
+      },
+      {
+        date: `Mar \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Mar'),
+      },
+      {
+        date: `Fev \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Fev'),
+      },
+      {
+        date: `Jan \n ${getYear(selectedDate)}`,
+        isActive: checkIsActive('Jan'),
+      },
+    ];
+
     return (
       <PeriodRuler
-        dates={dates}
+        dates={dates.length > 0 ? dates : mocks}
         handleDateChange={handleDateChange}
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
       />
@@ -734,6 +793,11 @@ export function Home() {
 
     fetchTransactions();
   }, [selectedDate, selectedPeriod.period, userID]);
+
+  // console.log(
+  //   'totalAmountsGroupedBySelectedPeriod =>',
+  //   totalAmountsGroupedBySelectedPeriod
+  // );
 
   if (loading) {
     return <SkeletonHomeScreen />;

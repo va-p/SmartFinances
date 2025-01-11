@@ -260,11 +260,9 @@ export function Budgets({ navigation }: any) {
       />
 
       <Footer>
-        <Button
-          type='secondary'
-          title='Criar novo orçamento'
-          onPress={handleOpenRegisterBudgetModal}
-        />
+        <Button.Root type='secondary' onPress={handleOpenRegisterBudgetModal}>
+          <Button.Text type='secondary' text='Criar novo orçamento' />
+        </Button.Root>
       </Footer>
 
       <ModalView

@@ -146,11 +146,9 @@ export function Tags() {
       />
 
       <Footer>
-        <Button
-          type='secondary'
-          title='Criar Nova Etiqueta'
-          onPress={handleOpenRegisterTagModal}
-        />
+        <Button.Root type='secondary' onPress={handleOpenRegisterTagModal}>
+          <Button.Text type='secondary' text='Criar Nova Etiqueta' />
+        </Button.Root>
       </Footer>
 
       <ModalView

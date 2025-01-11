@@ -118,11 +118,11 @@ export function AccountsList() {
         },
       });
       if (status === 200) {
-        Alert.alert('Exclusão de conta', 'Conta excluída com sucesso!');
+        Alert.alert('Exclusão de Conta', 'Conta excluída com sucesso!');
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de Conta', error.response?.data.message, [
+        Alert.alert('Exclusão de Conta', error.response?.data?.message, [
           { text: 'Tentar novamente' },
           {
             text: 'Voltar para a tela anterior',
@@ -210,11 +210,9 @@ export function AccountsList() {
       />
 
       <Footer>
-        <Button
-          type='secondary'
-          title='Criar Nova Conta'
-          onPress={handleOpenRegisterAccountModal}
-        />
+        <Button.Root type='secondary' onPress={handleOpenRegisterAccountModal}>
+          <Button.Text type='secondary' text='Criar Nova Conta' />
+        </Button.Root>
       </Footer>
 
       <ModalView

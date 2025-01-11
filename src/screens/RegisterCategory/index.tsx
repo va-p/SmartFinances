@@ -306,12 +306,16 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       </IconsList>
 
       <Footer>
-        <Button
+        <Button.Root
           type='secondary'
-          title={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterCategory)}
-        />
+        >
+          <Button.Text
+            type='secondary'
+            text={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}
+          />
+        </Button.Root>
       </Footer>
     </Container>
   );

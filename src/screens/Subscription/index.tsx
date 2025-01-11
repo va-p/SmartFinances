@@ -73,10 +73,9 @@ export function Subscription() {
 
         {/* <Text>{JSON.stringify(user, null, 2)}</Text> */}
 
-        <Button
-          title='Buscar dados Restore'
-          onPress={async () => await restorePurchasesUser()}
-        />
+        <Button.Root onPress={async () => await restorePurchasesUser()}>
+          <Button.Text text='Buscar dados Restore' />
+        </Button.Root>
       </ScrollView>
     </Container>
   );

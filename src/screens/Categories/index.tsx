@@ -75,7 +75,7 @@ export function Categories() {
 
   async function handleDeleteCategory(id: string) {
     try {
-      await api.delete('ctegory/delete', {
+      await api.delete('category/delete', {
         params: {
           category_id: id,
         },
@@ -84,7 +84,7 @@ export function Categories() {
       handleCloseRegisterCategoryModal();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert('Exclusão de categoria', error.response?.data.message, [
+        Alert.alert('Exclusão de categoria', error.response?.data?.message, [
           { text: 'Tentar novamente' },
           {
             text: 'Voltar para a tela anterior',
@@ -147,11 +147,9 @@ export function Categories() {
       />
 
       <Footer>
-        <Button
-          type='secondary'
-          title='Criar Nova Categoria'
-          onPress={handleOpenRegisterCategoryModal}
-        />
+        <Button.Root type='secondary' onPress={handleOpenRegisterCategoryModal}>
+          <Button.Text type='secondary' text='Criar Nova Categoria' />
+        </Button.Root>
       </Footer>
 
       <ModalView

@@ -3,12 +3,14 @@ import { StatusBar } from 'react-native';
 
 import * as Font from 'expo-font';
 import * as Updates from 'expo-updates';
+import { ClerkProvider } from '@clerk/clerk-expo';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Routes } from './src/routes';
+import { RevenueCatProvider } from 'src/providers/RevenueCatProvider';
 
 import {
   Poppins_400Regular,
@@ -17,9 +19,11 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/themes/theme';
-import { RevenueCatProvider } from 'src/providers/RevenueCatProvider';
 
 SplashScreen.preventAutoHideAsync();
+
+const PUBLIC_CLERK_PUBLISHABLE_KEY =
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 function App() {
   const [appIsReady, setAppIsReady] = useState(false);
@@ -71,11 +75,13 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider theme={theme}>
         <RevenueCatProvider>
-          <StatusBar
-            barStyle='light-content'
-            backgroundColor={theme.colors.background}
-          />
-          <Routes />
+          <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
+            <StatusBar
+              barStyle='light-content'
+              backgroundColor={theme.colors.background}
+            />
+            <Routes />
+          </ClerkProvider>
         </RevenueCatProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -54,10 +54,9 @@ export function PremiumBenefits() {
           </TouchableOpacity>
         ))}
 
-        <Button
-          title='Buscar dados Restore'
-          onPress={async () => await restorePurchasesUser()}
-        />
+        <Button.Root onPress={async () => await restorePurchasesUser()}>
+          <Button.Text text='Buscar dados Restore' />
+        </Button.Root>
       </ScrollView>
     </Container>
   );

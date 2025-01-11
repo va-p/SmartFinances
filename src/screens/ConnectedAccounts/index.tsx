@@ -242,15 +242,16 @@ export function ConnectedAccounts({ navigation }: any) {
             showsVerticalScrollIndicator={false}
           />
 
-          <Button
-            type='secondary'
-            title={
-              !user.premium
-                ? 'Assine o Premium para novas conexões'
-                : 'Conectar nova conta'
-            }
-            onPress={handlePressConnectNewAccount}
-          />
+          <Button.Root type='secondary' onPress={handlePressConnectNewAccount}>
+            <Button.Text
+              type='secondary'
+              text={
+                !user.premium
+                  ? 'Assine o Premium para novas conexões'
+                  : 'Conectar nova conta'
+              }
+            />
+          </Button.Root>
         </>
       )}
     </Container>

@@ -175,7 +175,7 @@ export function RegisterTransaction({
     try {
       const { data } = await api.get('tag', {
         params: {
-          tenant_id: userID,
+          user_id: userID,
         },
       });
       if (data) {
@@ -1052,12 +1052,16 @@ export function RegisterTransaction({
       </MainContent>
 
       <Footer>
-        <Button
+        <Button.Root
           type='secondary'
-          title={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTransaction)}
-        />
+        >
+          <Button.Text
+            type='secondary'
+            text={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
+          />
+        </Button.Root>
       </Footer>
 
       <ModalViewSelection
