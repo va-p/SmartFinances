@@ -16,7 +16,7 @@ import {
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useAuth, useOAuth } from '@clerk/clerk-expo';
+import { useOAuth } from '@clerk/clerk-expo';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleLogo } from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -76,9 +76,6 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn({ navigation }: any) {
-  const { isSignedIn } = useAuth();
-  console.log('isSignedIn ???', isSignedIn);
-
   const [loading, setLoading] = useState(false);
   const {
     control,
@@ -148,17 +145,7 @@ export function SignIn({ navigation }: any) {
 
       const { data, status } = await api.post('auth/login', SignInUser);
       if (status === 200) {
-        try {
-          storageToken.set(
-            `${DATABASE_TOKENS}`,
-            JSON.stringify(data.authToken)
-          );
-        } catch (error) {
-          console.error(error);
-          Alert.alert(`Erro: ${error}`);
-        } finally {
-          setLoading(false);
-        }
+        storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data.authToken));
       }
 
       const userData = (await api.get('auth/me')).data;
@@ -204,6 +191,7 @@ export function SignIn({ navigation }: any) {
 
       navigation.navigate('Main');
     } catch (error) {
+      console.error(error);
       if (axios.isAxiosError(error)) {
         Alert.alert('Login', error.response?.data?.message);
       }
@@ -283,20 +271,24 @@ export function SignIn({ navigation }: any) {
       setLoading(true);
       const oAuthFlow = await googleOAuth.startOAuthFlow();
 
-      if (oAuthFlow.authSessionResult?.type === 'success') {
+      if (
+        oAuthFlow.authSessionResult?.type === 'success' &&
+        oAuthFlow.createdSessionId
+      ) {
         if (oAuthFlow.setActive) {
           await oAuthFlow.setActive({
             session: oAuthFlow.createdSessionId,
           });
-          // TODO: If is new account, create a new user on Xano and then get the user token (auth/me api)
-          // If is not a new account, get the user token (auth/me api)
         }
       } else {
-        setLoading(false);
+        // Use signIn or signUp returned from startOAuthFlow
+        // for next steps, such as MFA
       }
     } catch (error) {
       console.error('SignIn onGoogleSignIn error =>', error);
       Alert.alert('Erro', 'Erro ao logar com o Google.');
+    } finally {
+      setLoading(false);
     }
   }
 
