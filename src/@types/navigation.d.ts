@@ -33,6 +33,4 @@ type RootParamList = {
   Categorias: undefined;
   Etiquetas: undefined;
   'Central de Ajuda': undefined;
-  'Termos de Uso': undefined;
-  'Politica de Privacidade': undefined;
 };

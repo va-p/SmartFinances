@@ -4,6 +4,7 @@ import { Container, ContentScroll, Title } from './styles';
 
 import axios from 'axios';
 import * as Icon from 'phosphor-react-native';
+import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 import { Header } from '@components/Header';
@@ -17,6 +18,9 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import api from '@api/api';
 
 import theme from '@themes/theme';
+
+const PRIVACY_POLICY_URL = 'https://smartfinances.com.br/privacy-policy';
+const TERMS_OF_USE_URL = 'https://smartfinances.com.br/terms-of-use';
 
 export function OptionsMenu({ navigation }: any) {
   const userId = useUser((state) => state.id);
@@ -64,12 +68,12 @@ export function OptionsMenu({ navigation }: any) {
     Linking.openURL('mailto:contato@solucaodigital.tech');
   }
 
-  function handleClickTermsOfUse() {
-    navigation.navigate('Termos de Uso');
+  async function handleClickTermsOfUse() {
+    await WebBrowser.openBrowserAsync(TERMS_OF_USE_URL);
   }
 
-  function handleClickPrivacyPolicy() {
-    navigation.navigate('Politica de Privacidade');
+  async function handleClickPrivacyPolicy() {
+    await WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
   }
 
   async function handleChangeUseLocalAuth() {

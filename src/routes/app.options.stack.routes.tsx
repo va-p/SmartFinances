@@ -6,10 +6,8 @@ import { Tags } from '@screens/Tags';
 import { Profile } from '@screens/Profile';
 import { Categories } from '@screens/Categories';
 import { HelpCenter } from '@screens/HelpCenter';
-import { TermsOfUse } from '@screens/TermsOfUse';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { AccountsList } from '@screens/AccountsList';
-import { PrivacyPolicy } from '@screens/PrivacyPolicy';
 import { PremiumBenefits } from '@screens/PremiumBenefits';
 import { ConnectedAccounts } from '@screens/ConnectedAccounts';
 
@@ -42,10 +40,6 @@ export function AppOptionsStackRoutes() {
       <Screen name='Etiquetas' component={Tags} />
 
       <Screen name='Central de Ajuda' component={HelpCenter} />
-
-      <Screen name='Termos de Uso' component={TermsOfUse} />
-
-      <Screen name='Politica de Privacidade' component={PrivacyPolicy} />
     </Navigator>
   );
 }
