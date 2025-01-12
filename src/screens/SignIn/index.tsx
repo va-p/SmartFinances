@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Platform, View } from 'react-native';
 import {
   Container,
@@ -13,6 +13,8 @@ import {
   LinkSignUp,
 } from './styles';
 
+import { useAuth } from '../../contexts/AuthProvider';
+
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
@@ -20,9 +22,7 @@ import { useOAuth } from '@clerk/clerk-expo';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleLogo } from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -42,20 +42,6 @@ import {
 } from '@screens/SignUp/styles';
 
 import LogoSvg from '@assets/logo.svg';
-
-import {
-  DATABASE_CONFIGS,
-  DATABASE_TOKENS,
-  DATABASE_USERS,
-  storageConfig,
-  storageToken,
-  storageUser,
-} from '@database/database';
-
-import { useUser } from '@storage/userStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
-
-import api from '@api/api';
 
 import theme from '@themes/theme';
 
@@ -85,6 +71,7 @@ export function SignIn({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
+  const { signInWithXano, signInWithBiometrics } = useAuth();
   const googleOAuth = useOAuth({ strategy: 'oauth_google' });
 
   const SCREEN_WIDTH = Dimensions.get('window').width - 64;
@@ -138,129 +125,15 @@ export function SignIn({ navigation }: any) {
     try {
       setLoading(true);
 
-      const SignInUser = {
-        email: form.email,
-        password: form.password,
-      };
-
-      const { data, status } = await api.post('auth/login', SignInUser);
-      if (status === 200) {
-        storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data.authToken));
-      }
-
-      const userData = (await api.get('auth/me')).data;
-
-      // User Data
-      const loggedInUserDataFormatted = {
-        id: userData.id,
-        name: userData.name,
-        lastName: userData.last_name,
-        email: userData.email,
-        phone: userData.phone,
-        role: userData.role,
-        image: userData.image,
-        tenantId: userData.tenant_id,
-      };
-      storageUser.set(
-        `${DATABASE_USERS}`,
-        JSON.stringify(loggedInUserDataFormatted)
-      );
-      useUser.setState(() => ({
-        id: loggedInUserDataFormatted.id,
-        name: loggedInUserDataFormatted.name,
-        lastName: loggedInUserDataFormatted.lastName,
-        email: loggedInUserDataFormatted.email,
-        phone: loggedInUserDataFormatted.phone,
-        role: loggedInUserDataFormatted.role,
-        profileImage: loggedInUserDataFormatted.image,
-        tenantId: loggedInUserDataFormatted.tenantId,
-      }));
-
-      // User Configs
-      storageConfig.set(
-        `${DATABASE_CONFIGS}.useLocalAuth`,
-        userData.use_local_authentication
-      );
-      storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, userData.hide_amount);
-      storageConfig.set(`${DATABASE_CONFIGS}.insights`, userData.insights);
-      useUserConfigs.setState(() => ({
-        useLocalAuth: userData.use_local_authentication,
-        hideAmount: userData.hide_amount,
-        insights: userData.insights,
-      }));
-
-      navigation.navigate('Main');
+      await signInWithXano(form);
     } catch (error) {
-      console.error(error);
+      console.error('SignIn screen, handleSignInWithXano error =>', error);
       if (axios.isAxiosError(error)) {
-        Alert.alert('Login', error.response?.data?.message);
+        Alert.alert(
+          'Login',
+          `Não foi possível autenticar com e-mail e senha: ${error.response?.data?.message}. Por favor, verifique sua conexão com a internet e tente novamente.`
+        );
       }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleSignInWithBiometric() {
-    try {
-      setLoading(true);
-      const biometricAuth = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Entrar com Biometria',
-        cancelLabel: 'Cancelar',
-      });
-      if (biometricAuth.success) {
-        try {
-          const jsonUser = storageUser.getString('user');
-
-          const useLocalAuth = storageConfig.getBoolean(
-            `${DATABASE_CONFIGS}.useLocalAuth`
-          );
-          const hideAmount = storageConfig.getBoolean(
-            `${DATABASE_CONFIGS}.hideAmount`
-          );
-          const insights = storageConfig.getBoolean(
-            `${DATABASE_CONFIGS}.insights`
-          );
-          const userConfigObject = {
-            useLocalAuth: useLocalAuth || false,
-            hideAmount: hideAmount || false,
-            insights: insights || false,
-          };
-          if (jsonUser && userConfigObject) {
-            const userObject = JSON.parse(jsonUser);
-
-            useUser.setState(() => ({
-              id: userObject.id,
-              name: userObject.name,
-              lastName: userObject.lastName,
-              email: userObject.email,
-              phone: userObject.phone,
-              role: userObject.role,
-              profileImage: userObject.image,
-              tenantId: userObject.tenantId,
-            }));
-
-            useUserConfigs.setState(() => ({
-              insights: userConfigObject.insights,
-              hideAmount: userConfigObject.hideAmount,
-              useLocalAuth: userConfigObject.useLocalAuth,
-            }));
-          }
-
-          navigation.navigate('Home');
-        } catch (error) {
-          console.error(error);
-          Alert.alert(
-            'Login',
-            'Não foi possível buscar seus dados no dispositivo, por favor, verifique sua conexão com a internet e tente novamente.'
-          );
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      Alert.alert(
-        'Login',
-        'Não foi possível autenticar com a biometria, por favor, verifique sua conexão com a internet e tente novamente.'
-      );
     } finally {
       setLoading(false);
     }
@@ -285,8 +158,13 @@ export function SignIn({ navigation }: any) {
         // for next steps, such as MFA
       }
     } catch (error) {
-      console.error('SignIn onGoogleSignIn error =>', error);
-      Alert.alert('Erro', 'Erro ao logar com o Google.');
+      console.error('SignIn screen, handleContinueWithGoogle error =>', error);
+      if (axios.isAxiosError(error)) {
+        Alert.alert(
+          'Login',
+          `Não foi possível autenticar com o Google: ${error.response?.data?.message}. Por favor, tente novamente.`
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -299,22 +177,6 @@ export function SignIn({ navigation }: any) {
       WebBrowser.coolDownAsync();
     };
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      (async () => {
-        const compatible = await LocalAuthentication.hasHardwareAsync();
-        const enroll = await LocalAuthentication.isEnrolledAsync();
-
-        const useLocalAuth = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.useLocalAuth`
-        );
-        if (compatible && enroll && useLocalAuth) {
-          handleSignInWithBiometric();
-        } else return;
-      })();
-    }, [])
-  );
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>

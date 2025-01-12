@@ -2,16 +2,13 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "2.4.1(36)",
-    "version": "2.4.1",
+    "runtimeVersion": "2.4.3(38)",
+    "version": "2.4.4",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",
     "primaryColor": "#FF5200",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -19,7 +16,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 36,
+      "versionCode": 38,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -27,6 +24,19 @@
         "WRITE_EXTERNAL_STORAGE",
         "USE_FINGERPRINT",
         "USE_BIOMETRIC"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "smartfinances.com.br", // Seu domínio
+              "pathPrefix": "/oauth-native-callback" // Path para o Clerk redirecionar
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "ios": {

@@ -19,6 +19,7 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/themes/theme';
+import { AuthProvider } from '@contexts/AuthProvider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -76,11 +77,13 @@ function App() {
       <ThemeProvider theme={theme}>
         <RevenueCatProvider>
           <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
-            <StatusBar
-              barStyle='light-content'
-              backgroundColor={theme.colors.background}
-            />
-            <Routes />
+            <AuthProvider>
+              <StatusBar
+                barStyle='light-content'
+                backgroundColor={theme.colors.background}
+              />
+              <Routes />
+            </AuthProvider>
           </ClerkProvider>
         </RevenueCatProvider>
       </ThemeProvider>
