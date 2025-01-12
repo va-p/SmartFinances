@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
-import { Load } from '@components/Load';
+import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 
 import { AuthRoutes } from './auth.stack.routes';
 import { AppTabRoutes } from './app.tab.routes';
@@ -16,11 +16,9 @@ const { Navigator, Screen } = createStackNavigator();
 
 export function Routes() {
   const { loading, isSignedIn, user } = useAuth();
-  console.log('isSignedIn ???', isSignedIn);
-  console.log('user ==>', user);
 
   if (loading) {
-    return <Load />;
+    return <SkeletonHomeScreen />;
   }
 
   if (isSignedIn && user) {

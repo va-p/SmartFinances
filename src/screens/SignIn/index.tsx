@@ -144,6 +144,8 @@ export function SignIn({ navigation }: any) {
       setLoading(true);
       const oAuthFlow = await googleOAuth.startOAuthFlow();
 
+      console.log('oAuthFlow =>', oAuthFlow);
+
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
         oAuthFlow.createdSessionId
