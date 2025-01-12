@@ -9,16 +9,19 @@ import {
   Link,
 } from './styles';
 
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import * as Yup from 'yup';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { useForm } from 'react-hook-form';
+import * as WebBrowser from 'expo-web-browser';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import { ControlledInput } from '@components/Form/ControlledInput';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 
 import api from '@api/api';
+
+import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@screens/OptionsMenu';
 
 type FormData = {
   name: string;
@@ -69,6 +72,14 @@ export function SignUp({ navigation }: any) {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
+
+  async function handlePressPolicyPrivacy() {
+    await WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
+  }
+
+  async function handlePressTermsOfUse() {
+    await WebBrowser.openBrowserAsync(TERMS_OF_USE_URL);
+  }
 
   async function handleRegisterUser(form: FormData) {
     setButtonIsLoading(true);
@@ -215,13 +226,8 @@ export function SignUp({ navigation }: any) {
         <TermsAndPolicyContainer>
           <TermsAndPolicy>
             Ao me cadastrar, eu declaro que li e concordo com os{' '}
-            <Link onPress={() => navigation.navigate('Termos de Uso')}>
-              Termos de Uso
-            </Link>{' '}
-            e{' '}
-            <Link
-              onPress={() => navigation.navigate('Política de Privacidade')}
-            >
+            <Link onPress={handlePressTermsOfUse}>Termos de Uso</Link> e{' '}
+            <Link onPress={handlePressPolicyPrivacy}>
               Política de Privacidade
             </Link>
             .

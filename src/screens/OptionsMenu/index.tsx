@@ -19,8 +19,8 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 
-const PRIVACY_POLICY_URL = 'https://smartfinances.com.br/privacy-policy';
-const TERMS_OF_USE_URL = 'https://smartfinances.com.br/terms-of-use';
+export const PRIVACY_POLICY_URL = 'https://smartfinances.com.br/privacy-policy';
+export const TERMS_OF_USE_URL = 'https://smartfinances.com.br/terms-of-use';
 
 export function OptionsMenu({ navigation }: any) {
   const userId = useUser((state) => state.id);
