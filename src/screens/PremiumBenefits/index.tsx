@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Container } from './styles';
 
+import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 
 import { PurchasesPackage } from 'react-native-purchases';
@@ -27,6 +28,11 @@ export function PremiumBenefits() {
 
   return (
     <Container>
+      <Header.Root>
+        <Header.BackButton />
+        <Header.Title title={'Assinatura Premium'} />
+      </Header.Root>
+
       <ScrollView>
         {packages.map((pack) => (
           <TouchableOpacity
@@ -55,7 +61,7 @@ export function PremiumBenefits() {
         ))}
 
         <Button.Root onPress={async () => await restorePurchasesUser()}>
-          <Button.Text text='Buscar dados Restore' />
+          <Button.Text text='Restaurar compra' />
         </Button.Root>
       </ScrollView>
     </Container>
@@ -83,18 +89,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   button: {
-    backgroundColor: theme.colors.shape,
+    width: '100%',
+    flexDirection: 'row',
     padding: 12,
     paddingTop: 34,
     paddingBottom: 34,
+    marginBottom: 8,
     borderRadius: 4,
-    flexDirection: 'row',
-    width: '100%',
+    backgroundColor: theme.colors.shape,
   },
   price: {
     borderWidth: 1,
     borderRadius: 4,
-    backgroundColor: '#44c604',
+    backgroundColor: theme.colors.primary_light,
     justifyContent: 'center',
     paddingHorizontal: 8,
   },
