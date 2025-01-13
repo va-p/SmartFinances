@@ -106,7 +106,7 @@ export type CashFLowData = {
   totalRevenuesByPeriod: Decimal;
   totalExpensesByPeriod: Decimal;
   total: Decimal;
-  cashFlow: string;
+  cashFlow?: string;
 };
 
 export function Home() {

@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   price: {
     borderWidth: 1,
     borderRadius: 4,
-    backgroundColor: theme.colors.primary_light,
+    backgroundColor: theme.colors.success_light,
     justifyContent: 'center',
     paddingHorizontal: 8,
   },

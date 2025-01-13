@@ -4,6 +4,7 @@
     "slug": "smart-finances",
     "runtimeVersion": "2.4.3(38)",
     "version": "2.4.4",
+    "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#020027",
