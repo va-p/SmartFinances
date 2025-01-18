@@ -3,7 +3,7 @@ import axios from 'axios';
 import { storageToken } from '@database/database';
 
 const api = axios.create({
-  baseURL: 'https://x6if-pd9g-tkt7.n7.xano.io/api:ckiy-sBf',
+  baseURL: 'https://xjg3-npzd-66ef.b2.xano.io/api:ckiy-sBf',
 });
 
 api.interceptors.request.use(async (config: any) => {
