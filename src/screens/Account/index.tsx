@@ -387,7 +387,7 @@ export function Account() {
 
   async function handleDeleteAccount(id: string | null) {
     try {
-      const { status } = await api.delete('delete_account', {
+      const { status } = await api.delete('account/delete', {
         params: {
           account_id: id,
         },
@@ -399,7 +399,7 @@ export function Account() {
       navigation.goBack();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de Conta', error.response?.data.message, [
+        Alert.alert('Edição de Conta', error?.response?.data?.message, [
           { text: 'Tentar novamente' },
           {
             text: 'Voltar para a tela anterior',
@@ -645,7 +645,7 @@ export function Account() {
         type={'secondary'}
         title={`Editar Conta ${accountName}`}
         bottomSheetRef={editAccountBottomSheetRef}
-        snapPoints={['50%', '75%']}
+        snapPoints={['75%']}
         closeModal={handleCloseEditAccount}
         deleteChildren={handleClickDeleteAccount}
       >
