@@ -321,57 +321,57 @@ export function RegisterTransaction({
   }
 
   async function handleEditTransaction(id: string, form: FormData) {
-    setButtonIsLoading(true);
-
-    let tagsList: any = [];
-    for (const tag of tagsSelected) {
-      const tag_id = tag.id;
-      if (!tagsList.hasOwnProperty(tag_id)) {
-        tagsList[tag_id] = {
-          tag_id: tag.id,
-        };
-      }
-    }
-    tagsList = Object.values(tagsList);
-
-    let transaction_image_id: number | null = null;
-    // TODO: Gets current image transaction ID, delete and then adds new
-    if (image !== '') {
-      const newImage = {
-        file: `data:image/jpeg;base64,${image}`,
-        user_id: userID,
-      };
-      const uploadImage = await api.post('transaction/image', newImage);
-      if (uploadImage.status === 200) {
-        const imageData = uploadImage.data;
-
-        transaction_image_id = imageData.id;
-      }
-    }
-
-    let amountConverted = form.amount;
-    amountConverted = convertCurrency({
-      amount: form.amount,
-      fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency!.code,
-      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
-      quotes: {
-        brlQuoteBtc,
-        brlQuoteEur,
-        brlQuoteUsd,
-        btcQuoteBrl,
-        btcQuoteEur,
-        btcQuoteUsd,
-        eurQuoteBrl,
-        eurQuoteBtc,
-        eurQuoteUsd,
-        usdQuoteBrl,
-        usdQuoteBtc,
-        usdQuoteEur,
-      },
-    });
-
     try {
+      setButtonIsLoading(true);
+
+      let tagsList: any = [];
+      for (const tag of tagsSelected) {
+        const tag_id = tag.id;
+        if (!tagsList.hasOwnProperty(tag_id)) {
+          tagsList[tag_id] = {
+            tag_id: tag.id,
+          };
+        }
+      }
+      tagsList = Object.values(tagsList);
+
+      let transaction_image_id: number | null = null;
+      // TODO: Gets current image transaction ID, delete and then adds new
+      if (image !== '') {
+        const newImage = {
+          file: `data:image/jpeg;base64,${image}`,
+          user_id: userID,
+        };
+        const uploadImage = await api.post('transaction/image', newImage);
+        if (uploadImage.status === 200) {
+          const imageData = uploadImage.data;
+
+          transaction_image_id = imageData.id;
+        }
+      }
+
+      let amountConverted = form.amount;
+      amountConverted = convertCurrency({
+        amount: form.amount,
+        fromCurrency: currencySelected.code,
+        toCurrency: accountCurrency!.code,
+        accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      });
+
       if (transactionType === 'transfer') {
         const transferEdited = {
           transaction_id: id,
@@ -437,13 +437,13 @@ export function RegisterTransaction({
             newTransferResponse.status === 200
           ) {
             Alert.alert(
-              'Cadastro de Transação',
-              'Transação cadastrada com sucesso!',
+              'Edição de Transação',
+              'Transação editada com sucesso!',
               [
-                { text: 'Cadastrar nova transação' },
+                // { text: 'Cadastrar nova transação' },
                 {
                   text: 'Voltar para a tela anterior',
-                  onPress: closeRegisterTransaction,
+                  onPress: handleCloseRegisterTransaction,
                 },
               ]
             );
@@ -452,17 +452,13 @@ export function RegisterTransaction({
         }
 
         if (transferEditedResponse.status === 200) {
-          Alert.alert(
-            'Cadastro de Transação',
-            'Transação cadastrada com sucesso!',
-            [
-              { text: 'Cadastrar nova transação' },
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeRegisterTransaction,
-              },
-            ]
-          );
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            // { text: 'Cadastrar nova transação' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: handleCloseRegisterTransaction,
+            },
+          ]);
         }
         return;
       }
@@ -949,20 +945,20 @@ export function RegisterTransaction({
         <ContentScroll>
           <SelectButton
             title={accountName || 'Selecione a conta'}
-            icon={<Icon.Wallet color={theme.colors.primary} />}
+            icon={<Icon.Wallet color={categorySelected.color.hex} />}
             onPress={handleOpenSelectAccountModal}
           />
           {transactionType === 'transfer' && (
             <SelectButton
               title={accountDestinationSelected.name}
-              icon={<Icon.Wallet color={theme.colors.primary} />}
+              icon={<Icon.Wallet color={categorySelected.color.hex} />}
               onPress={handleOpenSelectAccountDestinationModal}
             />
           )}
 
           <SelectButton
             title={formattedDate}
-            icon={<Icon.Calendar color={theme.colors.primary} />}
+            icon={<Icon.Calendar color={categorySelected.color.hex} />}
             onPress={() => setShowDatePicker(true)}
           />
           {showDatePicker && (
@@ -978,7 +974,7 @@ export function RegisterTransaction({
           )}
 
           <ControlledInputWithIcon
-            icon={<Icon.PencilSimple color={theme.colors.primary} />}
+            icon={<Icon.PencilSimple color={categorySelected.color.hex} />}
             placeholder='Descrição'
             autoCapitalize='sentences'
             autoCorrect={false}
@@ -992,7 +988,7 @@ export function RegisterTransaction({
 
           <SelectButton
             title='Etiquetas'
-            icon={<Icon.Tag color={theme.colors.primary} />}
+            icon={<Icon.Tag color={categorySelected.color.hex} />}
           />
           <FlatList
             data={tags}
@@ -1015,7 +1011,7 @@ export function RegisterTransaction({
 
           <SelectButton
             title={imageUrl !== '' ? 'Alterar imagem' : 'Selecionar imagem'}
-            icon={<Icon.Image color={theme.colors.primary} />}
+            icon={<Icon.Image color={categorySelected.color.hex} />}
             onPress={handleClickSelectImage}
           />
           {imageUrl !== '' && (
