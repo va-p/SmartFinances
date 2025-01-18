@@ -18,7 +18,7 @@ export function ButtonRoot({
 }: ButtonRootProps) {
   return (
     <Container type={type} enabled={!isLoading} {...rest}>
-      {isLoading ? <Load /> : children}
+      {isLoading ? <Load type={type} /> : children}
     </Container>
   );
 }

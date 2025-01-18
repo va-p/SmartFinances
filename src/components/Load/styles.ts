@@ -2,7 +2,11 @@ import styled from 'styled-components/native';
 
 import { ActivityIndicator } from 'react-native';
 
-import theme from '@themes/theme';
+import { TypeProps } from '@components/Button/styles';
+
+type IndicatorProps = {
+  type: TypeProps;
+};
 
 export const Container = styled.View`
   flex: 1;
@@ -10,8 +14,8 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const Indicator = styled(
-  ActivityIndicator
-).attrs({
-  color: theme.colors.primary
-})``;
+export const Indicator = styled(ActivityIndicator).attrs<IndicatorProps>(
+  ({ theme, type }) => ({
+    color: type === 'primary' ? theme.colors.primary : theme.colors.text_light,
+  })
+)``;
