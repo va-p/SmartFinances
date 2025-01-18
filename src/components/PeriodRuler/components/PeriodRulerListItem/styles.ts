@@ -1,4 +1,6 @@
 import styled from 'styled-components/native';
+
+import { RectButton } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 type Props = {
@@ -6,8 +8,8 @@ type Props = {
   isActive: boolean;
 };
 
-export const Container = styled.View`
-  flex: 1;
+export const Container = styled(RectButton)`
+  /* flex: 1; */
 `;
 
 export const PeriodRulerDate = styled.Text<Props>`

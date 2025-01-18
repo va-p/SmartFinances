@@ -1,5 +1,5 @@
 import React from 'react';
-import { PeriodRulerDate } from './styles';
+import { Container, PeriodRulerDate } from './styles';
 
 interface PeriodRulerListItemProps {
   date: string;
@@ -9,15 +9,18 @@ interface PeriodRulerListItemProps {
 type Props = {
   data: PeriodRulerListItemProps;
   width: number;
+  onPress: (date: string) => void;
 };
 
-export function PeriodRulerListItem({ data, width }: Props) {
+export function PeriodRulerListItem({ data, width, onPress }: Props) {
   const formattedDate =
     data.date.charAt(0).toUpperCase() + data.date.trim().slice(1);
 
   return (
-    <PeriodRulerDate width={width} isActive={data.isActive} numberOfLines={2}>
-      {formattedDate}
-    </PeriodRulerDate>
+    <Container style={{ width: width }} onPress={() => onPress(data.date)}>
+      <PeriodRulerDate width={width} isActive={data.isActive} numberOfLines={2}>
+        {formattedDate}
+      </PeriodRulerDate>
+    </Container>
   );
 }

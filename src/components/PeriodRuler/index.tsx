@@ -15,6 +15,7 @@ interface PeriodRulerListItem {
 
 type Props = {
   handleDateChange: (direction: 'prev' | 'next') => void;
+  handlePressDate: (stringDate: string) => void;
   dates: PeriodRulerListItem[];
   periodRulerListColumnWidth: number;
 };
@@ -22,6 +23,7 @@ type Props = {
 export function PeriodRuler({
   dates,
   handleDateChange,
+  handlePressDate,
   periodRulerListColumnWidth,
 }: Props) {
   const flatListRef = useRef<FlatList>(null);
@@ -72,7 +74,11 @@ export function PeriodRuler({
         keyExtractor={(_, idx: number) => String(idx)}
         getItemLayout={getItemLayout}
         renderItem={({ item }: any) => (
-          <PeriodRulerListItem data={item} width={periodRulerListColumnWidth} />
+          <PeriodRulerListItem
+            data={item}
+            width={periodRulerListColumnWidth}
+            onPress={handlePressDate}
+          />
         )}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{

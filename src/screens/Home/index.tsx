@@ -53,6 +53,7 @@ import {
   getYear,
   isFirstDayOfMonth,
   isValid,
+  lastDayOfMonth,
   parse,
   parseISO,
   subMonths,
@@ -606,7 +607,7 @@ export function Home() {
   function handleCloseRegisterTransactionModal() {
     setAccountID(null);
     setAccountName(null);
-    fetchTransactions();
+    // fetchTransactions(); // TODO: Refactors to get perform
     registerTransactionBottomSheetRef.current?.dismiss();
   }
 
@@ -640,6 +641,20 @@ export function Home() {
     }
   }
 
+  function handlePressDate(stringDate: string) {
+    const dateSplit = stringDate.split('\n');
+    const trimmedDateParts = dateSplit.map((part: string) => part.trim());
+    const dateAux = trimmedDateParts.join(' ');
+    const dateParsed = parse(dateAux, 'MMM yyyy', new Date(), {
+      locale: ptBR,
+    });
+    const selectedDateAux = lastDayOfMonth(new Date(dateParsed));
+
+    setSelectedDate(selectedDateAux);
+
+    // TODO: tratar caso onde o período selecionado for anos
+  }
+
   function ClearTransactionId() {
     setTransactionId('');
   }
@@ -669,6 +684,8 @@ export function Home() {
 
   const _renderPeriodRuler = useCallback(() => {
     const dates = totalAmountsGroupedBySelectedPeriod?.map((item: any) => {
+      // TODO: tratar caso onde o período selecionado for anos, pois neste caso o formato da data muda
+
       const dateSplit = item.date.split('\n');
       const trimmedDateParts = dateSplit.map((part: string) => part.trim());
       const dateAux = trimmedDateParts.join(' ');
@@ -759,6 +776,7 @@ export function Home() {
       <PeriodRuler
         dates={dates.length > 0 ? dates : mocks}
         handleDateChange={handleDateChange}
+        handlePressDate={handlePressDate}
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
       />
     );
