@@ -20,7 +20,7 @@ import { convertCurrency } from '@utils/convertCurrency';
 
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, parse, parseISO } from 'date-fns';
+import { format, parse } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -58,8 +58,8 @@ export type TotalByMonths = {
 };
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HORIZONTAL_PADDING = 32;
-const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
+const SCREEN_HORIZONTAL_PADDING = 80;
+const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -328,6 +328,33 @@ export function Accounts({ navigation }: any) {
     );
   }
 
+  function generateYAxisLabels(data: TotalByMonths[]) {
+    if (data.length === 0) return []; // Trata o caso de array vazio
+
+    const values = data.map((item) => item.total);
+    values.sort((a, b) => a - b); // Ordena os valores numericamente
+
+    const labels = [];
+    const numLabels = 5; // Ajuste conforme necessário
+
+    for (let i = 0; i < numLabels; i++) {
+      const percentile = i / (numLabels - 1);
+      const index = Math.floor(percentile * (values.length - 1));
+      const value = values[index];
+      const formattedValue = value.toLocaleString('en-US', {
+        maximumFractionDigits: 2,
+        notation: 'compact',
+        compactDisplay: 'short',
+      });
+
+      labels.push(formattedValue);
+    }
+
+    console.log('labels =====>', labels);
+
+    return labels;
+  }
+
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -355,27 +382,25 @@ export function Accounts({ navigation }: any) {
 
       <ChartContainer>
         <LineChart
+          key={totalsByMonths.length}
           data={totalsByMonths.map((item) => {
             return { value: item.total };
           })}
           xAxisLabelTexts={totalsByMonths.map((item) => {
             return item.date;
           })}
-          yAxisLabelTexts={totalsByMonths.map((item) => {
-            return item.total.toLocaleString('en-US', {
-              maximumFractionDigits: 2,
-              notation: 'compact',
-              compactDisplay: 'short',
-            });
-          })}
-          height={128}
+          yAxisLabelTexts={generateYAxisLabels(totalsByMonths)}
           width={GRAPH_WIDTH}
+          height={128}
+          noOfSections={5}
+          mostNegativeValue={0}
           xAxisColor='#455A64'
           yAxisColor='#455A64'
           areaChart
           curved
           showVerticalLines
           verticalLinesUptoDataPoint
+          spacing3={100}
           initialSpacing={8}
           endSpacing={8}
           focusEnabled
@@ -386,7 +411,7 @@ export function Accounts({ navigation }: any) {
           xAxisLabelTextStyle={{
             fontSize: 10,
             color: '#90A4AE',
-            paddingRight: 10,
+            paddingRight: 12,
           }}
           yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
           rulesColor='#455A64'
@@ -398,6 +423,8 @@ export function Accounts({ navigation }: any) {
           endOpacity={0.1}
           isAnimated
           animationDuration={5000}
+          animateOnDataChange
+          scrollToEnd
         />
       </ChartContainer>
 
