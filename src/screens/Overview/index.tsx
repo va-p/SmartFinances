@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Dimensions, Text } from 'react-native';
 import {
   Container,
@@ -18,14 +18,6 @@ import { convertCurrency } from '@utils/convertCurrency';
 import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
 import {
-  format,
-  parse,
-  subMonths,
-  addMonths,
-  subYears,
-  addYears,
-} from 'date-fns';
-import {
   VictoryAxis,
   VictoryBar,
   VictoryChart,
@@ -34,6 +26,7 @@ import {
 } from 'victory-native';
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
+import { format, parse } from 'date-fns';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -58,26 +51,22 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HORIZONTAL_PADDING = 32;
-const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
+const SCREEN_HORIZONTAL_PADDING = 80;
+const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export enum CustomTab {
   Tab1,
   Tab2,
 }
 
-interface MonthlyTotal {
-  date: string;
-  total: Decimal;
-}
-
 interface CashFLow {
   date: string;
-  totalRevenuesByPeriod: Decimal;
-  totalExpensesByPeriod: Decimal;
-  total?: Decimal;
+  totalRevenuesByPeriod: number;
+  totalExpensesByPeriod: number;
+  total?: number;
 }
 
 interface CategoryData extends CategoryProps {
@@ -128,13 +117,6 @@ export function Overview({ navigation }: any) {
       total: 0,
     },
   ]);
-  const [currentCashFlowBySelectedPeriod, setCurrentCashFlowBySelectedPeriod] =
-    useState<CashFLow>({
-      date: String(new Date()),
-      totalRevenuesByPeriod: new Decimal(0),
-      totalExpensesByPeriod: new Decimal(0),
-      total: new Decimal(0),
-    });
 
   const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<
     CategoryData[]
@@ -142,52 +124,6 @@ export function Overview({ navigation }: any) {
   const [totalRevenuesByCategories, setTotalRevenuesByCategories] = useState<
     CategoryData[]
   >([]);
-
-  const cashFlowSectionButtons: TabButtonType[] = [
-    {
-      title: total,
-      description: 'Patrimônio Total',
-    },
-    {
-      title: formatCurrency(
-        'BRL',
-        Number(currentCashFlowBySelectedPeriod.total),
-        false,
-        true
-      ),
-
-      description: 'Fluxo de Caixa atual',
-    },
-  ];
-  const categoriesSectionButtons: TabButtonType[] = [
-    {
-      title: calculateExpensesAndRevenuesByCategory('Despesas'),
-      description: 'Despesas',
-    },
-    {
-      title: calculateExpensesAndRevenuesByCategory('Receitas'),
-      description: 'Receitas',
-    },
-  ];
-
-  function calculateExpensesAndRevenuesByCategory(
-    type: 'Despesas' | 'Receitas'
-  ) {
-    let categorySum = 0;
-    if (type === 'Despesas') {
-      for (const categoryData of totalExpensesByCategories) {
-        categorySum += categoryData.total * -1;
-      }
-    }
-
-    if (type === 'Receitas') {
-      for (const categoryData of totalRevenuesByCategories) {
-        categorySum += categoryData.total;
-      }
-    }
-    // return categorySum.toString();
-    return formatCurrency('BRL', categorySum, false, true);
-  }
 
   async function calculateTotalAssets() {
     const accountsData = await getAccounts(userID);
@@ -228,57 +164,7 @@ export function Overview({ navigation }: any) {
     }
   }
 
-  async function calculateCurrentCashFlow(transactions: TransactionProps[]) {
-    let currentCashFlow: CashFLow = {
-      date: format(selectedPeriod, 'MMMM/yyyy', { locale: ptBR }),
-      totalRevenuesByPeriod: new Decimal(0),
-      totalExpensesByPeriod: new Decimal(0),
-    };
-
-    for (const transaction of transactions) {
-      if (
-        transaction.type === 'TRANSFER_CREDIT' ||
-        transaction.type === 'TRANSFER_DEBIT'
-      ) {
-        continue;
-      }
-
-      // Credit card
-      if (
-        transaction.account.type === 'CREDIT' &&
-        transaction.type === 'CREDIT'
-      ) {
-        currentCashFlow.totalRevenuesByPeriod.minus(transaction.amount); // Lógica invertida para Cartão de Crédito
-      }
-      if (
-        transaction.account.type === 'CREDIT' &&
-        transaction.type === 'DEBIT'
-      ) {
-        currentCashFlow.totalExpensesByPeriod.plus(transaction.amount); // Lógica invertida para Cartão de Crédito
-      }
-
-      // Other account types
-      if (
-        transaction.account.type !== 'CREDIT' &&
-        transaction.type === 'CREDIT'
-      ) {
-        currentCashFlow.totalRevenuesByPeriod.plus(transaction.amount);
-      }
-      if (
-        transaction.account.type !== 'CREDIT' &&
-        transaction.type === 'DEBIT'
-      ) {
-        currentCashFlow.totalExpensesByPeriod.minus(transaction.amount);
-      }
-    }
-
-    setCurrentCashFlowBySelectedPeriod(currentCashFlow);
-  }
-
   function calculatePatrimonialEvolution(transactions: TransactionProps[]) {
-    let patrimonialEvolution: { date: string; total: Decimal }[] = [];
-    let accumulatedTotal = new Decimal(0);
-
     if (chartPeriodSelected.period === 'all') {
       let allHistoryCashFlow: CashFLowData = {
         date: 'Todo o \n histórico',
@@ -315,20 +201,16 @@ export function Overview({ navigation }: any) {
         }
 
         allHistoryTotal = allHistoryTotal.plus(transactionValue);
-
-        // break;
       }
 
-      patrimonialEvolution.push({
-        date: 'Todo o \n histórico',
-        total: allHistoryTotal,
-      });
+      setPatrimonialEvolutionBySelectedPeriod([allHistoryCashFlow]);
     }
 
     /**
      * Totals Grouped By Months - Start
      */
-    let totalsByMonths: { [ym: string]: MonthlyTotal } = {};
+    let totalsByMonths: any = {};
+    let accumulatedTotal = new Decimal(0);
 
     for (const transaction of transactions) {
       if (new Date(transaction.created_at) <= new Date()) {
@@ -345,9 +227,8 @@ export function Overview({ navigation }: any) {
 
         const transactionAmountBRL = transaction.amount_in_account_currency
           ? transaction.amount_in_account_currency
-          : transaction.amount;
+          : transaction.amount; // TODO: Considerar outrar moedas
 
-        // Desconsidera transferências
         if (
           transaction.type === 'TRANSFER_CREDIT' ||
           transaction.type === 'TRANSFER_DEBIT'
@@ -355,32 +236,12 @@ export function Overview({ navigation }: any) {
           continue;
         }
 
-        // Credit card
-        if (
-          transaction.account.type === 'CREDIT' &&
-          transaction.type === 'CREDIT'
-        ) {
-          totalsByMonths[ym].total.minus(transaction.amount); // Lógica invertida para Cartão de Crédito
-        }
-        if (
-          transaction.account.type === 'CREDIT' &&
-          transaction.type === 'DEBIT'
-        ) {
-          totalsByMonths[ym].total.plus(transaction.amount); // Lógica invertida para Cartão de Crédito
-        }
-
-        // Other account types
-        if (
-          transaction.account.type !== 'CREDIT' &&
-          transaction.type === 'CREDIT'
-        ) {
-          totalsByMonths[ym].total.plus(transaction.amount);
-        }
-        if (
-          transaction.account.type !== 'CREDIT' &&
-          transaction.type === 'DEBIT'
-        ) {
-          totalsByMonths[ym].total.minus(transaction.amount);
+        if (transaction.account.type === 'CREDIT') {
+          totalsByMonths[ym].total =
+            totalsByMonths[ym].total.minus(transactionAmountBRL); // Credit card - less
+        } else {
+          totalsByMonths[ym].total =
+            totalsByMonths[ym].total.plus(transactionAmountBRL); // Others accounts - more
         }
       }
     }
@@ -390,7 +251,7 @@ export function Overview({ navigation }: any) {
         parse(a, 'yyyy-MM', new Date()).getTime() -
         parse(b, 'yyyy-MM', new Date()).getTime()
     );
-    const patrimonialEvolutionByMonths = sortedMonths.map((monthYear) => {
+    const formattedTotalByMonths = sortedMonths.map((monthYear) => {
       accumulatedTotal = accumulatedTotal.plus(totalsByMonths[monthYear].total);
 
       return {
@@ -400,11 +261,11 @@ export function Overview({ navigation }: any) {
           { locale: ptBR }
         ),
 
-        total: accumulatedTotal.toNumber(), // Salva o total acumulado
+        total: accumulatedTotal.toNumber(),
       };
     });
 
-    setPatrimonialEvolutionBySelectedPeriod(patrimonialEvolutionByMonths);
+    setPatrimonialEvolutionBySelectedPeriod(formattedTotalByMonths);
     /**
      * Totals Grouped By Months - End
      */
@@ -445,6 +306,18 @@ export function Overview({ navigation }: any) {
     const totalsByCategory: CategoryData[] = [];
     let totalAmountByMonth = new Decimal(0);
 
+    for (const transaction of transactions) {
+      if (transaction.type !== transactionType) {
+        continue;
+      }
+
+      const transactionAmountBRL = new Decimal(
+        transaction.amount_in_account_currency || transaction.amount
+      ); // TODO: Considerar contas de outras moedas!!!
+
+      totalAmountByMonth = totalAmountByMonth.plus(transactionAmountBRL.abs());
+    }
+
     for (const category of categories) {
       let categorySum = new Decimal(0);
 
@@ -453,7 +326,7 @@ export function Overview({ navigation }: any) {
           transaction.category.id !== category.id ||
           transaction.type !== transactionType
         ) {
-          continue; // Skip transactions of others categories and types
+          continue;
         }
 
         const transactionAmountBRL = new Decimal(
@@ -461,13 +334,11 @@ export function Overview({ navigation }: any) {
         ); // TODO: Considerar contas de outras moedas!!!
 
         if (transaction.account.type === 'CREDIT') {
-          categorySum = categorySum.minus(transactionAmountBRL); // Cartão de crédito - subtrai
+          categorySum = categorySum.minus(transactionAmountBRL); // Cartão de crédito - less
         } else {
-          categorySum = categorySum.plus(transactionAmountBRL); // Outras contas - soma
+          categorySum = categorySum.plus(transactionAmountBRL); // Outras contas - more
         }
       }
-
-      console.log('categorySum ====>', categorySum);
 
       if (!categorySum.isZero()) {
         const percent = `${(
@@ -491,8 +362,6 @@ export function Overview({ navigation }: any) {
       }
     }
 
-    console.log('totalsByCategory ====>', totalsByCategory);
-
     return totalsByCategory;
   }
 
@@ -500,27 +369,25 @@ export function Overview({ navigation }: any) {
     transactionsData: TransactionProps[]
   ) {
     try {
-      const categories: CategoryProps[] = await fetchCategories(); // Busca as categorias
+      const categories: CategoryProps[] = await fetchCategories();
 
       const transactionsBySelectedMonth = transactionsData.filter(
         filterTransactionsByMonth(selectedPeriod)
       );
 
-      const expensesByCategory = calculateTotalsByCategory(
-        categories,
-        transactionsBySelectedMonth,
-        'DEBIT'
-      );
-      console.log('expensesByCategory ====>', expensesByCategory);
       const revenuesByCategory = calculateTotalsByCategory(
         categories,
         transactionsBySelectedMonth,
         'CREDIT'
       );
-      console.log('revenuesByCategory ====>', revenuesByCategory);
+      const expensesByCategory = calculateTotalsByCategory(
+        categories,
+        transactionsBySelectedMonth,
+        'DEBIT'
+      );
 
-      setTotalExpensesByCategories(expensesByCategory); // Atualiza o estado das despesas
-      setTotalRevenuesByCategories(revenuesByCategory); // Atualiza o estado das receitas
+      setTotalRevenuesByCategories(revenuesByCategory);
+      setTotalExpensesByCategories(expensesByCategory);
 
       return { expensesByCategory, revenuesByCategory };
     } catch (error) {
@@ -530,6 +397,24 @@ export function Overview({ navigation }: any) {
         'Não foi possível buscar as categorias ou calcular os totais.'
       );
     }
+  }
+
+  function calculateExpensesAndRevenuesByCategory(
+    type: 'Despesas' | 'Receitas'
+  ) {
+    let categorySum = 0;
+    if (type === 'Despesas') {
+      for (const categoryData of totalExpensesByCategories) {
+        categorySum -= categoryData.total;
+      }
+    }
+
+    if (type === 'Receitas') {
+      for (const categoryData of totalRevenuesByCategories) {
+        categorySum -= categoryData.total;
+      }
+    }
+    return categorySum;
   }
 
   async function fetchDataForCharts() {
@@ -543,7 +428,7 @@ export function Overview({ navigation }: any) {
       // 2. Valores para o gráfico de evolução patrimonial - OK
       calculatePatrimonialEvolution(data);
 
-      //3. Dados para o gráfico de despesas por categoria - NOok
+      //3. Dados para os gráficos de despesas e receitas por categoria - NOok
       await calculateTransactionsByCategories(data);
     } catch (error) {
       console.error('fetchDataForCharts =>', error);
@@ -551,31 +436,6 @@ export function Overview({ navigation }: any) {
       throw error;
     } finally {
       setLoading(false);
-    }
-  }
-
-  function handleDateChange(action: 'prev' | 'next'): void {
-    switch (chartPeriodSelected.period) {
-      case 'months':
-        switch (action) {
-          case 'prev':
-            setSelectedPeriod(subMonths(selectedPeriod, 1));
-            break;
-          case 'next':
-            setSelectedPeriod(addMonths(selectedPeriod, 1));
-            break;
-        }
-        break;
-      case 'years':
-        switch (action) {
-          case 'prev':
-            setSelectedPeriod(subYears(selectedPeriod, 1));
-            break;
-          case 'next':
-            setSelectedPeriod(addYears(selectedPeriod, 1));
-            break;
-        }
-        break;
     }
   }
 
@@ -591,44 +451,64 @@ export function Overview({ navigation }: any) {
     navigation.navigate('Transações Por Categoria', { id });
   }
 
-  // function generateYAxisLabels(data: any[]) {
-  //   if (data.length === 0) return [];
+  useFocusEffect(
+    useCallback(() => {
+      fetchDataForCharts();
+    }, [selectedPeriod, chartPeriodSelected.period])
+  );
 
-  //   const values = data.map((item) => item.total);
-  //   values.sort((a, b) => a - b);
+  const curRevenues = calculateExpensesAndRevenuesByCategory('Receitas');
+  const curExpenses = calculateExpensesAndRevenuesByCategory('Despesas') * -1;
+  const cashFlow = {
+    date: format(selectedPeriod, 'MMMM/yyyy', { locale: ptBR }),
+    totalRevenuesByPeriod: curRevenues,
+    totalExpensesByPeriod: curExpenses,
+    total: curRevenues - curExpenses,
+  };
 
-  //   const labels = [];
-  //   const numLabels = 5;
+  const cashFlowSectionButtons: TabButtonType[] = [
+    {
+      title: total,
+      description: 'Patrimônio Total',
+    },
+    {
+      title: formatCurrency('BRL', Number(cashFlow.total), false, true),
 
-  //   for (let i = 0; i < numLabels; i++) {
-  //     const percentile = i / (numLabels - 1);
-  //     const index = Math.floor(percentile * (values.length - 1));
-  //     const value = values[index];
-  //     const formattedValue = value.toLocaleString('en-US', {
-  //       maximumFractionDigits: 2,
-  //       notation: 'compact',
-  //       compactDisplay: 'short',
-  //     });
-
-  //     labels.push(formattedValue);
-  //   }
-
-  //   return labels;
-  // }
-
-  useEffect(() => {
-    fetchDataForCharts();
-  }, [
-    selectedPeriod,
-    chartPeriodSelected.period,
-    selectedTabCashFlowSection,
-    selectedTabCategoriesSection,
-  ]);
+      description: 'Fluxo de Caixa atual',
+    },
+  ];
+  const categoriesSectionButtons: TabButtonType[] = [
+    {
+      title: formatCurrency(
+        'BRL',
+        calculateExpensesAndRevenuesByCategory('Despesas'),
+        false,
+        true
+      ),
+      description: 'Despesas',
+    },
+    {
+      title: formatCurrency(
+        'BRL',
+        calculateExpensesAndRevenuesByCategory('Receitas'),
+        false,
+        true
+      ),
+      description: 'Receitas',
+    },
+  ];
 
   if (loading) {
     return (
       <Container>
-        <Text style={{ color: theme.colors.text }}>Carregando...</Text>
+        <Text
+          style={{
+            textAlign: 'center',
+            color: theme.colors.text,
+          }}
+        >
+          Carregando...
+        </Text>
       </Container>
     );
   }
@@ -681,8 +561,8 @@ export function Overview({ navigation }: any) {
               curved
               showVerticalLines
               verticalLinesUptoDataPoint
-              initialSpacing={16}
-              endSpacing={0}
+              initialSpacing={8}
+              endSpacing={8}
               focusEnabled
               showStripOnFocus
               showValuesAsDataPointsText
@@ -691,7 +571,7 @@ export function Overview({ navigation }: any) {
               xAxisLabelTextStyle={{
                 fontSize: 10,
                 color: '#90A4AE',
-                paddingRight: 10,
+                paddingRight: 12,
               }}
               yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
               rulesColor='#455A64'
@@ -730,7 +610,7 @@ export function Overview({ navigation }: any) {
               <VictoryAxis tickFormat={(tick) => tick} />
               <VictoryGroup offset={16}>
                 <VictoryBar
-                  data={[currentCashFlowBySelectedPeriod]}
+                  data={[cashFlow]}
                   x='date'
                   y='totalRevenuesByPeriod'
                   sortKey='x'
@@ -749,7 +629,7 @@ export function Overview({ navigation }: any) {
                   }}
                 />
                 <VictoryBar
-                  data={[currentCashFlowBySelectedPeriod]}
+                  data={[cashFlow]}
                   x='date'
                   y='totalExpensesByPeriod'
                   sortOrder='descending'
@@ -790,7 +670,7 @@ export function Overview({ navigation }: any) {
               x='percent'
               y='total'
               width={384}
-              innerRadius={80}
+              innerRadius={60}
               labelRadius={150}
               animate={{
                 duration: 2000,
@@ -832,7 +712,7 @@ export function Overview({ navigation }: any) {
               x='percent'
               y='total'
               width={384}
-              innerRadius={80}
+              innerRadius={60}
               labelRadius={150}
               animate={{
                 duration: 2000,

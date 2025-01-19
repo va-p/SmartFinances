@@ -182,10 +182,10 @@ export function Accounts({ navigation }: any) {
 
               if (transaction.account.type === 'CREDIT') {
                 totalsByMonths[ym].total =
-                  totalsByMonths[ym].total.minus(transactionAmountBRL); // Cartão de crédito - subtrai
+                  totalsByMonths[ym].total.minus(transactionAmountBRL); // Credit card - subtrai
               } else {
                 totalsByMonths[ym].total =
-                  totalsByMonths[ym].total.plus(transactionAmountBRL); // Outras contas - soma
+                  totalsByMonths[ym].total.plus(transactionAmountBRL); // Others accounts - soma
               }
             }
           }
@@ -207,7 +207,7 @@ export function Accounts({ navigation }: any) {
                 { locale: ptBR }
               ),
 
-              total: accumulatedTotal.toNumber(), // Salva o total acumulado
+              total: accumulatedTotal.toNumber(),
             };
           });
 
@@ -328,33 +328,6 @@ export function Accounts({ navigation }: any) {
     );
   }
 
-  function generateYAxisLabels(data: TotalByMonths[]) {
-    if (data.length === 0) return []; // Trata o caso de array vazio
-
-    const values = data.map((item) => item.total);
-    values.sort((a, b) => a - b); // Ordena os valores numericamente
-
-    const labels = [];
-    const numLabels = 5; // Ajuste conforme necessário
-
-    for (let i = 0; i < numLabels; i++) {
-      const percentile = i / (numLabels - 1);
-      const index = Math.floor(percentile * (values.length - 1));
-      const value = values[index];
-      const formattedValue = value.toLocaleString('en-US', {
-        maximumFractionDigits: 2,
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
-
-      labels.push(formattedValue);
-    }
-
-    console.log('labels =====>', labels);
-
-    return labels;
-  }
-
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -400,7 +373,6 @@ export function Accounts({ navigation }: any) {
           curved
           showVerticalLines
           verticalLinesUptoDataPoint
-          spacing3={100}
           initialSpacing={8}
           endSpacing={8}
           focusEnabled

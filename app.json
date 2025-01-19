@@ -3,7 +3,7 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "runtimeVersion": "2.5.0(39)",
-    "version": "2.5.0",
+    "version": "2.5.1",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 38,
+      "versionCode": 39,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -32,8 +32,8 @@
           "data": [
             {
               "scheme": "https",
-              "host": "smartfinances.com.br", // Seu domínio
-              "pathPrefix": "/oauth-native-callback" // Path para o Clerk redirecionar
+              "host": "smartfinances.com.br",
+              "pathPrefix": "/oauth-native-callback"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
