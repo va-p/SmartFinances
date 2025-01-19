@@ -67,9 +67,16 @@ export function Tags() {
   }
 
   function handleCloseEditTag() {
-    setTagId('');
-    fetchTags();
-    bottomSheetRef.current?.dismiss();
+    try {
+      setLoading(true);
+
+      setTagId('');
+      fetchTags();
+      bottomSheetRef.current?.dismiss();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDeleteTag(id: string) {
@@ -80,7 +87,7 @@ export function Tags() {
         },
       });
       Alert.alert('Exclusão de etiqueta', 'Etiqueta excluída com sucesso!');
-      handleCloseRegisterTagModal();
+      handleCloseEditTag();
     } catch (error) {
       if (axios.isAxiosError(error)) {
         Alert.alert('Exclusão de etiqueta', error.response?.data.message, [

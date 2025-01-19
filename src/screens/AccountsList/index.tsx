@@ -48,9 +48,6 @@ export function AccountsList() {
   const setAccountInitialAmount = useCurrentAccountSelected(
     (state) => state.setAccountInitialAmount
   );
-  const setAccountTotalAmount = useCurrentAccountSelected(
-    (state) => state.setAccountTotalAmount
-  );
   const navigation = useNavigation();
 
   async function fetchAccounts() {
@@ -67,7 +64,7 @@ export function AccountsList() {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Contas', error.response?.data.message, [
+      Alert.alert('Contas', error?.response?.data.message, [
         { text: 'Tentar novamente' },
         {
           text: 'Voltar para tela anterior',
@@ -105,9 +102,16 @@ export function AccountsList() {
   }
 
   function handleCloseEditAccount() {
-    setAccountId('');
-    fetchAccounts();
-    editAccountBottomSheetRef.current?.dismiss();
+    try {
+      setLoading(true);
+
+      setAccountId('');
+      fetchAccounts();
+      editAccountBottomSheetRef.current?.dismiss();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDeleteAccount(id: string | null) {
@@ -119,6 +123,7 @@ export function AccountsList() {
       });
       if (status === 200) {
         Alert.alert('Exclusão de Conta', 'Conta excluída com sucesso!');
+        handleCloseEditAccount();
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

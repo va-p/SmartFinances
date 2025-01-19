@@ -4,11 +4,10 @@ import {
   BudgetTotal,
   BudgetTotalDescription,
   BudgetTransactions,
-  BudgetTransactionsContainer,
   Container,
 } from './styles';
 
-import { BudgetProps } from '@interfaces/budget';
+import formatCurrency from '@utils/formatCurrency';
 
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
@@ -24,23 +23,18 @@ import {
 import { Header } from '@components/Header';
 import { ModalView } from '@components/ModalView';
 import { InsightCard } from '@components/InsightCard';
+import { SectionTitle } from '@screens/Overview/styles';
 import { BudgetPercentBar } from '@components/BudgetPercentBar';
+import TransactionListItem from '@components/TransactionListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
-import api from '@api/api';
-
-import formatCurrency from '@utils/formatCurrency';
-import TransactionListItem from '@components/TransactionListItem';
-import { TransactionProps } from '@interfaces/transactions';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { useUserConfigs } from '@storage/userConfigsStorage';
-import { SectionTitle } from '@screens/Overview/styles';
 
-type ItemList = {
-  item: TransactionProps;
-  index: number;
-};
+import { BudgetProps } from '@interfaces/budget';
+
+import api from '@api/api';
 
 export function BudgetDetails() {
   const route = useRoute();

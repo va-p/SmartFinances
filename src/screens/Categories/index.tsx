@@ -67,10 +67,17 @@ export function Categories() {
     bottomSheetRef.current?.present();
   }
 
-  function handleCloseEditCategory() {
-    setCategoryId('');
-    fetchCategories();
-    bottomSheetRef.current?.dismiss();
+  function handleCloseCategory() {
+    try {
+      setLoading(true);
+
+      setCategoryId('');
+      fetchCategories();
+      bottomSheetRef.current?.dismiss();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDeleteCategory(id: string) {
@@ -81,14 +88,14 @@ export function Categories() {
         },
       });
       Alert.alert('Exclusão de categoria', 'Categoria excluída com sucesso!');
-      handleCloseRegisterCategoryModal();
+      handleCloseCategory();
     } catch (error) {
       if (axios.isAxiosError(error)) {
         Alert.alert('Exclusão de categoria', error.response?.data?.message, [
           { text: 'Tentar novamente' },
           {
             text: 'Voltar para a tela anterior',
-            onPress: handleCloseRegisterCategoryModal,
+            onPress: handleCloseCategory,
           },
         ]);
       }
@@ -158,17 +165,10 @@ export function Categories() {
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
         snapPoints={['100%']}
-        closeModal={
-          categoryId !== ''
-            ? handleCloseRegisterCategoryModal
-            : () => bottomSheetRef.current?.dismiss()
-        }
+        closeModal={handleCloseRegisterCategoryModal}
         deleteChildren={handleClickDeleteCategory}
       >
-        <RegisterCategory
-          id={categoryId}
-          closeCategory={handleCloseEditCategory}
-        />
+        <RegisterCategory id={categoryId} closeCategory={handleCloseCategory} />
       </ModalView>
     </Container>
   );

@@ -254,6 +254,7 @@ export function RegisterTransaction({
     });
     setTagsSelected([]);
     closeRegisterTransaction();
+    setButtonIsLoading(false);
   }
 
   function handleSelectTag(tag: TagProps) {
