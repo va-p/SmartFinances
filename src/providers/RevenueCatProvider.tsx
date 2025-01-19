@@ -48,10 +48,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
       if (offerings.current) {
         setPackages(offerings.current.availablePackages);
-        // console.log(
-        //   'OFERTAS CARREGADAS: ',
-        //   offerings.current.availablePackages
-        // );
+        // console.log('Loaded offers =>', offerings.current.availablePackages);
       }
     } catch (error) {
       console.error('RevenueCatProvider loadOfferings error =>', error);
@@ -97,7 +94,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
   async function updateCustomerInfo(customerInfo: CustomerInfo) {
     const newUser: UserProps = { items: [], premium: false };
-    //console.log('INFOR DO USER: ', customerInfo?.entitlements.active)
+    // console.log('User info =>', customerInfo?.entitlements.active);
 
     if (customerInfo?.entitlements.active.pro !== undefined) {
       newUser.items.push(customerInfo?.entitlements.active.pro.identifier);
@@ -110,7 +107,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
   async function purchasePackage(pack: PurchasesPackage) {
     try {
       await Purchases.purchasePackage(pack);
-      // console.log('PACKAGE PARA COMPRA: ', pack);
+      // console.log('Package to purchase =>', pack);
 
       if (pack.product.identifier === 'pro') {
         setUser({ ...user });
@@ -124,7 +121,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
   async function restorePurchasesUser() {
     const customer = await Purchases.restorePurchases();
-    // console.log('RESTORE PURCHASES: ', customer);
+    // console.log('Restore purchases =>', customer);
     return customer;
   }
 

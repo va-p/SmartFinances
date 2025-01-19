@@ -32,5 +32,4 @@ type RootParamList = {
   Assinatura: SubscriptionNavigationProps;
   Categorias: undefined;
   Etiquetas: undefined;
-  'Central de Ajuda': undefined;
 };
