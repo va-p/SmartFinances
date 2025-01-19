@@ -17,6 +17,7 @@ import getAccounts from '@utils/getAccounts';
 import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
 import { convertCurrency } from '@utils/convertCurrency';
+import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
@@ -48,7 +49,6 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import { TransactionProps } from '@interfaces/transactions';
 
 export type TotalByMonths = {
   date: string;
@@ -389,7 +389,7 @@ export function Accounts({ navigation }: any) {
           xAxisLabelTexts={totalsByMonths.map((item) => {
             return item.date;
           })}
-          yAxisLabelTexts={generateYAxisLabels(totalsByMonths)}
+          yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(totalsByMonths)}
           width={GRAPH_WIDTH}
           height={128}
           noOfSections={5}

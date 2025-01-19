@@ -19,14 +19,14 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 
 import { CurrencySelect } from '@screens/CurrencySelect';
 
-import { CurrencyProps } from '@interfaces/currencies';
-
 import { useUser } from 'src/storage/userStorage';
 
-import theme from '@themes/theme';
+import { CurrencyProps } from '@interfaces/currencies';
+import { AccountTypes } from '@interfaces/accounts';
 
 import api from '@api/api';
-import { AccountTypes } from '@interfaces/accounts';
+
+import theme from '@themes/theme';
 
 type FormData = {
   name: string;
