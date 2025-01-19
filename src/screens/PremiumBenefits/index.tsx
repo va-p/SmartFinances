@@ -1,108 +1,160 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { ScrollView } from 'react-native';
 import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-} from 'react-native';
-import { Container } from './styles';
+  Advice,
+  Container,
+  Description,
+  PremiumBenefit,
+  PremiumBenefitDescription,
+  PremiumBenefitIcon,
+  PremiumBenefitsContainer,
+  Title,
+} from './styles';
+
+import formatDatePtBr from '@utils/formatDatePtBr';
 
 import { Header } from '@components/Header';
-import { Button } from '@components/Button';
+import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
+import { addDays } from 'date-fns';
+import * as WebBrowser from 'expo-web-browser';
+import { useFocusEffect } from '@react-navigation/native';
 import { PurchasesPackage } from 'react-native-purchases';
-import { useRevenueCat } from 'src/providers/RevenueCatProvider';
 
-import theme from '@themes/theme';
+import { useRevenueCat } from '@providers/RevenueCatProvider';
+
+import { PackageProps } from '@interfaces/premiumPackage';
+
+import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@screens/OptionsMenu';
 
 export function PremiumBenefits() {
-  const { user, packages, purchasePackage, restorePurchasesUser } =
-    useRevenueCat();
-  console.log('user ===>', user);
-  console.log('packages ===>', packages);
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState(
+    formatDatePtBr(new Date()).extensive
+  );
+
+  const { packages, purchasePackage, restorePurchasesUser } = useRevenueCat();
+  // console.log('packages !! =======>', packages);
+
+  // console.log(
+  //   'package[0].product.introPrice =======->',
+  //   packages[0].product.introPrice
+  // );
+  // console.log(
+  //   'package[3].product.introPrice =======->',
+  //   packages[3].product.introPrice
+  // );
 
   async function handlePurchase(pack: PurchasesPackage) {
     await purchasePackage(pack);
   }
 
+  async function handleClickPrivacyPolicy() {
+    await WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
+  }
+
+  async function handleClickTermsOfUse() {
+    await WebBrowser.openBrowserAsync(TERMS_OF_USE_URL);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      function getSubscriptionEndDate() {
+        const subscriptionEndDate = addDays(new Date(), 14);
+        const subscriptionEndDateFormatted =
+          formatDatePtBr(subscriptionEndDate).extensive;
+        setSubscriptionEndDate(subscriptionEndDateFormatted);
+      }
+
+      getSubscriptionEndDate();
+    }, [])
+  );
+
   return (
     <Container>
       <Header.Root>
         <Header.BackButton />
-        <Header.Title title={'Assinatura Premium'} />
+        <Header.Title title={'Escolha seu plano'} />
       </Header.Root>
 
+      <Title>Smart Finances Premium</Title>
+
+      <Description>
+        Comece a economizar seu tempo e dinheiro para o que realmente importa na
+        sua vida!
+      </Description>
+
+      <PremiumBenefitsContainer>
+        <PremiumBenefit>
+          <PremiumBenefitIcon color='green' />
+          <PremiumBenefitDescription>
+            Sincronização de contas bancárias
+          </PremiumBenefitDescription>
+        </PremiumBenefit>
+
+        <PremiumBenefit>
+          <PremiumBenefitIcon />
+          <PremiumBenefitDescription>
+            Sincronização de cartões de crédito
+          </PremiumBenefitDescription>
+        </PremiumBenefit>
+
+        <PremiumBenefit>
+          <PremiumBenefitIcon />
+          <PremiumBenefitDescription>
+            Insights gerados com Inteligência Artificial
+          </PremiumBenefitDescription>
+        </PremiumBenefit>
+
+        <PremiumBenefit>
+          <PremiumBenefitIcon />
+          <PremiumBenefitDescription>
+            Dicas personalizadas
+          </PremiumBenefitDescription>
+        </PremiumBenefit>
+      </PremiumBenefitsContainer>
+
       <ScrollView>
-        {packages.map((pack) => (
-          <TouchableOpacity
-            key={pack.identifier}
-            style={styles.button}
+        {packages.map((pack, idx) => (
+          <PremiumPackageListItem
+            key={idx}
+            data={pack as PackageProps}
             onPress={() => handlePurchase(pack)}
-          >
-            <View style={styles.text}>
-              <Text
-                style={{
-                  color: '#FFFFFF',
-                  fontWeight: 'bold',
-                  fontSize: 14,
-                }}
-              >
-                {pack.product.title}
-              </Text>
-              <Text style={styles.desc}>{pack.product.description}</Text>
-            </View>
-            <View style={styles.price}>
-              <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>
-                {pack.product.priceString}
-              </Text>
-            </View>
-          </TouchableOpacity>
+          />
         ))}
 
-        <Button.Root onPress={async () => await restorePurchasesUser()}>
-          <Button.Text text='Restaurar compra' />
-        </Button.Root>
+        <Advice>
+          Você pode cancelar sua assinatura a qualquer momento durante o período
+          de testes. O período de testes expirará em {subscriptionEndDate}.
+        </Advice>
+
+        <Advice>
+          Já assinou o Smart Finances?{' '}
+          <Advice
+            style={{ textDecorationLine: 'underline' }}
+            onPress={async () => await restorePurchasesUser()}
+          >
+            Restaurar assinatura
+          </Advice>
+          .
+        </Advice>
+
+        <Advice>
+          Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
+          <Advice
+            style={{ textDecorationLine: 'underline' }}
+            onPress={handleClickPrivacyPolicy}
+          >
+            Política de Privacidade
+          </Advice>{' '}
+          e nossos{' '}
+          <Advice
+            style={{ textDecorationLine: 'underline' }}
+            onPress={handleClickTermsOfUse}
+          >
+            Termos de Uso.
+          </Advice>
+        </Advice>
       </ScrollView>
     </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    margin: 8,
-    gap: 8,
-  },
-  title: {
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  text: {
-    flexGrow: 1,
-  },
-  desc: {
-    color: '#FFFFFF',
-    paddingVertical: 4,
-    fontSize: 12,
-  },
-  button: {
-    width: '100%',
-    flexDirection: 'row',
-    padding: 12,
-    paddingTop: 34,
-    paddingBottom: 34,
-    marginBottom: 8,
-    borderRadius: 4,
-    backgroundColor: theme.colors.shape,
-  },
-  price: {
-    borderWidth: 1,
-    borderRadius: 4,
-    backgroundColor: theme.colors.success_light,
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-});

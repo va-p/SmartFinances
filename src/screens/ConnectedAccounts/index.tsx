@@ -19,22 +19,32 @@ import theme from '@themes/theme';
 
 interface Connection {
   item: {
+    id: string; // "57063906-888f-4cfb-b437-169728a9d769" - O ID da integração (conector) no puggly (hash);
     connector: {
-      id: number; // 201 - ID da instituição financeira
-      imageUrl: string; // "https://cdn.pluggy.ai/assets/connector-icons/201.svg",
-      name: string; // "Itaú" - Nome da instituição financeira
+      id: number; // 201 - ID da instituição financeira;
+      imageUrl: string; // "https://cdn.pluggy.ai/assets/connector-icons/201.svg" - Imagem da inst. fin.;
+      name: string; // "Itaú" - Nome da instituição financeira;
     };
-    executionStatus: string; // "SUCCESS",
-    id: string; // "57063906-888f-4cfb-b437-169728a9d769" - O ID da integração no puggly (hash)
-    status: string; // 'UPDATED';
+    status: string; // 'UPDATED' - O status desta integração (conector) na Pluggy;
+    executionStatus: string; // "SUCCESS" - O status da execução desta integração (conector) na Pluggy;
   };
 }
+
+type HealthTypes = 'ONLINE' | 'UNSTABLE' | 'OFFLINE';
+
+type StatusTypes =
+  | 'UPDATING'
+  | 'LOGIN_ERROR'
+  | 'OUTDATED'
+  | 'WAITING_USER_INPUT'
+  | 'UPDATED';
 
 interface BankingIntegration {
   bankName: string;
   connectorId: string;
+  health: HealthTypes;
   lastSyncDate: string | Date;
-  status: string;
+  status: StatusTypes;
 }
 
 export function ConnectedAccounts({ navigation }: any) {
@@ -50,28 +60,6 @@ export function ConnectedAccounts({ navigation }: any) {
 
   const [integrations, setIntegrations] = useState<BankingIntegration[]>([]);
 
-  async function syncAccounts() {
-    try {
-      setLoading(true);
-
-      const resp = await api.get('banking_integration/get_transactions', {
-        params: {
-          user_id: userID,
-        },
-      });
-      // console.log('banking_integration/get_transactions resp ===>', resp);
-    } catch (error) {
-      console.error(`Erro ao sincronizar a conta:`, error);
-      Alert.alert(
-        'Erro',
-        'Não foi possível sincronizar os dados das contas. Por favor, tente novamente.'
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }
-
   async function fetchBankingIntegrations(isRefresh: boolean = false) {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
@@ -85,7 +73,6 @@ export function ConnectedAccounts({ navigation }: any) {
       if (!!response.data && response.data.length > 0) {
         const data = response.data;
         setIntegrations(data);
-        await syncAccounts();
       }
       return;
     } catch (error) {
@@ -105,7 +92,12 @@ export function ConnectedAccounts({ navigation }: any) {
       try {
         setLoading(true);
         const { data } = await api.post(
-          'banking_integration/pluggy_connect_token_create'
+          'banking_integration/pluggy_connect_token_create',
+          {
+            params: {
+              user_id: userID,
+            },
+          }
         );
 
         if (!!data) {
@@ -143,9 +135,11 @@ export function ConnectedAccounts({ navigation }: any) {
           user_id: userID, // ID do usuário do app
           tenant_id: tenantID, // ID do tenant do app
           pluggy_integration_id: itemData.item.id, // O ID da integração no puggly (hash)
-          last_sync_date: new Date(), // Data da sincronização inicial
           connector_id: itemData.item.connector.id, // o ID da Instituição Financeira (conector)
+          last_sync_date: new Date(), // Data da sincronização inicial
           bank_name: itemData.item.connector.name, // O nome da Instituição Financeira (conector)
+          status: itemData.item.status,
+          execution_status: itemData.item.executionStatus,
         }
       );
 
@@ -213,7 +207,7 @@ export function ConnectedAccounts({ navigation }: any) {
       {user.premium && token && showModal && (
         <PluggyConnect
           connectToken={token}
-          includeSandbox={true}
+          includeSandbox={false}
           connectorTypes={[]}
           onClose={handleOnClose}
           onSuccess={handleOnSuccess}
