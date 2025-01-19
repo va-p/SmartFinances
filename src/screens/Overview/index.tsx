@@ -11,9 +11,20 @@ import {
   ChartContainer,
 } from './styles';
 
+import getAccounts from '@utils/getAccounts';
 import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
+import { convertCurrency } from '@utils/convertCurrency';
+import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
+import {
+  format,
+  parse,
+  subMonths,
+  addMonths,
+  subYears,
+  addYears,
+} from 'date-fns';
 import {
   VictoryAxis,
   VictoryBar,
@@ -21,19 +32,10 @@ import {
   VictoryGroup,
   VictoryPie,
 } from 'victory-native';
+import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import {
-  format,
-  parse,
-  parseISO,
-  getMonth,
-  subMonths,
-  addMonths,
-  subYears,
-  addYears,
-} from 'date-fns';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 import { Header } from '@components/Header';
@@ -43,47 +45,45 @@ import { TabButtons, TabButtonType } from '@components/TabButtons';
 import { ModalViewSelection } from '@components/ModalViewSelection';
 
 import { CashFLowData } from '@screens/Home';
-import { TotalByMonths } from '@screens/Accounts';
 import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
 
+import { AccountProps } from '@interfaces/accounts';
+import { CategoryProps } from '@interfaces/categories';
+import { TransactionProps } from '@interfaces/transactions';
+
+import api from '@api/api';
+
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
-import { TransactionProps } from '@interfaces/transactions';
-import { CategoryProps, ColorProps, IconProps } from '@interfaces/categories';
-
-import api from '@api/api';
-import Decimal from 'decimal.js';
-import getAccounts from '@utils/getAccounts';
-import { AccountProps } from '@interfaces/accounts';
-import { convertCurrency } from '@utils/convertCurrency';
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HORIZONTAL_PADDING = 32;
+const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
 
 export enum CustomTab {
   Tab1,
   Tab2,
 }
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HORIZONTAL_PADDING = 32;
-const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING * 2;
-
-interface CategoryData {
-  id: string;
-  name: string;
-  icon: IconProps;
-  color: ColorProps;
-  tenant_id: string;
-  total: number;
-  totalFormatted: string;
-  percent: string;
-}
-
 interface MonthlyTotal {
   date: string;
   total: Decimal;
+}
+
+interface CashFLow {
+  date: string;
+  totalRevenuesByPeriod: Decimal;
+  totalExpensesByPeriod: Decimal;
+  total?: Decimal;
+}
+
+interface CategoryData extends CategoryProps {
+  total: number;
+  totalFormatted: string;
+  percent: string;
 }
 
 export function Overview({ navigation }: any) {
@@ -117,8 +117,7 @@ export function Overview({ navigation }: any) {
     name: 'Meses',
     period: 'months',
   });
-  const [totalRevenues, setTotalRevenues] = useState('R$ 0,00');
-  const [totalExpenses, setTotalExpenses] = useState('R$ 0,00');
+
   const [total, setTotal] = useState('R$ 0,00');
   const [
     patrimonialEvolutionBySelectedPeriod,
@@ -130,9 +129,11 @@ export function Overview({ navigation }: any) {
     },
   ]);
   const [currentCashFlowBySelectedPeriod, setCurrentCashFlowBySelectedPeriod] =
-    useState({
+    useState<CashFLow>({
       date: String(new Date()),
-      total: 'R$ 0,00',
+      totalRevenuesByPeriod: new Decimal(0),
+      totalExpensesByPeriod: new Decimal(0),
+      total: new Decimal(0),
     });
 
   const [totalExpensesByCategories, setTotalExpensesByCategories] = useState<
@@ -142,142 +143,50 @@ export function Overview({ navigation }: any) {
     CategoryData[]
   >([]);
 
-  const CashFlowSectionButtons: TabButtonType[] = [
+  const cashFlowSectionButtons: TabButtonType[] = [
     {
       title: total,
       description: 'Patrimônio Total',
     },
     {
-      title: currentCashFlowBySelectedPeriod.total
-        ? currentCashFlowBySelectedPeriod.total
-        : 'R$ 0,00',
+      title: formatCurrency(
+        'BRL',
+        Number(currentCashFlowBySelectedPeriod.total),
+        false,
+        true
+      ),
+
       description: 'Fluxo de Caixa atual',
     },
   ];
   const categoriesSectionButtons: TabButtonType[] = [
     {
-      title: totalExpenses,
+      title: calculateExpensesAndRevenuesByCategory('Despesas'),
       description: 'Despesas',
     },
     {
-      title: totalRevenues,
+      title: calculateExpensesAndRevenuesByCategory('Receitas'),
       description: 'Receitas',
     },
   ];
 
-  async function fetchCategories(tenantID: string): Promise<CategoryProps[]> {
-    try {
-      const { data } = await api.get('category', {
-        params: {
-          tenant_id: tenantID,
-        },
-      });
-      return data || [];
-    } catch (error) {
-      console.error('Erro ao buscar categorias:', error);
-      return [];
-    }
-  }
-
-  function filterTransactionsByMonth(selectedPeriod: Date) {
-    return (transaction: TransactionProps) =>
-      new Date(transaction.created_at).getMonth() ===
-        selectedPeriod.getMonth() &&
-      new Date(transaction.created_at).getFullYear() ===
-        selectedPeriod.getFullYear();
-  }
-
-  function calculateTotalsByCategory(
-    categories: CategoryProps[],
-    transactions: TransactionProps[],
-    transactionType: 'DEBIT' | 'CREDIT'
-  ): CategoryData[] {
-    const totalsByCategory: CategoryData[] = [];
-    const totalAmountByMonth = transactions.reduce((sum, transaction) => {
-      if (transaction.type === transactionType) {
-        // Credit card
-        if (transaction.account.type === 'CREDIT') {
-          return (sum -= Number(transaction.amount)); // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
-        }
-        // Other account types
-        else {
-          return (sum += Number(transaction.amount));
-        }
-      }
-      return sum;
-    }, 0);
-
-    categories.forEach((category) => {
-      const categoryTransactions = transactions.filter(
-        (transaction) =>
-          transaction.category.id === category.id &&
-          transaction.type === transactionType
-      );
-
-      const categorySum = categoryTransactions.reduce((sum, transaction) => {
-        if (transaction.account.type === 'CREDIT') {
-          return (sum -= Number(transaction.amount)); // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
-        }
-        // Other account types
-        else {
-          return (sum += Number(transaction.amount));
-        }
-      }, 0);
-
-      if (categorySum > 0) {
-        const totalFormatted = categorySum.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        });
-
-        const percent = `${((categorySum / totalAmountByMonth) * 100).toFixed(
-          2
-        )}%`;
-
-        totalsByCategory.push({
-          ...category,
-          total: categorySum,
-          totalFormatted,
-          percent,
-        });
-      }
-    });
-
-    return totalsByCategory;
-  }
-
-  async function calculateTransactionsByCategories(
-    transactionsData: TransactionProps[]
+  function calculateExpensesAndRevenuesByCategory(
+    type: 'Despesas' | 'Receitas'
   ) {
-    try {
-      const categories: CategoryProps[] = await fetchCategories(userID); // Busca as categorias
-
-      const transactionsBySelectedMonth = transactionsData.filter(
-        filterTransactionsByMonth(selectedPeriod)
-      );
-
-      const expensesByCategory = calculateTotalsByCategory(
-        categories,
-        transactionsBySelectedMonth,
-        'DEBIT'
-      );
-      const revenuesByCategory = calculateTotalsByCategory(
-        categories,
-        transactionsBySelectedMonth,
-        'CREDIT'
-      );
-
-      setTotalExpensesByCategories(expensesByCategory);
-      setTotalRevenuesByCategories(revenuesByCategory);
-
-      return { expensesByCategory, revenuesByCategory };
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Categorias',
-        'Não foi possível buscar as categorias ou calcular os totais.'
-      );
+    let categorySum = 0;
+    if (type === 'Despesas') {
+      for (const categoryData of totalExpensesByCategories) {
+        categorySum += categoryData.total * -1;
+      }
     }
+
+    if (type === 'Receitas') {
+      for (const categoryData of totalRevenuesByCategories) {
+        categorySum += categoryData.total;
+      }
+    }
+    // return categorySum.toString();
+    return formatCurrency('BRL', categorySum, false, true);
   }
 
   async function calculateTotalAssets() {
@@ -319,9 +228,54 @@ export function Overview({ navigation }: any) {
     }
   }
 
-  function calculatePatrimonialEvolutionBySelectedPeriod(
-    transactions: TransactionProps[]
-  ) {
+  async function calculateCurrentCashFlow(transactions: TransactionProps[]) {
+    let currentCashFlow: CashFLow = {
+      date: format(selectedPeriod, 'MMMM/yyyy', { locale: ptBR }),
+      totalRevenuesByPeriod: new Decimal(0),
+      totalExpensesByPeriod: new Decimal(0),
+    };
+
+    for (const transaction of transactions) {
+      if (
+        transaction.type === 'TRANSFER_CREDIT' ||
+        transaction.type === 'TRANSFER_DEBIT'
+      ) {
+        continue;
+      }
+
+      // Credit card
+      if (
+        transaction.account.type === 'CREDIT' &&
+        transaction.type === 'CREDIT'
+      ) {
+        currentCashFlow.totalRevenuesByPeriod.minus(transaction.amount); // Lógica invertida para Cartão de Crédito
+      }
+      if (
+        transaction.account.type === 'CREDIT' &&
+        transaction.type === 'DEBIT'
+      ) {
+        currentCashFlow.totalExpensesByPeriod.plus(transaction.amount); // Lógica invertida para Cartão de Crédito
+      }
+
+      // Other account types
+      if (
+        transaction.account.type !== 'CREDIT' &&
+        transaction.type === 'CREDIT'
+      ) {
+        currentCashFlow.totalRevenuesByPeriod.plus(transaction.amount);
+      }
+      if (
+        transaction.account.type !== 'CREDIT' &&
+        transaction.type === 'DEBIT'
+      ) {
+        currentCashFlow.totalExpensesByPeriod.minus(transaction.amount);
+      }
+    }
+
+    setCurrentCashFlowBySelectedPeriod(currentCashFlow);
+  }
+
+  function calculatePatrimonialEvolution(transactions: TransactionProps[]) {
     let patrimonialEvolution: { date: string; total: Decimal }[] = [];
     let accumulatedTotal = new Decimal(0);
 
@@ -401,15 +355,33 @@ export function Overview({ navigation }: any) {
           continue;
         }
 
-        if (transaction.account.type === 'CREDIT') {
-          totalsByMonths[ym].total =
-            totalsByMonths[ym].total.minus(transactionAmountBRL); // Cartão de crédito - subtrai
-        } else {
-          totalsByMonths[ym].total =
-            totalsByMonths[ym].total.plus(transactionAmountBRL); // Outras contas - soma
+        // Credit card
+        if (
+          transaction.account.type === 'CREDIT' &&
+          transaction.type === 'CREDIT'
+        ) {
+          totalsByMonths[ym].total.minus(transaction.amount); // Lógica invertida para Cartão de Crédito
+        }
+        if (
+          transaction.account.type === 'CREDIT' &&
+          transaction.type === 'DEBIT'
+        ) {
+          totalsByMonths[ym].total.plus(transaction.amount); // Lógica invertida para Cartão de Crédito
         }
 
-        console.log('totalsByMonths[ym].total ====>', totalsByMonths[ym].total);
+        // Other account types
+        if (
+          transaction.account.type !== 'CREDIT' &&
+          transaction.type === 'CREDIT'
+        ) {
+          totalsByMonths[ym].total.plus(transaction.amount);
+        }
+        if (
+          transaction.account.type !== 'CREDIT' &&
+          transaction.type === 'DEBIT'
+        ) {
+          totalsByMonths[ym].total.minus(transaction.amount);
+        }
       }
     }
 
@@ -432,10 +404,6 @@ export function Overview({ navigation }: any) {
       };
     });
 
-    console.log(
-      'patrimonialEvolutionByMonths ====>',
-      patrimonialEvolutionByMonths
-    );
     setPatrimonialEvolutionBySelectedPeriod(patrimonialEvolutionByMonths);
     /**
      * Totals Grouped By Months - End
@@ -443,18 +411,139 @@ export function Overview({ navigation }: any) {
     return;
   }
 
+  async function fetchCategories(): Promise<CategoryProps[]> {
+    try {
+      const { data } = await api.get('category', {
+        params: {
+          user_id: userID,
+        },
+      });
+      return data || [];
+    } catch (error) {
+      console.error(
+        'Erro ao buscar categorias:',
+        error,
+        'Por favor, tente novamente.'
+      );
+      return [];
+    }
+  }
+
+  function filterTransactionsByMonth(selectedPeriod: Date) {
+    return (transaction: TransactionProps) =>
+      new Date(transaction.created_at).getMonth() ===
+        selectedPeriod.getMonth() &&
+      new Date(transaction.created_at).getFullYear() ===
+        selectedPeriod.getFullYear();
+  }
+
+  function calculateTotalsByCategory(
+    categories: CategoryProps[],
+    transactions: TransactionProps[],
+    transactionType: 'DEBIT' | 'CREDIT'
+  ): CategoryData[] {
+    const totalsByCategory: CategoryData[] = [];
+    let totalAmountByMonth = new Decimal(0);
+
+    for (const category of categories) {
+      let categorySum = new Decimal(0);
+
+      for (const transaction of transactions) {
+        if (
+          transaction.category.id !== category.id ||
+          transaction.type !== transactionType
+        ) {
+          continue; // Skip transactions of others categories and types
+        }
+
+        const transactionAmountBRL = new Decimal(
+          transaction.amount_in_account_currency || transaction.amount
+        ); // TODO: Considerar contas de outras moedas!!!
+
+        if (transaction.account.type === 'CREDIT') {
+          categorySum = categorySum.minus(transactionAmountBRL); // Cartão de crédito - subtrai
+        } else {
+          categorySum = categorySum.plus(transactionAmountBRL); // Outras contas - soma
+        }
+      }
+
+      console.log('categorySum ====>', categorySum);
+
+      if (!categorySum.isZero()) {
+        const percent = `${(
+          (Number(categorySum) / Number(totalAmountByMonth)) *
+          100
+        ).toFixed(2)}%`;
+
+        const totalFormatted = formatCurrency(
+          'BRL',
+          categorySum.toNumber(),
+          false,
+          true
+        );
+
+        totalsByCategory.push({
+          ...category,
+          total: Number(categorySum) * -1,
+          totalFormatted,
+          percent,
+        });
+      }
+    }
+
+    console.log('totalsByCategory ====>', totalsByCategory);
+
+    return totalsByCategory;
+  }
+
+  async function calculateTransactionsByCategories(
+    transactionsData: TransactionProps[]
+  ) {
+    try {
+      const categories: CategoryProps[] = await fetchCategories(); // Busca as categorias
+
+      const transactionsBySelectedMonth = transactionsData.filter(
+        filterTransactionsByMonth(selectedPeriod)
+      );
+
+      const expensesByCategory = calculateTotalsByCategory(
+        categories,
+        transactionsBySelectedMonth,
+        'DEBIT'
+      );
+      console.log('expensesByCategory ====>', expensesByCategory);
+      const revenuesByCategory = calculateTotalsByCategory(
+        categories,
+        transactionsBySelectedMonth,
+        'CREDIT'
+      );
+      console.log('revenuesByCategory ====>', revenuesByCategory);
+
+      setTotalExpensesByCategories(expensesByCategory); // Atualiza o estado das despesas
+      setTotalRevenuesByCategories(revenuesByCategory); // Atualiza o estado das receitas
+
+      return { expensesByCategory, revenuesByCategory };
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Categorias',
+        'Não foi possível buscar as categorias ou calcular os totais.'
+      );
+    }
+  }
+
   async function fetchDataForCharts() {
     try {
       setLoading(true);
       const data: TransactionProps[] = await getTransactions(userID);
 
-      // 1. Patrmônio total
+      // 1. Patrmônio total - OK
       await calculateTotalAssets();
 
-      // 2. Valores para o gráfico de evolução patrimonia
-      calculatePatrimonialEvolutionBySelectedPeriod(data);
+      // 2. Valores para o gráfico de evolução patrimonial - OK
+      calculatePatrimonialEvolution(data);
 
-      //3. Dados para o gráfico de despesas por categoria
+      //3. Dados para o gráfico de despesas por categoria - NOok
       await calculateTransactionsByCategories(data);
     } catch (error) {
       console.error('fetchDataForCharts =>', error);
@@ -502,6 +591,31 @@ export function Overview({ navigation }: any) {
     navigation.navigate('Transações Por Categoria', { id });
   }
 
+  // function generateYAxisLabels(data: any[]) {
+  //   if (data.length === 0) return [];
+
+  //   const values = data.map((item) => item.total);
+  //   values.sort((a, b) => a - b);
+
+  //   const labels = [];
+  //   const numLabels = 5;
+
+  //   for (let i = 0; i < numLabels; i++) {
+  //     const percentile = i / (numLabels - 1);
+  //     const index = Math.floor(percentile * (values.length - 1));
+  //     const value = values[index];
+  //     const formattedValue = value.toLocaleString('en-US', {
+  //       maximumFractionDigits: 2,
+  //       notation: 'compact',
+  //       compactDisplay: 'short',
+  //     });
+
+  //     labels.push(formattedValue);
+  //   }
+
+  //   return labels;
+  // }
+
   useEffect(() => {
     fetchDataForCharts();
   }, [
@@ -536,7 +650,7 @@ export function Overview({ navigation }: any) {
 
       <CashFlowSection>
         <TabButtons
-          buttons={CashFlowSectionButtons}
+          buttons={cashFlowSectionButtons}
           selectedTab={selectedTabCashFlowSection}
           setSelectedTab={setSelectedTabCashFlowSection}
         />
@@ -545,6 +659,7 @@ export function Overview({ navigation }: any) {
         {selectedTabCashFlowSection === 0 && (
           <ChartContainer>
             <LineChart
+              key={patrimonialEvolutionBySelectedPeriod.length}
               data={patrimonialEvolutionBySelectedPeriod.map((item) => {
                 return { value: item.total };
               })}
@@ -553,8 +668,13 @@ export function Overview({ navigation }: any) {
                   return String(item.date);
                 }
               )}
-              height={180}
+              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
+                patrimonialEvolutionBySelectedPeriod
+              )}
               width={GRAPH_WIDTH}
+              height={180}
+              noOfSections={5}
+              mostNegativeValue={0}
               xAxisColor='#455A64'
               yAxisColor='#455A64'
               areaChart
@@ -583,6 +703,8 @@ export function Overview({ navigation }: any) {
               endOpacity={0.1}
               isAnimated
               animationDuration={5000}
+              animateOnDataChange
+              scrollToEnd
             />
           </ChartContainer>
         )}
