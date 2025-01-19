@@ -237,7 +237,6 @@ export function RegisterTransaction({
     setAccountID(null);
     setAccountName(null);
     setAccountCurrency(null);
-    // setAccountInitialAmount(0);
     setCategorySelected({
       id: '',
       name: 'Selecione a categoria',
@@ -440,7 +439,6 @@ export function RegisterTransaction({
               'Edição de Transação',
               'Transação editada com sucesso!',
               [
-                // { text: 'Cadastrar nova transação' },
                 {
                   text: 'Voltar para a tela anterior',
                   onPress: handleCloseRegisterTransaction,
@@ -453,7 +451,6 @@ export function RegisterTransaction({
 
         if (transferEditedResponse.status === 200) {
           Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
-            // { text: 'Cadastrar nova transação' },
             {
               text: 'Voltar para a tela anterior',
               onPress: handleCloseRegisterTransaction,
@@ -526,9 +523,7 @@ export function RegisterTransaction({
         tenant_id: '',
       });
       setTagsSelected([]);
-      tagsList = [];
       setImage('');
-
       setButtonIsLoading(false);
     }
   }
