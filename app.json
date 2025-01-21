@@ -7,13 +7,13 @@
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
-    "backgroundColor": "#020027",
+    "backgroundColor": "#E6E9F4",
     "primaryColor": "#FF5200",
     "platforms": ["ios", "android"],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#020027"
+      "backgroundColor": "#E6E9F4"
     },
     "android": {
       "package": "com.vap.smartfinances",
@@ -59,11 +59,11 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#020027",
+          "backgroundColor": "#E6E9F4",
           "image": "./assets/icon.png",
           "dark": {
             "image": "./assets/icon.png",
-            "backgroundColor": "#020027"
+            "backgroundColor": "#E6E9F4"
           }
         }
       ]

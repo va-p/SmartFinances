@@ -16,4 +16,5 @@ export const Container = styled.View`
   border-top-left-radius: 26px;
   border-top-right-radius: 26px;
   background-color: ${({ theme }) => theme.colors.background};
+  overflow: hidden;
 `;

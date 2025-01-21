@@ -11,31 +11,28 @@ import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
+import { Gradient } from '@components/Gradient';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
-import { PeriodProps } from '@screens/ChartPeriodSelect';
-
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import theme from '@themes/theme';
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 export function TransactionsByCategory({ navigation }: any) {
   const [loading, setLoading] = useState(false);
-  const { tenantId: tenantID, id: userID } = useUser();
+  const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const route = useRoute();
   const categoryId = route.params?.id;
   const [categoryName, setCategoryName] = useState<string>('');
-  const [periodSelected, setPeriodSelected] = useState<PeriodProps>({
-    id: '1',
-    name: 'Meses',
-    period: 'months',
-  });
-  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
+
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
@@ -53,7 +50,7 @@ export function TransactionsByCategory({ navigation }: any) {
     setLoading(true);
 
     try {
-      const data = await getTransactions(tenantID, userID);
+      const data = await getTransactions(userID);
 
       /**
        * All Transactions By Account Formatted in pt-BR - Start
@@ -302,7 +299,7 @@ export function TransactionsByCategory({ navigation }: any) {
       /**
        * Set Transactions and Totals by Selected Period - Start
        */
-      switch (periodSelected.period) {
+      switch (selectedPeriod.period) {
         case 'months':
           //setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonths);
           setTransactionsFormattedBySelectedPeriod(
@@ -336,7 +333,7 @@ export function TransactionsByCategory({ navigation }: any) {
   useFocusEffect(
     useCallback(() => {
       fetchTransactions();
-    }, [periodSelected, selectedDate])
+    }, [selectedPeriod, selectedDate])
   );
 
   useEffect(() => {
@@ -351,6 +348,8 @@ export function TransactionsByCategory({ navigation }: any) {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.BackButton />
         <Header.Title title={'Resumo'} />

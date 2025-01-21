@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { ElementType } from 'react';
 import { TextInputProps } from 'react-native';
-import { Label, Container, TypeProps } from './styles';
+import { Label, Container, InputText } from './styles';
 
 export type InputProps = TextInputProps & {
-  type: TypeProps;
+  icon?: ElementType;
   label?: string;
 };
 
-export function Input({ type = 'primary', label, ...rest }: InputProps) {
+export function Input({ icon: Icon, label, ...rest }: InputProps) {
   return (
     <>
-      {label && <Label type={type}> {label} </Label>}
-      <Container type={type} {...rest} />
+      {label && <Label> {label} </Label>}
+      <Container>
+        <InputText {...rest} />
+        {Icon && <Icon />}
+      </Container>
     </>
   );
 }

@@ -7,7 +7,7 @@ export const Container = styled.View`
   flex: 1;
   padding: ${Platform.OS === 'ios' ? '24px 16px 0' : '16px 16px 0'};
   gap: 8px;
-  background-color: ${({ theme }) => theme.colors.background};
+  /* background-color: ${({ theme }) => theme.colors.background}; */
 `;
 
 export const Header = styled.View`

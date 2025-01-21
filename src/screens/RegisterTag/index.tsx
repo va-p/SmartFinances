@@ -14,6 +14,7 @@ import { ControlledInputCategoryName } from '@components/Form/ControlledInputCat
 import { useUser } from 'src/storage/userStorage';
 
 import api from '@api/api';
+import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string;
@@ -146,6 +147,8 @@ export function RegisterTag({ id, closeTag }: Props) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
+      <Gradient />
+
       <Body>
         <ControlledInputCategoryName
           placeholder='Nome da etiqueta'

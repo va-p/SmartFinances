@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ElementType } from 'react';
 import { Container, ErrorMessage } from './styles';
 
 import { Control, Controller, FieldError } from 'react-hook-form';
@@ -6,14 +6,15 @@ import { Control, Controller, FieldError } from 'react-hook-form';
 import { Input, InputProps } from '../Input';
 
 type Props = InputProps & {
+  icon?: ElementType;
   name: string;
   control: Control<any>;
   error?: FieldError;
-}
+};
 
 export function ControlledInput({
-  type,
   label,
+  icon: Icon,
   name,
   control,
   error,
@@ -26,11 +27,11 @@ export function ControlledInput({
         control={control}
         render={({ field: { onChange, value } }) => (
           <>
-            {error && <ErrorMessage type={type}> {error.message} </ErrorMessage>}
+            {error && <ErrorMessage> {error.message} </ErrorMessage>}
 
             <Input
-              type={type}
               label={label}
+              icon={Icon}
               onChangeText={onChange}
               value={value}
               {...rest}

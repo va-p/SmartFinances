@@ -3,35 +3,36 @@ import styled, { css } from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 
-export type TypeProps = 'primary' | 'secondary';
-
-type Props = {
-  type: TypeProps;
-};
-
-export const Label = styled.Text<Props>`
+export const Label = styled.Text`
   font-size: ${RFValue(14)}px;
   margin: 16px 0 -12px;
-  ${({ theme, type }) => css`
+  ${({ theme }) => css`
     font-family: ${theme.fonts.regular};
-    color: ${type === 'primary' ? theme.colors.title : theme.colors.shape};
+    color: ${theme.colors.shape};
   `};
 `;
 
-export const Container = styled(TextInput).attrs<Props>(({ theme }) => ({
-  placeholderTextColor: theme.colors.title,
-}))<Props>`
-  width: 100%;
-  height: 56px;
+export const Container = styled.View`
+  height: 40px;
+  flex-direction: row;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border: ${({ theme }) => theme.borders.default};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusButtonAndInput};
+`;
+
+export const InputText = styled(TextInput).attrs(({ theme }) => ({
+  placeholderTextColor: theme.colors.text_placeholder,
+}))`
+  min-width: 85%;
+  max-width: 85%;
+  height: 48px;
   padding: 8px 0;
   padding-left: 20px;
-  margin-top: 12px;
   font-size: ${RFValue(14)}px;
-  ${({ theme, type }) => css`
+  ${({ theme }) => css`
     font-family: ${theme.fonts.regular};
-    color: ${type === 'primary' ? theme.colors.title : theme.colors.title};
-    border: 1px solid ${theme.colors.shape};
+    color: ${theme.colors.text};
   `};
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: 10px;
+  border-radius: 40px;
 `;

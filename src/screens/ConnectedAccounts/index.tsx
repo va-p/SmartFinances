@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, Text } from 'react-native';
 import { ConnectedAccountsList, Container } from './styles';
 
+import { useRevenueCat } from '@providers/RevenueCatProvider';
+
 import { useRoute } from '@react-navigation/native';
 import { PluggyConnect } from 'react-native-pluggy-connect';
 
@@ -9,11 +11,11 @@ import { useUser } from '@storage/userStorage';
 
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
+import { Gradient } from '@components/Gradient';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 
 import api from '@api/api';
-import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import theme from '@themes/theme';
 
@@ -190,6 +192,7 @@ export function ConnectedAccounts({ navigation }: any) {
   if (loading) {
     return (
       <Container style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Gradient />
         <Text style={{ color: theme.colors.text }}>Carregando...</Text>
       </Container>
     );
@@ -197,6 +200,8 @@ export function ConnectedAccounts({ navigation }: any) {
 
   return (
     <Container>
+      <Gradient />
+
       {showHeader && (
         <Header.Root>
           <Header.BackButton />
@@ -233,19 +238,28 @@ export function ConnectedAccounts({ navigation }: any) {
                 onRefresh={() => fetchBankingIntegrations(true)}
               />
             }
+            ListFooterComponent={
+              <Button.Root
+                type='secondary'
+                onPress={handlePressConnectNewAccount}
+              >
+                <Button.Text
+                  type='secondary'
+                  text={
+                    !user.premium
+                      ? 'Assine o Premium para novas conexões'
+                      : 'Conectar nova conta'
+                  }
+                />
+              </Button.Root>
+            }
+            ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 56,
+            }}
             showsVerticalScrollIndicator={false}
           />
-
-          <Button.Root type='secondary' onPress={handlePressConnectNewAccount}>
-            <Button.Text
-              type='secondary'
-              text={
-                !user.premium
-                  ? 'Assine o Premium para novas conexões'
-                  : 'Conectar nova conta'
-              }
-            />
-          </Button.Root>
         </>
       )}
     </Container>

@@ -8,7 +8,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { Button } from '@components/Button';
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { ModalView } from '@components/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -27,6 +27,7 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
+import { Gradient } from '@components/Gradient';
 
 export function AccountsList() {
   const [loading, setLoading] = useState(false);
@@ -195,6 +196,8 @@ export function AccountsList() {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.BackButton />
         <Header.Title title={'Contas'} />
@@ -211,14 +214,22 @@ export function AccountsList() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
         }
+        ListFooterComponent={
+          <Button.Root
+            type='secondary'
+            onPress={handleOpenRegisterAccountModal}
+            style={{ marginTop: 16 }}
+          >
+            <Button.Text type='secondary' text='Criar Nova Conta' />
+          </Button.Root>
+        }
+        ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 56,
+        }}
         showsVerticalScrollIndicator={false}
       />
-
-      <Footer>
-        <Button.Root type='secondary' onPress={handleOpenRegisterAccountModal}>
-          <Button.Text type='secondary' text='Criar Nova Conta' />
-        </Button.Root>
-      </Footer>
 
       <ModalView
         type={accountID !== '' ? 'secondary' : 'primary'}

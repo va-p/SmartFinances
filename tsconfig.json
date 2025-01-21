@@ -5,6 +5,7 @@
     "paths": {
       "@api/*": ["./src/api/*"],
       "@hooks/*": ["./src/hooks/*"],
+      "@enums/*": ["./src/enums/*"],
       "@utils/*": ["./src/utils/*"],
       "@slices/*": ["./src/slices/*"],
       "@assets/*": ["./src/assets/*"],

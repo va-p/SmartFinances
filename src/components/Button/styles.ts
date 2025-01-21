@@ -10,25 +10,21 @@ type ContainerProps = {
 };
 
 export const Container = styled(RectButton)<ContainerProps>`
-  width: 100%;
-  min-height: 56px;
-  max-height: 56px;
+  min-height: 40px;
+  max-height: 40px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  margin-top: 12px;
-  background-color: ${({ theme, type }) =>
-    type === 'primary' ? theme.colors.shape : theme.colors.primary};
-  border-radius: 10px;
+  padding: 8px;
+  background-color: ${({ theme }) => theme.colors.button};
+  border-radius: 20px;
 `;
 
 export const Text = styled.Text<ContainerProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
   margin: 0 8px;
-  color: ${({ theme, type }) =>
-    type === 'primary' ? theme.colors.title : theme.colors.text_light};
+  color: ${({ theme }) => theme.colors.text_light};
 `;
 
 export const Load = styled.ActivityIndicator.attrs<ContainerProps>(

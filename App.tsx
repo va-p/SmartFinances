@@ -46,8 +46,8 @@ function App() {
     onFetchUpdateAsync();
 
     (async () => {
-      await NavigationBar.setBackgroundColorAsync('#020027');
-      await NavigationBar.setButtonStyleAsync('light');
+      await NavigationBar.setBackgroundColorAsync(theme.colors.backgroundNav);
+      await NavigationBar.setButtonStyleAsync('dark');
     })();
 
     async function prepare() {
@@ -78,10 +78,10 @@ function App() {
         <RevenueCatProvider>
           <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
             <AuthProvider>
-              <StatusBar
-                barStyle='light-content'
+              {/* <StatusBar
+                barStyle='dark-content'
                 backgroundColor={theme.colors.background}
-              />
+              /> */}
               <Routes />
             </AuthProvider>
           </ClerkProvider>

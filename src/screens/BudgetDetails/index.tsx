@@ -20,7 +20,7 @@ import {
   PeriodContainer,
   StartPeriod,
 } from '@components/BudgetListItem/styles';
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { ModalView } from '@components/ModalView';
 import { InsightCard } from '@components/InsightCard';
 import { SectionTitle } from '@screens/Overview/styles';

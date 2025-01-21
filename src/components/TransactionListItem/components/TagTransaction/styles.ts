@@ -6,10 +6,10 @@ import { RectButton } from 'react-native-gesture-handler';
 export const Tag = styled(RectButton)`
   height: 24px;
   justify-content: center;
-  padding: 4px;
+  padding: 4px 6px;
   margin-right: 8px;
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.shape};
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Name = styled.Text`

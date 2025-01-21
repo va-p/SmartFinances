@@ -1,27 +1,38 @@
 import React, { useState } from 'react';
 import { Alert, Platform } from 'react-native';
+import { Container, MainContent } from './styles';
 import {
-  Container,
-  Form,
-  Footer,
-  TermsAndPolicyContainer,
-  TermsAndPolicy,
-  Link,
-} from './styles';
+  Text,
+  LogoWrapper,
+  Logo,
+  SubTitle,
+  // MainContent,
+  SectionHeader,
+  SocialLoginButton,
+  FormWrapper,
+} from '@screens/SignIn/styles';
 
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useOAuth } from '@clerk/clerk-expo';
+import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { ControlledInput } from '@components/Form/ControlledInput';
-import { Button } from '@components/Button';
 import { Header } from '@components/Header';
+import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
+import { ScreenDivider } from '@components/ScreenDivider';
+import { ControlledInput } from '@components/Form/ControlledInput';
 
 import api from '@api/api';
 
-import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@screens/OptionsMenu';
+import theme from '@themes/theme';
+
+import { UrlEnum } from '@enums/enumsUrl';
+
+const LOGO_URL = '@assets/logo.png';
 
 type FormData = {
   name: string;
@@ -41,9 +52,9 @@ const schema = Yup.object().shape({
   email: Yup.string()
     .required('Digite o seu e-mail')
     .email('Digite um e-mail válido'),
-  confirmEmail: Yup.string()
-    .required('Confirme o seu e-mail')
-    .oneOf([Yup.ref('email'), null], 'Os emails não conferem'),
+  // confirmEmail: Yup.string()
+  //   .required('Confirme o seu e-mail')
+  //   .oneOf([Yup.ref('email'), null], 'Os emails não conferem'),
   phone: Yup.number()
     .required('Digite o seu telefone celular')
     .typeError('Digite apenas números'),
@@ -64,7 +75,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignUp({ navigation }: any) {
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -73,16 +84,53 @@ export function SignUp({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  async function handlePressPolicyPrivacy() {
-    await WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
-  }
+  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
 
   async function handlePressTermsOfUse() {
-    await WebBrowser.openBrowserAsync(TERMS_OF_USE_URL);
+    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
+  }
+
+  async function handlePressPolicyPrivacy() {
+    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
+  }
+
+  function handleGoBack() {
+    navigation.goBack();
+  }
+
+  async function handleContinueWithGoogle() {
+    try {
+      setLoading(true);
+      const oAuthFlow = await googleOAuth.startOAuthFlow();
+
+      if (
+        oAuthFlow.authSessionResult?.type === 'success' &&
+        oAuthFlow.createdSessionId
+      ) {
+        if (oAuthFlow.setActive) {
+          await oAuthFlow.setActive({
+            session: oAuthFlow.createdSessionId,
+          });
+        }
+      } else {
+        // Use signIn or signUp returned from startOAuthFlow
+        // for next steps, such as MFA
+      }
+    } catch (error) {
+      console.error('SignIn screen, handleContinueWithGoogle error =>', error);
+      if (axios.isAxiosError(error)) {
+        Alert.alert(
+          'Login',
+          `Não foi possível autenticar com o Google: ${error.response?.data?.message}. Por favor, tente novamente.`
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleRegisterUser(form: FormData) {
-    setButtonIsLoading(true);
+    setLoading(true);
 
     try {
       const newTenant = {
@@ -126,124 +174,139 @@ export function SignUp({ navigation }: any) {
         );
       }
     } finally {
-      setButtonIsLoading(false);
+      setLoading(false);
     }
   }
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={'Criar nova conta'} />
-      </Header.Root>
+      <Gradient
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          height: '100%',
+        }}
+      />
 
-      <Form>
-        <ControlledInput
-          type='primary'
-          placeholder='Nome'
-          autoCapitalize='words'
-          autoCorrect={false}
-          autoComplete='name'
-          textContentType='name'
-          name='name'
-          control={control}
-          error={errors.name}
-        />
+      <SectionHeader>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={'Cadastro'} />
+        </Header.Root>
+      </SectionHeader>
 
-        <ControlledInput
-          type='primary'
-          placeholder='Sobrenome'
-          autoCapitalize='words'
-          autoCorrect={false}
-          autoComplete='name-family'
-          textContentType='familyName'
-          name='lastName'
-          control={control}
-          error={errors.lastName}
-        />
+      <MainContent>
+        <LogoWrapper style={{ marginBottom: -16 }}>
+          <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
+        </LogoWrapper>
 
-        <ControlledInput
-          type='primary'
-          placeholder='E-mail'
-          autoCapitalize='none'
-          keyboardType='email-address'
-          autoCorrect={false}
-          autoComplete='email'
-          textContentType='emailAddress'
-          name='email'
-          control={control}
-          error={errors.email}
-        />
+        <SubTitle style={{ marginBottom: 8 }}>
+          Faça seu cadastro abaixo
+        </SubTitle>
 
-        <ControlledInput
-          type='primary'
-          placeholder='Confirme seu e-mail'
-          autoCapitalize='none'
-          keyboardType='email-address'
-          autoCorrect={false}
-          autoComplete='email'
-          textContentType='emailAddress'
-          name='confirmEmail'
-          control={control}
-          error={errors.confirmEmail}
-        />
+        <FormWrapper style={{ marginBottom: 16 }}>
+          <ControlledInput
+            placeholder='Nome'
+            autoCapitalize='words'
+            autoCorrect={false}
+            autoComplete='name'
+            textContentType='name'
+            name='name'
+            control={control}
+            error={errors.name}
+          />
 
-        <ControlledInput
-          type='primary'
-          placeholder='Celular'
-          keyboardType='phone-pad'
-          name='phone'
-          control={control}
-          error={errors.phone}
-        />
+          <ControlledInput
+            placeholder='E-mail'
+            autoCapitalize='none'
+            keyboardType='email-address'
+            autoCorrect={false}
+            autoComplete='email'
+            textContentType='emailAddress'
+            name='email'
+            control={control}
+            error={errors.email}
+          />
 
-        <ControlledInput
-          type='primary'
-          placeholder='Senha'
-          autoCorrect={false}
-          secureTextEntry={true}
-          autoComplete='password-new'
-          textContentType='newPassword'
-          name='password'
-          control={control}
-          error={errors.password}
-        />
+          <ControlledInput
+            placeholder='Senha'
+            autoCorrect={false}
+            secureTextEntry={true}
+            autoComplete='password-new'
+            textContentType='newPassword'
+            name='password'
+            control={control}
+            error={errors.password}
+          />
 
-        <ControlledInput
-          type='primary'
-          placeholder='Confirme sua senha'
-          autoCorrect={false}
-          secureTextEntry={true}
-          autoComplete='password-new'
-          textContentType='newPassword'
-          name='confirmPassword'
-          control={control}
-          error={errors.confirmPassword}
-          returnKeyType='go'
-          onSubmitEditing={handleSubmit(handleRegisterUser)}
-        />
+          <ControlledInput
+            placeholder='Repetir senha'
+            autoCorrect={false}
+            secureTextEntry={true}
+            autoComplete='password-new'
+            textContentType='newPassword'
+            name='confirmPassword'
+            control={control}
+            error={errors.confirmPassword}
+            returnKeyType='go'
+            onSubmitEditing={handleSubmit(handleRegisterUser)}
+          />
+        </FormWrapper>
 
-        <TermsAndPolicyContainer>
-          <TermsAndPolicy>
-            Ao me cadastrar, eu declaro que li e concordo com os{' '}
-            <Link onPress={handlePressTermsOfUse}>Termos de Uso</Link> e{' '}
-            <Link onPress={handlePressPolicyPrivacy}>
-              Política de Privacidade
-            </Link>
-            .
-          </TermsAndPolicy>
-        </TermsAndPolicyContainer>
-      </Form>
+        <ScreenDivider text='Ou' />
 
-      <Footer>
+        <SocialLoginButton
+          onPress={handleContinueWithGoogle}
+          style={{ marginTop: 8 }}
+        >
+          <Icon.GoogleLogo />
+          <Text style={{ marginLeft: 8, color: theme.colors.text_placeholder }}>
+            Entrar com o Google
+          </Text>
+        </SocialLoginButton>
+
+        <Text
+          style={{
+            textAlign: 'center',
+            paddingHorizontal: 16,
+            marginTop: 16,
+            marginBottom: 16,
+          }}
+        >
+          Ao me cadastrar, eu declaro que li e aceito os{' '}
+          <Text
+            style={{ color: theme.colors.primary }}
+            onPress={handlePressTermsOfUse}
+          >
+            Termos de Uso
+          </Text>{' '}
+          e a{' '}
+          <Text
+            style={{ color: theme.colors.primary }}
+            onPress={handlePressPolicyPrivacy}
+          >
+            Política de Privacidade
+          </Text>
+          .
+        </Text>
+
         <Button.Root
           type='secondary'
-          isLoading={buttonIsLoading}
+          isLoading={loading}
           onPress={handleSubmit(handleRegisterUser)}
         >
           <Button.Text type='secondary' text='Cadastrar' />
         </Button.Root>
-      </Footer>
+
+        <Text style={{ textAlign: 'center', marginTop: 20 }}>
+          Já possui uma conta?{' '}
+          <Text style={{ color: theme.colors.primary }} onPress={handleGoBack}>
+            Login
+          </Text>
+        </Text>
+      </MainContent>
     </Container>
   );
 }

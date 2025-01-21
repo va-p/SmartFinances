@@ -3,11 +3,15 @@ import { Container } from './styles';
 
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
+import { Gradient } from '@components/Gradient';
+
 import theme from '@themes/theme';
 
 export function SkeletonBudgetsScreen() {
   return (
     <Container>
+      <Gradient />
+
       <SkeletonPlaceholder
         highlightColor={theme.colors.overlay}
         backgroundColor={theme.colors.shape}

@@ -49,6 +49,7 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
+import { Gradient } from '@components/Gradient';
 
 export type TotalByMonths = {
   date: string;
@@ -338,6 +339,8 @@ export function Accounts({ navigation }: any) {
 
   return (
     <Container>
+      <Gradient />
+
       <Header>
         <CashFlowContainer>
           <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal>
@@ -416,25 +419,27 @@ export function Accounts({ navigation }: any) {
             />
           }
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={
+            <Footer>
+              <ButtonGroup>
+                <AddAccountButton
+                  icon='card'
+                  title='Conectar conta bancária'
+                  onPress={handleTouchConnectAccountModal}
+                />
+              </ButtonGroup>
+
+              <ButtonGroup>
+                <AddAccountButton
+                  icon='wallet'
+                  title='Criar conta manual'
+                  onPress={handleOpenRegisterAccountModal}
+                />
+              </ButtonGroup>
+            </Footer>
+          }
+          contentContainerStyle={{ paddingBottom: 56 }}
         />
-
-        <Footer>
-          <ButtonGroup>
-            <AddAccountButton
-              icon='card'
-              title='Conectar conta bancária'
-              onPress={handleTouchConnectAccountModal}
-            />
-          </ButtonGroup>
-
-          <ButtonGroup>
-            <AddAccountButton
-              icon='wallet'
-              title='Criar conta manual'
-              onPress={handleOpenRegisterAccountModal}
-            />
-          </ButtonGroup>
-        </Footer>
       </AccountsContainer>
 
       <ModalView

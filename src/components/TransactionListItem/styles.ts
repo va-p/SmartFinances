@@ -20,6 +20,9 @@ export const Container = styled(RectButtonAnimated)`
   flex-direction: row;
   align-items: center;
   padding: 8px 16px;
+  margin-bottom: 8px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
 `;
 
 export const IconContainer = styled.View`
@@ -52,7 +55,7 @@ export const Description = styled.Text.attrs({
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>
-    type === 'CREDIT' ? theme.colors.success : theme.colors.title};
+    type === 'CREDIT' ? theme.colors.success : theme.colors.text};
 `;
 
 export const AmountContainer = styled.View`

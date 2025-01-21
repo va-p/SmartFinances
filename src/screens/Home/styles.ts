@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
+import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
@@ -48,4 +48,5 @@ export const FilterButtonGroup = styled.View`
 
 export const Transactions = styled.View`
   flex: 1;
+  padding: 8px 16px 0;
 `;

@@ -56,6 +56,7 @@ export const InputTransactionValueContainer = styled.View`
 
 export const ContentScroll = styled.ScrollView.attrs({
   shownsVerticalScrollIndicator: false,
+  contentContainerStyle: { paddingBottom: 16 },
 })``;
 
 export const TransactionImageContainer = styled.Pressable`

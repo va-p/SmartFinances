@@ -19,15 +19,23 @@ export function AppTabRoutes() {
     <Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveBackgroundColor: theme.colors.background,
-        tabBarInactiveBackgroundColor: theme.colors.background,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.text,
+        headerTransparent: true,
+        tabBarActiveTintColor: theme.colors.text,
+        tabBarInactiveTintColor: theme.colors.primary,
+        tabBarItemStyle: {
+          backgroundColor: 'transparent',
+          overflow: 'hidden',
+        },
         tabBarStyle: {
-          height: 50,
-          paddingTop: 5,
-          paddingBottom: 5,
-          backgroundColor: theme.colors.background,
+          position: 'absolute',
+          height: 56,
+          paddingTop: 6,
+          paddingBottom: 6,
+          backgroundColor: theme.colors.backgroundNav,
+          shadowColor: theme.colors.shape,
+          borderTopLeftRadius: 75,
+          borderTopRightRadius: 75,
+          overflow: 'hidden',
         },
       }}
     >
