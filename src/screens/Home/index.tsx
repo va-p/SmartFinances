@@ -93,6 +93,7 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+import { Gradient } from '@components/Gradient';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -823,6 +824,15 @@ export function Home() {
 
   return (
     <Container>
+      <Gradient
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          height: '100%',
+        }}
+      />
       <Animated.View style={[headerStyleAnimation, styles.header]}>
         <Header>
           <CashFlowContainer>

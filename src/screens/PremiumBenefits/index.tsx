@@ -13,7 +13,7 @@ import {
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
 import { addDays } from 'date-fns';

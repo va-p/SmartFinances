@@ -31,7 +31,7 @@ import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { HistoryCard } from '@components/HistoryCard';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { TabButtons, TabButtonType } from '@components/TabButtons';

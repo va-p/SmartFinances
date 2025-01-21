@@ -8,9 +8,9 @@ export const Container = styled.View`
   min-height: 48px;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   padding: 8px 16px;
-
-  /* background-color: red; */
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export const BackButton = styled(BorderlessButton)`
@@ -20,22 +20,14 @@ export const BackButton = styled(BorderlessButton)`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
-export const BackButtonShape = styled.View`
-  width: 32px;
-  height: 32px;
+export const TitleContainer = styled.View`
   align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  background-color: ${({ theme }) => theme.colors.shape};
 `;
-
-export const TitleContainer = styled.View``;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
-  margin-left: 32px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const Description = styled.Text`

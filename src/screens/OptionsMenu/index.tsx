@@ -7,7 +7,7 @@ import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
@@ -19,9 +19,7 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 
-export const HELP_CENTER_URL = 'https://smartfinances.com.br/help-center';
-export const TERMS_OF_USE_URL = 'https://smartfinances.com.br/terms-of-use';
-export const PRIVACY_POLICY_URL = 'https://smartfinances.com.br/privacy-policy';
+import { UrlEnum } from '@enums/enumsUrl';
 
 export function OptionsMenu({ navigation }: any) {
   const userId = useUser((state) => state.id);
@@ -62,7 +60,7 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   async function handleClickHelpCenter() {
-    await WebBrowser.openBrowserAsync(HELP_CENTER_URL);
+    await WebBrowser.openBrowserAsync(UrlEnum.HELP_CENTER_URL);
   }
 
   function handleClickContactSupport() {
@@ -70,11 +68,11 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   async function handleClickTermsOfUse() {
-    await WebBrowser.openBrowserAsync(TERMS_OF_USE_URL);
+    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
   }
 
   async function handleClickPrivacyPolicy() {
-    await WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
+    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
   }
 
   async function handleChangeUseLocalAuth() {

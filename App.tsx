@@ -79,7 +79,7 @@ function App() {
           <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
             <AuthProvider>
               <StatusBar
-                barStyle='light-content'
+                barStyle='dark-content'
                 backgroundColor={theme.colors.background}
               />
               <Routes />

@@ -8,7 +8,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { Button } from '@components/Button';
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { ModalView } from '@components/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';

@@ -11,7 +11,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
 import { Button } from '@components/Button';
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 
 import api from '@api/api';
 

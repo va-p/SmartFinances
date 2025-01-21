@@ -6,7 +6,7 @@ import axios from 'axios';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';

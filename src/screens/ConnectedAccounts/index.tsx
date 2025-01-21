@@ -8,7 +8,7 @@ import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useUser } from '@storage/userStorage';
 
 import { Button } from '@components/Button';
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 

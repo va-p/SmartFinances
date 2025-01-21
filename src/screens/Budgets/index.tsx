@@ -12,7 +12,7 @@ import { convertCurrency } from '@utils/convertCurrency';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/ModalView';
 import { BudgetListItem } from '@components/BudgetListItem';

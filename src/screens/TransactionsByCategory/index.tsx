@@ -11,7 +11,7 @@ import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';

@@ -52,7 +52,7 @@ import {
   RectButton,
 } from 'react-native-gesture-handler';
 
-import { Header } from '@components/Header';
+import { Header } from '@components/Header_old';
 import { ModalView } from '@components/ModalView';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { ChartSelectButton } from '@components/ChartSelectButton';
