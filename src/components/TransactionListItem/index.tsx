@@ -24,7 +24,7 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { FadeInUp } from 'react-native-reanimated';
 
-import { TagTransaction } from '@components/TagTransaction';
+import { TagTransaction } from '@components/TransactionListItem/components/TagTransaction';
 import { TransactionProps } from '@interfaces/transactions';
 
 type Props = RectButtonProps & {

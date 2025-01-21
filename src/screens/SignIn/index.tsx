@@ -17,10 +17,10 @@ import { useAuth } from '../../contexts/AuthProvider';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useOAuth } from '@clerk/clerk-expo';
-import * as WebBrowser from 'expo-web-browser';
 import * as Icon from 'phosphor-react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useOAuth, useUser as useClerkUser } from '@clerk/clerk-expo';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -30,7 +30,7 @@ import { ControlledInput } from '@components/Form/ControlledInput';
 
 import theme from '@themes/theme';
 
-import { UrlEnum } from '@enums/enumsUrl';
+import api from '@api/api';
 
 const LOGO_URL = '@assets/logo.png';
 
@@ -60,8 +60,9 @@ export function SignIn({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  const { signInWithXano } = useAuth();
+  const { signInWithXano, signOut } = useAuth();
   const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+  const { user: clerkUser } = useClerkUser();
 
   async function handleSignInWithXano(form: FormData) {
     try {
@@ -81,23 +82,52 @@ export function SignIn({ navigation }: any) {
     }
   }
 
+  async function checkUserExistsOnBackend(email: string): Promise<boolean> {
+    try {
+      const { data } = await api.get('/auth/user_exists', {
+        params: { email },
+      });
+      return data || false;
+    } catch (error) {
+      console.error('Erro ao verificar usuário no backend:', error);
+      return false;
+    }
+  }
+
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
       const oAuthFlow = await googleOAuth.startOAuthFlow();
 
+      // console.log('oAuthFlow =>', oAuthFlow);
+
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
         oAuthFlow.createdSessionId
       ) {
-        if (oAuthFlow.setActive) {
-          await oAuthFlow.setActive({
-            session: oAuthFlow.createdSessionId,
-          });
+        const userExists = await checkUserExistsOnBackend(
+          clerkUser?.emailAddresses[0].emailAddress!
+        );
+
+        if (!!userExists) {
+          // Continuar o fluxo de login
+          if (oAuthFlow.setActive) {
+            await oAuthFlow.setActive({
+              session: oAuthFlow.createdSessionId,
+            });
+          }
+        } else {
+          Alert.alert(
+            'Erro',
+            'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+          );
+          signOut();
         }
       } else {
-        // Use signIn or signUp returned from startOAuthFlow
-        // for next steps, such as MFA
+        Alert.alert(
+          'Erro',
+          'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+        );
       }
     } catch (error) {
       console.error('SignIn screen, handleContinueWithGoogle error =>', error);
@@ -114,14 +144,6 @@ export function SignIn({ navigation }: any) {
 
   function handlePressSignUp() {
     navigation.navigate('SignUp');
-  }
-
-  async function handlePressPolicyPrivacy() {
-    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
-  }
-
-  async function handlePressTermsOfUse() {
-    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
   }
 
   useEffect(() => {
@@ -211,7 +233,7 @@ export function SignIn({ navigation }: any) {
           Ainda não tem uma conta?{' '}
           <Text
             style={{ color: theme.colors.primary }}
-            onPress={() => navigation.navigate('SignUp')}
+            onPress={handlePressSignUp}
           >
             Cadastre-se
           </Text>

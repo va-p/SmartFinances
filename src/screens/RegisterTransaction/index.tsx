@@ -40,7 +40,7 @@ import { CategorySelectButton } from '@components/Form/CategorySelectButton';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
-import { TagListItemRegisterTransaction } from '@components/TagListItemRegisterTransaction';
+import { TagListItemRegisterTransaction } from '@screens/RegisterTransaction/components/TagListItemRegisterTransaction';
 
 import { AccountSelect } from '@screens/AccountSelect';
 import { CategorySelect } from '@screens/CategorySelect';
@@ -58,6 +58,7 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
+import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string;
@@ -229,32 +230,32 @@ export function RegisterTransaction({
   }
 
   function handleCloseRegisterTransaction() {
-    setButtonIsLoading(true);
+    // setButtonIsLoading(true);
 
-    resetId();
-    reset();
-    setTransactionType('');
-    setAccountID(null);
-    setAccountName(null);
-    setAccountCurrency(null);
-    setCategorySelected({
-      id: '',
-      name: 'Selecione a categoria',
-      icon: {
-        id: '',
-        title: '',
-        name: '',
-      },
-      color: {
-        id: '',
-        name: '',
-        hex: theme.colors.primary,
-      },
-      tenant_id: '',
-    });
-    setTagsSelected([]);
+    // resetId();
+    // reset();
+    // setTransactionType('');
+    // setAccountID(null);
+    // setAccountName(null);
+    // setAccountCurrency(null);
+    // setCategorySelected({
+    //   id: '',
+    //   name: 'Selecione a categoria',
+    //   icon: {
+    //     id: '',
+    //     title: '',
+    //     name: '',
+    //   },
+    //   color: {
+    //     id: '',
+    //     name: '',
+    //     hex: theme.colors.primary,
+    //   },
+    //   tenant_id: '',
+    // });
+    // setTagsSelected([]);
     closeRegisterTransaction();
-    setButtonIsLoading(false);
+    // setButtonIsLoading(false);
   }
 
   function handleSelectTag(tag: TagProps) {
@@ -506,6 +507,7 @@ export function RegisterTransaction({
         );
       }
     } finally {
+      resetId();
       reset();
       setTransactionType('');
       setCategorySelected({
@@ -883,6 +885,8 @@ export function RegisterTransaction({
 
   return (
     <Container>
+      <Gradient />
+
       <MainContent>
         <Header color={categorySelected.color.hex}>
           <TitleContainer>
@@ -972,6 +976,7 @@ export function RegisterTransaction({
           <ControlledInputWithIcon
             icon={<Icon.PencilSimple color={categorySelected.color.hex} />}
             placeholder='Descrição'
+            numberOfLines={2}
             autoCapitalize='sentences'
             autoCorrect={false}
             returnKeyType='go'

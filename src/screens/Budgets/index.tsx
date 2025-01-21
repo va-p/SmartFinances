@@ -26,6 +26,7 @@ import { useQuotes } from '@storage/quotesStorage';
 import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import api from '@api/api';
+import { Gradient } from '@components/Gradient';
 
 export function Budgets({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -235,6 +236,8 @@ export function Budgets({ navigation }: any) {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.Title title='Orçamentos' />
       </Header.Root>
@@ -257,13 +260,18 @@ export function Budgets({ navigation }: any) {
         }
         showsVerticalScrollIndicator={false}
         initialNumToRender={20}
+        ListFooterComponent={
+          <Footer>
+            <Button.Root
+              type='secondary'
+              onPress={handleOpenRegisterBudgetModal}
+            >
+              <Button.Text type='secondary' text='Criar novo orçamento' />
+            </Button.Root>
+          </Footer>
+        }
+        contentContainerStyle={{ paddingBottom: 56 }}
       />
-
-      <Footer>
-        <Button.Root type='secondary' onPress={handleOpenRegisterBudgetModal}>
-          <Button.Text type='secondary' text='Criar novo orçamento' />
-        </Button.Root>
-      </Footer>
 
       <ModalView
         type={'primary'}

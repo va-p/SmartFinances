@@ -52,6 +52,8 @@ import api from '@api/api';
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import { useFocusEffect } from '@react-navigation/native';
+import { Gradient } from '@components/Gradient';
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
@@ -60,13 +62,6 @@ const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 export enum CustomTab {
   Tab1,
   Tab2,
-}
-
-interface CashFLow {
-  date: string;
-  totalRevenuesByPeriod: number;
-  totalExpensesByPeriod: number;
-  total?: number;
 }
 
 interface CategoryData extends CategoryProps {
@@ -99,8 +94,8 @@ export function Overview({ navigation }: any) {
   const [selectedTabCategoriesSection, setSelectedTabCategoriesSection] =
     useState<CustomTab>(CustomTab.Tab1);
 
-  const [selectedPeriod, setSelectedPeriod] = useState(new Date());
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
+  const { selectedPeriod, selectedDate } = useSelectedPeriod();
   const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
     id: '1',
     name: 'Meses',
@@ -290,12 +285,11 @@ export function Overview({ navigation }: any) {
     }
   }
 
-  function filterTransactionsByMonth(selectedPeriod: Date) {
+  function filterTransactionsByMonth() {
     return (transaction: TransactionProps) =>
-      new Date(transaction.created_at).getMonth() ===
-        selectedPeriod.getMonth() &&
+      new Date(transaction.created_at).getMonth() === selectedDate.getMonth() &&
       new Date(transaction.created_at).getFullYear() ===
-        selectedPeriod.getFullYear();
+        selectedDate.getFullYear();
   }
 
   function calculateTotalsByCategory(
@@ -372,7 +366,7 @@ export function Overview({ navigation }: any) {
       const categories: CategoryProps[] = await fetchCategories();
 
       const transactionsBySelectedMonth = transactionsData.filter(
-        filterTransactionsByMonth(selectedPeriod)
+        filterTransactionsByMonth()
       );
 
       const revenuesByCategory = calculateTotalsByCategory(
@@ -460,7 +454,7 @@ export function Overview({ navigation }: any) {
   const curRevenues = calculateExpensesAndRevenuesByCategory('Receitas');
   const curExpenses = calculateExpensesAndRevenuesByCategory('Despesas') * -1;
   const cashFlow = {
-    date: format(selectedPeriod, 'MMMM/yyyy', { locale: ptBR }),
+    date: format(selectedDate, 'MMMM/yyyy', { locale: ptBR }),
     totalRevenuesByPeriod: curRevenues,
     totalExpensesByPeriod: curExpenses,
     total: curRevenues - curExpenses,
@@ -500,7 +494,9 @@ export function Overview({ navigation }: any) {
 
   if (loading) {
     return (
-      <Container>
+      <>
+        <Gradient />
+
         <Text
           style={{
             textAlign: 'center',
@@ -509,7 +505,7 @@ export function Overview({ navigation }: any) {
         >
           Carregando...
         </Text>
-      </Container>
+      </>
     );
   }
 
@@ -582,7 +578,7 @@ export function Overview({ navigation }: any) {
               startOpacity={0.6}
               endOpacity={0.1}
               isAnimated
-              animationDuration={5000}
+              animationDuration={3000}
               animateOnDataChange
               scrollToEnd
             />
@@ -624,7 +620,7 @@ export function Overview({ navigation }: any) {
                   }}
                   cornerRadius={{ top: 2, bottom: 2 }}
                   animate={{
-                    onEnter: { duration: 3000 },
+                    onLoad: { duration: 2000 },
                     easing: 'backOut',
                   }}
                 />
@@ -642,7 +638,7 @@ export function Overview({ navigation }: any) {
                   }}
                   cornerRadius={{ top: 2, bottom: 2 }}
                   animate={{
-                    onLoad: { duration: 3000 },
+                    onLoad: { duration: 2000 },
                     easing: 'backOut',
                   }}
                 />

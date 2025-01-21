@@ -4,10 +4,13 @@ import { Container } from './styles';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import theme from '@themes/theme';
+import { Gradient } from '@components/Gradient';
 
 export function SkeletonCategoriesAndTagsScreen() {
   return (
     <Container>
+      <Gradient />
+
       <SkeletonPlaceholder
         highlightColor={theme.colors.overlay}
         backgroundColor={theme.colors.shape}

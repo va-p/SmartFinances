@@ -79,6 +79,7 @@ import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorag
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import { Gradient } from '@components/Gradient';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -541,6 +542,8 @@ export function Account() {
 
   return (
     <Container>
+      <Gradient />
+
       <Animated.View style={[headerStyleAnimation, styles.header]}>
         <HeaderContainer>
           <Header.Root>
@@ -614,8 +617,8 @@ export function Account() {
             registerTransactionButtonStyle,
             {
               position: 'absolute',
-              bottom: 22,
-              right: 22,
+              bottom: 64,
+              right: 16,
             },
           ]}
         >

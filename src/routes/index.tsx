@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAuth } from '../contexts/AuthProvider';
+import { useAuth } from '@contexts/AuthProvider';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -11,6 +11,8 @@ import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { AuthRoutes } from './auth.stack.routes';
 import { AppTabRoutes } from './app.tab.routes';
 import { TransactionsByCategory } from '@screens/TransactionsByCategory';
+import { StatusBar } from 'react-native';
+import theme from '@themes/theme';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -24,11 +26,18 @@ export function Routes() {
   if (isSignedIn && user) {
     return (
       <NavigationContainer>
+        <StatusBar
+          barStyle='dark-content'
+          backgroundColor={'rgba(255, 255, 255, 0.93)'}
+        />
         <BottomSheetModalProvider>
           <Navigator
             screenOptions={{
               headerShown: false,
               animationEnabled: false,
+              cardStyle: {
+                backgroundColor: 'transparent',
+              },
             }}
           >
             <Screen name='Main' component={AppTabRoutes} />
@@ -44,6 +53,10 @@ export function Routes() {
 
   return (
     <NavigationContainer>
+      <StatusBar
+        barStyle='dark-content'
+        backgroundColor={theme.colors.background}
+      />
       <BottomSheetModalProvider>
         <Navigator
           screenOptions={{

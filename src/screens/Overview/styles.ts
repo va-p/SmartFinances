@@ -7,7 +7,6 @@ export const Container = styled.ScrollView.attrs({
   contentContainerStyle: {
     marginBottom: RFValue(16),
   },
-  // contentInsetAdjustmentBehavior: 'automatic',
 })`
   flex: 1;
   padding: 0 16px;

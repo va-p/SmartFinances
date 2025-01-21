@@ -16,12 +16,14 @@ export const SectionHeader = styled.View`
 
 export const MainContent = styled.View`
   flex: 1;
-  border-top-left-radius: 75px;
-  border-top-right-radius: 75px;
+  border-top-left-radius: ${({ theme }) =>
+    theme.borders.borderRadiusSreenSectionContent};
+  border-top-right-radius: ${({ theme }) =>
+    theme.borders.borderRadiusSreenSectionContent};
   align-items: center;
   row-gap: 8px;
   padding: 64px 8px 8px;
-  background-color: ${({ theme }) => theme.colors.background_25};
+  background-color: ${({ theme }) => theme.colors.background25};
 `;
 
 export const LogoWrapper = styled.View`
@@ -64,6 +66,6 @@ export const SocialLoginButton = styled(RectButton)`
   justify-content: center;
   padding: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 40px;
+  border: ${({ theme }) => theme.borders.default};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusButtonAndInput};
 `;

@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 import { Header } from '@components/Header_old';
+import { Gradient } from '@components/Gradient';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
@@ -156,6 +157,8 @@ export function OptionsMenu({ navigation }: any) {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.Title title='Mais opções' />
       </Header.Root>

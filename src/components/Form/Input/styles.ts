@@ -17,8 +17,8 @@ export const Container = styled.View`
   flex-direction: row;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.shape};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 40px;
+  border: ${({ theme }) => theme.borders.default};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusButtonAndInput};
 `;
 
 export const InputText = styled(TextInput).attrs(({ theme }) => ({

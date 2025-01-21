@@ -1,13 +1,14 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
-import { Container, Footer } from './styles';
+import { Container } from './styles';
 
 import axios from 'axios';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { Header } from '@components/Header_old';
+import { Header } from '@components/Header';
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/ModalView';
 import { TagListItem, TagProps } from '@components/TagListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -15,7 +16,7 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterTag } from '@screens/RegisterTag';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import api from '@api/api';
 
@@ -127,6 +128,8 @@ export function Tags() {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.BackButton />
         <Header.Title title={'Etiquetas'} />
@@ -149,14 +152,22 @@ export function Tags() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
         }
+        ListFooterComponent={
+          <Button.Root
+            type='secondary'
+            onPress={handleOpenRegisterTagModal}
+            style={{ marginTop: 16 }}
+          >
+            <Button.Text type='secondary' text='Criar Nova Etiqueta' />
+          </Button.Root>
+        }
+        ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 56,
+        }}
         showsVerticalScrollIndicator={false}
       />
-
-      <Footer>
-        <Button.Root type='secondary' onPress={handleOpenRegisterTagModal}>
-          <Button.Text type='secondary' text='Criar Nova Etiqueta' />
-        </Button.Root>
-      </Footer>
 
       <ModalView
         type={tagId !== '' ? 'secondary' : 'primary'}

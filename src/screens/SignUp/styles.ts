@@ -10,8 +10,10 @@ export const MainContent = styled.ScrollView.attrs({
   },
 })`
   flex: 1;
-  border-top-left-radius: 75px;
-  border-top-right-radius: 75px;
+  border-top-left-radius: ${({ theme }) =>
+    theme.borders.borderRadiusSreenSectionContent};
+  border-top-right-radius: ${({ theme }) =>
+    theme.borders.borderRadiusSreenSectionContent};
   /* padding: 8px 8px 8px; */
-  background-color: ${({ theme }) => theme.colors.background_25};
+  background-color: ${({ theme }) => theme.colors.background25};
 `;

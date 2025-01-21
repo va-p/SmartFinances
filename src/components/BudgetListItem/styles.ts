@@ -11,6 +11,9 @@ const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 export const Container = styled(RectButtonAnimated)`
   width: 100%;
   padding: 12px;
+  margin-bottom: 8px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
 `;
 
 export const Name = styled.Text`

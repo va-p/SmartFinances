@@ -31,6 +31,7 @@ import { useUser } from 'src/storage/userStorage';
 import { ColorProps, IconProps } from '@interfaces/categories';
 
 import api from '@api/api';
+import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string;
@@ -236,6 +237,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Gradient />
+
       <Header>
         <IconAndColor
           color={colorSelected.hex}

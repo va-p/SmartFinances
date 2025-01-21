@@ -9,8 +9,7 @@ export const Container = styled.View`
   flex-direction: row;
   align-items: center;
   padding: 8px 16px;
-
-  /* background-color: red; */
+  margin-bottom: 16px;
 `;
 
 export const BackButton = styled(BorderlessButton)`

@@ -26,6 +26,7 @@ import { useRevenueCat } from '@providers/RevenueCatProvider';
 import { PackageProps } from '@interfaces/premiumPackage';
 
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@screens/OptionsMenu';
+import { Gradient } from '@components/Gradient';
 
 export function PremiumBenefits() {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState(
@@ -71,6 +72,8 @@ export function PremiumBenefits() {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.BackButton />
         <Header.Title title={'Escolha seu plano'} />

@@ -1,13 +1,14 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
-import { Container, Footer } from './styles';
+import { Container } from './styles';
 
 import axios from 'axios';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { Header } from '@components/Header_old';
+import { Header } from '@components/Header';
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/ModalView';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItem } from '@components/CategoryListItem';
@@ -15,7 +16,7 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterCategory } from '@screens/RegisterCategory';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import { CategoryProps } from '@interfaces/categories';
 
@@ -76,6 +77,7 @@ export function Categories() {
       bottomSheetRef.current?.dismiss();
     } catch (error) {
     } finally {
+      2000;
       setLoading(false);
     }
   }
@@ -128,6 +130,8 @@ export function Categories() {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.BackButton />
         <Header.Title title='Categorias' />
@@ -150,14 +154,22 @@ export function Categories() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
         }
+        ListFooterComponent={
+          <Button.Root
+            type='secondary'
+            onPress={handleOpenRegisterCategoryModal}
+            style={{ marginTop: 16 }}
+          >
+            <Button.Text type='secondary' text='Criar Nova Categoria' />
+          </Button.Root>
+        }
+        ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 56,
+        }}
         showsVerticalScrollIndicator={false}
       />
-
-      <Footer>
-        <Button.Root type='secondary' onPress={handleOpenRegisterCategoryModal}>
-          <Button.Text type='secondary' text='Criar Nova Categoria' />
-        </Button.Root>
-      </Footer>
 
       <ModalView
         type={categoryId !== '' ? 'secondary' : 'primary'}

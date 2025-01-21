@@ -9,7 +9,12 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const ContentScroll = styled.ScrollView``;
+export const ContentScroll = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    paddingBottom: 56,
+  },
+  showsVerticalScrollIndicator: false,
+})``;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};

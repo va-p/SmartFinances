@@ -606,6 +606,7 @@ export function Home() {
   }
 
   function handleCloseRegisterTransactionModal() {
+    setTransactionId('');
     setAccountID(null);
     setAccountName(null);
     // fetchTransactions(); // TODO: Refactors to get perform
@@ -813,26 +814,14 @@ export function Home() {
     fetchTransactions();
   }, [selectedDate, selectedPeriod.period, userID]);
 
-  // console.log(
-  //   'totalAmountsGroupedBySelectedPeriod =>',
-  //   totalAmountsGroupedBySelectedPeriod
-  // );
-
   if (loading) {
     return <SkeletonHomeScreen />;
   }
 
   return (
     <Container>
-      <Gradient
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: '100%',
-        }}
-      />
+      <Gradient />
+
       <Animated.View style={[headerStyleAnimation, styles.header]}>
         <Header>
           <CashFlowContainer>
@@ -967,6 +956,9 @@ export function Home() {
           showsVerticalScrollIndicator={false}
           onScroll={scrollHandlerToTop}
           scrollEventThrottle={16}
+          contentContainerStyle={{
+            paddingBottom: 56,
+          }}
         />
       </Transactions>
 
@@ -976,8 +968,8 @@ export function Home() {
             registerTransactionButtonStyle,
             {
               position: 'absolute',
-              bottom: 22,
-              right: 22,
+              bottom: 64,
+              right: 16,
             },
           ]}
         >
@@ -1020,6 +1012,9 @@ export function Home() {
 const styles = StyleSheet.create({
   header: {
     overflow: 'hidden',
+    backgroundColor: theme.colors.background25,
+    borderBottomRightRadius: 75,
+    borderBottomLeftRadius: 75,
   },
   animatedButton: {
     width: 45,

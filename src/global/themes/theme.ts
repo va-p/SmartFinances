@@ -4,15 +4,15 @@ export default {
     primary_light: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(230, 233, 244)',
-    background_25: 'rgba(255, 255, 255, 0.25)',
+    backgroundNav: 'rgba(255, 235, 206, 1)',
+    background25: 'rgba(255, 255, 255, 0.25)', // Content of screens
+    background65: 'rgba(255, 255, 255, 0.65)',
 
-    // shape: 'rgb(25, 5, 100)',
-    shape: 'rgb(255, 255, 255)',
+    shape: 'rgba(255, 255, 255, 0.45)',
 
     button: '#FFAA29',
 
-    title: 'rgb(133, 201, 240)',
-    // text: '#969CB2',
+    title: '#000000',
     text: '#000000',
     text_placeholder: '#969CB2',
     text_dark: '#000000',
@@ -29,6 +29,12 @@ export default {
     overlay: 'rgba(0, 0, 0, 0.7)',
     overlay_light: 'rgba(0, 0, 0, 0.1)',
     overlay_light2: 'rgba(150, 156, 178, 0.1)',
+  },
+  borders: {
+    default: '1px solid #707070',
+    borderRadiusSreenSectionContent: '75px',
+    borderRadiusShape: '25px',
+    borderRadiusButtonAndInput: '40px',
   },
 
   fonts: {
