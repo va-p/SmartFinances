@@ -23,6 +23,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { GoogleLogo } from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useUser as useClerkUser } from '@clerk/clerk-expo';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -44,6 +45,7 @@ import {
 import LogoSvg from '@assets/logo.svg';
 
 import theme from '@themes/theme';
+import api from '@api/api';
 
 type FormData = {
   email: string;
@@ -71,7 +73,9 @@ export function SignIn({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  const { signInWithXano, signInWithBiometrics } = useAuth();
+  const { user: clerkUser } = useClerkUser();
+
+  const { signInWithXano, signInWithBiometrics, signOut } = useAuth();
   const googleOAuth = useOAuth({ strategy: 'oauth_google' });
 
   const SCREEN_WIDTH = Dimensions.get('window').width - 64;
@@ -139,6 +143,18 @@ export function SignIn({ navigation }: any) {
     }
   }
 
+  async function checkUserExistsOnBackend(email: string) {
+    try {
+      const response = await api.get('/auth/user_exists', {
+        params: { email },
+      });
+      return response.data.exists;
+    } catch (error) {
+      console.error('Erro ao verificar usuário no backend:', error);
+      return false; // Assume que o usuário não existe em caso de erro
+    }
+  }
+
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
@@ -150,14 +166,29 @@ export function SignIn({ navigation }: any) {
         oAuthFlow.authSessionResult?.type === 'success' &&
         oAuthFlow.createdSessionId
       ) {
-        if (oAuthFlow.setActive) {
-          await oAuthFlow.setActive({
-            session: oAuthFlow.createdSessionId,
-          });
+        const userExists = await checkUserExistsOnBackend(
+          clerkUser?.emailAddresses[0].emailAddress!
+        );
+
+        if (userExists) {
+          // Continuar o fluxo de login
+          if (oAuthFlow.setActive) {
+            await oAuthFlow.setActive({
+              session: oAuthFlow.createdSessionId,
+            });
+          }
+        } else {
+          Alert.alert(
+            'Erro',
+            'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+          );
+          signOut();
         }
       } else {
-        // Use signIn or signUp returned from startOAuthFlow
-        // for next steps, such as MFA
+        Alert.alert(
+          'Erro',
+          'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+        );
       }
     } catch (error) {
       console.error('SignIn screen, handleContinueWithGoogle error =>', error);
