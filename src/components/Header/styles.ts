@@ -34,7 +34,7 @@ export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
   margin-left: 32px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Description = styled.Text`

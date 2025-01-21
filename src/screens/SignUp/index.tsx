@@ -262,7 +262,7 @@ export function SignUp({ navigation }: any) {
           style={{ marginTop: 8 }}
         >
           <Icon.GoogleLogo />
-          <Text style={{ marginLeft: 8, color: theme.colors.text_placeholder }}>
+          <Text style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}>
             Entrar com o Google
           </Text>
         </SocialLoginButton>

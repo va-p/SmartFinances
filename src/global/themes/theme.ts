@@ -14,9 +14,8 @@ export default {
 
     title: '#000000',
     text: '#000000',
-    text_placeholder: '#969CB2',
-    text_dark: '#000000',
-    text_light: '#FFFFFF',
+    textPlaceholder: 'rgb(150, 156, 178)',
+    textLight: '#FFFFFF',
 
     border: '#707070',
 

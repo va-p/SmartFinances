@@ -16,6 +16,6 @@ export const Container = styled.View`
 
 export const Indicator = styled(ActivityIndicator).attrs<IndicatorProps>(
   ({ theme, type }) => ({
-    color: type === 'primary' ? theme.colors.primary : theme.colors.text_light,
+    color: type === 'primary' ? theme.colors.primary : theme.colors.textLight,
   })
 )``;

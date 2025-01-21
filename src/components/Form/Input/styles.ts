@@ -22,7 +22,7 @@ export const Container = styled.View`
 `;
 
 export const InputText = styled(TextInput).attrs(({ theme }) => ({
-  placeholderTextColor: theme.colors.text_placeholder,
+  placeholderTextColor: theme.colors.textPlaceholder,
 }))`
   min-width: 85%;
   max-width: 85%;

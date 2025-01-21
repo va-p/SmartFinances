@@ -54,7 +54,7 @@ export const FormWrapper = styled.View`
 export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
-  color: ${({ theme }) => theme.colors.text_dark};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const SocialLoginButton = styled(RectButton)`

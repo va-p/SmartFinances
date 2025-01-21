@@ -15,7 +15,7 @@ export function HeaderBackButton() {
   return (
     <BackButton onPress={handleClickBackButton}>
       <BackButtonShape>
-        <Icon.ArrowLeft size={20} color={theme.colors.text_dark} />
+        <Icon.ArrowLeft size={20} color={theme.colors.text} />
       </BackButtonShape>
     </BackButton>
   );

@@ -224,7 +224,7 @@ export function SignIn({ navigation }: any) {
 
         <SocialLoginButton onPress={handleContinueWithGoogle}>
           <Icon.GoogleLogo />
-          <Text style={{ marginLeft: 8, color: theme.colors.text_placeholder }}>
+          <Text style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}>
             Fazer login com o Google
           </Text>
         </SocialLoginButton>

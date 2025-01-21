@@ -22,5 +22,5 @@ export const Name = styled.Text<ContainerProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
   color: ${({ theme, isChecked }) =>
-    isChecked ? theme.colors.text_light : theme.colors.text};
+    isChecked ? theme.colors.textLight : theme.colors.text};
 `;

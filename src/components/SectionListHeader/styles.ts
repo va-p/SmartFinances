@@ -14,5 +14,5 @@ export const Container = styled.View`
 export const SectionText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
-  color: ${({ theme }) => theme.colors.text_placeholder};
+  color: ${({ theme }) => theme.colors.textPlaceholder};
 `;

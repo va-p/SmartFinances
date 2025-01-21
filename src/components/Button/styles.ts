@@ -24,7 +24,7 @@ export const Text = styled.Text<ContainerProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
   margin: 0 8px;
-  color: ${({ theme }) => theme.colors.text_light};
+  color: ${({ theme }) => theme.colors.textLight};
 `;
 
 export const Load = styled.ActivityIndicator.attrs<ContainerProps>(

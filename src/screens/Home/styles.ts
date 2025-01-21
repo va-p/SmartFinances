@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 import { BorderlessButton } from 'react-native-gesture-handler';
@@ -6,7 +5,6 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
-  padding-top: ${Platform.OS === 'ios' ? '20px' : '8px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 

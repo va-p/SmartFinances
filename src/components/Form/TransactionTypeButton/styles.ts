@@ -34,7 +34,7 @@ export const Container = styled.View<ContainerProps>`
     isActive &&
     type === 'swap' &&
     css`
-      background-color: ${({ theme }) => theme.colors.text_light};
+      background-color: ${({ theme }) => theme.colors.textLight};
     `};
 `;
 
