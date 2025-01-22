@@ -9,7 +9,10 @@
     "orientation": "portrait",
     "backgroundColor": "#E6E9F4",
     "primaryColor": "#FF5200",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,7 +20,7 @@
     },
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 39,
+      "versionCode": 40,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -36,7 +39,10 @@
               "pathPrefix": "/oauth-native-callback"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
