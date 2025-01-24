@@ -34,9 +34,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button } from '@components/Button';
 import { TagProps } from '@components/TagListItem';
 import { SelectButton } from '@components/SelectButton';
-import { ModalViewSelection } from '@components/ModalViewSelection';
-import { CurrencySelectButton } from '@components/CurrencySelectButton';
-import { CategorySelectButton } from '@components/Form/CategorySelectButton';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { CurrencySelectButton } from '@screens/RegisterTransaction/components/CurrencySelectButton';
+import { CategorySelectButton } from '@screens/RegisterTransaction/components/CategorySelectButton';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
@@ -894,7 +894,7 @@ export function RegisterTransaction({
               onPress={closeModal}
               style={{ position: 'absolute', top: 0, left: 0 }}
             >
-              <Icon.X size={24} color={theme.colors.background} weight='bold' />
+              <Icon.X size={24} color={theme.colors.text} weight='bold' />
             </BorderlessButton>
             <Title>
               {id !== ''
@@ -906,11 +906,7 @@ export function RegisterTransaction({
                 onPress={() => handleClickDeleteTransaction(id)}
                 style={{ position: 'absolute', top: 0, right: 0 }}
               >
-                <Icon.Trash
-                  size={24}
-                  color={theme.colors.background}
-                  weight='bold'
-                />
+                <Icon.Trash size={24} color={theme.colors.text} weight='bold' />
               </BorderlessButton>
             )}
           </TitleContainer>

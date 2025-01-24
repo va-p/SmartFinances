@@ -60,11 +60,6 @@ const TransactionListItem = memo(function TransactionListItem({
                 data.account.type === 'CREDIT' &&
                 data.type === 'DEBIT' &&
                 '-'}
-              {/* {!hideAmount
-                ? data.amount_in_account_currency
-                  ? data.amount_in_account_currency
-                  : data.amount_formatted
-                : '•••••'} */}
               {!hideAmount ? data.amount_formatted : '•••••'}
             </Amount>
           </AmountContainer>

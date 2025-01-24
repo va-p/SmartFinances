@@ -11,7 +11,7 @@ export const Container = styled.View`
 
 export const ErrorMessage = styled.Text`
   font-size: ${RFValue(12)}px;
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.shapeDark};
   position: absolute;
   top: -20px;
   right: 0;
@@ -19,12 +19,12 @@ export const ErrorMessage = styled.Text`
 `;
 
 export const Input = styled(TextInput).attrs({
-  placeholderTextColor: theme.colors.background,
+  placeholderTextColor: theme.colors.textPlaceholder,
 })`
   width: 100%;
   min-height: 56px;
   max-height: 56px;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
 `;

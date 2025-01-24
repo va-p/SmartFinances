@@ -20,7 +20,7 @@ export const Container = styled(RectButtonAnimated)`
   flex-direction: row;
   align-items: center;
   padding: 8px 16px;
-  margin-bottom: 8px;
+  /* margin-bottom: 8px; */
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
 `;
@@ -64,7 +64,7 @@ export const AmountContainer = styled.View`
 `;
 
 export const TransferDirectionIcon = styled(Ionicons)`
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(10)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 

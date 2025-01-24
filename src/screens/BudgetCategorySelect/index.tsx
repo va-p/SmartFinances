@@ -6,11 +6,12 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Load } from '@components/Load';
+import { Gradient } from '@components/Gradient';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import { useUser } from 'src/storage/userStorage';
-import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelected';
+import { useUser } from '@storage/userStorage';
+import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import { CategoryProps } from '@interfaces/categories';
 
@@ -83,6 +84,8 @@ export function BudgetCategorySelect() {
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={categories}
         keyExtractor={(item) => String(item.id)}

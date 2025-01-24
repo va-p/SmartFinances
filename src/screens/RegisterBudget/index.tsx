@@ -22,7 +22,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Button } from '@components/Button';
 import { SelectButton } from '@components/SelectButton';
-import { ModalViewSelection } from '@components/ModalViewSelection';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 

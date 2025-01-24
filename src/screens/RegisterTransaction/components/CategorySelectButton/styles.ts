@@ -7,10 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 type ColorProps = {
   color: string;
-}
+};
 
 export const Placeholder = styled(TouchableOpacity).attrs({
-  activeOpacity: 0.7
+  activeOpacity: 0.7,
 })`
   width: 60px;
   height: 60px;
@@ -26,13 +26,13 @@ export const ErrorMessage = styled.Text`
 `;
 
 export const Container = styled(RectButton).attrs({
-  activeOpacity: 0.7
-}) <ColorProps>`
+  activeOpacity: 0.7,
+})`
   width: 60px;
   height: 60px;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.overlay};
   border-radius: 30px;
 `;
 
@@ -45,7 +45,7 @@ export const Title = styled.Text`
   font-size: ${RFValue(14)}px;
 `;
 
-export const Icon = styled(Ionicons) <ColorProps>`
+export const Icon = styled(Ionicons)<ColorProps>`
   font-size: ${RFValue(30)}px;
   color: ${({ color }) => color};
 `;

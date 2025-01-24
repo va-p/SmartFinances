@@ -15,7 +15,7 @@ export const Tag = styled(RectButton)<ContainerProps>`
   margin-right: 10px;
   border-radius: 16px;
   background-color: ${({ theme, isChecked, color }) =>
-    isChecked ? color : theme.colors.background};
+    isChecked ? color : theme.colors.overlayGray};
 `;
 
 export const Name = styled.Text<ContainerProps>`

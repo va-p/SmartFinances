@@ -82,18 +82,6 @@ export function SignIn({ navigation }: any) {
     }
   }
 
-  async function checkUserExistsOnBackend(email: string): Promise<boolean> {
-    try {
-      const { data } = await api.get('/auth/user_exists', {
-        params: { email },
-      });
-      return data || false;
-    } catch (error) {
-      console.error('Erro ao verificar usuário no backend:', error);
-      return false;
-    }
-  }
-
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
@@ -105,29 +93,18 @@ export function SignIn({ navigation }: any) {
         oAuthFlow.authSessionResult?.type === 'success' &&
         oAuthFlow.createdSessionId
       ) {
-        const userExists = await checkUserExistsOnBackend(
-          clerkUser?.emailAddresses[0].emailAddress!
-        );
-
-        if (!!userExists) {
-          // Continuar o fluxo de login
-          if (oAuthFlow.setActive) {
-            await oAuthFlow.setActive({
-              session: oAuthFlow.createdSessionId,
-            });
-          }
-        } else {
-          Alert.alert(
-            'Erro',
-            'Não foi possível autenticar com o Google. Por favor, tente novamente.'
-          );
-          signOut();
+        if (oAuthFlow.setActive) {
+          await oAuthFlow.setActive({
+            session: oAuthFlow.createdSessionId,
+          });
+          return;
         }
       } else {
         Alert.alert(
           'Erro',
           'Não foi possível autenticar com o Google. Por favor, tente novamente.'
         );
+        return;
       }
     } catch (error) {
       console.error('SignIn screen, handleContinueWithGoogle error =>', error);
@@ -156,15 +133,7 @@ export function SignIn({ navigation }: any) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Gradient
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: '100%',
-        }}
-      />
+      <Gradient />
 
       <SectionHeader>
         <Header.Root>

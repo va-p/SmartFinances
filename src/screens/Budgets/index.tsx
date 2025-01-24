@@ -7,14 +7,13 @@ import { TransactionProps } from '@interfaces/transactions';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
-import { convertCurrency } from '@utils/convertCurrency';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
-import { Header } from '@components/Header_old';
+import { Header } from '@components/Header';
 import { Button } from '@components/Button';
-import { ModalView } from '@components/ModalView';
+import { ModalView } from '@components/Modals/ModalView';
 import { BudgetListItem } from '@components/BudgetListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';

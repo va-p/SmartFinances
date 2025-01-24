@@ -46,5 +46,5 @@ export const FilterButtonGroup = styled.View`
 
 export const Transactions = styled.View`
   flex: 1;
-  padding: 8px 16px 0;
+  padding: 0 16px;
 `;

@@ -28,7 +28,7 @@ export function Routes() {
       <NavigationContainer>
         <StatusBar
           barStyle='dark-content'
-          backgroundColor={'rgba(255, 255, 255, 0.93)'}
+          backgroundColor={'rgba(255, 255, 255, 0.3)'}
         />
         <BottomSheetModalProvider>
           <Navigator

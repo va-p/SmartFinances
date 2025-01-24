@@ -7,14 +7,14 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Load } from '@components/Load';
 import { ListItem } from '@components/ListItem';
+import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 
-import api from '@api/api';
 import getAccounts from '@utils/getAccounts';
 
 type Props = {
@@ -71,6 +71,8 @@ export function AccountDestinationSelect({
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={accounts}
         keyExtractor={(item) => String(item.id)}

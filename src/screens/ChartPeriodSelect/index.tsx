@@ -3,6 +3,7 @@ import { FlatList } from 'react-native';
 import { Container } from './styles';
 
 import { ListItem } from '@components/ListItem';
+import { Gradient } from '@components/Gradient';
 
 export interface PeriodProps {
   id: string;
@@ -46,6 +47,8 @@ export function ChartPeriodSelect({
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={periods}
         keyExtractor={(item) => item.id}

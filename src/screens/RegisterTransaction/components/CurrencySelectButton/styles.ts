@@ -12,18 +12,18 @@ export const Container = styled(RectButton)`
   align-items: center;
   justify-content: center;
   margin-left: 10px;
-  background-color: ${({ theme }) => theme.colors.overlay_light};
+  background-color: ${({ theme }) => theme.colors.overlay10};
   border-radius: 15px;
 `;
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(14)}px;
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Icon = styled(Ionicons)`
   font-size: ${RFValue(14)}px;
   padding-left: 5px;
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
 `;

@@ -14,7 +14,7 @@ import { Button } from '@components/Button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
-import { ModalViewSelection } from '@components/ModalViewSelection';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
 import { CurrencySelect } from '@screens/CurrencySelect';

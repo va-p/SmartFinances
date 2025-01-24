@@ -24,7 +24,7 @@ export const AnimatedButton = styled(Animated.View)`
 
 export const ButtonsContainer = styled.View`
   flex-direction: row;
-  background-color: ${({ theme }) => theme.colors.overlay_light2};
+  background-color: ${({ theme }) => theme.colors.overlayGray};
   border-radius: 10px;
 `;
 

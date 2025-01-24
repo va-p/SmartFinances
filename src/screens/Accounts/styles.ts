@@ -6,8 +6,15 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
-  padding: ${Platform.OS === 'ios' ? '20px 16px 16px' : '8px 16px 16px'};
   background-color: ${({ theme }) => theme.colors.background};
+`;
+
+export const HeaderContainer = styled.View`
+  background-color: ${({ theme }) => theme.colors.background25};
+  border-bottom-right-radius: ${({ theme }) =>
+    theme.borders.borderRadiusSreenSectionContent};
+  border-bottom-left-radius: ${({ theme }) =>
+    theme.borders.borderRadiusSreenSectionContent};
 `;
 
 export const Header = styled.View`
@@ -33,16 +40,19 @@ export const CashFlowDescription = styled.Text`
 export const HideDataButton = styled(BorderlessButton)`
   position: absolute;
   top: 4px;
-  right: 0px;
+  right: 16px;
 `;
 
 export const ChartContainer = styled.View`
   min-height: 200px;
   max-height: 200px;
+  justify-content: center;
+  padding: 0 16px;
 `;
 
 export const AccountsContainer = styled.View`
   flex: 1;
+  padding: 8px 16px;
 `;
 
 export const Footer = styled.View`

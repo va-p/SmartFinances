@@ -5,6 +5,7 @@ import { Container } from './styles';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import { ListItem } from '@components/ListItem';
+import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 
 import { currencies } from '@utils/currencies';
@@ -27,6 +28,8 @@ export function CurrencySelect({
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={currencies}
         keyExtractor={(item) => item.id}

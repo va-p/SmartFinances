@@ -9,7 +9,7 @@ export const Tag = styled(RectButton)`
   padding: 4px 6px;
   margin-right: 8px;
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.overlayGray};
 `;
 
 export const Name = styled.Text`

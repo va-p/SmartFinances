@@ -52,16 +52,16 @@ import {
   RectButton,
 } from 'react-native-gesture-handler';
 
-import { Header } from '@components/Header_old';
-import { ModalView } from '@components/ModalView';
+import { Header } from '@components/Header';
+import { ModalView } from '@components/Modals/ModalView';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
-import { ModalViewSelection } from '@components/ModalViewSelection';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
-import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
+import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -100,7 +100,8 @@ export function Account() {
     () => transactionsFormattedBySelectedPeriod,
     [transactionsFormattedBySelectedPeriod]
   );
-  const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] = useState('');
+  const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] =
+    useState('R$ 0,00');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
   const [balanceIsPositive, setBalanceIsPositive] = useState(true);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -120,7 +121,7 @@ export function Account() {
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(scrollY.value, [0, 340], [200, 0], Extrapolate.CLAMP),
+      height: interpolate(scrollY.value, [0, 340], [240, 0], Extrapolate.CLAMP),
       opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolate.CLAMP),
     };
   });
@@ -581,7 +582,9 @@ export function Account() {
             <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>
               {!hideAmount ? cashFlowBySelectedPeriod : '•••••'}
             </AccountCashFlow>
-            <AccountCashFlowDescription>{`Fluxo de caixa por ${selectedPeriod.name}`}</AccountCashFlowDescription>
+            <AccountCashFlowDescription>
+              Fluxo de caixa
+            </AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>
       </Animated.View>

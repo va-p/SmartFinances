@@ -1,10 +1,9 @@
 import React from 'react';
 import { FlatList } from 'react-native';
-import {
-  Container
-} from './styles';
+import { Container } from './styles';
 
 import { ListItem } from '@components/ListItem';
+import { Gradient } from '@components/Gradient';
 
 export interface ChartPeriodProps {
   id: string;
@@ -16,39 +15,39 @@ type Props = {
   period: ChartPeriodProps;
   setPeriod: (period: ChartPeriodProps) => void;
   closeSelectPeriod: () => void;
-}
+};
 
 export function BudgetRepetitionSelect({
   period,
   setPeriod,
-  closeSelectPeriod
+  closeSelectPeriod,
 }: Props) {
   const periods = [
     {
       id: '1',
       name: 'Diariamente',
-      period: 'daily'
+      period: 'daily',
     },
     {
       id: '2',
       name: 'Semanalmente',
-      period: 'weekly'
+      period: 'weekly',
     },
     {
       id: '3',
       name: 'Quinzenalmente',
-      period: 'biweekly'
+      period: 'biweekly',
     },
     {
       id: '4',
       name: 'Mensalmente',
-      period: 'monthly'
+      period: 'monthly',
     },
     {
       id: '5',
       name: 'Anualmente',
-      period: 'annually'
-    }
+      period: 'annually',
+    },
   ];
 
   function handlePeriodSelect(period: ChartPeriodProps) {
@@ -58,6 +57,8 @@ export function BudgetRepetitionSelect({
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={periods}
         keyExtractor={(item) => item.id}

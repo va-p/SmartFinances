@@ -13,11 +13,12 @@ import {
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 
-import { Header } from '@components/Header_old';
+import { Header } from '@components/Header';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
 import { addDays } from 'date-fns';
 import * as WebBrowser from 'expo-web-browser';
+import { Gradient } from '@components/Gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { PurchasesPackage } from 'react-native-purchases';
 
@@ -25,8 +26,7 @@ import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import { PackageProps } from '@interfaces/premiumPackage';
 
-import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@screens/OptionsMenu';
-import { Gradient } from '@components/Gradient';
+import { UrlEnum } from '@enums/enumsUrl';
 
 export function PremiumBenefits() {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState(
@@ -50,11 +50,11 @@ export function PremiumBenefits() {
   }
 
   async function handleClickPrivacyPolicy() {
-    await WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
+    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
   }
 
   async function handleClickTermsOfUse() {
-    await WebBrowser.openBrowserAsync(TERMS_OF_USE_URL);
+    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
   }
 
   useFocusEffect(

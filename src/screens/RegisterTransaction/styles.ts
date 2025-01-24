@@ -14,8 +14,8 @@ export const Container = styled.View`
 export const MainContent = styled.View``;
 
 export const Header = styled.View<ColorProps>`
-  min-height: ${RFPercentage(18)}px;
-  max-height: ${RFPercentage(18)}px;
+  min-height: ${RFPercentage(20)}px;
+  max-height: ${RFPercentage(20)}px;
   align-items: center;
   padding: 16px;
   margin-bottom: 3px;
@@ -26,17 +26,19 @@ export const Header = styled.View<ColorProps>`
 
 export const TitleContainer = styled.View`
   width: 100%;
-  min-height: ${RFPercentage(6)}px;
-  max-height: ${RFPercentage(6)}px;
+  min-height: ${RFPercentage(8)}px;
+  max-height: ${RFPercentage(8)}px;
   flex-direction: row;
   justify-content: center;
 `;
 
-export const Title = styled.Text`
+export const Title = styled.Text.attrs({
+  numberOfLines: 3,
+})`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   text-align: center;
-  color: ${({ theme }) => theme.colors.shape};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const HeaderRow = styled.View`

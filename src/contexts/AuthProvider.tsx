@@ -76,70 +76,109 @@ export function AuthProvider({ children }: any) {
   }, [biometricAttempted, biometricSupportedAndEnabled, signInWithBiometrics]);
 
   useEffect(() => {
+    async function checkUserExistsOnBackend(email: string): Promise<boolean> {
+      try {
+        const { data } = await api.get('/auth/user_exists', {
+          params: {
+            email,
+          },
+        });
+        return data || false;
+      } catch (error) {
+        console.error('Erro ao verificar usuário no backend:', error);
+        return false;
+      }
+    }
+
     async function fetchClerkUserDataOnXano() {
       try {
         setLoading(true);
 
-        const { status, data } = await api.get('/auth/clerk_oauth_login', {
-          params: {
-            email: clerkUser!.emailAddresses[0].emailAddress,
-          },
-        });
+        const userExistsOnXano = await checkUserExistsOnBackend(
+          clerkUser?.emailAddresses[0].emailAddress!
+        );
 
-        if (status === 200) {
-          // User token
-          storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+        if (!!userExistsOnXano) {
+          // Continues auth flow
+          const { status, data } = await api.get('/auth/clerk_oauth_login', {
+            params: {
+              email: clerkUser!.emailAddresses[0].emailAddress,
+            },
+          });
 
-          // User Data
-          const loggedInUserDataFormatted = {
-            id: data[1].id,
-            name: data[1].name,
-            lastName: data[1].last_name,
-            email: data[1].email,
-            phone: data[1].phone,
-            role: data[1].role,
-            image: data[1].image,
-            tenantId: data[1].tenant_id,
-          };
-          storageUser.set(
-            `${DATABASE_USERS}`,
-            JSON.stringify(loggedInUserDataFormatted)
+          if (status === 200) {
+            // User token
+            storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+
+            // User Data
+            const loggedInUserDataFormatted = {
+              id: data[1].id,
+              name: data[1].name,
+              lastName: data[1].last_name,
+              email: data[1].email,
+              phone: data[1].phone,
+              role: data[1].role,
+              image: data[1].image,
+              tenantId: data[1].tenant_id,
+            };
+            storageUser.set(
+              `${DATABASE_USERS}`,
+              JSON.stringify(loggedInUserDataFormatted)
+            );
+            useUser.setState(() => ({
+              id: loggedInUserDataFormatted.id,
+              name: loggedInUserDataFormatted.name,
+              lastName: loggedInUserDataFormatted.lastName,
+              email: loggedInUserDataFormatted.email,
+              phone: loggedInUserDataFormatted.phone,
+              role: loggedInUserDataFormatted.role,
+              profileImage: loggedInUserDataFormatted.image,
+              tenantId: loggedInUserDataFormatted.tenantId,
+            }));
+
+            // User Configs
+            storageConfig.set(
+              `${DATABASE_CONFIGS}.useLocalAuth`,
+              data[1].use_local_authentication
+            );
+            storageConfig.set(
+              `${DATABASE_CONFIGS}.hideAmount`,
+              data[1].hide_amount
+            );
+            storageConfig.set(`${DATABASE_CONFIGS}.insights`, data[1].insights);
+            useUserConfigs.setState(() => ({
+              useLocalAuth: data.use_local_authentication,
+              hideAmount: data.hide_amount,
+              insights: data.insights,
+            }));
+
+            setIsSignedIn(clerkSignedIn!);
+            setUser(loggedInUserDataFormatted);
+            return;
+          } else {
+            await clerk.signOut();
+
+            Alert.alert(
+              'Erro',
+              'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+            );
+            return;
+          }
+        } else {
+          await clerk.signOut();
+
+          Alert.alert(
+            'Erro',
+            'Não foi possível autenticar com o Google. Por favor, tente novamente.'
           );
-          useUser.setState(() => ({
-            id: loggedInUserDataFormatted.id,
-            name: loggedInUserDataFormatted.name,
-            lastName: loggedInUserDataFormatted.lastName,
-            email: loggedInUserDataFormatted.email,
-            phone: loggedInUserDataFormatted.phone,
-            role: loggedInUserDataFormatted.role,
-            profileImage: loggedInUserDataFormatted.image,
-            tenantId: loggedInUserDataFormatted.tenantId,
-          }));
-
-          // User Configs
-          storageConfig.set(
-            `${DATABASE_CONFIGS}.useLocalAuth`,
-            data[1].use_local_authentication
-          );
-          storageConfig.set(
-            `${DATABASE_CONFIGS}.hideAmount`,
-            data[1].hide_amount
-          );
-          storageConfig.set(`${DATABASE_CONFIGS}.insights`, data[1].insights);
-          useUserConfigs.setState(() => ({
-            useLocalAuth: data.use_local_authentication,
-            hideAmount: data.hide_amount,
-            insights: data.insights,
-          }));
-
-          setIsSignedIn(clerkSignedIn!);
-          setUser(loggedInUserDataFormatted);
           return;
         }
-        return;
       } catch (error) {
-        console.error('Erro ao buscar dados do usuário:', error);
-        Alert.alert('Login', error.response?.data?.message);
+        console.error('Erro ao buscar dados do usuário =>', error);
+        Alert.alert(
+          'Erro ao buscar dados do usuário, por favor, tente novamente',
+          error.response?.data?.message
+        );
       } finally {
         setLoading(false);
       }

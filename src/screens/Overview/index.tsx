@@ -29,19 +29,22 @@ import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-import { Header } from '@components/Header_old';
+import { Header } from '@components/Header';
+import { Gradient } from '@components/Gradient';
 import { HistoryCard } from '@components/HistoryCard';
 import { ChartSelectButton } from '@components/ChartSelectButton';
 import { TabButtons, TabButtonType } from '@components/TabButtons';
-import { ModalViewSelection } from '@components/ModalViewSelection';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 
 import { CashFLowData } from '@screens/Home';
 import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
@@ -51,9 +54,6 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
-import { useFocusEffect } from '@react-navigation/native';
-import { Gradient } from '@components/Gradient';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;

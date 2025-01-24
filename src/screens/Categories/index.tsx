@@ -9,7 +9,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
-import { ModalView } from '@components/ModalView';
+import { ModalView } from '@components/Modals/ModalView';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItem } from '@components/CategoryListItem';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';

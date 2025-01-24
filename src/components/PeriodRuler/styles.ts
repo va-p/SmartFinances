@@ -5,7 +5,7 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 export const Container = styled.View`
   flex-direction: row;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 32px;
 `;
 
 export const MonthSelectButton = styled(BorderlessButton)``;

@@ -7,11 +7,12 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Load } from '@components/Load';
 import { ListItem } from '@components/ListItem';
+import { Gradient } from '@components/Gradient';
 import { TagProps } from '@components/TagListItem';
 import { ListSeparator } from '@components/ListSeparator';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import api from '@api/api';
 
@@ -69,6 +70,8 @@ export function TagSelect({ tag, setTag, closeSelectTag }: Props) {
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={tags}
         keyExtractor={(item) => String(item.id)}

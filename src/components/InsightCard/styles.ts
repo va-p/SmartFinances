@@ -6,9 +6,9 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 export const Container = styled.View`
   padding: 16px;
   margin: 16px 0;
-  border: 1px solid ${({ theme }) => theme.colors.overlay_light2};
+  border: 1px solid ${({ theme }) => theme.colors.overlayGray};
   border-radius: 8px;
-  background-color: ${({ theme }) => theme.colors.overlay_light2};
+  background-color: ${({ theme }) => theme.colors.overlayGray};
 `;
 
 export const CloseInsightButton = styled(BorderlessButton)`

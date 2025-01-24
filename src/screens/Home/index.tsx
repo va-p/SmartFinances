@@ -71,8 +71,8 @@ import { ChartSelectButton } from '@components/ChartSelectButton';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { ModalViewSelection } from '@components/ModalViewSelection';
-import { ModalViewWithoutHeader } from '@components/ModalViewWithoutHeader';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
@@ -946,7 +946,7 @@ export function Home() {
             <SectionListHeader data={section} />
           )}
           ListEmptyComponent={_renderEmpty}
-          initialNumToRender={2000}
+          initialNumToRender={200}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -957,6 +957,8 @@ export function Home() {
           onScroll={scrollHandlerToTop}
           scrollEventThrottle={16}
           contentContainerStyle={{
+            rowGap: 8,
+            paddingTop: 16,
             paddingBottom: 56,
           }}
         />

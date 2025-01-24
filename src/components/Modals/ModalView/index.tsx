@@ -1,10 +1,13 @@
 import React, { ReactNode } from 'react';
-import { SafeAreaView } from 'react-native';
 import { Overlay, Header, Title, Container } from './styles';
 
-import { BottomSheetProps, BottomSheetModal } from '@gorhom/bottom-sheet';
-import { BorderlessButton } from 'react-native-gesture-handler';
+import {
+  BottomSheetProps,
+  BottomSheetModal,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import * as Icon from 'phosphor-react-native';
+import { BorderlessButton } from 'react-native-gesture-handler';
 
 import theme from '@themes/theme';
 
@@ -42,7 +45,7 @@ export function ModalView({
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       {...rest}
     >
-      <SafeAreaView style={{ flex: 1 }}>
+      <BottomSheetView style={{ flex: 1 }}>
         <Header color={color}>
           <BorderlessButton onPress={closeModal}>
             <Icon.X color={theme.colors.primary} style={{ marginLeft: 12 }} />
@@ -61,7 +64,7 @@ export function ModalView({
         </Header>
 
         <Container>{children}</Container>
-      </SafeAreaView>
+      </BottomSheetView>
     </BottomSheetModal>
   );
 }

@@ -2,25 +2,17 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "2.5.2(40)",
-    "version": "2.5.2",
+    "runtimeVersion": "2.5.4(42)",
+    "version": "2.5.4",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#E6E9F4",
     "primaryColor": "#FF5200",
-    "platforms": [
-      "ios",
-      "android"
-    ],
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#E6E9F4"
-    },
+    "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 40,
+      "versionCode": 41,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -39,10 +31,7 @@
               "pathPrefix": "/oauth-native-callback"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
@@ -66,9 +55,9 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#E6E9F4",
-          "image": "./assets/icon.png",
+          "image": "./assets/splashscreen.gif",
           "dark": {
-            "image": "./assets/icon.png",
+            "image": "./assets/splashscreen.gif",
             "backgroundColor": "#E6E9F4"
           }
         }

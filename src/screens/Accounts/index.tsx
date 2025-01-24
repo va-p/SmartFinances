@@ -11,6 +11,7 @@ import {
   AccountsContainer,
   Footer,
   ButtonGroup,
+  HeaderContainer,
 } from './styles';
 
 import getAccounts from '@utils/getAccounts';
@@ -26,7 +27,7 @@ import * as Icon from 'phosphor-react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
-import { ModalView } from '@components/ModalView';
+import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -340,68 +341,71 @@ export function Accounts({ navigation }: any) {
   return (
     <Container>
       <Gradient />
+      <HeaderContainer>
+        <Header>
+          <CashFlowContainer>
+            <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal>
+            <CashFlowDescription>Patrimônio Total</CashFlowDescription>
+          </CashFlowContainer>
 
-      <Header>
-        <CashFlowContainer>
-          <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal>
-          <CashFlowDescription>Patrimônio Total</CashFlowDescription>
-        </CashFlowContainer>
+          <HideDataButton onPress={() => handleHideData()}>
+            {!hideAmount ? (
+              <Icon.EyeSlash size={20} color={theme.colors.primary} />
+            ) : (
+              <Icon.Eye size={20} color={theme.colors.primary} />
+            )}
+          </HideDataButton>
+        </Header>
 
-        <HideDataButton onPress={() => handleHideData()}>
-          {!hideAmount ? (
-            <Icon.EyeSlash size={20} color={theme.colors.primary} />
-          ) : (
-            <Icon.Eye size={20} color={theme.colors.primary} />
-          )}
-        </HideDataButton>
-      </Header>
-
-      <ChartContainer>
-        <LineChart
-          key={totalsByMonths.length}
-          data={totalsByMonths.map((item) => {
-            return { value: item.total };
-          })}
-          xAxisLabelTexts={totalsByMonths.map((item) => {
-            return item.date;
-          })}
-          yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(totalsByMonths)}
-          width={GRAPH_WIDTH}
-          height={128}
-          noOfSections={5}
-          mostNegativeValue={0}
-          xAxisColor='#455A64'
-          yAxisColor='#455A64'
-          areaChart
-          curved
-          showVerticalLines
-          verticalLinesUptoDataPoint
-          initialSpacing={8}
-          endSpacing={8}
-          focusEnabled
-          showStripOnFocus
-          showValuesAsDataPointsText
-          showTextOnFocus
-          xAxisTextNumberOfLines={2}
-          xAxisLabelTextStyle={{
-            fontSize: 10,
-            color: '#90A4AE',
-            paddingRight: 12,
-          }}
-          yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
-          rulesColor='#455A64'
-          verticalLinesColor='#455A64'
-          color1={theme.colors.primary}
-          dataPointsColor1={theme.colors.primary}
-          startFillColor1={theme.colors.primary}
-          startOpacity={0.6}
-          endOpacity={0.1}
-          isAnimated
-          animationDuration={5000}
-          animateOnDataChange
-          scrollToEnd
-        />
-      </ChartContainer>
+        <ChartContainer>
+          <LineChart
+            key={totalsByMonths.length}
+            data={totalsByMonths.map((item) => {
+              return { value: item.total };
+            })}
+            xAxisLabelTexts={totalsByMonths.map((item) => {
+              return item.date;
+            })}
+            yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
+              totalsByMonths
+            )}
+            width={GRAPH_WIDTH}
+            height={128}
+            noOfSections={5}
+            mostNegativeValue={0}
+            xAxisColor='#455A64'
+            yAxisColor='#455A64'
+            areaChart
+            curved
+            showVerticalLines
+            verticalLinesUptoDataPoint
+            initialSpacing={8}
+            endSpacing={8}
+            focusEnabled
+            showStripOnFocus
+            showValuesAsDataPointsText
+            showTextOnFocus
+            xAxisTextNumberOfLines={2}
+            xAxisLabelTextStyle={{
+              fontSize: 10,
+              color: '#90A4AE',
+              paddingRight: 12,
+            }}
+            yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+            rulesColor='#455A64'
+            verticalLinesColor='#455A64'
+            color1={theme.colors.primary}
+            dataPointsColor1={theme.colors.primary}
+            startFillColor1={theme.colors.primary}
+            startOpacity={0.6}
+            endOpacity={0.1}
+            isAnimated
+            animationDuration={5000}
+            animateOnDataChange
+            scrollToEnd
+          />
+        </ChartContainer>
+      </HeaderContainer>
 
       <AccountsContainer>
         <FlatList

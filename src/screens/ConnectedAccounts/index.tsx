@@ -62,9 +62,9 @@ export function ConnectedAccounts({ navigation }: any) {
 
   const [integrations, setIntegrations] = useState<BankingIntegration[]>([]);
 
-  async function fetchBankingIntegrations(isRefresh: boolean = false) {
+  async function fetchBankingIntegrations() {
     try {
-      isRefresh ? setRefreshing(true) : setLoading(true);
+      setLoading(true);
 
       const response = await api.get('/banking_integration/get_integrations', {
         params: {
@@ -78,14 +78,44 @@ export function ConnectedAccounts({ navigation }: any) {
       }
       return;
     } catch (error) {
-      console.error('Erro ao verificar contas conectadas:', error);
+      console.error('fetchBankingIntegrations error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível buscar suas integrações bancárias. Por favor, tente novamente.'
       );
     } finally {
       setLoading(false);
-      setRefreshing(false);
+    }
+  }
+
+  async function fetchAndUpdateBankingIntegrations(isRefresh: boolean = false) {
+    try {
+      // isRefresh ? setRefreshing(true) : setLoading(true);
+      setLoading(true);
+
+      const response = await api.get(
+        '/banking_integration/get_and_update_banking_integrations',
+        {
+          params: {
+            user_id: userID,
+          },
+        }
+      );
+
+      if (!!response.data && response.data.length > 0) {
+        const data = response.data;
+        setIntegrations(data);
+      }
+      return;
+    } catch (error) {
+      console.error('fetchAndUpdateBankingIntegrations error =>', error);
+      Alert.alert(
+        'Erro',
+        'Não foi possível atualizar suas integrações bancárias. Por favor, tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+      // setRefreshing(false);
     }
   }
 
@@ -235,7 +265,7 @@ export function ConnectedAccounts({ navigation }: any) {
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
-                onRefresh={() => fetchBankingIntegrations(true)}
+                onRefresh={() => fetchAndUpdateBankingIntegrations()}
               />
             }
             ListFooterComponent={

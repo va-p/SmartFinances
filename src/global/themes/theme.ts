@@ -9,6 +9,7 @@ export default {
     background65: 'rgba(255, 255, 255, 0.65)',
 
     shape: 'rgba(255, 255, 255, 0.45)',
+    shapeDark: 'rgb(150, 156, 178)',
 
     button: '#FFAA29',
 
@@ -26,8 +27,8 @@ export default {
     attention_light: 'rgba(251, 103, 103, 0.6)',
 
     overlay: 'rgba(0, 0, 0, 0.7)',
-    overlay_light: 'rgba(0, 0, 0, 0.1)',
-    overlay_light2: 'rgba(150, 156, 178, 0.1)',
+    overlay10: 'rgba(0, 0, 0, 0.1)',
+    overlayGray: 'rgba(150, 156, 178, 0.1)',
   },
   borders: {
     default: '1px solid #707070',

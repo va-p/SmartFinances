@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
-import { Container, Footer } from './styles';
+import { Container } from './styles';
 
 import axios from 'axios';
 import * as Icon from 'phosphor-react-native';
@@ -8,8 +8,9 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { Button } from '@components/Button';
-import { Header } from '@components/Header_old';
-import { ModalView } from '@components/ModalView';
+import { Header } from '@components/Header';
+import { Gradient } from '@components/Gradient';
+import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
@@ -27,7 +28,6 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import { Gradient } from '@components/Gradient';
 
 export function AccountsList() {
   const [loading, setLoading] = useState(false);
@@ -200,7 +200,7 @@ export function AccountsList() {
 
       <Header.Root>
         <Header.BackButton />
-        <Header.Title title={'Contas'} />
+        <Header.Title title={'Contas Manuais'} />
       </Header.Root>
 
       <FlatList

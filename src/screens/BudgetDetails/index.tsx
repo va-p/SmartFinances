@@ -20,8 +20,9 @@ import {
   PeriodContainer,
   StartPeriod,
 } from '@components/BudgetListItem/styles';
-import { Header } from '@components/Header_old';
-import { ModalView } from '@components/ModalView';
+import { Header } from '@components/Header';
+import { Gradient } from '@components/Gradient';
+import { ModalView } from '@components/Modals/ModalView';
 import { InsightCard } from '@components/InsightCard';
 import { SectionTitle } from '@screens/Overview/styles';
 import { BudgetPercentBar } from '@components/BudgetPercentBar';
@@ -110,6 +111,8 @@ export function BudgetDetails() {
 
   return (
     <Container>
+      <Gradient />
+
       <Header.Root>
         <Header.BackButton />
         <Header.Title title={budget.name} />

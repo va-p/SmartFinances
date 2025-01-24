@@ -1,8 +1,12 @@
 import React, { ReactNode } from 'react';
-import { SafeAreaView } from 'react-native';
 import { Overlay, Container } from './styles';
 
-import { BottomSheetProps, BottomSheetModal } from '@gorhom/bottom-sheet';
+import {
+  BottomSheetProps,
+  BottomSheetModal,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
+
 import theme from '@themes/theme';
 
 export type Props = BottomSheetProps & {
@@ -25,9 +29,9 @@ export function ModalViewWithoutHeader({
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       {...rest}
     >
-      <SafeAreaView style={{ flex: 1 }}>
+      <BottomSheetView style={{ flex: 1 }}>
         <Container>{children}</Container>
-      </SafeAreaView>
+      </BottomSheetView>
     </BottomSheetModal>
   );
 }

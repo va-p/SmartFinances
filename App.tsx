@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
 
 import * as Font from 'expo-font';
 import * as Updates from 'expo-updates';

@@ -6,6 +6,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Load } from '@components/Load';
+import { Gradient } from '@components/Gradient';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
@@ -72,6 +73,8 @@ export function CategorySelect({
 
   return (
     <Container>
+      <Gradient />
+
       <FlatList
         data={categories}
         keyExtractor={(item) => String(item.id)}
