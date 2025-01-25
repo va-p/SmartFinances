@@ -23,7 +23,7 @@ export const MainContent = styled.View`
   align-items: center;
   row-gap: 8px;
   padding: 64px 8px 8px;
-  background-color: ${({ theme }) => theme.colors.background25};
+  background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
 `;
 
 export const LogoWrapper = styled.View`

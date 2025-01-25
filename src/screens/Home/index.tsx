@@ -1014,7 +1014,7 @@ export function Home() {
 const styles = StyleSheet.create({
   header: {
     overflow: 'hidden',
-    backgroundColor: theme.colors.background25,
+    backgroundColor: theme.colors.backgroundCardHeader,
     borderBottomRightRadius: 75,
     borderBottomLeftRadius: 75,
   },

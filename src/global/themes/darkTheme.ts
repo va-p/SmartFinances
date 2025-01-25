@@ -4,7 +4,7 @@ export default {
     primaryLight: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(230, 233, 244)',
-    background25: 'rgba(255, 255, 255, 0.25)',
+    backgroundCardHeader: 'rgba(255, 255, 255, 0.25)',
 
     shape: 'rgb(255, 255, 255)',
 

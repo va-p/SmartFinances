@@ -230,32 +230,7 @@ export function RegisterTransaction({
   }
 
   function handleCloseRegisterTransaction() {
-    // setButtonIsLoading(true);
-
-    // resetId();
-    // reset();
-    // setTransactionType('');
-    // setAccountID(null);
-    // setAccountName(null);
-    // setAccountCurrency(null);
-    // setCategorySelected({
-    //   id: '',
-    //   name: 'Selecione a categoria',
-    //   icon: {
-    //     id: '',
-    //     title: '',
-    //     name: '',
-    //   },
-    //   color: {
-    //     id: '',
-    //     name: '',
-    //     hex: theme.colors.primary,
-    //   },
-    //   tenant_id: '',
-    // });
-    // setTagsSelected([]);
     closeRegisterTransaction();
-    // setButtonIsLoading(false);
   }
 
   function handleSelectTag(tag: TagProps) {

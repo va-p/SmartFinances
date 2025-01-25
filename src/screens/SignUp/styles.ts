@@ -15,5 +15,5 @@ export const MainContent = styled.ScrollView.attrs({
   border-top-right-radius: ${({ theme }) =>
     theme.borders.borderRadiusSreenSectionContent};
   /* padding: 8px 8px 8px; */
-  background-color: ${({ theme }) => theme.colors.background25};
+  background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
 `;

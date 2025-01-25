@@ -4,11 +4,10 @@ export default {
     primary_light: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(230, 233, 244)',
-    backgroundNav: 'rgba(255, 235, 206, 1)',
-    background25: 'rgba(255, 255, 255, 0.25)', // Content of screens
-    background65: 'rgba(255, 255, 255, 0.65)',
+    backgroundNav: 'rgba(255, 255, 255, 0.95)',
+    backgroundCardHeader: 'rgba(255, 255, 255, 0.5)', // Card of top screens
 
-    shape: 'rgba(255, 255, 255, 0.45)',
+    shape: 'rgba(255, 255, 255, 0.5)',
     shapeDark: 'rgb(150, 156, 178)',
 
     button: '#FFAA29',

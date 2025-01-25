@@ -10,7 +10,7 @@ export const Container = styled.View`
 `;
 
 export const HeaderContainer = styled.View`
-  background-color: ${({ theme }) => theme.colors.background25};
+  background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
   border-bottom-right-radius: ${({ theme }) =>
     theme.borders.borderRadiusSreenSectionContent};
   border-bottom-left-radius: ${({ theme }) =>

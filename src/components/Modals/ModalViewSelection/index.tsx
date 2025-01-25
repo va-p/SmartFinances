@@ -25,7 +25,9 @@ export function ModalViewSelection({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
+      maxDynamicContentSize={400}
       enablePanDownToClose={true}
+      enableContentPanningGesture={false}
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}

@@ -9,10 +9,13 @@
     "orientation": "portrait",
     "backgroundColor": "#E6E9F4",
     "primaryColor": "#FF5200",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 41,
+      "versionCode": 42,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -31,7 +34,10 @@
               "pathPrefix": "/oauth-native-callback"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
