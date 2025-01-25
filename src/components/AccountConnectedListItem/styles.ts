@@ -1,57 +1,111 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
-import { BorderlessButton } from 'react-native-gesture-handler';
+import { RectButton } from 'react-native-gesture-handler';
+
+import {
+  ExecutionStatusTypes,
+  StatusTypes,
+} from '@interfaces/bankingIntegration';
 
 type Props = {
   isTitle: boolean;
 };
 
-export const Container = styled.View`
-  flex: 1;
-  min-height: 56px;
-  /* max-height: 56px; */
-  padding: 8px 0;
-  margin-bottom: 16px;
+type StatusProps = {
+  status: StatusTypes;
+  executionStatus: ExecutionStatusTypes;
+};
+
+export const Container = styled(RectButton)`
+  flex-direction: row;
+  min-height: 72px;
+  max-height: 104px;
+  padding: 16px;
+  margin-bottom: 8px;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
 `;
 
-export const AccountNameAndEditBtContainer = styled.View`
+export const MainContent = styled.View`
+  min-width: 90%;
+  max-width: 90%;
+`;
+
+export const AccountNameContainer = styled.View`
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 8px;
 `;
 
 export const AccountName = styled.Text<Props>`
-  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
-  color: ${({ theme, isTitle }) =>
-    isTitle ? theme.colors.title : theme.colors.text};
-`;
 
-export const EditButton = styled(BorderlessButton)`
-  /* position: absolute; */
-  /* top: 12px; */
-  /* right: 0px; */
-`;
-
-export const StatusContainer = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
+  ${({ isTitle }) =>
+    isTitle &&
+    css`
+      font-family: ${({ theme }) => theme.fonts.medium};
+      color: ${({ theme }) => theme.colors.title};
+    `};
+  ${({ isTitle }) =>
+    !isTitle &&
+    css`
+      font-family: ${({ theme }) => theme.fonts.regular};
+      color: ${({ theme }) => theme.colors.text};
+    `};
 `;
 
 export const LastSyncDate = styled.Text<Props>`
-  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
-  color: ${({ theme, isTitle }) =>
-    isTitle ? theme.colors.title : theme.colors.text};
+
+  ${({ isTitle }) =>
+    isTitle &&
+    css`
+      font-family: ${({ theme }) => theme.fonts.medium};
+      color: ${({ theme }) => theme.colors.title};
+    `};
+  ${({ isTitle }) =>
+    !isTitle &&
+    css`
+      font-family: ${({ theme }) => theme.fonts.regular};
+      color: ${({ theme }) => theme.colors.text};
+    `};
 `;
 
-export const ConnectionStatus = styled.View`
+export const StatusContainer = styled.View`
+  min-width: 90%;
+  max-width: 90%;
+  padding-left: 16px;
+`;
+
+export const ConnectionStatus = styled.View<StatusProps>`
   min-width: 12px;
   max-width: 12px;
   min-height: 12px;
   max-height: 12px;
-  background-color: ${({ theme }) => theme.colors.success};
-  border: 1px solid ${({ theme }) => theme.colors.success};
   border-radius: 6px;
+
+  ${({ status, executionStatus }) =>
+    status === 'UPDATED' &&
+    executionStatus === 'SUCCESS' &&
+    css`
+      background-color: ${({ theme }) => theme.colors.success};
+      border: 1px solid ${({ theme }) => theme.colors.success};
+    `};
+  ${({ executionStatus }) =>
+    executionStatus === 'ERROR' &&
+    css`
+      background-color: ${({ theme }) => theme.colors.attention};
+      border: 1px solid ${({ theme }) => theme.colors.attention};
+    `};
+
+  ${({ status, executionStatus }) =>
+    status === 'OUTDATED' &&
+    executionStatus !== 'SUCCESS' &&
+    executionStatus !== 'ERROR' &&
+    css`
+      background-color: ${({ theme }) => theme.colors.primary};
+      border: 1px solid ${({ theme }) => theme.colors.primary};
+    `};
 `;

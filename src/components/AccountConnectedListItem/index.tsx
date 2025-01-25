@@ -1,48 +1,51 @@
 import React from 'react';
 import {
   Container,
-  AccountNameAndEditBtContainer,
+  AccountNameContainer,
   AccountName,
-  EditButton,
   StatusContainer,
   LastSyncDate,
   ConnectionStatus,
+  MainContent,
 } from './styles';
 
-import { DotsThreeCircle } from 'phosphor-react-native';
-
-import theme from '@themes/theme';
-
-interface AccountConnected {
-  bankName: string;
-  connectorId: string;
-  lastSyncDate: string | Date;
-  status: string;
-}
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { BankingIntegration } from '@interfaces/bankingIntegration';
 
 type Props = {
-  data: AccountConnected;
+  data: BankingIntegration;
   onPress?: () => void;
 };
 
 export function AccountConnectedListItem({ data, onPress }: Props) {
+  const formattedLastSyncDate = format(
+    new Date(data.last_sync_date),
+    'dd/MM/yyyy',
+    {
+      locale: ptBR,
+    }
+  );
   return (
-    <Container>
-      <AccountNameAndEditBtContainer>
-        <AccountName isTitle>
-          Inst. Financeira:{' '}
-          <AccountName isTitle={false}>{data.bankName}</AccountName>
-        </AccountName>
-        <EditButton onPress={onPress}>
-          <DotsThreeCircle size={20} color={theme.colors.primary} />
-        </EditButton>
-      </AccountNameAndEditBtContainer>
-      <StatusContainer>
-        <LastSyncDate isTitle>
+    <Container onPress={onPress}>
+      <MainContent>
+        <AccountNameContainer>
+          <AccountName isTitle={false}>
+            Inst. Financeira:{' '}
+            <AccountName isTitle>{data.bank_name}</AccountName>
+          </AccountName>
+        </AccountNameContainer>
+        <LastSyncDate isTitle={false}>
           Data Últ. Sinc.:{' '}
-          <LastSyncDate isTitle={false}>{`${data.lastSyncDate}`}</LastSyncDate>
+          <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
         </LastSyncDate>
-        <ConnectionStatus />
+      </MainContent>
+
+      <StatusContainer>
+        <ConnectionStatus
+          status={data.status}
+          executionStatus={data.execution_status}
+        />
       </StatusContainer>
     </Container>
   );

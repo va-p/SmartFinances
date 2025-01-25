@@ -9,10 +9,13 @@ import { OptionsMenu } from '@screens/OptionsMenu';
 import { AccountsList } from '@screens/AccountsList';
 import { PremiumBenefits } from '@screens/PremiumBenefits';
 import { ConnectedAccounts } from '@screens/ConnectedAccounts';
+import { BankingIntegrationDetails } from '@screens/BankingIntegrationDetails';
+
+import { RootParamList } from 'src/@types/navigation';
 
 import theme from '@themes/theme';
 
-const { Navigator, Screen } = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator<RootParamList>();
 
 export function AppOptionsStackRoutes() {
   return (
@@ -33,6 +36,11 @@ export function AppOptionsStackRoutes() {
       <Screen name='Contas' component={AccountsList} />
 
       <Screen name='Contas Conectadas' component={ConnectedAccounts} />
+
+      <Screen
+        name='Integração Bancária'
+        component={BankingIntegrationDetails}
+      />
 
       <Screen name='Categorias' component={Categories} />
 

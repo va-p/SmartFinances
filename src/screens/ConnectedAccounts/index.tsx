@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, Text } from 'react-native';
-import { ConnectedAccountsList, Container } from './styles';
+import {
+  ConnectedAccountsList,
+  Container,
+  PluggyConnectContainer,
+} from './styles';
 
 import { useRevenueCat } from '@providers/RevenueCatProvider';
 
@@ -15,39 +19,11 @@ import { Gradient } from '@components/Gradient';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 
+import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
+
 import api from '@api/api';
 
 import theme from '@themes/theme';
-
-interface Connection {
-  item: {
-    id: string; // "57063906-888f-4cfb-b437-169728a9d769" - O ID da integração (conector) no puggly (hash);
-    connector: {
-      id: number; // 201 - ID da instituição financeira;
-      imageUrl: string; // "https://cdn.pluggy.ai/assets/connector-icons/201.svg" - Imagem da inst. fin.;
-      name: string; // "Itaú" - Nome da instituição financeira;
-    };
-    status: string; // 'UPDATED' - O status desta integração (conector) na Pluggy;
-    executionStatus: string; // "SUCCESS" - O status da execução desta integração (conector) na Pluggy;
-  };
-}
-
-type HealthTypes = 'ONLINE' | 'UNSTABLE' | 'OFFLINE';
-
-type StatusTypes =
-  | 'UPDATING'
-  | 'LOGIN_ERROR'
-  | 'OUTDATED'
-  | 'WAITING_USER_INPUT'
-  | 'UPDATED';
-
-interface BankingIntegration {
-  bankName: string;
-  connectorId: string;
-  health: HealthTypes;
-  lastSyncDate: string | Date;
-  status: StatusTypes;
-}
 
 export function ConnectedAccounts({ navigation }: any) {
   const route = useRoute();
@@ -57,6 +33,8 @@ export function ConnectedAccounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState(''); // idle, updating, waitingMFA, updateComplete, updateError
+  const [mfaToken, setMfaToken] = useState('');
 
   const [token, setToken] = useState<string>();
 
@@ -88,34 +66,52 @@ export function ConnectedAccounts({ navigation }: any) {
     }
   }
 
-  async function fetchAndUpdateBankingIntegrations(isRefresh: boolean = false) {
+  async function handleRefresh() {
     try {
-      // isRefresh ? setRefreshing(true) : setLoading(true);
-      setLoading(true);
+      // setLoading(true);
 
-      const response = await api.get(
-        '/banking_integration/get_and_update_banking_integrations',
-        {
-          params: {
-            user_id: userID,
-          },
-        }
-      );
+      // const response = await api.get(
+      //   '/banking_integration/get_and_update_banking_integrations',
+      //   {
+      //     params: {
+      //       user_id: userID,
+      //     },
+      //   }
+      // );
 
-      if (!!response.data && response.data.length > 0) {
-        const data = response.data;
-        setIntegrations(data);
-      }
+      // // ... lógica para processar a resposta
+      // if (!!response.data && response.data.length > 0) {
+      //   const data: BankingIntegration[] = response.data;
+      //   setIntegrations(data);
+      // }
+
+      // // TODO: Checar se precisa de MFA
+      // if (
+      //   response.data.some(
+      //     (integration: BankingIntegration) =>
+      //       integration.execution_status === 'WAITING_USER_INPUT'
+      //   )
+      // ) {
+      //   setUpdateStatus('waitingMFA');
+      // } else {
+      //   setUpdateStatus('updateComplete');
+      //   Alert.alert(
+      //     'Contas atualizadas com sucesso!',
+      //     'As suas contas foram importadas com sucesso!'
+      //   );
+      // }
+
+      // setUpdateStatus('updating');
+
       return;
     } catch (error) {
-      console.error('fetchAndUpdateBankingIntegrations error =>', error);
+      console.error('handleRefresh error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível atualizar suas integrações bancárias. Por favor, tente novamente.'
       );
     } finally {
       setLoading(false);
-      // setRefreshing(false);
     }
   }
 
@@ -136,7 +132,7 @@ export function ConnectedAccounts({ navigation }: any) {
           setToken(data);
         }
       } catch (error) {
-        console.error('SelectConnectAccount fetchToken error =>', error);
+        console.error('ConnectedAccounts fetchToken error =>', error);
         Alert.alert(
           'Erro',
           'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
@@ -157,23 +153,20 @@ export function ConnectedAccounts({ navigation }: any) {
     setShowModal(true);
   }
 
-  const handleOnSuccess = useCallback(async (itemData: Connection) => {
+  const handleOnSuccess = useCallback(async (itemData: Connector) => {
     try {
       setLoading(true);
 
-      const { status, data: newConnectedAccounts } = await api.post(
-        '/banking_integration/create',
-        {
-          user_id: userID, // ID do usuário do app
-          tenant_id: tenantID, // ID do tenant do app
-          pluggy_integration_id: itemData.item.id, // O ID da integração no puggly (hash)
-          connector_id: itemData.item.connector.id, // o ID da Instituição Financeira (conector)
-          last_sync_date: new Date(), // Data da sincronização inicial
-          bank_name: itemData.item.connector.name, // O nome da Instituição Financeira (conector)
-          status: itemData.item.status,
-          execution_status: itemData.item.executionStatus,
-        }
-      );
+      const { status } = await api.post('/banking_integration/create', {
+        user_id: userID, // ID do usuário do app
+        tenant_id: tenantID, // ID do tenant do app
+        pluggy_integration_id: itemData.item.id, // O ID da integração no puggly (hash)
+        connector_id: itemData.item.connector.id, // o ID da Instituição Financeira (conector)
+        last_sync_date: new Date(), // Data da sincronização inicial
+        bank_name: itemData.item.connector.name, // O nome da Instituição Financeira (conector)
+        status: itemData.item.status,
+        execution_status: itemData.item.executionStatus,
+      });
 
       if (status === 200) {
         Alert.alert(
@@ -208,15 +201,43 @@ export function ConnectedAccounts({ navigation }: any) {
     setShowModal(false);
   }, []);
 
-  function _renderItem({ item }: any) {
-    const account = {
-      bankName: item.bank_name,
-      connectorId: item.connector_id,
-      lastSyncDate: item.last_sync_date,
-      status: item.status,
-    };
+  async function handleOpenBankingIntegration(
+    bankingIntegration: BankingIntegration
+  ) {
+    try {
+      setLoading(true);
+      const { data, status } = await api.post(
+        'banking_integration/pluggy_connect_token_create_itemId',
+        {
+          user_id: userID,
+          banking_integration_id: bankingIntegration.id,
+        }
+      );
 
-    return <AccountConnectedListItem data={account} />;
+      if (status === 200 && !!data) {
+        navigation.navigate('Integração Bancária', {
+          bankingIntegration: bankingIntegration,
+          connectToken: data,
+        });
+      }
+    } catch (error) {
+      console.error('handleOpenBankingIntegration error =>', error);
+      Alert.alert(
+        'Erro',
+        'Não foi possível acessar sua integração bancária. Por favor, tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function _renderItem({ item }: any) {
+    return (
+      <AccountConnectedListItem
+        data={item}
+        onPress={() => handleOpenBankingIntegration(item)}
+      />
+    );
   }
 
   if (loading) {
@@ -240,16 +261,18 @@ export function ConnectedAccounts({ navigation }: any) {
       )}
 
       {user.premium && token && showModal && (
-        <PluggyConnect
-          connectToken={token}
-          includeSandbox={false}
-          connectorTypes={[]}
-          onClose={handleOnClose}
-          onSuccess={handleOnSuccess}
-          onError={handleOnError}
-          allowFullscreen
-          theme='dark'
-        />
+        <PluggyConnectContainer>
+          <PluggyConnect
+            connectToken={token}
+            includeSandbox={false}
+            connectorTypes={[]}
+            onClose={handleOnClose}
+            onSuccess={handleOnSuccess}
+            onError={handleOnError}
+            allowFullscreen
+            theme='dark'
+          />
+        </PluggyConnectContainer>
       )}
 
       {!showModal && (
@@ -262,12 +285,12 @@ export function ConnectedAccounts({ navigation }: any) {
               <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
             )}
             initialNumToRender={10}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => fetchAndUpdateBankingIntegrations()}
-              />
-            }
+            // refreshControl={
+            //   <RefreshControl
+            //     refreshing={refreshing}
+            //     onRefresh={() => handleRefresh()}
+            //   />
+            // }
             ListFooterComponent={
               <Button.Root
                 type='secondary'

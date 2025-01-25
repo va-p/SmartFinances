@@ -38,7 +38,7 @@ import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { CurrencySelectButton } from '@screens/RegisterTransaction/components/CurrencySelectButton';
 import { CategorySelectButton } from '@screens/RegisterTransaction/components/CategorySelectButton';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
-import { TransactionTypeButton } from '@components/Form/TransactionTypeButton';
+import { TransactionTypeButton } from '@components/TransactionListItem/components/TransactionTypeButton';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { TagListItemRegisterTransaction } from '@screens/RegisterTransaction/components/TagListItemRegisterTransaction';
 

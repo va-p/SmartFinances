@@ -25,7 +25,7 @@ import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { InsightCard } from '@components/InsightCard';
 import { SectionTitle } from '@screens/Overview/styles';
-import { BudgetPercentBar } from '@components/BudgetPercentBar';
+import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 

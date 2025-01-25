@@ -7,5 +7,7 @@ export const Container = styled.View`
 `;
 
 export const Percent = styled.Text`
+  position: absolute;
+  top: 2;
   padding-left: 8px;
 `;

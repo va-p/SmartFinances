@@ -11,13 +11,14 @@ import {
   EndPeriod,
 } from './styles';
 
+import formatCurrency from '@utils/formatCurrency';
+
 import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
-import { BudgetPercentBar } from '@components/BudgetPercentBar';
+import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
 
 import { BudgetProps } from '@interfaces/budget';
-import formatCurrency from '@utils/formatCurrency';
 
 type Props = RectButtonProps & {
   data: BudgetProps;

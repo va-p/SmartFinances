@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
+import { Container, Percent } from './styles';
 
 import Animated, {
   Easing,
@@ -12,7 +13,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { BudgetProps } from '@interfaces/budget';
 
 import theme from '@themes/theme';
-import { Container, Percent } from './styles';
 
 interface Props {
   is_amount_reached: boolean;
@@ -62,11 +62,10 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
               : theme.colors.success,
           },
         ]}
-      >
-        <Percent numberOfLines={1}>
-          {calculatePercentage(data).toFixed(2)}%
-        </Percent>
-      </Animated.View>
+      ></Animated.View>
+      <Percent numberOfLines={1}>
+        {calculatePercentage(data).toFixed(2)}%
+      </Percent>
     </Container>
   );
 }

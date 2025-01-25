@@ -1,4 +1,9 @@
 import { BudgetProps } from '@interfaces/budget';
+import { BankingIntegration } from '@interfaces/bankingIntegration';
+
+export type AccountNavigationProps = {
+  budget: BudgetProps;
+};
 
 export type BudgetNavigationProps = {
   budget: BudgetProps;
@@ -12,6 +17,11 @@ export type SubscriptionNavigationProps = {
   showHeader?: boolean;
 };
 
+export type BankingIntegrationNavigationProps = {
+  bankingIntegration: BankingIntegration;
+  connectToken: string;
+};
+
 type RootParamList = {
   Transações: undefined;
   Contas: undefined;
@@ -19,6 +29,7 @@ type RootParamList = {
   Conta: undefined;
   'Editar Conta': AccountNavigationProps;
   'Contas Conectadas': undefined;
+  'Integração Bancária': BankingIntegrationNavigationProps;
   Orçamentos: undefined;
   'Todos os Orçamentos': undefined;
   Orçamento: BudgetNavigationProps;
@@ -28,7 +39,7 @@ type RootParamList = {
   'Transações Por Categoria': undefined;
   Mais: undefined;
   'Mais Opções': undefined;
-  Profile: undefined;
+  Perfil: undefined;
   Assinatura: SubscriptionNavigationProps;
   Categorias: undefined;
   Etiquetas: undefined;
