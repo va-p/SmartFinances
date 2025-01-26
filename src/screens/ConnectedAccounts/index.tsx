@@ -25,6 +25,7 @@ import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import axios from 'axios';
 
 export function ConnectedAccounts({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -45,6 +46,32 @@ export function ConnectedAccounts({ navigation }: any) {
   async function fetchBankingIntegrations() {
     try {
       setLoading(true);
+
+      const response = await api.get('/banking_integration/get_integrations', {
+        params: {
+          user_id: userID,
+        },
+      });
+
+      if (!!response.data && response.data.length > 0) {
+        const data = response.data;
+        setIntegrations(data);
+      }
+      return;
+    } catch (error) {
+      console.error('fetchBankingIntegrations error =>', error);
+      Alert.alert(
+        'Erro',
+        'Não foi possível buscar suas integrações bancárias. Por favor, tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRefresh() {
+    try {
+      setLoading(true);
       setRefreshing(true);
 
       const response = await api.get(
@@ -60,65 +87,20 @@ export function ConnectedAccounts({ navigation }: any) {
         const data = response.data;
         setIntegrations(data);
       }
-      return;
-    } catch (error) {
-      console.error('fetchBankingIntegrations error =>', error);
-      Alert.alert(
-        'Erro',
-        'Não foi possível buscar suas integrações bancárias. Por favor, tente novamente.'
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }
-
-  async function handleRefresh() {
-    try {
-      // setLoading(true);
-
-      // const response = await api.get(
-      //   '/banking_integration/get_and_update_banking_integrations',
-      //   {
-      //     params: {
-      //       user_id: userID,
-      //     },
-      //   }
-      // );
-
-      // // ... lógica para processar a resposta
-      // if (!!response.data && response.data.length > 0) {
-      //   const data: BankingIntegration[] = response.data;
-      //   setIntegrations(data);
-      // }
-
-      // // TODO: Checar se precisa de MFA
-      // if (
-      //   response.data.some(
-      //     (integration: BankingIntegration) =>
-      //       integration.execution_status === 'WAITING_USER_INPUT'
-      //   )
-      // ) {
-      //   setUpdateStatus('waitingMFA');
-      // } else {
-      //   setUpdateStatus('updateComplete');
-      //   Alert.alert(
-      //     'Contas atualizadas com sucesso!',
-      //     'As suas contas foram importadas com sucesso!'
-      //   );
-      // }
-
-      // setUpdateStatus('updating');
 
       return;
     } catch (error) {
       console.error('handleRefresh error =>', error);
-      Alert.alert(
-        'Erro',
-        'Não foi possível atualizar suas integrações bancárias. Por favor, tente novamente.'
-      );
+      if (axios.isAxiosError(error)) {
+        Alert.alert(
+          'Atualização de Integrações',
+          `${error?.response?.data?.message}. Por favor, tente novamente`,
+          [{ text: 'OK' }]
+        );
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
