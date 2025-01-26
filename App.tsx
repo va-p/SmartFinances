@@ -10,7 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Routes } from './src/routes';
 import { AuthProvider } from '@contexts/AuthProvider';
-import { RevenueCatProvider } from 'src/providers/RevenueCatProvider';
+import { RevenueCatProvider } from './src/providers/RevenueCatProvider';
 
 import {
   Poppins_400Regular,

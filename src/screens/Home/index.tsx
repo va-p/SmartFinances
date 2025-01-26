@@ -25,6 +25,11 @@ import {
   Transactions,
 } from './styles';
 
+import fetchQuote from '@utils/fetchQuotes';
+import formatDatePtBr from '@utils/formatDatePtBr';
+import formatCurrency from '@utils/formatCurrency';
+import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+
 import Animated, {
   Extrapolation,
   interpolate,
@@ -63,7 +68,9 @@ import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -77,11 +84,6 @@ import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeade
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
-import fetchQuote from '@utils/fetchQuotes';
-import formatDatePtBr from '@utils/formatDatePtBr';
-import formatCurrency from '@utils/formatCurrency';
-import groupTransactionsByDate from '@utils/groupTransactionsByDate';
-
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
@@ -93,7 +95,6 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
-import { Gradient } from '@components/Gradient';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -112,6 +113,7 @@ export type CashFLowData = {
 };
 
 export function Home() {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();
   const {
@@ -959,7 +961,7 @@ export function Home() {
           contentContainerStyle={{
             rowGap: 8,
             paddingTop: 16,
-            paddingBottom: 56,
+            paddingBottom: bottomTabBarHeight,
           }}
         />
       </Transactions>

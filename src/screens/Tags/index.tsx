@@ -5,6 +5,7 @@ import { Container } from './styles';
 import axios from 'axios';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -21,6 +22,7 @@ import { useUser } from '@storage/userStorage';
 import api from '@api/api';
 
 export function Tags() {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const userID = useUser((state) => state.id);
   const [tags, setTags] = useState<TagProps[]>([]);
@@ -164,7 +166,7 @@ export function Tags() {
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: 56,
+          paddingBottom: bottomTabBarHeight,
         }}
         showsVerticalScrollIndicator={false}
       />

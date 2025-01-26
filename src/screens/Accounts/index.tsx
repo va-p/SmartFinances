@@ -26,7 +26,9 @@ import { format, parse } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
@@ -50,7 +52,6 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import { Gradient } from '@components/Gradient';
 
 export type TotalByMonths = {
   date: string;
@@ -64,6 +65,7 @@ const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts({ navigation }: any) {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -442,7 +444,7 @@ export function Accounts({ navigation }: any) {
               </ButtonGroup>
             </Footer>
           }
-          contentContainerStyle={{ paddingBottom: 56 }}
+          contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
         />
       </AccountsContainer>
 

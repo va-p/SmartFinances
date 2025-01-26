@@ -10,6 +10,7 @@ import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import { useRoute } from '@react-navigation/native';
 import { PluggyConnect } from 'react-native-pluggy-connect';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { useUser } from '@storage/userStorage';
 
@@ -26,6 +27,7 @@ import api from '@api/api';
 import theme from '@themes/theme';
 
 export function ConnectedAccounts({ navigation }: any) {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const route = useRoute();
   const showHeader: boolean = route.params?.showHeader;
   const { user } = useRevenueCat();
@@ -43,12 +45,16 @@ export function ConnectedAccounts({ navigation }: any) {
   async function fetchBankingIntegrations() {
     try {
       setLoading(true);
+      setRefreshing(true);
 
-      const response = await api.get('/banking_integration/get_integrations', {
-        params: {
-          user_id: userID,
-        },
-      });
+      const response = await api.get(
+        '/banking_integration/get_and_sync_integrations',
+        {
+          params: {
+            user_id: userID,
+          },
+        }
+      );
 
       if (!!response.data && response.data.length > 0) {
         const data = response.data;
@@ -63,6 +69,7 @@ export function ConnectedAccounts({ navigation }: any) {
       );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
@@ -285,12 +292,12 @@ export function ConnectedAccounts({ navigation }: any) {
               <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
             )}
             initialNumToRender={10}
-            // refreshControl={
-            //   <RefreshControl
-            //     refreshing={refreshing}
-            //     onRefresh={() => handleRefresh()}
-            //   />
-            // }
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => handleRefresh()}
+              />
+            }
             ListFooterComponent={
               <Button.Root
                 type='secondary'
@@ -309,7 +316,7 @@ export function ConnectedAccounts({ navigation }: any) {
             ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingBottom: 56,
+              paddingBottom: bottomTabBarHeight,
             }}
             showsVerticalScrollIndicator={false}
           />

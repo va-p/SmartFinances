@@ -9,6 +9,7 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
 import { Header } from '@components/Header';
@@ -28,6 +29,7 @@ import api from '@api/api';
 import { Gradient } from '@components/Gradient';
 
 export function Budgets({ navigation }: any) {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -269,7 +271,7 @@ export function Budgets({ navigation }: any) {
             </Button.Root>
           </Footer>
         }
-        contentContainerStyle={{ paddingBottom: 56 }}
+        contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
       />
 
       <ModalView

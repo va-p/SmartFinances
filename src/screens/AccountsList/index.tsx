@@ -31,7 +31,7 @@ import { AccountProps } from '@interfaces/accounts';
 import theme from '@themes/theme';
 
 export function AccountsList() {
-  const bottomTabBArHeight = useBottomTabBarHeight();
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
@@ -228,7 +228,7 @@ export function AccountsList() {
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: bottomTabBArHeight,
+          paddingBottom: bottomTabBarHeight,
         }}
         showsVerticalScrollIndicator={false}
       />
