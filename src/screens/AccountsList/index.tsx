@@ -13,6 +13,7 @@ import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -21,7 +22,7 @@ import {
   AccountType,
   useCurrentAccountSelected,
 } from '@storage/currentAccountSelectedStorage';
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import api from '@api/api';
 
@@ -30,6 +31,7 @@ import { AccountProps } from '@interfaces/accounts';
 import theme from '@themes/theme';
 
 export function AccountsList() {
+  const bottomTabBArHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
@@ -226,7 +228,7 @@ export function AccountsList() {
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: 56,
+          paddingBottom: bottomTabBArHeight,
         }}
         showsVerticalScrollIndicator={false}
       />

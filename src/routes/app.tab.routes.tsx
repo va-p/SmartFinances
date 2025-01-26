@@ -1,5 +1,7 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 
+import { BlurView } from 'expo-blur';
 import { useTheme } from 'styled-components';
 import * as Icon from 'phosphor-react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,24 +21,31 @@ export function AppTabRoutes() {
     <Navigator
       screenOptions={{
         headerShown: false,
-        headerTransparent: true,
         tabBarActiveTintColor: theme.colors.text,
         tabBarInactiveTintColor: theme.colors.primary,
-        tabBarItemStyle: {
-          backgroundColor: 'transparent',
-          overflow: 'hidden',
-        },
         tabBarStyle: {
           position: 'absolute',
           height: 56,
           paddingTop: 6,
           paddingBottom: 6,
-          backgroundColor: theme.colors.backgroundNav,
           shadowColor: theme.colors.shape,
           borderTopLeftRadius: 75,
           borderTopRightRadius: 75,
-          overflow: 'hidden',
         },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={80}
+            experimentalBlurMethod='dimezisBlurView'
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              flex: 1,
+              borderTopLeftRadius: 75,
+              borderTopRightRadius: 75,
+              overflow: 'hidden',
+              backgroundColor: 'transparent',
+            }}
+          />
+        ),
       }}
     >
       <Screen

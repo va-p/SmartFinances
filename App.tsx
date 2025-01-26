@@ -9,6 +9,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Routes } from './src/routes';
+import { AuthProvider } from '@contexts/AuthProvider';
 import { RevenueCatProvider } from 'src/providers/RevenueCatProvider';
 
 import {
@@ -18,7 +19,6 @@ import {
 } from '@expo-google-fonts/poppins';
 
 import theme from './src/global/themes/theme';
-import { AuthProvider } from '@contexts/AuthProvider';
 
 SplashScreen.preventAutoHideAsync();
 

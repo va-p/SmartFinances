@@ -2,17 +2,14 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "2.5.4(42)",
-    "version": "2.5.4",
+    "runtimeVersion": "2.5.5(43)",
+    "version": "2.5.5",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
     "backgroundColor": "#E6E9F4",
     "primaryColor": "#FF5200",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
       "versionCode": 42,
@@ -34,10 +31,7 @@
               "pathPrefix": "/oauth-native-callback"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },

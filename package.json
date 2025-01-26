@@ -26,6 +26,7 @@
     "decimal.js": "^10.4.3",
     "expo": "^52.0.27",
     "expo-auth-session": "^6.0.2",
+    "expo-blur": "~14.0.3",
     "expo-checkbox": "~4.0.1",
     "expo-font": "~13.0.3",
     "expo-image-picker": "~16.0.4",
