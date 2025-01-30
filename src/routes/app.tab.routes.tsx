@@ -28,7 +28,6 @@ export function AppTabRoutes() {
           height: 56,
           paddingTop: 6,
           paddingBottom: 6,
-          shadowColor: theme.colors.shape,
           borderTopLeftRadius: 75,
           borderTopRightRadius: 75,
         },

@@ -53,7 +53,7 @@ import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
 
-export type TotalByMonths = {
+type TotalByMonths = {
   date: string;
   totalRevenuesByMonth?: number;
   totalExpensesByMonth?: number;

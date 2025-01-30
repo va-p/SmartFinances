@@ -36,6 +36,12 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: any) {
+  const {
+    user: clerkUser,
+    isLoaded: clerkLoaded,
+    isSignedIn: clerkSignedIn,
+  } = useClerkUser();
+
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -43,12 +49,6 @@ export function AuthProvider({ children }: any) {
   const [biometricAttempted, setBiometricAttempted] = useState(false);
   const [biometricSupportedAndEnabled, setBiometricSupportedAndEnabled] =
     useState(false);
-
-  const {
-    user: clerkUser,
-    isLoaded: clerkLoaded,
-    isSignedIn: clerkSignedIn,
-  } = useClerkUser();
 
   const clerk = getClerkInstance();
 
@@ -372,6 +372,7 @@ export function AuthProvider({ children }: any) {
     user,
     isSignedIn,
     loading,
+    isLoaded: clerkLoaded,
     signInWithXano,
     signInWithBiometrics,
     signOut,

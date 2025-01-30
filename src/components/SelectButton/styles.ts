@@ -34,8 +34,3 @@ export const SubTitle = styled.Text`
   padding-right: 16px;
   color: ${({ theme }) => theme.colors.text};
 `;
-
-export const IconChevronDown = styled(Ionicons)`
-  font-size: ${RFValue(16)}px;
-  color: ${({ theme }) => theme.colors.text};
-`;

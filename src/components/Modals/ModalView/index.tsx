@@ -13,7 +13,7 @@ import theme from '@themes/theme';
 
 type TypeProps = 'primary' | 'secondary';
 
-export type Props = BottomSheetProps & {
+type Props = BottomSheetProps & {
   type?: TypeProps;
   title: string;
   color?: string;

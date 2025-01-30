@@ -1,9 +1,9 @@
 import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import { RectButton } from 'react-native-gesture-handler';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 type ColorProps = {
   color: string;
@@ -18,11 +18,6 @@ export const Placeholder = styled(TouchableOpacity).attrs({
   justify-content: center;
   border: 1px dashed ${({ theme }) => theme.colors.background};
   border-radius: 30px;
-`;
-
-export const ErrorMessage = styled.Text`
-  font-size: ${RFValue(14)}px;
-  color: ${({ theme }) => theme.colors.background};
 `;
 
 export const Container = styled(RectButton).attrs({

@@ -9,7 +9,7 @@ import {
 
 import theme from '@themes/theme';
 
-export type Props = BottomSheetProps & {
+type Props = BottomSheetProps & {
   title: string;
   bottomSheetRef?: any;
   children: ReactNode;

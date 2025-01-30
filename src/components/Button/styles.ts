@@ -26,9 +26,3 @@ export const Text = styled.Text<ContainerProps>`
   margin: 0 8px;
   color: ${({ theme }) => theme.colors.textLight};
 `;
-
-export const Load = styled.ActivityIndicator.attrs<ContainerProps>(
-  ({ type, theme }) => ({
-    color: type === 'primary' ? theme.colors.primary : theme.colors.shape,
-  })
-)``;

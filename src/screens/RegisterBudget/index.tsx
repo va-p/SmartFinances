@@ -39,6 +39,7 @@ import api from '@api/api';
 import { BudgetProps } from '@interfaces/budget';
 
 import theme from '@themes/theme';
+import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string | null;
@@ -312,6 +313,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   return (
     <Container>
+      <Gradient />
+
       <ControlledInputWithIcon
         icon={<Icon.PencilSimple color={theme.colors.primary} />}
         placeholder='Nome do orçamento'

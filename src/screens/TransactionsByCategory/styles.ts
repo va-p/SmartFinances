@@ -23,7 +23,3 @@ export const Month = styled.Text`
   font-size: ${RFValue(14)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
-
-export const Transactions = styled.View`
-  flex: 1;
-`;

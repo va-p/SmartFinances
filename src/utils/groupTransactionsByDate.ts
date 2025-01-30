@@ -1,55 +1,57 @@
 import { TransactionProps } from '@interfaces/transactions';
 
-function groupTransactionsByDate(transactions: TransactionProps[]) {
-  const transactionsGrouped = transactions.reduce(
-    (acc: any, transaction: any) => {
-      const existObj = acc.find(
-        (obj: any) => obj.title === transaction.created_at
-      );
+interface GroupedTransaction {
+  title: string;
+  data: TransactionProps[];
+  total: string;
+}
 
-      if (existObj) {
-        existObj.data.push(transaction);
-      } else {
-        acc.push({
-          title: transaction.created_at,
-          data: [transaction],
-          total: 0, // Inicializa o total para cada data
-        });
-      }
-      return acc;
-    },
-    []
-  );
+// Função pura para cálculo do total (separada para testabilidade)
+export const calculateGroupTotal = (
+  transactions: TransactionProps[]
+): string => {
+  const total = transactions.reduce((acc, transaction) => {
+    const isCreditAccount = transaction.account.type === 'CREDIT';
+    const isTransfer = transaction.type.includes('TRANSFER');
 
-  // Calcula o total para cada data, considerando o tipo de conta
-  transactionsGrouped.forEach((group: any) => {
-    let totalByDate = 0;
-    group.data.forEach((transaction: TransactionProps) => {
-      // Credit card
-      if (
-        transaction.type !== 'TRANSFER_CREDIT' &&
-        transaction.type !== 'TRANSFER_DEBIT' &&
-        transaction.account.type === 'CREDIT'
-      ) {
-        totalByDate -= transaction.amount; // Inverte a lógica para cartões de crédito
-      }
-      // Other account types
-      if (
-        transaction.type !== 'TRANSFER_CREDIT' &&
-        transaction.type !== 'TRANSFER_DEBIT' &&
-        transaction.account.type !== 'CREDIT'
-      ) {
-        totalByDate += transaction.amount;
-      }
-    });
+    if (isTransfer) return acc;
 
-    group.total = Number(totalByDate).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
+    return isCreditAccount
+      ? acc - transaction.amount
+      : acc + transaction.amount;
+  }, 0);
+
+  return total.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   });
+};
 
-  return transactionsGrouped;
+// Versão otimizada com complexidade O(n)
+function groupTransactionsByDate(
+  transactions: TransactionProps[]
+): GroupedTransaction[] {
+  const groupsMap = transactions.reduce((acc, transaction) => {
+    const dateKey = transaction.created_at;
+
+    if (!acc.has(dateKey)) {
+      acc.set(dateKey, {
+        title: dateKey,
+        data: [],
+        total: 0,
+      });
+    }
+
+    const group = acc.get(dateKey)!;
+    group.data.push(transaction);
+
+    return acc;
+  }, new Map<string, { title: string; data: TransactionProps[]; total: number }>());
+
+  return Array.from(groupsMap.values()).map((group) => ({
+    ...group,
+    total: calculateGroupTotal(group.data),
+  }));
 }
 
 export default groupTransactionsByDate;

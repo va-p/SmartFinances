@@ -1,4 +1,3 @@
-import { useUser } from '@storage/userStorage';
 import {
   createContext,
   ReactNode,
@@ -14,12 +13,17 @@ import Purchases, {
   CustomerInfo,
 } from 'react-native-purchases';
 
+import { Gradient } from '@components/Gradient';
+
+import { useUser } from '@storage/userStorage';
+import { Load } from '@components/Button/components/Load';
+
 const API_KEYS = {
   apple: '',
   google: 'goog_yACJEerdROBKywaVVejvqfPBHDY',
 };
 
-export interface UserProps {
+interface UserProps {
   items: string[];
   premium: boolean;
 }
@@ -134,8 +138,9 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
   if (!isReady) {
     return (
-      <View>
-        <Text>Carregando....</Text>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Gradient />
+        <Load type='secondary' />
       </View>
     );
   }

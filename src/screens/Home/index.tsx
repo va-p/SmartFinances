@@ -611,7 +611,6 @@ export function Home() {
     setTransactionId('');
     setAccountID(null);
     setAccountName(null);
-    // fetchTransactions(); // TODO: Refactors to get perform
     registerTransactionBottomSheetRef.current?.dismiss();
   }
 
@@ -814,7 +813,7 @@ export function Home() {
     fetchQuote('USD', 'EUR', setUsdQuoteEur);
 
     fetchTransactions();
-  }, [selectedDate, selectedPeriod.period, userID]);
+  }, [selectedDate, selectedPeriod.period]);
 
   if (loading) {
     return <SkeletonHomeScreen />;

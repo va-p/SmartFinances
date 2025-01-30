@@ -7,7 +7,7 @@ import getAccounts from '@utils/getAccounts';
 import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { Load } from '@components/Load';
+import { Load } from '@components/Button/components/Load';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';

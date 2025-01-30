@@ -8,9 +8,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { Routes } from './src/routes';
+import { Splash } from '@components/Splash';
+
 import { AuthProvider } from '@contexts/AuthProvider';
 import { RevenueCatProvider } from './src/providers/RevenueCatProvider';
+
+import { Routes } from '@routes/index';
 
 import {
   Poppins_400Regular,
@@ -25,8 +28,14 @@ SplashScreen.preventAutoHideAsync();
 const PUBLIC_CLERK_PUBLISHABLE_KEY =
   process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+enum LoadingState {
+  Initializing,
+  LoadingFonts,
+  Ready,
+}
+
 function App() {
-  const [appIsReady, setAppIsReady] = useState(false);
+  const [loadingState, setLoadingState] = useState(LoadingState.Initializing);
 
   async function onFetchUpdateAsync() {
     try {
@@ -42,52 +51,50 @@ function App() {
   }
 
   useEffect(() => {
-    onFetchUpdateAsync();
-
-    (async () => {
-      await NavigationBar.setBackgroundColorAsync(theme.colors.backgroundNav);
-      await NavigationBar.setButtonStyleAsync('dark');
-    })();
-
-    async function prepare() {
+    async function prepareApp() {
       try {
+        await Promise.all([
+          onFetchUpdateAsync(),
+          NavigationBar.setBackgroundColorAsync(theme.colors.backgroundNav),
+          NavigationBar.setButtonStyleAsync('dark'),
+        ]);
+
+        setLoadingState(LoadingState.LoadingFonts);
         await Font.loadAsync({
           Poppins_400Regular,
           Poppins_500Medium,
           Poppins_700Bold,
         });
       } catch (error) {
-        console.error(error);
-      } finally {
-        setAppIsReady(true);
-        SplashScreen.hideAsync();
+        console.error('Erro durante o carregamento:', error);
       }
     }
 
-    prepare();
+    prepareApp();
   }, []);
 
-  if (!appIsReady) {
-    return null;
-  }
+  switch (loadingState) {
+    case LoadingState.Initializing:
+      return null;
 
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider theme={theme}>
-        <RevenueCatProvider>
-          <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
-            <AuthProvider>
-              {/* <StatusBar
-                barStyle='dark-content'
-                backgroundColor={theme.colors.background}
-              /> */}
-              <Routes />
-            </AuthProvider>
-          </ClerkProvider>
-        </RevenueCatProvider>
-      </ThemeProvider>
-    </GestureHandlerRootView>
-  );
+    case LoadingState.LoadingFonts:
+      return <Splash onComplete={() => setLoadingState(LoadingState.Ready)} />;
+
+    case LoadingState.Ready:
+      return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ThemeProvider theme={theme}>
+            <RevenueCatProvider>
+              <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
+                <AuthProvider>
+                  <Routes />
+                </AuthProvider>
+              </ClerkProvider>
+            </RevenueCatProvider>
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      );
+  }
 }
 
 export default App;

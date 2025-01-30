@@ -29,8 +29,6 @@ export const BudgetTotalDescription = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const BudgetTransactionsContainer = styled.View``;
-
 export const BudgetTransactions = styled.FlatList.attrs({
   showsVerticalScrollIndicator: false,
   initialNumToRender: 20,

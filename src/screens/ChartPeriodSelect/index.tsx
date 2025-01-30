@@ -8,7 +8,7 @@ import { Gradient } from '@components/Gradient';
 export interface PeriodProps {
   id: string;
   name: string;
-  period: string;
+  period: 'months' | 'years' | 'all';
 }
 
 type Props = {

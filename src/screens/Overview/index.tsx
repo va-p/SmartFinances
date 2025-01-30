@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Dimensions, Text } from 'react-native';
 import {
   Container,
@@ -29,7 +29,6 @@ import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 import { Header } from '@components/Header';
@@ -59,7 +58,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
-export enum CustomTab {
+enum CustomTab {
   Tab1,
   Tab2,
 }
@@ -445,11 +444,9 @@ export function Overview({ navigation }: any) {
     navigation.navigate('Transações Por Categoria', { id });
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchDataForCharts();
-    }, [selectedPeriod, chartPeriodSelected.period])
-  );
+  useEffect(() => {
+    fetchDataForCharts();
+  }, [selectedPeriod, chartPeriodSelected.period]);
 
   const curRevenues = calculateExpensesAndRevenuesByCategory('Receitas');
   const curExpenses = calculateExpensesAndRevenuesByCategory('Despesas') * -1;
