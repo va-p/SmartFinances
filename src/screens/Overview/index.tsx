@@ -34,7 +34,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { HistoryCard } from '@components/HistoryCard';
-import { ChartSelectButton } from '@components/ChartSelectButton';
+import { FilterButton } from '@components/FilterButton';
 import { TabButtons, TabButtonType } from '@components/TabButtons';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 
@@ -508,13 +508,13 @@ export function Overview({ navigation }: any) {
 
   return (
     <Container>
-      <Header.Root>
+      <Header.Root style={{ justifyContent: 'center' }}>
         <Header.Title title={'Resumo'} />
       </Header.Root>
 
       <FiltersContainer>
         <FilterButtonGroup>
-          <ChartSelectButton
+          <FilterButton
             title={`Por ${chartPeriodSelected.name}`}
             onPress={handleOpenPeriodSelectedModal}
           />

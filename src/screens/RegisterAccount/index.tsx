@@ -11,6 +11,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
@@ -60,6 +61,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
+      name: 'Nome da conta',
       balance: 0,
     },
   });
@@ -248,6 +250,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Gradient />
+
       <Form>
         <ControlledInputWithIcon
           icon={<Icon.PencilSimple color={theme.colors.primary} />}

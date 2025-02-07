@@ -5,11 +5,7 @@ import { RectButton } from 'react-native-gesture-handler';
 
 export type TypeProps = 'primary' | 'secondary';
 
-type ContainerProps = {
-  type: TypeProps;
-};
-
-export const Container = styled(RectButton)<ContainerProps>`
+export const Container = styled(RectButton)`
   min-height: 40px;
   max-height: 40px;
   flex-direction: row;
@@ -20,7 +16,7 @@ export const Container = styled(RectButton)<ContainerProps>`
   border-radius: 20px;
 `;
 
-export const Text = styled.Text<ContainerProps>`
+export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(14)}px;
   margin: 0 8px;

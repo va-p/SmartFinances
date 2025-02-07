@@ -9,8 +9,9 @@ import {
   MainContent,
 } from './styles';
 
-import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns';
+
 import { BankingIntegration } from '@interfaces/bankingIntegration';
 
 type Props = {
@@ -20,7 +21,7 @@ type Props = {
 
 export function AccountConnectedListItem({ data, onPress }: Props) {
   const formattedLastSyncDate = format(
-    new Date(data.last_sync_date),
+    parseISO(data.last_sync_date),
     'dd/MM/yyyy',
     {
       locale: ptBR,

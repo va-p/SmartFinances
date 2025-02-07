@@ -5,21 +5,19 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   width: 100%;
-  min-height: 48px;
+  min-height: 40px;
   flex-direction: row;
   align-items: center;
-  padding: 8px 16px;
+  column-gap: 32px;
+  padding: 4px 16px 4px 0;
   margin-bottom: 16px;
 `;
 
-export const BackButton = styled(BorderlessButton)`
-  position: absolute;
-  top: 12px;
-  left: 0px;
+export const Button = styled(BorderlessButton)`
   color: ${({ theme }) => theme.colors.primary};
 `;
 
-export const BackButtonShape = styled.View`
+export const ButtonShape = styled.View`
   width: 32px;
   height: 32px;
   align-items: center;
@@ -33,7 +31,6 @@ export const TitleContainer = styled.View``;
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
-  margin-left: 32px;
   color: ${({ theme }) => theme.colors.text};
 `;
 

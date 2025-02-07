@@ -5,9 +5,9 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   padding: 16px;
-  margin: 16px 0;
+  margin: 16px;
   border: 1px solid ${({ theme }) => theme.colors.overlayGray};
-  border-radius: 8px;
+  border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
   background-color: ${({ theme }) => theme.colors.overlayGray};
 `;
 

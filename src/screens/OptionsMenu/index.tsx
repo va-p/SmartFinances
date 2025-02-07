@@ -20,7 +20,7 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 
-import { UrlEnum } from '@enums/enumsUrl';
+import { eUrl } from '@enums/enumsUrl';
 
 export function OptionsMenu({ navigation }: any) {
   const userId = useUser((state) => state.id);
@@ -61,7 +61,7 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   async function handleClickHelpCenter() {
-    await WebBrowser.openBrowserAsync(UrlEnum.HELP_CENTER_URL);
+    await WebBrowser.openBrowserAsync(eUrl.HELP_CENTER_URL);
   }
 
   function handleClickContactSupport() {
@@ -69,11 +69,11 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   async function handleClickTermsOfUse() {
-    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
+    await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
   }
 
   async function handleClickPrivacyPolicy() {
-    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
+    await WebBrowser.openBrowserAsync(eUrl.PRIVACY_POLICY_URL);
   }
 
   async function handleChangeUseLocalAuth() {
@@ -159,7 +159,7 @@ export function OptionsMenu({ navigation }: any) {
     <Container>
       <Gradient />
 
-      <Header.Root>
+      <Header.Root style={{ justifyContent: 'center' }}>
         <Header.Title title='Mais opções' />
       </Header.Root>
 
@@ -185,7 +185,7 @@ export function OptionsMenu({ navigation }: any) {
 
         <SelectButton
           icon={<Icon.Plugs color={theme.colors.primary} />}
-          title='Contas Conectadas (automáticas)'
+          title='Integrações Bancárias'
           onPress={() => handleOpenConnectedAccounts()}
         />
 

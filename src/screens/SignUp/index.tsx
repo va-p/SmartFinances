@@ -6,7 +6,6 @@ import {
   LogoWrapper,
   Logo,
   SubTitle,
-  // MainContent,
   SectionHeader,
   SocialLoginButton,
   FormWrapper,
@@ -15,7 +14,7 @@ import {
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useOAuth } from '@clerk/clerk-expo';
+import { useOAuth, useSSO } from '@clerk/clerk-expo';
 import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -30,7 +29,7 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 
-import { UrlEnum } from '@enums/enumsUrl';
+import { eUrl } from '@enums/enumsUrl';
 
 const LOGO_URL = '@assets/logo.png';
 
@@ -52,9 +51,6 @@ const schema = Yup.object().shape({
   email: Yup.string()
     .required('Digite o seu e-mail')
     .email('Digite um e-mail válido'),
-  // confirmEmail: Yup.string()
-  //   .required('Confirme o seu e-mail')
-  //   .oneOf([Yup.ref('email'), null], 'Os emails não conferem'),
   phone: Yup.number()
     .required('Digite o seu telefone celular')
     .typeError('Digite apenas números'),
@@ -84,14 +80,15 @@ export function SignUp({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+  // const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+  const googleOAuth = useSSO();
 
   async function handlePressTermsOfUse() {
-    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
+    await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
   }
 
   async function handlePressPolicyPrivacy() {
-    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
+    await WebBrowser.openBrowserAsync(eUrl.PRIVACY_POLICY_URL);
   }
 
   function handleGoBack() {
@@ -101,7 +98,10 @@ export function SignUp({ navigation }: any) {
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
-      const oAuthFlow = await googleOAuth.startOAuthFlow();
+      // const oAuthFlow = await googleOAuth.startOAuthFlow();
+      const oAuthFlow = await googleOAuth.startSSOFlow({
+        strategy: 'oauth_google',
+      });
 
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&

@@ -101,9 +101,8 @@ export const ConnectionStatus = styled.View<StatusProps>`
     `};
 
   ${({ status, executionStatus }) =>
-    status === 'OUTDATED' &&
-    executionStatus !== 'SUCCESS' &&
-    executionStatus !== 'ERROR' &&
+    status !== 'UPDATED' &&
+    (executionStatus !== 'SUCCESS' || 'ERROR') &&
     css`
       background-color: ${({ theme }) => theme.colors.primary};
       border: 1px solid ${({ theme }) => theme.colors.primary};

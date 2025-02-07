@@ -28,7 +28,7 @@ import {
 import fetchQuote from '@utils/fetchQuotes';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
-import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+import { processTransactions } from '@utils/processTransactions';
 
 import Animated, {
   Extrapolation,
@@ -53,14 +53,12 @@ import {
 import {
   addMonths,
   addYears,
-  format,
   getMonth,
   getYear,
   isFirstDayOfMonth,
   isValid,
   lastDayOfMonth,
   parse,
-  parseISO,
   subMonths,
   subYears,
 } from 'date-fns';
@@ -73,8 +71,8 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
 import { PeriodRuler } from '@components/PeriodRuler';
+import { FilterButton } from '@components/FilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
-import { ChartSelectButton } from '@components/ChartSelectButton';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -91,6 +89,9 @@ import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+import { eInsightsCashFlow } from '@enums/enumsInsights';
+import { CashFLowData, TransactionProps } from '@interfaces/transactions';
+
 import api from '@api/api';
 
 import theme from '@themes/theme';
@@ -101,16 +102,8 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.44;
+const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.48;
 const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
-
-export type CashFLowData = {
-  date: Date | string | number;
-  totalRevenuesByPeriod: Decimal;
-  totalExpensesByPeriod: Decimal;
-  total: Decimal;
-  cashFlow?: string;
-};
 
 export function Home() {
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -138,7 +131,7 @@ export function Home() {
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
-  ] = useState([]);
+  ] = useState<any[]>([]);
   const optimizedTransactions = useMemo(
     () => transactionsFormattedBySelectedPeriod,
     [transactionsFormattedBySelectedPeriod]
@@ -154,14 +147,12 @@ export function Home() {
       date: String(new Date()),
       totalRevenuesByPeriod: new Decimal(0),
       totalExpensesByPeriod: new Decimal(0),
-      total: new Decimal(0),
       cashFlow: '',
     },
     {
       date: String(new Date()),
       totalRevenuesByPeriod: new Decimal(0),
       totalExpensesByPeriod: new Decimal(0),
-      total: new Decimal(0),
       cashFlow: '',
     },
   ]);
@@ -234,7 +225,7 @@ export function Home() {
   });
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
-    .onStart((e) => {
+    .onStart(() => {
       initialX.current = registerTransactionButtonPositionX.value;
       initialY.current = registerTransactionButtonPositionY.value;
     })
@@ -262,330 +253,43 @@ export function Home() {
         }
       );
 
-      /**
-       * All Transactions Formatted in pt-BR - Start
-       */
-      let total = 0;
-
-      let transactionsFormattedPtbr: any = {};
-      for (const item of data) {
+      // Formatt transactions
+      const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
         const dmy = formatDatePtBr(item.created_at).short();
-
-        const amount_formatted = formatCurrency(
-          item.currency.code,
-          item.amount
-        );
-
-        if (!transactionsFormattedPtbr.hasOwnProperty(dmy)) {
-          transactionsFormattedPtbr[item.id] = {
-            id: item.id,
-            created_at: dmy,
-            description: item.description,
-            amount: item.amount,
-            amount_formatted, // formatted on account currency
-            amount_in_account_currency: item.amount_in_account_currency,
-            currency: {
-              id: item.currency.id,
-              name: item.currency.name,
-              code: item.currency.code,
-              symbol: item.currency.symbol,
-            },
-            type: item.type,
-            account: {
-              id: item.account.id,
-              name: item.account.name,
-              type: item.account.type,
-              currency: {
-                id: item.account.currency.id,
-                name: item.account.currency.name,
-                code: item.account.currency.code,
-                symbol: item.account.currency.symbol,
-              },
-              initial_amount: item.account.initial_amount,
-              totalAccountAmount: 0,
-              tenant_id: item.account.tenant_id,
-            },
-            category: {
-              id: item.category.id,
-              name: item.category.name,
-              icon: {
-                id: item.category.icon.id,
-                title: item.category.icon.title,
-                name: item.category.icon.name,
-              },
-              color: {
-                id: item.category.color.id,
-                name: item.category.color.name,
-                hex: item.category.color.hex,
-              },
-              tenant_id: item.category.tenant_id,
-            },
-            tags: item.tags,
-            user_id: item.user_id,
-          };
-        }
-
-        // Cartão de crédito
-        if (
-          new Date(item.created_at) <= new Date() &&
-          item.account.type === 'CREDIT'
-        ) {
-          total -= item.amount; //Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
-        }
-        // Outros tipos de conta
-        if (
-          new Date(item.created_at) <= new Date() &&
-          item.account.type !== 'CREDIT'
-        ) {
-          total += item.amount;
-        }
-      }
-      transactionsFormattedPtbr = Object.values(transactionsFormattedPtbr).sort(
-        (a: any, b: any) => {
-          const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
-          const secondDateParsed = parse(
-            b.created_at,
-            'dd/MM/yyyy',
-            new Date()
-          );
-          return secondDateParsed.getTime() - firstDateParsed.getTime();
-        }
-      );
-
-      const totalFormattedPtbrByAllHistory = total.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
+        return {
+          id: item.id,
+          created_at: dmy,
+          description: item.description,
+          amount: item.amount,
+          amount_formatted: formatCurrency(item.currency.code, item.amount),
+          amount_in_account_currency: item.amount_in_account_currency,
+          amount_in_account_currency_formatted: item.amount_in_account_currency
+            ? formatCurrency(
+                item.account.currency.code,
+                item.amount_in_account_currency
+              )
+            : null,
+          currency: item.currency,
+          type: item.type,
+          account: item.account,
+          category: item.category,
+          tags: item.tags,
+          user_id: item.user_id,
+        };
       });
 
-      const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
-        transactionsFormattedPtbr
-      );
-      /**
-       * All Transactions Formatted in pt-BR - End
-       */
-
-      /**
-       * Transactions By Months Formatted in pt-BR - Start
-       */
-      const transactionsByMonthsFormattedPtbr =
-        transactionsFormattedPtbrGroupedByDate.filter(
-          (transactionByMonthsPtBr: any) =>
-            parse(
-              transactionByMonthsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getMonth() === selectedDate.getMonth() &&
-            parse(
-              transactionByMonthsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getFullYear() === selectedDate.getFullYear()
+      // Process transactions
+      const { cashFlows, currentCashFlow, groupedTransactions } =
+        processTransactions(
+          transactionsFormattedPtbr,
+          selectedPeriod.period,
+          selectedDate
         );
 
-      let cashFlowByMonth = 0;
-      for (const item of transactionsByMonthsFormattedPtbr) {
-        const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
-        cashFlowByMonth += parseFloat(cleanTotal);
-      }
-
-      const totalByMonthsFormattedPtbr = formatCurrency(
-        'BRL',
-        cashFlowByMonth,
-        false
-      );
-      /**
-       * Transactions By Months Formatted in pt-BR - End
-       */
-
-      /**
-       * Transactions By Years Formatted in pt-BR - Start
-       */
-      const transactionsByYearsFormattedPtbr =
-        transactionsFormattedPtbrGroupedByDate.filter(
-          (transactionByYearsPtBr: any) =>
-            parse(
-              transactionByYearsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getFullYear() === selectedDate.getFullYear()
-        );
-
-      let cashFlowByYear = 0;
-
-      for (const item of transactionsByYearsFormattedPtbr) {
-        const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
-        cashFlowByYear += parseFloat(cleanTotal);
-      }
-
-      const totalByYearsFormattedPtbr = formatCurrency(
-        'BRL',
-        cashFlowByYear,
-        false
-      );
-      /**
-       * Transactions By Years Formatted in pt-BR - End
-       */
-
-      /**
-       * All Cash Flows Grouped By Months (Chart Data) - Start
-       */
-      if (selectedPeriod.period === 'months') {
-        let totalsGroupedByMonths: any = {};
-        for (const item of data) {
-          const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
-
-          if (!totalsGroupedByMonths.hasOwnProperty(ym)) {
-            totalsGroupedByMonths[ym] = {
-              date: ym,
-              totalRevenuesByPeriod: 0,
-              totalExpensesByPeriod: 0,
-              total: 0,
-            };
-          }
-
-          if (new Date(item.created_at) < new Date()) {
-            // Credit card
-            if (item.account.type === 'CREDIT' && item.type === 'CREDIT') {
-              totalsGroupedByMonths[ym].totalRevenuesByPeriod -= item.amount; // Lógica invertida para Cartão de Crédito
-            }
-            if (item.account.type === 'CREDIT' && item.type === 'DEBIT') {
-              totalsGroupedByMonths[ym].totalExpensesByPeriod += item.amount; // Lógica invertida para Cartão de Crédito
-            }
-
-            // Other account types
-            if (item.account.type !== 'CREDIT' && item.type === 'CREDIT') {
-              totalsGroupedByMonths[ym].totalRevenuesByPeriod += item.amount;
-            }
-            if (item.account.type !== 'CREDIT' && item.type === 'DEBIT') {
-              totalsGroupedByMonths[ym].totalExpensesByPeriod -= item.amount;
-            }
-          }
-        }
-        totalsGroupedByMonths = Object.values(totalsGroupedByMonths).sort(
-          (a: any, b: any) => {
-            const firstDateParsed = parse(a.date, 'yyyy-MM', new Date());
-            const secondDateParsed = parse(b.date, 'yyyy-MM', new Date());
-            return secondDateParsed.getTime() - firstDateParsed.getTime();
-          }
-        );
-
-        for (let i = totalsGroupedByMonths.length - 1; i >= 0; i--) {
-          totalsGroupedByMonths[i].date = format(
-            parseISO(totalsGroupedByMonths[i].date),
-            `MMM '\n' yyyy`,
-            { locale: ptBR }
-          );
-        }
-
-        setCashFlowTotalBySelectedPeriod(totalByMonthsFormattedPtbr);
-        setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByMonths);
-        setTransactionsFormattedBySelectedPeriod(
-          transactionsByMonthsFormattedPtbr
-        );
-
-        return;
-      }
-      /**
-       * All Cash Flows Grouped By Months (Chart Data) - End
-       */
-
-      /**
-       * All Totals Grouped By Years - Start
-       */
-      if (selectedPeriod.period === 'years') {
-        let totalsGroupedByYears: any = {};
-        for (const item of data) {
-          const y = format(item.created_at, `yyyy`, { locale: ptBR });
-
-          if (!totalsGroupedByYears.hasOwnProperty(y)) {
-            totalsGroupedByYears[y] = {
-              date: y,
-              totalRevenuesByPeriod: 0,
-              totalExpensesByPeriod: 0,
-              total: 0,
-            };
-          }
-
-          if (
-            new Date(item.created_at) <= new Date() &&
-            item.account.type === 'CREDIT'
-          ) {
-            totalsGroupedByYears[y].total -= item.amount; //Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
-          }
-
-          // Outros tipos de conta
-          if (
-            new Date(item.created_at) <= new Date() &&
-            item.account.type !== 'CREDIT'
-          ) {
-            totalsGroupedByYears[y].total += item.amount;
-          }
-        }
-        totalsGroupedByYears = Object.values(totalsGroupedByYears).sort(
-          (a: any, b: any) => {
-            const firstDateParsed = parse(a.date, 'yyyy', new Date());
-            const secondDateParsed = parse(b.date, 'yyyy', new Date());
-            return secondDateParsed.getTime() - firstDateParsed.getTime();
-          }
-        );
-
-        setCashFlowTotalBySelectedPeriod(totalByYearsFormattedPtbr);
-        setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByYears);
-        setTransactionsFormattedBySelectedPeriod(
-          transactionsByYearsFormattedPtbr
-        );
-
-        return;
-      }
-      /**
-       * All Totals Grouped By Years - End
-       */
-
-      /**
-       * All Totals Grouped By All History - Start
-       */
-      if (selectedPeriod.period === 'all') {
-        let totalsGroupedByAllHistory: any = {};
-        for (const item of data) {
-          item.created_at = `Todo o \n histórico`;
-          const allHistory = item.created_at;
-
-          if (!totalsGroupedByAllHistory.hasOwnProperty(allHistory)) {
-            totalsGroupedByAllHistory[allHistory] = {
-              date: allHistory,
-              totalRevenuesByPeriod: 0,
-              totalExpensesByPeriod: 0,
-              total: 0,
-            };
-          }
-          if (
-            new Date(item.created_at) <= new Date() &&
-            item.account.type === 'CREDIT'
-          ) {
-            totalsGroupedByAllHistory[allHistory].total -= item.amount; //Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
-          }
-
-          // Outros tipos de conta
-          if (
-            new Date(item.created_at) <= new Date() &&
-            item.account.type !== 'CREDIT'
-          ) {
-            totalsGroupedByAllHistory[allHistory].total += item.amount;
-          }
-        }
-        totalsGroupedByAllHistory = Object.values(totalsGroupedByAllHistory);
-
-        setCashFlowTotalBySelectedPeriod(totalFormattedPtbrByAllHistory);
-        setTotalAmountsGroupedBySelectedPeriod(totalsGroupedByAllHistory);
-        setTransactionsFormattedBySelectedPeriod(
-          transactionsFormattedPtbrGroupedByDate
-        );
-
-        return;
-      }
-      /**
-       * All Totals Grouped All History - End
-       */
+      // Update states
+      setCashFlowTotalBySelectedPeriod(currentCashFlow);
+      setTotalAmountsGroupedBySelectedPeriod(cashFlows);
+      setTransactionsFormattedBySelectedPeriod(groupedTransactions);
     } catch (error) {
       console.error('Home fetchTransactions error =>', error);
       Alert.alert(
@@ -785,6 +489,33 @@ export function Home() {
     );
   }, [selectedDate, totalAmountsGroupedBySelectedPeriod]);
 
+  const _renderInsightCard = useCallback(() => {
+    const lastPeriodIndex = totalAmountsGroupedBySelectedPeriod.length - 1;
+    const lastPeriod = totalAmountsGroupedBySelectedPeriod[lastPeriodIndex];
+    const lastPeriodCashFlow =
+      Number(lastPeriod.totalRevenuesByPeriod) -
+      Number(lastPeriod.totalExpensesByPeriod);
+    const cashFlowIsPositive = lastPeriodCashFlow >= 0;
+
+    return (
+      <InsightCard.Root>
+        <InsightCard.CloseButton onPress={handleHideCashFlowInsights} />
+        <InsightCard.Title
+          title={
+            cashFlowIsPositive
+              ? eInsightsCashFlow.CONGRATULATIONS_TITLE
+              : eInsightsCashFlow.INCENTIVE_TITLE
+          }
+          text={
+            cashFlowIsPositive
+              ? eInsightsCashFlow.CONGRATULATIONS_DESCRIPTION
+              : eInsightsCashFlow.INCENTIVE_DESCRIPTION
+          }
+        />
+      </InsightCard.Root>
+    );
+  }, []);
+
   function _renderEmpty() {
     return <ListEmptyComponent />;
   }
@@ -843,7 +574,7 @@ export function Home() {
 
         <FiltersContainer>
           <FilterButtonGroup>
-            <ChartSelectButton
+            <FilterButton
               title={`Por ${selectedPeriod.name}`}
               onPress={handleOpenPeriodSelectedModal}
             />
@@ -918,17 +649,13 @@ export function Home() {
 
         <Animated.View>{_renderPeriodRuler()}</Animated.View>
 
-        <Animated.View style={insightsStyleAnimationOpacity}>
-          {insights && showInsights && firstDayOfMonth && (
-            <InsightCard.Root>
-              <InsightCard.CloseButton onPress={handleHideCashFlowInsights} />
-              <InsightCard.Title
-                title='Parabéns! 🎉 Você fechou o mês positivo!'
-                text='Continue assim nos próximos meses e invista parte do dinheiro que sobrou para aumentar seu patrimônio!'
-              />
-            </InsightCard.Root>
-          )}
-        </Animated.View>
+        {insights && showInsights && firstDayOfMonth && (
+          <Animated.View
+            style={[insightsStyleAnimationOpacity, styles.insightCard]}
+          >
+            {_renderInsightCard()}
+          </Animated.View>
+        )}
       </Animated.View>
 
       <Transactions>
@@ -1018,6 +745,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.backgroundCardHeader,
     borderBottomRightRadius: 75,
     borderBottomLeftRadius: 75,
+  },
+  insightCard: {
+    minHeight: 30,
+    marginBottom: 16,
   },
   animatedButton: {
     width: 45,

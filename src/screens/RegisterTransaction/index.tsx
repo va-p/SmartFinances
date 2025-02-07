@@ -32,14 +32,15 @@ import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { TagProps } from '@components/TagListItem';
 import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { ControlledInputValue } from '@components/Form/ControlledInputValue';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { CurrencySelectButton } from '@screens/RegisterTransaction/components/CurrencySelectButton';
 import { CategorySelectButton } from '@screens/RegisterTransaction/components/CategorySelectButton';
-import { ControlledInputValue } from '@components/Form/ControlledInputValue';
 import { TransactionTypeButton } from '@components/TransactionListItem/components/TransactionTypeButton';
-import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 import { TagListItemRegisterTransaction } from '@screens/RegisterTransaction/components/TagListItemRegisterTransaction';
 
 import { AccountSelect } from '@screens/AccountSelect';
@@ -58,7 +59,6 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
-import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string;
@@ -330,7 +330,17 @@ export function RegisterTransaction({
       amountConverted = convertCurrency({
         amount: form.amount,
         fromCurrency: currencySelected.code,
-        toCurrency: accountCurrency!.code,
+        // toCurrency: accountCurrency!.code,
+        // toCurrency:
+        //   transactionType === 'transfer'
+        //     ? accountDestinationSelected.id !== ''
+        //       ? accountDestinationSelected.currency.code
+        //       : accountCurrency!.code
+        //     : accountCurrency!.code,
+        toCurrency:
+          transactionType === 'transfer' && accountDestinationSelected.id !== ''
+            ? accountDestinationSelected.currency.code
+            : accountCurrency!.code,
         accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
         quotes: {
           brlQuoteBtc,
@@ -347,6 +357,7 @@ export function RegisterTransaction({
           usdQuoteEur,
         },
       });
+      // console.log('amountConverted ===>', amountConverted);
 
       if (transactionType === 'transfer') {
         const transferEdited = {
@@ -386,11 +397,11 @@ export function RegisterTransaction({
             bank_transaction_id: bankTransactionID,
             date: transactionDate,
             description: form.description,
-            amount: form.amount, // Usar valor original (da transação)
+            amount: form.amount * -1, // inverted value by origin
             amount_in_account_currency:
-              currencySelected.code !== accountCurrency?.code
-                ? amountConverted
-                : null,
+              currencySelected.code !== accountDestinationSelected.currency.code // TODO: Corrigir!!!
+                ? amountConverted * -1 // inverted value by origin
+                : null, // Se a moeda selecionada for diferente da moeda da conta de destino
             currency_id: currencySelected.id,
             type:
               transferEdited.type === 'TRANSFER_DEBIT'
@@ -1021,12 +1032,10 @@ export function RegisterTransaction({
 
       <Footer>
         <Button.Root
-          type='secondary'
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTransaction)}
         >
           <Button.Text
-            type='secondary'
             text={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
           />
         </Button.Root>

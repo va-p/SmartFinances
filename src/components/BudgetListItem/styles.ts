@@ -17,7 +17,7 @@ export const Container = styled(RectButtonAnimated)`
 `;
 
 export const Name = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
+  font-family: ${({ theme }) => theme.fonts.medium};
   color: ${({ theme }) => theme.colors.title};
 `;
 

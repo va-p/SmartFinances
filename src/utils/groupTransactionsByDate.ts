@@ -1,12 +1,11 @@
 import { TransactionProps } from '@interfaces/transactions';
 
-interface GroupedTransaction {
+export interface GroupedTransactionProps {
   title: string;
   data: TransactionProps[];
   total: string;
 }
 
-// Função pura para cálculo do total (separada para testabilidade)
 export const calculateGroupTotal = (
   transactions: TransactionProps[]
 ): string => {
@@ -27,10 +26,9 @@ export const calculateGroupTotal = (
   });
 };
 
-// Versão otimizada com complexidade O(n)
 function groupTransactionsByDate(
   transactions: TransactionProps[]
-): GroupedTransaction[] {
+): GroupedTransactionProps[] {
   const groupsMap = transactions.reduce((acc, transaction) => {
     const dateKey = transaction.created_at;
 

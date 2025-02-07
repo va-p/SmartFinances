@@ -8,8 +8,10 @@ import {
   PluggyConnectContainer,
 } from './styles';
 
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { ptBR } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns';
 import { PluggyConnect } from 'react-native-pluggy-connect';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -25,6 +27,14 @@ export function BankingIntegrationDetails() {
   const token: string = route.params?.connectToken;
 
   const [showModal, setShowModal] = useState(false);
+
+  const formattedLastSyncDate = format(
+    parseISO(bankingIntegration.last_sync_date),
+    'dd/MM/yyyy',
+    {
+      locale: ptBR,
+    }
+  );
 
   async function handlePressUpdateAccount() {
     try {
@@ -91,42 +101,48 @@ export function BankingIntegrationDetails() {
         </PluggyConnectContainer>
       )}
 
-      <AccountName isTitle={false}>
-        Instituição Financeira:{' '}
-        <AccountName isTitle>{bankingIntegration.bank_name}</AccountName>
-      </AccountName>
-      <LastSyncDate isTitle={false}>
-        Data da últ. sincronização bem sucedida:{' '}
-        <LastSyncDate isTitle>{bankingIntegration.last_sync_date}</LastSyncDate>
-      </LastSyncDate>
+      {!showModal && (
+        <>
+          <AccountName isTitle={false}>
+            Instituição Financeira:{' '}
+            <AccountName isTitle>{bankingIntegration.bank_name}</AccountName>
+          </AccountName>
+          <LastSyncDate isTitle={false}>
+            Data da últ. sincronização bem sucedida:{' '}
+            <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
+          </LastSyncDate>
 
-      <AccountName isTitle={false}>
-        Saúde da conexão com a Inst. Financeira:{' '}
-        <AccountName isTitle>{bankingIntegration.health}</AccountName>{' '}
-        {/** TODO: Adc func. para tratar textos */}
-      </AccountName>
+          <AccountName isTitle={false}>
+            Saúde da conexão com a Inst. Financeira:{' '}
+            <AccountName isTitle>{bankingIntegration.health}</AccountName>{' '}
+            {/** TODO: Adc func. para tratar textos */}
+          </AccountName>
 
-      <AccountName isTitle={false}>
-        Status da integração:{' '}
-        <AccountName isTitle>{bankingIntegration.status}</AccountName>{' '}
-        {/** TODO: Adc func. para tratar textos */}
-      </AccountName>
+          <AccountName isTitle={false}>
+            Status da integração:{' '}
+            <AccountName isTitle>{bankingIntegration.status}</AccountName>{' '}
+            {/** TODO: Adc func. para tratar textos */}
+          </AccountName>
 
-      <AccountName isTitle={false}>
-        Status da última sincronização:{' '}
-        <AccountName isTitle>{bankingIntegration.execution_status}</AccountName>{' '}
-        {/** TODO: Adc func. para tratar textos */}
-      </AccountName>
+          <AccountName isTitle={false}>
+            Status da última sincronização:{' '}
+            <AccountName isTitle>
+              {bankingIntegration.execution_status}
+            </AccountName>{' '}
+            {/** TODO: Adc func. para tratar textos */}
+          </AccountName>
 
-      <Footer>
-        <Button.Root
-          type='secondary'
-          onPress={handlePressUpdateAccount}
-          style={{ maxWidth: '50%' }}
-        >
-          <Button.Text type='secondary' text={'Atualizar conexão'} />
-        </Button.Root>
-      </Footer>
+          <Footer>
+            <Button.Root
+              type='secondary'
+              onPress={handlePressUpdateAccount}
+              style={{ maxWidth: '50%' }}
+            >
+              <Button.Text type='secondary' text={'Atualizar conexão'} />
+            </Button.Root>
+          </Footer>
+        </>
+      )}
     </Container>
   );
 }

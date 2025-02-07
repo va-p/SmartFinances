@@ -8,6 +8,7 @@ import {
 
 import { useRevenueCat } from '@providers/RevenueCatProvider';
 
+import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -25,7 +26,6 @@ import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import axios from 'axios';
 
 export function ConnectedAccounts({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -36,8 +36,6 @@ export function ConnectedAccounts({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [updateStatus, setUpdateStatus] = useState(''); // idle, updating, waitingMFA, updateComplete, updateError
-  const [mfaToken, setMfaToken] = useState('');
 
   const [token, setToken] = useState<string>();
 

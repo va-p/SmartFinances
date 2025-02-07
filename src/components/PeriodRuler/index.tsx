@@ -66,7 +66,7 @@ export function PeriodRuler({
   return (
     <Container>
       <MonthSelectButton onPress={() => handleDateChange('prev')}>
-        <CaretLeft size={20} color={theme.colors.text} />
+        <CaretLeft size={18} color={theme.colors.text} />
       </MonthSelectButton>
       <PeriodRulerList
         ref={flatListRef}
@@ -87,7 +87,7 @@ export function PeriodRuler({
         }}
       />
       <MonthSelectButton onPress={() => handleDateChange('next')}>
-        <CaretRight size={20} color={theme.colors.text} />
+        <CaretRight size={18} color={theme.colors.text} />
       </MonthSelectButton>
     </Container>
   );

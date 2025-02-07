@@ -1,4 +1,4 @@
-import { BackButton, BackButtonShape } from './styles';
+import { Button, ButtonShape } from './styles';
 
 import * as Icon from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -13,10 +13,10 @@ export function HeaderBackButton() {
   }
 
   return (
-    <BackButton onPress={handleClickBackButton}>
-      <BackButtonShape>
+    <Button onPress={handleClickBackButton}>
+      <ButtonShape>
         <Icon.ArrowLeft size={20} color={theme.colors.text} />
-      </BackButtonShape>
-    </BackButton>
+      </ButtonShape>
+    </Button>
   );
 }

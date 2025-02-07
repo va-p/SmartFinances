@@ -32,7 +32,6 @@ export const FullPrice = styled.Text`
 export const DiscountPrice = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: 14px;
-  text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;
 

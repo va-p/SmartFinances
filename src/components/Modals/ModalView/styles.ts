@@ -1,8 +1,6 @@
 import { Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 type ColorProps = {
   color: string;
 };
@@ -25,14 +23,6 @@ export const Header = styled.View<ColorProps>`
   padding-right: 16px;
   padding-left: 16px;
   background-color: ${({ color }) => color};
-`;
-
-export const Title = styled.Text`
-  flex: 1;
-  text-align: center;
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(16)}px;
-  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const Container = styled.View`

@@ -10,11 +10,11 @@ type Props = RectButtonProps & {
   title: string;
 };
 
-export function ChartSelectButton({ title, ...rest }: Props) {
+export function FilterButton({ title, ...rest }: Props) {
   return (
     <Container {...rest}>
       <Title>{title}</Title>
-      <CaretDown size={16} color={theme.colors.text} />
+      <CaretDown size={14} color={theme.colors.text} />
     </Container>
   );
 }

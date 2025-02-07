@@ -18,8 +18,23 @@ async function fetchQuote(
       },
     });
 
+    console.log(
+      'baseCurrency:',
+      baseCurrency,
+      'targetCurrency:',
+      targetCurrency,
+      'price:',
+      data.data[0].quote[targetCurrency].price
+    );
+    console.log(
+      'price toFixed:',
+      data.data[0].quote[targetCurrency].price.toFixed(2)
+    );
     setQuote({
-      price: Number(data.data[0].quote[targetCurrency].price.toFixed(2)),
+      price:
+        targetCurrency === 'BTC'
+          ? data.data[0].quote[targetCurrency].price
+          : data.data[0].quote[targetCurrency].price.toFixed(2),
       last_updated: data.data[0].quote[targetCurrency].last_updated,
     });
   } catch (error) {

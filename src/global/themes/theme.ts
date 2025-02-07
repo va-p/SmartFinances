@@ -1,6 +1,6 @@
 export default {
   colors: {
-    primary: 'rgb(249, 150, 0)',
+    primary: 'rgb(255, 170, 41)',
     primary_light: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(230, 233, 244)',
@@ -10,7 +10,7 @@ export default {
     shape: 'rgba(255, 255, 255, 0.5)',
     shapeDark: 'rgb(150, 156, 178)',
 
-    button: '#FFAA29',
+    button: 'rgb(255, 170, 41)',
 
     title: '#000000',
     text: '#000000',

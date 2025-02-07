@@ -1,137 +1,163 @@
+import groupTransactionsByDate, {
+  GroupedTransactionProps,
+} from '@utils/groupTransactionsByDate';
+import formatCurrency from '@utils/formatCurrency';
+
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, isValid, parse, parseISO } from 'date-fns';
+import { format, parse, isValid } from 'date-fns';
 
-import formatCurrency from './formatCurrency';
+import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 
-import { TransactionProps } from '@interfaces/transactions';
+type PeriodType = 'months' | 'years' | 'all';
 
-type ProcessedData = {
-  date: string;
-  totalRevenuesByPeriod: Decimal;
-  totalExpensesByPeriod: Decimal;
-  total: Decimal;
-};
+interface ProcessTransactionsResult {
+  cashFlows: CashFLowData[]; // CashFlows by months, years or all history
+  currentCashFlow: string; // Current CashFlow (by selected period)
+  groupedTransactions: any[]; // Transactions grouped by day with total of the day, to show on SectionList
+}
 
-type PeriodConfig = {
-  groupFormat: string;
-  sortFormat: string;
-  finalFormat: string;
-};
+export const processTransactions = (
+  transactions: TransactionProps[],
+  period: PeriodType,
+  selectedDate: Date
+): ProcessTransactionsResult => {
+  const cashFlowsMap: Record<string, CashFLowData> = {};
 
-const getPeriodConfig = (period: string): PeriodConfig => {
-  const configs = {
+  const periodConfig = {
     months: {
-      groupFormat: 'yyyy-MM',
-      sortFormat: 'yyyy-MM',
-      finalFormat: "MMM '\n' yyyy",
+      groupKey: (date: Date) => format(date, 'yyyy-MM'),
+      outputFormat: "MMM '\n' yyyy",
+      parseFormat: 'yyyy-MM',
     },
     years: {
-      groupFormat: 'yyyy',
-      sortFormat: 'yyyy',
-      finalFormat: 'yyyy',
+      groupKey: (date: Date) => format(date, 'yyyy'),
+      outputFormat: 'yyyy',
+      parseFormat: 'yyyy',
     },
     all: {
-      groupFormat: 'all',
-      sortFormat: 'all',
-      finalFormat: 'Todo o \n histórico',
+      groupKey: () => 'all',
+      outputFormat: 'Todo o \n histórico',
+      parseFormat: '',
     },
   };
 
-  return configs[period as keyof typeof configs] || configs.months;
-};
+  const config = periodConfig[period];
 
-export const processTransactions = (
-  data: TransactionProps[],
-  period: 'months' | 'years' | 'all'
-): {
-  groupedData: ProcessedData[];
-  total: Decimal;
-  formattedTotal: string;
-} => {
-  const config = getPeriodConfig(period);
-  const grouped: Record<string, ProcessedData> = {};
+  // Process transactions to chart
+  transactions.forEach((item) => {
+    // Ignore transfers
+    if (item.type.includes('TRANSFER')) return;
 
-  let total = new Decimal(0);
+    const transactionDate = parse(item.created_at, 'dd/MM/yyyy', new Date());
+    if (!isValid(transactionDate)) return;
 
-  for (const item of data) {
-    const dateKey =
-      config.groupFormat === 'all'
-        ? config.finalFormat
-        : format(new Date(item.created_at), config.groupFormat);
+    const groupKey = config.groupKey(transactionDate);
+    const isCreditAccount = item.account.type === 'CREDIT';
+    const amount = new Decimal(item.amount);
 
-    console.log('dateKey ===>', dateKey);
-
-    if (!grouped[dateKey]) {
-      grouped[dateKey] = {
-        date: dateKey,
+    if (!cashFlowsMap[groupKey]) {
+      cashFlowsMap[groupKey] = {
+        date: groupKey,
         totalRevenuesByPeriod: new Decimal(0),
         totalExpensesByPeriod: new Decimal(0),
-        total: new Decimal(0),
       };
     }
 
-    const isCreditAccount = item.account.type === 'CREDIT';
-    const isTransactionDateValid = new Date(item.created_at) <= new Date();
-
-    if (isTransactionDateValid) {
-      const amount = new Decimal(item.amount);
-      if (isCreditAccount) {
-        // Lógica específica para cartão de crédito
-        if (item.type === 'CREDIT') {
-          grouped[dateKey].totalRevenuesByPeriod =
-            grouped[dateKey].totalRevenuesByPeriod.minus(amount);
-        } else {
-          grouped[dateKey].totalExpensesByPeriod =
-            grouped[dateKey].totalExpensesByPeriod.plus(amount);
-        }
-        total = total.minus(amount);
-      } else {
-        if (item.type === 'CREDIT') {
-          grouped[dateKey].totalRevenuesByPeriod =
-            grouped[dateKey].totalRevenuesByPeriod.plus(amount);
-        } else {
-          grouped[dateKey].totalExpensesByPeriod =
-            grouped[dateKey].totalExpensesByPeriod.minus(amount);
-        }
-        total = total.plus(amount);
+    // Credit card
+    if (isCreditAccount) {
+      if (item.type === 'CREDIT') {
+        cashFlowsMap[groupKey].totalRevenuesByPeriod =
+          cashFlowsMap[groupKey].totalRevenuesByPeriod.minus(amount); // Lógica invertida para Cartão de Crédito
+      }
+      if (item.type === 'DEBIT') {
+        cashFlowsMap[groupKey].totalExpensesByPeriod =
+          cashFlowsMap[groupKey].totalExpensesByPeriod.plus(amount); // Lógica invertida para Cartão de Crédito
       }
     }
-  }
 
-  const sortedData = Object.values(grouped).sort((a, b) => {
-    if (config.groupFormat === 'all') return 0;
-
-    const dateA = parse(a.date, config.sortFormat, new Date());
-    const dateB = parse(b.date, config.sortFormat, new Date());
-    return dateB.getTime() - dateA.getTime();
-  });
-
-  console.log('sortedData ===>', sortedData);
-
-  // Aplicar formatação final
-  const formattedData = sortedData.map((item) => {
-    if (config.groupFormat === 'all') return item;
-
-    try {
-      const date = parse(item.date, config.groupFormat, new Date());
-      return {
-        ...item,
-        date: isValid(date)
-          ? format(date, config.finalFormat, { locale: ptBR })
-          : 'Data inválida',
-      };
-    } catch (error) {
-      console.error('Formatação de data falhou:', item.date, error);
-      return { ...item, date: 'Erro' };
+    // Other account types
+    if (!isCreditAccount) {
+      if (item.type === 'CREDIT') {
+        cashFlowsMap[groupKey].totalRevenuesByPeriod =
+          cashFlowsMap[groupKey].totalRevenuesByPeriod.plus(amount);
+      }
+      if (item.type === 'DEBIT') {
+        cashFlowsMap[groupKey].totalExpensesByPeriod =
+          cashFlowsMap[groupKey].totalExpensesByPeriod.minus(amount);
+      }
     }
   });
 
-  console.log('formattedData ===>', formattedData);
+  // Format and order chart data
+  const cashFlows = Object.values(cashFlowsMap)
+    .map((group) => {
+      let formattedDate = config.outputFormat;
+
+      if (period !== 'all') {
+        const parsedDate = parse(group.date, config.parseFormat, new Date());
+        formattedDate = format(parsedDate, config.outputFormat, {
+          locale: ptBR,
+        });
+      }
+
+      return {
+        ...group,
+        date: formattedDate,
+      };
+    })
+    .sort((a, b) => {
+      if (period === 'all') return 0;
+      const dateA = parse(a.date, config.outputFormat, new Date(), {
+        locale: ptBR,
+      });
+      const dateB = parse(b.date, config.outputFormat, new Date(), {
+        locale: ptBR,
+      });
+      return dateB.getTime() - dateA.getTime();
+    });
+
+  const isInSelectedPeriod = (date: Date) => {
+    switch (period) {
+      case 'months':
+        return (
+          date.getMonth() === selectedDate.getMonth() &&
+          date.getFullYear() === selectedDate.getFullYear()
+        );
+      case 'years':
+        return date.getFullYear() === selectedDate.getFullYear();
+      case 'all':
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  // Filter transactions by selected date and period
+  const filteredTransactions = transactions.filter((item) => {
+    const transactionDate = parse(item.created_at, 'dd/MM/yyyy', new Date());
+    return isValid(transactionDate) && isInSelectedPeriod(transactionDate);
+  });
+
+  // Group transactions by day and calc total of day (to use on section list)
+  const groupedTransactions = groupTransactionsByDate(
+    filteredTransactions
+  ).sort((a: GroupedTransactionProps, b: GroupedTransactionProps) => {
+    const firstDateParsed = parse(a.title, 'dd/MM/yyyy', new Date());
+    const secondDateParsed = parse(b.title, 'dd/MM/yyyy', new Date());
+    return secondDateParsed.getTime() - firstDateParsed.getTime();
+  });
+
+  // Calculate current Cash Flow (by selected period)
+  let currentCashFlowByPeriod = 0;
+  for (const item of groupedTransactions) {
+    const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
+    currentCashFlowByPeriod += parseFloat(cleanTotal);
+  }
 
   return {
-    groupedData: formattedData,
-    total,
-    formattedTotal: formatCurrency('BRL', total.toNumber(), false),
+    cashFlows, // CashFlows by months, years or all history
+    currentCashFlow: formatCurrency('BRL', currentCashFlowByPeriod), // Current CashFlow (by selected period)
+    groupedTransactions, // Transactions grouped by day with total of the day, to show on SectionList
   };
 };

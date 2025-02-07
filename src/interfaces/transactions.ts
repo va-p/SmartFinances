@@ -1,3 +1,5 @@
+import Decimal from 'decimal.js';
+
 import { AccountProps } from './accounts';
 import { CategoryProps } from './categories';
 import { CurrencyProps } from './currencies';
@@ -16,8 +18,8 @@ export interface TransactionProps {
   description: string;
   amount: number;
   amount_formatted: string | number;
-  amount_not_converted?: string | number;
   amount_in_account_currency?: number;
+  amount_in_account_currency_formatted?: string;
   currency: CurrencyProps;
   type: TransactionTypeProps;
   account: AccountProps;
@@ -26,3 +28,10 @@ export interface TransactionProps {
   tenant_id: string;
   user_id: string;
 }
+
+export type CashFLowData = {
+  date: Date | string | number;
+  totalRevenuesByPeriod: Decimal;
+  totalExpensesByPeriod: Decimal;
+  cashFlow?: string;
+};

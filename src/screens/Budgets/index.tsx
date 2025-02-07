@@ -155,6 +155,13 @@ export function Budgets({ navigation }: any) {
           const isTransactionInAnotherCurrency =
             transaction.currency.code !== transaction.account.currency.code;
 
+          if (
+            transaction.type === 'TRANSFER_CREDIT' ||
+            transaction.type === 'TRANSFER_DEBIT'
+          ) {
+            continue;
+          }
+
           // Cartão de crédito
           if (transaction.account.type === 'CREDIT') {
             // amountSpent += transaction.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy, PORÉM, neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
@@ -239,7 +246,7 @@ export function Budgets({ navigation }: any) {
     <Container>
       <Gradient />
 
-      <Header.Root>
+      <Header.Root style={{ justifyContent: 'center' }}>
         <Header.Title title='Orçamentos' />
       </Header.Root>
 

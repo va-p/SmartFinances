@@ -55,7 +55,7 @@ import {
 import { Header } from '@components/Header';
 import { ModalView } from '@components/Modals/ModalView';
 import { PeriodRuler } from '@components/PeriodRuler';
-import { ChartSelectButton } from '@components/ChartSelectButton';
+import { FilterButton } from '@components/FilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
@@ -559,7 +559,7 @@ export function Account() {
 
         <FiltersContainer>
           <FilterButtonGroup>
-            <ChartSelectButton
+            <FilterButton
               title={`Por ${selectedPeriod.name}`}
               onPress={handleOpenPeriodSelectedModal}
             />

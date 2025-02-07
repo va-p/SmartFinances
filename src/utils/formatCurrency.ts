@@ -1,11 +1,4 @@
-type CurrencyCodes = 'BTC' | 'BRL' | 'EUR' | 'USD';
-
-type Props = {
-  currencyCode: string;
-  value: number | string;
-  isConverted?: boolean;
-  withFraction?: boolean;
-};
+import { CurrencyCodes } from '@interfaces/currencies';
 
 function formatCurrency(
   currencyCode: CurrencyCodes,

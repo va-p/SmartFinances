@@ -66,7 +66,7 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
         <DiscountPrice style={{ fontFamily: theme.fonts.medium }}>
           {data.product.priceString}/{getReccurencyStringDate()}
           {data.packageType === 'ANNUAL' && (
-            <DiscountPrice style={{ fontSize: 11 }}>(-16%)</DiscountPrice>
+            <DiscountPrice style={{ fontSize: 11 }}>(-30%)</DiscountPrice>
           )}
           {data.packageType === 'SIX_MONTH' && (
             <DiscountPrice style={{ fontSize: 11 }}>(-8%)</DiscountPrice>
@@ -76,6 +76,12 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
           )}
         </DiscountPrice>
       </PriceContainer>
+
+      {data.packageType !== 'MONTHLY' && (
+        <DiscountPrice style={{ fontSize: 11 }}>
+          Somente {data.product.pricePerMonthString}/mês
+        </DiscountPrice>
+      )}
 
       {data.product.introPrice && (
         <TrialAdvice>Com {getTrialPeriod()} de teste grátis</TrialAdvice>

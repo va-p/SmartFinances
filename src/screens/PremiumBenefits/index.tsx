@@ -26,7 +26,7 @@ import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import { PackageProps } from '@interfaces/premiumPackage';
 
-import { UrlEnum } from '@enums/enumsUrl';
+import { eUrl } from '@enums/enumsUrl';
 
 export function PremiumBenefits() {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState(
@@ -50,11 +50,11 @@ export function PremiumBenefits() {
   }
 
   async function handleClickPrivacyPolicy() {
-    await WebBrowser.openBrowserAsync(UrlEnum.PRIVACY_POLICY_URL);
+    await WebBrowser.openBrowserAsync(eUrl.PRIVACY_POLICY_URL);
   }
 
   async function handleClickTermsOfUse() {
-    await WebBrowser.openBrowserAsync(UrlEnum.TERMS_OF_USE_URL);
+    await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
   }
 
   useFocusEffect(
@@ -88,7 +88,7 @@ export function PremiumBenefits() {
 
       <PremiumBenefitsContainer>
         <PremiumBenefit>
-          <PremiumBenefitIcon color='green' />
+          <PremiumBenefitIcon />
           <PremiumBenefitDescription>
             Sincronização de contas bancárias
           </PremiumBenefitDescription>

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Overlay, Header, Title, Container } from './styles';
+import { Overlay, Header, Container } from './styles';
 
 import {
   BottomSheetProps,
@@ -8,6 +8,8 @@ import {
 } from '@gorhom/bottom-sheet';
 import * as Icon from 'phosphor-react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
+
+import { Header as HeaderComponent } from '@components/Header';
 
 import theme from '@themes/theme';
 
@@ -47,12 +49,10 @@ export function ModalView({
     >
       <BottomSheetView style={{ flex: 1 }}>
         <Header color={color}>
-          <BorderlessButton onPress={closeModal}>
-            <Icon.X color={theme.colors.primary} style={{ marginLeft: 12 }} />
-          </BorderlessButton>
-          <Title>
-            {title} {selectedIdentification}
-          </Title>
+          <HeaderComponent.Root>
+            <HeaderComponent.CloseButton handleClickCloseButton={closeModal} />
+            <HeaderComponent.Title title={`${title}`} />
+          </HeaderComponent.Root>
 
           {type === 'secondary' ? (
             <BorderlessButton onPress={deleteChildren}>

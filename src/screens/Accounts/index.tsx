@@ -430,7 +430,7 @@ export function Accounts({ navigation }: any) {
               <ButtonGroup>
                 <AddAccountButton
                   icon='card'
-                  title='Conectar conta bancária'
+                  title='Integrações Bancárias'
                   onPress={handleTouchConnectAccountModal}
                 />
               </ButtonGroup>
@@ -438,7 +438,7 @@ export function Accounts({ navigation }: any) {
               <ButtonGroup>
                 <AddAccountButton
                   icon='wallet'
-                  title='Criar conta manual'
+                  title='Criar Conta Manual'
                   onPress={handleOpenRegisterAccountModal}
                 />
               </ButtonGroup>
