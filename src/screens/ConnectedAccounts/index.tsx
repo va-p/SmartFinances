@@ -176,7 +176,7 @@ export function ConnectedAccounts({ navigation }: any) {
   }, []);
 
   const handleOnError = useCallback((error: any) => {
-    console.log('error', error);
+    console.error('error', error);
     Alert.alert(
       'Erro',
       'Não foi possível conectar à conta. Por favor, tente novamente.'

@@ -17,6 +17,7 @@ import { useUser } from '@storage/userStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
 import api from '@api/api';
+import { User } from '@interfaces/user';
 
 type FormData = {
   email: string;
@@ -51,6 +52,56 @@ export function AuthProvider({ children }: any) {
     useState(false);
 
   const clerk = getClerkInstance();
+
+  function storageUserDataAndConfig(userData: any): User {
+    // User Data
+    const loggedInUserDataFormatted = {
+      id: userData.id,
+      name: userData.name,
+      lastName: userData.last_name,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role,
+      image: userData.image,
+      tenantId: userData.tenant_id,
+      profileImage: userData.profile_image,
+      configs: {
+        useLocalAuth: userData.use_local_authentication,
+        hideAmount: userData.hide_amount,
+        insights: userData.insights,
+      },
+    };
+    storageUser.set(
+      `${DATABASE_USERS}`,
+      JSON.stringify(loggedInUserDataFormatted)
+    );
+    useUser.setState(() => ({
+      id: loggedInUserDataFormatted.id,
+      name: loggedInUserDataFormatted.name,
+      lastName: loggedInUserDataFormatted.lastName,
+      email: loggedInUserDataFormatted.email,
+      phone: loggedInUserDataFormatted.phone,
+      role: loggedInUserDataFormatted.role,
+      profileImage: loggedInUserDataFormatted.image,
+      tenantId: loggedInUserDataFormatted.tenantId,
+    }));
+
+    // User Configs
+    storageConfig.set(
+      `${DATABASE_CONFIGS}.useLocalAuth`,
+      userData.use_local_authentication
+    );
+    storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, userData.hide_amount);
+    storageConfig.set(`${DATABASE_CONFIGS}.insights`, userData.insights);
+    storageConfig.set(`${DATABASE_CONFIGS}.skipWelcomeScreen`, true);
+    useUserConfigs.setState(() => ({
+      useLocalAuth: userData.use_local_authentication,
+      hideAmount: userData.hide_amount,
+      insights: userData.insights,
+    }));
+
+    return loggedInUserDataFormatted;
+  }
 
   async function checkBiometric() {
     const compatible = await LocalAuthentication.hasHardwareAsync();
@@ -110,47 +161,7 @@ export function AuthProvider({ children }: any) {
             // User token
             storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
 
-            // User Data
-            const loggedInUserDataFormatted = {
-              id: data[1].id,
-              name: data[1].name,
-              lastName: data[1].last_name,
-              email: data[1].email,
-              phone: data[1].phone,
-              role: data[1].role,
-              image: data[1].image,
-              tenantId: data[1].tenant_id,
-            };
-            storageUser.set(
-              `${DATABASE_USERS}`,
-              JSON.stringify(loggedInUserDataFormatted)
-            );
-            useUser.setState(() => ({
-              id: loggedInUserDataFormatted.id,
-              name: loggedInUserDataFormatted.name,
-              lastName: loggedInUserDataFormatted.lastName,
-              email: loggedInUserDataFormatted.email,
-              phone: loggedInUserDataFormatted.phone,
-              role: loggedInUserDataFormatted.role,
-              profileImage: loggedInUserDataFormatted.image,
-              tenantId: loggedInUserDataFormatted.tenantId,
-            }));
-
-            // User Configs
-            storageConfig.set(
-              `${DATABASE_CONFIGS}.useLocalAuth`,
-              data[1].use_local_authentication
-            );
-            storageConfig.set(
-              `${DATABASE_CONFIGS}.hideAmount`,
-              data[1].hide_amount
-            );
-            storageConfig.set(`${DATABASE_CONFIGS}.insights`, data[1].insights);
-            useUserConfigs.setState(() => ({
-              useLocalAuth: data.use_local_authentication,
-              hideAmount: data.hide_amount,
-              insights: data.insights,
-            }));
+            const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
 
             setIsSignedIn(clerkSignedIn!);
             setUser(loggedInUserDataFormatted);
@@ -168,8 +179,8 @@ export function AuthProvider({ children }: any) {
           await clerk.signOut();
 
           Alert.alert(
-            'Erro',
-            'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+            'Erro ao autenticar com o Google',
+            'Usuário não encontrado. Por favor, tente novamente.'
           );
           return;
         }
@@ -205,53 +216,7 @@ export function AuthProvider({ children }: any) {
 
         const userData = (await api.get('auth/me')).data;
 
-        // User Data
-        const loggedInUserDataFormatted = {
-          id: userData.id,
-          name: userData.name,
-          lastName: userData.last_name,
-          email: userData.email,
-          phone: userData.phone,
-          role: userData.role,
-          image: userData.image,
-          tenantId: userData.tenant_id,
-          profileImage: userData.profile_image,
-          configs: {
-            useLocalAuth: userData.use_local_authentication,
-            hideAmount: userData.hide_amount,
-            insights: userData.insights,
-          },
-        };
-        storageUser.set(
-          `${DATABASE_USERS}`,
-          JSON.stringify(loggedInUserDataFormatted)
-        );
-        useUser.setState(() => ({
-          id: loggedInUserDataFormatted.id,
-          name: loggedInUserDataFormatted.name,
-          lastName: loggedInUserDataFormatted.lastName,
-          email: loggedInUserDataFormatted.email,
-          phone: loggedInUserDataFormatted.phone,
-          role: loggedInUserDataFormatted.role,
-          profileImage: loggedInUserDataFormatted.image,
-          tenantId: loggedInUserDataFormatted.tenantId,
-        }));
-
-        // User Configs
-        storageConfig.set(
-          `${DATABASE_CONFIGS}.useLocalAuth`,
-          userData.use_local_authentication
-        );
-        storageConfig.set(
-          `${DATABASE_CONFIGS}.hideAmount`,
-          userData.hide_amount
-        );
-        storageConfig.set(`${DATABASE_CONFIGS}.insights`, userData.insights);
-        useUserConfigs.setState(() => ({
-          useLocalAuth: userData.use_local_authentication,
-          hideAmount: userData.hide_amount,
-          insights: userData.insights,
-        }));
+        const loggedInUserDataFormatted = storageUserDataAndConfig(userData);
 
         setIsSignedIn(true);
         setUser(loggedInUserDataFormatted); // User data from Xano
@@ -355,7 +320,7 @@ export function AuthProvider({ children }: any) {
       useUserConfigs.setState(() => ({
         insights: false,
         hideAmount: false,
-        useLocalAuth: true,
+        useLocalAuth: false,
       }));
     } catch (error) {
       console.error('AuthProvider, signOut error =>', error);

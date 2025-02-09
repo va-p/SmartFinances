@@ -17,10 +17,10 @@ import { useAuth } from '../../contexts/AuthProvider';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useSSO, useOAuth } from '@clerk/clerk-expo';
 import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useOAuth, useUser as useClerkUser } from '@clerk/clerk-expo';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -30,9 +30,8 @@ import { ControlledInput } from '@components/Form/ControlledInput';
 
 import theme from '@themes/theme';
 
-import api from '@api/api';
-
 const LOGO_URL = '@assets/logo.png';
+const GOOGLE_LOGO_URL = '@assets/googleLogo.png';
 
 type FormData = {
   email: string;
@@ -60,9 +59,9 @@ export function SignIn({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  const { signInWithXano, signOut } = useAuth();
+  const { signInWithXano } = useAuth();
   const googleOAuth = useOAuth({ strategy: 'oauth_google' });
-  const { user: clerkUser } = useClerkUser();
+  // const googleOAuth = useSSO(); // New
 
   async function handleSignInWithXano(form: FormData) {
     try {
@@ -86,8 +85,9 @@ export function SignIn({ navigation }: any) {
     try {
       setLoading(true);
       const oAuthFlow = await googleOAuth.startOAuthFlow();
-
-      // console.log('oAuthFlow =>', oAuthFlow);
+      // const oAuthFlow = await googleOAuth.startSSOFlow({
+      //   strategy: 'oauth_google',
+      // }); // New
 
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
@@ -192,7 +192,7 @@ export function SignIn({ navigation }: any) {
         <ScreenDivider text='Ou' />
 
         <SocialLoginButton onPress={handleContinueWithGoogle}>
-          <Icon.GoogleLogo />
+          <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
           <Text style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}>
             Fazer login com o Google
           </Text>

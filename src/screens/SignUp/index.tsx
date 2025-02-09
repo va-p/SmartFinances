@@ -15,7 +15,6 @@ import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { useOAuth, useSSO } from '@clerk/clerk-expo';
-import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -32,6 +31,7 @@ import theme from '@themes/theme';
 import { eUrl } from '@enums/enumsUrl';
 
 const LOGO_URL = '@assets/logo.png';
+const GOOGLE_LOGO_URL = '@assets/googleLogo.png';
 
 type FormData = {
   name: string;
@@ -80,8 +80,8 @@ export function SignUp({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  // const googleOAuth = useOAuth({ strategy: 'oauth_google' });
-  const googleOAuth = useSSO();
+  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+  // const googleOAuth = useSSO(); // New
 
   async function handlePressTermsOfUse() {
     await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
@@ -91,17 +91,17 @@ export function SignUp({ navigation }: any) {
     await WebBrowser.openBrowserAsync(eUrl.PRIVACY_POLICY_URL);
   }
 
-  function handleGoBack() {
-    navigation.goBack();
+  function handlePressLogin() {
+    navigation.navigate('SignIn');
   }
 
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
-      // const oAuthFlow = await googleOAuth.startOAuthFlow();
-      const oAuthFlow = await googleOAuth.startSSOFlow({
-        strategy: 'oauth_google',
-      });
+      const oAuthFlow = await googleOAuth.startOAuthFlow();
+      // const oAuthFlow = await googleOAuth.startSSOFlow({
+      //   strategy: 'oauth_google',
+      // }); // New
 
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
@@ -170,7 +170,6 @@ export function SignUp({ navigation }: any) {
         Alert.alert(
           'Cadastro de usuário',
           `Não foi possível concluir o cadastro: ${error.response?.data?.message}. Por favor, tente novamente.`
-          // 'Não foi possível concluir o cadastro. Por favor, verifique sua conexão com a internet e tente novamente.'
         );
       }
     } finally {
@@ -261,7 +260,8 @@ export function SignUp({ navigation }: any) {
           onPress={handleContinueWithGoogle}
           style={{ marginTop: 8 }}
         >
-          <Icon.GoogleLogo />
+          <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
+
           <Text style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}>
             Entrar com o Google
           </Text>
@@ -293,16 +293,19 @@ export function SignUp({ navigation }: any) {
         </Text>
 
         <Button.Root
-          type='secondary'
           isLoading={loading}
           onPress={handleSubmit(handleRegisterUser)}
+          style={{ width: '50%', alignSelf: 'center' }}
         >
           <Button.Text type='secondary' text='Cadastrar' />
         </Button.Root>
 
         <Text style={{ textAlign: 'center', marginTop: 20 }}>
           Já possui uma conta?{' '}
-          <Text style={{ color: theme.colors.primary }} onPress={handleGoBack}>
+          <Text
+            style={{ color: theme.colors.primary }}
+            onPress={handlePressLogin}
+          >
             Login
           </Text>
         </Text>

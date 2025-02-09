@@ -107,7 +107,7 @@ export function OptionsMenu({ navigation }: any) {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       Alert.alert(
         'Autenticação biométrica',
         'Não foi possível autenticar com a biometria, por favor, tente novamente.'
@@ -127,7 +127,7 @@ export function OptionsMenu({ navigation }: any) {
         setInsights(!insights);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       Alert.alert(
         'Insights Inteligentes',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -147,7 +147,7 @@ export function OptionsMenu({ navigation }: any) {
         setHideAmount(!hideAmount);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       Alert.alert(
         'Ocultar informações',
         'Não foi possível alterar a configuração, por favor, tente novamente.'

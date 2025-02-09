@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Dimensions, Text } from 'react-native';
 import {
+  Container,
+  ScrollContent,
   CashFlowSection,
   CategoriesSection,
   SectionTitle,
@@ -8,7 +10,6 @@ import {
   FilterButtonGroup,
   CategoriesContainer,
   ChartContainer,
-  ScrollContent,
 } from './styles';
 
 import getAccounts from '@utils/getAccounts';
@@ -165,7 +166,6 @@ export function Overview({ navigation }: any) {
         date: 'Todo o \n histórico',
         totalRevenuesByPeriod: new Decimal(0),
         totalExpensesByPeriod: new Decimal(0),
-        total: new Decimal(0),
       };
 
       let allHistoryTotal = new Decimal(0);
@@ -508,8 +508,9 @@ export function Overview({ navigation }: any) {
   }
 
   return (
-    <ScrollContent>
+    <Container>
       <Gradient />
+
       <Header.Root style={{ justifyContent: 'center' }}>
         <Header.Title title={'Resumo'} />
       </Header.Root>
@@ -523,234 +524,236 @@ export function Overview({ navigation }: any) {
         </FilterButtonGroup>
       </FiltersContainer>
 
-      <CashFlowSection>
-        <TabButtons
-          buttons={cashFlowSectionButtons}
-          selectedTab={selectedTabCashFlowSection}
-          setSelectedTab={setSelectedTabCashFlowSection}
-        />
+      <ScrollContent>
+        <CashFlowSection>
+          <TabButtons
+            buttons={cashFlowSectionButtons}
+            selectedTab={selectedTabCashFlowSection}
+            setSelectedTab={setSelectedTabCashFlowSection}
+          />
 
-        {/* Patrimonial Evolution */}
-        {selectedTabCashFlowSection === 0 && (
-          <ChartContainer>
-            <LineChart
-              key={patrimonialEvolutionBySelectedPeriod.length}
-              data={patrimonialEvolutionBySelectedPeriod.map((item) => {
-                return { value: item.total };
-              })}
-              xAxisLabelTexts={patrimonialEvolutionBySelectedPeriod.map(
-                (item) => {
-                  return String(item.date);
-                }
-              )}
-              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
-                patrimonialEvolutionBySelectedPeriod
-              )}
-              width={GRAPH_WIDTH}
-              height={180}
-              noOfSections={5}
-              mostNegativeValue={0}
-              xAxisColor='#455A64'
-              yAxisColor='#455A64'
-              areaChart
-              curved
-              showVerticalLines
-              verticalLinesUptoDataPoint
-              initialSpacing={8}
-              endSpacing={8}
-              focusEnabled
-              showStripOnFocus
-              showValuesAsDataPointsText
-              showTextOnFocus
-              xAxisTextNumberOfLines={2}
-              xAxisLabelTextStyle={{
-                fontSize: 10,
-                color: '#90A4AE',
-                paddingRight: 12,
-              }}
-              yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
-              rulesColor='#455A64'
-              verticalLinesColor='#455A64'
-              color1={theme.colors.primary}
-              dataPointsColor1={theme.colors.primary}
-              startFillColor1={theme.colors.primary}
-              startOpacity={0.6}
-              endOpacity={0.1}
-              isAnimated
-              animationDuration={3000}
-              animateOnDataChange
-              scrollToEnd
-            />
-          </ChartContainer>
-        )}
-
-        {/* CashFlow Chart */}
-        {selectedTabCashFlowSection === 1 && (
-          <ChartContainer>
-            <VictoryChart
-              height={200}
-              padding={{ top: 16, right: 40, bottom: 32, left: 32 }}
-              theme={smartFinancesChartTheme}
-            >
-              <VictoryAxis
-                dependentAxis
-                tickFormat={(tick) =>
-                  tick.toLocaleString('en-US', {
-                    maximumFractionDigits: 2,
-                    notation: 'compact',
-                    compactDisplay: 'short',
-                  })
-                }
+          {/* Patrimonial Evolution */}
+          {selectedTabCashFlowSection === 0 && (
+            <ChartContainer>
+              <LineChart
+                key={patrimonialEvolutionBySelectedPeriod.length}
+                data={patrimonialEvolutionBySelectedPeriod.map((item) => {
+                  return { value: item.total };
+                })}
+                xAxisLabelTexts={patrimonialEvolutionBySelectedPeriod.map(
+                  (item) => {
+                    return String(item.date);
+                  }
+                )}
+                yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
+                  patrimonialEvolutionBySelectedPeriod
+                )}
+                width={GRAPH_WIDTH}
+                height={180}
+                noOfSections={5}
+                mostNegativeValue={0}
+                xAxisColor='#455A64'
+                yAxisColor='#455A64'
+                areaChart
+                curved
+                showVerticalLines
+                verticalLinesUptoDataPoint
+                initialSpacing={8}
+                endSpacing={8}
+                focusEnabled
+                showStripOnFocus
+                showValuesAsDataPointsText
+                showTextOnFocus
+                xAxisTextNumberOfLines={2}
+                xAxisLabelTextStyle={{
+                  fontSize: 10,
+                  color: '#90A4AE',
+                  paddingRight: 12,
+                }}
+                yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+                rulesColor='#455A64'
+                verticalLinesColor='#455A64'
+                color1={theme.colors.primary}
+                dataPointsColor1={theme.colors.primary}
+                startFillColor1={theme.colors.primary}
+                startOpacity={0.6}
+                endOpacity={0.1}
+                isAnimated
+                animationDuration={3000}
+                animateOnDataChange
+                scrollToEnd
               />
-              <VictoryAxis tickFormat={(tick) => tick} />
-              <VictoryGroup offset={16}>
-                <VictoryBar
-                  data={[cashFlow]}
-                  x='date'
-                  y='totalRevenuesByPeriod'
-                  sortKey='x'
-                  sortOrder='descending'
-                  alignment='middle'
-                  style={{
-                    data: {
-                      width: 10,
-                      fill: theme.colors.success_light,
-                    },
-                  }}
-                  cornerRadius={{ top: 2, bottom: 2 }}
-                  animate={{
-                    onLoad: { duration: 2000 },
-                    easing: 'backOut',
-                  }}
+            </ChartContainer>
+          )}
+
+          {/* CashFlow Chart */}
+          {selectedTabCashFlowSection === 1 && (
+            <ChartContainer>
+              <VictoryChart
+                height={200}
+                padding={{ top: 16, right: 40, bottom: 32, left: 32 }}
+                theme={smartFinancesChartTheme}
+              >
+                <VictoryAxis
+                  dependentAxis
+                  tickFormat={(tick) =>
+                    tick.toLocaleString('en-US', {
+                      maximumFractionDigits: 2,
+                      notation: 'compact',
+                      compactDisplay: 'short',
+                    })
+                  }
                 />
-                <VictoryBar
-                  data={[cashFlow]}
-                  x='date'
-                  y='totalExpensesByPeriod'
-                  sortOrder='descending'
-                  alignment='middle'
-                  style={{
-                    data: {
-                      width: 10,
-                      fill: theme.colors.attention_light,
-                    },
-                  }}
-                  cornerRadius={{ top: 2, bottom: 2 }}
-                  animate={{
-                    onLoad: { duration: 2000 },
-                    easing: 'backOut',
-                  }}
+                <VictoryAxis tickFormat={(tick) => tick} />
+                <VictoryGroup offset={16}>
+                  <VictoryBar
+                    data={[cashFlow]}
+                    x='date'
+                    y='totalRevenuesByPeriod'
+                    sortKey='x'
+                    sortOrder='descending'
+                    alignment='middle'
+                    style={{
+                      data: {
+                        width: 10,
+                        fill: theme.colors.success_light,
+                      },
+                    }}
+                    cornerRadius={{ top: 2, bottom: 2 }}
+                    animate={{
+                      onLoad: { duration: 2000 },
+                      easing: 'backOut',
+                    }}
+                  />
+                  <VictoryBar
+                    data={[cashFlow]}
+                    x='date'
+                    y='totalExpensesByPeriod'
+                    sortOrder='descending'
+                    alignment='middle'
+                    style={{
+                      data: {
+                        width: 10,
+                        fill: theme.colors.attention_light,
+                      },
+                    }}
+                    cornerRadius={{ top: 2, bottom: 2 }}
+                    animate={{
+                      onLoad: { duration: 2000 },
+                      easing: 'backOut',
+                    }}
+                  />
+                </VictoryGroup>
+              </VictoryChart>
+            </ChartContainer>
+          )}
+        </CashFlowSection>
+
+        <CategoriesSection>
+          <SectionTitle>Categorias</SectionTitle>
+          <TabButtons
+            buttons={categoriesSectionButtons}
+            selectedTab={selectedTabCategoriesSection}
+            setSelectedTab={setSelectedTabCategoriesSection}
+          />
+
+          {selectedTabCategoriesSection === 0 && (
+            <CategoriesContainer>
+              <VictoryPie
+                data={totalExpensesByCategories}
+                colorScale={totalExpensesByCategories.map(
+                  (category) => category.color.hex
+                )}
+                x='percent'
+                y='total'
+                width={384}
+                innerRadius={60}
+                labelRadius={150}
+                animate={{
+                  duration: 2000,
+                  easing: 'backOut',
+                }}
+                theme={smartFinancesChartTheme}
+                style={{
+                  labels: {
+                    fontSize: RFValue(12),
+                    fontWeight: 'bold',
+                    fill: theme.colors.primary,
+                  },
+                  data: {
+                    stroke: 'none',
+                  },
+                }}
+              />
+
+              {totalExpensesByCategories.map((item) => (
+                <HistoryCard
+                  key={item.id}
+                  icon={item.icon.name}
+                  name={item.name}
+                  amount={item.totalFormatted}
+                  color={item.color.hex}
+                  onPress={() => handleOpenCategory(item.id)}
                 />
-              </VictoryGroup>
-            </VictoryChart>
-          </ChartContainer>
-        )}
-      </CashFlowSection>
+              ))}
+            </CategoriesContainer>
+          )}
 
-      <CategoriesSection>
-        <SectionTitle>Categorias</SectionTitle>
-        <TabButtons
-          buttons={categoriesSectionButtons}
-          selectedTab={selectedTabCategoriesSection}
-          setSelectedTab={setSelectedTabCategoriesSection}
-        />
-
-        {selectedTabCategoriesSection === 0 && (
-          <CategoriesContainer>
-            <VictoryPie
-              data={totalExpensesByCategories}
-              colorScale={totalExpensesByCategories.map(
-                (category) => category.color.hex
-              )}
-              x='percent'
-              y='total'
-              width={384}
-              innerRadius={60}
-              labelRadius={150}
-              animate={{
-                duration: 2000,
-                easing: 'backOut',
-              }}
-              theme={smartFinancesChartTheme}
-              style={{
-                labels: {
-                  fontSize: RFValue(12),
-                  fontWeight: 'bold',
-                  fill: theme.colors.primary,
-                },
-                data: {
-                  stroke: 'none',
-                },
-              }}
-            />
-
-            {totalExpensesByCategories.map((item) => (
-              <HistoryCard
-                key={item.id}
-                icon={item.icon.name}
-                name={item.name}
-                amount={item.totalFormatted}
-                color={item.color.hex}
-                onPress={() => handleOpenCategory(item.id)}
+          {selectedTabCategoriesSection === 1 && (
+            <CategoriesContainer>
+              <VictoryPie
+                data={totalRevenuesByCategories}
+                colorScale={totalRevenuesByCategories.map(
+                  (category) => category.color.hex
+                )}
+                x='percent'
+                y='total'
+                width={384}
+                innerRadius={60}
+                labelRadius={150}
+                animate={{
+                  duration: 2000,
+                  easing: 'backOut',
+                }}
+                theme={smartFinancesChartTheme}
+                style={{
+                  labels: {
+                    fontSize: RFValue(12),
+                    fontWeight: 'bold',
+                    fill: theme.colors.primary,
+                  },
+                  data: {
+                    stroke: 'none',
+                  },
+                }}
               />
-            ))}
-          </CategoriesContainer>
-        )}
 
-        {selectedTabCategoriesSection === 1 && (
-          <CategoriesContainer>
-            <VictoryPie
-              data={totalRevenuesByCategories}
-              colorScale={totalRevenuesByCategories.map(
-                (category) => category.color.hex
-              )}
-              x='percent'
-              y='total'
-              width={384}
-              innerRadius={60}
-              labelRadius={150}
-              animate={{
-                duration: 2000,
-                easing: 'backOut',
-              }}
-              theme={smartFinancesChartTheme}
-              style={{
-                labels: {
-                  fontSize: RFValue(12),
-                  fontWeight: 'bold',
-                  fill: theme.colors.primary,
-                },
-                data: {
-                  stroke: 'none',
-                },
-              }}
-            />
+              {totalRevenuesByCategories.map((item) => (
+                <HistoryCard
+                  key={item.id}
+                  icon={item.icon.name}
+                  name={item.name}
+                  amount={item.totalFormatted}
+                  color={item.color.hex}
+                  onPress={() => handleOpenCategory(item.id)}
+                />
+              ))}
+            </CategoriesContainer>
+          )}
+        </CategoriesSection>
 
-            {totalRevenuesByCategories.map((item) => (
-              <HistoryCard
-                key={item.id}
-                icon={item.icon.name}
-                name={item.name}
-                amount={item.totalFormatted}
-                color={item.color.hex}
-                onPress={() => handleOpenCategory(item.id)}
-              />
-            ))}
-          </CategoriesContainer>
-        )}
-      </CategoriesSection>
-
-      <ModalViewSelection
-        title='Selecione o período'
-        bottomSheetRef={chartPeriodSelectedBottomSheetRef}
-        snapPoints={['30%', '50%']}
-      >
-        <ChartPeriodSelect
-          period={chartPeriodSelected}
-          setPeriod={setChartPeriodSelected}
-          closeSelectPeriod={handleClosePeriodSelectedModal}
-        />
-      </ModalViewSelection>
-    </ScrollContent>
+        <ModalViewSelection
+          title='Selecione o período'
+          bottomSheetRef={chartPeriodSelectedBottomSheetRef}
+          snapPoints={['30%', '50%']}
+        >
+          <ChartPeriodSelect
+            period={chartPeriodSelected}
+            setPeriod={setChartPeriodSelected}
+            closeSelectPeriod={handleClosePeriodSelectedModal}
+          />
+        </ModalViewSelection>
+      </ScrollContent>
+    </Container>
   );
 }

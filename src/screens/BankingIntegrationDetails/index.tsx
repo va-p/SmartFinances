@@ -63,7 +63,7 @@ export function BankingIntegrationDetails() {
   }
 
   function handleOnError(error: any) {
-    console.log('error', error);
+    console.error('error', error);
     Alert.alert(
       'Erro',
       'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'

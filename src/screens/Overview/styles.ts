@@ -2,13 +2,16 @@ import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
+export const Container = styled.View`
+  flex: 1;
+`;
+
 export const ScrollContent = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: {
     backgroundColor: 'transparent',
   },
 })`
-  flex: 1;
   margin-bottom: 54px;
 `;
 
