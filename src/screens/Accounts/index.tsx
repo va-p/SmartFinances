@@ -52,6 +52,7 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 type TotalByMonths = {
   date: string;
@@ -332,6 +333,20 @@ export function Accounts({ navigation }: any) {
     );
   }
 
+  function _renderSkeletonTotal() {
+    return (
+      <SkeletonPlaceholder
+        speed={1000}
+        highlightColor={theme.colors.overlay}
+        backgroundColor={theme.colors.background}
+      >
+        <SkeletonPlaceholder.Item alignItems='center' justifyContent='center'>
+          <SkeletonPlaceholder.Item width={80} height={25} />
+        </SkeletonPlaceholder.Item>
+      </SkeletonPlaceholder>
+    );
+  }
+
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -346,7 +361,14 @@ export function Accounts({ navigation }: any) {
       <HeaderContainer>
         <Header>
           <CashFlowContainer>
-            <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal>
+            {/* <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal> */}
+            <CashFlowTotal>
+              {refreshing
+                ? _renderSkeletonTotal()
+                : hideAmount
+                ? '•••••'
+                : total}
+            </CashFlowTotal>
             <CashFlowDescription>Patrimônio Total</CashFlowDescription>
           </CashFlowContainer>
 
