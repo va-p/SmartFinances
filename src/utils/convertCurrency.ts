@@ -31,7 +31,6 @@ export const convertCurrency = ({
   const currencyConversionRates: CurrencyConversionRates = {
     BRL: {
       BTC: (amount: number) => {
-        console.log('aeee');
         const result = (amount * quotes.brlQuoteBtc.price).toFixed(8);
         return Number(result);
       },
@@ -64,17 +63,7 @@ export const convertCurrency = ({
     },
   };
 
-  console.log('amount ===>', amount);
-  console.log('fromCurrency ===>', fromCurrency);
-  console.log('toCurrency ===>', toCurrency);
-  console.log('accountCurrency ===>', accountCurrency);
-  console.log('quotes ===>', quotes);
-
   // 1. Verificar se a moeda da transação é diferente da moeda da conta de origem
-  console.log(
-    'fromCurrency !== accountCurrency ?? ===>',
-    fromCurrency !== accountCurrency
-  );
   if (fromCurrency !== accountCurrency) {
     // Converter para a moeda da conta de origem
     amount = convertCurrency({
@@ -87,10 +76,6 @@ export const convertCurrency = ({
   }
 
   // 2. Verificar se a conversão para a moeda de destino ainda é necessária
-  console.log(
-    'fromCurrency !== toCurrency ??? ===>',
-    fromCurrency !== toCurrency
-  );
   if (fromCurrency !== toCurrency) {
     const conversionFunction =
       currencyConversionRates[fromCurrency]?.[toCurrency];
