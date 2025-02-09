@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Dimensions, Text } from 'react-native';
 import {
-  Container,
   CashFlowSection,
   CategoriesSection,
   SectionTitle,
@@ -9,6 +8,7 @@ import {
   FilterButtonGroup,
   CategoriesContainer,
   ChartContainer,
+  ScrollContent,
 } from './styles';
 
 import getAccounts from '@utils/getAccounts';
@@ -30,6 +30,7 @@ import { format, parse } from 'date-fns';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -38,7 +39,6 @@ import { FilterButton } from '@components/FilterButton';
 import { TabButtons, TabButtonType } from '@components/TabButtons';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 
-import { CashFLowData } from '@screens/Home';
 import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
 
 import { useUser } from '@storage/userStorage';
@@ -47,12 +47,12 @@ import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
-import { TransactionProps } from '@interfaces/transactions';
+import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
+import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
@@ -87,6 +87,7 @@ export function Overview({ navigation }: any) {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
+  const bottomTabBarHeight = useBottomTabBarHeight();
 
   const [selectedTabCashFlowSection, setSelectedTabCashFlowSection] =
     useState<CustomTab>(CustomTab.Tab1);
@@ -507,7 +508,8 @@ export function Overview({ navigation }: any) {
   }
 
   return (
-    <Container>
+    <ScrollContent>
+      <Gradient />
       <Header.Root style={{ justifyContent: 'center' }}>
         <Header.Title title={'Resumo'} />
       </Header.Root>
@@ -749,6 +751,6 @@ export function Overview({ navigation }: any) {
           closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>
-    </Container>
+    </ScrollContent>
   );
 }

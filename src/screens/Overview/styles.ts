@@ -2,15 +2,14 @@ import styled from 'styled-components/native';
 
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
-export const Container = styled.ScrollView.attrs({
+export const ScrollContent = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: {
-    marginBottom: RFValue(16),
+    backgroundColor: 'transparent',
   },
 })`
   flex: 1;
-  padding: 0 16px;
-  background-color: ${({ theme }) => theme.colors.background};
+  margin-bottom: 54px;
 `;
 
 export const FiltersContainer = styled.View`
@@ -23,13 +22,15 @@ export const FilterButtonGroup = styled.View`
   width: ${RFPercentage(12)}px;
 `;
 
-export const CashFlowSection = styled.View``;
-
-export const ChartContainer = styled.View`
-  /* padding: 0 8px; */
+export const CashFlowSection = styled.View`
+  padding: 0 16px;
 `;
 
-export const CategoriesSection = styled.View``;
+export const ChartContainer = styled.View``;
+
+export const CategoriesSection = styled.View`
+  padding: 0 16px;
+`;
 
 export const SectionTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
