@@ -72,6 +72,16 @@ type FormData = {
   amount: number;
 };
 
+enum CustomTab {
+  Credit,
+  Transfer,
+  Debit,
+}
+
+type TransactionTypeButton = {
+  title: string;
+};
+
 /* Validation Form - Start */
 const schema = Yup.object().shape({
   description: Yup.string().required('Digite a descrição'),
@@ -134,6 +144,8 @@ export function RegisterTransaction({
   const [bankTransactionID, setBankTransactionID] = useState('');
   const [transactionDate, setTransactionDate] = useState('');
   const [transactionType, setTransactionType] = useState('');
+  const [selectedTransactionType, setSelectedTransactionType] =
+    useState<CustomTab>(CustomTab.Credit);
   const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
   const [image, setImage] = useState('');
@@ -169,6 +181,18 @@ export function RegisterTransaction({
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
+
+  const categoriesSectionButtons: TransactionTypeButton[] = [
+    {
+      title: 'Crédito',
+    },
+    {
+      title: 'Transf',
+    },
+    {
+      title: 'Débito',
+    },
+  ];
 
   async function fetchTags() {
     setButtonIsLoading(true);
@@ -1004,7 +1028,7 @@ export function RegisterTransaction({
           )}
 
           <TransactionsTypes>
-            <TransactionTypeButton
+            {/* <TransactionTypeButton
               type='down'
               title='Crédito'
               onPress={() => handleTransactionsTypeSelect('CREDIT')}
@@ -1025,6 +1049,11 @@ export function RegisterTransaction({
               title='Débito'
               onPress={() => handleTransactionsTypeSelect('DEBIT')}
               isActive={transactionType === 'DEBIT'}
+            /> */}
+            <TransactionTypeButton
+              buttons={categoriesSectionButtons}
+              selectedTab={selectedTransactionType}
+              setSelectedTab={setSelectedTransactionType}
             />
           </TransactionsTypes>
         </ContentScroll>

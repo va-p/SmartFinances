@@ -72,11 +72,7 @@ export const TransactionImage = styled.Image`
 `;
 
 export const TransactionsTypes = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
   padding: 0 16px;
-  margin-top: 8px;
-  margin-bottom: 16px;
 `;
 
 export const Footer = styled.View`
