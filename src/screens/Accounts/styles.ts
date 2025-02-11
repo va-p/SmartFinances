@@ -50,9 +50,21 @@ export const ChartContainer = styled.View`
   padding: 0 16px;
 `;
 
+export const ScrollContent = styled.ScrollView.attrs({
+  showsVerticalScrollIndicator: false,
+  contentContainerStyle: { paddingBottom: 80 },
+})``;
+
 export const AccountsContainer = styled.View`
   flex: 1;
   padding: 8px 16px;
+`;
+
+export const SectionTitle = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.medium};
+  font-size: ${RFValue(16)}px;
+  margin: 8px 0;
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const Footer = styled.View`

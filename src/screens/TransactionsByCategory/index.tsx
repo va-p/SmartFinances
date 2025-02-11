@@ -11,7 +11,7 @@ import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 
-import { Header } from '@components/Header_old';
+import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
@@ -19,9 +19,9 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { useUser } from '@storage/userStorage';
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 import theme from '@themes/theme';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 export function TransactionsByCategory({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -352,7 +352,10 @@ export function TransactionsByCategory({ navigation }: any) {
 
       <Header.Root>
         <Header.BackButton />
-        <Header.Title title={'Resumo'} />
+        <Header.Title
+          title={'Transações por categoria'}
+          description={'Transações'}
+        />
       </Header.Root>
 
       <MonthSelect>

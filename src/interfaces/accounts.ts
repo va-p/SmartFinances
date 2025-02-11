@@ -1,21 +1,29 @@
 import { CurrencyProps } from './currencies';
 
 export type AccountTypes =
-  | 'Cartão de Crédito'
   | 'Carteira'
   | 'Carteira de Criptomoedas'
-  | 'Conta Corrente'
   | 'Investimentos'
   | 'Poupança'
   | 'Outro'
+  | 'WALLET'
   | 'BANK'
-  | 'CREDIT';
+  | 'CREDIT'
+  | 'CRYPTOCURRENCY WALLET'
+  | 'INVESTMENTS'
+  | 'OTHER';
+
+export type AccountSubTypes =
+  | 'CHECKING_ACCOUNT'
+  | 'SAVINGS_ACCOUNT'
+  | 'CREDIT_CARD';
 
 export interface AccountProps {
   id: string | null;
   name: string;
   currency: CurrencyProps;
   type: AccountTypes;
+  subtype?: AccountSubTypes;
   balance: number;
   initialAmount: number | null;
   totalAccountAmount?: string;

@@ -1,16 +1,6 @@
 import { create } from 'zustand';
 
-export type AccountType =
-  | 'Cartão de Crédito'
-  | 'Carteira'
-  | 'Carteira de Criptomoedas'
-  | 'Conta Corrente'
-  | 'Investimentos'
-  | 'Poupança'
-  | 'Outro'
-  | 'CREDIT'
-  | 'BANK'
-  | null;
+import { AccountSubTypes, AccountTypes } from '@interfaces/accounts';
 
 type AccountCurrency = {
   id: string;
@@ -24,8 +14,10 @@ type CurrentAccountSelected = {
   setAccountId: (accountId: string | null) => void;
   accountName: string | null;
   setAccountName: (accountName: string | null) => void;
-  accountType: AccountType;
-  setAccountType: (accountType: AccountType) => void;
+  accountType: AccountTypes | null;
+  setAccountType: (accountType: AccountTypes) => void;
+  accountSubType: AccountSubTypes | null;
+  setAccountSubType: (accountType: AccountTypes) => void;
   accountCurrency: AccountCurrency | null;
   setAccountCurrency: (accountCurrency: AccountCurrency | null) => void;
   accountBalance: number | null;
@@ -50,6 +42,9 @@ export const useCurrentAccountSelected = create<CurrentAccountSelected>(
     setAccountName: (accountName) => set(() => ({ accountName: accountName })),
     accountType: null,
     setAccountType: (accountType) => set(() => ({ accountType: accountType })),
+    accountSubType: null,
+    setAccountSubType: (accountSubType) =>
+      set(() => ({ accountType: accountSubType })),
     accountCurrency: null,
     setAccountCurrency: (accountCurrency) =>
       set(() => ({ accountCurrency: accountCurrency })),

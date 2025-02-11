@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  RefreshControl,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 import {
   Container,
   Header,
@@ -8,10 +14,12 @@ import {
   CashFlowDescription,
   HideDataButton,
   ChartContainer,
+  ScrollContent,
   AccountsContainer,
   Footer,
   ButtonGroup,
   HeaderContainer,
+  SectionTitle,
 } from './styles';
 
 import getAccounts from '@utils/getAccounts';
@@ -38,21 +46,23 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { ConnectedAccounts } from '@screens/ConnectedAccounts';
 
-import {
-  AccountType,
-  useCurrentAccountSelected,
-} from '@storage/currentAccountSelectedStorage';
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import api from '@api/api';
 
-import { AccountProps } from '@interfaces/accounts';
+import {
+  AccountProps,
+  AccountSubTypes,
+  AccountTypes,
+} from '@interfaces/accounts';
 
 import theme from '@themes/theme';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { CreditCardListItem } from '@components/CreditCardListItem';
 
 type TotalByMonths = {
   date: string;
@@ -84,13 +94,6 @@ export function Accounts({ navigation }: any) {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const {
-    setAccountId,
-    setAccountName,
-    setAccountType,
-    setAccountCurrency,
-    setAccountBalance,
-  } = useCurrentAccountSelected();
   const { hideAmount, setHideAmount } = useUserConfigs();
   const [total, setTotal] = useState('R$0'); // Total assets
   const [accounts, setAccounts] = useState<AccountProps[]>([]); // Accounts list
@@ -258,15 +261,19 @@ export function Accounts({ navigation }: any) {
   function handleOpenAccount(
     id: string,
     name: string,
-    type: AccountType,
+    type: AccountTypes,
+    subType: AccountSubTypes | null,
     currency: any,
     balance: number
   ) {
-    setAccountId(id);
-    setAccountName(name);
-    setAccountType(type);
-    setAccountCurrency(currency);
-    setAccountBalance(balance);
+    useCurrentAccountSelected.setState(() => ({
+      accountId: id,
+      accountName: name,
+      accountType: type,
+      accountSubType: subType,
+      accountCurrency: currency,
+      accountBalance: balance,
+    }));
     navigation.navigate('Conta');
   }
 
@@ -295,7 +302,11 @@ export function Accounts({ navigation }: any) {
     );
   }
 
-  function _renderItem({ item, index }: any) {
+  type _renderItemProps = {
+    item: AccountProps;
+    index: number;
+  };
+  function _renderItem({ item, index }: _renderItemProps) {
     const getAccountIcon = () => {
       switch (item.type) {
         case 'OTHER':
@@ -314,23 +325,46 @@ export function Accounts({ navigation }: any) {
       }
     };
 
-    return (
-      <AccountListItem
-        data={item}
-        index={index}
-        icon={getAccountIcon()}
-        hideAmount={hideAmount}
-        onPress={() =>
-          handleOpenAccount(
-            item.id,
-            item.name,
-            item.type,
-            item.currency,
-            item.balance
-          )
-        }
-      />
-    );
+    if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
+      return (
+        <AccountListItem
+          data={item}
+          index={index}
+          icon={getAccountIcon()}
+          hideAmount={hideAmount}
+          onPress={() =>
+            handleOpenAccount(
+              item.id!,
+              item.name,
+              item.type,
+              item.subtype || null,
+              item.currency,
+              item.balance
+            )
+          }
+        />
+      );
+    }
+
+    if (item.type === 'CREDIT' && item.subtype === 'CREDIT_CARD') {
+      return (
+        <CreditCardListItem
+          data={item}
+          index={index}
+          hideAmount={hideAmount}
+          onPress={() =>
+            handleOpenAccount(
+              item.id!,
+              item.name,
+              item.type,
+              item.subtype!,
+              item.currency,
+              item.balance
+            )
+          }
+        />
+      );
+    }
   }
 
   function _renderSkeletonTotal() {
@@ -340,7 +374,11 @@ export function Accounts({ navigation }: any) {
         highlightColor={theme.colors.overlay}
         backgroundColor={theme.colors.background}
       >
-        <SkeletonPlaceholder.Item alignItems='center' justifyContent='center'>
+        <SkeletonPlaceholder.Item
+          maxWidth={100}
+          alignItems='center'
+          justifyContent='center'
+        >
           <SkeletonPlaceholder.Item width={80} height={25} />
         </SkeletonPlaceholder.Item>
       </SkeletonPlaceholder>
@@ -431,44 +469,77 @@ export function Accounts({ navigation }: any) {
         </ChartContainer>
       </HeaderContainer>
 
-      <AccountsContainer>
-        <FlatList
-          data={accounts}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={_renderItem}
-          ListEmptyComponent={_renderEmpty}
-          initialNumToRender={25}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                fetchAccounts(true);
-              }}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          ListFooterComponent={
-            <Footer>
-              <ButtonGroup>
-                <AddAccountButton
-                  icon='card'
-                  title='Integrações Bancárias'
-                  onPress={handleTouchConnectAccountModal}
-                />
-              </ButtonGroup>
+      <ScrollContent>
+        <AccountsContainer>
+          {/** ACCOUNTS */}
+          <SectionTitle>Contas</SectionTitle>
+          {accounts
+            .filter(
+              (account) =>
+                account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
+            )
+            .map((account, index: number) => {
+              return _renderItem({ item: account, index });
+            })}
 
-              <ButtonGroup>
-                <AddAccountButton
-                  icon='wallet'
-                  title='Criar Conta Manual'
-                  onPress={handleOpenRegisterAccountModal}
-                />
-              </ButtonGroup>
-            </Footer>
-          }
-          contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
-        />
-      </AccountsContainer>
+          {/** CREDIT CARDS */}
+          {accounts.some(
+            (account) =>
+              account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
+          ) && (
+            <>
+              <SectionTitle>Cartões de crédito</SectionTitle>
+              <FlatList
+                data={accounts.filter(
+                  (account) =>
+                    account.type === 'CREDIT' &&
+                    account.subtype === 'CREDIT_CARD'
+                )}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={_renderItem}
+                snapToOffsets={[
+                  ...Array(
+                    accounts.filter(
+                      (account) =>
+                        account.type === 'CREDIT' &&
+                        account.subtype === 'CREDIT_CARD'
+                    ).length
+                  ),
+                ].map((x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32)}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                      fetchAccounts(true);
+                    }}
+                  />
+                }
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ columnGap: 8 }}
+              />
+            </>
+          )}
+        </AccountsContainer>
+
+        <Footer>
+          <ButtonGroup>
+            <AddAccountButton
+              icon='card'
+              title='Integrações Bancárias'
+              onPress={handleTouchConnectAccountModal}
+            />
+          </ButtonGroup>
+
+          <ButtonGroup>
+            <AddAccountButton
+              icon='wallet'
+              title='Criar Conta Manual'
+              onPress={handleOpenRegisterAccountModal}
+            />
+          </ButtonGroup>
+        </Footer>
+      </ScrollContent>
 
       <ModalView
         bottomSheetRef={connectAccountBottomSheetRef}
