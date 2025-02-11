@@ -34,13 +34,14 @@ import { format, parse } from 'date-fns';
 import * as Icon from 'phosphor-react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { CreditCardListItem } from '@components/CreditCardListItem';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -61,8 +62,6 @@ import {
 } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { CreditCardListItem } from '@components/CreditCardListItem';
 
 type TotalByMonths = {
   date: string;
@@ -76,7 +75,6 @@ const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts({ navigation }: any) {
-  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -399,7 +397,6 @@ export function Accounts({ navigation }: any) {
       <HeaderContainer>
         <Header>
           <CashFlowContainer>
-            {/* <CashFlowTotal>{!hideAmount ? total : '•••••'}</CashFlowTotal> */}
             <CashFlowTotal>
               {refreshing
                 ? _renderSkeletonTotal()
