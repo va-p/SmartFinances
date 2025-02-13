@@ -10,7 +10,6 @@ export const Container = styled.View`
 `;
 
 export const HeaderContainer = styled.View`
-  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
   border-bottom-right-radius: ${({ theme }) =>
     theme.borders.borderRadiusSreenSectionContent};
@@ -51,11 +50,6 @@ export const ChartContainer = styled.View`
   padding: 0 16px;
 `;
 
-export const ScrollContent = styled.ScrollView.attrs({
-  showsVerticalScrollIndicator: false,
-  contentContainerStyle: { paddingBottom: 64 },
-})``;
-
 export const AccountsContainer = styled.View`
   flex: 1;
   padding: 8px 16px;
@@ -72,7 +66,7 @@ export const Footer = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px 0;
+  padding-bottom: 8px;
 `;
 
 export const ButtonGroup = styled.View`

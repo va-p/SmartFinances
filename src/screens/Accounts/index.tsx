@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  RefreshControl,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
 import {
   Container,
   Header,
@@ -14,7 +8,6 @@ import {
   CashFlowDescription,
   HideDataButton,
   ChartContainer,
-  ScrollContent,
   AccountsContainer,
   Footer,
   ButtonGroup,
@@ -35,6 +28,7 @@ import * as Icon from 'phosphor-react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
@@ -75,6 +69,7 @@ const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts({ navigation }: any) {
+  const bottomTabHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -466,77 +461,94 @@ export function Accounts({ navigation }: any) {
         </ChartContainer>
       </HeaderContainer>
 
-      <ScrollContent>
-        <AccountsContainer>
-          {/** ACCOUNTS */}
-          <SectionTitle>Contas</SectionTitle>
-          {accounts
-            .filter(
-              (account) =>
-                account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
-            )
-            .map((account, index: number) => {
-              return _renderItem({ item: account, index });
-            })}
-
-          {/** CREDIT CARDS */}
-          {accounts.some(
+      <AccountsContainer>
+        {/** ACCOUNTS */}
+        <FlatList
+          data={accounts.filter(
             (account) =>
-              account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
-          ) && (
-            <>
-              <SectionTitle>Cartões de crédito</SectionTitle>
-              <FlatList
-                data={accounts.filter(
-                  (account) =>
-                    account.type === 'CREDIT' &&
-                    account.subtype === 'CREDIT_CARD'
-                )}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={_renderItem}
-                snapToOffsets={[
-                  ...Array(
-                    accounts.filter(
-                      (account) =>
-                        account.type === 'CREDIT' &&
-                        account.subtype === 'CREDIT_CARD'
-                    ).length
-                  ),
-                ].map((x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32)}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={() => {
-                      fetchAccounts(true);
-                    }}
-                  />
-                }
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ columnGap: 8 }}
-              />
-            </>
+              account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
           )}
-        </AccountsContainer>
-
-        <Footer>
-          <ButtonGroup>
-            <AddAccountButton
-              icon='card'
-              title='Integrações Bancárias'
-              onPress={handleTouchConnectAccountModal}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={_renderItem}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                fetchAccounts(true);
+              }}
             />
-          </ButtonGroup>
+          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            columnGap: 8,
+            paddingBottom: bottomTabHeight,
+          }}
+          ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
+          ListFooterComponent={
+            /** CREDIT CARDS */
+            accounts.some(
+              (account) =>
+                account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
+            ) && (
+              <>
+                <SectionTitle>Cartões de crédito</SectionTitle>
+                <FlatList
+                  data={accounts.filter(
+                    (account) =>
+                      account.type === 'CREDIT' &&
+                      account.subtype === 'CREDIT_CARD'
+                  )}
+                  keyExtractor={(item) => String(item.id)}
+                  renderItem={_renderItem}
+                  snapToOffsets={[
+                    ...Array(
+                      accounts.filter(
+                        (account) =>
+                          account.type === 'CREDIT' &&
+                          account.subtype === 'CREDIT_CARD'
+                      ).length
+                    ),
+                  ].map((x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32)}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={() => {
+                        fetchAccounts(true);
+                      }}
+                    />
+                  }
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{
+                    columnGap: 8,
+                    paddingBottom: 8,
+                  }}
+                />
 
-          <ButtonGroup>
-            <AddAccountButton
-              icon='wallet'
-              title='Criar Conta Manual'
-              onPress={handleOpenRegisterAccountModal}
-            />
-          </ButtonGroup>
-        </Footer>
-      </ScrollContent>
+                {/** SCREEN FOOTER */}
+                <Footer>
+                  <ButtonGroup>
+                    <AddAccountButton
+                      icon='card'
+                      title='Integrações Bancárias'
+                      onPress={handleTouchConnectAccountModal}
+                    />
+                  </ButtonGroup>
+
+                  <ButtonGroup>
+                    <AddAccountButton
+                      icon='wallet'
+                      title='Criar Conta Manual'
+                      onPress={handleOpenRegisterAccountModal}
+                    />
+                  </ButtonGroup>
+                </Footer>
+              </>
+            )
+          }
+          ListEmptyComponent={_renderEmpty}
+        />
+      </AccountsContainer>
 
       <ModalView
         bottomSheetRef={connectAccountBottomSheetRef}
