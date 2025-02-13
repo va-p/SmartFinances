@@ -7,6 +7,9 @@ export default {
     backgroundNav: 'rgba(255, 255, 255, 0.95)',
     backgroundCardHeader: 'rgba(255, 255, 255, 0.5)', // Card of top screens
 
+    gradientStart: '#FFEBCE',
+    gradientEnd: '#E6E9F4',
+
     shape: 'rgba(255, 255, 255, 0.5)',
     shapeDark: 'rgb(150, 156, 178)',
 

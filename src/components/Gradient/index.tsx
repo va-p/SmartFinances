@@ -1,12 +1,12 @@
 import React from 'react';
 import { Container } from './styles';
 
-import { LinearGradientProps } from 'expo-linear-gradient';
+import theme from '@themes/theme';
 
 export function Gradient() {
   return (
     <Container
-      colors={['#E6E9F4', '#FFEBCE']}
+      colors={[theme.colors.gradientEnd, theme.colors.gradientStart]}
       style={{
         position: 'absolute',
         left: 0,

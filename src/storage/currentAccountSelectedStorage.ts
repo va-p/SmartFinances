@@ -1,13 +1,7 @@
 import { create } from 'zustand';
 
+import { CurrencyProps } from '@interfaces/currencies';
 import { AccountSubTypes, AccountTypes } from '@interfaces/accounts';
-
-type AccountCurrency = {
-  id: string;
-  name: string;
-  code: string;
-  symbol: string;
-};
 
 type CurrentAccountSelected = {
   accountId: string | null;
@@ -18,8 +12,8 @@ type CurrentAccountSelected = {
   setAccountType: (accountType: AccountTypes) => void;
   accountSubType: AccountSubTypes | null;
   setAccountSubType: (accountType: AccountTypes) => void;
-  accountCurrency: AccountCurrency | null;
-  setAccountCurrency: (accountCurrency: AccountCurrency | null) => void;
+  accountCurrency: CurrencyProps | null;
+  setAccountCurrency: (accountCurrency: CurrencyProps | null) => void;
   accountBalance: number | null;
   setAccountBalance: (accountBalance: number | null) => void;
   accountInitialAmount: number;

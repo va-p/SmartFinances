@@ -59,6 +59,7 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
+import { TransactionTypeProps } from '@interfaces/transactions';
 
 type Props = {
   id: string;
@@ -81,6 +82,8 @@ enum CustomTab {
 type TransactionTypeButton = {
   title: string;
 };
+
+type TransactionTabType = 'CREDIT' | 'DEBIT' | 'TRANSFER' | '';
 
 /* Validation Form - Start */
 const schema = Yup.object().shape({
@@ -143,8 +146,9 @@ export function RegisterTransaction({
   };
   const [bankTransactionID, setBankTransactionID] = useState('');
   const [transactionDate, setTransactionDate] = useState('');
-  const [transactionType, setTransactionType] = useState('');
-  const [selectedTransactionType, setSelectedTransactionType] =
+  const [transactionType, setTransactionType] =
+    useState<TransactionTabType>('');
+  const [selectedTransactionTab, setSelectedTransactionTab] =
     useState<CustomTab>(CustomTab.Credit);
   const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
@@ -217,8 +221,25 @@ export function RegisterTransaction({
     }
   }
 
-  function handleTransactionsTypeSelect(type: 'CREDIT' | 'DEBIT' | 'transfer') {
-    setTransactionType(type);
+  function handleTransactionsTypeSelect(tabIdx: number) {
+    let transactionType: TransactionTabType;
+    switch (tabIdx) {
+      case 0:
+        transactionType = 'CREDIT';
+        break;
+      case 1:
+        transactionType = 'TRANSFER';
+        break;
+      case 2:
+        transactionType = 'DEBIT';
+        break;
+      default:
+        transactionType = 'CREDIT';
+        break;
+    }
+
+    setSelectedTransactionTab(tabIdx);
+    setTransactionType(transactionType);
   }
 
   function handleOpenSelectCategoryModal() {
@@ -362,7 +383,7 @@ export function RegisterTransaction({
         //       : accountCurrency!.code
         //     : accountCurrency!.code,
         toCurrency:
-          transactionType === 'transfer' && accountDestinationSelected.id !== ''
+          transactionType === 'TRANSFER' && accountDestinationSelected.id !== ''
             ? accountDestinationSelected.currency.code
             : accountCurrency!.code,
         accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
@@ -383,7 +404,7 @@ export function RegisterTransaction({
       });
       // console.log('amountConverted ===>', amountConverted);
 
-      if (transactionType === 'transfer') {
+      if (transactionType === 'TRANSFER') {
         const transferEdited = {
           transaction_id: id,
           created_at: date,
@@ -617,7 +638,7 @@ export function RegisterTransaction({
     try {
       let amountConverted = form.amount;
 
-      if (transactionType === 'transfer') {
+      if (transactionType === 'TRANSFER') {
         const fromCurrency = currencySelected.code; // Moeda selecionada
         const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
 
@@ -841,9 +862,25 @@ export function RegisterTransaction({
         data.image && setImageUrl(data.image.url);
       }
       setTransactionType(data.type);
+      let transactionTab: number;
+      switch (data.type) {
+        case 'CREDIT':
+          transactionTab = 0;
+          break;
+        case 'TRANSFER_CREDIT':
+        case 'TRANSFER_DEBIT':
+          transactionTab = 1;
+          break;
+        case 'DEBIT':
+          transactionTab = 2;
+          break;
+        default:
+          transactionTab = 0;
+          break;
+      }
+      setSelectedTransactionTab(transactionTab);
       setTransactionDate(data.date);
       setBankTransactionID(data.bank_transaction_id);
-      // setValue('amount', data.amount_in_account_currency);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -954,7 +991,7 @@ export function RegisterTransaction({
             icon={<Icon.Wallet color={categorySelected.color.hex} />}
             onPress={handleOpenSelectAccountModal}
           />
-          {transactionType === 'transfer' && (
+          {transactionType === 'TRANSFER' && (
             <SelectButton
               title={accountDestinationSelected.name}
               icon={<Icon.Wallet color={categorySelected.color.hex} />}
@@ -1028,32 +1065,10 @@ export function RegisterTransaction({
           )}
 
           <TransactionsTypes>
-            {/* <TransactionTypeButton
-              type='down'
-              title='Crédito'
-              onPress={() => handleTransactionsTypeSelect('CREDIT')}
-              isActive={transactionType === 'CREDIT'}
-            />
-            <TransactionTypeButton
-              type='swap'
-              title='Transf'
-              onPress={() => handleTransactionsTypeSelect('transfer')}
-              isActive={
-                transactionType === 'transfer' ||
-                transactionType === 'TRANSFER_CREDIT' ||
-                transactionType === 'TRANSFER_DEBIT'
-              }
-            />
-            <TransactionTypeButton
-              type='up'
-              title='Débito'
-              onPress={() => handleTransactionsTypeSelect('DEBIT')}
-              isActive={transactionType === 'DEBIT'}
-            /> */}
             <TransactionTypeButton
               buttons={categoriesSectionButtons}
-              selectedTab={selectedTransactionType}
-              setSelectedTab={setSelectedTransactionType}
+              selectedTab={selectedTransactionTab}
+              setSelectedTab={handleTransactionsTypeSelect}
             />
           </TransactionsTypes>
         </ContentScroll>

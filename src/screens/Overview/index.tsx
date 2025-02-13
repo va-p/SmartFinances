@@ -31,7 +31,6 @@ import { format, parse } from 'date-fns';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -88,7 +87,6 @@ export function Overview({ navigation }: any) {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const bottomTabBarHeight = useBottomTabBarHeight();
 
   const [selectedTabCashFlowSection, setSelectedTabCashFlowSection] =
     useState<CustomTab>(CustomTab.Tab1);
@@ -515,16 +513,16 @@ export function Overview({ navigation }: any) {
         <Header.Title title={'Resumo'} />
       </Header.Root>
 
-      <FiltersContainer>
-        <FilterButtonGroup>
-          <FilterButton
-            title={`Por ${chartPeriodSelected.name}`}
-            onPress={handleOpenPeriodSelectedModal}
-          />
-        </FilterButtonGroup>
-      </FiltersContainer>
-
       <ScrollContent>
+        <FiltersContainer>
+          <FilterButtonGroup>
+            <FilterButton
+              title={`Por ${chartPeriodSelected.name}`}
+              onPress={handleOpenPeriodSelectedModal}
+            />
+          </FilterButtonGroup>
+        </FiltersContainer>
+
         <CashFlowSection>
           <TabButtons
             buttons={cashFlowSectionButtons}

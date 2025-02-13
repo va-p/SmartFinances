@@ -10,6 +10,7 @@ import { ptBR } from 'date-fns/locale';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -24,12 +25,12 @@ import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import theme from '@themes/theme';
 
 export function TransactionsByCategory({ navigation }: any) {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const route = useRoute();
   const categoryId = route.params?.id;
-  const [categoryName, setCategoryName] = useState<string>('');
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
 
@@ -57,8 +58,6 @@ export function TransactionsByCategory({ navigation }: any) {
        */
       let amount_formatted: any;
       let amountNotConvertedFormatted = '';
-      //let totalRevenues = 0;
-      //let totalExpenses = 0;
 
       let transactionsByCategoryFormattedPtbr: any = [];
       for (const item of data) {
@@ -193,24 +192,10 @@ export function TransactionsByCategory({ navigation }: any) {
           return secondDateParsed.getTime() - firstDateParsed.getTime();
         });
 
-      // Sum the total revenues and expenses by category
-      transactionsByCategoryFormattedPtbr.forEach((cur: any) => {
-        if (cur.type === 'CREDIT') {
-          //totalRevenues += cur.amount;
-        } else if (cur.type === 'DEBIT') {
-          //totalExpenses += cur.amount;
-        } else if (cur.type === 'TRANSFER_CREDIT') {
-          //totalRevenues += cur.amount;
-        } else if (cur.type === 'TRANSFER_DEBIT') {
-          //totalExpenses += cur.amount;
-        }
-      });
-
       // Group transactions by date to section list
       const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
         transactionsByCategoryFormattedPtbr
       );
-      setCategoryName(transactionsByCategoryFormattedPtbr[0].category.name);
       /**
        * All Transactions By Account Formatted in pt-BR - End
        */
@@ -233,27 +218,6 @@ export function TransactionsByCategory({ navigation }: any) {
             ).getFullYear() === selectedDate.getFullYear()
         );
 
-      // Sum revenues and expenses
-      //let totalRevenuesByMonths = 0;
-      //let totalExpensesByMonths = 0;
-
-      for (const item of transactionsByMonthsFormattedPtbr) {
-        if (item.data) {
-          item.data.forEach((cur: any) => {
-            if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'credit'
-            ) {
-              //totalRevenuesByMonths += cur.amount;
-            } else if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'debit'
-            ) {
-              //totalExpensesByMonths += cur.amount;
-            }
-          });
-        }
-      }
       /**
        * Transactions By Months Formatted in pt-BR - End
        */
@@ -271,27 +235,6 @@ export function TransactionsByCategory({ navigation }: any) {
             ).getFullYear() === selectedDate.getFullYear()
         );
 
-      // Sum revenues and expenses
-      //let totalRevenuesByYears = 0;
-      //let totalExpensesByYears = 0;
-
-      for (const item of transactionsByYearsFormattedPtbr) {
-        if (item.data) {
-          item.data.forEach((cur: any) => {
-            if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'credit'
-            ) {
-              //totalRevenuesByYears += cur.amount;
-            } else if (
-              parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date() &&
-              cur.type === 'debit'
-            ) {
-              //totalExpensesByYears += cur.amount;
-            }
-          });
-        }
-      }
       /**
        * Transactions By Years Formatted in pt-BR - End
        */
@@ -301,19 +244,16 @@ export function TransactionsByCategory({ navigation }: any) {
        */
       switch (selectedPeriod.period) {
         case 'months':
-          //setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonths);
           setTransactionsFormattedBySelectedPeriod(
             transactionsByMonthsFormattedPtbr
           );
           break;
         case 'years':
-          //setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByYears);
           setTransactionsFormattedBySelectedPeriod(
             transactionsByYearsFormattedPtbr
           );
           break;
         case 'all':
-          //setCashFlowBySelectedPeriod(totalAccountBalanceFormatted);
           setTransactionsFormattedBySelectedPeriod(
             transactionsFormattedPtbrGroupedByDate
           );
@@ -352,10 +292,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
       <Header.Root>
         <Header.BackButton />
-        <Header.Title
-          title={'Transações por categoria'}
-          description={'Transações'}
-        />
+        <Header.Title title={'Transações por categoria'} />
       </Header.Root>
 
       <MonthSelect>
@@ -390,6 +327,11 @@ export function TransactionsByCategory({ navigation }: any) {
           />
         }
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          rowGap: 8,
+          paddingTop: 16,
+          paddingBottom: bottomTabBarHeight,
+        }}
       />
     </Container>
   );

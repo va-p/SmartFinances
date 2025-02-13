@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LayoutChangeEvent } from 'react-native';
 import {
   Button,
@@ -38,16 +38,22 @@ export function TransactionTypeButton({
   selectedTab,
   setSelectedTab,
 }: Props) {
-  const [dimensions, setDimensions] = useState({ width: 100, height: 20 });
-
-  const buttonWidth = dimensions.width / buttons.length;
-
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const buttonWidth = dimensions.width / buttons.length || 0;
   const tabPositionX = useSharedValue(0);
 
+  useEffect(() => {
+    if (dimensions.width > 0 && buttons.length > 0) {
+      tabPositionX.value = buttonWidth * selectedTab;
+    }
+  }, [dimensions, selectedTab, buttons.length, buttonWidth]);
+
   const onTabBarLayout = (e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    const height = e.nativeEvent.layout.height;
     setDimensions({
-      width: e.nativeEvent.layout.width,
-      height: e.nativeEvent.layout.height,
+      width: width,
+      height: height,
     });
   };
 

@@ -551,7 +551,7 @@ export function Account() {
             <Header.BackButton />
             <Header.Title
               title={accountName || ''}
-              description={'Transações'}
+              // description={'Transações'}
             />
             <Header.Icon onPress={handleOpenEditAccount} />
           </Header.Root>
