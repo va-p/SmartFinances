@@ -9,6 +9,7 @@ import {
   HideDataButton,
   ChartContainer,
   AccountsContainer,
+  AccountsContent,
   Footer,
   ButtonGroup,
   HeaderContainer,
@@ -313,29 +314,30 @@ export function Accounts({ navigation }: any) {
         case 'CREDIT':
           return <Icon.CreditCard color={theme.colors.primary} />;
         default:
-          'WALLET';
-          break;
+          return <Icon.Wallet color={theme.colors.primary} />;
       }
     };
 
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
-        <AccountListItem
-          data={item}
-          index={index}
-          icon={getAccountIcon()}
-          hideAmount={hideAmount}
-          onPress={() =>
-            handleOpenAccount(
-              item.id!,
-              item.name,
-              item.type,
-              item.subtype || null,
-              item.currency,
-              item.balance
-            )
-          }
-        />
+        <AccountsContent>
+          <AccountListItem
+            data={item}
+            index={index}
+            icon={getAccountIcon()}
+            hideAmount={hideAmount}
+            onPress={() =>
+              handleOpenAccount(
+                item.id!,
+                item.name,
+                item.type,
+                item.subtype || null,
+                item.currency,
+                item.balance
+              )
+            }
+          />
+        </AccountsContent>
       );
     }
 
@@ -358,12 +360,15 @@ export function Accounts({ navigation }: any) {
         />
       );
     }
+
+    return null;
   }
 
   function _renderSkeletonTotal() {
     return (
       <SkeletonPlaceholder
         speed={1000}
+        shimmerWidth={100}
         highlightColor={theme.colors.overlay}
         backgroundColor={theme.colors.background}
       >
@@ -480,7 +485,6 @@ export function Accounts({ navigation }: any) {
           }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            columnGap: 8,
             paddingBottom: bottomTabHeight,
           }}
           ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
@@ -489,7 +493,7 @@ export function Accounts({ navigation }: any) {
             accounts.some(
               (account) =>
                 account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
-            ) && (
+            ) ? (
               <>
                 <SectionTitle>Cartões de crédito</SectionTitle>
                 <FlatList
@@ -521,7 +525,9 @@ export function Accounts({ navigation }: any) {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{
                     columnGap: 8,
+                    paddingRight: 16,
                     paddingBottom: 8,
+                    paddingLeft: 16,
                   }}
                 />
 
@@ -544,21 +550,11 @@ export function Accounts({ navigation }: any) {
                   </ButtonGroup>
                 </Footer>
               </>
-            )
+            ) : null
           }
           ListEmptyComponent={_renderEmpty}
         />
       </AccountsContainer>
-
-      <ModalView
-        bottomSheetRef={connectAccountBottomSheetRef}
-        snapPoints={['100%']}
-        enableContentPanningGesture={false}
-        closeModal={handleCloseConnectAccountModal}
-        title='Conectar Conta Bancária'
-      >
-        <ConnectedAccounts />
-      </ModalView>
 
       <ModalView
         bottomSheetRef={registerAccountBottomSheetRef}

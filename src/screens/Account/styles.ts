@@ -78,5 +78,6 @@ export const AccountCashFlowDescription = styled.Text`
 `;
 
 export const Transactions = styled.View`
+  row-gap: 8px;
   padding: 0 16px;
 `;
