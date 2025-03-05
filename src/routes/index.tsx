@@ -1,4 +1,5 @@
 import React from 'react';
+import { StatusBar } from 'react-native';
 
 import { useAuth } from '@contexts/AuthProvider';
 
@@ -11,7 +12,7 @@ import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { AuthRoutes } from './auth.stack.routes';
 import { AppTabRoutes } from './app.tab.routes';
 import { TransactionsByCategory } from '@screens/TransactionsByCategory';
-import { StatusBar } from 'react-native';
+
 import theme from '@themes/theme';
 
 const { Navigator, Screen } = createStackNavigator();
@@ -28,7 +29,7 @@ export function Routes() {
       <NavigationContainer>
         <StatusBar
           barStyle='dark-content'
-          backgroundColor={'rgba(255, 255, 255, 0.3)'}
+          backgroundColor={'rgba(255, 255, 255, 0.5)'}
         />
         <BottomSheetModalProvider>
           <Navigator

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 
 import axios from 'axios';
+import { useRevenueCat } from '@providers/RevenueCatProvider';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useUser as useClerkUser, getClerkInstance } from '@clerk/clerk-expo';
 
@@ -31,7 +32,7 @@ interface AuthContextType {
   isSignedIn: boolean;
   isLoaded: boolean;
   loading: boolean;
-  signInWithXano: (data: FormData) => Promise<void>;
+  signInWithXano: (data: FormData) => Promise<User | undefined>;
   signInWithBiometrics: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -44,6 +45,9 @@ export function AuthProvider({ children }: any) {
     isLoaded: clerkLoaded,
     isSignedIn: clerkSignedIn,
   } = useClerkUser();
+
+  const { user: revenueCatUser } = useRevenueCat();
+  const premium = revenueCatUser.premium;
 
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -65,8 +69,9 @@ export function AuthProvider({ children }: any) {
       phone: userData.phone,
       role: userData.role,
       image: userData.image,
-      tenantId: userData.tenant_id,
       profileImage: userData.profile_image,
+      premium,
+      tenantId: userData.tenant_id,
       configs: {
         useLocalAuth: userData.use_local_authentication,
         hideAmount: userData.hide_amount,
@@ -85,6 +90,7 @@ export function AuthProvider({ children }: any) {
       phone: loggedInUserDataFormatted.phone,
       role: loggedInUserDataFormatted.role,
       profileImage: loggedInUserDataFormatted.image,
+      premium: loggedInUserDataFormatted.premium,
       tenantId: loggedInUserDataFormatted.tenantId,
     }));
 
@@ -226,10 +232,7 @@ export function AuthProvider({ children }: any) {
       return;
     } catch (error) {
       console.error('AuthProvider, signInWithXano error =>', error);
-      Alert.alert(
-        'Login',
-        `Não foi possível autenticar com e-mail senha: ${error.response?.data?.message}. Por favor, verifique sua conexão e tente novamente.`
-      );
+      Alert.alert('Login', `${error.response?.data?.message}`);
     } finally {
       setLoading(false);
     }

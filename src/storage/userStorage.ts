@@ -19,6 +19,8 @@ type User = {
   setRole: (role: UserRole) => void;
   profileImage: string;
   setProfileImage: (profileImage: string) => void;
+  premium: boolean;
+  setPremium: (premium: boolean) => void;
 };
 
 export const useUser = create<User>((set) => ({
@@ -39,4 +41,6 @@ export const useUser = create<User>((set) => ({
   profileImage: '',
   setProfileImage: (profileImage) =>
     set(() => ({ profileImage: profileImage })),
+  premium: false,
+  setPremium: (premium) => set(() => ({ premium: premium })),
 }));
