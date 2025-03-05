@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 
+import axios from 'axios';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useUser as useClerkUser, getClerkInstance } from '@clerk/clerk-expo';
 
@@ -17,6 +18,7 @@ import { useUser } from '@storage/userStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
 import api from '@api/api';
+
 import { User } from '@interfaces/user';
 
 type FormData = {
@@ -170,8 +172,8 @@ export function AuthProvider({ children }: any) {
             await clerk.signOut();
 
             Alert.alert(
-              'Erro',
-              'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+              'Erro ao autenticar com o Google',
+              'Não foi possível buscar os dados do usuário. Por favor, tente novamente.'
             );
             return;
           }
@@ -186,10 +188,9 @@ export function AuthProvider({ children }: any) {
         }
       } catch (error) {
         console.error('Erro ao buscar dados do usuário =>', error);
-        Alert.alert(
-          'Erro ao buscar dados do usuário, por favor, tente novamente',
-          error.response?.data?.message
-        );
+        if (axios.isAxiosError(error)) {
+          Alert.alert('Login', error.response?.data?.message);
+        }
       } finally {
         setLoading(false);
       }

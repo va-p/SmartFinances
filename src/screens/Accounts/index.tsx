@@ -233,7 +233,7 @@ export function Accounts({ navigation }: any) {
     }
   }
 
-  function handleTouchConnectAccountModal() {
+  function handleTouchConnectAccount() {
     navigation.navigate('Contas Conectadas', {
       showHeader: true,
     });
@@ -537,7 +537,7 @@ export function Accounts({ navigation }: any) {
                     <AddAccountButton
                       icon='card'
                       title='Integrações Bancárias'
-                      onPress={handleTouchConnectAccountModal}
+                      onPress={handleTouchConnectAccount}
                     />
                   </ButtonGroup>
 

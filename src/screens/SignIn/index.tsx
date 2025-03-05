@@ -71,10 +71,7 @@ export function SignIn({ navigation }: any) {
     } catch (error) {
       console.error('SignIn screen, handleSignInWithXano error =>', error);
       if (axios.isAxiosError(error)) {
-        Alert.alert(
-          'Login',
-          `Não foi possível autenticar com e-mail e senha: ${error.response?.data?.message}. Por favor, verifique sua conexão com a internet e tente novamente.`
-        );
+        Alert.alert('Login', `${error.response?.data?.message}`);
       }
     } finally {
       setLoading(false);
@@ -109,10 +106,7 @@ export function SignIn({ navigation }: any) {
     } catch (error) {
       console.error('SignIn screen, handleContinueWithGoogle error =>', error);
       if (axios.isAxiosError(error)) {
-        Alert.alert(
-          'Login',
-          `Não foi possível autenticar com o Google: ${error.response?.data?.message}. Por favor, tente novamente.`
-        );
+        Alert.alert('Login', error.response?.data?.message);
       }
     } finally {
       setLoading(false);
