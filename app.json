@@ -3,7 +3,7 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "runtimeVersion": "2.5.6(45)",
-    "version": "2.5.8",
+    "version": "2.5.9",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
