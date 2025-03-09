@@ -245,7 +245,7 @@ export function Home() {
       setLoading(true);
 
       const { data } = await api.get(
-        '/banking_integration/get_integrations_and_sync_transactions',
+        '/banking_integration/fetch_transactions',
         {
           params: {
             user_id: userID,

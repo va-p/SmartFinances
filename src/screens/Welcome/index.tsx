@@ -25,7 +25,7 @@ export function Welcome({ navigation }: any) {
       </LogoWrapper>
 
       <Title>
-        Controle suas {'\n'} finanças de forma {'\n'}{' '}
+        Controle suas {'\n'}finanças de forma {'\n'}
         <Title primary>simples</Title> e <Title primary>precisa</Title>.
       </Title>
 

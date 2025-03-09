@@ -27,7 +27,7 @@ export const Logo = styled.Image.attrs({
 export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(24)}px;
-  text-align: left;
+  text-align: center;
   margin-bottom: 32px;
   color: ${({ theme, primary = false }) =>
     primary ? theme.colors.primary : theme.colors.text};

@@ -2,11 +2,10 @@ import React, { useCallback, useState } from 'react';
 import { ScrollView } from 'react-native';
 import {
   Advice,
+  AdvicesContainer,
   Container,
   Description,
-  PremiumBenefit,
-  PremiumBenefitDescription,
-  PremiumBenefitIcon,
+  PackagesContainer,
   PremiumBenefitsContainer,
   Title,
 } from './styles';
@@ -14,6 +13,7 @@ import {
 import formatDatePtBr from '@utils/formatDatePtBr';
 
 import { Header } from '@components/Header';
+import { Benefit } from './components/Benefit';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
 import { addDays } from 'date-fns';
@@ -87,76 +87,61 @@ export function PremiumBenefits() {
       </Description>
 
       <PremiumBenefitsContainer>
-        <PremiumBenefit>
-          <PremiumBenefitIcon />
-          <PremiumBenefitDescription>
-            Sincronização de contas bancárias
-          </PremiumBenefitDescription>
-        </PremiumBenefit>
+        <Benefit description={'Dicas personalizadas'} />
 
-        <PremiumBenefit>
-          <PremiumBenefitIcon />
-          <PremiumBenefitDescription>
-            Sincronização de cartões de crédito
-          </PremiumBenefitDescription>
-        </PremiumBenefit>
+        <Benefit description={'Sincronização de contas bancárias'} />
 
-        <PremiumBenefit>
-          <PremiumBenefitIcon />
-          <PremiumBenefitDescription>
-            Insights gerados com Inteligência Artificial
-          </PremiumBenefitDescription>
-        </PremiumBenefit>
+        <Benefit description={'Sincronização de cartões de crédito'} />
 
-        <PremiumBenefit>
-          <PremiumBenefitIcon />
-          <PremiumBenefitDescription>
-            Dicas personalizadas
-          </PremiumBenefitDescription>
-        </PremiumBenefit>
+        <Benefit description={'Insights gerados com Inteligência Artificial'} />
       </PremiumBenefitsContainer>
 
-      <ScrollView>
-        {packages.map((pack, idx) => (
-          <PremiumPackageListItem
-            key={idx}
-            data={pack as PackageProps}
-            onPress={() => handlePurchase(pack)}
-          />
-        ))}
+      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+        <PackagesContainer>
+          {packages.map((pack, idx) => (
+            <PremiumPackageListItem
+              key={idx}
+              data={pack as PackageProps}
+              onPress={() => handlePurchase(pack)}
+            />
+          ))}
+        </PackagesContainer>
 
-        <Advice>
-          Você pode cancelar sua assinatura a qualquer momento durante o período
-          de testes. O período de testes expirará em {subscriptionEndDate}.
-        </Advice>
-
-        <Advice>
-          Já assinou o Smart Finances?{' '}
-          <Advice
-            style={{ textDecorationLine: 'underline' }}
-            onPress={async () => await restorePurchasesUser()}
-          >
-            Restaurar assinatura
+        <AdvicesContainer>
+          <Advice>
+            Você pode cancelar sua assinatura a qualquer momento durante o
+            período de testes. O período de testes expirará em{' '}
+            {subscriptionEndDate}.
           </Advice>
-          .
-        </Advice>
 
-        <Advice>
-          Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
-          <Advice
-            style={{ textDecorationLine: 'underline' }}
-            onPress={handleClickPrivacyPolicy}
-          >
-            Política de Privacidade
-          </Advice>{' '}
-          e nossos{' '}
-          <Advice
-            style={{ textDecorationLine: 'underline' }}
-            onPress={handleClickTermsOfUse}
-          >
-            Termos de Uso.
+          <Advice>
+            Já assinou o Smart Finances?{' '}
+            <Advice
+              style={{ textDecorationLine: 'underline' }}
+              onPress={async () => await restorePurchasesUser()}
+            >
+              Restaurar assinatura
+            </Advice>
+            .
           </Advice>
-        </Advice>
+
+          <Advice>
+            Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
+            <Advice
+              style={{ textDecorationLine: 'underline' }}
+              onPress={handleClickPrivacyPolicy}
+            >
+              Política de Privacidade
+            </Advice>{' '}
+            e nossos{' '}
+            <Advice
+              style={{ textDecorationLine: 'underline' }}
+              onPress={handleClickTermsOfUse}
+            >
+              Termos de Uso.
+            </Advice>
+          </Advice>
+        </AdvicesContainer>
       </ScrollView>
     </Container>
   );
