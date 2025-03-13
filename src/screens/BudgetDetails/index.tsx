@@ -5,6 +5,7 @@ import {
   BudgetTotalDescription,
   BudgetTransactions,
   Container,
+  TransactionsContainer,
 } from './styles';
 
 import formatCurrency from '@utils/formatCurrency';
@@ -14,6 +15,7 @@ import { ptBR } from 'date-fns/locale';
 import { useRoute } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { formatDistanceToNowStrict, parse } from 'date-fns';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import {
   EndPeriod,
@@ -22,12 +24,12 @@ import {
 } from '@components/BudgetListItem/styles';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
-import { ModalView } from '@components/Modals/ModalView';
 import { InsightCard } from '@components/InsightCard';
 import { SectionTitle } from '@screens/Overview/styles';
-import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
+import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
 
@@ -39,6 +41,7 @@ import api from '@api/api';
 
 export function BudgetDetails() {
   const route = useRoute();
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const { hideAmount, setHideAmount } = useUserConfigs();
   const budget: BudgetProps = route.params?.budget;
   const budgetAmountReached = budget.amount_spent >= budget.amount;
@@ -158,25 +161,31 @@ export function BudgetDetails() {
         <EndPeriod>{budget.end_date}</EndPeriod>
       </PeriodContainer>
 
-      <SectionTitle>Transações</SectionTitle>
-      <BudgetTransactions
-        data={budget.transactions}
-        keyExtractor={(item: any) => item.id}
-        renderItem={({ item, index }: any) => (
-          <TransactionListItem
-            data={item}
-            index={index}
-            hideAmount={hideAmount}
-            // onPress={() => handleOpenBudget(item)}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
-        )}
-        // refreshControl={
-        //   <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
-        // }
-      />
+      <TransactionsContainer>
+        <SectionTitle>Transações</SectionTitle>
+        <BudgetTransactions
+          data={budget.transactions}
+          keyExtractor={(item: any) => item.id}
+          renderItem={({ item, index }: any) => (
+            <TransactionListItem
+              data={item}
+              index={index}
+              hideAmount={hideAmount}
+              // onPress={() => handleOpenBudget(item)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+          )}
+          // refreshControl={
+          //   <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
+          // }
+          contentContainerStyle={{
+            paddingBottom: bottomTabBarHeight + 8,
+            rowGap: 8,
+          }}
+        />
+      </TransactionsContainer>
 
       <ModalView
         type={'primary'}

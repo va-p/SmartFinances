@@ -41,6 +41,6 @@ export const Description = styled.Text`
 
 export const EditButton = styled(BorderlessButton)`
   position: absolute;
-  top: 12px;
+  top: 6px;
   right: 0px;
 `;

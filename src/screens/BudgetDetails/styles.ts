@@ -9,7 +9,7 @@ type BudgetTotalProps = {
 
 export const Container = styled.View`
   flex: 1;
-  padding: 16px;
+  padding: 16px 16px 0;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -27,6 +27,10 @@ export const BudgetTotalDescription = styled.Text`
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
+`;
+
+export const TransactionsContainer = styled.View`
+  flex: 1;
 `;
 
 export const BudgetTransactions = styled.FlatList.attrs({

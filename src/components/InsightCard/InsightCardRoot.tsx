@@ -17,8 +17,8 @@ export function InsightCardRoot({ children }: InsightCardRootProps) {
         style={{
           ...StyleSheet.absoluteFillObject,
           flex: 1,
-          borderTopLeftRadius: 75,
-          borderTopRightRadius: 75,
+          borderTopLeftRadius: 25,
+          borderTopRightRadius: 25,
           overflow: 'hidden',
           backgroundColor: 'transparent',
         }}

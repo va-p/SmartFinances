@@ -243,7 +243,7 @@ export function ConnectedAccounts({ navigation }: any) {
       {showHeader && (
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title='Contas Conectadas' />
+          <Header.Title title='Integrações Bancárias' />
         </Header.Root>
       )}
 

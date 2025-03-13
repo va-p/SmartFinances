@@ -64,10 +64,6 @@ export function OptionsMenu({ navigation }: any) {
     await WebBrowser.openBrowserAsync(eUrl.HELP_CENTER_URL);
   }
 
-  function handleClickContactSupport() {
-    Linking.openURL('mailto:suporte@smartfinances.com.br');
-  }
-
   async function handleClickTermsOfUse() {
     await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
   }
@@ -231,12 +227,6 @@ export function OptionsMenu({ navigation }: any) {
           icon={<Icon.Lifebuoy color={theme.colors.primary} />}
           title='Central de Ajuda'
           onPress={() => handleClickHelpCenter()}
-        />
-
-        <SelectButton
-          icon={<Icon.ChatsCircle color={theme.colors.primary} />}
-          title='Contatar Suporte'
-          onPress={() => handleClickContactSupport()}
         />
 
         <SelectButton
