@@ -18,6 +18,9 @@
     "@gorhom/bottom-sheet": "^5.0.6",
     "@hookform/resolvers": "^2.9.5",
     "@react-native-community/datetimepicker": "8.2.0",
+    "@react-native-firebase/analytics": "^21.12.0",
+    "@react-native-firebase/app": "^21.12.0",
+    "@react-native-firebase/messaging": "^21.12.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native": "^6.0.11",
@@ -85,5 +88,6 @@
   },
   "private": true,
   "name": "smartfinances",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

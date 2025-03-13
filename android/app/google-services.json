@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "97318079046",
+    "project_id": "smart-finances-ddbf3",
+    "storage_bucket": "smart-finances-ddbf3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97318079046:android:42f9e68bbbc690c7741847",
+        "android_client_info": {
+          "package_name": "com.vap.smartfinances"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDujOIlhv5zjArBgbDxyTx2_OP5R9Rfby8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
