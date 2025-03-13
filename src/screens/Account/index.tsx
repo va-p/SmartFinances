@@ -523,6 +523,7 @@ export function Account() {
         handleDateChange={handleDateChange}
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
         handlePressDate={handlePressDate}
+        horizontalPadding={16}
       />
     );
   }, [selectedDate, transactions]);

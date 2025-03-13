@@ -18,6 +18,7 @@ type Props = {
   handlePressDate: (stringDate: string) => void;
   dates: PeriodRulerListItem[];
   periodRulerListColumnWidth: number;
+  horizontalPadding?: number;
 };
 
 export function PeriodRuler({
@@ -25,6 +26,7 @@ export function PeriodRuler({
   handleDateChange,
   handlePressDate,
   periodRulerListColumnWidth,
+  horizontalPadding = 32,
 }: Props) {
   const flatListRef = useRef<FlatList>(null);
   const [initialScrollComplete, setInitialScrollComplete] = useState(false);
@@ -64,7 +66,7 @@ export function PeriodRuler({
   };
 
   return (
-    <Container>
+    <Container horizontalPadding={horizontalPadding}>
       <MonthSelectButton onPress={() => handleDateChange('prev')}>
         <CaretLeft size={18} color={theme.colors.text} />
       </MonthSelectButton>
