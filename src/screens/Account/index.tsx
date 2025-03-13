@@ -44,22 +44,23 @@ import {
   subMonths,
   subYears,
 } from 'date-fns';
-import { Plus } from 'phosphor-react-native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   Gesture,
   GestureDetector,
   RectButton,
 } from 'react-native-gesture-handler';
+import { Plus } from 'phosphor-react-native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Header } from '@components/Header';
-import { ModalView } from '@components/Modals/ModalView';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
-import { SectionListHeader } from '@components/SectionListHeader';
+import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
-import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { SectionListHeader } from '@components/SectionListHeader';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 
@@ -85,6 +86,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function Account() {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
   const { id: userID } = useUser();
@@ -121,7 +123,7 @@ export function Account() {
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(scrollY.value, [0, 340], [240, 0], Extrapolate.CLAMP),
+      height: interpolate(scrollY.value, [0, 340], [220, 0], Extrapolate.CLAMP),
       opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolate.CLAMP),
     };
   });
@@ -455,6 +457,8 @@ export function Account() {
     }
   }
 
+  function handlePressDate(): void {}
+
   useFocusEffect(
     useCallback(() => {
       fetchTransactions();
@@ -518,9 +522,10 @@ export function Account() {
         dates={dates}
         handleDateChange={handleDateChange}
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+        handlePressDate={handlePressDate}
       />
     );
-  }, [selectedDate]);
+  }, [selectedDate, transactions]);
 
   function _renderEmpty() {
     return <ListEmptyComponent />;
@@ -587,9 +592,8 @@ export function Account() {
             </AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>
+        <Animated.View>{_renderPeriodRuler()}</Animated.View>
       </Animated.View>
-
-      <Animated.View>{_renderPeriodRuler()}</Animated.View>
 
       <Transactions>
         <AnimatedSectionList
@@ -608,7 +612,10 @@ export function Account() {
             />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{}}
+          contentContainerStyle={{
+            rowGap: 8,
+            paddingBottom: bottomTabBarHeight + 16,
+          }}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
         />
