@@ -61,7 +61,6 @@ export function SignIn({ navigation }: any) {
 
   const { signInWithXano } = useAuth();
   const googleOAuth = useOAuth({ strategy: 'oauth_google' });
-  // const googleOAuth = useSSO(); // New
 
   async function handleSignInWithXano(form: FormData) {
     try {
@@ -82,20 +81,15 @@ export function SignIn({ navigation }: any) {
     try {
       setLoading(true);
       const oAuthFlow = await googleOAuth.startOAuthFlow();
-      // const oAuthFlow = await googleOAuth.startSSOFlow({
-      //   strategy: 'oauth_google',
-      // }); // New
 
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
         oAuthFlow.createdSessionId
       ) {
-        if (oAuthFlow.setActive) {
-          await oAuthFlow.setActive({
-            session: oAuthFlow.createdSessionId,
-          });
-          return;
-        }
+        await oAuthFlow.setActive!({
+          session: oAuthFlow.createdSessionId,
+        });
+        return;
       } else {
         Alert.alert(
           'Erro',
