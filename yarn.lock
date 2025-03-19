@@ -2296,15 +2296,17 @@
   dependencies:
     firebase "11.3.1"
 
-"@react-native-firebase/in-app-messaging@^21.12.0":
+"@react-native-firebase/crashlytics@^21.12.0":
   version "21.12.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/in-app-messaging/-/in-app-messaging-21.12.0.tgz#878012de08712362897a4967156b8fe2f270ee79"
-  integrity sha512-1/co51xYjprltAvU7aHNvohLid33H4yCDo90e4OHjheauakeYuqytiZXuCdqYAov2LLLhC9H4mG/rRS6jdziCw==
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/crashlytics/-/crashlytics-21.12.0.tgz#c58a9763f07d79a8a15f6d7ec316233902e7119c"
+  integrity sha512-rDQwjlSgMuF3e2vPT8Kq+1PoqfHyRLTs1yPogGKacXQJMF2C54XUIZu7zDeBOMfWYtjy0pErIIBDnDcirjqhvw==
+  dependencies:
+    stacktrace-js "^2.0.2"
 
-"@react-native-firebase/messaging@^21.12.0":
+"@react-native-firebase/perf@^21.12.0":
   version "21.12.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-21.12.0.tgz#09df4facf3544eeb42cc23676ae7c2a68014b005"
-  integrity sha512-KIPuLLptNBryv/upuzW1FLFWv/L/9otSwzJdhkYybV07IG/eeK/4l615UargT9ZyYPSlDjAZC+7yUK2t+cSGNA==
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/perf/-/perf-21.12.0.tgz#a7c6d3866012cb93476849ad53fa0117d1a97d80"
+  integrity sha512-9MbRhHiZ9PIk0FJloEb2oPPK392pZdq37sZp9Z1xGcFZDivfE3Uu9Poc3gr4JwilObGkQ4JLBTW6zAuJfniCAg==
 
 "@react-native-masked-view/masked-view@^0.3.2":
   version "0.3.2"
@@ -6041,7 +6043,7 @@ internal-slot@^1.1.0:
   resolved "https://registry.yarnpkg.com/internmap/-/internmap-2.0.3.tgz#6685f23755e43c524e251d29cbc97248e3061009"
   integrity sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==
 
-invariant@2.2.4, invariant@^2.2.4:
+invariant@2.2.4, invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -8491,6 +8493,13 @@ react-native-mmkv@^2.8.0:
   version "2.12.2"
   resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-2.12.2.tgz#4bba0f5f04e2cf222494cce3a9794ba6a4894dee"
   integrity sha512-6058Aq0p57chPrUutLGe9fYoiDVDNMU2PKV+lLFUJ3GhoHvUrLdsS1PDSCLr00yqzL4WJQ7TTzH+V8cpyrNcfg==
+
+react-native-onesignal@^5.2.9:
+  version "5.2.9"
+  resolved "https://registry.yarnpkg.com/react-native-onesignal/-/react-native-onesignal-5.2.9.tgz#1d9b19caaa604fc0340909428f0d55ff4fb735d9"
+  integrity sha512-0/MRRZkR5hDPBedDmBNn6iopYCA/q/34aLHq1WxanBOMd8nNzyhDJ0qN9zJn8ZZUEM9SlR52YRPCXUB+NqJPkw==
+  dependencies:
+    invariant "^2.2.2"
 
 react-native-pluggy-connect@^1.3.2:
   version "1.3.2"

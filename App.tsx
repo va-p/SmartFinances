@@ -6,6 +6,7 @@ import { ClerkProvider } from '@clerk/clerk-expo';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Splash } from '@components/Splash';
@@ -37,6 +38,12 @@ enum LoadingState {
 function App() {
   const [loadingState, setLoadingState] = useState(LoadingState.Initializing);
 
+  OneSignal.Debug.setLogLevel(LogLevel.Verbose); // OneSignal Debugging
+  OneSignal.initialize('9b887fe6-28dc-495a-939b-ae527403a302');
+  OneSignal.Notifications.addEventListener('click', (event) => {
+    console.log('OneSignal: notification clicked:', event);
+  });
+
   async function onFetchUpdateAsync() {
     try {
       const update = await Updates.checkForUpdateAsync();
@@ -66,7 +73,7 @@ function App() {
           Poppins_700Bold,
         });
       } catch (error) {
-        console.error('Erro durante o carregamento:', error);
+        console.error(`Error during app load: ${error}`);
       }
     }
 
