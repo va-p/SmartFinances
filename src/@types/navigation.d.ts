@@ -1,10 +1,6 @@
 import { BudgetProps } from '@interfaces/budget';
 import { BankingIntegration } from '@interfaces/bankingIntegration';
 
-export type AccountNavigationProps = {
-  budget: BudgetProps;
-};
-
 export type BudgetNavigationProps = {
   budget: BudgetProps;
 };
@@ -22,12 +18,24 @@ export type BankingIntegrationNavigationProps = {
   connectToken: string;
 };
 
+export type ResetPassSentConfirmation = {
+  email: string;
+};
+
 type RootParamList = {
+  // Auth route
+  Welcome: undefined;
+  SignIn: undefined;
+  ForgotPassword: undefined;
+  ResetPassSentConfirmation: ResetPassSentConfirmation;
+  SignUp: undefined;
+  Home: undefined;
+  //App route
   Transações: undefined;
   Contas: undefined;
   'Todas as Contas': undefined;
   Conta: undefined;
-  'Editar Conta': AccountNavigationProps;
+  'Editar Conta': undefined;
   'Contas Conectadas': undefined;
   'Integração Bancária': BankingIntegrationNavigationProps;
   Orçamentos: undefined;

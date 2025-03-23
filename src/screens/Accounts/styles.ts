@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -12,9 +11,9 @@ export const Container = styled.View`
 export const HeaderContainer = styled.View`
   background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
   border-bottom-right-radius: ${({ theme }) =>
-    theme.borders.borderRadiusSreenSectionContent};
+    theme.borders.borderRadiusScreenSectionContent};
   border-bottom-left-radius: ${({ theme }) =>
-    theme.borders.borderRadiusSreenSectionContent};
+    theme.borders.borderRadiusScreenSectionContent};
 `;
 
 export const Header = styled.View`

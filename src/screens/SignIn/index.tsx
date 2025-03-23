@@ -107,6 +107,10 @@ export function SignIn({ navigation }: any) {
     }
   }
 
+  function handlePressForgotPassword() {
+    navigation.navigate('ForgotPassword');
+  }
+
   function handlePressSignUp() {
     navigation.navigate('SignUp');
   }
@@ -164,7 +168,10 @@ export function SignIn({ navigation }: any) {
             onSubmitEditing={handleSubmit(handleSignInWithXano)}
           />
 
-          <Text style={{ textAlign: 'right', marginTop: -8 }}>
+          <Text
+            style={{ textAlign: 'right', marginTop: -8 }}
+            onPress={handlePressForgotPassword}
+          >
             Esqueceu sua senha?
           </Text>
 

@@ -7,9 +7,6 @@ import { RegisterBudget } from '@screens/RegisterBudget';
 
 import { RootParamList } from 'src/@types/navigation';
 import { BudgetDetails } from '@screens/BudgetDetails';
-import { CurrencyProps } from '@interfaces/currencies';
-import { AccountProps } from '@interfaces/accounts';
-import { CategoryProps } from '@interfaces/categories';
 
 const { Navigator, Screen } = createStackNavigator<RootParamList>();
 

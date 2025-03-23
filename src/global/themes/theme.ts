@@ -34,7 +34,7 @@ export default {
   },
   borders: {
     default: '1px solid #707070',
-    borderRadiusSreenSectionContent: '75px',
+    borderRadiusScreenSectionContent: '75px',
     borderRadiusShape: '25px',
     borderRadiusButtonAndInput: '40px',
   },

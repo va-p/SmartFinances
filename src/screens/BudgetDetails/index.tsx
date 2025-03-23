@@ -41,11 +41,12 @@ import api from '@api/api';
 
 export function BudgetDetails() {
   const route = useRoute();
-  const bottomTabBarHeight = useBottomTabBarHeight();
-  const { hideAmount, setHideAmount } = useUserConfigs();
   const budget: BudgetProps = route.params?.budget;
   const budgetAmountReached = budget.amount_spent >= budget.amount;
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const bottomTabBarHeight = useBottomTabBarHeight();
+  const { hideAmount, setHideAmount } = useUserConfigs();
 
   function calculateRemainderBudget() {
     return Number(budget.amount) - Number(budget.amount_spent);

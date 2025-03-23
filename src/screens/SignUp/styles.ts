@@ -8,8 +8,8 @@ export const MainContent = styled.ScrollView.attrs({
   },
 })`
   border-top-left-radius: ${({ theme }) =>
-    theme.borders.borderRadiusSreenSectionContent};
+    theme.borders.borderRadiusScreenSectionContent};
   border-top-right-radius: ${({ theme }) =>
-    theme.borders.borderRadiusSreenSectionContent};
+    theme.borders.borderRadiusScreenSectionContent};
   background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
 `;
