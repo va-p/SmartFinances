@@ -124,7 +124,6 @@ export function RegisterTransaction({
     accountCurrency,
     accountType,
     accountInitialAmount,
-    accountTenantId: accountTenantID,
     setAccountId: setAccountID,
     setAccountName,
     setAccountCurrency,
@@ -554,7 +553,6 @@ export function RegisterTransaction({
           name: '',
           hex: theme.colors.primary,
         },
-        tenant_id: '',
       });
       setTagsSelected([]);
       setImage('');
@@ -827,7 +825,6 @@ export function RegisterTransaction({
           name: '',
           hex: theme.colors.primary,
         },
-        tenant_id: '',
       });
       setTagsSelected([]);
       tagsList = [];
@@ -935,7 +932,11 @@ export function RegisterTransaction({
       <Gradient />
 
       <MainContent>
-        <Header color={categorySelected.color.hex}>
+        <Header
+          color={
+            categorySelected.color.color_code || categorySelected.color.hex
+          }
+        >
           <TitleContainer>
             <BorderlessButton
               onPress={closeModal}
@@ -962,7 +963,9 @@ export function RegisterTransaction({
             <CategorySelectButton
               categorySelected={categorySelected}
               icon={categorySelected.icon?.name}
-              color={categorySelected.color.hex}
+              color={
+                categorySelected.color.color_code || categorySelected.color.hex
+              }
               onPress={handleOpenSelectCategoryModal}
             />
 
@@ -988,20 +991,41 @@ export function RegisterTransaction({
         <ContentScroll>
           <SelectButton
             title={accountName || 'Selecione a conta'}
-            icon={<Icon.Wallet color={categorySelected.color.hex} />}
+            icon={
+              <Icon.Wallet
+                color={
+                  categorySelected.color.color_code ||
+                  categorySelected.color.hex
+                }
+              />
+            }
             onPress={handleOpenSelectAccountModal}
           />
           {transactionType === 'TRANSFER' && (
             <SelectButton
               title={accountDestinationSelected.name}
-              icon={<Icon.Wallet color={categorySelected.color.hex} />}
+              icon={
+                <Icon.Wallet
+                  color={
+                    categorySelected.color.color_code ||
+                    categorySelected.color.hex
+                  }
+                />
+              }
               onPress={handleOpenSelectAccountDestinationModal}
             />
           )}
 
           <SelectButton
             title={formattedDate}
-            icon={<Icon.Calendar color={categorySelected.color.hex} />}
+            icon={
+              <Icon.Calendar
+                color={
+                  categorySelected.color.color_code ||
+                  categorySelected.color.hex
+                }
+              />
+            }
             onPress={() => setShowDatePicker(true)}
           />
           {showDatePicker && (
@@ -1017,7 +1041,14 @@ export function RegisterTransaction({
           )}
 
           <ControlledInputWithIcon
-            icon={<Icon.PencilSimple color={categorySelected.color.hex} />}
+            icon={
+              <Icon.PencilSimple
+                color={
+                  categorySelected.color.color_code ||
+                  categorySelected.color.hex
+                }
+              />
+            }
             placeholder='Descrição'
             numberOfLines={2}
             autoCapitalize='sentences'
@@ -1032,7 +1063,14 @@ export function RegisterTransaction({
 
           <SelectButton
             title='Etiquetas'
-            icon={<Icon.Tag color={categorySelected.color.hex} />}
+            icon={
+              <Icon.Tag
+                color={
+                  categorySelected.color.color_code ||
+                  categorySelected.color.hex
+                }
+              />
+            }
           />
           <FlatList
             data={tags}
@@ -1041,7 +1079,10 @@ export function RegisterTransaction({
               <TagListItemRegisterTransaction
                 data={item}
                 isChecked={tagsSelected.includes(item)}
-                color={categorySelected.color.hex}
+                color={
+                  categorySelected.color.color_code ||
+                  categorySelected.color.hex
+                }
                 onPress={() => handleSelectTag(item)}
               />
             )}
@@ -1055,7 +1096,14 @@ export function RegisterTransaction({
 
           <SelectButton
             title={imageUrl !== '' ? 'Alterar imagem' : 'Selecionar imagem'}
-            icon={<Icon.Image color={categorySelected.color.hex} />}
+            icon={
+              <Icon.Image
+                color={
+                  categorySelected.color.color_code ||
+                  categorySelected.color.hex
+                }
+              />
+            }
             onPress={handleClickSelectImage}
           />
           {imageUrl !== '' && (
@@ -1130,7 +1178,6 @@ export function RegisterTransaction({
             type: accountType || 'BANK',
             balance: 0,
             initialAmount: accountInitialAmount,
-            tenantId: accountTenantID,
           }}
           setAccount={(account: AccountProps) => {
             setAccountID(account.id);

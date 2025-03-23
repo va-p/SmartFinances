@@ -158,11 +158,10 @@ export function Categories() {
         }
         ListFooterComponent={
           <Button.Root
-            type='secondary'
             onPress={handleOpenRegisterCategoryModal}
             style={{ marginTop: 16 }}
           >
-            <Button.Text type='secondary' text='Criar Nova Categoria' />
+            <Button.Text text='Criar Nova Categoria' />
           </Button.Root>
         }
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}

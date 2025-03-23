@@ -25,7 +25,6 @@ export interface TransactionProps {
   account: AccountProps;
   category: CategoryProps;
   tags: [];
-  tenant_id: string;
   user_id: string;
 }
 

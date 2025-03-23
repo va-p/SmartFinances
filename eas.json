@@ -5,11 +5,9 @@
   },
   "build": {
     "development": {
+      "environment": "development",
       "distribution": "internal",
       "channel": "development",
-      "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
-      },
       "android": {
         "gradleCommand": ":app:assembleDebug"
       },
@@ -18,18 +16,14 @@
       }
     },
     "preview": {
+      "environment": "preview",
       "distribution": "internal",
-      "channel": "preview",
-      "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
-      }
+      "channel": "preview"
     },
     "production": {
+      "environment": "production",
       "channel": "production",
-      "autoIncrement": true,
-      "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
-      }
+      "autoIncrement": true
     }
   },
   "submit": {

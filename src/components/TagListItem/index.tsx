@@ -7,7 +7,6 @@ import { FadeInUp } from 'react-native-reanimated';
 export interface TagProps {
   id: string;
   name: string;
-  tenant_id: string;
 }
 
 type Props = RectButtonProps & {

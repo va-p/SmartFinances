@@ -222,7 +222,7 @@ export function AccountsList() {
             onPress={handleOpenRegisterAccountModal}
             style={{ marginTop: 16 }}
           >
-            <Button.Text type='secondary' text='Criar Nova Conta' />
+            <Button.Text text='Criar Nova Conta' />
           </Button.Root>
         }
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}

@@ -133,16 +133,6 @@ export function SignUp({ navigation }: any) {
     setLoading(true);
 
     try {
-      const newTenant = {
-        corporate_name: form.lastName,
-        trade_name: form.name,
-        ein: 0,
-        email: form.email,
-        phone: form.phone,
-        subscription_id: 1,
-        contact_1: form.name,
-      };
-
       const newUser = {
         name: form.name,
         last_name: form.lastName,
@@ -151,8 +141,7 @@ export function SignUp({ navigation }: any) {
         password: form.password,
       };
 
-      const tenantAndUser = { ...newTenant, ...newUser };
-      const { status } = await api.post('auth/signup', tenantAndUser);
+      const { status } = await api.post('auth/signup', newUser);
 
       if (status === 200) {
         Alert.alert(
@@ -297,7 +286,7 @@ export function SignUp({ navigation }: any) {
           onPress={handleSubmit(handleRegisterUser)}
           style={{ width: '50%', alignSelf: 'center' }}
         >
-          <Button.Text type='secondary' text='Cadastrar' />
+          <Button.Text text='Cadastrar' />
         </Button.Root>
 
         <Text style={{ textAlign: 'center', marginTop: 20 }}>

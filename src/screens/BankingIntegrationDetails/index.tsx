@@ -18,6 +18,7 @@ import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 
 import { BankingIntegration as BankingIntegrationProps } from '@interfaces/bankingIntegration';
+import { OneSignal } from 'react-native-onesignal';
 
 export function BankingIntegrationDetails() {
   const navigation = useNavigation();
@@ -49,10 +50,15 @@ export function BankingIntegrationDetails() {
   }
 
   function handleOnSuccess() {
+    OneSignal.InAppMessages.addTrigger(
+      'pluggy_integration_updating_start',
+      'show'
+    );
+
     // TODO: Updates on Xano
     Alert.alert(
-      'Conta atualizada com sucesso!',
-      'A instituição financeira foi atualizada com sucesso!',
+      '🗘 Suas integrações bancárias estão sendo atualizadas...',
+      'Em alguns minutos o processo será finalizado!',
       [
         {
           text: 'OK',
@@ -133,12 +139,8 @@ export function BankingIntegrationDetails() {
           </AccountName>
 
           <Footer>
-            <Button.Root
-              type='secondary'
-              onPress={handlePressUpdateAccount}
-              style={{ maxWidth: '50%' }}
-            >
-              <Button.Text type='secondary' text={'Atualizar conexão'} />
+            <Button.Root onPress={handlePressUpdateAccount}>
+              <Button.Text text={'Atualizar conexão'} />
             </Button.Root>
           </Footer>
         </>

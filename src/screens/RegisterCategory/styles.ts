@@ -74,7 +74,7 @@ export const IconContainer = styled.TouchableOpacity<Props>`
   justify-content: center;
   margin: 6px;
   background-color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.text : theme.colors.shape};
+    isActive ? theme.colors.textPlaceholder : theme.colors.shape};
   border-radius: 30px;
 `;
 

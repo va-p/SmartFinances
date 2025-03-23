@@ -28,6 +28,5 @@ export interface AccountProps {
   initialAmount: number | null;
   totalAccountAmount?: string;
   totalAccountAmountConverted?: string;
-  tenantId: string | null;
   hide?: boolean;
 }

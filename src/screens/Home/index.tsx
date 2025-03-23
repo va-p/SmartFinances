@@ -161,6 +161,7 @@ export function Home() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
+  const startingDaysOfMonth: number = Math.ceil(new Date().getDate() / 7);
   // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {

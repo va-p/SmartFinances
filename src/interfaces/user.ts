@@ -3,7 +3,6 @@ import { UserConfigs } from './userConfigurations';
 export type UserRole = 'admin' | 'user';
 
 export interface User {
-  tenantId: string;
   id: string;
   name: string;
   lastName: string;

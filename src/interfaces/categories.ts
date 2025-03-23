@@ -8,6 +8,7 @@ export interface ColorProps {
   id: string;
   name: string;
   hex: string;
+  color_code: string;
 }
 
 export interface CategoryProps {
@@ -15,5 +16,4 @@ export interface CategoryProps {
   name: string;
   icon: IconProps;
   color: ColorProps;
-  tenant_id: string;
 }

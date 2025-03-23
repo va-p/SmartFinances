@@ -28,12 +28,8 @@ type FormData = {
 };
 
 export function Profile() {
-  const name = useUser((state) => state.name);
-  const lastName = useUser((state) => state.lastName);
-  const email = useUser((state) => state.email);
-  const phone = useUser((state) => state.phone);
+  const { id: userID, name, lastName, email, phone } = useUser();
   const profileImage = useUser((state) => state.profileImage);
-  const tenantId = useUser((state) => state.tenantId);
   const [loading, setLoading] = useState(false);
 
   const [image, setImage] = useState('');
@@ -109,7 +105,7 @@ export function Profile() {
   // console.log('email >>>', email);
   // console.log('phone >>>', phone);
   // console.log('profileImage >>>', profileImage);
-  // console.log('tenantId >>>', tenantId);
+  // console.log('userID >>>', userID);
   // console.log('imageUrl >>>', imageUrl);
 
   async function handleSaveProfile(data: FormData) {
@@ -118,7 +114,7 @@ export function Profile() {
       if (image !== '') {
         const newImage = {
           file: `data:image/jpeg;base64,${image}`,
-          tenant_id: tenantId,
+          user_id: userID,
         };
         const { data, status } = await api.post(
           'upload/user_profile_image',
@@ -136,7 +132,7 @@ export function Profile() {
         phone: data.phone,
         password: data.password,
         profile_image_id,
-        tenant_id: tenantId,
+        user_id: userID,
       };
     } catch (error) {
       console.error(error);
@@ -226,8 +222,8 @@ export function Profile() {
           error={errors.phone}
         />
 
-        <Button.Root ype='secondary' onPress={handleSubmit(handleSaveProfile)}>
-          <Button.Text type='secondary' text='Salvar Perfil' />
+        <Button.Root onPress={handleSubmit(handleSaveProfile)}>
+          <Button.Text text='Salvar Perfil' />
         </Button.Root>
       </Form>
     </Container>

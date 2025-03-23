@@ -153,7 +153,6 @@ export function TransactionsByCategory({ navigation }: any) {
               },
               initial_amount: item.account.initial_amount,
               totalAccountAmount: 0,
-              tenant_id: item.account.tenant_id,
             },
             category: {
               id: item.category.id,
@@ -166,12 +165,10 @@ export function TransactionsByCategory({ navigation }: any) {
               color: {
                 id: item.category.color.id,
                 name: item.category.color.name,
-                hex: item.category.color.hex,
+                hex: item.color.color_code || item.category.color.hex,
               },
-              tenant_id: item.category.tenant_id,
             },
             tags: item.tags,
-            tenant_id: item.tenant_id,
           };
         }
       }

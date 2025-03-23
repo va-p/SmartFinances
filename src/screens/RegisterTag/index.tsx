@@ -165,12 +165,10 @@ export function RegisterTag({ id, closeTag }: Props) {
 
       <Footer>
         <Button.Root
-          type='secondary'
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterTag)}
         >
           <Button.Text
-            type='secondary'
             text={id !== '' ? 'Editar Etiqueta' : 'Criar Etiqueta'}
           />
         </Button.Root>

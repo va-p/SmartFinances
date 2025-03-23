@@ -18,7 +18,10 @@ export function CategoryListItemRegisterTransaction({
   return (
     <Container {...rest}>
       <Category isChecked={isChecked}>
-        <Icon name={data.icon.name} color={data.color.hex} />
+        <Icon
+          name={data.icon.name}
+          color={data.color.color_code || data.color.hex}
+        />
       </Category>
       <Name>{data.name}</Name>
     </Container>

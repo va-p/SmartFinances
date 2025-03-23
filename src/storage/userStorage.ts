@@ -3,8 +3,6 @@ import { create } from 'zustand';
 import { UserRole } from '@interfaces/user';
 
 type User = {
-  tenantId: string;
-  setTenantId: (tenantId: string) => void;
   id: string;
   setId: (id: string) => void;
   name: string;
@@ -24,8 +22,6 @@ type User = {
 };
 
 export const useUser = create<User>((set) => ({
-  tenantId: '',
-  setTenantId: (tenantId) => set(() => ({ tenantId: tenantId })),
   id: '',
   setId: (id) => set(() => ({ id: id })),
   name: '',

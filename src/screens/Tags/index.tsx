@@ -156,11 +156,10 @@ export function Tags() {
         }
         ListFooterComponent={
           <Button.Root
-            type='secondary'
             onPress={handleOpenRegisterTagModal}
             style={{ marginTop: 16 }}
           >
-            <Button.Text type='secondary' text='Criar Nova Etiqueta' />
+            <Button.Text text='Criar Nova Etiqueta' />
           </Button.Root>
         }
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}

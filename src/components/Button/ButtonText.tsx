@@ -1,11 +1,10 @@
 import React from 'react';
-import { Text, TypeProps } from './styles';
+import { Text } from './styles';
 
 type ButtonTextPros = {
-  type?: TypeProps;
   text: string;
 };
 
-export function ButtonText({ type = 'primary', text }: ButtonTextPros) {
-  return <Text type={type}>{text}</Text>;
+export function ButtonText({ text }: ButtonTextPros) {
+  return <Text>{text}</Text>;
 }

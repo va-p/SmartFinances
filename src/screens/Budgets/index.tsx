@@ -201,7 +201,6 @@ export function Budgets({ navigation }: any) {
             start_date,
             end_date,
             recurrence: budget.recurrence,
-            tenantId: budget.tenant_id,
             user_id: userID,
             transactions: filteredTransactions,
           };
@@ -270,11 +269,8 @@ export function Budgets({ navigation }: any) {
         initialNumToRender={20}
         ListFooterComponent={
           <Footer>
-            <Button.Root
-              type='secondary'
-              onPress={handleOpenRegisterBudgetModal}
-            >
-              <Button.Text type='secondary' text='Criar novo orçamento' />
+            <Button.Root onPress={handleOpenRegisterBudgetModal}>
+              <Button.Text text='Criar novo orçamento' />
             </Button.Root>
           </Footer>
         }

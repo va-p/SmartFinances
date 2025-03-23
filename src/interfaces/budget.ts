@@ -15,7 +15,6 @@ export interface BudgetProps {
   start_date: string;
   end_date?: string;
   recurrence: string;
-  tenant_id: string;
   user_id: string;
   transactions: TransactionProps[];
 }

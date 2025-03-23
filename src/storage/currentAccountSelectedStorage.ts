@@ -24,8 +24,6 @@ type CurrentAccountSelected = {
   setAccountTotalExpenses: (accountTotalExpenses: string | null) => void;
   accountTotalAmount: string | null;
   setAccountTotalAmount: (accountTotalAmount: string | null) => void;
-  accountTenantId: string;
-  setAccountTenantId: (accountTenantId: string) => void;
 };
 
 export const useCurrentAccountSelected = create<CurrentAccountSelected>(
@@ -57,8 +55,5 @@ export const useCurrentAccountSelected = create<CurrentAccountSelected>(
     accountTotalAmount: 'R$0',
     setAccountTotalAmount: (accountTotalAmount) =>
       set(() => ({ accountTotalAmount: accountTotalAmount })),
-    accountTenantId: '',
-    setAccountTenantId: (accountTenantId) =>
-      set(() => ({ accountTenantId: accountTenantId })),
   })
 );

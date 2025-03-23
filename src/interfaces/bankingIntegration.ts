@@ -61,7 +61,6 @@ export interface BankingIntegration {
   id: number;
   created_at: number;
   user_id: number;
-  tenant_id: number;
   pluggy_integration_id: string; //uuid
   last_sync_date: string;
   health: HealthTypes;

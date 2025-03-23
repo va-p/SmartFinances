@@ -37,6 +37,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+const CLERK_WEBHOOK_DELAY = 4000;
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: any) {
@@ -71,7 +73,6 @@ export function AuthProvider({ children }: any) {
       image: userData.image,
       profileImage: userData.profile_image,
       premium,
-      tenantId: userData.tenant_id,
       configs: {
         useLocalAuth: userData.use_local_authentication,
         hideAmount: userData.hide_amount,
@@ -91,7 +92,6 @@ export function AuthProvider({ children }: any) {
       role: loggedInUserDataFormatted.role,
       profileImage: loggedInUserDataFormatted.image,
       premium: loggedInUserDataFormatted.premium,
-      tenantId: loggedInUserDataFormatted.tenantId,
     }));
 
     // User Configs
@@ -153,45 +153,50 @@ export function AuthProvider({ children }: any) {
       try {
         setLoading(true);
 
-        const userExistsOnXano = await checkUserExistsOnBackend(
-          clerkUser?.emailAddresses[0].emailAddress!
-        );
+        // Delay of few seconds, to Clerk webhook finish request to Xano
+        setTimeout(async () => {
+          const userExistsOnXano = await checkUserExistsOnBackend(
+            clerkUser?.emailAddresses[0].emailAddress!
+          );
 
-        if (!!userExistsOnXano) {
-          // Continues auth flow
-          const { status, data } = await api.get('/auth/clerk_oauth_login', {
-            params: {
-              email: clerkUser!.emailAddresses[0].emailAddress,
-            },
-          });
+          if (!!userExistsOnXano) {
+            // Continues auth flow
+            const { status, data } = await api.get('/auth/clerk_oauth_login', {
+              params: {
+                email: clerkUser!.emailAddresses[0].emailAddress,
+              },
+            });
 
-          if (status === 200) {
-            // User token
-            storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+            if (status === 200) {
+              // User token
+              storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
 
-            const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
+              const loggedInUserDataFormatted = storageUserDataAndConfig(
+                data[1]
+              );
 
-            setIsSignedIn(clerkSignedIn!);
-            setUser(loggedInUserDataFormatted);
-            return;
+              setIsSignedIn(clerkSignedIn!);
+              setUser(loggedInUserDataFormatted);
+              return;
+            } else {
+              await clerk.signOut();
+
+              Alert.alert(
+                'Erro ao autenticar com o Google',
+                'Não foi possível buscar os dados do usuário. Por favor, tente novamente.'
+              );
+              return;
+            }
           } else {
             await clerk.signOut();
 
             Alert.alert(
               'Erro ao autenticar com o Google',
-              'Não foi possível buscar os dados do usuário. Por favor, tente novamente.'
+              'Usuário não encontrado. Por favor, tente novamente.'
             );
             return;
           }
-        } else {
-          await clerk.signOut();
-
-          Alert.alert(
-            'Erro ao autenticar com o Google',
-            'Usuário não encontrado. Por favor, tente novamente.'
-          );
-          return;
-        }
+        }, CLERK_WEBHOOK_DELAY);
       } catch (error) {
         console.error('Erro ao buscar dados do usuário =>', error);
         if (axios.isAxiosError(error)) {
@@ -274,7 +279,6 @@ export function AuthProvider({ children }: any) {
             phone: userObject.phone,
             role: userObject.role,
             profileImage: userObject.image,
-            tenantId: userObject.tenantId,
           }));
 
           useUserConfigs.setState(() => ({
@@ -319,7 +323,6 @@ export function AuthProvider({ children }: any) {
         phone: '',
         role: 'user',
         profileImage: '',
-        tenantId: '',
       }));
       useUserConfigs.setState(() => ({
         insights: false,

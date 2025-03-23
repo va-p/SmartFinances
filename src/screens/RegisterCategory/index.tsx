@@ -60,6 +60,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     id: '',
     name: 'Selecione a cor',
     hex: '#969CB2',
+    color_code: 'rgba(150, 156, 178, 1)',
   } as ColorProps);
   const {
     control,
@@ -95,6 +96,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       id: '',
       name: 'Selecione a cor',
       hex: '#969CB2',
+      color_code: 'rgba(150, 156, 178, 1)',
     });
     closeCategory();
   }
@@ -240,12 +242,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       <Gradient />
 
       <Header>
-        <IconAndColor
-          color={colorSelected.hex}
-          icon={iconSelected.name}
-          isActive={iconSelected.id}
-        >
-          <Icon name={iconSelected.name} isActive={iconSelected.id} />
+        <IconAndColor color={colorSelected.hex} icon={iconSelected.name}>
+          <Icon name={iconSelected.name} />
         </IconAndColor>
 
         <ControlledInputCategoryName
@@ -310,12 +308,10 @@ export function RegisterCategory({ id, closeCategory }: Props) {
 
       <Footer>
         <Button.Root
-          type='secondary'
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterCategory)}
         >
           <Button.Text
-            type='secondary'
             text={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}
           />
         </Button.Root>

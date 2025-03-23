@@ -32,7 +32,7 @@ export function ConnectedAccounts({ navigation }: any) {
   const route = useRoute();
   const showHeader: boolean = route.params?.showHeader;
   const { user } = useRevenueCat();
-  const { tenantId: tenantID, id: userID } = useUser();
+  const { id: userID } = useUser();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -146,7 +146,6 @@ export function ConnectedAccounts({ navigation }: any) {
 
       const { status } = await api.post('/banking_integration/create', {
         user_id: userID, // ID do usuário do app
-        tenant_id: tenantID, // ID do tenant do app
         pluggy_integration_id: itemData.item.id, // O ID da integração no puggly (hash)
         connector_id: itemData.item.connector.id, // o ID da Instituição Financeira (conector)
         last_sync_date: new Date(), // Data da sincronização inicial
