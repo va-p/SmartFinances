@@ -14,8 +14,8 @@ import {
   Footer,
 } from './styles';
 
-import { icons } from '@utils/icons';
-import { colors } from '@utils/colors';
+import { icons } from '@constants/icons';
+import { colors } from '@constants/colors';
 
 import axios from 'axios';
 import * as Yup from 'yup';

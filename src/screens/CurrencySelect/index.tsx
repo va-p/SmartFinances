@@ -8,7 +8,7 @@ import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 
-import { currencies } from '@utils/currencies';
+import { currencies } from '@constants/currencies';
 
 type Props = {
   currency: CurrencyProps;

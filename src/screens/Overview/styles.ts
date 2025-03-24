@@ -10,10 +10,9 @@ export const ScrollContent = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: {
     backgroundColor: 'transparent',
+    paddingBottom: 54,
   },
-})`
-  margin-bottom: 54px;
-`;
+})``;
 
 export const FiltersContainer = styled.View`
   align-items: center;

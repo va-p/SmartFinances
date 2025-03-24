@@ -16,6 +16,7 @@
       "@services/*": ["./src/services/*"],
       "@contexts/*": ["./src/contexts/*"],
       "@providers/*": ["src/providers/*"],
+      "@constants/*": ["./src/constants/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@components/*": ["./src/components/*"],
       "@themes/*": ["./src/global/themes/*"]

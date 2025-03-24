@@ -28,7 +28,7 @@ import {
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
-import { LineChart } from 'react-native-gifted-charts';
+import { LineChart, PieChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -220,7 +220,7 @@ export function Overview({ navigation }: any) {
 
         const transactionAmountBRL = transaction.amount_in_account_currency
           ? transaction.amount_in_account_currency
-          : transaction.amount; // TODO: Considerar outrar moedas
+          : transaction.amount; // TODO: Considerar outras moedas
 
         if (
           transaction.type === 'TRANSFER_CREDIT' ||
@@ -350,6 +350,12 @@ export function Overview({ navigation }: any) {
           total: Number(categorySum) * -1,
           totalFormatted,
           percent,
+          //
+          // ...category,
+          // value: Number(categorySum) * -1,
+          // totalFormatted,
+          // color: category.color.color_code,
+          // text: percent,
         });
       }
     }
@@ -414,7 +420,7 @@ export function Overview({ navigation }: any) {
       setLoading(true);
       const data: TransactionProps[] = await getTransactions(userID);
 
-      // 1. Patrmônio total - OK
+      // 1. Patrimônio total - OK
       await calculateTotalAssets();
 
       // 2. Valores para o gráfico de evolução patrimonial - OK
@@ -657,31 +663,18 @@ export function Overview({ navigation }: any) {
 
           {selectedTabCategoriesSection === 0 && (
             <CategoriesContainer>
-              <VictoryPie
-                data={totalExpensesByCategories}
-                colorScale={totalExpensesByCategories.map(
-                  (category) => category.color.color_code
-                )}
-                x='percent'
-                y='total'
-                width={384}
-                innerRadius={60}
-                labelRadius={150}
-                animate={{
-                  duration: 2000,
-                  easing: 'backOut',
-                }}
-                theme={smartFinancesChartTheme}
-                style={{
-                  labels: {
-                    fontSize: RFValue(12),
-                    fontWeight: 'bold',
-                    fill: theme.colors.primary,
-                  },
-                  data: {
-                    stroke: 'none',
-                  },
-                }}
+              <PieChart
+                data={totalExpensesByCategories.map((item) => ({
+                  value: item.total,
+                  color: item.color.color_code,
+                  text: item.percent,
+                }))}
+                donut
+                showText
+                textColor='black'
+                radius={190}
+                textSize={14}
+                focusOnPress
               />
 
               {totalExpensesByCategories.map((item) => (
@@ -699,31 +692,18 @@ export function Overview({ navigation }: any) {
 
           {selectedTabCategoriesSection === 1 && (
             <CategoriesContainer>
-              <VictoryPie
-                data={totalRevenuesByCategories}
-                colorScale={totalRevenuesByCategories.map(
-                  (category) => category.color.color_code
-                )}
-                x='percent'
-                y='total'
-                width={384}
-                innerRadius={60}
-                labelRadius={150}
-                animate={{
-                  duration: 2000,
-                  easing: 'backOut',
-                }}
-                theme={smartFinancesChartTheme}
-                style={{
-                  labels: {
-                    fontSize: RFValue(12),
-                    fontWeight: 'bold',
-                    fill: theme.colors.primary,
-                  },
-                  data: {
-                    stroke: 'none',
-                  },
-                }}
+              <PieChart
+                data={totalRevenuesByCategories.map((item) => ({
+                  value: item.total,
+                  color: item.color.color_code,
+                  text: item.percent,
+                }))}
+                donut
+                showText
+                textColor='black'
+                radius={190}
+                textSize={14}
+                focusOnPress
               />
 
               {totalRevenuesByCategories.map((item) => (
