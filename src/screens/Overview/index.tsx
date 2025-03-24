@@ -23,14 +23,14 @@ import {
   VictoryBar,
   VictoryChart,
   VictoryGroup,
-  VictoryPie,
 } from 'victory-native';
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
-import { LineChart, PieChart } from 'react-native-gifted-charts';
+import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { LineChart, PieChart } from 'react-native-gifted-charts';
 
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -670,11 +670,18 @@ export function Overview({ navigation }: any) {
                   text: item.percent,
                 }))}
                 donut
-                showText
-                textColor='black'
-                radius={190}
-                textSize={14}
+                radius={150}
                 focusOnPress
+                textColor='black'
+                extraRadius={60}
+                showExternalLabels
+                externalLabelComponent={(item) => (
+                  <SvgText>{item?.text}</SvgText>
+                )}
+                labelLineConfig={{
+                  color: theme.colors.primary,
+                  thickness: 2,
+                }}
               />
 
               {totalExpensesByCategories.map((item) => (
@@ -699,11 +706,18 @@ export function Overview({ navigation }: any) {
                   text: item.percent,
                 }))}
                 donut
-                showText
-                textColor='black'
-                radius={190}
-                textSize={14}
+                radius={150}
                 focusOnPress
+                textColor='black'
+                extraRadius={60}
+                showExternalLabels
+                externalLabelComponent={(item) => (
+                  <SvgText>{item?.text}</SvgText>
+                )}
+                labelLineConfig={{
+                  color: theme.colors.primary,
+                  thickness: 2,
+                }}
               />
 
               {totalRevenuesByCategories.map((item) => (
