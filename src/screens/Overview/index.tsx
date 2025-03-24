@@ -660,7 +660,7 @@ export function Overview({ navigation }: any) {
               <VictoryPie
                 data={totalExpensesByCategories}
                 colorScale={totalExpensesByCategories.map(
-                  (category) => category.color.color_code || category.color.hex
+                  (category) => category.color.color_code
                 )}
                 x='percent'
                 y='total'
@@ -690,7 +690,7 @@ export function Overview({ navigation }: any) {
                   icon={item.icon.name}
                   name={item.name}
                   amount={item.totalFormatted}
-                  color={item.color.color_code || item.color.hex}
+                  color={item.color.color_code}
                   onPress={() => handleOpenCategory(item.id)}
                 />
               ))}
@@ -702,7 +702,7 @@ export function Overview({ navigation }: any) {
               <VictoryPie
                 data={totalRevenuesByCategories}
                 colorScale={totalRevenuesByCategories.map(
-                  (category) => category.color.color_code || category.color.hex
+                  (category) => category.color.color_code
                 )}
                 x='percent'
                 y='total'
@@ -732,7 +732,7 @@ export function Overview({ navigation }: any) {
                   icon={item.icon.name}
                   name={item.name}
                   amount={item.totalFormatted}
-                  color={item.color.color_code || item.color.hex}
+                  color={item.color.color_code}
                   onPress={() => handleOpenCategory(item.id)}
                 />
               ))}

@@ -6,8 +6,6 @@ export interface IconProps {
 
 export interface ColorProps {
   id: string;
-  name: string;
-  hex: string;
   color_code: string;
 }
 

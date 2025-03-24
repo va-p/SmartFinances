@@ -16,13 +16,10 @@ export function CategoryListItem({ data, index, ...rest }: Props) {
     <Container
       entering={FadeInUp.delay(index * 100)}
       icon={data.icon.name}
-      color={data.color.color_code || data.color.hex}
+      color={data.color.color_code}
       {...rest}
     >
-      <Icon
-        name={data.icon.name}
-        color={data.color.color_code || data.color.hex}
-      />
+      <Icon name={data.icon.name} color={data.color.color_code} />
       <Name>{data.name}</Name>
     </Container>
   );

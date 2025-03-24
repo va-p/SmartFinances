@@ -164,8 +164,7 @@ export function TransactionsByCategory({ navigation }: any) {
               },
               color: {
                 id: item.category.color.id,
-                name: item.category.color.name,
-                hex: item.color.color_code || item.category.color.hex,
+                color_code: item.color.color_code,
               },
             },
             tags: item.tags,

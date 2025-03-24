@@ -58,8 +58,6 @@ export function RegisterCategory({ id, closeCategory }: Props) {
   } as IconProps);
   const [colorSelected, setColorSelected] = useState({
     id: '',
-    name: 'Selecione a cor',
-    hex: '#969CB2',
     color_code: 'rgba(150, 156, 178, 1)',
   } as ColorProps);
   const {
@@ -94,8 +92,6 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     });
     setColorSelected({
       id: '',
-      name: 'Selecione a cor',
-      hex: '#969CB2',
       color_code: 'rgba(150, 156, 178, 1)',
     });
     closeCategory();
@@ -242,7 +238,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       <Gradient />
 
       <Header>
-        <IconAndColor color={colorSelected.hex} icon={iconSelected.name}>
+        <IconAndColor color={colorSelected.color_code} icon={iconSelected.name}>
           <Icon name={iconSelected.name} />
         </IconAndColor>
 
@@ -264,11 +260,11 @@ export function RegisterCategory({ id, closeCategory }: Props) {
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ColorContainer
-              color={item.hex}
+              color={item.color_code}
               isActive={colorSelected.id === item.id}
             >
               <Color
-                color={item.hex}
+                color={item.color_code}
                 isActive={colorSelected.id === item.id}
                 onPress={() => handleColorSelect(item)}
               />
@@ -288,7 +284,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
             <IconContainer
               icon={item.name}
               isActive={iconSelected.id === item.id}
-              color={colorSelected.hex}
+              color={colorSelected.color_code}
             >
               <Icon
                 name={item.name}

@@ -14,7 +14,7 @@ api.interceptors.request.use(async (config: any) => {
       config.headers.Authorization = `Bearer ${loggedInUserAuthToken}`;
     }
   } catch (error) {
-    console.error(error);
+    console.error('api error =>', error);
   }
 
   return config;

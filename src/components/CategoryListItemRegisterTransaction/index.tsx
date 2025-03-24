@@ -3,7 +3,7 @@ import { Container, Category, Icon, Name } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
 
-import { CategoryProps } from '@components/CategoryListItem';
+import { CategoryProps } from '@interfaces/categories';
 
 type Props = RectButtonProps & {
   data: CategoryProps;
@@ -18,10 +18,7 @@ export function CategoryListItemRegisterTransaction({
   return (
     <Container {...rest}>
       <Category isChecked={isChecked}>
-        <Icon
-          name={data.icon.name}
-          color={data.color.color_code || data.color.hex}
-        />
+        <Icon name={data.icon.name} color={data.color.color_code} />
       </Category>
       <Name>{data.name}</Name>
     </Container>
