@@ -40,7 +40,6 @@ import { CreditCardListItem } from '@components/CreditCardListItem';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
-import { ConnectedAccounts } from '@screens/ConnectedAccounts';
 
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
@@ -93,7 +92,6 @@ export function Accounts({ navigation }: any) {
   const [accounts, setAccounts] = useState<AccountProps[]>([]); // Accounts list
   const [totalsByMonths, setTotalsByMonths] = useState<TotalByMonths[]>([]); // Totals equity chart
 
-  const connectAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
   async function fetchAccounts(isRefresh: boolean = false) {
@@ -237,10 +235,6 @@ export function Accounts({ navigation }: any) {
     navigation.navigate('Contas Conectadas', {
       showHeader: true,
     });
-  }
-
-  function handleCloseConnectAccountModal() {
-    connectAccountBottomSheetRef.current?.dismiss();
   }
 
   function handleOpenRegisterAccountModal() {

@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 type Props = {
   color: string;

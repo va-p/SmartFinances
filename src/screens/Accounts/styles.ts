@@ -9,6 +9,7 @@ export const Container = styled.View`
 `;
 
 export const HeaderContainer = styled.View`
+  min-height: 32%;
   background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
   border-bottom-right-radius: ${({ theme }) =>
     theme.borders.borderRadiusScreenSectionContent};

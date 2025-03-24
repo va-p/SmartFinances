@@ -29,7 +29,6 @@ import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { LineChart, PieChart } from 'react-native-gifted-charts';
 
 import { Header } from '@components/Header';
@@ -538,118 +537,114 @@ export function Overview({ navigation }: any) {
 
           {/* Patrimonial Evolution */}
           {selectedTabCashFlowSection === 0 && (
-            <ChartContainer>
-              <LineChart
-                key={patrimonialEvolutionBySelectedPeriod.length}
-                data={patrimonialEvolutionBySelectedPeriod.map((item) => {
-                  return { value: item.total };
-                })}
-                xAxisLabelTexts={patrimonialEvolutionBySelectedPeriod.map(
-                  (item) => {
-                    return String(item.date);
-                  }
-                )}
-                yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
-                  patrimonialEvolutionBySelectedPeriod
-                )}
-                width={GRAPH_WIDTH}
-                height={180}
-                noOfSections={5}
-                mostNegativeValue={0}
-                xAxisColor='#455A64'
-                yAxisColor='#455A64'
-                areaChart
-                curved
-                showVerticalLines
-                verticalLinesUptoDataPoint
-                initialSpacing={8}
-                endSpacing={8}
-                focusEnabled
-                showStripOnFocus
-                showValuesAsDataPointsText
-                showTextOnFocus
-                xAxisTextNumberOfLines={2}
-                xAxisLabelTextStyle={{
-                  fontSize: 10,
-                  color: '#90A4AE',
-                  paddingRight: 12,
-                }}
-                yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
-                rulesColor='#455A64'
-                verticalLinesColor='#455A64'
-                color1={theme.colors.primary}
-                dataPointsColor1={theme.colors.primary}
-                startFillColor1={theme.colors.primary}
-                startOpacity={0.6}
-                endOpacity={0.1}
-                isAnimated
-                animationDuration={3000}
-                animateOnDataChange
-                scrollToEnd
-              />
-            </ChartContainer>
+            <LineChart
+              key={patrimonialEvolutionBySelectedPeriod.length}
+              data={patrimonialEvolutionBySelectedPeriod.map((item) => {
+                return { value: item.total };
+              })}
+              xAxisLabelTexts={patrimonialEvolutionBySelectedPeriod.map(
+                (item) => {
+                  return String(item.date);
+                }
+              )}
+              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
+                patrimonialEvolutionBySelectedPeriod
+              )}
+              width={GRAPH_WIDTH}
+              height={180}
+              noOfSections={5}
+              mostNegativeValue={0}
+              xAxisColor='#455A64'
+              yAxisColor='#455A64'
+              areaChart
+              curved
+              showVerticalLines
+              verticalLinesUptoDataPoint
+              initialSpacing={8}
+              endSpacing={8}
+              focusEnabled
+              showStripOnFocus
+              showValuesAsDataPointsText
+              showTextOnFocus
+              xAxisTextNumberOfLines={2}
+              xAxisLabelTextStyle={{
+                fontSize: 10,
+                color: '#90A4AE',
+                paddingRight: 12,
+              }}
+              yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+              rulesColor='#455A64'
+              verticalLinesColor='#455A64'
+              color1={theme.colors.primary}
+              dataPointsColor1={theme.colors.primary}
+              startFillColor1={theme.colors.primary}
+              startOpacity={0.6}
+              endOpacity={0.1}
+              isAnimated
+              animationDuration={3000}
+              animateOnDataChange
+              scrollToEnd
+            />
           )}
 
           {/* CashFlow Chart */}
           {selectedTabCashFlowSection === 1 && (
-            <ChartContainer>
-              <VictoryChart
-                height={200}
-                padding={{ top: 16, right: 40, bottom: 32, left: 32 }}
-                theme={smartFinancesChartTheme}
-              >
-                <VictoryAxis
-                  dependentAxis
-                  tickFormat={(tick) =>
-                    tick.toLocaleString('en-US', {
-                      maximumFractionDigits: 2,
-                      notation: 'compact',
-                      compactDisplay: 'short',
-                    })
-                  }
+            <VictoryChart
+              height={200}
+              padding={{ top: 16, right: 40, bottom: 32, left: 32 }}
+              theme={smartFinancesChartTheme}
+            >
+              <VictoryAxis
+                dependentAxis
+                tickFormat={(tick) =>
+                  tick.toLocaleString('en-US', {
+                    maximumFractionDigits: 2,
+                    notation: 'compact',
+                    compactDisplay: 'short',
+                  })
+                }
+              />
+              <VictoryAxis tickFormat={(tick) => tick} />
+              <VictoryGroup offset={16}>
+                <VictoryBar
+                  data={[cashFlow]}
+                  x='date'
+                  y='totalRevenuesByPeriod'
+                  sortKey='x'
+                  sortOrder='descending'
+                  alignment='middle'
+                  style={{
+                    data: {
+                      width: 10,
+                      fill: theme.colors.success_light,
+                    },
+                  }}
+                  cornerRadius={{ top: 2, bottom: 2 }}
+                  animate={{
+                    onLoad: { duration: 2000 },
+                    easing: 'backOut',
+                  }}
                 />
-                <VictoryAxis tickFormat={(tick) => tick} />
-                <VictoryGroup offset={16}>
-                  <VictoryBar
-                    data={[cashFlow]}
-                    x='date'
-                    y='totalRevenuesByPeriod'
-                    sortKey='x'
-                    sortOrder='descending'
-                    alignment='middle'
-                    style={{
-                      data: {
-                        width: 10,
-                        fill: theme.colors.success_light,
-                      },
-                    }}
-                    cornerRadius={{ top: 2, bottom: 2 }}
-                    animate={{
-                      onLoad: { duration: 2000 },
-                      easing: 'backOut',
-                    }}
-                  />
-                  <VictoryBar
-                    data={[cashFlow]}
-                    x='date'
-                    y='totalExpensesByPeriod'
-                    sortOrder='descending'
-                    alignment='middle'
-                    style={{
-                      data: {
-                        width: 10,
-                        fill: theme.colors.attention_light,
-                      },
-                    }}
-                    cornerRadius={{ top: 2, bottom: 2 }}
-                    animate={{
-                      onLoad: { duration: 2000 },
-                      easing: 'backOut',
-                    }}
-                  />
-                </VictoryGroup>
-              </VictoryChart>
-            </ChartContainer>
+                <VictoryBar
+                  data={[cashFlow]}
+                  x='date'
+                  y='totalExpensesByPeriod'
+                  sortOrder='descending'
+                  alignment='middle'
+                  style={{
+                    data: {
+                      width: 10,
+                      fill: theme.colors.attention_light,
+                    },
+                  }}
+                  cornerRadius={{ top: 2, bottom: 2 }}
+                  animate={{
+                    onLoad: { duration: 2000 },
+                    easing: 'backOut',
+                  }}
+                />
+              </VictoryGroup>
+            </VictoryChart>
           )}
         </CashFlowSection>
 
@@ -663,26 +658,28 @@ export function Overview({ navigation }: any) {
 
           {selectedTabCategoriesSection === 0 && (
             <CategoriesContainer>
-              <PieChart
-                data={totalExpensesByCategories.map((item) => ({
-                  value: item.total,
-                  color: item.color.color_code,
-                  text: item.percent,
-                }))}
-                donut
-                radius={150}
-                focusOnPress
-                textColor='black'
-                extraRadius={60}
-                showExternalLabels
-                externalLabelComponent={(item) => (
-                  <SvgText>{item?.text}</SvgText>
-                )}
-                labelLineConfig={{
-                  color: theme.colors.primary,
-                  thickness: 2,
-                }}
-              />
+              <ChartContainer>
+                <PieChart
+                  data={totalExpensesByCategories.map((item) => ({
+                    value: item.total,
+                    color: item.color.color_code,
+                    text: item.percent,
+                  }))}
+                  donut
+                  radius={140}
+                  focusOnPress
+                  textColor='black'
+                  showExternalLabels
+                  externalLabelComponent={(item) => (
+                    <SvgText>{item?.text}</SvgText>
+                  )}
+                  labelLineConfig={{
+                    color: theme.colors.textPlaceholder,
+                    thickness: 2,
+                    length: 2,
+                  }}
+                />
+              </ChartContainer>
 
               {totalExpensesByCategories.map((item) => (
                 <HistoryCard
@@ -709,13 +706,12 @@ export function Overview({ navigation }: any) {
                 radius={150}
                 focusOnPress
                 textColor='black'
-                extraRadius={60}
                 showExternalLabels
                 externalLabelComponent={(item) => (
                   <SvgText>{item?.text}</SvgText>
                 )}
                 labelLineConfig={{
-                  color: theme.colors.primary,
+                  color: theme.colors.textPlaceholder,
                   thickness: 2,
                 }}
               />

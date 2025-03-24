@@ -28,8 +28,6 @@ export const CashFlowSection = styled.View`
   padding: 0 16px;
 `;
 
-export const ChartContainer = styled.View``;
-
 export const CategoriesSection = styled.View`
   padding: 0 16px;
 `;
@@ -43,4 +41,8 @@ export const SectionTitle = styled.Text`
 
 export const CategoriesContainer = styled.View`
   align-items: center;
+`;
+
+export const ChartContainer = styled.View`
+  margin-bottom: 16px;
 `;
