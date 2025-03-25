@@ -51,6 +51,7 @@
     "owner": "va-p",
     "plugins": [
       "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics",
       "expo-font",
       ["expo-splash-screen"]
     ]

@@ -653,25 +653,28 @@ export function Overview({ navigation }: any) {
 
           {selectedTabCategoriesSection === 1 && (
             <CategoriesContainer>
-              <PieChart
-                data={totalRevenuesByCategories.map((item) => ({
-                  value: item.total * -1,
-                  color: item.color.color_code,
-                  text: item.percent,
-                }))}
-                donut
-                radius={150}
-                focusOnPress
-                textColor='black'
-                showExternalLabels
-                externalLabelComponent={(item) => (
-                  <SvgText>{item?.text}</SvgText>
-                )}
-                labelLineConfig={{
-                  color: theme.colors.textPlaceholder,
-                  thickness: 2,
-                }}
-              />
+              <ChartContainer>
+                <PieChart
+                  data={totalRevenuesByCategories.map((item) => ({
+                    value: item.total * -1,
+                    color: item.color.color_code,
+                    text: item.percent,
+                  }))}
+                  donut
+                  radius={140}
+                  focusOnPress
+                  textColor='black'
+                  showExternalLabels
+                  externalLabelComponent={(item) => (
+                    <SvgText>{item?.text}</SvgText>
+                  )}
+                  labelLineConfig={{
+                    color: theme.colors.textPlaceholder,
+                    thickness: 2,
+                    length: 2,
+                  }}
+                />
+              </ChartContainer>
 
               {totalRevenuesByCategories.map((item) => (
                 <HistoryCard

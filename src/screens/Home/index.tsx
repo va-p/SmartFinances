@@ -98,7 +98,6 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.48;
 const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
 
-const NUMBER_OF_CHART_GROUPS = 6;
 const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
@@ -587,18 +586,22 @@ export function Home() {
             barWidth={CHART_BAR_WIDTH}
             spacing={CHART_BAR_SPACING}
             roundedTop
-            roundedBottom
             labelWidth={30}
             xAxisThickness={1}
             yAxisThickness={0}
-            noOfSections={4}
+            noOfSections={3}
             xAxisTextNumberOfLines={2}
+            scrollToEnd
+            isAnimated
             formatYLabel={(label: string) => {
               const value = Number(label);
               const k = Math.floor(value / 1000);
               return k > 0 ? `${k}k` : '0';
             }}
-            yAxisTextStyle={{ color: theme.colors.textPlaceholder }}
+            yAxisTextStyle={{
+              fontSize: 10,
+              color: theme.colors.textPlaceholder,
+            }}
             xAxisLabelTextStyle={{ fontSize: 10, color: '#90A4AE' }}
           />
         </Animated.View>
@@ -682,7 +685,7 @@ export function Home() {
 
       <ModalViewWithoutHeader
         bottomSheetRef={registerTransactionBottomSheetRef}
-        snapPoints={['100%']}
+        snapPoints={['95%']}
       >
         <RegisterTransaction
           id={transactionId}
