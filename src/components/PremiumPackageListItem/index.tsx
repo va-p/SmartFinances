@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Container,
   DiscountPrice,
-  FullPrice,
   ImgContainer,
   PriceContainer,
   TrialAdvice,

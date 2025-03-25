@@ -6,9 +6,7 @@ export interface GroupedTransactionProps {
   total: string;
 }
 
-export const calculateGroupTotal = (
-  transactions: TransactionProps[]
-): string => {
+const calculateGroupTotal = (transactions: TransactionProps[]): string => {
   const total = transactions.reduce((acc, transaction) => {
     const isCreditAccount = transaction.account.type === 'CREDIT';
     const isTransfer = transaction.type.includes('TRANSFER');

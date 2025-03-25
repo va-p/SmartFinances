@@ -18,10 +18,10 @@ export default {
     border: '#707070',
 
     success: 'rgb(18, 195, 140)',
-    successLight: 'rgba(18, 195, 140, 0.6)',
+    successLight: 'rgba(18, 195, 140, 0.7)',
 
     attention: 'rgb(251, 103, 103)',
-    attentionLight: 'rgba(251, 103, 103, 0.6)',
+    attentionLight: 'rgba(251, 103, 103, 0.7)',
 
     overlay: 'rgba(0, 0, 0, 0.7)',
     overlayLight: 'rgba(0, 0, 0, 0.1)',

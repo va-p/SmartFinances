@@ -1,19 +1,9 @@
 import styled from 'styled-components/native';
 
-import { Check } from 'phosphor-react-native';
-import theme from '@themes/theme';
-
 export const Container = styled.View`
   flex: 1;
   padding: 0 16px;
   background-color: ${({ theme }) => theme.colors.background};
-`;
-
-export const ImgContainer = styled.View``;
-
-export const Img = styled.Image`
-  width: 100%;
-  height: 100%;
 `;
 
 export const Title = styled.Text`

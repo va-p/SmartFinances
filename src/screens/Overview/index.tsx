@@ -18,18 +18,12 @@ import getTransactions from '@utils/getTransactions';
 import { convertCurrency } from '@utils/convertCurrency';
 import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
-import {
-  VictoryAxis,
-  VictoryBar,
-  VictoryChart,
-  VictoryGroup,
-} from 'victory-native';
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { LineChart, PieChart } from 'react-native-gifted-charts';
+import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -46,7 +40,6 @@ import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 
 import api from '@api/api';
@@ -349,12 +342,6 @@ export function Overview({ navigation }: any) {
           total: Number(categorySum) * -1,
           totalFormatted,
           percent,
-          //
-          // ...category,
-          // value: Number(categorySum) * -1,
-          // totalFormatted,
-          // color: category.color.color_code,
-          // text: percent,
         });
       }
     }
@@ -454,12 +441,17 @@ export function Overview({ navigation }: any) {
 
   const curRevenues = calculateExpensesAndRevenuesByCategory('Receitas');
   const curExpenses = calculateExpensesAndRevenuesByCategory('Despesas') * -1;
-  const cashFlow = {
-    date: format(selectedDate, 'MMMM/yyyy', { locale: ptBR }),
-    totalRevenuesByPeriod: curRevenues,
-    totalExpensesByPeriod: curExpenses,
-    total: curRevenues - curExpenses,
-  };
+  const cashFlow = [
+    {
+      value: curRevenues,
+      label: format(selectedDate, 'MMMM/yyyy', { locale: ptBR }),
+      spacing: 2,
+      labelWidth: 200,
+      labelTextStyle: { color: 'gray' },
+      frontColor: theme.colors.success_light,
+    },
+    { value: curExpenses, frontColor: theme.colors.attention_light },
+  ];
 
   const cashFlowSectionButtons: TabButtonType[] = [
     {
@@ -467,7 +459,12 @@ export function Overview({ navigation }: any) {
       description: 'Patrimônio Total',
     },
     {
-      title: formatCurrency('BRL', Number(cashFlow.total), false, true),
+      title: formatCurrency(
+        'BRL',
+        Number(curRevenues - curExpenses),
+        false,
+        true
+      ),
 
       description: 'Fluxo de Caixa atual',
     },
@@ -589,62 +586,22 @@ export function Overview({ navigation }: any) {
 
           {/* CashFlow Chart */}
           {selectedTabCashFlowSection === 1 && (
-            <VictoryChart
-              height={200}
-              padding={{ top: 16, right: 40, bottom: 32, left: 32 }}
-              theme={smartFinancesChartTheme}
-            >
-              <VictoryAxis
-                dependentAxis
-                tickFormat={(tick) =>
-                  tick.toLocaleString('en-US', {
-                    maximumFractionDigits: 2,
-                    notation: 'compact',
-                    compactDisplay: 'short',
-                  })
-                }
-              />
-              <VictoryAxis tickFormat={(tick) => tick} />
-              <VictoryGroup offset={16}>
-                <VictoryBar
-                  data={[cashFlow]}
-                  x='date'
-                  y='totalRevenuesByPeriod'
-                  sortKey='x'
-                  sortOrder='descending'
-                  alignment='middle'
-                  style={{
-                    data: {
-                      width: 10,
-                      fill: theme.colors.success_light,
-                    },
-                  }}
-                  cornerRadius={{ top: 2, bottom: 2 }}
-                  animate={{
-                    onLoad: { duration: 2000 },
-                    easing: 'backOut',
-                  }}
-                />
-                <VictoryBar
-                  data={[cashFlow]}
-                  x='date'
-                  y='totalExpensesByPeriod'
-                  sortOrder='descending'
-                  alignment='middle'
-                  style={{
-                    data: {
-                      width: 10,
-                      fill: theme.colors.attention_light,
-                    },
-                  }}
-                  cornerRadius={{ top: 2, bottom: 2 }}
-                  animate={{
-                    onLoad: { duration: 2000 },
-                    easing: 'backOut',
-                  }}
-                />
-              </VictoryGroup>
-            </VictoryChart>
+            <BarChart
+              data={cashFlow}
+              barWidth={8}
+              spacing={104}
+              roundedTop
+              roundedBottom
+              xAxisThickness={1}
+              yAxisThickness={0}
+              yAxisTextStyle={{ color: theme.colors.textPlaceholder }}
+              noOfSections={4}
+              formatYLabel={(label: string) => {
+                const value = Number(label);
+                const k = Math.floor(value / 1000);
+                return k > 0 ? `${k}k` : '0';
+              }}
+            />
           )}
         </CashFlowSection>
 
@@ -698,7 +655,7 @@ export function Overview({ navigation }: any) {
             <CategoriesContainer>
               <PieChart
                 data={totalRevenuesByCategories.map((item) => ({
-                  value: item.total,
+                  value: item.total * -1,
                   color: item.color.color_code,
                   text: item.percent,
                 }))}

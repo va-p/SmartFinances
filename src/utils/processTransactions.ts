@@ -9,10 +9,13 @@ import { format, parse, isValid } from 'date-fns';
 
 import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 
+import theme from '@themes/theme';
+
 type PeriodType = 'months' | 'years' | 'all';
 
 interface ProcessTransactionsResult {
   cashFlows: CashFLowData[]; // CashFlows by months, years or all history
+  chartData: any[];
   currentCashFlow: string; // Current CashFlow (by selected period)
   groupedTransactions: any[]; // Transactions grouped by day with total of the day, to show on SectionList
 }
@@ -95,7 +98,11 @@ export const processTransactions = (
       let formattedDate = config.outputFormat;
 
       if (period !== 'all') {
-        const parsedDate = parse(group.date, config.parseFormat, new Date());
+        const parsedDate = parse(
+          String(group.date),
+          config.parseFormat,
+          new Date()
+        );
         formattedDate = format(parsedDate, config.outputFormat, {
           locale: ptBR,
         });
@@ -116,6 +123,30 @@ export const processTransactions = (
       });
       return dateB.getTime() - dateA.getTime();
     });
+
+  const chartData = cashFlows
+    .map((group) => {
+      const revenue = group.totalRevenuesByPeriod.toNumber();
+      const expense = Math.abs(group.totalExpensesByPeriod.toNumber());
+
+      const label = group.date.toString();
+
+      const revenueData = {
+        value: revenue || 0,
+        label,
+        spacing: 2,
+        frontColor: theme.colors.success_light,
+      };
+
+      const expenseData = {
+        value: expense || 0,
+        frontColor: theme.colors.attention_light,
+      };
+
+      return [revenueData, expenseData];
+    })
+    .reverse()
+    .flat();
 
   const isInSelectedPeriod = (date: Date) => {
     switch (period) {
@@ -157,6 +188,7 @@ export const processTransactions = (
 
   return {
     cashFlows, // CashFlows by months, years or all history
+    chartData,
     currentCashFlow: formatCurrency('BRL', currentCashFlowByPeriod), // Current CashFlow (by selected period)
     groupedTransactions, // Transactions grouped by day with total of the day, to show on SectionList
   };

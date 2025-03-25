@@ -23,10 +23,10 @@ export default {
     border: '#707070',
 
     success: 'rgb(18, 195, 140)',
-    success_light: 'rgba(18, 195, 140, 0.6)',
+    success_light: 'rgba(18, 195, 140, 0.7)',
 
     attention: 'rgb(251, 103, 103)',
-    attention_light: 'rgba(251, 103, 103, 0.6)',
+    attention_light: 'rgba(251, 103, 103, 0.7)',
 
     overlay: 'rgba(0, 0, 0, 0.7)',
     overlay10: 'rgba(0, 0, 0, 0.1)',

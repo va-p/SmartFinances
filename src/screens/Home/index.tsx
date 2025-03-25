@@ -39,13 +39,6 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import {
-  VictoryChart,
-  VictoryBar,
-  VictoryGroup,
-  VictoryZoomContainer,
-  VictoryAxis,
-} from 'victory-native';
-import {
   RectButton,
   Gesture,
   GestureDetector,
@@ -64,6 +57,7 @@ import {
 } from 'date-fns';
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
+import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -95,7 +89,6 @@ import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import smartFinancesChartTheme from '@themes/smartFinancesChartTheme';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -104,6 +97,10 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.48;
 const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
+
+const NUMBER_OF_CHART_GROUPS = 6;
+const CHART_BAR_SPACING = 40;
+const CHART_BAR_WIDTH = 8;
 
 export function Home() {
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -156,12 +153,12 @@ export function Home() {
       cashFlow: '',
     },
   ]);
+  const [chartData, setChartData] = useState<any[]>();
   const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] =
     useState('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
-  const startingDaysOfMonth: number = Math.ceil(new Date().getDate() / 7);
   // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {
@@ -254,7 +251,7 @@ export function Home() {
         }
       );
 
-      // Formatt transactions
+      // Format transactions
       const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
         const dmy = formatDatePtBr(item.created_at).short();
         return {
@@ -280,7 +277,7 @@ export function Home() {
       });
 
       // Process transactions
-      const { cashFlows, currentCashFlow, groupedTransactions } =
+      const { cashFlows, chartData, currentCashFlow, groupedTransactions } =
         processTransactions(
           transactionsFormattedPtbr,
           selectedPeriod.period,
@@ -290,6 +287,7 @@ export function Home() {
       // Update states
       setCashFlowTotalBySelectedPeriod(currentCashFlow);
       setTotalAmountsGroupedBySelectedPeriod(cashFlows);
+      setChartData(chartData);
       setTransactionsFormattedBySelectedPeriod(groupedTransactions);
     } catch (error) {
       console.error('Home fetchTransactions error =>', error);
@@ -583,69 +581,26 @@ export function Home() {
         </FiltersContainer>
 
         <Animated.View style={chartStyleAnimationOpacity}>
-          <VictoryChart
-            height={120}
-            padding={{ top: 16, right: 16, bottom: 40, left: 32 }}
-            containerComponent={
-              <VictoryZoomContainer
-                allowZoom={false}
-                zoomDomain={{ x: [6, 12] }}
-                zoomDimension='x'
-              />
-            }
-            theme={smartFinancesChartTheme}
-          >
-            <VictoryAxis
-              dependentAxis
-              tickFormat={(tick) =>
-                tick.toLocaleString('en-US', {
-                  maximumFractionDigits: 2,
-                  notation: 'compact',
-                  compactDisplay: 'short',
-                })
-              }
-            />
-            <VictoryAxis tickFormat={(tick) => tick} />
-            <VictoryGroup offset={12}>
-              <VictoryBar
-                data={totalAmountsGroupedBySelectedPeriod}
-                x='date'
-                y='totalRevenuesByPeriod'
-                sortKey='x'
-                sortOrder='descending'
-                alignment='start'
-                style={{
-                  data: {
-                    width: 10,
-                    fill: theme.colors.success_light,
-                  },
-                }}
-                cornerRadius={{ top: 2, bottom: 2 }}
-                animate={{
-                  onEnter: { duration: 3000 },
-                  easing: 'backOut',
-                }}
-              />
-              <VictoryBar
-                data={totalAmountsGroupedBySelectedPeriod}
-                x='date'
-                y='totalExpensesByPeriod'
-                sortOrder='descending'
-                alignment='start'
-                style={{
-                  data: {
-                    width: 10,
-                    fill: theme.colors.attention_light,
-                  },
-                }}
-                cornerRadius={{ top: 2, bottom: 2 }}
-                animate={{
-                  onLoad: { duration: 3000 },
-                  easing: 'backOut',
-                }}
-              />
-            </VictoryGroup>
-          </VictoryChart>
+          <BarChart
+            data={chartData}
+            height={80}
+            barWidth={CHART_BAR_WIDTH}
+            spacing={CHART_BAR_SPACING}
+            roundedTop
+            roundedBottom
+            labelWidth={30}
+            xAxisThickness={1}
+            yAxisThickness={0}
+            noOfSections={4}
+            xAxisTextNumberOfLines={2}
+            formatYLabel={(label: string) => {
+              const value = Number(label);
+              const k = Math.floor(value / 1000);
+              return k > 0 ? `${k}k` : '0';
+            }}
+            yAxisTextStyle={{ color: theme.colors.textPlaceholder }}
+            xAxisLabelTextStyle={{ fontSize: 10, color: '#90A4AE' }}
+          />
         </Animated.View>
 
         <Animated.View>{_renderPeriodRuler()}</Animated.View>

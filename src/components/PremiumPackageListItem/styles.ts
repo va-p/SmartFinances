@@ -12,21 +12,8 @@ export const Container = styled(RectButton)`
 
 export const ImgContainer = styled.View``;
 
-export const Img = styled.Image`
-  width: 100%;
-  height: 100%;
-`;
-
 export const PriceContainer = styled.View`
   flex-direction: row;
-`;
-
-export const FullPrice = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: 12px;
-  text-align: center;
-  text-decoration: line-through;
-  color: ${({ theme }) => theme.colors.text};
 `;
 
 export const DiscountPrice = styled.Text`
