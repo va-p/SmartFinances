@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 
 import { CurrencyProps } from '@interfaces/currencies';
-import { AccountSubTypes, AccountTypes } from '@interfaces/accounts';
+import {
+  AccountSubTypes,
+  AccountTypes,
+  CreditDataProps,
+} from '@interfaces/accounts';
 
 type CurrentAccountSelected = {
   accountId: string | null;
@@ -14,8 +18,8 @@ type CurrentAccountSelected = {
   setAccountSubType: (accountType: AccountTypes) => void;
   accountCurrency: CurrencyProps | null;
   setAccountCurrency: (accountCurrency: CurrencyProps | null) => void;
-  accountBalance: number | null;
-  setAccountBalance: (accountBalance: number | null) => void;
+  accountBalance: string | null;
+  setAccountBalance: (accountBalance: string | null) => void;
   accountInitialAmount: number;
   setAccountInitialAmount: (accountInitialAmount: number) => void;
   accountTotalRevenues: string | null;
@@ -24,6 +28,8 @@ type CurrentAccountSelected = {
   setAccountTotalExpenses: (accountTotalExpenses: string | null) => void;
   accountTotalAmount: string | null;
   setAccountTotalAmount: (accountTotalAmount: string | null) => void;
+  accountCreditData: CreditDataProps | null;
+  setAccountCreditData: (creditData: CreditDataProps) => void;
 };
 
 export const useCurrentAccountSelected = create<CurrentAccountSelected>(
@@ -55,5 +61,8 @@ export const useCurrentAccountSelected = create<CurrentAccountSelected>(
     accountTotalAmount: 'R$0',
     setAccountTotalAmount: (accountTotalAmount) =>
       set(() => ({ accountTotalAmount: accountTotalAmount })),
+    accountCreditData: null,
+    setAccountCreditData: (creditData) =>
+      set(() => ({ accountCreditData: creditData })),
   })
 );

@@ -7,7 +7,6 @@ export const Container = styled.View`
   width: 100%;
   flex-direction: row;
   align-items: center;
-  column-gap: 32px;
   padding: 4px 16px 4px 0;
 `;
 
@@ -26,10 +25,17 @@ export const ButtonShape = styled.View`
 
 export const TitleContainer = styled.View``;
 
-export const Title = styled.Text`
+export const Title = styled.Text.attrs({
+  numberOfLines: 2,
+  ellipsizeMode: 'tail',
+})`
+  min-width: 90%;
+  max-width: 90%;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
+  text-align: center;
   color: ${({ theme }) => theme.colors.text};
+  /* background-color: red; */
 `;
 
 export const Description = styled.Text`
@@ -41,6 +47,6 @@ export const Description = styled.Text`
 
 export const EditButton = styled(BorderlessButton)`
   position: absolute;
-  top: 6px;
+  top: 8px;
   right: 0px;
 `;

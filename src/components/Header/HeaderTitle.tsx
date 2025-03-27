@@ -1,6 +1,6 @@
 import React from 'react';
-import { TitleContainer, Title, Description } from './styles';
 import { TextProps } from 'react-native';
+import { TitleContainer, Title, Description } from './styles';
 
 type Props = TextProps & {
   title: string;

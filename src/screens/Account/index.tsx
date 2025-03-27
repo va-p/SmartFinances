@@ -54,6 +54,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Header } from '@components/Header';
+import { Gradient } from '@components/Gradient';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { ModalView } from '@components/Modals/ModalView';
@@ -70,7 +71,9 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
-import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+import groupTransactionsByDate, {
+  GroupedTransactionProps,
+} from '@utils/groupTransactionsByDate';
 
 import { useUser } from '@storage/userStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
@@ -80,7 +83,6 @@ import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorag
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import { Gradient } from '@components/Gradient';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -97,7 +99,7 @@ export function Account() {
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
-  ] = useState([]);
+  ] = useState<GroupedTransactionProps[]>([]);
   const optimizedTransactions = useMemo(
     () => transactionsFormattedBySelectedPeriod,
     [transactionsFormattedBySelectedPeriod]
@@ -105,7 +107,7 @@ export function Account() {
   const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] =
     useState('R$ 0,00');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
-  const [balanceIsPositive, setBalanceIsPositive] = useState(true);
+  // const [balanceIsPositive, setBalanceIsPositive] = useState(true);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
@@ -115,7 +117,16 @@ export function Account() {
     accountId: accountID,
     accountName,
     accountBalance,
+    accountType,
+    accountSubType,
+    accountCreditData,
   } = useCurrentAccountSelected();
+  const balanceIsPositive =
+    parseFloat(accountBalance!.replace(/[^\d,.-]/g, '').replace(',', '.')) > 0; // TODO: Testar com outras moedas que não o real.
+  const isCreditCard =
+    accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
+  const hasCreditCardAvailableLimit =
+    accountCreditData?.availableCreditLimit! > 0;
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -123,7 +134,7 @@ export function Account() {
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(scrollY.value, [0, 340], [220, 0], Extrapolate.CLAMP),
+      height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolate.CLAMP),
       opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolate.CLAMP),
     };
   });
@@ -170,7 +181,7 @@ export function Account() {
       /**
        * All Transactions By Account Formatted in pt-BR - Start
        */
-      let totalAccountBalance = 0;
+      let totalAccountCashFlow = 0;
 
       const transactionsByAccountFormattedPtbr = data
         .filter((transaction: any) => transaction.account.id === accountID)
@@ -205,20 +216,16 @@ export function Account() {
         .forEach((cur: any) => {
           // Credit card
           if (cur.account.type === 'CREDIT') {
-            totalAccountBalance -= cur.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
+            totalAccountCashFlow -= cur.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
           }
           // Other account types
           if (cur.account.type !== 'CREDIT') {
-            totalAccountBalance += cur.amount;
+            totalAccountCashFlow += cur.amount;
           }
         });
 
-      totalAccountBalance >= 0
-        ? setBalanceIsPositive(true)
-        : setBalanceIsPositive(false);
-
-      const totalAccountBalanceFormatted = Number(
-        totalAccountBalance
+      const totalAccountCashFlowFormatted = Number(
+        totalAccountCashFlow
       ).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -321,10 +328,9 @@ export function Account() {
         currency: 'BRL',
       });
       /**
-       * Transactions By Years Formatted in pt-BR - End
-       */
-
-      /**
+       * Transactions By Years Formatted in pt-BR - End      // totalAccountBalance >= 0
+      //   ? setBalanceIsPositive(true)
+      //   : setBalanceIsPositive(false);
        * Set Transactions and Totals by Selected Period - Start
        */
       switch (selectedPeriod.period) {
@@ -341,7 +347,7 @@ export function Account() {
           );
           break;
         case 'all':
-          setCashFlowBySelectedPeriod(totalAccountBalanceFormatted);
+          setCashFlowBySelectedPeriod(totalAccountCashFlowFormatted);
           setTransactionsFormattedBySelectedPeriod(
             transactionsFormattedPtbrGroupedByDate
           );
@@ -555,10 +561,7 @@ export function Account() {
         <HeaderContainer>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title
-              title={accountName || ''}
-              // description={'Transações'}
-            />
+            <Header.Title title={accountName || ''} />
             <Header.Icon onPress={handleOpenEditAccount} />
           </Header.Root>
         </HeaderContainer>
@@ -578,18 +581,33 @@ export function Account() {
               {!hideAmount ? accountBalance : '•••••'}
             </AccountBalance>
             <AccountBalanceDescription>
-              Saldo da conta
+              {!isCreditCard && 'Saldo da conta'}
+              {isCreditCard && 'Saldo do cartão'}
             </AccountBalanceDescription>
           </AccountBalanceGroup>
 
           <AccountBalanceSeparator />
 
           <AccountBalanceGroup>
-            <AccountCashFlow balanceIsPositive={cashFlowIsPositive}>
-              {!hideAmount ? cashFlowBySelectedPeriod : '•••••'}
+            <AccountCashFlow
+              balanceIsPositive={
+                !isCreditCard ? cashFlowIsPositive : hasCreditCardAvailableLimit
+              }
+            >
+              {!isCreditCard
+                ? !hideAmount
+                  ? cashFlowBySelectedPeriod
+                  : '•••••'
+                : !hideAmount
+                ? formatCurrency(
+                    'BRL',
+                    accountCreditData?.availableCreditLimit!
+                  )
+                : '•••••'}
             </AccountCashFlow>
             <AccountCashFlowDescription>
-              Fluxo de caixa
+              {!isCreditCard && 'Fluxo de caixa'}
+              {isCreditCard && 'Limite disponível'}
             </AccountCashFlowDescription>
           </AccountBalanceGroup>
         </AccountBalanceContainer>

@@ -53,6 +53,7 @@ import {
   AccountProps,
   AccountSubTypes,
   AccountTypes,
+  CreditDataProps,
 } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
@@ -252,7 +253,8 @@ export function Accounts({ navigation }: any) {
     type: AccountTypes,
     subType: AccountSubTypes | null,
     currency: any,
-    balance: number
+    balance: string,
+    creditData: CreditDataProps | null
   ) {
     useCurrentAccountSelected.setState(() => ({
       accountId: id,
@@ -261,6 +263,7 @@ export function Accounts({ navigation }: any) {
       accountSubType: subType,
       accountCurrency: currency,
       accountBalance: balance,
+      accountCreditData: creditData,
     }));
     navigation.navigate('Conta');
   }
@@ -327,7 +330,8 @@ export function Accounts({ navigation }: any) {
                 item.type,
                 item.subtype || null,
                 item.currency,
-                item.balance
+                item.balance,
+                null
               )
             }
           />
@@ -348,7 +352,8 @@ export function Accounts({ navigation }: any) {
               item.type,
               item.subtype!,
               item.currency,
-              item.balance
+              item.balance,
+              item.creditData || null
             )
           }
         />
@@ -368,6 +373,7 @@ export function Accounts({ navigation }: any) {
       >
         <SkeletonPlaceholder.Item
           maxWidth={100}
+          alignSelf='center'
           alignItems='center'
           justifyContent='center'
         >
