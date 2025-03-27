@@ -57,7 +57,7 @@ export function BankingIntegrationDetails() {
 
     // TODO: Updates on Xano
     Alert.alert(
-      '🗘 Suas integrações bancárias estão sendo atualizadas...',
+      'Suas integrações bancárias estão sendo atualizadas...',
       'Em alguns minutos o processo será finalizado!',
       [
         {

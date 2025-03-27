@@ -9,9 +9,7 @@ type ColorProps = {
   color: string;
 };
 
-export const Placeholder = styled(TouchableOpacity).attrs({
-  activeOpacity: 0.7,
-})`
+export const Placeholder = styled(TouchableOpacity)`
   width: 60px;
   height: 60px;
   align-items: center;
@@ -27,7 +25,7 @@ export const Container = styled(RectButton).attrs({
   height: 60px;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme }) => theme.colors.overlay};
+  background-color: ${({ theme }) => theme.colors.overlay10};
   border-radius: 30px;
 `;
 

@@ -44,13 +44,11 @@ export const DetailsContainer = styled.View`
 
 export const DescriptionAndAmountContainer = styled.View`
   flex-direction: row;
+  align-items: flex-start;
   justify-content: space-between;
 `;
 
-export const Description = styled.Text.attrs({
-  // numberOfLines: 2,
-  // ellipsizeMode: 'tail',
-})<Props>`
+export const Description = styled.Text.attrs({})<Props>`
   max-width: 75%;
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
@@ -84,6 +82,7 @@ export const Footer = styled.View`
 
 export const CategoryAndAccountContainer = styled.View`
   flex-direction: row;
+  min-width: 80%;
   max-width: 80%;
   padding: 0 4px;
 `;
@@ -108,6 +107,7 @@ export const Account = styled.Text.attrs({
   numberOfLines: 1,
   ellipsizeMode: 'tail',
 })`
+  min-width: 52%;
   max-width: 52%;
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};

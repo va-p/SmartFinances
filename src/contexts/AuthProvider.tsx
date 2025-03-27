@@ -118,7 +118,7 @@ export function AuthProvider({ children }: any) {
       `${DATABASE_CONFIGS}.useLocalAuth`
     );
 
-    if (compatible && enrolled && useLocalAuth) {
+    if (compatible && enrolled && useLocalAuth && !clerkSignedIn) {
       setBiometricSupportedAndEnabled(true);
     }
   }

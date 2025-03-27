@@ -24,7 +24,7 @@ export function CategorySelectButton({
   ...rest
 }: Props) {
   if (categorySelected.id === '') {
-    return <Placeholder {...rest} />;
+    return <Placeholder activeOpacity={0.7} {...rest} />;
   }
   return (
     <Container {...rest}>

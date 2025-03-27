@@ -95,6 +95,7 @@ export function SignIn({ navigation }: any) {
           'Erro',
           'Não foi possível autenticar com o Google. Por favor, tente novamente.'
         );
+        setLoading(false);
         return;
       }
     } catch (error) {
@@ -103,7 +104,7 @@ export function SignIn({ navigation }: any) {
         Alert.alert('Login', error.response?.data?.message);
       }
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   }
 

@@ -550,7 +550,26 @@ export function Accounts({ navigation }: any) {
                   </ButtonGroup>
                 </Footer>
               </>
-            ) : null
+            ) : (
+              // SCREEN FOOTER
+              <Footer>
+                <ButtonGroup>
+                  <AddAccountButton
+                    icon='card'
+                    title='Integrações Bancárias'
+                    onPress={handleTouchConnectAccount}
+                  />
+                </ButtonGroup>
+
+                <ButtonGroup>
+                  <AddAccountButton
+                    icon='wallet'
+                    title='Criar Conta Manual'
+                    onPress={handleOpenRegisterAccountModal}
+                  />
+                </ButtonGroup>
+              </Footer>
+            )
           }
           ListEmptyComponent={_renderEmpty}
         />

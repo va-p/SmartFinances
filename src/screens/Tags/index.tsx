@@ -174,7 +174,7 @@ export function Tags() {
         type={tagId !== '' ? 'secondary' : 'primary'}
         title={tagId !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
         bottomSheetRef={bottomSheetRef}
-        snapPoints={['50%']}
+        snapPoints={['90%']}
         closeModal={handleCloseRegisterTagModal}
         deleteChildren={handleClickDeleteTag}
       >

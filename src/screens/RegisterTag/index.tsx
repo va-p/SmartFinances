@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { Container, Body, Footer } from './styles';
 
 import axios from 'axios';
@@ -9,12 +9,12 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
 import { useUser } from 'src/storage/userStorage';
 
 import api from '@api/api';
-import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string;
@@ -146,7 +146,7 @@ export function RegisterTag({ id, closeTag }: Props) {
   );
 
   return (
-    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
+    <Container>
       <Gradient />
 
       <Body>

@@ -177,7 +177,7 @@ export function Categories() {
         title={categoryId !== '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
         bottomSheetRef={bottomSheetRef}
         enableContentPanningGesture={false}
-        snapPoints={['100%']}
+        snapPoints={['90%']}
         closeModal={handleCloseRegisterCategoryModal}
         deleteChildren={handleClickDeleteCategory}
       >
