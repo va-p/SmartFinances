@@ -3,7 +3,12 @@ import { StyleSheet } from 'react-native';
 
 import { BlurView } from 'expo-blur';
 import { useTheme } from 'styled-components';
-import * as Icon from 'phosphor-react-native';
+import Bank from 'phosphor-react-native/src/icons/Bank';
+import Target from 'phosphor-react-native/src/icons/Target';
+import ListDashes from 'phosphor-react-native/src/icons/ListDashes';
+import ChartPieSlice from 'phosphor-react-native/src/icons/ChartPieSlice';
+import DotsThreeOutline from 'phosphor-react-native/src/icons/DotsThreeOutline';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { Home } from '@screens/Home';
@@ -52,7 +57,7 @@ export function AppTabRoutes() {
         component={Home}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Icon.ListDashes size={size} color={color} />
+            <ListDashes size={size} color={color} />
           ),
         }}
       />
@@ -61,9 +66,7 @@ export function AppTabRoutes() {
         name='Contas'
         component={AppAccountStackRoutes}
         options={{
-          tabBarIcon: ({ size, color }) => (
-            <Icon.Bank size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Bank size={size} color={color} />,
         }}
       />
 
@@ -71,9 +74,7 @@ export function AppTabRoutes() {
         name='Orçamentos'
         component={AppBudgetStackRoutes}
         options={{
-          tabBarIcon: ({ size, color }) => (
-            <Icon.Target size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Target size={size} color={color} />,
         }}
       />
 
@@ -82,7 +83,7 @@ export function AppTabRoutes() {
         component={AppOverviewStackRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Icon.ChartPieSlice size={size} color={color} />
+            <ChartPieSlice size={size} color={color} />
           ),
         }}
       />
@@ -92,7 +93,7 @@ export function AppTabRoutes() {
         component={AppOptionsStackRoutes}
         options={{
           tabBarIcon: ({ size, color }) => (
-            <Icon.DotsThreeOutline size={size} color={color} />
+            <DotsThreeOutline size={size} color={color} />
           ),
         }}
       />

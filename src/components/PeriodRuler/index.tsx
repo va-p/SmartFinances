@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, ViewToken } from 'react-native';
 import { Container, MonthSelectButton, PeriodRulerList } from './styles';
 
-import { CaretLeft, CaretRight } from 'phosphor-react-native';
+import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
+import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 
 import { PeriodRulerListItem } from './components/PeriodRulerListItem';
 

@@ -7,8 +7,8 @@ import {
   Text,
 } from './styles';
 
-import { Envelope } from 'phosphor-react-native';
 import { useRoute } from '@react-navigation/native';
+import Envelope from 'phosphor-react-native/src/icons/Envelope';
 
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';

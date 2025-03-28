@@ -1,6 +1,6 @@
 import { EditButton } from './styles';
 
-import { DotsThreeCircle } from 'phosphor-react-native';
+import DotsThreeCircle from 'phosphor-react-native/src/icons/DotsThreeCircle';
 
 type HeaderIconProps = {
   onPress: () => void;

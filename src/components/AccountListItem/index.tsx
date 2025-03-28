@@ -11,9 +11,9 @@ import {
 
 import { AccountProps } from '@interfaces/accounts';
 
-import * as Icon from 'phosphor-react-native';
 import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
+import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 
 import theme from '@themes/theme';
 
@@ -49,7 +49,7 @@ export function AccountListItem({
           </AmountsContainer>
         </NameContainer>
       </DetailsContainer>
-      <Icon.CaretRight size={16} color={theme.colors.text} />
+      <CaretRight size={16} color={theme.colors.text} />
     </Container>
   );
 }

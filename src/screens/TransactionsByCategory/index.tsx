@@ -7,8 +7,9 @@ import getTransactions from '@utils/getTransactions';
 import groupTransactionsByDate from '@utils/groupTransactionsByDate';
 
 import { ptBR } from 'date-fns/locale';
-import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { addMonths, format, parse, subMonths } from 'date-fns';
+import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
+import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 

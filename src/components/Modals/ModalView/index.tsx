@@ -6,7 +6,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import * as Icon from 'phosphor-react-native';
+import Trash from 'phosphor-react-native/src/icons/Trash';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 import { Header as HeaderComponent } from '@components/Header';
@@ -56,7 +56,7 @@ export function ModalView({
 
           {type === 'secondary' ? (
             <BorderlessButton onPress={deleteChildren}>
-              <Icon.Trash color={theme.colors.primary} />
+              <Trash color={theme.colors.primary} />
             </BorderlessButton>
           ) : (
             <></>

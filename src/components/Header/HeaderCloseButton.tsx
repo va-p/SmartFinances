@@ -1,6 +1,6 @@
 import { Button, ButtonShape } from './styles';
 
-import * as Icon from 'phosphor-react-native';
+import X from 'phosphor-react-native/src/icons/X';
 
 import theme from '@themes/theme';
 
@@ -12,7 +12,7 @@ export function HeaderCloseButton({ handleClickCloseButton }: Props) {
   return (
     <Button onPress={handleClickCloseButton}>
       <ButtonShape>
-        <Icon.X size={20} color={theme.colors.text} />
+        <X size={20} color={theme.colors.text} />
       </ButtonShape>
     </Button>
   );

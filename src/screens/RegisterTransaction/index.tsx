@@ -22,7 +22,6 @@ import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
-import * as Icon from 'phosphor-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import ImageView from 'react-native-image-viewing';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -30,6 +29,15 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Icons
+import X from 'phosphor-react-native/src/icons/X';
+import Tag from 'phosphor-react-native/src/icons/Tag';
+import Trash from 'phosphor-react-native/src/icons/Trash';
+import Image from 'phosphor-react-native/src/icons/Image';
+import Wallet from 'phosphor-react-native/src/icons/Wallet';
+import Calendar from 'phosphor-react-native/src/icons/Calendar';
+import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -936,7 +944,7 @@ export function RegisterTransaction({
               onPress={closeModal}
               style={{ position: 'absolute', top: 0, left: 0 }}
             >
-              <Icon.X size={24} color={theme.colors.text} weight='bold' />
+              <X size={24} color={theme.colors.text} weight='bold' />
             </BorderlessButton>
             <Title>
               {id !== ''
@@ -948,7 +956,7 @@ export function RegisterTransaction({
                 onPress={() => handleClickDeleteTransaction(id)}
                 style={{ position: 'absolute', top: 0, right: 0 }}
               >
-                <Icon.Trash size={24} color={theme.colors.text} weight='bold' />
+                <Trash size={24} color={theme.colors.text} weight='bold' />
               </BorderlessButton>
             )}
           </TitleContainer>
@@ -983,20 +991,20 @@ export function RegisterTransaction({
         <ContentScroll>
           <SelectButton
             title={accountName || 'Selecione a conta'}
-            icon={<Icon.Wallet color={categorySelected.color.color_code} />}
+            icon={<Wallet color={categorySelected.color.color_code} />}
             onPress={handleOpenSelectAccountModal}
           />
           {transactionType === 'TRANSFER' && (
             <SelectButton
               title={accountDestinationSelected.name}
-              icon={<Icon.Wallet color={categorySelected.color.color_code} />}
+              icon={<Wallet color={categorySelected.color.color_code} />}
               onPress={handleOpenSelectAccountDestinationModal}
             />
           )}
 
           <SelectButton
             title={formattedDate}
-            icon={<Icon.Calendar color={categorySelected.color.color_code} />}
+            icon={<Calendar color={categorySelected.color.color_code} />}
             onPress={() => setShowDatePicker(true)}
           />
           {showDatePicker && (
@@ -1012,9 +1020,7 @@ export function RegisterTransaction({
           )}
 
           <ControlledInputWithIcon
-            icon={
-              <Icon.PencilSimple color={categorySelected.color.color_code} />
-            }
+            icon={<PencilSimple color={categorySelected.color.color_code} />}
             placeholder='Descrição'
             numberOfLines={2}
             autoCapitalize='sentences'
@@ -1029,7 +1035,7 @@ export function RegisterTransaction({
 
           <SelectButton
             title='Etiquetas'
-            icon={<Icon.Tag color={categorySelected.color.color_code} />}
+            icon={<Tag color={categorySelected.color.color_code} />}
           />
           <FlatList
             data={tags}
@@ -1052,7 +1058,7 @@ export function RegisterTransaction({
 
           <SelectButton
             title={imageUrl !== '' ? 'Alterar imagem' : 'Selecionar imagem'}
-            icon={<Icon.Image color={categorySelected.color.color_code} />}
+            icon={<Image color={categorySelected.color.color_code} />}
             onPress={handleClickSelectImage}
           />
           {imageUrl !== '' && (
@@ -1125,7 +1131,7 @@ export function RegisterTransaction({
               symbol: 'R$',
             },
             type: accountType || 'BANK',
-            balance: 0,
+            balance: '0',
             initialAmount: accountInitialAmount,
           }}
           setAccount={(account: AccountProps) => {

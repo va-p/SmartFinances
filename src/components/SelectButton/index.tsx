@@ -8,7 +8,7 @@ import {
 } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
-import { CaretRight } from 'phosphor-react-native';
+import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 
 import theme from '@themes/theme';
 

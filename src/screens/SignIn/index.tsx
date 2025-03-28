@@ -18,9 +18,11 @@ import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { useSSO, useOAuth } from '@clerk/clerk-expo';
-import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
+// Icons
+import Key from 'phosphor-react-native/src/icons/Key';
+import UserCircle from 'phosphor-react-native/src/icons/UserCircle';
 
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -153,7 +155,7 @@ export function SignIn({ navigation }: any) {
             name='email'
             control={control}
             error={errors.email}
-            icon={Icon.UserCircle}
+            icon={UserCircle}
           />
           <ControlledInput
             placeholder='Senha'
@@ -164,7 +166,7 @@ export function SignIn({ navigation }: any) {
             name='password'
             control={control}
             error={errors.password}
-            icon={Icon.Key}
+            icon={Key}
             returnKeyType='go'
             onSubmitEditing={handleSubmit(handleSignInWithXano)}
           />

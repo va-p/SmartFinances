@@ -13,12 +13,19 @@ import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
-import * as Icon from 'phosphor-react-native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Icons
+import Money from 'phosphor-react-native/src/icons/Money';
+import SelectDropdown from 'react-native-select-dropdown';
+import Repeat from 'phosphor-react-native/src/icons/Repeat';
+import Calendar from 'phosphor-react-native/src/icons/Calendar';
+import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
+import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
+import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
 import { Button } from '@components/Button';
 import { SelectButton } from '@components/SelectButton';
@@ -316,7 +323,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       <Gradient />
 
       <ControlledInputWithIcon
-        icon={<Icon.PencilSimple color={theme.colors.primary} />}
+        icon={<PencilSimple color={theme.colors.primary} />}
         placeholder='Nome do orçamento'
         autoCapitalize='sentences'
         autoCorrect={false}
@@ -329,7 +336,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       <AmountContainer>
         <AmountGroup>
           <ControlledInputWithIcon
-            icon={<Icon.Money color={theme.colors.primary} />}
+            icon={<Money color={theme.colors.primary} />}
             placeholder='Valor do orçamento'
             keyboardType='numeric'
             defaultValue={getValues('amount')}
@@ -345,7 +352,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             onSelect={(selectedItem) => {
               setCurrencySelected(selectedItem);
             }}
-            // defaultValue={currencySelected}
             defaultButtonText='Moeda'
             buttonTextAfterSelection={(selectedItem) => {
               return selectedItem;
@@ -368,7 +374,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
               color: theme.colors.text,
             }}
             renderDropdownIcon={() => {
-              return <Icon.CaretDown color={theme.colors.text} size={16} />;
+              return <CaretDown color={theme.colors.text} size={16} />;
             }}
             dropdownIconPosition='right'
             rowStyle={{ backgroundColor: theme.colors.background }}
@@ -387,14 +393,14 @@ export function RegisterBudget({ id, closeBudget }: Props) {
               : `${budgetCategoriesSelected.length} categoria`
             : 'Selecione as categorias'
         }
-        icon={<Icon.CirclesFour color={theme.colors.primary} />}
+        icon={<CirclesFour color={theme.colors.primary} />}
         onPress={handleOpenSelectCategoryModal}
       />
 
       <SelectButton
         title='Data de início'
         subTitle={formattedDate}
-        icon={<Icon.Calendar color={theme.colors.primary} />}
+        icon={<Calendar color={theme.colors.primary} />}
         onPress={() => setShowDatePicker(true)}
       />
       {showDatePicker && (
@@ -412,7 +418,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       <SelectButton
         title='Repetir'
         subTitle={budgetPeriodSelected.name}
-        icon={<Icon.Repeat color={theme.colors.primary} />}
+        icon={<Repeat color={theme.colors.primary} />}
         onPress={handleOpenSelectRecurrencePeriodModal}
       />
 
@@ -423,7 +429,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           onPress={handleSubmit(handleRegisterBudget)}
         >
           <Button.Text
-            type='secondary'
             text={id !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
           />
         </Button.Root>

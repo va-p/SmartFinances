@@ -25,10 +25,15 @@ import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLi
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
-import * as Icon from 'phosphor-react-native';
+import Eye from 'phosphor-react-native/src/icons/Eye';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import Bank from 'phosphor-react-native/src/icons/Bank';
+import Wallet from 'phosphor-react-native/src/icons/Wallet';
+import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Gradient } from '@components/Gradient';
@@ -302,16 +307,16 @@ export function Accounts({ navigation }: any) {
       switch (item.type) {
         case 'OTHER':
         case 'WALLET':
-          return <Icon.Wallet color={theme.colors.primary} />;
+          return <Wallet color={theme.colors.primary} />;
         case 'CRYPTOCURRENCY WALLET':
-          return <Icon.CurrencyBtc color={theme.colors.primary} />;
+          return <CurrencyBtc color={theme.colors.primary} />;
         case 'INVESTMENTS':
         case 'BANK':
-          return <Icon.Bank color={theme.colors.primary} />;
+          return <Bank color={theme.colors.primary} />;
         case 'CREDIT':
-          return <Icon.CreditCard color={theme.colors.primary} />;
+          return <CreditCard color={theme.colors.primary} />;
         default:
-          return <Icon.Wallet color={theme.colors.primary} />;
+          return <Wallet color={theme.colors.primary} />;
       }
     };
 
@@ -409,9 +414,9 @@ export function Accounts({ navigation }: any) {
 
           <HideDataButton onPress={() => handleHideData()}>
             {!hideAmount ? (
-              <Icon.EyeSlash size={20} color={theme.colors.primary} />
+              <EyeSlash size={20} color={theme.colors.primary} />
             ) : (
-              <Icon.Eye size={20} color={theme.colors.primary} />
+              <Eye size={20} color={theme.colors.primary} />
             )}
           </HideDataButton>
         </Header>

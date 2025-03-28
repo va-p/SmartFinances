@@ -3,8 +3,11 @@ import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import axios from 'axios';
-import * as Icon from 'phosphor-react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import Bank from 'phosphor-react-native/src/icons/Bank';
+import Wallet from 'phosphor-react-native/src/icons/Wallet';
+import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
+import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { Button } from '@components/Button';
@@ -19,14 +22,14 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 import { RegisterAccount } from '@screens/RegisterAccount';
 
 import {
-  AccountType,
+  // AccountType,
   useCurrentAccountSelected,
 } from '@storage/currentAccountSelectedStorage';
 import { useUser } from '@storage/userStorage';
 
 import api from '@api/api';
 
-import { AccountProps } from '@interfaces/accounts';
+import { AccountProps, AccountTypes } from '@interfaces/accounts';
 
 import theme from '@themes/theme';
 
@@ -94,7 +97,7 @@ export function AccountsList() {
   function handleOpenAccount(
     id: string,
     name: string,
-    type: AccountType,
+    type: AccountTypes,
     currency: any
   ) {
     setAccountId(id);
@@ -160,14 +163,14 @@ export function AccountsList() {
       switch (item.type) {
         case 'OTHER':
         case 'WALLET':
-          return <Icon.Wallet color={theme.colors.primary} />;
+          return <Wallet color={theme.colors.primary} />;
         case 'CRYPTOCURRENCY WALLET':
-          return <Icon.CurrencyBtc color={theme.colors.primary} />;
+          return <CurrencyBtc color={theme.colors.primary} />;
         case 'INVESTMENTS':
         case 'BANK':
-          return <Icon.Bank color={theme.colors.primary} />;
+          return <Bank color={theme.colors.primary} />;
         case 'CREDIT':
-          return <Icon.CreditCard color={theme.colors.primary} />;
+          return <CreditCard color={theme.colors.primary} />;
         default:
           'WALLET';
           break;

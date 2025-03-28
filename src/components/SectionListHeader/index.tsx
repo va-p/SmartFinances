@@ -3,7 +3,7 @@ import { Container, SectionText } from './styles';
 
 interface SectionHeaderProps {
   title: string;
-  total: number;
+  total: string;
 }
 
 type Props = {

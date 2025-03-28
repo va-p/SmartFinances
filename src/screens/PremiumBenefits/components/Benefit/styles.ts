@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 
-import { Check } from 'phosphor-react-native';
+import Check from 'phosphor-react-native/src/icons/Check';
 import theme from '@themes/theme';
 
 export const Container = styled.View`

@@ -5,7 +5,14 @@ import { Container, Form, Footer } from './styles';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import * as Icon from 'phosphor-react-native';
+
+// Icons
+import Money from 'phosphor-react-native/src/icons/Money';
+import Coins from 'phosphor-react-native/src/icons/Coins';
+import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
@@ -66,10 +73,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     },
   });
   const accountTypes: AccountTypes[] = [
-    'Cartão de Crédito',
     'Carteira',
     'Carteira de Criptomoedas',
-    'Conta Corrente',
     'Investimentos',
     'Poupança',
     'Outro',
@@ -254,7 +259,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
       <Form>
         <ControlledInputWithIcon
-          icon={<Icon.PencilSimple color={theme.colors.primary} />}
+          icon={<PencilSimple color={theme.colors.primary} />}
           placeholder='Nome'
           autoCapitalize='sentences'
           autoCorrect={false}
@@ -265,7 +270,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         />
 
         <ControlledInputWithIcon
-          icon={<Icon.Money color={theme.colors.primary} />}
+          icon={<Money color={theme.colors.primary} />}
           placeholder='Saldo da conta'
           keyboardType='numeric'
           returnKeyType='go'
@@ -278,7 +283,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
         <SelectButton
           title={currencySelected.name}
-          icon={<Icon.Coins color={theme.colors.primary} />}
+          icon={<Coins color={theme.colors.primary} />}
           onPress={handleOpenSelectCurrencyModal}
         />
 
@@ -331,7 +336,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             color: theme.colors.text,
           }}
           renderDropdownIcon={() => {
-            return <Icon.CaretRight size={20} color={theme.colors.text} />;
+            return <CaretRight size={20} color={theme.colors.text} />;
           }}
           dropdownIconPosition='right'
           rowStyle={{ backgroundColor: theme.colors.background }}
@@ -341,7 +346,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
         {id !== '' && (
           <ButtonToggle
-            icon={<Icon.EyeSlash color={theme.colors.primary} />}
+            icon={<EyeSlash color={theme.colors.primary} />}
             title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
             onValueChange={handleHideAccount}
             value={hideAccount}
@@ -356,10 +361,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           isLoading={buttonIsLoading}
           onPress={handleSubmit(handleRegisterAccount)}
         >
-          <Button.Text
-            type='secondary'
-            text={id !== '' ? 'Editar Conta' : 'Criar Conta'}
-          />
+          <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
         </Button.Root>
       </Footer>
 

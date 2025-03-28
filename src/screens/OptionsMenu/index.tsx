@@ -2,8 +2,21 @@ import React from 'react';
 import { Alert, Linking } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
+// Icons
+import Tag from 'phosphor-react-native/src/icons/Tag';
+import User from 'phosphor-react-native/src/icons/User';
+import Plugs from 'phosphor-react-native/src/icons/Plugs';
+import Cookie from 'phosphor-react-native/src/icons/Cookie';
+import Trophy from 'phosphor-react-native/src/icons/Trophy';
+import Wallet from 'phosphor-react-native/src/icons/Wallet';
+import Sparkle from 'phosphor-react-native/src/icons/Sparkle';
+import Lifebuoy from 'phosphor-react-native/src/icons/Lifebuoy';
+import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
+import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
+import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
+
 import axios from 'axios';
-import * as Icon from 'phosphor-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
@@ -162,44 +175,44 @@ export function OptionsMenu({ navigation }: any) {
       <ContentScroll>
         <Title>Conta</Title>
         <SelectButton
-          icon={<Icon.User color={theme.colors.primary} />}
+          icon={<User color={theme.colors.primary} />}
           title='Perfil'
           onPress={() => handleOpenProfile()}
         />
 
         <SelectButton
-          icon={<Icon.Trophy color={theme.colors.primary} />}
+          icon={<Trophy color={theme.colors.primary} />}
           title='Assinatura Premium'
           onPress={() => handleOpenSubscription()}
         />
 
         <SelectButton
-          icon={<Icon.Wallet color={theme.colors.primary} />}
+          icon={<Wallet color={theme.colors.primary} />}
           title='Contas Manuais'
           onPress={() => handleOpenAccounts()}
         />
 
         <SelectButton
-          icon={<Icon.Plugs color={theme.colors.primary} />}
+          icon={<Plugs color={theme.colors.primary} />}
           title='Integrações Bancárias'
           onPress={() => handleOpenConnectedAccounts()}
         />
 
         <SelectButton
-          icon={<Icon.CirclesFour color={theme.colors.primary} />}
+          icon={<CirclesFour color={theme.colors.primary} />}
           title='Categorias'
           onPress={() => handleOpenCategories()}
         />
 
         <SelectButton
-          icon={<Icon.Tag color={theme.colors.primary} />}
+          icon={<Tag color={theme.colors.primary} />}
           title='Etiquetas'
           onPress={() => handleOpenTags()}
         />
 
         <Title>Configurações</Title>
         <ButtonToggle
-          icon={<Icon.Sparkle color={theme.colors.primary} />}
+          icon={<Sparkle color={theme.colors.primary} />}
           title='Insights Inteligentes'
           onValueChange={handleChangeSmartInsights}
           value={insights}
@@ -207,7 +220,7 @@ export function OptionsMenu({ navigation }: any) {
         />
 
         <ButtonToggle
-          icon={<Icon.Fingerprint color={theme.colors.primary} />}
+          icon={<Fingerprint color={theme.colors.primary} />}
           title='Touch / Face ID'
           onValueChange={handleChangeUseLocalAuth}
           value={useLocalAuth}
@@ -215,7 +228,7 @@ export function OptionsMenu({ navigation }: any) {
         />
 
         <ButtonToggle
-          icon={<Icon.EyeSlash color={theme.colors.primary} />}
+          icon={<EyeSlash color={theme.colors.primary} />}
           title='Ocultar informações'
           onValueChange={handleChangeHideAmount}
           value={hideAmount}
@@ -224,19 +237,19 @@ export function OptionsMenu({ navigation }: any) {
 
         <Title>Sobre</Title>
         <SelectButton
-          icon={<Icon.Lifebuoy color={theme.colors.primary} />}
+          icon={<Lifebuoy color={theme.colors.primary} />}
           title='Central de Ajuda'
           onPress={() => handleClickHelpCenter()}
         />
 
         <SelectButton
-          icon={<Icon.ShieldCheck color={theme.colors.primary} />}
+          icon={<ShieldCheck color={theme.colors.primary} />}
           title='Termos de Uso'
           onPress={() => handleClickTermsOfUse()}
         />
 
         <SelectButton
-          icon={<Icon.Cookie color={theme.colors.primary} />}
+          icon={<Cookie color={theme.colors.primary} />}
           title='Política de Privacidade'
           onPress={() => handleClickPrivacyPolicy()}
         />

@@ -2,8 +2,8 @@ import { TransactionProps } from '@interfaces/transactions';
 
 export interface GroupedTransactionProps {
   title: string;
-  data: TransactionProps[];
   total: string;
+  data: TransactionProps[];
 }
 
 const calculateGroupTotal = (transactions: TransactionProps[]): string => {

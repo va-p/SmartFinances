@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Title } from './styles';
 
 import { RectButtonProps } from 'react-native-gesture-handler';
-import { CaretDown } from 'phosphor-react-native';
+import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 
 import theme from '@themes/theme';
 

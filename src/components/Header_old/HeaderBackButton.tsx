@@ -1,7 +1,7 @@
 import { BackButton } from './styles';
 
-import * as Icon from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
+import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
 
 import theme from '@themes/theme';
 
@@ -14,7 +14,7 @@ export function HeaderBackButton() {
 
   return (
     <BackButton onPress={handleClickBackButton}>
-      <Icon.CaretLeft size={20} color={theme.colors.primary} />
+      <CaretLeft size={20} color={theme.colors.primary} />
     </BackButton>
   );
 }

@@ -1,7 +1,7 @@
 import { Button, ButtonShape } from './styles';
 
-import * as Icon from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
+import ArrowLeft from 'phosphor-react-native/src/icons/ArrowLeft';
 
 import theme from '@themes/theme';
 
@@ -15,7 +15,7 @@ export function HeaderBackButton() {
   return (
     <Button onPress={handleClickBackButton}>
       <ButtonShape>
-        <Icon.ArrowLeft size={20} color={theme.colors.text} />
+        <ArrowLeft size={20} color={theme.colors.text} />
       </ButtonShape>
     </Button>
   );

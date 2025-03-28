@@ -1,6 +1,6 @@
 import { CloseInsightButton } from './styles';
 
-import { X } from 'phosphor-react-native';
+import X from 'phosphor-react-native/src/icons/X';
 
 import theme from '@themes/theme';
 

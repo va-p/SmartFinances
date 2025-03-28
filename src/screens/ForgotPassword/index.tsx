@@ -14,7 +14,8 @@ import {
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import * as Icon from 'phosphor-react-native';
+import UserCircle from 'phosphor-react-native/src/icons/UserCircle';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Header } from '@components/Header';
@@ -117,7 +118,7 @@ export function ForgotPassword({ navigation }: any) {
             name='email'
             control={control}
             error={errors.email}
-            icon={Icon.UserCircle}
+            icon={UserCircle}
           />
 
           <Button.Root

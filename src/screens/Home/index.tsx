@@ -12,6 +12,7 @@ import {
   BackHandler,
   SectionList,
   Dimensions,
+  View,
 } from 'react-native';
 import {
   Container,
@@ -57,10 +58,15 @@ import {
 } from 'date-fns';
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
+import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Plus, Eye, EyeSlash } from 'phosphor-react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+
+// Icons
+import Eye from 'phosphor-react-native/src/icons/Eye';
+import Plus from 'phosphor-react-native/src/icons/Plus';
+import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 
 import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
@@ -84,11 +90,16 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import { eInsightsCashFlow } from '@enums/enumsInsights';
+import { GroupedTransactionProps } from '@utils/groupTransactionsByDate';
 import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import {
+  FlashListTransactionItem,
+  flattenTransactionsForFlashList,
+} from '@utils/flattenTransactionsForFlashList';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -131,6 +142,9 @@ export function Home() {
   const optimizedTransactions = useMemo(
     () => transactionsFormattedBySelectedPeriod,
     [transactionsFormattedBySelectedPeriod]
+  );
+  const flattenedTransactions = flattenTransactionsForFlashList(
+    optimizedTransactions
   );
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const { selectedPeriod, setSelectedPeriod, selectedDate, setSelectedDate } =
@@ -206,6 +220,7 @@ export function Home() {
   });
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
+  const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   // Animated button register transaction
   const registerTransactionButtonPositionX = useSharedValue(0);
   const registerTransactionButtonPositionY = useSharedValue(0);
@@ -618,7 +633,7 @@ export function Home() {
       </Animated.View>
 
       <Transactions>
-        <AnimatedSectionList
+        {/* <AnimatedSectionList
           sections={optimizedTransactions}
           keyExtractor={(item: any) => item.id}
           renderItem={({ item, index }: any) => (
@@ -645,6 +660,52 @@ export function Home() {
           scrollEventThrottle={16}
           contentContainerStyle={{
             rowGap: 8,
+            paddingTop: 16,
+            paddingBottom: bottomTabBarHeight,
+          }}
+        /> */}
+        <AnimatedFlashList
+          data={flattenedTransactions} // Agora é um array plano
+          keyExtractor={(item: any) => {
+            return item.isHeader ? String(item.headerTitle!) : String(item.id);
+          }}
+          renderItem={({ item, index }: any) => {
+            if (item.isHeader) {
+              return (
+                <SectionListHeader
+                  data={{ title: item.headerTitle, total: item.headerTotal }}
+                />
+              );
+            }
+            return (
+              <TransactionListItem
+                data={item}
+                index={index}
+                hideAmount={hideAmount}
+                onPress={() => handleOpenTransaction(item.id)}
+              />
+            );
+          }}
+          getItemType={(item) =>
+            (item as FlashListTransactionItem).isHeader
+              ? 'sectionHeader'
+              : 'row'
+          }
+          estimatedItemSize={100}
+          ListEmptyComponent={_renderEmpty}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchTransactions}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+          onScroll={scrollHandlerToTop}
+          scrollEventThrottle={16}
+          ItemSeparatorComponent={() => (
+            <View style={{ minHeight: 8, maxHeight: 8 }} />
+          )}
+          contentContainerStyle={{
             paddingTop: 16,
             paddingBottom: bottomTabBarHeight,
           }}
