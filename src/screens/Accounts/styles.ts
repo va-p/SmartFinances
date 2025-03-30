@@ -21,7 +21,9 @@ export const Header = styled.View`
   align-items: center;
 `;
 
-export const CashFlowContainer = styled.View``;
+export const CashFlowContainer = styled.View`
+  margin-bottom: 8px;
+`;
 
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
@@ -34,6 +36,7 @@ export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   text-align: center;
+  margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
 

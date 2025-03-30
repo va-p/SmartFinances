@@ -26,6 +26,7 @@ export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(12)}px;
   text-align: center;
+  margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -38,6 +39,7 @@ export const HideDataButton = styled(BorderlessButton)`
 export const FiltersContainer = styled.View`
   align-items: center;
   justify-content: center;
+  margin-bottom: 8px;
 `;
 
 export const FilterButtonGroup = styled.View`
