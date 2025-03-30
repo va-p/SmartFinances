@@ -67,7 +67,6 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
-import { TransactionTypeProps } from '@interfaces/transactions';
 
 type Props = {
   id: string;
@@ -154,7 +153,7 @@ export function RegisterTransaction({
   const [bankTransactionID, setBankTransactionID] = useState('');
   const [transactionDate, setTransactionDate] = useState('');
   const [transactionType, setTransactionType] =
-    useState<TransactionTabType>('');
+    useState<TransactionTabType>('CREDIT');
   const [selectedTransactionTab, setSelectedTransactionTab] =
     useState<CustomTab>(CustomTab.Credit);
   const [tags, setTags] = useState<TagProps[]>([]);
@@ -643,6 +642,7 @@ export function RegisterTransaction({
     try {
       let amountConverted = form.amount;
 
+      // Transfers
       if (transactionType === 'TRANSFER') {
         const fromCurrency = currencySelected.code; // Moeda selecionada
         const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
@@ -669,7 +669,7 @@ export function RegisterTransaction({
         });
 
         const accountDestinationResponse = await api.get(
-          'single_account_get_id',
+          'account/single_account_get_id',
           {
             params: {
               user_id: userID,
@@ -741,69 +741,74 @@ export function RegisterTransaction({
           );
           return;
         }
-      } else {
-        amountConverted = convertCurrency({
-          amount: form.amount,
-          fromCurrency: currencySelected.code,
-          toCurrency: accountCurrency!.code,
-          accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
-          quotes: {
-            brlQuoteBtc,
-            brlQuoteEur,
-            brlQuoteUsd,
-            btcQuoteBrl,
-            btcQuoteEur,
-            btcQuoteUsd,
-            eurQuoteBrl,
-            eurQuoteBtc,
-            eurQuoteUsd,
-            usdQuoteBrl,
-            usdQuoteBtc,
-            usdQuoteEur,
-          },
-        });
+        return;
+      }
 
-        const accountResponse = await api.get('account/single_account_get_id', {
-          params: {
-            user_id: userID,
-            name: accountName,
-          },
-        });
+      // No Transfers
+      amountConverted = convertCurrency({
+        amount: form.amount,
+        fromCurrency: currencySelected.code,
+        toCurrency: accountCurrency!.code,
+        accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      });
 
-        const transactionData = {
-          created_at: date,
-          description: form.description,
-          amount: form.amount,
-          amount_in_account_currency:
-            currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
-              ? amountConverted
-              : null,
-          currency_id: currencySelected.id,
-          type: transactionType,
-          account_id: accountResponse.data.id,
-          category_id: categorySelected.id,
-          tags: tagsList,
-          transaction_image_id,
+      const accountResponse = await api.get('account/single_account_get_id', {
+        params: {
           user_id: userID,
-        };
+          name: accountName,
+        },
+      });
 
-        const { status } = await api.post('transaction', transactionData);
-        if (status === 200) {
-          Alert.alert(
-            'Cadastro de Transação',
-            'Transação cadastrada com sucesso!',
-            [
-              { text: 'Cadastrar nova transação' },
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeRegisterTransaction,
-              },
-            ]
-          );
-        }
+      const transactionData = {
+        created_at: date,
+        description: form.description,
+        amount: form.amount,
+        amount_in_account_currency:
+          currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
+            ? amountConverted
+            : null,
+        currency_id: currencySelected.id,
+        type: transactionType,
+        account_id: accountResponse.data.id,
+        category_id: categorySelected.id,
+        tags: tagsList,
+        transaction_image_id,
+        user_id: userID,
+      };
+
+      const { status } = await api.post('transaction', transactionData);
+      if (status === 200) {
+        Alert.alert(
+          'Cadastro de Transação',
+          'Transação cadastrada com sucesso!',
+          [
+            { text: 'Cadastrar nova transação' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeRegisterTransaction,
+            },
+          ]
+        );
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.error(
+          `RegisterTransaction handleRegisterTransaction error: ${error}`
+        );
         Alert.alert(
           'Cadastro de Transação',
           (error.response?.data as { message: string }).message,
