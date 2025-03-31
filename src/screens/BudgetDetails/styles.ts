@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import { FlashList } from '@shopify/flash-list';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 type BudgetTotalType = 'positive' | 'negative';
@@ -33,7 +34,12 @@ export const TransactionsContainer = styled.View`
   flex: 1;
 `;
 
-export const BudgetTransactions = styled.FlatList.attrs({
+// export const BudgetTransactions = styled.FlatList.attrs({
+//   showsVerticalScrollIndicator: false,
+//   initialNumToRender: 20,
+// })``;
+
+export const BudgetTransactions = styled(FlashList).attrs({
   showsVerticalScrollIndicator: false,
   initialNumToRender: 20,
 })``;

@@ -429,7 +429,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           onPress={handleSubmit(handleRegisterBudget)}
         >
           <Button.Text
-            text={id !== '' ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+            text={id !== null ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
           />
         </Button.Root>
       </Footer>

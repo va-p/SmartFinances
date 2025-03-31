@@ -633,37 +633,6 @@ export function Home() {
       </Animated.View>
 
       <Transactions>
-        {/* <AnimatedSectionList
-          sections={optimizedTransactions}
-          keyExtractor={(item: any) => item.id}
-          renderItem={({ item, index }: any) => (
-            <TransactionListItem
-              data={item}
-              index={index}
-              hideAmount={hideAmount}
-              onPress={() => handleOpenTransaction(item.id)}
-            />
-          )}
-          renderSectionHeader={({ section }: any) => (
-            <SectionListHeader data={section} />
-          )}
-          ListEmptyComponent={_renderEmpty}
-          initialNumToRender={200}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchTransactions}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          onScroll={scrollHandlerToTop}
-          scrollEventThrottle={16}
-          contentContainerStyle={{
-            rowGap: 8,
-            paddingTop: 16,
-            paddingBottom: bottomTabBarHeight,
-          }}
-        /> */}
         <AnimatedFlashList
           data={flattenedTransactions} // Agora é um array plano
           keyExtractor={(item: any) => {

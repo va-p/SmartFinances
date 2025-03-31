@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
 import {
   BudgetTotal,
   BudgetTotalDescription,
@@ -46,7 +46,7 @@ export function BudgetDetails() {
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const { hideAmount, setHideAmount } = useUserConfigs();
+  const { hideAmount } = useUserConfigs();
 
   function calculateRemainderBudget() {
     return Number(budget.amount) - Number(budget.amount_spent);
@@ -146,12 +146,12 @@ export function BudgetDetails() {
                   budget.currency.code,
                   calculateRemainderBudgetPerDay(),
                   false
-                )} por dia até o final do período do orçamento`
+                )} por dia até o final do período do orçamento!`
               : `O seu orçamento foi excedido em ${formatCurrency(
                   budget.currency.code,
                   calculateRemainderBudgetPerDay() * -1,
                   false
-                )}. Pare de gastar!`
+                )}. Pare de gastar para não comprometer mais o seu orçamento!`
           }
         />
       </InsightCard.Root>
@@ -172,15 +172,15 @@ export function BudgetDetails() {
               data={item}
               index={index}
               hideAmount={hideAmount}
-              // onPress={() => handleOpenBudget(item)}
+              // onPress={() => handleOpenTransaction(item)}
             />
           )}
           ListEmptyComponent={() => (
             <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
           )}
-          // refreshControl={
-          //   <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
-          // }
+          ItemSeparatorComponent={() => (
+            <View style={{ minHeight: 8, maxHeight: 8 }} />
+          )}
           contentContainerStyle={{
             paddingBottom: bottomTabBarHeight + 8,
             rowGap: 8,
