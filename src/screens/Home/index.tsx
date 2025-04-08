@@ -10,7 +10,6 @@ import {
   RefreshControl,
   StyleSheet,
   BackHandler,
-  SectionList,
   Dimensions,
   View,
 } from 'react-native';
@@ -90,7 +89,6 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import { eInsightsCashFlow } from '@enums/enumsInsights';
-import { GroupedTransactionProps } from '@utils/groupTransactionsByDate';
 import { CashFLowData, TransactionProps } from '@interfaces/transactions';
 
 import api from '@api/api';
@@ -218,8 +216,7 @@ export function Home() {
       ),
     };
   });
-  // Animated section list
-  const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
+  // Animated Flash List
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   // Animated button register transaction
   const registerTransactionButtonPositionX = useSharedValue(0);
@@ -268,6 +265,7 @@ export function Home() {
       // Format transactions
       const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
         const dmy = formatDatePtBr(item.created_at).short();
+        console.log('item ===>', item);
         return {
           id: item.id,
           created_at: dmy,
