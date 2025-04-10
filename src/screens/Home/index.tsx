@@ -265,7 +265,6 @@ export function Home() {
       // Format transactions
       const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
         const dmy = formatDatePtBr(item.created_at).short();
-        console.log('item ===>', item);
         return {
           id: item.id,
           created_at: dmy,
