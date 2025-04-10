@@ -17,7 +17,7 @@ import {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-export type TabButtonType = {
+type TabButtonType = {
   title: string;
 };
 
