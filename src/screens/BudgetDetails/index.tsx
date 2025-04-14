@@ -3,7 +3,6 @@ import { Alert, View } from 'react-native';
 import {
   BudgetTotal,
   BudgetTotalDescription,
-  BudgetTransactions,
   Container,
   TransactionsContainer,
 } from './styles';
@@ -12,6 +11,7 @@ import formatCurrency from '@utils/formatCurrency';
 
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
+import { FlashList } from '@shopify/flash-list';
 import { useRoute } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { formatDistanceToNowStrict, parse } from 'date-fns';
@@ -149,7 +149,7 @@ export function BudgetDetails() {
                 )} por dia até o final do período do orçamento!`
               : `O seu orçamento foi excedido em ${formatCurrency(
                   budget.currency.code,
-                  calculateRemainderBudgetPerDay() * -1,
+                  calculateRemainderBudget() * -1,
                   false
                 )}. Pare de gastar para não comprometer mais o seu orçamento!`
           }
@@ -164,15 +164,16 @@ export function BudgetDetails() {
 
       <TransactionsContainer>
         <SectionTitle>Transações</SectionTitle>
-        <BudgetTransactions
+        <FlashList
           data={budget.transactions}
           keyExtractor={(item: any) => item.id}
+          showsVerticalScrollIndicator={false}
+          estimatedItemSize={92}
           renderItem={({ item, index }: any) => (
             <TransactionListItem
               data={item}
               index={index}
               hideAmount={hideAmount}
-              // onPress={() => handleOpenTransaction(item)}
             />
           )}
           ListEmptyComponent={() => (
@@ -182,8 +183,7 @@ export function BudgetDetails() {
             <View style={{ minHeight: 8, maxHeight: 8 }} />
           )}
           contentContainerStyle={{
-            paddingBottom: bottomTabBarHeight + 8,
-            rowGap: 8,
+            paddingBottom: bottomTabBarHeight,
           }}
         />
       </TransactionsContainer>
