@@ -1,13 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { BackHandler, RefreshControl, SectionList } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { BackHandler, RefreshControl, View } from 'react-native';
 import { Container, Month, MonthSelect, MonthSelectButton } from './styles';
 
+import {
+  FlashListTransactionItem,
+  flattenTransactionsForFlashList,
+} from '@utils/flattenTransactionsForFlashList';
 import formatDatePtBr from '@utils/formatDatePtBr';
+import formatCurrency from '@utils/formatCurrency';
 import getTransactions from '@utils/getTransactions';
-import groupTransactionsByDate from '@utils/groupTransactionsByDate';
+import { processTransactions } from '@utils/processTransactions';
 
 import { ptBR } from 'date-fns/locale';
-import { addMonths, format, parse, subMonths } from 'date-fns';
+import Animated from 'react-native-reanimated';
+import { FlashList } from '@shopify/flash-list';
+import { addMonths, format, subMonths } from 'date-fns';
 import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -23,22 +30,32 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { useUser } from '@storage/userStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
+import { TransactionProps } from '@interfaces/transactions';
+
 import theme from '@themes/theme';
 
 export function TransactionsByCategory({ navigation }: any) {
+  const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
-  const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
+  const { id: userID } = useUser();
   const route = useRoute();
-  const categoryId = route.params?.id;
+  const categoryID = route.params?.id;
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
 
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
-  ] = useState([]);
+  ] = useState<any[]>([]);
+  const optimizedTransactions = useMemo(
+    () => transactionsFormattedBySelectedPeriod,
+    [transactionsFormattedBySelectedPeriod]
+  );
+  const flattenedTransactions = flattenTransactionsForFlashList(
+    optimizedTransactions
+  );
 
   function handleDateChange(action: 'next' | 'prev'): void {
     if (action === 'next') {
@@ -52,213 +69,44 @@ export function TransactionsByCategory({ navigation }: any) {
     setLoading(true);
 
     try {
-      const data = await getTransactions(userID);
-
-      /**
-       * All Transactions By Account Formatted in pt-BR - Start
-       */
-      let amount_formatted: any;
-      let amountNotConvertedFormatted = '';
-
-      let transactionsByCategoryFormattedPtbr: any = [];
-      for (const item of data) {
-        const dmy = formatDatePtBr(item.created_at).short();
-
-        switch (item.account.currency.code) {
-          case 'BRL':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL',
-            });
-            break;
-          case 'BTC':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BTC',
-              minimumFractionDigits: 6,
-              maximumSignificantDigits: 6,
-            });
-            break;
-          case 'EUR':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'EUR',
-            });
-            break;
-          case 'USD':
-            amount_formatted = Number(item.amount).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'USD',
-            });
-            break;
-        }
-        if (item.amount_not_converted && item.currency.code === 'BRL') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'BTC') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BTC',
-            minimumFractionDigits: 8,
-            maximumSignificantDigits: 8,
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'EUR') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'EUR',
-          });
-        }
-        if (item.amount_not_converted && item.currency.code === 'USD') {
-          amountNotConvertedFormatted = Number(
-            item.amount_not_converted
-          ).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'USD',
-          });
-        }
-
-        // Create the objects
-        if (!transactionsByCategoryFormattedPtbr.hasOwnProperty(dmy)) {
-          transactionsByCategoryFormattedPtbr[item.id] = {
-            id: item.id,
-            created_at: dmy,
-            description: item.description,
-            amount: item.amount,
-            amount_formatted,
-            amount_not_converted: amountNotConvertedFormatted,
-            currency: {
-              id: item.currency.id,
-              name: item.currency.name,
-              code: item.currency.code,
-              symbol: item.currency.symbol,
-            },
-            type: item.type,
-            account: {
-              id: item.account.id,
-              name: item.account.name,
-              currency: {
-                id: item.account.currency.id,
-                name: item.account.currency.name,
-                code: item.account.currency.code,
-                symbol: item.account.currency.symbol,
-              },
-              initial_amount: item.account.initial_amount,
-              totalAccountAmount: 0,
-            },
-            category: {
-              id: item.category.id,
-              name: item.category.name,
-              icon: {
-                id: item.category.icon.id,
-                title: item.category.icon.title,
-                name: item.category.icon.name,
-              },
-              color: {
-                id: item.category.color.id,
-                color_code: item.color.color_code,
-              },
-            },
-            tags: item.tags,
-          };
-        }
-      }
-      transactionsByCategoryFormattedPtbr = Object.values(
-        transactionsByCategoryFormattedPtbr
-      )
-        .filter(
-          (transactionFormattedPtbr: any) =>
-            transactionFormattedPtbr.category.id === categoryId
-        )
-        .sort((a: any, b: any) => {
-          const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
-          const secondDateParsed = parse(
-            b.created_at,
-            'dd/MM/yyyy',
-            new Date()
-          );
-          return secondDateParsed.getTime() - firstDateParsed.getTime();
-        });
-
-      // Group transactions by date to section list
-      const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
-        transactionsByCategoryFormattedPtbr
+      const data = (await getTransactions(userID)).filter(
+        (transaction) => transaction.category.id === categoryID
       );
-      /**
-       * All Transactions By Account Formatted in pt-BR - End
-       */
 
-      /**
-       * Transactions By Months Formatted in pt-BR - Start
-       */
-      const transactionsByMonthsFormattedPtbr =
-        transactionsFormattedPtbrGroupedByDate.filter(
-          (transactionByMonthsPtBr: any) =>
-            parse(
-              transactionByMonthsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getMonth() === selectedDate.getMonth() &&
-            parse(
-              transactionByMonthsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getFullYear() === selectedDate.getFullYear()
-        );
+      // Format transactions
+      const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
+        const dmy = formatDatePtBr(item.created_at).short();
+        return {
+          id: item.id,
+          created_at: dmy,
+          description: item.description,
+          amount: item.amount,
+          amount_formatted: formatCurrency(item.currency.code, item.amount),
+          amount_in_account_currency: item.amount_in_account_currency,
+          amount_in_account_currency_formatted: item.amount_in_account_currency
+            ? formatCurrency(
+                item.account.currency.code,
+                item.amount_in_account_currency
+              )
+            : undefined,
+          currency: item.currency,
+          type: item.type,
+          account: item.account,
+          category: item.category,
+          tags: item.tags,
+          user_id: item.user_id,
+        };
+      });
 
-      /**
-       * Transactions By Months Formatted in pt-BR - End
-       */
+      // Process transactions
+      const { groupedTransactions } = processTransactions(
+        transactionsFormattedPtbr,
+        selectedPeriod.period,
+        selectedDate
+      );
 
-      /**
-       * Transactions By Years Formatted in pt-BR - Start
-       */
-      const transactionsByYearsFormattedPtbr =
-        transactionsFormattedPtbrGroupedByDate.filter(
-          (transactionByYearsPtBr: any) =>
-            parse(
-              transactionByYearsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getFullYear() === selectedDate.getFullYear()
-        );
-
-      /**
-       * Transactions By Years Formatted in pt-BR - End
-       */
-
-      /**
-       * Set Transactions and Totals by Selected Period - Start
-       */
-      switch (selectedPeriod.period) {
-        case 'months':
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsByMonthsFormattedPtbr
-          );
-          break;
-        case 'years':
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsByYearsFormattedPtbr
-          );
-          break;
-        case 'all':
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsFormattedPtbrGroupedByDate
-          );
-          break;
-      }
-      /**
-       * Set Transactions and Totals by Selected Period  - End
-       */
+      // Update states
+      setTransactionsFormattedBySelectedPeriod(groupedTransactions);
     } catch (error) {
       console.error(error);
     } finally {
@@ -304,19 +152,28 @@ export function TransactionsByCategory({ navigation }: any) {
         </MonthSelectButton>
       </MonthSelect>
 
-      <SectionList
-        sections={transactionsFormattedBySelectedPeriod}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <TransactionListItem data={item} index={index} hideAmount={false} />
-        )}
-        renderSectionHeader={({ section }) => (
-          <SectionListHeader data={section} />
-        )}
+      <AnimatedFlashList
+        data={flattenedTransactions}
+        keyExtractor={(item: any) => {
+          return item.isHeader ? String(item.headerTitle!) : String(item.id);
+        }}
+        renderItem={({ item, index }: any) => {
+          if (item.isHeader) {
+            return (
+              <SectionListHeader
+                data={{ title: item.headerTitle, total: item.headerTotal }}
+              />
+            );
+          }
+          return (
+            <TransactionListItem data={item} index={index} hideAmount={false} />
+          );
+        }}
+        getItemType={(item) =>
+          (item as FlashListTransactionItem).isHeader ? 'sectionHeader' : 'row'
+        }
+        estimatedItemSize={100}
         ListEmptyComponent={() => <ListEmptyComponent />}
-        removeClippedSubviews
-        maxToRenderPerBatch={10}
-        initialNumToRender={200}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -324,8 +181,11 @@ export function TransactionsByCategory({ navigation }: any) {
           />
         }
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        ItemSeparatorComponent={() => (
+          <View style={{ minHeight: 8, maxHeight: 8 }} />
+        )}
         contentContainerStyle={{
-          rowGap: 8,
           paddingTop: 16,
           paddingBottom: bottomTabBarHeight,
         }}

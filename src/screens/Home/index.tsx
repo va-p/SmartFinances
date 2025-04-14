@@ -277,7 +277,7 @@ export function Home() {
                 item.account.currency.code,
                 item.amount_in_account_currency
               )
-            : null,
+            : undefined,
           currency: item.currency,
           type: item.type,
           account: item.account,
@@ -416,7 +416,10 @@ export function Home() {
           console.warn('Data inválida:', dateAux);
         }
       } catch (error) {
-        console.error('Erro ao converter data, _renderPeriodRuler:', error);
+        console.error(
+          'Erro ao converter data, home > _renderPeriodRuler:',
+          error
+        );
       }
 
       const isActive = parsedDate
@@ -631,7 +634,7 @@ export function Home() {
 
       <Transactions>
         <AnimatedFlashList
-          data={flattenedTransactions} // Agora é um array plano
+          data={flattenedTransactions}
           keyExtractor={(item: any) => {
             return item.isHeader ? String(item.headerTitle!) : String(item.id);
           }}
@@ -712,7 +715,7 @@ export function Home() {
 
       <ModalViewWithoutHeader
         bottomSheetRef={registerTransactionBottomSheetRef}
-        snapPoints={['90%']}
+        snapPoints={['100%']}
       >
         <RegisterTransaction
           id={transactionId}
