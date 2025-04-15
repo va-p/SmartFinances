@@ -1,13 +1,35 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
-export const Container = styled.View`
+type ContainerProps = {
+  isSingleChild?: boolean;
+  childsCount: number;
+};
+
+export const Container = styled.View<ContainerProps>`
   width: 100%;
   flex-direction: row;
-  align-items: center;
-  padding: 4px 16px 4px 0;
+  column-gap: 16px;
+
+  ${({ childsCount }) =>
+    childsCount === 1 &&
+    css`
+      justify-content: center;
+    `};
+
+  ${({ childsCount }) =>
+    childsCount === 2 &&
+    css`
+      justify-content: flex-start;
+    `};
+
+  ${({ childsCount }) =>
+    childsCount >= 3 &&
+    css`
+      justify-content: space-between;
+    `};
 `;
 
 export const Button = styled(BorderlessButton)`
@@ -29,13 +51,10 @@ export const Title = styled.Text.attrs({
   numberOfLines: 2,
   ellipsizeMode: 'tail',
 })`
-  min-width: 90%;
-  max-width: 90%;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
-  /* background-color: red; */
 `;
 
 export const Description = styled.Text`
@@ -45,8 +64,4 @@ export const Description = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const EditButton = styled(BorderlessButton)`
-  position: absolute;
-  top: 8px;
-  right: 0px;
-`;
+export const EditButton = styled(BorderlessButton)``;
