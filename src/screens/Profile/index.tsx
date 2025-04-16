@@ -10,8 +10,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
+import { Header } from '@components/Header';
 import { Button } from '@components/Button';
-import { Header } from '@components/Header_old';
 
 import api from '@api/api';
 
@@ -157,7 +157,6 @@ export function Profile() {
 
       <Form>
         <ControlledInput
-          type='primary'
           placeholder='Nome'
           autoCapitalize='words'
           autoCorrect={false}
@@ -170,7 +169,6 @@ export function Profile() {
         />
 
         <ControlledInput
-          type='primary'
           placeholder='Sobrenome'
           autoCapitalize='words'
           autoCorrect={false}
@@ -183,7 +181,6 @@ export function Profile() {
         />
 
         <ControlledInput
-          type='primary'
           placeholder='E-mail'
           autoCapitalize='none'
           keyboardType='email-address'
@@ -198,7 +195,6 @@ export function Profile() {
         />
 
         <ControlledInput
-          type='primary'
           placeholder='Confirme seu e-mail'
           autoCapitalize='none'
           keyboardType='email-address'
@@ -212,7 +208,6 @@ export function Profile() {
         />
 
         <ControlledInput
-          type='primary'
           placeholder='Celular'
           keyboardType='phone-pad'
           value={String(phone)}
