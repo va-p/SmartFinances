@@ -231,7 +231,8 @@ export function AccountsList() {
         ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: bottomTabBarHeight,
+          paddingTop: 8,
+          paddingBottom: bottomTabBarHeight + 16,
         }}
         showsVerticalScrollIndicator={false}
       />
