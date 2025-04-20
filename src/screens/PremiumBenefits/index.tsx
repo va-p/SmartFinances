@@ -94,6 +94,12 @@ export function PremiumBenefits() {
         <Benefit description={'Sincronização de cartões de crédito'} />
 
         <Benefit description={'Insights gerados com Inteligência Artificial'} />
+
+        <Benefit
+          description={
+            'Categorização das transações com Inteligência Artificial'
+          }
+        />
       </PremiumBenefitsContainer>
 
       <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
