@@ -17,7 +17,7 @@ export function flattenTransactionsForFlashList(
       isHeader: true,
       headerTitle: group.title,
       headerTotal: group.total,
-    });
+    } as FlashListTransactionItem);
     flattenedTransactions.push(...group.data);
   });
 

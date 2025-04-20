@@ -7,7 +7,11 @@ import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse, isValid } from 'date-fns';
 
-import { CashFLowData, TransactionProps } from '@interfaces/transactions';
+import {
+  CashFlowChartData,
+  CashFLowData,
+  TransactionProps,
+} from '@interfaces/transactions';
 
 import theme from '@themes/theme';
 
@@ -15,7 +19,7 @@ type PeriodType = 'months' | 'years' | 'all';
 
 interface ProcessTransactionsResult {
   cashFlows: CashFLowData[]; // CashFlows by months, years or all history
-  chartData: any[];
+  cashFlowChartData: CashFlowChartData[];
   currentCashFlow: string; // Current CashFlow (by selected period)
   groupedTransactions: any[]; // Transactions grouped by day with total of the day, to show on SectionList
 }
@@ -124,7 +128,7 @@ export const processTransactions = (
       return dateB.getTime() - dateA.getTime();
     });
 
-  const chartData = cashFlows
+  const cashFlowChartData = cashFlows
     .map((group) => {
       const revenue = group.totalRevenuesByPeriod.toNumber();
       const expense = Math.abs(group.totalExpensesByPeriod.toNumber());
@@ -188,7 +192,7 @@ export const processTransactions = (
 
   return {
     cashFlows, // CashFlows by months, years or all history
-    chartData,
+    cashFlowChartData, // CashFlows by months, years or 'all' to use on cash flow chart
     currentCashFlow: formatCurrency('BRL', currentCashFlowByPeriod), // Current CashFlow (by selected period)
     groupedTransactions, // Transactions grouped by day with total of the day, to show on SectionList
   };

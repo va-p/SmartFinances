@@ -23,8 +23,13 @@ import {
   FiltersContainer,
   FilterButtonGroup,
   Transactions,
+  SearchButton,
 } from './styles';
 
+import {
+  FlashListTransactionItem,
+  flattenTransactionsForFlashList,
+} from '@utils/flattenTransactionsForFlashList';
 import fetchQuote from '@utils/fetchQuotes';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
@@ -55,8 +60,8 @@ import {
   subMonths,
   subYears,
 } from 'date-fns';
-import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
+import { useForm } from 'react-hook-form';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -66,6 +71,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
 
 import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
@@ -77,6 +83,7 @@ import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
+import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
@@ -89,15 +96,11 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import { eInsightsCashFlow } from '@enums/enumsInsights';
-import { CashFLowData, TransactionProps } from '@interfaces/transactions';
+import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
 
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import {
-  FlashListTransactionItem,
-  flattenTransactionsForFlashList,
-} from '@utils/flattenTransactionsForFlashList';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
@@ -113,6 +116,7 @@ const CHART_BAR_WIDTH = 8;
 export function Home() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
   const {
     setBrlQuoteBtc,
@@ -132,11 +136,13 @@ export function Home() {
   const { setAccountId: setAccountID, setAccountName } =
     useCurrentAccountSelected();
   const [showInsights, setShowInsights] = useState(true);
-  const [refreshing, setRefreshing] = useState(true);
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const [
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
   ] = useState<any[]>([]);
+  const { control, watch } = useForm();
+  const searchQuery = watch('search', '');
   const optimizedTransactions = useMemo(
     () => transactionsFormattedBySelectedPeriod,
     [transactionsFormattedBySelectedPeriod]
@@ -144,29 +150,31 @@ export function Home() {
   const flattenedTransactions = flattenTransactionsForFlashList(
     optimizedTransactions
   );
+  const filteredTransactions = useMemo(() => {
+    if (searchQuery.length === 0) return flattenedTransactions;
+
+    const filteredGroups = transactionsFormattedBySelectedPeriod
+      .map((group) => ({
+        ...group,
+        data: group.data.filter((transaction: TransactionProps) =>
+          transaction.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        ),
+      }))
+      .filter((group) => group.data.length > 0);
+
+    return flattenTransactionsForFlashList(filteredGroups);
+  }, [
+    transactionsFormattedBySelectedPeriod,
+    flattenedTransactions,
+    searchQuery,
+  ]);
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const { selectedPeriod, setSelectedPeriod, selectedDate, setSelectedDate } =
     useSelectedPeriod();
-  const [
-    totalAmountsGroupedBySelectedPeriod,
-    setTotalAmountsGroupedBySelectedPeriod,
-  ] = useState<CashFLowData[]>([
-    {
-      date: String(new Date()),
-      totalRevenuesByPeriod: new Decimal(0),
-      totalExpensesByPeriod: new Decimal(0),
-      cashFlow: '',
-    },
-    {
-      date: String(new Date()),
-      totalRevenuesByPeriod: new Decimal(0),
-      totalExpensesByPeriod: new Decimal(0),
-      cashFlow: '',
-    },
-  ]);
-  const [chartData, setChartData] = useState<any[]>();
-  const [cashFlowTotalBySelectedPeriod, setCashFlowTotalBySelectedPeriod] =
-    useState('');
+  const cashFlows = useRef<CashFlowChartData[]>([]);
+  const cashFlowTotalBySelectedPeriod = useRef('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
@@ -249,7 +257,7 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  async function fetchTransactions() {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -268,7 +276,7 @@ export function Home() {
         return {
           id: item.id,
           created_at: dmy,
-          description: item.description,
+          description: item.description || '',
           amount: item.amount,
           amount_formatted: formatCurrency(item.currency.code, item.amount),
           amount_in_account_currency: item.amount_in_account_currency,
@@ -288,7 +296,7 @@ export function Home() {
       });
 
       // Process transactions
-      const { cashFlows, chartData, currentCashFlow, groupedTransactions } =
+      const { cashFlowChartData, currentCashFlow, groupedTransactions } =
         processTransactions(
           transactionsFormattedPtbr,
           selectedPeriod.period,
@@ -296,9 +304,8 @@ export function Home() {
         );
 
       // Update states
-      setCashFlowTotalBySelectedPeriod(currentCashFlow);
-      setTotalAmountsGroupedBySelectedPeriod(cashFlows);
-      setChartData(chartData);
+      cashFlowTotalBySelectedPeriod.current = currentCashFlow;
+      cashFlows.current = cashFlowChartData;
       setTransactionsFormattedBySelectedPeriod(groupedTransactions);
     } catch (error) {
       console.error('Home fetchTransactions error =>', error);
@@ -308,9 +315,9 @@ export function Home() {
       );
     } finally {
       setLoading(false);
-      setRefreshing(false);
+      // setRefreshing(false);
     }
-  }
+  }, []);
 
   function handleOpenPeriodSelectedModal() {
     chartPeriodSelectedBottomSheetRef.current?.present();
@@ -400,38 +407,40 @@ export function Home() {
   }
 
   const _renderPeriodRuler = useCallback(() => {
-    const dates = totalAmountsGroupedBySelectedPeriod?.map((item: any) => {
-      // TODO: tratar caso onde o período selecionado for anos, pois neste caso o formato da data muda
+    const dates = cashFlows.current
+      .filter((cashFlowChartData) => !!cashFlowChartData.label)
+      .map((item: any) => {
+        // TODO: tratar caso onde o período selecionado for anos, pois neste caso o formato da data muda
 
-      const dateSplit = item.date.split('\n');
-      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
-      const dateAux = trimmedDateParts.join(' ');
+        const dateSplit = item.label.split('\n');
+        const trimmedDateParts = dateSplit.map((part: string) => part.trim());
+        const dateAux = trimmedDateParts.join(' ');
 
-      let parsedDate: Date | null = null;
-      try {
-        parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
-          locale: ptBR,
-        });
-        if (!isValid(parsedDate)) {
-          console.warn('Data inválida:', dateAux);
+        let parsedDate: Date | null = null;
+        try {
+          parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
+            locale: ptBR,
+          });
+          if (!isValid(parsedDate)) {
+            console.warn('Data inválida:', dateAux);
+          }
+        } catch (error) {
+          console.error(
+            'Erro ao converter data, home > _renderPeriodRuler:',
+            error
+          );
         }
-      } catch (error) {
-        console.error(
-          'Erro ao converter data, home > _renderPeriodRuler:',
-          error
-        );
-      }
 
-      const isActive = parsedDate
-        ? getYear(selectedDate) === getYear(parsedDate) &&
-          getMonth(selectedDate) === getMonth(parsedDate)
-        : false;
+        const isActive = parsedDate
+          ? getYear(selectedDate) === getYear(parsedDate) &&
+            getMonth(selectedDate) === getMonth(parsedDate)
+          : false;
 
-      return {
-        date: item.date,
-        isActive,
-      };
-    });
+        return {
+          date: item.label,
+          isActive,
+        };
+      });
 
     function checkIsActive(month: string) {
       const isActive =
@@ -500,15 +509,12 @@ export function Home() {
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
       />
     );
-  }, [selectedDate, totalAmountsGroupedBySelectedPeriod]);
+  }, [selectedDate]);
 
   const _renderInsightCard = useCallback(() => {
-    const lastPeriodIndex = totalAmountsGroupedBySelectedPeriod.length - 1;
-    const lastPeriod = totalAmountsGroupedBySelectedPeriod[lastPeriodIndex];
-    const lastPeriodCashFlow =
-      Number(lastPeriod.totalRevenuesByPeriod) -
-      Number(lastPeriod.totalExpensesByPeriod);
-    const cashFlowIsPositive = lastPeriodCashFlow >= 0;
+    const lastPeriodIndex = cashFlows.current.length - 1;
+    const lastPeriodCashFlow = cashFlows.current[lastPeriodIndex];
+    const cashFlowIsPositive = lastPeriodCashFlow.value >= 0;
 
     return (
       <InsightCard.Root>
@@ -571,10 +577,16 @@ export function Home() {
         <Header>
           <CashFlowContainer>
             <CashFlowTotal>
-              {!hideAmount ? cashFlowTotalBySelectedPeriod : '•••••'}
+              {!hideAmount ? cashFlowTotalBySelectedPeriod.current : '•••••'}
             </CashFlowTotal>
             <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
           </CashFlowContainer>
+
+          <SearchButton
+            onPress={() => setShowSearchInput((prevState) => !prevState)}
+          >
+            <MagnifyingGlass size={20} color={theme.colors.primary} />
+          </SearchButton>
 
           <HideDataButton onPress={() => handleHideData()}>
             {!hideAmount ? (
@@ -596,7 +608,7 @@ export function Home() {
 
         <Animated.View style={chartStyleAnimationOpacity}>
           <BarChart
-            data={chartData}
+            data={cashFlows.current}
             height={80}
             barWidth={CHART_BAR_WIDTH}
             spacing={CHART_BAR_SPACING}
@@ -632,9 +644,19 @@ export function Home() {
         )}
       </Animated.View>
 
+      {showSearchInput && (
+        <ControlledInputWithIcon
+          icon={<MagnifyingGlass color={theme.colors.primary} />}
+          placeholder='Pesquisar...'
+          autoCorrect={false}
+          name='search'
+          control={control}
+        />
+      )}
+
       <Transactions>
         <AnimatedFlashList
-          data={flattenedTransactions}
+          data={filteredTransactions}
           keyExtractor={(item: any) => {
             return item.isHeader ? String(item.headerTitle!) : String(item.id);
           }}

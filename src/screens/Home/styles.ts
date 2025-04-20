@@ -30,6 +30,12 @@ export const CashFlowDescription = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
+export const SearchButton = styled(BorderlessButton)`
+  position: absolute;
+  top: 4px;
+  right: 48px;
+`;
+
 export const HideDataButton = styled(BorderlessButton)`
   position: absolute;
   top: 4px;

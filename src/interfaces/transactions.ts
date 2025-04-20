@@ -34,3 +34,10 @@ export type CashFLowData = {
   totalExpensesByPeriod: Decimal;
   cashFlow?: string;
 };
+
+export type CashFlowChartData = {
+  value: number;
+  label?: string;
+  spacing?: number;
+  frontColor: string;
+};
