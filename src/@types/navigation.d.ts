@@ -36,7 +36,7 @@ type RootParamList = {
   'Todas as Contas': undefined;
   Conta: undefined;
   'Editar Conta': undefined;
-  'Contas Conectadas': undefined;
+  'Integrações Bancárias': undefined;
   'Integração Bancária': BankingIntegrationNavigationProps;
   Orçamentos: undefined;
   'Todos os Orçamentos': undefined;

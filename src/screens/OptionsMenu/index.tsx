@@ -60,7 +60,7 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   function handleOpenConnectedAccounts() {
-    navigation.navigate('Contas Conectadas', {
+    navigation.navigate('Integrações Bancárias', {
       showHeader: true,
     });
   }

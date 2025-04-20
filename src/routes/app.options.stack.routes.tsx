@@ -8,7 +8,7 @@ import { Categories } from '@screens/Categories';
 import { OptionsMenu } from '@screens/OptionsMenu';
 import { AccountsList } from '@screens/AccountsList';
 import { PremiumBenefits } from '@screens/PremiumBenefits';
-import { ConnectedAccounts } from '@screens/ConnectedAccounts';
+import { BankingIntegrations } from '@screens/BankingIntegrations';
 import { BankingIntegrationDetails } from '@screens/BankingIntegrationDetails';
 
 import { RootParamList } from 'src/@types/navigation';
@@ -35,7 +35,7 @@ export function AppOptionsStackRoutes() {
 
       <Screen name='Contas' component={AccountsList} />
 
-      <Screen name='Contas Conectadas' component={ConnectedAccounts} />
+      <Screen name='Integrações Bancárias' component={BankingIntegrations} />
 
       <Screen
         name='Integração Bancária'

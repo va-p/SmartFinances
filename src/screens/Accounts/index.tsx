@@ -238,7 +238,7 @@ export function Accounts({ navigation }: any) {
   }
 
   function handleTouchConnectAccount() {
-    navigation.navigate('Contas Conectadas', {
+    navigation.navigate('Integrações Bancárias', {
       showHeader: true,
     });
   }
@@ -294,7 +294,7 @@ export function Accounts({ navigation }: any) {
 
   function _renderEmpty() {
     return (
-      <ListEmptyComponent text='Nenhuma conta possui transação. Crie uma conta e ao menos uma transação para visualizar a conta aqui' />
+      <ListEmptyComponent text='Nenhuma conta possui transação. Adicione uma transação para visualizar a conta aqui' />
     );
   }
 

@@ -27,7 +27,7 @@ import api from '@api/api';
 
 import theme from '@themes/theme';
 
-export function ConnectedAccounts({ navigation }: any) {
+export function BankingIntegrations({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const route = useRoute();
   const showHeader: boolean = route.params?.showHeader;
@@ -283,7 +283,6 @@ export function ConnectedAccounts({ navigation }: any) {
                 onPress={handlePressConnectNewAccount}
               >
                 <Button.Text
-                  type='secondary'
                   text={
                     !user.premium
                       ? 'Assine o Premium para novas conexões'
@@ -295,7 +294,8 @@ export function ConnectedAccounts({ navigation }: any) {
             ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingBottom: bottomTabBarHeight,
+              paddingTop: 8,
+              paddingBottom: bottomTabBarHeight + 16,
             }}
             showsVerticalScrollIndicator={false}
           />

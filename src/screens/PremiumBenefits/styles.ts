@@ -9,7 +9,7 @@ export const ScrollContent = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: {
     backgroundColor: 'transparent',
-    paddingBottom: 54,
+    paddingBottom: 56,
   },
 })``;
 
