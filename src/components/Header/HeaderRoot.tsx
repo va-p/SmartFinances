@@ -3,7 +3,7 @@ import { ViewProps } from 'react-native';
 import { Container } from './styles';
 
 type HeaderRootProps = ViewProps & {
-  children: ReactNode[];
+  children: ReactNode | ReactNode[];
 };
 
 export function HeaderRoot({ children, ...rest }: HeaderRootProps) {

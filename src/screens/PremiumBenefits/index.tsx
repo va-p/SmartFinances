@@ -7,6 +7,7 @@ import {
   Description,
   PackagesContainer,
   PremiumBenefitsContainer,
+  ScrollContent,
   Title,
 } from './styles';
 
@@ -79,30 +80,32 @@ export function PremiumBenefits() {
         <Header.Title title={'Escolha seu plano'} />
       </Header.Root>
 
-      <Title>Smart Finances Premium</Title>
+      <ScrollContent>
+        <Title>Smart Finances Premium</Title>
 
-      <Description>
-        Comece a economizar seu tempo e dinheiro para o que realmente importa na
-        sua vida!
-      </Description>
+        <Description>
+          Comece a economizar seu tempo e dinheiro para o que realmente importa
+          na sua vida!
+        </Description>
 
-      <PremiumBenefitsContainer>
-        <Benefit description={'Dicas personalizadas'} />
+        <PremiumBenefitsContainer>
+          <Benefit description={'Dicas personalizadas'} />
 
-        <Benefit description={'Sincronização de contas bancárias'} />
+          <Benefit description={'Sincronização de contas bancárias'} />
 
-        <Benefit description={'Sincronização de cartões de crédito'} />
+          <Benefit description={'Sincronização de cartões de crédito'} />
 
-        <Benefit description={'Insights gerados com Inteligência Artificial'} />
+          <Benefit
+            description={'Insights gerados com Inteligência Artificial'}
+          />
 
-        <Benefit
-          description={
-            'Categorização das transações com Inteligência Artificial'
-          }
-        />
-      </PremiumBenefitsContainer>
+          <Benefit
+            description={
+              'Categorização das transações com Inteligência Artificial'
+            }
+          />
+        </PremiumBenefitsContainer>
 
-      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
         <PackagesContainer>
           {packages.map((pack, idx) => (
             <PremiumPackageListItem
@@ -148,7 +151,7 @@ export function PremiumBenefits() {
             </Advice>
           </Advice>
         </AdvicesContainer>
-      </ScrollView>
+      </ScrollContent>
     </Container>
   );
 }

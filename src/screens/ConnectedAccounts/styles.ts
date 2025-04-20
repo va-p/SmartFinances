@@ -11,6 +11,4 @@ export const PluggyConnectContainer = styled.View`
   padding-bottom: 56px;
 `;
 
-export const ConnectedAccountsList = styled.FlatList`
-  /* padding: 20px; */
-`;
+export const ConnectedAccountsList = styled.FlatList``;
