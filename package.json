@@ -7,7 +7,7 @@
     "start": "npx expo start --dev-client",
     "clean-android": "cd android && ./gradlew clean",
     "build-android-dev": "cd android && ./gradlew assembleDebug",
-    "build-android-release": "cd android && ./gradlew assembleRelease",
+    "build-android-release": "cd android && ./gradlew bundleRelease",
     "clean-ios": "cd ios && xcodebuild clean -workspace smartfinances.xcworkspace -scheme smartfinances",
     "build-ios-dev": "cd ios && xcodebuild build -workspace smartfinances.xcworkspace -scheme smartfinances -configuration Debug -sdk iphonesimulator -derivedDataPath build",
     "build-ios-release": "cd ios && xcodebuild archive -workspace smartfinances.xcworkspace -scheme smartfinances -configuration Release -sdk iphoneos -archivePath build/smartfinances.xcarchive",

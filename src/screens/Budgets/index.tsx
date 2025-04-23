@@ -27,6 +27,7 @@ import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import api from '@api/api';
 import { Gradient } from '@components/Gradient';
+import formatCurrency from '@utils/formatCurrency';
 
 export function Budgets({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -162,23 +163,35 @@ export function Budgets({ navigation }: any) {
             continue;
           }
 
-          // Cartão de crédito
+          // Credit cards
           if (transaction.account.type === 'CREDIT') {
-            // amountSpent += transaction.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy, PORÉM, neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
+            // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy, PORÉM, neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
             isTransactionInAnotherCurrency &&
             transaction.amount_in_account_currency
               ? (amountSpent += transaction.amount_in_account_currency)
               : (amountSpent += transaction.amount);
           }
 
-          // Outros tipos de conta
+          // Other account types
           if (transaction.account.type !== 'CREDIT') {
-            // amountSpent -= transaction.amount; // Neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
+            // Neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
             isTransactionInAnotherCurrency &&
             transaction.amount_in_account_currency
               ? (amountSpent -= transaction.amount_in_account_currency)
               : (amountSpent -= transaction.amount);
           }
+
+          // Format transaction
+          transaction.amount_in_account_currency
+            ? (transaction.amount_in_account_currency_formatted =
+                formatCurrency(
+                  transaction.account.currency.code,
+                  transaction.amount_in_account_currency!
+                ))
+            : (transaction.amount_formatted = formatCurrency(
+                transaction.account.currency.code,
+                transaction.amount
+              ));
         }
 
         const percentage = `${((amountSpent / budget.amount) * 100).toFixed(
