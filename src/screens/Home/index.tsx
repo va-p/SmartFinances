@@ -440,7 +440,8 @@ export function Home() {
           date: item.label,
           isActive,
         };
-      });
+      })
+      .reverse();
 
     function checkIsActive(month: string) {
       const isActive =
