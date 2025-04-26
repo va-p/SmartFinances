@@ -59,6 +59,7 @@ import {
   getMonth,
   getYear,
   isFirstDayOfMonth,
+  isSameYear,
   isValid,
   lastDayOfMonth,
   parse,
@@ -177,8 +178,7 @@ export function Home() {
     searchQuery,
   ]);
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
-  const { selectedPeriod, setSelectedPeriod, selectedDate, setSelectedDate } =
-    useSelectedPeriod();
+  const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const cashFlows = useRef<CashFlowChartData[]>([]);
   const cashFlowTotalBySelectedPeriod = useRef('');
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -263,7 +263,74 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  const fetchTransactions = useCallback(async () => {
+  // const fetchTransactions = useCallback(async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     const { data } = await api.get(
+  //       '/banking_integration/fetch_transactions',
+  //       {
+  //         params: {
+  //           user_id: userID,
+  //         },
+  //       }
+  //     );
+
+  //     // Format transactions
+  //     const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
+  //       const dmy = formatDatePtBr(item.created_at).short();
+  //       return {
+  //         id: item.id,
+  //         created_at: dmy,
+  //         description: item.description || '',
+  //         amount: item.amount,
+  //         amount_formatted: formatCurrency(item.currency.code, item.amount),
+  //         amount_in_account_currency: item.amount_in_account_currency,
+  //         amount_in_account_currency_formatted: item.amount_in_account_currency
+  //           ? formatCurrency(
+  //               item.account.currency.code,
+  //               item.amount_in_account_currency
+  //             )
+  //           : undefined,
+  //         currency: item.currency,
+  //         type: item.type,
+  //         account: item.account,
+  //         category: item.category,
+  //         tags: item.tags,
+  //         user_id: item.user_id,
+  //       };
+  //     });
+
+  //     console.log(
+  //       'selectedPeriod.period fetchTransactions =>',
+  //       selectedPeriod.period
+  //     );
+
+  //     // Process transactions
+  //     const { cashFlowChartData, currentCashFlow, groupedTransactions } =
+  //       processTransactions(
+  //         transactionsFormattedPtbr,
+  //         selectedPeriod.period,
+  //         selectedDate
+  //       );
+
+  //     // Update states
+  //     cashFlowTotalBySelectedPeriod.current = currentCashFlow;
+  //     cashFlows.current = cashFlowChartData;
+  //     setTransactionsFormattedBySelectedPeriod(groupedTransactions);
+  //   } catch (error) {
+  //     console.error('Home fetchTransactions error =>', error);
+  //     Alert.alert(
+  //       'Transações',
+  //       'Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.'
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //     // setRefreshing(false);
+  //   }
+  // }, [selectedPeriod.period]);
+
+  async function fetchTransactions() {
     try {
       setLoading(true);
 
@@ -321,12 +388,15 @@ export function Home() {
       );
     } finally {
       setLoading(false);
-      // setRefreshing(false);
     }
-  }, []);
+  }
 
   function handleOpenPeriodSelectedModal() {
     chartPeriodSelectedBottomSheetRef.current?.present();
+  }
+
+  function handleClosePeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.dismiss();
   }
 
   function handleOpenRegisterTransactionModal() {
@@ -416,15 +486,15 @@ export function Home() {
     const dates = cashFlows.current
       .filter((cashFlowChartData) => !!cashFlowChartData.label)
       .map((item: any) => {
-        // TODO: tratar caso onde o período selecionado for anos, pois neste caso o formato da data muda
-
         const dateSplit = item.label.split('\n');
         const trimmedDateParts = dateSplit.map((part: string) => part.trim());
         const dateAux = trimmedDateParts.join(' ');
 
+        const currentDateFormat =
+          selectedPeriod.period === 'months' ? 'MMM yyyy' : 'yyyy';
         let parsedDate: Date | null = null;
         try {
-          parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
+          parsedDate = parse(dateAux, currentDateFormat, selectedDate, {
             locale: ptBR,
           });
           if (!isValid(parsedDate)) {
@@ -437,10 +507,26 @@ export function Home() {
           );
         }
 
-        const isActive = parsedDate
-          ? getYear(selectedDate) === getYear(parsedDate) &&
-            getMonth(selectedDate) === getMonth(parsedDate)
-          : false;
+        function checkIsActive() {
+          let isActive = false;
+          switch (selectedPeriod.period) {
+            case 'months':
+              isActive = parsedDate
+                ? getYear(selectedDate) === getYear(parsedDate) &&
+                  getMonth(selectedDate) === getMonth(parsedDate)
+                : false;
+              break;
+
+            case 'years':
+              isActive = parsedDate
+                ? getYear(selectedDate) === getYear(parsedDate)
+                : false;
+              break;
+          }
+          return isActive;
+        }
+
+        const isActive = checkIsActive();
 
         return {
           date: item.label,
@@ -516,7 +602,7 @@ export function Home() {
         periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
       />
     );
-  }, [selectedDate]);
+  }, [selectedDate, selectedPeriod.period]);
 
   const _renderInsightCard = useCallback(() => {
     const lastPeriodIndex = cashFlows.current.length - 1;
@@ -747,8 +833,7 @@ export function Home() {
       >
         <ChartPeriodSelect
           period={selectedPeriod}
-          setPeriod={setSelectedPeriod}
-          closeSelectPeriod={handleOpenPeriodSelectedModal}
+          closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>
 

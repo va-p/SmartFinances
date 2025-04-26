@@ -5,6 +5,8 @@ import { Container } from './styles';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 
+import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
+
 export interface PeriodProps {
   id: string;
   name: string;
@@ -13,15 +15,12 @@ export interface PeriodProps {
 
 type Props = {
   period: PeriodProps;
-  setPeriod: (period: PeriodProps) => void;
   closeSelectPeriod: () => void;
 };
 
-export function ChartPeriodSelect({
-  period,
-  setPeriod,
-  closeSelectPeriod,
-}: Props) {
+export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
+  const { setSelectedPeriod } = useSelectedPeriod();
+
   const periods = [
     {
       id: '1',
@@ -41,7 +40,7 @@ export function ChartPeriodSelect({
   ];
 
   function handlePeriodSelect(period: PeriodProps) {
-    setPeriod(period);
+    setSelectedPeriod(period);
     closeSelectPeriod();
   }
 
