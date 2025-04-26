@@ -29,7 +29,8 @@ yarn-error.*
 *.pem
 
 # api files
-src/api
+src/api/api.ts
+src/api/apiQuotes.ts
 
 # local env files
 .env*.local
