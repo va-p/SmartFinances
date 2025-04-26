@@ -4,7 +4,11 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 
 ## :hammer_and_wrench: Features
 
+- [x] Importa automaticamente as contas e cartões de crédito do usuário (usando o serviço da Pluggy.ai);
+- [x] Importa automaticamente as transações do usuário de suas contas e cartões de crédito;
+- [x] Categoriza automaticamente as transações importadas, com base nas categorias do usuário e na descrição das transações, usando a Inteligência Artificial Gemini;
 - [x] Lista as transações do usuário;
+- [x] Permite ao usuário pesquisar por transações na lista de transações;
 - [x] Permite ao usuário filtrar as transações por mês, ano e todo o histórico;
 - [x] Permite ao usuário adicionar, editar e excluir transações;
 - [x] Permite ao usuário adicionar imagens às transações;
@@ -52,8 +56,10 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 - [x] React Navigation Stack
 - [x] React Navigation Bottom Tabs
 - [x] React Navigation Material Top Tabs
-- [x] Victory Native
 - [x] Expo Image Picker
+- [x] React Native Gifted Charts
+- [x] SSO Login (Google) using Clerk
+- [x] Gemini AI API integration
 
 ## 🔖 Layout
 
@@ -62,7 +68,8 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 ## Executando o projeto
 
 Utilize o **yarn** ou o **npm install** para instalar as dependências do projeto.
-Configure o arquivo "api.ts" dentro da pasta "api" de acordo com seu backend.
+Configure os arquivos "api.ts" e "apiQuotes.ts" dentro da pasta "api" de acordo com seu backend.
+Configure o arquivo ".env" de acordo com seu projeto no Clerk.
 Em seguida, inicie o projeto.
 
 ```cl
