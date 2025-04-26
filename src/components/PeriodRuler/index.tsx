@@ -74,7 +74,7 @@ export function PeriodRuler({
       <PeriodRulerList
         ref={flatListRef}
         data={dates}
-        keyExtractor={(_, idx: number) => String(idx)}
+        keyExtractor={(_: any, idx: number) => String(idx)}
         getItemLayout={getItemLayout}
         renderItem={({ item }: any) => (
           <PeriodRulerListItem

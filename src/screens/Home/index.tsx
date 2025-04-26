@@ -62,6 +62,7 @@ import {
   isSameYear,
   isValid,
   lastDayOfMonth,
+  lastDayOfYear,
   parse,
   subMonths,
   subYears,
@@ -445,14 +446,17 @@ export function Home() {
     const dateSplit = stringDate.split('\n');
     const trimmedDateParts = dateSplit.map((part: string) => part.trim());
     const dateAux = trimmedDateParts.join(' ');
-    const dateParsed = parse(dateAux, 'MMM yyyy', new Date(), {
+    const dateFormat = selectedPeriod.period === 'months' ? 'MMM yyyy' : 'yyyy';
+    const dateParsed = parse(dateAux, dateFormat, new Date(), {
       locale: ptBR,
     });
-    const selectedDateAux = lastDayOfMonth(new Date(dateParsed));
+
+    const selectedDateAux =
+      selectedPeriod.period === 'months'
+        ? lastDayOfMonth(new Date(dateParsed))
+        : lastDayOfYear(dateParsed);
 
     setSelectedDate(selectedDateAux);
-
-    // TODO: tratar caso onde o período selecionado for anos
   }
 
   function ClearTransactionId() {
@@ -702,6 +706,7 @@ export function Home() {
         <Animated.View style={chartStyleAnimationOpacity}>
           <BarChart
             data={cashFlows.current}
+            width={SCREEN_WIDTH - 100}
             height={80}
             barWidth={CHART_BAR_WIDTH}
             spacing={CHART_BAR_SPACING}
