@@ -24,6 +24,8 @@ import {
   FilterButtonGroup,
   Transactions,
   SearchButton,
+  SearchInputContainer,
+  ClearSearchButton,
 } from './styles';
 
 import {
@@ -36,7 +38,10 @@ import formatCurrency from '@utils/formatCurrency';
 import { processTransactions } from '@utils/processTransactions';
 
 import Animated, {
+  Easing,
   Extrapolation,
+  FadeInUp,
+  FadeOutUp,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -68,6 +73,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 // Icons
+import X from 'phosphor-react-native/src/icons/X';
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
@@ -141,7 +147,7 @@ export function Home() {
     transactionsFormattedBySelectedPeriod,
     setTransactionsFormattedBySelectedPeriod,
   ] = useState<any[]>([]);
-  const { control, watch } = useForm();
+  const { control, watch, reset } = useForm();
   const searchQuery = watch('search', '');
   const optimizedTransactions = useMemo(
     () => transactionsFormattedBySelectedPeriod,
@@ -646,13 +652,23 @@ export function Home() {
       </Animated.View>
 
       {showSearchInput && (
-        <ControlledInputWithIcon
-          icon={<MagnifyingGlass color={theme.colors.primary} />}
-          placeholder='Pesquisar...'
-          autoCorrect={false}
-          name='search'
-          control={control}
-        />
+        <Animated.View
+          entering={FadeInUp.easing(Easing.bounce).duration(500)}
+          exiting={FadeOutUp.easing(Easing.linear)}
+        >
+          <SearchInputContainer>
+            <ControlledInputWithIcon
+              icon={<MagnifyingGlass color={theme.colors.primary} />}
+              placeholder='Pesquisar...'
+              autoCorrect={false}
+              name='search'
+              control={control}
+            />
+            <ClearSearchButton onPress={() => reset()}>
+              <X size={20} color={theme.colors.primary} />
+            </ClearSearchButton>
+          </SearchInputContainer>
+        </Animated.View>
       )}
 
       <Transactions>

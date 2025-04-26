@@ -52,6 +52,19 @@ export const FilterButtonGroup = styled.View`
   width: ${RFPercentage(12)}px;
 `;
 
+export const SearchInputContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin: 8px 16px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: ${({ theme }) => theme.borders.borderRadiusButtonAndInput};
+`;
+
+export const ClearSearchButton = styled(BorderlessButton)`
+  position: absolute;
+  right: 8px;
+`;
+
 export const Transactions = styled.View`
   flex: 1;
   padding: 0 16px;
