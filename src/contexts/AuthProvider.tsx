@@ -135,58 +135,27 @@ export function AuthProvider({ children }: any) {
   }, [biometricAttempted, biometricSupportedAndEnabled, signInWithBiometrics]);
 
   useEffect(() => {
-    async function checkUserExistsOnBackend(email: string): Promise<boolean> {
-      try {
-        const { data } = await api.get('/auth/user_exists', {
-          params: {
-            email,
-          },
-        });
-        return data || false;
-      } catch (error) {
-        console.error('Erro ao verificar usuário no backend:', error);
-        return false;
-      }
-    }
-
     async function fetchClerkUserDataOnXano() {
       try {
         setLoading(true);
 
         // Delay of few seconds, to Clerk webhook finish request to Xano
         setTimeout(async () => {
-          const userExistsOnXano = await checkUserExistsOnBackend(
-            clerkUser?.emailAddresses[0].emailAddress!
-          );
+          const { data, status } = await api.get('/auth/clerk_sso', {
+            params: {
+              clerk_user_id: clerkUser?.id!,
+            },
+          });
 
-          if (!!userExistsOnXano) {
-            // Continues auth flow
-            const { status, data } = await api.get('/auth/clerk_oauth_login', {
-              params: {
-                email: clerkUser!.emailAddresses[0].emailAddress,
-              },
-            });
+          if (!!data[0] && status === 200) {
+            // User token
+            storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
 
-            if (status === 200) {
-              // User token
-              storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+            const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
 
-              const loggedInUserDataFormatted = storageUserDataAndConfig(
-                data[1]
-              );
-
-              setIsSignedIn(clerkSignedIn!);
-              setUser(loggedInUserDataFormatted);
-              return;
-            } else {
-              await clerk.signOut();
-
-              Alert.alert(
-                'Erro ao autenticar com o Google',
-                'Não foi possível buscar os dados do usuário. Por favor, tente novamente.'
-              );
-              return;
-            }
+            setIsSignedIn(clerkSignedIn!);
+            setUser(loggedInUserDataFormatted);
+            return;
           } else {
             await clerk.signOut();
 
