@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import {
   BudgetTotal,
@@ -29,9 +29,11 @@ import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
 
 import { RegisterBudget } from '@screens/RegisterBudget';
+import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
@@ -44,6 +46,8 @@ export function BudgetDetails() {
   const budget: BudgetProps = route.params?.budget;
   const budgetAmountReached = budget.amount_spent >= budget.amount;
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
+  const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
+  const [transactionID, setTransactionID] = useState('');
 
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { hideAmount } = useUserConfigs();
@@ -113,6 +117,19 @@ export function BudgetDetails() {
     );
   }
 
+  function handleCloseRegisterTransactionModal() {
+    registerTransactionBottomSheetRef.current?.dismiss();
+  }
+
+  function handleOpenTransaction(id: string) {
+    setTransactionID(id);
+    registerTransactionBottomSheetRef.current?.present();
+  }
+
+  function ClearTransactionID() {
+    setTransactionID('');
+  }
+
   return (
     <Container>
       <Gradient />
@@ -174,6 +191,7 @@ export function BudgetDetails() {
               data={item}
               index={index}
               hideAmount={hideAmount}
+              onPress={() => handleOpenTransaction(item.id)}
             />
           )}
           ListEmptyComponent={() => (
@@ -204,6 +222,18 @@ export function BudgetDetails() {
           closeBudget={handleCloseEditBudgetModal}
         />
       </ModalView>
+
+      <ModalViewWithoutHeader
+        bottomSheetRef={registerTransactionBottomSheetRef}
+        snapPoints={['100%']}
+      >
+        <RegisterTransaction
+          id={transactionID}
+          resetId={ClearTransactionID}
+          closeRegisterTransaction={handleCloseRegisterTransactionModal}
+          closeModal={handleCloseRegisterTransactionModal}
+        />
+      </ModalViewWithoutHeader>
     </Container>
   );
 }
