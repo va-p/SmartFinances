@@ -15,6 +15,12 @@ function formatDatePtBr(date: Date) {
       });
       return formatted_date;
     },
+    cashFlowChartMonth() {
+      const formatted_date = format(new Date(date), "MMM '\n' yyyy", {
+        locale: ptBR,
+      });
+      return formatted_date;
+    },
   };
 }
 
