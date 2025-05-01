@@ -464,7 +464,7 @@ export function Accounts({ navigation }: any) {
             startOpacity={0.6}
             endOpacity={0.1}
             isAnimated
-            animationDuration={5000}
+            animationDuration={3000}
             animateOnDataChange
             scrollToEnd
           />
