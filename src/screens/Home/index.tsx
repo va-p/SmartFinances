@@ -264,73 +264,6 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  // const fetchTransactions = useCallback(async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     const { data } = await api.get(
-  //       '/banking_integration/fetch_transactions',
-  //       {
-  //         params: {
-  //           user_id: userID,
-  //         },
-  //       }
-  //     );
-
-  //     // Format transactions
-  //     const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
-  //       const dmy = formatDatePtBr(item.created_at).short();
-  //       return {
-  //         id: item.id,
-  //         created_at: dmy,
-  //         description: item.description || '',
-  //         amount: item.amount,
-  //         amount_formatted: formatCurrency(item.currency.code, item.amount),
-  //         amount_in_account_currency: item.amount_in_account_currency,
-  //         amount_in_account_currency_formatted: item.amount_in_account_currency
-  //           ? formatCurrency(
-  //               item.account.currency.code,
-  //               item.amount_in_account_currency
-  //             )
-  //           : undefined,
-  //         currency: item.currency,
-  //         type: item.type,
-  //         account: item.account,
-  //         category: item.category,
-  //         tags: item.tags,
-  //         user_id: item.user_id,
-  //       };
-  //     });
-
-  //     console.log(
-  //       'selectedPeriod.period fetchTransactions =>',
-  //       selectedPeriod.period
-  //     );
-
-  //     // Process transactions
-  //     const { cashFlowChartData, currentCashFlow, groupedTransactions } =
-  //       processTransactions(
-  //         transactionsFormattedPtbr,
-  //         selectedPeriod.period,
-  //         selectedDate
-  //       );
-
-  //     // Update states
-  //     cashFlowTotalBySelectedPeriod.current = currentCashFlow;
-  //     cashFlows.current = cashFlowChartData;
-  //     setTransactionsFormattedBySelectedPeriod(groupedTransactions);
-  //   } catch (error) {
-  //     console.error('Home fetchTransactions error =>', error);
-  //     Alert.alert(
-  //       'Transações',
-  //       'Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.'
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //     // setRefreshing(false);
-  //   }
-  // }, [selectedPeriod.period]);
-
   async function fetchTransactions() {
     try {
       setLoading(true);
@@ -377,7 +310,7 @@ export function Home() {
           selectedDate
         );
 
-      // Update states
+      // Update refs and states
       cashFlowTotalBySelectedPeriod.current = currentCashFlow;
       cashFlows.current = cashFlowChartData;
       setTransactionsFormattedBySelectedPeriod(groupedTransactions);
@@ -609,27 +542,41 @@ export function Home() {
   }, [selectedDate, selectedPeriod.period]);
 
   const _renderInsightCard = useCallback(() => {
-    const lastPeriodIndex = cashFlows.current.length - 1;
-    const lastPeriodCashFlow = cashFlows.current[lastPeriodIndex];
-    const cashFlowIsPositive = lastPeriodCashFlow.value >= 0;
+    if (cashFlows.current.length >= 1) {
+      const formattedCurrentDate =
+        formatDatePtBr(selectedDate).cashFlowChartMonth();
 
-    return (
-      <InsightCard.Root>
-        <InsightCard.CloseButton onPress={handleHideCashFlowInsights} />
-        <InsightCard.Title
-          title={
-            cashFlowIsPositive
-              ? eInsightsCashFlow.CONGRATULATIONS_TITLE
-              : eInsightsCashFlow.INCENTIVE_TITLE
-          }
-          text={
-            cashFlowIsPositive
-              ? eInsightsCashFlow.CONGRATULATIONS_DESCRIPTION
-              : eInsightsCashFlow.INCENTIVE_DESCRIPTION
-          }
-        />
-      </InsightCard.Root>
-    );
+      const lastRevenueEntryIndex =
+        cashFlows.current.findIndex(
+          (cashFlow) => cashFlow.label === formattedCurrentDate
+        ) - 2; // - 2 to get last cash flow instead current cash flow
+
+      if (lastRevenueEntryIndex === -1) return null;
+
+      const revenue = cashFlows.current[lastRevenueEntryIndex]?.value || 0;
+      const expense = cashFlows.current[lastRevenueEntryIndex + 1]?.value || 0;
+      const netCashFlow = revenue - expense;
+
+      const cashFlowIsPositive = netCashFlow >= 0;
+
+      return (
+        <InsightCard.Root>
+          <InsightCard.CloseButton onPress={handleHideCashFlowInsights} />
+          <InsightCard.Title
+            title={
+              cashFlowIsPositive
+                ? eInsightsCashFlow.CONGRATULATIONS_TITLE
+                : eInsightsCashFlow.INCENTIVE_TITLE
+            }
+            text={
+              cashFlowIsPositive
+                ? eInsightsCashFlow.CONGRATULATIONS_DESCRIPTION
+                : eInsightsCashFlow.INCENTIVE_DESCRIPTION
+            }
+          />
+        </InsightCard.Root>
+      );
+    }
   }, []);
 
   function _renderEmpty() {
@@ -706,7 +653,7 @@ export function Home() {
         <Animated.View style={chartStyleAnimationOpacity}>
           <BarChart
             data={cashFlows.current}
-            width={SCREEN_WIDTH - 100}
+            width={SCREEN_WIDTH - 40}
             height={80}
             barWidth={CHART_BAR_WIDTH}
             spacing={CHART_BAR_SPACING}
