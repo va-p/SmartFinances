@@ -54,6 +54,8 @@ export const FilterButtonGroup = styled.View`
 
 export const SearchInputContainer = styled.View`
   flex-direction: row;
+  min-height: 40px;
+  max-height: 40px;
   align-items: center;
   margin: 8px 16px;
   background-color: ${({ theme }) => theme.colors.shape};
