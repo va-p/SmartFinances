@@ -15,12 +15,11 @@ type Props = {
 
 export const Container = styled(RectButtonAnimated)`
   flex: 1;
-  min-height: 72px;
+  min-height: 64px;
   max-height: 104px;
   flex-direction: row;
   align-items: center;
   padding: 8px 16px;
-  /* margin-bottom: 8px; */
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
 `;
@@ -84,7 +83,6 @@ export const CategoryAndAccountContainer = styled.View`
   flex-direction: row;
   min-width: 80%;
   max-width: 80%;
-  padding: 0 4px;
 `;
 
 export const Category = styled.Text.attrs({
