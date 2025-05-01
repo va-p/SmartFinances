@@ -115,7 +115,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.48;
+const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.45;
 const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
 
 const CHART_BAR_SPACING = 40;
@@ -416,6 +416,7 @@ export function Home() {
   }
 
   function handleHideCashFlowInsights() {
+    console.log('Pressed!');
     setShowInsights(false);
   }
 
@@ -568,7 +569,9 @@ export function Home() {
                 ? eInsightsCashFlow.CONGRATULATIONS_TITLE
                 : eInsightsCashFlow.INCENTIVE_TITLE
             }
-            text={
+          />
+          <InsightCard.Description
+            description={
               cashFlowIsPositive
                 ? eInsightsCashFlow.CONGRATULATIONS_DESCRIPTION
                 : eInsightsCashFlow.INCENTIVE_DESCRIPTION
