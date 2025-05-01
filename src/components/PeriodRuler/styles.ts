@@ -8,7 +8,6 @@ type ContainerProps = {
 export const Container = styled.View<ContainerProps>`
   flex-direction: row;
   align-items: center;
-  justify-content: center;
   padding: ${({ horizontalPadding }) => `0 ${horizontalPadding}px`};
 `;
 

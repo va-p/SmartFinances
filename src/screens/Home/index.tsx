@@ -813,6 +813,7 @@ const styles = StyleSheet.create({
   },
   insightCard: {
     minHeight: 30,
+    marginTop: -8,
     marginBottom: 16,
   },
   animatedButton: {
