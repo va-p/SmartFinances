@@ -59,7 +59,6 @@ import {
   getMonth,
   getYear,
   isFirstDayOfMonth,
-  isSameYear,
   isValid,
   lastDayOfMonth,
   lastDayOfYear,
@@ -416,7 +415,6 @@ export function Home() {
   }
 
   function handleHideCashFlowInsights() {
-    console.log('Pressed!');
     setShowInsights(false);
   }
 
@@ -756,7 +754,7 @@ export function Home() {
           )}
           contentContainerStyle={{
             paddingTop: 16,
-            paddingBottom: bottomTabBarHeight,
+            paddingBottom: bottomTabBarHeight + 8,
           }}
         />
       </Transactions>
