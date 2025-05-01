@@ -151,6 +151,7 @@ export function AuthProvider({ children }: any) {
             // User token
             storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
 
+            // User data
             const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
 
             setIsSignedIn(clerkSignedIn!);
