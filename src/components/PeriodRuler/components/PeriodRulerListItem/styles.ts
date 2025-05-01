@@ -8,9 +8,7 @@ type Props = {
   isActive: boolean;
 };
 
-export const Container = styled(RectButton)`
-  /* flex: 1; */
-`;
+export const Container = styled(RectButton)``;
 
 export const PeriodRulerDate = styled.Text<Props>`
   width: ${({ width }) => width}px;
@@ -18,7 +16,6 @@ export const PeriodRulerDate = styled.Text<Props>`
   font-size: ${RFValue(10)}px;
   text-align: center;
   margin-right: 8px;
-  margin-bottom: 8px;
   color: ${({ theme, isActive }) =>
     isActive ? theme.colors.primary : theme.colors.text};
 `;
