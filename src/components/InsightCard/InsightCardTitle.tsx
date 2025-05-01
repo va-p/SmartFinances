@@ -1,16 +1,14 @@
 import React from 'react';
-import { TitleContainer, InsightTitle, InsightText } from './styles';
+import { TitleContainer, InsightTitle } from './styles';
 
 type Props = {
-  title?: string;
-  text?: string | null;
+  title: string;
 };
 
-export function InsightCardTitle({ title, text }: Props) {
+export function InsightCardTitle({ title }: Props) {
   return (
     <TitleContainer>
-      {title && <InsightTitle>{title}</InsightTitle>}
-      {text && <InsightText>{text}</InsightText>}
+      <InsightTitle>{title}</InsightTitle>
     </TitleContainer>
   );
 }

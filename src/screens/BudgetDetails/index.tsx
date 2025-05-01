@@ -156,14 +156,14 @@ export function BudgetDetails() {
       </BudgetTotalDescription>
 
       <InsightCard.Root>
-        <InsightCard.Title
-          text={
+        <InsightCard.Description
+          description={
             !budgetAmountReached
               ? `Você ainda pode gastar ${formatCurrency(
                   budget.currency.code,
                   calculateRemainderBudgetPerDay(),
                   false
-                )} por dia até o final do período do orçamento!`
+                )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
               : `O seu orçamento foi excedido em ${formatCurrency(
                   budget.currency.code,
                   calculateRemainderBudget() * -1,
