@@ -73,8 +73,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     },
   });
   const accountTypes: AccountTypes[] = [
+    'Cartão de Crédito',
     'Carteira',
     'Carteira de Criptomoedas',
+    'Conta Corrente',
     'Investimentos',
     'Poupança',
     'Outro',

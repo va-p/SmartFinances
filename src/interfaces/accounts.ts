@@ -1,15 +1,17 @@
 import { CurrencyProps } from './currencies';
 
 export type AccountTypes =
+  | 'Cartão de Crédito'
   | 'Carteira'
   | 'Carteira de Criptomoedas'
+  | 'Conta Corrente'
   | 'Investimentos'
   | 'Poupança'
   | 'Outro'
-  | 'WALLET'
-  | 'BANK'
   | 'CREDIT'
+  | 'WALLET'
   | 'CRYPTOCURRENCY WALLET'
+  | 'BANK'
   | 'INVESTMENTS'
   | 'OTHER';
 
