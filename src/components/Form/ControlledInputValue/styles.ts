@@ -22,8 +22,8 @@ export const Input = styled(TextInput).attrs({
   placeholderTextColor: theme.colors.textPlaceholder,
 })`
   width: 100%;
-  min-height: 56px;
-  max-height: 56px;
+  min-height: 40px;
+  max-height: 40px;
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${RFValue(18)}px;
   color: ${({ theme }) => theme.colors.text};

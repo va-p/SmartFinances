@@ -48,12 +48,16 @@ export const HeaderRow = styled.View`
   padding: 6px 0;
 `;
 
-export const InputTransactionValueContainer = styled.View`
-  width: 60%;
+export const InputTransactionValuesContainer = styled.View`
+  flex: 1;
+`;
+
+export const InputTransactionValueGroup = styled.View`
+  min-width: 100%;
+  max-width: 100%;
   flex-direction: row;
   align-items: center;
-  margin-left: 16px;
-  position: relative;
+  justify-content: flex-end;
 `;
 
 export const ContentScroll = styled.ScrollView.attrs({
