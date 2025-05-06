@@ -21,7 +21,7 @@ type TitleProps = {
 };
 export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))};
+  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -29,7 +29,7 @@ type IconProps = {
   size?: number;
 };
 export const Icon = styled(Ionicons)<IconProps>`
-  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))};
+  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))}px;
   padding-left: 5px;
   color: ${({ theme }) => theme.colors.text};
 `;

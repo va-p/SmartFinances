@@ -80,7 +80,7 @@ type Props = {
 type FormData = {
   description: string;
   amount: number;
-  amountInAccountCurrency?: number;
+  amountInAccountCurrency?: number | null;
 };
 
 enum CustomTab {
@@ -101,7 +101,7 @@ const schema = Yup.object().shape({
   amount: Yup.number()
     .typeError('Digite um valor numérico')
     .required('Digite o valor'),
-  amountInAccountCurrency: Yup.number().typeError('Digite um valor numérico'),
+  amountInAccountCurrency: Yup.number().nullable(),
 });
 /* Validation Form - End */
 
@@ -177,7 +177,7 @@ export function RegisterTransaction({
     defaultValues: {
       description: '',
       amount: 0,
-      amountInAccountCurrency: undefined,
+      amountInAccountCurrency: null,
     },
   });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
@@ -606,7 +606,6 @@ export function RegisterTransaction({
       );
     }
     /* Validation Form - End */
-
     // Edit Transaction
     if (id !== '') {
       handleEditTransaction(id, form);
@@ -990,10 +989,9 @@ export function RegisterTransaction({
                 />
               </InputTransactionValueGroup>
 
-              {getValues('amountInAccountCurrency') !== undefined && (
+              {getValues('amountInAccountCurrency') !== null && (
                 <InputTransactionValueGroup>
                   <ControlledInputValue
-                    placeholder={String(getValues('amountInAccountCurrency'))}
                     keyboardType='numeric'
                     textAlign='right'
                     style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
@@ -1004,7 +1002,7 @@ export function RegisterTransaction({
                   />
 
                   <CurrencySelectButton
-                    title={accountCurrency!.symbol}
+                    title={accountCurrency?.symbol || ''}
                     iconSize={10}
                     hideArrow
                     style={{ width: 25, minHeight: 20, maxHeight: 20 }}
