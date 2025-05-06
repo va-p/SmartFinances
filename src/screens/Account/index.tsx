@@ -21,6 +21,13 @@ import {
   HeaderContainer,
 } from './styles';
 
+import formatCurrency from '@utils/formatCurrency';
+import formatDatePtBr from '@utils/formatDatePtBr';
+import getTransactions from '@utils/getTransactions';
+import { processTransactions } from '@utils/processTransactions';
+import { GroupedTransactionProps } from '@utils/groupTransactionsByDate';
+
+import axios from 'axios';
 import Animated, {
   Extrapolate,
   interpolate,
@@ -29,9 +36,6 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import { ptBR } from 'date-fns/locale';
 import {
   addMonths,
   addYears,
@@ -49,9 +53,11 @@ import {
   GestureDetector,
   RectButton,
 } from 'react-native-gesture-handler';
+import { ptBR } from 'date-fns/locale';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -69,23 +75,16 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
-import formatCurrency from '@utils/formatCurrency';
-import getTransactions from '@utils/getTransactions';
-import groupTransactionsByDate, {
-  GroupedTransactionProps,
-} from '@utils/groupTransactionsByDate';
-
 import { useUser } from '@storage/userStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+import { TransactionProps } from '@interfaces/transactions';
+
 import api from '@api/api';
 
 import theme from '@themes/theme';
-import { processTransactions } from '@utils/processTransactions';
-import formatDatePtBr from '@utils/formatDatePtBr';
-import { TransactionProps } from '@interfaces/transactions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -186,8 +185,6 @@ export function Account() {
             transaction.account.id === accountID
         )
         .map((item: TransactionProps) => {
-          console.log('item ===>', item);
-
           const dmy = formatDatePtBr(item.created_at).short();
           return {
             id: item.id,
@@ -222,6 +219,7 @@ export function Account() {
       // Update refs and states
       setCashFlowBySelectedPeriod(currentCashFlow);
       setTransactionsFormattedBySelectedPeriod(groupedTransactions);
+      // TODO: setCashFlowIsPositive
 
       /**
        * Set Transactions and Totals by Selected Period  - End
