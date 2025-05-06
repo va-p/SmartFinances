@@ -83,6 +83,9 @@ import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorag
 import api from '@api/api';
 
 import theme from '@themes/theme';
+import { processTransactions } from '@utils/processTransactions';
+import formatDatePtBr from '@utils/formatDatePtBr';
+import { TransactionProps } from '@interfaces/transactions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -92,8 +95,7 @@ export function Account() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
   const { id: userID } = useUser();
-  const { selectedPeriod, setSelectedPeriod, selectedDate, setSelectedDate } =
-    useSelectedPeriod();
+  const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [
@@ -107,7 +109,6 @@ export function Account() {
   const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] =
     useState('R$ 0,00');
   const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
-  // const [balanceIsPositive, setBalanceIsPositive] = useState(true);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
@@ -178,181 +179,50 @@ export function Account() {
       const data = await getTransactions(userID);
       setTransactions(data);
 
-      /**
-       * All Transactions By Account Formatted in pt-BR - Start
-       */
-      let totalAccountCashFlow = 0;
-
-      const transactionsByAccountFormattedPtbr = data
-        .filter((transaction: any) => transaction.account.id === accountID)
-        .map((item: any) => {
-          const formattedAmount = formatCurrency(
-            item.account.currency.code, // Moeda da conta
-            item.amount
-          );
-
-          return {
-            ...item,
-            amount_formatted: formattedAmount,
-            created_at: format(item.created_at, 'dd/MM/yyyy', { locale: ptBR }),
-          };
-        })
-        .sort((a: any, b: any) => {
-          const firstDateParsed = parse(a.created_at, 'dd/MM/yyyy', new Date());
-          const secondDateParsed = parse(
-            b.created_at,
-            'dd/MM/yyyy',
-            new Date()
-          );
-          return secondDateParsed.getTime() - firstDateParsed.getTime();
-        });
-
-      transactionsByAccountFormattedPtbr
+      // Format transactions
+      const transactionsFormattedPtbr = data
         .filter(
-          (filteredTransaction: any) =>
-            parse(filteredTransaction.created_at, 'dd/MM/yyyy', new Date()) <=
-            new Date()
+          (transaction: TransactionProps) =>
+            transaction.account.id === accountID
         )
-        .forEach((cur: any) => {
-          // Credit card
-          if (cur.account.type === 'CREDIT') {
-            totalAccountCashFlow -= cur.amount; // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy
-          }
-          // Other account types
-          if (cur.account.type !== 'CREDIT') {
-            totalAccountCashFlow += cur.amount;
-          }
+        .map((item: TransactionProps) => {
+          console.log('item ===>', item);
+
+          const dmy = formatDatePtBr(item.created_at).short();
+          return {
+            id: item.id,
+            created_at: dmy,
+            description: item.description || '',
+            amount: item.amount,
+            amount_formatted: formatCurrency(item.currency.code, item.amount),
+            amount_in_account_currency: item.amount_in_account_currency,
+            amount_in_account_currency_formatted:
+              item.amount_in_account_currency
+                ? formatCurrency(
+                    item.account.currency.code,
+                    item.amount_in_account_currency
+                  )
+                : undefined,
+            currency: item.currency,
+            type: item.type,
+            account: item.account,
+            category: item.category,
+            tags: item.tags,
+            user_id: item.user_id,
+          };
         });
 
-      const totalAccountCashFlowFormatted = Number(
-        totalAccountCashFlow
-      ).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
-
-      const transactionsFormattedPtbrGroupedByDate = groupTransactionsByDate(
-        transactionsByAccountFormattedPtbr
+      // Process transactions
+      const { currentCashFlow, groupedTransactions } = processTransactions(
+        transactionsFormattedPtbr,
+        selectedPeriod.period,
+        selectedDate
       );
-      /**
-       * All Transactions By Account Formatted in pt-BR - End
-       */
 
-      /**
-       * Transactions By Months Formatted in pt-BR - Start
-       */
-      const transactionsByMonthsFormattedPtbr =
-        transactionsFormattedPtbrGroupedByDate.filter(
-          (transactionByMonthsPtBr: any) =>
-            parse(
-              transactionByMonthsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getMonth() === selectedDate.getMonth() &&
-            parse(
-              transactionByMonthsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getFullYear() === selectedDate.getFullYear()
-        );
+      // Update refs and states
+      setCashFlowBySelectedPeriod(currentCashFlow);
+      setTransactionsFormattedBySelectedPeriod(groupedTransactions);
 
-      let cashFlowByMonth = 0;
-      for (const item of transactionsByMonthsFormattedPtbr) {
-        const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
-        cashFlowByMonth += parseFloat(cleanTotal);
-      }
-
-      if (selectedPeriod.period === 'months') {
-        cashFlowByMonth >= 0
-          ? setCashFlowIsPositive(true)
-          : setCashFlowIsPositive(false);
-      }
-
-      const cashFlowFormattedPtbrByMonth = Number(
-        cashFlowByMonth
-      ).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
-      /**
-       * Transactions By Months Formatted in pt-BR - End
-       */
-
-      /**
-       * Transactions By Years Formatted in pt-BR - Start
-       */
-      const transactionsByYearsFormattedPtbr =
-        transactionsFormattedPtbrGroupedByDate.filter(
-          (transactionByYearsPtBr: any) =>
-            parse(
-              transactionByYearsPtBr.title,
-              'dd/MM/yyyy',
-              new Date()
-            ).getFullYear() === selectedDate.getFullYear()
-        );
-
-      let totalRevenuesByYears = 0;
-      let totalExpensesByYears = 0;
-
-      for (const item of transactionsByYearsFormattedPtbr) {
-        item.data.forEach((cur: any) => {
-          if (parse(cur.created_at, 'dd/MM/yyyy', new Date()) <= new Date()) {
-            switch (cur.type) {
-              case 'CREDIT':
-              case 'TRANSFER_CREDIT':
-              case 'transferCredit':
-                totalRevenuesByYears += cur.amount;
-                break;
-              case 'DEBIT':
-              case 'TRANSFER_DEBIT':
-              case 'transferDebit':
-                totalExpensesByYears += cur.amount;
-                break;
-            }
-          }
-        });
-      }
-
-      const cashFlowByYears = totalRevenuesByYears - totalExpensesByYears;
-
-      if (selectedPeriod.period === 'years') {
-        cashFlowByYears >= 0
-          ? setCashFlowIsPositive(true)
-          : setCashFlowIsPositive(false);
-      }
-
-      const cashFlowFormattedPtbrByYears = Number(
-        cashFlowByYears
-      ).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
-      /**
-       * Transactions By Years Formatted in pt-BR - End      // totalAccountBalance >= 0
-      //   ? setBalanceIsPositive(true)
-      //   : setBalanceIsPositive(false);
-       * Set Transactions and Totals by Selected Period - Start
-       */
-      switch (selectedPeriod.period) {
-        case 'months':
-          setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByMonth);
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsByMonthsFormattedPtbr
-          );
-          break;
-        case 'years':
-          setCashFlowBySelectedPeriod(cashFlowFormattedPtbrByYears);
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsByYearsFormattedPtbr
-          );
-          break;
-        case 'all':
-          setCashFlowBySelectedPeriod(totalAccountCashFlowFormatted);
-          setTransactionsFormattedBySelectedPeriod(
-            transactionsFormattedPtbrGroupedByDate
-          );
-          break;
-      }
       /**
        * Set Transactions and Totals by Selected Period  - End
        */
@@ -668,7 +538,6 @@ export function Account() {
       >
         <ChartPeriodSelect
           period={selectedPeriod}
-          setPeriod={setSelectedPeriod}
           closeSelectPeriod={handleClosePeriodSelectedModal}
         />
       </ModalViewSelection>

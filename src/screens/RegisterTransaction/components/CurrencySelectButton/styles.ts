@@ -16,14 +16,20 @@ export const Container = styled(RectButton)`
   border-radius: 15px;
 `;
 
-export const Title = styled.Text`
+type TitleProps = {
+  size?: number;
+};
+export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))};
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const Icon = styled(Ionicons)`
-  font-size: ${RFValue(14)}px;
+type IconProps = {
+  size?: number;
+};
+export const Icon = styled(Ionicons)<IconProps>`
+  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))};
   padding-left: 5px;
   color: ${({ theme }) => theme.colors.text};
 `;

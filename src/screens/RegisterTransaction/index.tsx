@@ -13,6 +13,8 @@ import {
   TransactionImage,
   TransactionsTypes,
   Footer,
+  InputTransactionValuesContainer,
+  InputTransactionValueGroup,
 } from './styles';
 
 import { convertCurrency } from '@utils/convertCurrency';
@@ -78,6 +80,7 @@ type Props = {
 type FormData = {
   description: string;
   amount: number;
+  amountInAccountCurrency?: number;
 };
 
 enum CustomTab {
@@ -98,6 +101,7 @@ const schema = Yup.object().shape({
   amount: Yup.number()
     .typeError('Digite um valor numérico')
     .required('Digite o valor'),
+  amountInAccountCurrency: Yup.number().typeError('Digite um valor numérico'),
 });
 /* Validation Form - End */
 
@@ -173,6 +177,7 @@ export function RegisterTransaction({
     defaultValues: {
       description: '',
       amount: 0,
+      amountInAccountCurrency: undefined,
     },
   });
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
@@ -381,13 +386,6 @@ export function RegisterTransaction({
       amountConverted = convertCurrency({
         amount: form.amount,
         fromCurrency: currencySelected.code,
-        // toCurrency: accountCurrency!.code,
-        // toCurrency:
-        //   transactionType === 'transfer'
-        //     ? accountDestinationSelected.id !== ''
-        //       ? accountDestinationSelected.currency.code
-        //       : accountCurrency!.code
-        //     : accountCurrency!.code,
         toCurrency:
           transactionType === 'TRANSFER' && accountDestinationSelected.id !== ''
             ? accountDestinationSelected.currency.code
@@ -408,7 +406,6 @@ export function RegisterTransaction({
           usdQuoteEur,
         },
       });
-      // console.log('amountConverted ===>', amountConverted);
 
       if (transactionType === 'TRANSFER') {
         const transferEdited = {
@@ -857,7 +854,8 @@ export function RegisterTransaction({
       });
       setCategorySelected(data.category);
       setValue('amount', data.amount);
-      setCurrencySelected(data.account.currency);
+      setValue('amountInAccountCurrency', data.amount_in_account_currency);
+      setCurrencySelected(data.currency);
       setAccountID(data.account.id);
       setAccountName(data.account.name);
       setAccountCurrency(data.account.currency);
@@ -974,22 +972,46 @@ export function RegisterTransaction({
               onPress={handleOpenSelectCategoryModal}
             />
 
-            <InputTransactionValueContainer>
-              <ControlledInputValue
-                placeholder='0'
-                keyboardType='numeric'
-                textAlign='right'
-                defaultValue={String(getValues('amount'))}
-                name='amount'
-                control={control}
-                error={errors.amount}
-              />
+            <InputTransactionValuesContainer>
+              <InputTransactionValueGroup>
+                <ControlledInputValue
+                  placeholder={String(getValues('amount'))}
+                  keyboardType='numeric'
+                  textAlign='right'
+                  defaultValue={String(getValues('amount'))}
+                  name='amount'
+                  control={control}
+                  error={errors.amount}
+                />
 
-              <CurrencySelectButton
-                title={currencySelected.symbol}
-                onPress={handleOpenSelectCurrencyModal}
-              />
-            </InputTransactionValueContainer>
+                <CurrencySelectButton
+                  title={currencySelected.symbol}
+                  onPress={handleOpenSelectCurrencyModal}
+                />
+              </InputTransactionValueGroup>
+
+              {getValues('amountInAccountCurrency') !== undefined && (
+                <InputTransactionValueGroup>
+                  <ControlledInputValue
+                    placeholder={String(getValues('amountInAccountCurrency'))}
+                    keyboardType='numeric'
+                    textAlign='right'
+                    style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
+                    defaultValue={String(getValues('amountInAccountCurrency'))}
+                    name='amountInAccountCurrency'
+                    control={control}
+                    error={errors.amountInAccountCurrency}
+                  />
+
+                  <CurrencySelectButton
+                    title={accountCurrency!.symbol}
+                    iconSize={10}
+                    hideArrow
+                    style={{ width: 25, minHeight: 20, maxHeight: 20 }}
+                  />
+                </InputTransactionValueGroup>
+              )}
+            </InputTransactionValuesContainer>
           </HeaderRow>
         </Header>
 
