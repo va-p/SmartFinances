@@ -29,8 +29,8 @@ import { CurrencySelect } from '@screens/CurrencySelect';
 
 import { useUser } from 'src/storage/userStorage';
 
-import { CurrencyProps } from '@interfaces/currencies';
 import { AccountTypes } from '@interfaces/accounts';
+import { CurrencyProps } from '@interfaces/currencies';
 
 import api from '@api/api';
 

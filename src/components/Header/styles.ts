@@ -45,7 +45,9 @@ export const ButtonShape = styled.View`
   background-color: ${({ theme }) => theme.colors.shape};
 `;
 
-export const TitleContainer = styled.View``;
+export const TitleContainer = styled.View`
+  max-width: 84%;
+`;
 
 export const Title = styled.Text.attrs({
   numberOfLines: 2,

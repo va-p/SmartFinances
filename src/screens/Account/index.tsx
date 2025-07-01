@@ -156,7 +156,7 @@ export function Account() {
   });
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
-    .onStart((e) => {
+    .onStart((_) => {
       initialX.current = registerTransactionButtonPositionX.value;
       initialY.current = registerTransactionButtonPositionY.value;
     })

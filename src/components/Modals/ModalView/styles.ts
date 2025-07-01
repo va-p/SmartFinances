@@ -18,10 +18,9 @@ export const Overlay = styled.View`
 export const Header = styled.View<ColorProps>`
   width: 100%;
   flex-direction: row;
-  align-items: center;
   justify-content: center;
-  padding-right: 16px;
-  padding-left: 16px;
+  padding-right: 20px;
+  padding-left: 20px;
   background-color: ${({ color }) => color};
 `;
 

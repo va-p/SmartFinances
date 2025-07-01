@@ -8,29 +8,37 @@ const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 export const Container = styled(RectButtonAnimated)`
   flex: 1;
-  min-height: 56px;
-  max-height: 56px;
+  min-height: 64px;
+  max-height: 72px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 16px 8px;
   margin-bottom: 8px;
   background-color: ${({ theme }) => theme.colors.shape};
   border-radius: 10px;
 `;
 
 export const DetailsContainer = styled.View`
+  min-width: 95%;
+  max-width: 95%;
   flex-direction: row;
   align-items: center;
 `;
 
 export const IconContainer = styled.View`
-  margin-right: 8px;
+  margin-right: 12px;
 `;
 
-export const NameContainer = styled.View``;
+export const NameContainer = styled.View`
+  min-width: 95%;
+  max-width: 95%;
+`;
 
-export const Name = styled.Text`
+export const Name = styled.Text.attrs({
+  numberOfLines: 2,
+  ellipsizeMode: 'tail',
+})`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.title};
@@ -44,6 +52,6 @@ export const Amount = styled.Text`
 
 export const AmountsContainer = styled.View`
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
 `;
