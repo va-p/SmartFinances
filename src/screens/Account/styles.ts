@@ -12,7 +12,7 @@ export const Container = styled.View`
 `;
 
 export const HeaderContainer = styled.View`
-  margin: 0 16px;
+  margin: 8px 16px 0;
 `;
 
 export const FiltersContainer = styled.View`
