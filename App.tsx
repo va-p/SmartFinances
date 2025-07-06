@@ -7,6 +7,7 @@ import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { Splash } from '@components/Splash';
@@ -90,15 +91,17 @@ function App() {
     case LoadingState.Ready:
       return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <ThemeProvider theme={theme}>
-            <RevenueCatProvider>
-              <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
-                <AuthProvider>
-                  <Routes />
-                </AuthProvider>
-              </ClerkProvider>
-            </RevenueCatProvider>
-          </ThemeProvider>
+          <SafeAreaProvider>
+            <ThemeProvider theme={theme}>
+              <RevenueCatProvider>
+                <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
+                  <AuthProvider>
+                    <Routes />
+                  </AuthProvider>
+                </ClerkProvider>
+              </RevenueCatProvider>
+            </ThemeProvider>
+          </SafeAreaProvider>
         </GestureHandlerRootView>
       );
   }

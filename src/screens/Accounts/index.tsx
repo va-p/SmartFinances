@@ -36,6 +36,7 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
@@ -393,150 +394,177 @@ export function Accounts({ navigation }: any) {
   }, []);
 
   if (loading) {
-    return <SkeletonAccountsScreen />;
+    return (
+      <Screen>
+        <SkeletonAccountsScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
-      <HeaderContainer>
-        <Header>
-          <CashFlowContainer>
-            <CashFlowTotal>
-              {refreshing
-                ? _renderSkeletonTotal()
-                : hideAmount
-                ? '•••••'
-                : total}
-            </CashFlowTotal>
-            <CashFlowDescription>Patrimônio Total</CashFlowDescription>
-          </CashFlowContainer>
+    <Screen>
+      <Container>
+        <Gradient />
+        <HeaderContainer>
+          <Header>
+            <CashFlowContainer>
+              <CashFlowTotal>
+                {refreshing
+                  ? _renderSkeletonTotal()
+                  : hideAmount
+                  ? '•••••'
+                  : total}
+              </CashFlowTotal>
+              <CashFlowDescription>Patrimônio Total</CashFlowDescription>
+            </CashFlowContainer>
 
-          <HideDataButton onPress={() => handleHideData()}>
-            {!hideAmount ? (
-              <EyeSlash size={20} color={theme.colors.primary} />
-            ) : (
-              <Eye size={20} color={theme.colors.primary} />
-            )}
-          </HideDataButton>
-        </Header>
+            <HideDataButton onPress={() => handleHideData()}>
+              {!hideAmount ? (
+                <EyeSlash size={20} color={theme.colors.primary} />
+              ) : (
+                <Eye size={20} color={theme.colors.primary} />
+              )}
+            </HideDataButton>
+          </Header>
 
-        <ChartContainer>
-          <LineChart
-            key={totalsByMonths.length}
-            data={totalsByMonths.map((item) => {
-              return { value: item.total };
-            })}
-            xAxisLabelTexts={totalsByMonths.map((item) => {
-              return item.date;
-            })}
-            yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
-              totalsByMonths
-            )}
-            width={GRAPH_WIDTH}
-            height={128}
-            noOfSections={5}
-            mostNegativeValue={0}
-            xAxisColor='#455A64'
-            yAxisColor='#455A64'
-            areaChart
-            curved
-            showVerticalLines
-            verticalLinesUptoDataPoint
-            initialSpacing={8}
-            endSpacing={8}
-            focusEnabled
-            showStripOnFocus
-            showValuesAsDataPointsText
-            showTextOnFocus
-            xAxisTextNumberOfLines={2}
-            xAxisLabelTextStyle={{
-              fontSize: 10,
-              color: '#90A4AE',
-              paddingRight: 12,
-            }}
-            yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
-            rulesColor='#455A64'
-            verticalLinesColor='#455A64'
-            color1={theme.colors.primary}
-            dataPointsColor1={theme.colors.primary}
-            startFillColor1={theme.colors.primary}
-            startOpacity={0.6}
-            endOpacity={0.1}
-            isAnimated
-            animationDuration={3000}
-            animateOnDataChange
-            scrollToEnd
-          />
-        </ChartContainer>
-      </HeaderContainer>
-
-      <AccountsContainer>
-        {/** ACCOUNTS */}
-        <FlatList
-          data={accounts.filter(
-            (account) =>
-              account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
-          )}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={_renderItem}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                fetchAccounts(true);
+          <ChartContainer>
+            <LineChart
+              key={totalsByMonths.length}
+              data={totalsByMonths.map((item) => {
+                return { value: item.total };
+              })}
+              xAxisLabelTexts={totalsByMonths.map((item) => {
+                return item.date;
+              })}
+              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
+                totalsByMonths
+              )}
+              width={GRAPH_WIDTH}
+              height={128}
+              noOfSections={5}
+              mostNegativeValue={0}
+              xAxisColor='#455A64'
+              yAxisColor='#455A64'
+              areaChart
+              curved
+              showVerticalLines
+              verticalLinesUptoDataPoint
+              initialSpacing={8}
+              endSpacing={8}
+              focusEnabled
+              showStripOnFocus
+              showValuesAsDataPointsText
+              showTextOnFocus
+              xAxisTextNumberOfLines={2}
+              xAxisLabelTextStyle={{
+                fontSize: 10,
+                color: '#90A4AE',
+                paddingRight: 12,
               }}
+              yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+              rulesColor='#455A64'
+              verticalLinesColor='#455A64'
+              color1={theme.colors.primary}
+              dataPointsColor1={theme.colors.primary}
+              startFillColor1={theme.colors.primary}
+              startOpacity={0.6}
+              endOpacity={0.1}
+              isAnimated
+              animationDuration={3000}
+              animateOnDataChange
+              scrollToEnd
             />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: bottomTabHeight,
-          }}
-          ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
-          ListFooterComponent={
-            /** CREDIT CARDS */
-            accounts.some(
-              (account) =>
-                account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
-            ) ? (
-              <>
-                <SectionTitle>Cartões de crédito</SectionTitle>
-                <FlatList
-                  data={accounts.filter(
-                    (account) =>
-                      account.type === 'CREDIT' &&
-                      account.subtype === 'CREDIT_CARD'
-                  )}
-                  keyExtractor={(item) => String(item.id)}
-                  renderItem={_renderItem}
-                  snapToOffsets={[
-                    ...Array(
-                      accounts.filter(
-                        (account) =>
-                          account.type === 'CREDIT' &&
-                          account.subtype === 'CREDIT_CARD'
-                      ).length
-                    ),
-                  ].map((x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32)}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={() => {
-                        fetchAccounts(true);
-                      }}
-                    />
-                  }
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{
-                    columnGap: 8,
-                    paddingRight: 16,
-                    paddingBottom: 8,
-                    paddingLeft: 16,
-                  }}
-                />
+          </ChartContainer>
+        </HeaderContainer>
 
-                {/** SCREEN FOOTER */}
+        <AccountsContainer>
+          {/** ACCOUNTS */}
+          <FlatList
+            data={accounts.filter(
+              (account) =>
+                account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
+            )}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={_renderItem}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  fetchAccounts(true);
+                }}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: bottomTabHeight,
+            }}
+            ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
+            ListFooterComponent={
+              /** CREDIT CARDS */
+              accounts.some(
+                (account) =>
+                  account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
+              ) ? (
+                <>
+                  <SectionTitle>Cartões de crédito</SectionTitle>
+                  <FlatList
+                    data={accounts.filter(
+                      (account) =>
+                        account.type === 'CREDIT' &&
+                        account.subtype === 'CREDIT_CARD'
+                    )}
+                    keyExtractor={(item) => String(item.id)}
+                    renderItem={_renderItem}
+                    snapToOffsets={[
+                      ...Array(
+                        accounts.filter(
+                          (account) =>
+                            account.type === 'CREDIT' &&
+                            account.subtype === 'CREDIT_CARD'
+                        ).length
+                      ),
+                    ].map(
+                      (x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32
+                    )}
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={() => {
+                          fetchAccounts(true);
+                        }}
+                      />
+                    }
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{
+                      columnGap: 8,
+                      paddingRight: 16,
+                      paddingBottom: 8,
+                      paddingLeft: 16,
+                    }}
+                  />
+
+                  {/** SCREEN FOOTER */}
+                  <Footer>
+                    <ButtonGroup>
+                      <AddAccountButton
+                        icon='card'
+                        title='Integrações Bancárias'
+                        onPress={handleTouchConnectAccount}
+                      />
+                    </ButtonGroup>
+
+                    <ButtonGroup>
+                      <AddAccountButton
+                        icon='wallet'
+                        title='Criar Conta Manual'
+                        onPress={handleOpenRegisterAccountModal}
+                      />
+                    </ButtonGroup>
+                  </Footer>
+                </>
+              ) : (
+                // SCREEN FOOTER
                 <Footer>
                   <ButtonGroup>
                     <AddAccountButton
@@ -554,40 +582,24 @@ export function Accounts({ navigation }: any) {
                     />
                   </ButtonGroup>
                 </Footer>
-              </>
-            ) : (
-              // SCREEN FOOTER
-              <Footer>
-                <ButtonGroup>
-                  <AddAccountButton
-                    icon='card'
-                    title='Integrações Bancárias'
-                    onPress={handleTouchConnectAccount}
-                  />
-                </ButtonGroup>
+              )
+            }
+            ListEmptyComponent={_renderEmpty}
+          />
+        </AccountsContainer>
 
-                <ButtonGroup>
-                  <AddAccountButton
-                    icon='wallet'
-                    title='Criar Conta Manual'
-                    onPress={handleOpenRegisterAccountModal}
-                  />
-                </ButtonGroup>
-              </Footer>
-            )
-          }
-          ListEmptyComponent={_renderEmpty}
-        />
-      </AccountsContainer>
-
-      <ModalView
-        bottomSheetRef={registerAccountBottomSheetRef}
-        snapPoints={['75%']}
-        closeModal={handleCloseRegisterAccountModal}
-        title='Criar Conta Manual'
-      >
-        <RegisterAccount id='' closeAccount={handleCloseRegisterAccountModal} />
-      </ModalView>
-    </Container>
+        <ModalView
+          bottomSheetRef={registerAccountBottomSheetRef}
+          snapPoints={['75%']}
+          closeModal={handleCloseRegisterAccountModal}
+          title='Criar Conta Manual'
+        >
+          <RegisterAccount
+            id=''
+            closeAccount={handleCloseRegisterAccountModal}
+          />
+        </ModalView>
+      </Container>
+    </Screen>
   );
 }

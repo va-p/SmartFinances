@@ -2,6 +2,7 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { Container } from './styles';
 
+import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 
@@ -45,20 +46,22 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <FlatList
-        data={periods}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }: any) => (
-          <ListItem
-            data={item}
-            isActive={period.id === item.id}
-            onPress={() => handlePeriodSelect(item)}
-          />
-        )}
-      />
-    </Container>
+        <FlatList
+          data={periods}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }: any) => (
+            <ListItem
+              data={item}
+              isActive={period.id === item.id}
+              onPress={() => handlePeriodSelect(item)}
+            />
+          )}
+        />
+      </Container>
+    </Screen>
   );
 }

@@ -20,6 +20,7 @@ import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -128,68 +129,80 @@ export function TransactionsByCategory({ navigation }: any) {
   }, []);
 
   if (loading) {
-    return <SkeletonAccountsScreen />;
+    return (
+      <Screen>
+        <SkeletonAccountsScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={'Transações por categoria'} />
-      </Header.Root>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={'Transações por categoria'} />
+        </Header.Root>
 
-      <MonthSelect>
-        <MonthSelectButton onPress={() => handleDateChange('prev')}>
-          <CaretLeft size={20} color={theme.colors.text} />
-        </MonthSelectButton>
+        <MonthSelect>
+          <MonthSelectButton onPress={() => handleDateChange('prev')}>
+            <CaretLeft size={20} color={theme.colors.text} />
+          </MonthSelectButton>
 
-        <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
+          <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
 
-        <MonthSelectButton onPress={() => handleDateChange('next')}>
-          <CaretRight size={20} color={theme.colors.text} />
-        </MonthSelectButton>
-      </MonthSelect>
+          <MonthSelectButton onPress={() => handleDateChange('next')}>
+            <CaretRight size={20} color={theme.colors.text} />
+          </MonthSelectButton>
+        </MonthSelect>
 
-      <AnimatedFlashList
-        data={flattenedTransactions}
-        keyExtractor={(item: any) => {
-          return item.isHeader ? String(item.headerTitle!) : String(item.id);
-        }}
-        renderItem={({ item, index }: any) => {
-          if (item.isHeader) {
+        <AnimatedFlashList
+          data={flattenedTransactions}
+          keyExtractor={(item: any) => {
+            return item.isHeader ? String(item.headerTitle!) : String(item.id);
+          }}
+          renderItem={({ item, index }: any) => {
+            if (item.isHeader) {
+              return (
+                <SectionListHeader
+                  data={{ title: item.headerTitle, total: item.headerTotal }}
+                />
+              );
+            }
             return (
-              <SectionListHeader
-                data={{ title: item.headerTitle, total: item.headerTotal }}
+              <TransactionListItem
+                data={item}
+                index={index}
+                hideAmount={false}
               />
             );
+          }}
+          getItemType={(item) =>
+            (item as FlashListTransactionItem).isHeader
+              ? 'sectionHeader'
+              : 'row'
           }
-          return (
-            <TransactionListItem data={item} index={index} hideAmount={false} />
-          );
-        }}
-        getItemType={(item) =>
-          (item as FlashListTransactionItem).isHeader ? 'sectionHeader' : 'row'
-        }
-        estimatedItemSize={100}
-        ListEmptyComponent={() => <ListEmptyComponent />}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={fetchTransactions}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        ItemSeparatorComponent={() => (
-          <View style={{ minHeight: 8, maxHeight: 8 }} />
-        )}
-        contentContainerStyle={{
-          paddingTop: 16,
-          paddingBottom: bottomTabBarHeight,
-        }}
-      />
-    </Container>
+          estimatedItemSize={100}
+          ListEmptyComponent={() => <ListEmptyComponent />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchTransactions}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          ItemSeparatorComponent={() => (
+            <View style={{ minHeight: 8, maxHeight: 8 }} />
+          )}
+          contentContainerStyle={{
+            paddingTop: 16,
+            paddingBottom: bottomTabBarHeight,
+          }}
+        />
+      </Container>
+    </Screen>
   );
 }

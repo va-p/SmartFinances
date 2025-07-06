@@ -1,6 +1,8 @@
 import styled from 'styled-components/native';
 
-export const Container = styled.KeyboardAvoidingView``;
+export const Container = styled.KeyboardAvoidingView`
+  padding-top: 16px;
+`;
 
 export const MainContent = styled.ScrollView.attrs({
   contentContainerStyle: {

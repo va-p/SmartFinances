@@ -12,6 +12,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { ModalView } from '@components/Modals/ModalView';
@@ -251,60 +252,66 @@ export function Budgets({ navigation }: any) {
   }, []);
 
   if (loading) {
-    return <SkeletonBudgetsScreen />;
+    return (
+      <Screen>
+        <SkeletonBudgetsScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root style={{ justifyContent: 'center' }}>
-        <Header.Title title='Orçamentos' />
-      </Header.Root>
+        <Header.Root style={{ justifyContent: 'center' }}>
+          <Header.Title title='Orçamentos' />
+        </Header.Root>
 
-      <FlatList
-        data={budgetsFormatted}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <BudgetListItem
-            data={item}
-            index={index}
-            onPress={() => handleOpenBudget(item)}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />
-        )}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
-        }
-        showsVerticalScrollIndicator={false}
-        initialNumToRender={20}
-        ListFooterComponent={
-          <Footer>
-            <Button.Root onPress={handleOpenRegisterBudgetModal}>
-              <Button.Text text='Criar novo orçamento' />
-            </Button.Root>
-          </Footer>
-        }
-        contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
-      />
-
-      <ModalView
-        type={'primary'}
-        title={'Criar Novo Orçamento'}
-        bottomSheetRef={budgetRegisterBottomSheetRef}
-        enableContentPanningGesture={false}
-        enablePanDownToClose
-        snapPoints={['75%']}
-        closeModal={handleCloseRegisterBudgetModal}
-        onClose={handleCloseRegisterBudgetModal}
-      >
-        <RegisterBudget
-          id={null}
-          closeBudget={handleCloseRegisterBudgetModal}
+        <FlatList
+          data={budgetsFormatted}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <BudgetListItem
+              data={item}
+              index={index}
+              onPress={() => handleOpenBudget(item)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
+          }
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={20}
+          ListFooterComponent={
+            <Footer>
+              <Button.Root onPress={handleOpenRegisterBudgetModal}>
+                <Button.Text text='Criar novo orçamento' />
+              </Button.Root>
+            </Footer>
+          }
+          contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
         />
-      </ModalView>
-    </Container>
+
+        <ModalView
+          type={'primary'}
+          title={'Criar Novo Orçamento'}
+          bottomSheetRef={budgetRegisterBottomSheetRef}
+          enableContentPanningGesture={false}
+          enablePanDownToClose
+          snapPoints={['75%']}
+          closeModal={handleCloseRegisterBudgetModal}
+          onClose={handleCloseRegisterBudgetModal}
+        >
+          <RegisterBudget
+            id={null}
+            closeBudget={handleCloseRegisterBudgetModal}
+          />
+        </ModalView>
+      </Container>
+    </Screen>
   );
 }

@@ -25,6 +25,7 @@ import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { HistoryCard } from '@components/HistoryCard';
@@ -326,7 +327,7 @@ export function Overview({ navigation }: any) {
 
       if (!categorySum.isZero()) {
         const percent = `${(
-          (Number(categorySum) / Number(totalAmountByMonth)) *
+          (Math.abs(Number(categorySum)) / Number(totalAmountByMonth)) *
           100
         ).toFixed(2)}%`;
 
@@ -337,9 +338,11 @@ export function Overview({ navigation }: any) {
           true
         );
 
+        const totalValue = categorySum.toNumber() * -1;
+
         totalsByCategory.push({
           ...category,
-          total: Number(categorySum) * -1,
+          total: totalValue,
           totalFormatted,
           percent,
         });
@@ -493,215 +496,219 @@ export function Overview({ navigation }: any) {
   if (loading) {
     return (
       <>
-        <Gradient />
+        <Screen>
+          <Gradient />
 
-        <Text
-          style={{
-            textAlign: 'center',
-            color: theme.colors.text,
-          }}
-        >
-          Carregando...
-        </Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              color: theme.colors.text,
+            }}
+          >
+            Carregando...
+          </Text>
+        </Screen>
       </>
     );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root style={{ justifyContent: 'center' }}>
-        <Header.Title title={'Resumo'} />
-      </Header.Root>
+        <Header.Root style={{ justifyContent: 'center' }}>
+          <Header.Title title={'Resumo'} />
+        </Header.Root>
 
-      <ScrollContent>
-        <FiltersContainer>
-          <FilterButtonGroup>
-            <FilterButton
-              title={`Por ${chartPeriodSelected.name}`}
-              onPress={handleOpenPeriodSelectedModal}
+        <ScrollContent>
+          <FiltersContainer>
+            <FilterButtonGroup>
+              <FilterButton
+                title={`Por ${chartPeriodSelected.name}`}
+                onPress={handleOpenPeriodSelectedModal}
+              />
+            </FilterButtonGroup>
+          </FiltersContainer>
+
+          <CashFlowSection>
+            <TabButtons
+              buttons={cashFlowSectionButtons}
+              selectedTab={selectedTabCashFlowSection}
+              setSelectedTab={setSelectedTabCashFlowSection}
             />
-          </FilterButtonGroup>
-        </FiltersContainer>
 
-        <CashFlowSection>
-          <TabButtons
-            buttons={cashFlowSectionButtons}
-            selectedTab={selectedTabCashFlowSection}
-            setSelectedTab={setSelectedTabCashFlowSection}
-          />
+            {/* Patrimonial Evolution */}
+            {selectedTabCashFlowSection === 0 && (
+              <LineChart
+                key={patrimonialEvolutionBySelectedPeriod.length}
+                data={patrimonialEvolutionBySelectedPeriod.map((item) => {
+                  return { value: item.total };
+                })}
+                xAxisLabelTexts={patrimonialEvolutionBySelectedPeriod.map(
+                  (item) => {
+                    return String(item.date);
+                  }
+                )}
+                yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
+                  patrimonialEvolutionBySelectedPeriod
+                )}
+                width={GRAPH_WIDTH}
+                height={180}
+                noOfSections={5}
+                mostNegativeValue={0}
+                xAxisColor='#455A64'
+                yAxisColor='#455A64'
+                areaChart
+                curved
+                showVerticalLines
+                verticalLinesUptoDataPoint
+                initialSpacing={8}
+                endSpacing={8}
+                focusEnabled
+                showStripOnFocus
+                showValuesAsDataPointsText
+                showTextOnFocus
+                xAxisTextNumberOfLines={2}
+                xAxisLabelTextStyle={{
+                  fontSize: 10,
+                  color: '#90A4AE',
+                  paddingRight: 12,
+                }}
+                yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
+                rulesColor='#455A64'
+                verticalLinesColor='#455A64'
+                color1={theme.colors.primary}
+                dataPointsColor1={theme.colors.primary}
+                startFillColor1={theme.colors.primary}
+                startOpacity={0.6}
+                endOpacity={0.1}
+                isAnimated
+                animationDuration={3000}
+                animateOnDataChange
+                scrollToEnd
+              />
+            )}
 
-          {/* Patrimonial Evolution */}
-          {selectedTabCashFlowSection === 0 && (
-            <LineChart
-              key={patrimonialEvolutionBySelectedPeriod.length}
-              data={patrimonialEvolutionBySelectedPeriod.map((item) => {
-                return { value: item.total };
-              })}
-              xAxisLabelTexts={patrimonialEvolutionBySelectedPeriod.map(
-                (item) => {
-                  return String(item.date);
-                }
-              )}
-              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
-                patrimonialEvolutionBySelectedPeriod
-              )}
-              width={GRAPH_WIDTH}
-              height={180}
-              noOfSections={5}
-              mostNegativeValue={0}
-              xAxisColor='#455A64'
-              yAxisColor='#455A64'
-              areaChart
-              curved
-              showVerticalLines
-              verticalLinesUptoDataPoint
-              initialSpacing={8}
-              endSpacing={8}
-              focusEnabled
-              showStripOnFocus
-              showValuesAsDataPointsText
-              showTextOnFocus
-              xAxisTextNumberOfLines={2}
-              xAxisLabelTextStyle={{
-                fontSize: 10,
-                color: '#90A4AE',
-                paddingRight: 12,
-              }}
-              yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
-              rulesColor='#455A64'
-              verticalLinesColor='#455A64'
-              color1={theme.colors.primary}
-              dataPointsColor1={theme.colors.primary}
-              startFillColor1={theme.colors.primary}
-              startOpacity={0.6}
-              endOpacity={0.1}
-              isAnimated
-              animationDuration={3000}
-              animateOnDataChange
-              scrollToEnd
+            {/* CashFlow Chart */}
+            {selectedTabCashFlowSection === 1 && (
+              <BarChart
+                data={cashFlow}
+                barWidth={8}
+                spacing={104}
+                roundedTop
+                roundedBottom
+                xAxisThickness={1}
+                yAxisThickness={0}
+                yAxisTextStyle={{ color: theme.colors.textPlaceholder }}
+                noOfSections={4}
+                formatYLabel={(label: string) => {
+                  const value = Number(label);
+                  const k = Math.floor(value / 1000);
+                  return k > 0 ? `${k}k` : '0';
+                }}
+              />
+            )}
+          </CashFlowSection>
+
+          <CategoriesSection>
+            <SectionTitle>Categorias</SectionTitle>
+            <TabButtons
+              buttons={categoriesSectionButtons}
+              selectedTab={selectedTabCategoriesSection}
+              setSelectedTab={setSelectedTabCategoriesSection}
             />
-          )}
 
-          {/* CashFlow Chart */}
-          {selectedTabCashFlowSection === 1 && (
-            <BarChart
-              data={cashFlow}
-              barWidth={8}
-              spacing={104}
-              roundedTop
-              roundedBottom
-              xAxisThickness={1}
-              yAxisThickness={0}
-              yAxisTextStyle={{ color: theme.colors.textPlaceholder }}
-              noOfSections={4}
-              formatYLabel={(label: string) => {
-                const value = Number(label);
-                const k = Math.floor(value / 1000);
-                return k > 0 ? `${k}k` : '0';
-              }}
+            {selectedTabCategoriesSection === 0 && (
+              <CategoriesContainer>
+                <ChartContainer>
+                  <PieChart
+                    data={totalExpensesByCategories.map((item) => ({
+                      value: item.total,
+                      color: item.color.color_code,
+                      text: item.percent,
+                    }))}
+                    donut
+                    radius={140}
+                    focusOnPress
+                    textColor='black'
+                    showExternalLabels
+                    externalLabelComponent={(item) => (
+                      <SvgText>{item?.text}</SvgText>
+                    )}
+                    labelLineConfig={{
+                      color: theme.colors.textPlaceholder,
+                      thickness: 2,
+                      length: 2,
+                    }}
+                  />
+                </ChartContainer>
+
+                {totalExpensesByCategories.map((item) => (
+                  <HistoryCard
+                    key={item.id}
+                    icon={item.icon.name}
+                    name={item.name}
+                    amount={item.totalFormatted}
+                    color={item.color.color_code}
+                    onPress={() => handleOpenCategory(item.id)}
+                  />
+                ))}
+              </CategoriesContainer>
+            )}
+
+            {selectedTabCategoriesSection === 1 && (
+              <CategoriesContainer>
+                <ChartContainer>
+                  <PieChart
+                    data={totalRevenuesByCategories.map((item) => ({
+                      value: item.total * -1,
+                      color: item.color.color_code,
+                      text: item.percent,
+                    }))}
+                    donut
+                    radius={140}
+                    focusOnPress
+                    textColor='black'
+                    showExternalLabels
+                    externalLabelComponent={(item) => (
+                      <SvgText>{item?.text}</SvgText>
+                    )}
+                    labelLineConfig={{
+                      color: theme.colors.textPlaceholder,
+                      thickness: 2,
+                      length: 2,
+                    }}
+                  />
+                </ChartContainer>
+
+                {totalRevenuesByCategories.map((item) => (
+                  <HistoryCard
+                    key={item.id}
+                    icon={item.icon.name}
+                    name={item.name}
+                    amount={item.totalFormatted}
+                    color={item.color.color_code}
+                    onPress={() => handleOpenCategory(item.id)}
+                  />
+                ))}
+              </CategoriesContainer>
+            )}
+          </CategoriesSection>
+
+          <ModalViewSelection
+            title='Selecione o período'
+            bottomSheetRef={chartPeriodSelectedBottomSheetRef}
+            snapPoints={['30%', '50%']}
+          >
+            <ChartPeriodSelect
+              period={chartPeriodSelected}
+              setPeriod={setChartPeriodSelected}
+              closeSelectPeriod={handleClosePeriodSelectedModal}
             />
-          )}
-        </CashFlowSection>
-
-        <CategoriesSection>
-          <SectionTitle>Categorias</SectionTitle>
-          <TabButtons
-            buttons={categoriesSectionButtons}
-            selectedTab={selectedTabCategoriesSection}
-            setSelectedTab={setSelectedTabCategoriesSection}
-          />
-
-          {selectedTabCategoriesSection === 0 && (
-            <CategoriesContainer>
-              <ChartContainer>
-                <PieChart
-                  data={totalExpensesByCategories.map((item) => ({
-                    value: item.total,
-                    color: item.color.color_code,
-                    text: item.percent,
-                  }))}
-                  donut
-                  radius={140}
-                  focusOnPress
-                  textColor='black'
-                  showExternalLabels
-                  externalLabelComponent={(item) => (
-                    <SvgText>{item?.text}</SvgText>
-                  )}
-                  labelLineConfig={{
-                    color: theme.colors.textPlaceholder,
-                    thickness: 2,
-                    length: 2,
-                  }}
-                />
-              </ChartContainer>
-
-              {totalExpensesByCategories.map((item) => (
-                <HistoryCard
-                  key={item.id}
-                  icon={item.icon.name}
-                  name={item.name}
-                  amount={item.totalFormatted}
-                  color={item.color.color_code}
-                  onPress={() => handleOpenCategory(item.id)}
-                />
-              ))}
-            </CategoriesContainer>
-          )}
-
-          {selectedTabCategoriesSection === 1 && (
-            <CategoriesContainer>
-              <ChartContainer>
-                <PieChart
-                  data={totalRevenuesByCategories.map((item) => ({
-                    value: item.total * -1,
-                    color: item.color.color_code,
-                    text: item.percent,
-                  }))}
-                  donut
-                  radius={140}
-                  focusOnPress
-                  textColor='black'
-                  showExternalLabels
-                  externalLabelComponent={(item) => (
-                    <SvgText>{item?.text}</SvgText>
-                  )}
-                  labelLineConfig={{
-                    color: theme.colors.textPlaceholder,
-                    thickness: 2,
-                    length: 2,
-                  }}
-                />
-              </ChartContainer>
-
-              {totalRevenuesByCategories.map((item) => (
-                <HistoryCard
-                  key={item.id}
-                  icon={item.icon.name}
-                  name={item.name}
-                  amount={item.totalFormatted}
-                  color={item.color.color_code}
-                  onPress={() => handleOpenCategory(item.id)}
-                />
-              ))}
-            </CategoriesContainer>
-          )}
-        </CategoriesSection>
-
-        <ModalViewSelection
-          title='Selecione o período'
-          bottomSheetRef={chartPeriodSelectedBottomSheetRef}
-          snapPoints={['30%', '50%']}
-        >
-          <ChartPeriodSelect
-            period={chartPeriodSelected}
-            setPeriod={setChartPeriodSelected}
-            closeSelectPeriod={handleClosePeriodSelectedModal}
-          />
-        </ModalViewSelection>
-      </ScrollContent>
-    </Container>
+          </ModalViewSelection>
+        </ScrollContent>
+      </Container>
+    </Screen>
   );
 }

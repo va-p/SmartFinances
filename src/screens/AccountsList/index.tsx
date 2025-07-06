@@ -10,6 +10,7 @@ import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -196,57 +197,66 @@ export function AccountsList() {
   );
 
   if (loading) {
-    return <SkeletonCategoriesAndTagsScreen />;
+    return (
+      <Screen>
+        <SkeletonCategoriesAndTagsScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={'Contas Manuais'} />
-      </Header.Root>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={'Contas Manuais'} />
+        </Header.Root>
 
-      <FlatList
-        data={accounts}
-        keyExtractor={(_, idx) => String(idx)}
-        renderItem={_renderItem}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma conta criada. Crie contas para visualizá-la aqui.' />
-        )}
-        initialNumToRender={10}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
-        }
-        ListFooterComponent={
-          <Button.Root
-            type='secondary'
-            onPress={handleOpenRegisterAccountModal}
-            style={{ marginTop: 16 }}
-          >
-            <Button.Text text='Criar Nova Conta' />
-          </Button.Root>
-        }
-        ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingTop: 8,
-          paddingBottom: bottomTabBarHeight + 16,
-        }}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          data={accounts}
+          keyExtractor={(_, idx) => String(idx)}
+          renderItem={_renderItem}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhuma conta criada. Crie contas para visualizá-la aqui.' />
+          )}
+          initialNumToRender={10}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
+          }
+          ListFooterComponent={
+            <Button.Root
+              type='secondary'
+              onPress={handleOpenRegisterAccountModal}
+              style={{ marginTop: 16 }}
+            >
+              <Button.Text text='Criar Nova Conta' />
+            </Button.Root>
+          }
+          ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingTop: 8,
+            paddingBottom: bottomTabBarHeight + 16,
+          }}
+          showsVerticalScrollIndicator={false}
+        />
 
-      <ModalView
-        type={accountID !== '' ? 'secondary' : 'primary'}
-        title={accountID !== '' ? 'Editar Conta' : 'Criar Nova Conta'}
-        bottomSheetRef={editAccountBottomSheetRef}
-        snapPoints={['50%', '75%']}
-        closeModal={handleCloseRegisterAccountModal}
-        deleteChildren={handleClickDeleteAccount}
-      >
-        <RegisterAccount id={accountID} closeAccount={handleCloseEditAccount} />
-      </ModalView>
-    </Container>
+        <ModalView
+          type={accountID !== '' ? 'secondary' : 'primary'}
+          title={accountID !== '' ? 'Editar Conta' : 'Criar Nova Conta'}
+          bottomSheetRef={editAccountBottomSheetRef}
+          snapPoints={['50%', '75%']}
+          closeModal={handleCloseRegisterAccountModal}
+          deleteChildren={handleClickDeleteAccount}
+        >
+          <RegisterAccount
+            id={accountID}
+            closeAccount={handleCloseEditAccount}
+          />
+        </ModalView>
+      </Container>
+    </Screen>
   );
 }

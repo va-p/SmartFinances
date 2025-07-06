@@ -7,10 +7,11 @@ import getAccounts from '@utils/getAccounts';
 import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { Load } from '@components/Button/components/Load';
+import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
+import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 import { useUser } from '@storage/userStorage';
@@ -73,28 +74,30 @@ export function AccountSelect({
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <FlatList
-        data={accounts}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <ListItem
-            data={item}
-            isActive={account.id === item.id}
-            onPress={() => handleAccountSelect(item)}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />
-        )}
-        ItemSeparatorComponent={() => <ListSeparator />}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
-        }
-        style={{ flex: 1, width: '100%' }}
-      />
-    </Container>
+        <FlatList
+          data={accounts}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <ListItem
+              data={item}
+              isActive={account.id === item.id}
+              onPress={() => handleAccountSelect(item)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />
+          )}
+          ItemSeparatorComponent={() => <ListSeparator />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
+          }
+          style={{ flex: 1, width: '100%' }}
+        />
+      </Container>
+    </Screen>
   );
 }

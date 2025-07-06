@@ -27,7 +27,9 @@ import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
@@ -43,10 +45,7 @@ import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelecte
 
 import api from '@api/api';
 
-import { BudgetProps } from '@interfaces/budget';
-
 import theme from '@themes/theme';
-import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string | null;
@@ -319,142 +318,144 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   );
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <ControlledInputWithIcon
-        icon={<PencilSimple color={theme.colors.primary} />}
-        placeholder='Nome do orçamento'
-        autoCapitalize='sentences'
-        autoCorrect={false}
-        defaultValue={getValues('name')}
-        name='name'
-        control={control}
-        error={errors.name}
-      />
-
-      <AmountContainer>
-        <AmountGroup>
-          <ControlledInputWithIcon
-            icon={<Money color={theme.colors.primary} />}
-            placeholder='Valor do orçamento'
-            keyboardType='numeric'
-            defaultValue={getValues('amount')}
-            name='amount'
-            control={control}
-            error={errors.amount}
-          />
-        </AmountGroup>
-
-        <CurrencyGroup>
-          <SelectDropdown
-            data={currencies}
-            onSelect={(selectedItem) => {
-              setCurrencySelected(selectedItem);
-            }}
-            defaultButtonText='Moeda'
-            buttonTextAfterSelection={(selectedItem) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item) => {
-              return item;
-            }}
-            buttonStyle={{
-              width: '90%',
-              minHeight: 40,
-              maxHeight: 40,
-              marginTop: 10,
-              backgroundColor: theme.colors.shape,
-              borderRadius: 10,
-            }}
-            buttonTextStyle={{
-              fontFamily: theme.fonts.regular,
-              fontSize: 15,
-              textAlign: 'left',
-              color: theme.colors.text,
-            }}
-            renderDropdownIcon={() => {
-              return <CaretDown color={theme.colors.text} size={16} />;
-            }}
-            dropdownIconPosition='right'
-            rowStyle={{ backgroundColor: theme.colors.background }}
-            rowTextStyle={{ color: theme.colors.text }}
-            dropdownStyle={{ borderRadius: 10 }}
-          />
-        </CurrencyGroup>
-      </AmountContainer>
-
-      <SelectButton
-        title='Orçamento para'
-        subTitle={
-          budgetCategoriesSelected[0]
-            ? budgetCategoriesSelected.length > 1
-              ? `${budgetCategoriesSelected.length} categorias`
-              : `${budgetCategoriesSelected.length} categoria`
-            : 'Selecione as categorias'
-        }
-        icon={<CirclesFour color={theme.colors.primary} />}
-        onPress={handleOpenSelectCategoryModal}
-      />
-
-      <SelectButton
-        title='Data de início'
-        subTitle={formattedDate}
-        icon={<Calendar color={theme.colors.primary} />}
-        onPress={() => setShowDatePicker(true)}
-      />
-      {showDatePicker && (
-        <DateTimePicker
-          testID='dateTimePicker'
-          value={startDate}
-          mode='date'
-          is24Hour={true}
-          onChange={onChangeDate}
-          dateFormat='day month year'
-          textColor={theme.colors.text}
+        <ControlledInputWithIcon
+          icon={<PencilSimple color={theme.colors.primary} />}
+          placeholder='Nome do orçamento'
+          autoCapitalize='sentences'
+          autoCorrect={false}
+          defaultValue={getValues('name')}
+          name='name'
+          control={control}
+          error={errors.name}
         />
-      )}
 
-      <SelectButton
-        title='Repetir'
-        subTitle={budgetPeriodSelected.name}
-        icon={<Repeat color={theme.colors.primary} />}
-        onPress={handleOpenSelectRecurrencePeriodModal}
-      />
+        <AmountContainer>
+          <AmountGroup>
+            <ControlledInputWithIcon
+              icon={<Money color={theme.colors.primary} />}
+              placeholder='Valor do orçamento'
+              keyboardType='numeric'
+              defaultValue={getValues('amount')}
+              name='amount'
+              control={control}
+              error={errors.amount}
+            />
+          </AmountGroup>
 
-      <Footer>
-        <Button.Root
-          type='secondary'
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleRegisterBudget)}
+          <CurrencyGroup>
+            <SelectDropdown
+              data={currencies}
+              onSelect={(selectedItem) => {
+                setCurrencySelected(selectedItem);
+              }}
+              defaultButtonText='Moeda'
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item) => {
+                return item;
+              }}
+              buttonStyle={{
+                width: '90%',
+                minHeight: 40,
+                maxHeight: 40,
+                marginTop: 10,
+                backgroundColor: theme.colors.shape,
+                borderRadius: 10,
+              }}
+              buttonTextStyle={{
+                fontFamily: theme.fonts.regular,
+                fontSize: 15,
+                textAlign: 'left',
+                color: theme.colors.text,
+              }}
+              renderDropdownIcon={() => {
+                return <CaretDown color={theme.colors.text} size={16} />;
+              }}
+              dropdownIconPosition='right'
+              rowStyle={{ backgroundColor: theme.colors.background }}
+              rowTextStyle={{ color: theme.colors.text }}
+              dropdownStyle={{ borderRadius: 10 }}
+            />
+          </CurrencyGroup>
+        </AmountContainer>
+
+        <SelectButton
+          title='Orçamento para'
+          subTitle={
+            budgetCategoriesSelected[0]
+              ? budgetCategoriesSelected.length > 1
+                ? `${budgetCategoriesSelected.length} categorias`
+                : `${budgetCategoriesSelected.length} categoria`
+              : 'Selecione as categorias'
+          }
+          icon={<CirclesFour color={theme.colors.primary} />}
+          onPress={handleOpenSelectCategoryModal}
+        />
+
+        <SelectButton
+          title='Data de início'
+          subTitle={formattedDate}
+          icon={<Calendar color={theme.colors.primary} />}
+          onPress={() => setShowDatePicker(true)}
+        />
+        {showDatePicker && (
+          <DateTimePicker
+            testID='dateTimePicker'
+            value={startDate}
+            mode='date'
+            is24Hour={true}
+            onChange={onChangeDate}
+            dateFormat='day month year'
+            textColor={theme.colors.text}
+          />
+        )}
+
+        <SelectButton
+          title='Repetir'
+          subTitle={budgetPeriodSelected.name}
+          icon={<Repeat color={theme.colors.primary} />}
+          onPress={handleOpenSelectRecurrencePeriodModal}
+        />
+
+        <Footer>
+          <Button.Root
+            type='secondary'
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleRegisterBudget)}
+          >
+            <Button.Text
+              text={id !== null ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+            />
+          </Button.Root>
+        </Footer>
+
+        <ModalViewSelection
+          $modal
+          title='Categorias'
+          bottomSheetRef={categoryBottomSheetRef}
+          snapPoints={['50%']}
+          onClose={handleCloseSelectCategoryModal}
         >
-          <Button.Text
-            text={id !== null ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+          <BudgetCategorySelect />
+        </ModalViewSelection>
+
+        <ModalViewSelection
+          title='Período do orçamento'
+          bottomSheetRef={periodBottomSheetRef}
+          snapPoints={['50%']}
+        >
+          <BudgetPeriodSelect
+            period={budgetPeriodSelected}
+            setPeriod={setBudgetPeriodSelected}
+            closeSelectPeriod={handleCloseSelectRecurrencePeriodModal}
           />
-        </Button.Root>
-      </Footer>
-
-      <ModalViewSelection
-        $modal
-        title='Categorias'
-        bottomSheetRef={categoryBottomSheetRef}
-        snapPoints={['50%']}
-        onClose={handleCloseSelectCategoryModal}
-      >
-        <BudgetCategorySelect />
-      </ModalViewSelection>
-
-      <ModalViewSelection
-        title='Período do orçamento'
-        bottomSheetRef={periodBottomSheetRef}
-        snapPoints={['50%']}
-      >
-        <BudgetPeriodSelect
-          period={budgetPeriodSelected}
-          setPeriod={setBudgetPeriodSelected}
-          closeSelectPeriod={handleCloseSelectRecurrencePeriodModal}
-        />
-      </ModalViewSelection>
-    </Container>
+        </ModalViewSelection>
+      </Container>
+    </Screen>
   );
 }

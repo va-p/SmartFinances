@@ -3,7 +3,6 @@ import { StatusBar } from 'react-native';
 
 import { useAuth } from '@contexts/AuthProvider';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';

@@ -17,6 +17,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -256,129 +257,131 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   );
 
   return (
-    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Gradient />
+    <Screen>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Gradient />
 
-      <Form>
-        <ControlledInputWithIcon
-          icon={<PencilSimple color={theme.colors.primary} />}
-          placeholder='Nome'
-          autoCapitalize='sentences'
-          autoCorrect={false}
-          defaultValue={String(getValues('name'))}
-          name='name'
-          control={control}
-          error={errors.name}
-        />
-
-        <ControlledInputWithIcon
-          icon={<Money color={theme.colors.primary} />}
-          placeholder='Saldo da conta'
-          keyboardType='numeric'
-          returnKeyType='go'
-          defaultValue={String(getValues('balance'))}
-          name='balance'
-          control={control}
-          error={errors.balance}
-          onSubmitEditing={handleSubmit(handleRegisterAccount)}
-        />
-
-        <SelectButton
-          title={currencySelected.name}
-          icon={<Coins color={theme.colors.primary} />}
-          onPress={handleOpenSelectCurrencyModal}
-        />
-
-        <SelectDropdown
-          data={accountTypes}
-          onSelect={(selectedItem) => {
-            switch (selectedItem) {
-              case 'Cartão de Crédito':
-                setTypeSelected('CREDIT');
-                break;
-              case 'Carteira':
-                setTypeSelected('WALLET');
-                break;
-              case 'Carteira de Criptomoedas':
-                setTypeSelected('CRYPTOCURRENCY WALLET');
-                break;
-              case 'Conta Corrente':
-                setTypeSelected('BANK');
-                break;
-              case 'Investimentos':
-              case 'Poupança':
-                setTypeSelected('INVESTMENTS');
-                break;
-              case 'Outro':
-                setTypeSelected('OTHER');
-                break;
-            }
-          }}
-          defaultButtonText={
-            id !== '' ? typeSelected : 'Selecione o tipo da conta'
-          }
-          buttonTextAfterSelection={(selectedItem) => {
-            return selectedItem;
-          }}
-          rowTextForSelection={(item) => {
-            return item;
-          }}
-          buttonStyle={{
-            width: '100%',
-            minHeight: 40,
-            maxHeight: 40,
-            marginTop: 10,
-            backgroundColor: theme.colors.shape,
-            borderRadius: 10,
-          }}
-          buttonTextStyle={{
-            fontFamily: theme.fonts.regular,
-            fontSize: 15,
-            textAlign: 'left',
-            color: theme.colors.text,
-          }}
-          renderDropdownIcon={() => {
-            return <CaretRight size={20} color={theme.colors.text} />;
-          }}
-          dropdownIconPosition='right'
-          rowStyle={{ backgroundColor: theme.colors.background }}
-          rowTextStyle={{ color: theme.colors.text }}
-          dropdownStyle={{ borderRadius: 10 }}
-        />
-
-        {id !== '' && (
-          <ButtonToggle
-            icon={<EyeSlash color={theme.colors.primary} />}
-            title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
-            onValueChange={handleHideAccount}
-            value={hideAccount}
-            isEnabled={hideAccount}
+        <Form>
+          <ControlledInputWithIcon
+            icon={<PencilSimple color={theme.colors.primary} />}
+            placeholder='Nome'
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            defaultValue={String(getValues('name'))}
+            name='name'
+            control={control}
+            error={errors.name}
           />
-        )}
-      </Form>
 
-      <Footer>
-        <Button.Root
-          type='secondary'
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleRegisterAccount)}
+          <ControlledInputWithIcon
+            icon={<Money color={theme.colors.primary} />}
+            placeholder='Saldo da conta'
+            keyboardType='numeric'
+            returnKeyType='go'
+            defaultValue={String(getValues('balance'))}
+            name='balance'
+            control={control}
+            error={errors.balance}
+            onSubmitEditing={handleSubmit(handleRegisterAccount)}
+          />
+
+          <SelectButton
+            title={currencySelected.name}
+            icon={<Coins color={theme.colors.primary} />}
+            onPress={handleOpenSelectCurrencyModal}
+          />
+
+          <SelectDropdown
+            data={accountTypes}
+            onSelect={(selectedItem) => {
+              switch (selectedItem) {
+                case 'Cartão de Crédito':
+                  setTypeSelected('CREDIT');
+                  break;
+                case 'Carteira':
+                  setTypeSelected('WALLET');
+                  break;
+                case 'Carteira de Criptomoedas':
+                  setTypeSelected('CRYPTOCURRENCY WALLET');
+                  break;
+                case 'Conta Corrente':
+                  setTypeSelected('BANK');
+                  break;
+                case 'Investimentos':
+                case 'Poupança':
+                  setTypeSelected('INVESTMENTS');
+                  break;
+                case 'Outro':
+                  setTypeSelected('OTHER');
+                  break;
+              }
+            }}
+            defaultButtonText={
+              id !== '' ? typeSelected : 'Selecione o tipo da conta'
+            }
+            buttonTextAfterSelection={(selectedItem) => {
+              return selectedItem;
+            }}
+            rowTextForSelection={(item) => {
+              return item;
+            }}
+            buttonStyle={{
+              width: '100%',
+              minHeight: 40,
+              maxHeight: 40,
+              marginTop: 10,
+              backgroundColor: theme.colors.shape,
+              borderRadius: 10,
+            }}
+            buttonTextStyle={{
+              fontFamily: theme.fonts.regular,
+              fontSize: 15,
+              textAlign: 'left',
+              color: theme.colors.text,
+            }}
+            renderDropdownIcon={() => {
+              return <CaretRight size={20} color={theme.colors.text} />;
+            }}
+            dropdownIconPosition='right'
+            rowStyle={{ backgroundColor: theme.colors.background }}
+            rowTextStyle={{ color: theme.colors.text }}
+            dropdownStyle={{ borderRadius: 10 }}
+          />
+
+          {id !== '' && (
+            <ButtonToggle
+              icon={<EyeSlash color={theme.colors.primary} />}
+              title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
+              onValueChange={handleHideAccount}
+              value={hideAccount}
+              isEnabled={hideAccount}
+            />
+          )}
+        </Form>
+
+        <Footer>
+          <Button.Root
+            type='secondary'
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleRegisterAccount)}
+          >
+            <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
+          </Button.Root>
+        </Footer>
+
+        <ModalViewSelection
+          $modal
+          title='Selecione a moeda'
+          bottomSheetRef={currencyBottomSheetRef}
+          snapPoints={['75%']}
         >
-          <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
-        </Button.Root>
-      </Footer>
-
-      <ModalViewSelection
-        $modal
-        title='Selecione a moeda'
-        bottomSheetRef={currencyBottomSheetRef}
-        snapPoints={['75%']}
-      >
-        <CurrencySelect
-          currency={currencySelected}
-          setCurrency={setCurrencySelected}
-          closeSelectCurrency={handleCloseSelectCurrencyModal}
-        />
-      </ModalViewSelection>
-    </Container>
+          <CurrencySelect
+            currency={currencySelected}
+            setCurrency={setCurrencySelected}
+            closeSelectCurrency={handleCloseSelectCurrencyModal}
+          />
+        </ModalViewSelection>
+      </Container>
+    </Screen>
   );
 }

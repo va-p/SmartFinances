@@ -22,6 +22,7 @@ import {
   PeriodContainer,
   StartPeriod,
 } from '@components/BudgetListItem/styles';
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
@@ -131,109 +132,114 @@ export function BudgetDetails() {
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={budget.name} />
-        <Header.Icon onPress={handleOpenEditBudgetModal} />
-      </Header.Root>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={budget.name} />
+          <Header.Icon onPress={handleOpenEditBudgetModal} />
+        </Header.Root>
 
-      <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
-        {formatCurrency(
-          budget.currency.code,
-          Number(budget.amount_spent),
-          false
-        )}
-      </BudgetTotal>
-      <BudgetTotalDescription>
-        {`Restam ${formatCurrency(
-          budget.currency.code,
-          calculateRemainderBudget(),
-          false
-        )}`}
-      </BudgetTotalDescription>
-
-      <InsightCard.Root>
-        <InsightCard.Description
-          description={
-            !budgetAmountReached
-              ? `Você ainda pode gastar ${formatCurrency(
-                  budget.currency.code,
-                  calculateRemainderBudgetPerDay(),
-                  false
-                )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
-              : `O seu orçamento foi excedido em ${formatCurrency(
-                  budget.currency.code,
-                  calculateRemainderBudget() * -1,
-                  false
-                )}. Pare de gastar para não comprometer mais o seu orçamento!`
-          }
-        />
-      </InsightCard.Root>
-
-      <BudgetPercentBar is_amount_reached={budgetAmountReached} data={budget} />
-      <PeriodContainer>
-        <StartPeriod>{budget.start_date}</StartPeriod>
-        <EndPeriod>{budget.end_date}</EndPeriod>
-      </PeriodContainer>
-
-      <TransactionsContainer>
-        <SectionTitle>Transações</SectionTitle>
-        <FlashList
-          data={budget.transactions}
-          keyExtractor={(item: any) => item.id}
-          showsVerticalScrollIndicator={false}
-          estimatedItemSize={92}
-          renderItem={({ item, index }: any) => (
-            <TransactionListItem
-              data={item}
-              index={index}
-              hideAmount={hideAmount}
-              onPress={() => handleOpenTransaction(item.id)}
-            />
+        <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
+          {formatCurrency(
+            budget.currency.code,
+            Number(budget.amount_spent),
+            false
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
-          )}
-          ItemSeparatorComponent={() => (
-            <View style={{ minHeight: 8, maxHeight: 8 }} />
-          )}
-          contentContainerStyle={{
-            paddingBottom: bottomTabBarHeight,
-          }}
-        />
-      </TransactionsContainer>
+        </BudgetTotal>
+        <BudgetTotalDescription>
+          {`Restam ${formatCurrency(
+            budget.currency.code,
+            calculateRemainderBudget(),
+            false
+          )}`}
+        </BudgetTotalDescription>
 
-      <ModalView
-        type={'primary'}
-        title={'Editar Orçamento'}
-        bottomSheetRef={budgetEditBottomSheetRef}
-        enableContentPanningGesture={false}
-        enablePanDownToClose
-        snapPoints={['75%']}
-        closeModal={handleCloseEditBudgetModal}
-        onClose={handleCloseEditBudgetModal}
-        deleteChildren={handleClickDeleteBudget}
-      >
-        <RegisterBudget
-          id={budget.id}
-          closeBudget={handleCloseEditBudgetModal}
-        />
-      </ModalView>
+        <InsightCard.Root>
+          <InsightCard.Description
+            description={
+              !budgetAmountReached
+                ? `Você ainda pode gastar ${formatCurrency(
+                    budget.currency.code,
+                    calculateRemainderBudgetPerDay(),
+                    false
+                  )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
+                : `O seu orçamento foi excedido em ${formatCurrency(
+                    budget.currency.code,
+                    calculateRemainderBudget() * -1,
+                    false
+                  )}. Pare de gastar para não comprometer mais o seu orçamento!`
+            }
+          />
+        </InsightCard.Root>
 
-      <ModalViewWithoutHeader
-        bottomSheetRef={registerTransactionBottomSheetRef}
-        snapPoints={['100%']}
-      >
-        <RegisterTransaction
-          id={transactionID}
-          resetId={ClearTransactionID}
-          closeRegisterTransaction={handleCloseRegisterTransactionModal}
-          closeModal={handleCloseRegisterTransactionModal}
+        <BudgetPercentBar
+          is_amount_reached={budgetAmountReached}
+          data={budget}
         />
-      </ModalViewWithoutHeader>
-    </Container>
+        <PeriodContainer>
+          <StartPeriod>{budget.start_date}</StartPeriod>
+          <EndPeriod>{budget.end_date}</EndPeriod>
+        </PeriodContainer>
+
+        <TransactionsContainer>
+          <SectionTitle>Transações</SectionTitle>
+          <FlashList
+            data={budget.transactions}
+            keyExtractor={(item: any) => item.id}
+            showsVerticalScrollIndicator={false}
+            estimatedItemSize={92}
+            renderItem={({ item, index }: any) => (
+              <TransactionListItem
+                data={item}
+                index={index}
+                hideAmount={hideAmount}
+                onPress={() => handleOpenTransaction(item.id)}
+              />
+            )}
+            ListEmptyComponent={() => (
+              <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+            )}
+            ItemSeparatorComponent={() => (
+              <View style={{ minHeight: 8, maxHeight: 8 }} />
+            )}
+            contentContainerStyle={{
+              paddingBottom: bottomTabBarHeight,
+            }}
+          />
+        </TransactionsContainer>
+
+        <ModalView
+          type={'primary'}
+          title={'Editar Orçamento'}
+          bottomSheetRef={budgetEditBottomSheetRef}
+          enableContentPanningGesture={false}
+          enablePanDownToClose
+          snapPoints={['75%']}
+          closeModal={handleCloseEditBudgetModal}
+          onClose={handleCloseEditBudgetModal}
+          deleteChildren={handleClickDeleteBudget}
+        >
+          <RegisterBudget
+            id={budget.id}
+            closeBudget={handleCloseEditBudgetModal}
+          />
+        </ModalView>
+
+        <ModalViewWithoutHeader
+          bottomSheetRef={registerTransactionBottomSheetRef}
+          snapPoints={['100%']}
+        >
+          <RegisterTransaction
+            id={transactionID}
+            resetId={ClearTransactionID}
+            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            closeModal={handleCloseRegisterTransactionModal}
+          />
+        </ModalViewWithoutHeader>
+      </Container>
+    </Screen>
   );
 }

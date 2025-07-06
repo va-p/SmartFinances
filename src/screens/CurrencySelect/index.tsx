@@ -4,6 +4,7 @@ import { Container } from './styles';
 
 import { CurrencyProps } from '@interfaces/currencies';
 
+import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
@@ -27,22 +28,24 @@ export function CurrencySelect({
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <FlatList
-        data={currencies}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ListItem
-            data={item}
-            isActive={currency.id === item.id}
-            onPress={() => handleCurrencySelect(item)}
-          />
-        )}
-        ItemSeparatorComponent={() => <ListSeparator />}
-        style={{ flex: 1, width: '100%' }}
-      />
-    </Container>
+        <FlatList
+          data={currencies}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <ListItem
+              data={item}
+              isActive={currency.id === item.id}
+              onPress={() => handleCurrencySelect(item)}
+            />
+          )}
+          ItemSeparatorComponent={() => <ListSeparator />}
+          style={{ flex: 1, width: '100%' }}
+        />
+      </Container>
+    </Screen>
   );
 }

@@ -59,6 +59,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { PeriodRuler } from '@components/PeriodRuler';
@@ -422,147 +423,154 @@ export function Account() {
   //}
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Animated.View style={[headerStyleAnimation, styles.header]}>
-        <HeaderContainer>
-          <Header.Root>
-            <Header.BackButton />
-            <Header.Title title={accountName || ''} />
-            <Header.Icon onPress={handleOpenEditAccount} />
-          </Header.Root>
-        </HeaderContainer>
+        <Animated.View style={[headerStyleAnimation, styles.header]}>
+          <HeaderContainer>
+            <Header.Root>
+              <Header.BackButton />
+              <Header.Title title={accountName || ''} />
+              <Header.Icon onPress={handleOpenEditAccount} />
+            </Header.Root>
+          </HeaderContainer>
 
-        <FiltersContainer>
-          <FilterButtonGroup>
-            <FilterButton
-              title={`Por ${selectedPeriod.name}`}
-              onPress={handleOpenPeriodSelectedModal}
-            />
-          </FilterButtonGroup>
-        </FiltersContainer>
+          <FiltersContainer>
+            <FilterButtonGroup>
+              <FilterButton
+                title={`Por ${selectedPeriod.name}`}
+                onPress={handleOpenPeriodSelectedModal}
+              />
+            </FilterButtonGroup>
+          </FiltersContainer>
 
-        <AccountBalanceContainer>
-          <AccountBalanceGroup>
-            <AccountBalance balanceIsPositive={balanceIsPositive}>
-              {!hideAmount ? accountBalance : '•••••'}
-            </AccountBalance>
-            <AccountBalanceDescription>
-              {!isCreditCard && 'Saldo da conta'}
-              {isCreditCard && 'Saldo do cartão'}
-            </AccountBalanceDescription>
-          </AccountBalanceGroup>
+          <AccountBalanceContainer>
+            <AccountBalanceGroup>
+              <AccountBalance balanceIsPositive={balanceIsPositive}>
+                {!hideAmount ? accountBalance : '•••••'}
+              </AccountBalance>
+              <AccountBalanceDescription>
+                {!isCreditCard && 'Saldo da conta'}
+                {isCreditCard && 'Saldo do cartão'}
+              </AccountBalanceDescription>
+            </AccountBalanceGroup>
 
-          <AccountBalanceSeparator />
+            <AccountBalanceSeparator />
 
-          <AccountBalanceGroup>
-            <AccountCashFlow
-              balanceIsPositive={
-                !isCreditCard ? cashFlowIsPositive : hasCreditCardAvailableLimit
-              }
-            >
-              {!isCreditCard
-                ? !hideAmount
-                  ? cashFlowBySelectedPeriod
-                  : '•••••'
-                : !hideAmount
-                ? formatCurrency(
-                    'BRL',
-                    accountCreditData?.availableCreditLimit!
-                  )
-                : '•••••'}
-            </AccountCashFlow>
-            <AccountCashFlowDescription>
-              {!isCreditCard && 'Fluxo de caixa'}
-              {isCreditCard && 'Limite disponível'}
-            </AccountCashFlowDescription>
-          </AccountBalanceGroup>
-        </AccountBalanceContainer>
-        <Animated.View>{_renderPeriodRuler()}</Animated.View>
-      </Animated.View>
-
-      <Transactions>
-        <AnimatedSectionList
-          sections={optimizedTransactions}
-          keyExtractor={(item: any) => item.id}
-          renderItem={_renderItem}
-          renderSectionHeader={({ section }: any) => (
-            <SectionListHeader data={section} />
-          )}
-          ListEmptyComponent={_renderEmpty}
-          initialNumToRender={2000}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchTransactions}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            rowGap: 8,
-            paddingBottom: bottomTabBarHeight + 16,
-          }}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-        />
-      </Transactions>
-
-      <GestureDetector gesture={onMoveRegisterTransactionButton}>
-        <Animated.View
-          style={[
-            registerTransactionButtonStyle,
-            {
-              position: 'absolute',
-              bottom: 64,
-              right: 16,
-            },
-          ]}
-        >
-          <ButtonAnimated
-            onPress={handleOpenRegisterTransactionModal}
-            style={styles.animatedButton}
-          >
-            <Plus size={24} color={theme.colors.background} />
-          </ButtonAnimated>
+            <AccountBalanceGroup>
+              <AccountCashFlow
+                balanceIsPositive={
+                  !isCreditCard
+                    ? cashFlowIsPositive
+                    : hasCreditCardAvailableLimit
+                }
+              >
+                {!isCreditCard
+                  ? !hideAmount
+                    ? cashFlowBySelectedPeriod
+                    : '•••••'
+                  : !hideAmount
+                  ? formatCurrency(
+                      'BRL',
+                      accountCreditData?.availableCreditLimit!
+                    )
+                  : '•••••'}
+              </AccountCashFlow>
+              <AccountCashFlowDescription>
+                {!isCreditCard && 'Fluxo de caixa'}
+                {isCreditCard && 'Limite disponível'}
+              </AccountCashFlowDescription>
+            </AccountBalanceGroup>
+          </AccountBalanceContainer>
+          <Animated.View>{_renderPeriodRuler()}</Animated.View>
         </Animated.View>
-      </GestureDetector>
 
-      <ModalViewSelection
-        title='Selecione o período'
-        bottomSheetRef={periodSelectBottomSheetRef}
-        snapPoints={['30%', '50%']}
-        onClose={handleClosePeriodSelectedModal}
-      >
-        <ChartPeriodSelect
-          period={selectedPeriod}
-          closeSelectPeriod={handleClosePeriodSelectedModal}
-        />
-      </ModalViewSelection>
+        <Transactions>
+          <AnimatedSectionList
+            sections={optimizedTransactions}
+            keyExtractor={(item: any) => item.id}
+            renderItem={_renderItem}
+            renderSectionHeader={({ section }: any) => (
+              <SectionListHeader data={section} />
+            )}
+            ListEmptyComponent={_renderEmpty}
+            initialNumToRender={2000}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={fetchTransactions}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              rowGap: 8,
+              paddingBottom: bottomTabBarHeight + 16,
+            }}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+          />
+        </Transactions>
 
-      <ModalView
-        type={'secondary'}
-        title={`Editar Conta ${accountName}`}
-        bottomSheetRef={editAccountBottomSheetRef}
-        snapPoints={['75%']}
-        closeModal={handleCloseEditAccount}
-        deleteChildren={handleClickDeleteAccount}
-      >
-        <RegisterAccount id={accountID} closeAccount={handleCloseEditAccount} />
-      </ModalView>
+        <GestureDetector gesture={onMoveRegisterTransactionButton}>
+          <Animated.View
+            style={[
+              registerTransactionButtonStyle,
+              {
+                position: 'absolute',
+                bottom: 64,
+                right: 16,
+              },
+            ]}
+          >
+            <ButtonAnimated
+              onPress={handleOpenRegisterTransactionModal}
+              style={styles.animatedButton}
+            >
+              <Plus size={24} color={theme.colors.background} />
+            </ButtonAnimated>
+          </Animated.View>
+        </GestureDetector>
 
-      <ModalViewWithoutHeader
-        bottomSheetRef={addTransactionBottomSheetRef}
-        snapPoints={['100%']}
-      >
-        <RegisterTransaction
-          id={transactionId}
-          resetId={ClearTransactionId}
-          closeRegisterTransaction={handleCloseTransaction}
-          closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}
-        />
-      </ModalViewWithoutHeader>
-    </Container>
+        <ModalViewSelection
+          title='Selecione o período'
+          bottomSheetRef={periodSelectBottomSheetRef}
+          snapPoints={['30%', '50%']}
+          onClose={handleClosePeriodSelectedModal}
+        >
+          <ChartPeriodSelect
+            period={selectedPeriod}
+            closeSelectPeriod={handleClosePeriodSelectedModal}
+          />
+        </ModalViewSelection>
+
+        <ModalView
+          type={'secondary'}
+          title={`Editar Conta ${accountName}`}
+          bottomSheetRef={editAccountBottomSheetRef}
+          snapPoints={['75%']}
+          closeModal={handleCloseEditAccount}
+          deleteChildren={handleClickDeleteAccount}
+        >
+          <RegisterAccount
+            id={accountID}
+            closeAccount={handleCloseEditAccount}
+          />
+        </ModalView>
+
+        <ModalViewWithoutHeader
+          bottomSheetRef={addTransactionBottomSheetRef}
+          snapPoints={['100%']}
+        >
+          <RegisterTransaction
+            id={transactionId}
+            resetId={ClearTransactionId}
+            closeRegisterTransaction={handleCloseTransaction}
+            closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}
+          />
+        </ModalViewWithoutHeader>
+      </Container>
+    </Screen>
   );
 }
 

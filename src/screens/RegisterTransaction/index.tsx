@@ -41,6 +41,7 @@ import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import Calendar from 'phosphor-react-native/src/icons/Calendar';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { TagProps } from '@components/TagListItem';
@@ -936,264 +937,268 @@ export function RegisterTransaction({
   );
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <MainContent>
-        <Header color={categorySelected.color.color_code}>
-          <TitleContainer>
-            <BorderlessButton
-              onPress={closeModal}
-              style={{ position: 'absolute', top: 0, left: 0 }}
-            >
-              <X size={24} color={theme.colors.text} weight='bold' />
-            </BorderlessButton>
-            <Title>
-              {id !== ''
-                ? `Editar Transação \n ${getValues('description')}`
-                : 'Adicionar Transação'}
-            </Title>
-            {id !== '' && (
+        <MainContent>
+          <Header color={categorySelected.color.color_code}>
+            <TitleContainer>
               <BorderlessButton
-                onPress={() => handleClickDeleteTransaction(id)}
-                style={{ position: 'absolute', top: 0, right: 0 }}
+                onPress={closeModal}
+                style={{ position: 'absolute', top: 0, left: 0 }}
               >
-                <Trash size={24} color={theme.colors.text} weight='bold' />
+                <X size={24} color={theme.colors.text} weight='bold' />
               </BorderlessButton>
-            )}
-          </TitleContainer>
+              <Title>
+                {id !== ''
+                  ? `Editar Transação \n ${getValues('description')}`
+                  : 'Adicionar Transação'}
+              </Title>
+              {id !== '' && (
+                <BorderlessButton
+                  onPress={() => handleClickDeleteTransaction(id)}
+                  style={{ position: 'absolute', top: 0, right: 0 }}
+                >
+                  <Trash size={24} color={theme.colors.text} weight='bold' />
+                </BorderlessButton>
+              )}
+            </TitleContainer>
 
-          <HeaderRow>
-            <CategorySelectButton
-              categorySelected={categorySelected}
-              icon={categorySelected.icon?.name}
-              color={categorySelected.color.color_code}
-              onPress={handleOpenSelectCategoryModal}
-            />
+            <HeaderRow>
+              <CategorySelectButton
+                categorySelected={categorySelected}
+                icon={categorySelected.icon?.name}
+                color={categorySelected.color.color_code}
+                onPress={handleOpenSelectCategoryModal}
+              />
 
-            <InputTransactionValuesContainer>
-              <InputTransactionValueGroup>
-                <ControlledInputValue
-                  placeholder={String(getValues('amount'))}
-                  keyboardType='numeric'
-                  textAlign='right'
-                  defaultValue={String(getValues('amount'))}
-                  name='amount'
-                  control={control}
-                  error={errors.amount}
-                />
-
-                <CurrencySelectButton
-                  title={currencySelected.symbol}
-                  onPress={handleOpenSelectCurrencyModal}
-                />
-              </InputTransactionValueGroup>
-
-              {getValues('amountInAccountCurrency') !== null && (
+              <InputTransactionValuesContainer>
                 <InputTransactionValueGroup>
                   <ControlledInputValue
+                    placeholder={String(getValues('amount'))}
                     keyboardType='numeric'
                     textAlign='right'
-                    style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
-                    defaultValue={String(getValues('amountInAccountCurrency'))}
-                    name='amountInAccountCurrency'
+                    defaultValue={String(getValues('amount'))}
+                    name='amount'
                     control={control}
-                    error={errors.amountInAccountCurrency}
+                    error={errors.amount}
                   />
 
                   <CurrencySelectButton
-                    title={accountCurrency?.symbol || ''}
-                    iconSize={10}
-                    hideArrow
-                    style={{ width: 25, minHeight: 20, maxHeight: 20 }}
+                    title={currencySelected.symbol}
+                    onPress={handleOpenSelectCurrencyModal}
                   />
                 </InputTransactionValueGroup>
-              )}
-            </InputTransactionValuesContainer>
-          </HeaderRow>
-        </Header>
 
-        <ContentScroll>
-          <SelectButton
-            title={accountName || 'Selecione a conta'}
-            icon={<Wallet color={categorySelected.color.color_code} />}
-            onPress={handleOpenSelectAccountModal}
-          />
-          {transactionType === 'TRANSFER' && (
+                {getValues('amountInAccountCurrency') !== null && (
+                  <InputTransactionValueGroup>
+                    <ControlledInputValue
+                      keyboardType='numeric'
+                      textAlign='right'
+                      style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
+                      defaultValue={String(
+                        getValues('amountInAccountCurrency')
+                      )}
+                      name='amountInAccountCurrency'
+                      control={control}
+                      error={errors.amountInAccountCurrency}
+                    />
+
+                    <CurrencySelectButton
+                      title={accountCurrency?.symbol || ''}
+                      iconSize={10}
+                      hideArrow
+                      style={{ width: 25, minHeight: 20, maxHeight: 20 }}
+                    />
+                  </InputTransactionValueGroup>
+                )}
+              </InputTransactionValuesContainer>
+            </HeaderRow>
+          </Header>
+
+          <ContentScroll>
             <SelectButton
-              title={accountDestinationSelected.name}
+              title={accountName || 'Selecione a conta'}
               icon={<Wallet color={categorySelected.color.color_code} />}
-              onPress={handleOpenSelectAccountDestinationModal}
+              onPress={handleOpenSelectAccountModal}
             />
-          )}
-
-          <SelectButton
-            title={formattedDate}
-            icon={<Calendar color={categorySelected.color.color_code} />}
-            onPress={() => setShowDatePicker(true)}
-          />
-          {showDatePicker && (
-            <DateTimePicker
-              testID='dateTimePicker'
-              value={date}
-              mode='date'
-              is24Hour={true}
-              onChange={onChangeDate}
-              dateFormat='day month year'
-              textColor={theme.colors.text}
-            />
-          )}
-
-          <ControlledInputWithIcon
-            icon={<PencilSimple color={categorySelected.color.color_code} />}
-            placeholder='Descrição'
-            numberOfLines={2}
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            returnKeyType='go'
-            defaultValue={String(getValues('description'))}
-            name='description'
-            control={control}
-            error={errors.description}
-            onSubmitEditing={handleSubmit(handleRegisterTransaction)}
-          />
-
-          <SelectButton
-            title='Etiquetas'
-            icon={<Tag color={categorySelected.color.color_code} />}
-          />
-          <FlatList
-            data={tags}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }: any) => (
-              <TagListItemRegisterTransaction
-                data={item}
-                isChecked={tagsSelected.includes(item)}
-                color={categorySelected.color.color_code}
-                onPress={() => handleSelectTag(item)}
+            {transactionType === 'TRANSFER' && (
+              <SelectButton
+                title={accountDestinationSelected.name}
+                icon={<Wallet color={categorySelected.color.color_code} />}
+                onPress={handleOpenSelectAccountDestinationModal}
               />
             )}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 12,
-              paddingBottom: 12,
-            }}
-          />
 
-          <SelectButton
-            title={imageUrl !== '' ? 'Alterar imagem' : 'Selecionar imagem'}
-            icon={<Image color={categorySelected.color.color_code} />}
-            onPress={handleClickSelectImage}
-          />
-          {imageUrl !== '' && (
-            <TransactionImageContainer onPress={handleOpenImage}>
-              <TransactionImage source={{ uri: imageUrl }} />
-            </TransactionImageContainer>
-          )}
-
-          <TransactionsTypes>
-            <TransactionTypeButton
-              buttons={categoriesSectionButtons}
-              selectedTab={selectedTransactionTab}
-              setSelectedTab={handleTransactionsTypeSelect}
+            <SelectButton
+              title={formattedDate}
+              icon={<Calendar color={categorySelected.color.color_code} />}
+              onPress={() => setShowDatePicker(true)}
             />
-          </TransactionsTypes>
-        </ContentScroll>
-      </MainContent>
+            {showDatePicker && (
+              <DateTimePicker
+                testID='dateTimePicker'
+                value={date}
+                mode='date'
+                is24Hour={true}
+                onChange={onChangeDate}
+                dateFormat='day month year'
+                textColor={theme.colors.text}
+              />
+            )}
 
-      <Footer>
-        <Button.Root
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleRegisterTransaction)}
+            <ControlledInputWithIcon
+              icon={<PencilSimple color={categorySelected.color.color_code} />}
+              placeholder='Descrição'
+              numberOfLines={2}
+              autoCapitalize='sentences'
+              autoCorrect={false}
+              returnKeyType='go'
+              defaultValue={String(getValues('description'))}
+              name='description'
+              control={control}
+              error={errors.description}
+              onSubmitEditing={handleSubmit(handleRegisterTransaction)}
+            />
+
+            <SelectButton
+              title='Etiquetas'
+              icon={<Tag color={categorySelected.color.color_code} />}
+            />
+            <FlatList
+              data={tags}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }: any) => (
+                <TagListItemRegisterTransaction
+                  data={item}
+                  isChecked={tagsSelected.includes(item)}
+                  color={categorySelected.color.color_code}
+                  onPress={() => handleSelectTag(item)}
+                />
+              )}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: 12,
+                paddingBottom: 12,
+              }}
+            />
+
+            <SelectButton
+              title={imageUrl !== '' ? 'Alterar imagem' : 'Selecionar imagem'}
+              icon={<Image color={categorySelected.color.color_code} />}
+              onPress={handleClickSelectImage}
+            />
+            {imageUrl !== '' && (
+              <TransactionImageContainer onPress={handleOpenImage}>
+                <TransactionImage source={{ uri: imageUrl }} />
+              </TransactionImageContainer>
+            )}
+
+            <TransactionsTypes>
+              <TransactionTypeButton
+                buttons={categoriesSectionButtons}
+                selectedTab={selectedTransactionTab}
+                setSelectedTab={handleTransactionsTypeSelect}
+              />
+            </TransactionsTypes>
+          </ContentScroll>
+        </MainContent>
+
+        <Footer>
+          <Button.Root
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleRegisterTransaction)}
+          >
+            <Button.Text
+              text={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
+            />
+          </Button.Root>
+        </Footer>
+
+        <ModalViewSelection
+          $modal
+          title='Selecione a categoria'
+          bottomSheetRef={categoryBottomSheetRef}
+          snapPoints={['50%']}
         >
-          <Button.Text
-            text={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
+          <CategorySelect
+            categorySelected={categorySelected}
+            setCategory={setCategorySelected}
+            closeSelectCategory={handleCloseSelectCategoryModal}
           />
-        </Button.Root>
-      </Footer>
+        </ModalViewSelection>
 
-      <ModalViewSelection
-        $modal
-        title='Selecione a categoria'
-        bottomSheetRef={categoryBottomSheetRef}
-        snapPoints={['50%']}
-      >
-        <CategorySelect
-          categorySelected={categorySelected}
-          setCategory={setCategorySelected}
-          closeSelectCategory={handleCloseSelectCategoryModal}
+        <ModalViewSelection
+          $modal
+          title='Selecione a moeda'
+          bottomSheetRef={currencyBottomSheetRef}
+          snapPoints={['50%']}
+        >
+          <CurrencySelect
+            currency={currencySelected}
+            setCurrency={setCurrencySelected}
+            closeSelectCurrency={handleCloseSelectCurrencyModal}
+          />
+        </ModalViewSelection>
+
+        <ModalViewSelection
+          $modal
+          title='Selecione a conta'
+          bottomSheetRef={accountBottomSheetRef}
+          snapPoints={['50%']}
+        >
+          <AccountSelect
+            account={{
+              id: accountID,
+              name: accountName || 'Selecione a conta',
+              currency: accountCurrency || {
+                id: '4',
+                name: 'Real Brasileiro',
+                code: 'BRL',
+                symbol: 'R$',
+              },
+              type: accountType || 'BANK',
+              balance: '0',
+              initialAmount: accountInitialAmount,
+            }}
+            setAccount={(account: AccountProps) => {
+              setAccountID(account.id);
+              setAccountName(account.name);
+              setAccountCurrency(account.currency);
+              setAccountType(account.type);
+              setCurrencySelected(account.currency);
+              setAccountInitialAmount(account.initialAmount || 0);
+            }}
+            closeSelectAccount={handleCloseSelectAccountModal}
+          />
+        </ModalViewSelection>
+
+        <ModalViewSelection
+          $modal
+          title='Selecione a conta de destino'
+          bottomSheetRef={accountDestinationBottomSheetRef}
+          snapPoints={['50%']}
+          onClose={handleCloseSelectAccountDestinationModal}
+        >
+          <AccountDestinationSelect
+            accountDestination={accountDestinationSelected}
+            setAccountDestination={setAccountDestinationSelected}
+            closeSelectAccountDestination={
+              handleCloseSelectAccountDestinationModal
+            }
+          />
+        </ModalViewSelection>
+
+        <ImageView
+          images={[{ uri: imageUrl }]}
+          imageIndex={0}
+          visible={openImage}
+          onRequestClose={handleCloseImage}
+          swipeToCloseEnabled={false}
         />
-      </ModalViewSelection>
-
-      <ModalViewSelection
-        $modal
-        title='Selecione a moeda'
-        bottomSheetRef={currencyBottomSheetRef}
-        snapPoints={['50%']}
-      >
-        <CurrencySelect
-          currency={currencySelected}
-          setCurrency={setCurrencySelected}
-          closeSelectCurrency={handleCloseSelectCurrencyModal}
-        />
-      </ModalViewSelection>
-
-      <ModalViewSelection
-        $modal
-        title='Selecione a conta'
-        bottomSheetRef={accountBottomSheetRef}
-        snapPoints={['50%']}
-      >
-        <AccountSelect
-          account={{
-            id: accountID,
-            name: accountName || 'Selecione a conta',
-            currency: accountCurrency || {
-              id: '4',
-              name: 'Real Brasileiro',
-              code: 'BRL',
-              symbol: 'R$',
-            },
-            type: accountType || 'BANK',
-            balance: '0',
-            initialAmount: accountInitialAmount,
-          }}
-          setAccount={(account: AccountProps) => {
-            setAccountID(account.id);
-            setAccountName(account.name);
-            setAccountCurrency(account.currency);
-            setAccountType(account.type);
-            setCurrencySelected(account.currency);
-            setAccountInitialAmount(account.initialAmount || 0);
-          }}
-          closeSelectAccount={handleCloseSelectAccountModal}
-        />
-      </ModalViewSelection>
-
-      <ModalViewSelection
-        $modal
-        title='Selecione a conta de destino'
-        bottomSheetRef={accountDestinationBottomSheetRef}
-        snapPoints={['50%']}
-        onClose={handleCloseSelectAccountDestinationModal}
-      >
-        <AccountDestinationSelect
-          accountDestination={accountDestinationSelected}
-          setAccountDestination={setAccountDestinationSelected}
-          closeSelectAccountDestination={
-            handleCloseSelectAccountDestinationModal
-          }
-        />
-      </ModalViewSelection>
-
-      <ImageView
-        images={[{ uri: imageUrl }]}
-        imageIndex={0}
-        visible={openImage}
-        onRequestClose={handleCloseImage}
-        swipeToCloseEnabled={false}
-      />
-    </Container>
+      </Container>
+    </Screen>
   );
 }

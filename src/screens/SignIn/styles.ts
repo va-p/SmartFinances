@@ -5,6 +5,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
+  padding-top: 16px;
 `;
 
 export const SectionHeader = styled.View`

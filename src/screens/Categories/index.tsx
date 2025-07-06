@@ -7,6 +7,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -127,63 +128,77 @@ export function Categories() {
   );
 
   if (loading) {
-    return <SkeletonCategoriesAndTagsScreen />;
+    return (
+      <Screen>
+        <SkeletonCategoriesAndTagsScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title='Categorias' />
-      </Header.Root>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Categorias' />
+        </Header.Root>
 
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <CategoryListItem
-            data={item}
-            index={index}
-            onPress={() => handleOpenCategory(item.id)}
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <CategoryListItem
+              data={item}
+              index={index}
+              onPress={() => handleOpenCategory(item.id)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhuma categoria criada. Crie categorias para visualizá-las aqui.' />
+          )}
+          initialNumToRender={50}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchCategories}
+            />
+          }
+          ListFooterComponent={
+            <Button.Root
+              onPress={handleOpenRegisterCategoryModal}
+              style={{ marginTop: 16 }}
+            >
+              <Button.Text text='Criar Nova Categoria' />
+            </Button.Root>
+          }
+          ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingTop: 8,
+            paddingBottom: bottomTabBarHeight + 16,
+          }}
+          showsVerticalScrollIndicator={false}
+        />
+
+        <ModalView
+          type={categoryId !== '' ? 'secondary' : 'primary'}
+          title={
+            categoryId !== '' ? 'Editar Categoria' : 'Criar Nova Categoria'
+          }
+          bottomSheetRef={bottomSheetRef}
+          enableContentPanningGesture={false}
+          snapPoints={['90%']}
+          closeModal={handleCloseRegisterCategoryModal}
+          deleteChildren={handleClickDeleteCategory}
+        >
+          <RegisterCategory
+            id={categoryId}
+            closeCategory={handleCloseCategory}
           />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma categoria criada. Crie categorias para visualizá-las aqui.' />
-        )}
-        initialNumToRender={50}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
-        }
-        ListFooterComponent={
-          <Button.Root
-            onPress={handleOpenRegisterCategoryModal}
-            style={{ marginTop: 16 }}
-          >
-            <Button.Text text='Criar Nova Categoria' />
-          </Button.Root>
-        }
-        ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingTop: 8,
-          paddingBottom: bottomTabBarHeight + 16,
-        }}
-        showsVerticalScrollIndicator={false}
-      />
-
-      <ModalView
-        type={categoryId !== '' ? 'secondary' : 'primary'}
-        title={categoryId !== '' ? 'Editar Categoria' : 'Criar Nova Categoria'}
-        bottomSheetRef={bottomSheetRef}
-        enableContentPanningGesture={false}
-        snapPoints={['90%']}
-        closeModal={handleCloseRegisterCategoryModal}
-        deleteChildren={handleClickDeleteCategory}
-      >
-        <RegisterCategory id={categoryId} closeCategory={handleCloseCategory} />
-      </ModalView>
-    </Container>
+        </ModalView>
+      </Container>
+    </Screen>
   );
 }

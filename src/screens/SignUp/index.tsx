@@ -18,6 +18,7 @@ import { useOAuth, useSSO } from '@clerk/clerk-expo';
 import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -167,138 +168,142 @@ export function SignUp({ navigation }: any) {
   }
 
   return (
-    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Gradient
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: '100%',
-        }}
-      />
-
-      <SectionHeader>
-        <Header.Root>
-          <Header.BackButton />
-          <Header.Title title={'Cadastro'} />
-        </Header.Root>
-      </SectionHeader>
-
-      <MainContent>
-        <LogoWrapper style={{ marginBottom: -16 }}>
-          <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
-        </LogoWrapper>
-
-        <SubTitle style={{ marginBottom: 8 }}>
-          Faça seu cadastro abaixo
-        </SubTitle>
-
-        <FormWrapper style={{ marginBottom: 16 }}>
-          <ControlledInput
-            placeholder='Nome'
-            autoCapitalize='words'
-            autoCorrect={false}
-            autoComplete='name'
-            textContentType='name'
-            name='name'
-            control={control}
-            error={errors.name}
-          />
-
-          <ControlledInput
-            placeholder='E-mail'
-            autoCapitalize='none'
-            keyboardType='email-address'
-            autoCorrect={false}
-            autoComplete='email'
-            textContentType='emailAddress'
-            name='email'
-            control={control}
-            error={errors.email}
-          />
-
-          <ControlledInput
-            placeholder='Senha'
-            autoCorrect={false}
-            secureTextEntry={true}
-            autoComplete='password-new'
-            textContentType='newPassword'
-            name='password'
-            control={control}
-            error={errors.password}
-          />
-
-          <ControlledInput
-            placeholder='Repetir senha'
-            autoCorrect={false}
-            secureTextEntry={true}
-            autoComplete='password-new'
-            textContentType='newPassword'
-            name='confirmPassword'
-            control={control}
-            error={errors.confirmPassword}
-            returnKeyType='go'
-            onSubmitEditing={handleSubmit(handleRegisterUser)}
-          />
-        </FormWrapper>
-
-        <ScreenDivider text='Ou' />
-
-        <SocialLoginButton
-          onPress={handleContinueWithGoogle}
-          style={{ marginTop: 8 }}
-        >
-          <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
-
-          <Text style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}>
-            Entrar com o Google
-          </Text>
-        </SocialLoginButton>
-
-        <Text
+    <Screen>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Gradient
           style={{
-            textAlign: 'center',
-            paddingHorizontal: 16,
-            marginTop: 16,
-            marginBottom: 16,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            height: '100%',
           }}
-        >
-          Ao me cadastrar, eu declaro que li e aceito os{' '}
-          <Text
-            style={{ color: theme.colors.primary }}
-            onPress={handlePressTermsOfUse}
-          >
-            Termos de Uso
-          </Text>{' '}
-          e a{' '}
-          <Text
-            style={{ color: theme.colors.primary }}
-            onPress={handlePressPolicyPrivacy}
-          >
-            Política de Privacidade
-          </Text>
-          .
-        </Text>
+        />
 
-        <Button.Root
-          isLoading={loading}
-          onPress={handleSubmit(handleRegisterUser)}
-          style={{ width: '50%', alignSelf: 'center' }}
-        >
-          <Button.Text text='Cadastrar' />
-        </Button.Root>
+        <SectionHeader>
+          <Header.Root>
+            <Header.BackButton />
+            <Header.Title title={'Cadastro'} />
+          </Header.Root>
+        </SectionHeader>
 
-        <Text style={{ textAlign: 'center', marginTop: 20 }}>
-          Já possui uma conta?{' '}
-          <Text
-            style={{ color: theme.colors.primary }}
-            onPress={handlePressLogin}
+        <MainContent>
+          <LogoWrapper style={{ marginBottom: -16 }}>
+            <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
+          </LogoWrapper>
+
+          <SubTitle style={{ marginBottom: 8 }}>
+            Faça seu cadastro abaixo
+          </SubTitle>
+
+          <FormWrapper style={{ marginBottom: 16 }}>
+            <ControlledInput
+              placeholder='Nome'
+              autoCapitalize='words'
+              autoCorrect={false}
+              autoComplete='name'
+              textContentType='name'
+              name='name'
+              control={control}
+              error={errors.name}
+            />
+
+            <ControlledInput
+              placeholder='E-mail'
+              autoCapitalize='none'
+              keyboardType='email-address'
+              autoCorrect={false}
+              autoComplete='email'
+              textContentType='emailAddress'
+              name='email'
+              control={control}
+              error={errors.email}
+            />
+
+            <ControlledInput
+              placeholder='Senha'
+              autoCorrect={false}
+              secureTextEntry={true}
+              autoComplete='password-new'
+              textContentType='newPassword'
+              name='password'
+              control={control}
+              error={errors.password}
+            />
+
+            <ControlledInput
+              placeholder='Repetir senha'
+              autoCorrect={false}
+              secureTextEntry={true}
+              autoComplete='password-new'
+              textContentType='newPassword'
+              name='confirmPassword'
+              control={control}
+              error={errors.confirmPassword}
+              returnKeyType='go'
+              onSubmitEditing={handleSubmit(handleRegisterUser)}
+            />
+          </FormWrapper>
+
+          <ScreenDivider text='Ou' />
+
+          <SocialLoginButton
+            onPress={handleContinueWithGoogle}
+            style={{ marginTop: 8 }}
           >
-            Login
+            <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
+
+            <Text
+              style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}
+            >
+              Entrar com o Google
+            </Text>
+          </SocialLoginButton>
+
+          <Text
+            style={{
+              textAlign: 'center',
+              paddingHorizontal: 16,
+              marginTop: 16,
+              marginBottom: 16,
+            }}
+          >
+            Ao me cadastrar, eu declaro que li e aceito os{' '}
+            <Text
+              style={{ color: theme.colors.primary }}
+              onPress={handlePressTermsOfUse}
+            >
+              Termos de Uso
+            </Text>{' '}
+            e a{' '}
+            <Text
+              style={{ color: theme.colors.primary }}
+              onPress={handlePressPolicyPrivacy}
+            >
+              Política de Privacidade
+            </Text>
+            .
           </Text>
-        </Text>
-      </MainContent>
-    </Container>
+
+          <Button.Root
+            isLoading={loading}
+            onPress={handleSubmit(handleRegisterUser)}
+            style={{ width: '50%', alignSelf: 'center' }}
+          >
+            <Button.Text text='Cadastrar' />
+          </Button.Root>
+
+          <Text style={{ textAlign: 'center', marginTop: 20 }}>
+            Já possui uma conta?{' '}
+            <Text
+              style={{ color: theme.colors.primary }}
+              onPress={handlePressLogin}
+            >
+              Login
+            </Text>
+          </Text>
+        </MainContent>
+      </Container>
+    </Screen>
   );
 }

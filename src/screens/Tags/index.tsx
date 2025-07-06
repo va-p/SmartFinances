@@ -7,6 +7,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -125,62 +126,68 @@ export function Tags() {
   );
 
   if (loading) {
-    return <SkeletonCategoriesAndTagsScreen />;
+    return (
+      <Screen>
+        <SkeletonCategoriesAndTagsScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={'Etiquetas'} />
-      </Header.Root>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={'Etiquetas'} />
+        </Header.Root>
 
-      <FlatList
-        data={tags}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <TagListItem
-            data={item}
-            index={index}
-            onPress={() => handleOpenTag(item.id)}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui.' />
-        )}
-        initialNumToRender={50}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
-        }
-        ListFooterComponent={
-          <Button.Root
-            onPress={handleOpenRegisterTagModal}
-            style={{ marginTop: 16 }}
-          >
-            <Button.Text text='Criar Nova Etiqueta' />
-          </Button.Root>
-        }
-        ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingTop: 8,
-          paddingBottom: bottomTabBarHeight + 16,
-        }}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          data={tags}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <TagListItem
+              data={item}
+              index={index}
+              onPress={() => handleOpenTag(item.id)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui.' />
+          )}
+          initialNumToRender={50}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
+          }
+          ListFooterComponent={
+            <Button.Root
+              onPress={handleOpenRegisterTagModal}
+              style={{ marginTop: 16 }}
+            >
+              <Button.Text text='Criar Nova Etiqueta' />
+            </Button.Root>
+          }
+          ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingTop: 8,
+            paddingBottom: bottomTabBarHeight + 16,
+          }}
+          showsVerticalScrollIndicator={false}
+        />
 
-      <ModalView
-        type={tagId !== '' ? 'secondary' : 'primary'}
-        title={tagId !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
-        bottomSheetRef={bottomSheetRef}
-        snapPoints={['90%']}
-        closeModal={handleCloseRegisterTagModal}
-        deleteChildren={handleClickDeleteTag}
-      >
-        <RegisterTag id={tagId} closeTag={handleCloseEditTag} />
-      </ModalView>
-    </Container>
+        <ModalView
+          type={tagId !== '' ? 'secondary' : 'primary'}
+          title={tagId !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
+          bottomSheetRef={bottomSheetRef}
+          snapPoints={['90%']}
+          closeModal={handleCloseRegisterTagModal}
+          deleteChildren={handleClickDeleteTag}
+        >
+          <RegisterTag id={tagId} closeTag={handleCloseEditTag} />
+        </ModalView>
+      </Container>
+    </Screen>
   );
 }

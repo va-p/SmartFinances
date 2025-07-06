@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 
@@ -100,14 +101,6 @@ export function Profile() {
     ]);
   }
 
-  // console.log('name >>>', name);
-  // console.log('lastName >>>', lastName);
-  // console.log('email >>>', email);
-  // console.log('phone >>>', phone);
-  // console.log('profileImage >>>', profileImage);
-  // console.log('userID >>>', userID);
-  // console.log('imageUrl >>>', imageUrl);
-
   async function handleSaveProfile(data: FormData) {
     try {
       let profile_image_id: number | null = null;
@@ -141,86 +134,88 @@ export function Profile() {
   }
 
   return (
-    <Container>
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={'Perfil'} />
-      </Header.Root>
+    <Screen>
+      <Container>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={'Perfil'} />
+        </Header.Root>
 
-      <ImageContainer onPress={handleClickSelectImage}>
-        {image === '' ? (
-          <DefaultAvatar />
-        ) : (
-          <ProfileImage source={{ uri: imageUrl }} />
-        )}
-      </ImageContainer>
+        <ImageContainer onPress={handleClickSelectImage}>
+          {image === '' ? (
+            <DefaultAvatar />
+          ) : (
+            <ProfileImage source={{ uri: imageUrl }} />
+          )}
+        </ImageContainer>
 
-      <Form>
-        <ControlledInput
-          placeholder='Nome'
-          autoCapitalize='words'
-          autoCorrect={false}
-          autoComplete='name'
-          textContentType='name'
-          value={name}
-          label='Nome'
-          name='name'
-          control={control}
-        />
+        <Form>
+          <ControlledInput
+            placeholder='Nome'
+            autoCapitalize='words'
+            autoCorrect={false}
+            autoComplete='name'
+            textContentType='name'
+            value={name}
+            label='Nome'
+            name='name'
+            control={control}
+          />
 
-        <ControlledInput
-          placeholder='Sobrenome'
-          autoCapitalize='words'
-          autoCorrect={false}
-          autoComplete='name-family'
-          textContentType='familyName'
-          value={lastName}
-          label='Sobrenome'
-          name='lastName'
-          control={control}
-        />
+          <ControlledInput
+            placeholder='Sobrenome'
+            autoCapitalize='words'
+            autoCorrect={false}
+            autoComplete='name-family'
+            textContentType='familyName'
+            value={lastName}
+            label='Sobrenome'
+            name='lastName'
+            control={control}
+          />
 
-        <ControlledInput
-          placeholder='E-mail'
-          autoCapitalize='none'
-          keyboardType='email-address'
-          autoCorrect={false}
-          autoComplete='email'
-          textContentType='emailAddress'
-          value={email}
-          label='E-mail'
-          name='email'
-          control={control}
-          error={errors.email}
-        />
+          <ControlledInput
+            placeholder='E-mail'
+            autoCapitalize='none'
+            keyboardType='email-address'
+            autoCorrect={false}
+            autoComplete='email'
+            textContentType='emailAddress'
+            value={email}
+            label='E-mail'
+            name='email'
+            control={control}
+            error={errors.email}
+          />
 
-        <ControlledInput
-          placeholder='Confirme seu e-mail'
-          autoCapitalize='none'
-          keyboardType='email-address'
-          autoCorrect={false}
-          autoComplete='email'
-          textContentType='emailAddress'
-          label='Confirme seu e-mail'
-          name='confirmEmail'
-          control={control}
-          error={errors.confirmEmail}
-        />
+          <ControlledInput
+            placeholder='Confirme seu e-mail'
+            autoCapitalize='none'
+            keyboardType='email-address'
+            autoCorrect={false}
+            autoComplete='email'
+            textContentType='emailAddress'
+            label='Confirme seu e-mail'
+            name='confirmEmail'
+            control={control}
+            error={errors.confirmEmail}
+          />
 
-        <ControlledInput
-          placeholder='Celular'
-          keyboardType='phone-pad'
-          value={String(phone)}
-          label='Celular'
-          name='phone'
-          control={control}
-          error={errors.phone}
-        />
+          <ControlledInput
+            placeholder='Celular'
+            keyboardType='phone-pad'
+            value={String(phone)}
+            label='Celular'
+            name='phone'
+            control={control}
+            error={errors.phone}
+          />
 
-        <Button.Root onPress={handleSubmit(handleSaveProfile)}>
-          <Button.Text text='Salvar Perfil' />
-        </Button.Root>
-      </Form>
-    </Container>
+          <Button.Root onPress={handleSubmit(handleSaveProfile)}>
+            <Button.Text text='Salvar Perfil' />
+          </Button.Root>
+        </Form>
+      </Container>
+    </Screen>
   );
 }
