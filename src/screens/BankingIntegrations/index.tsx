@@ -15,6 +15,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { useUser } from '@storage/userStorage';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -228,79 +229,83 @@ export function BankingIntegrations({ navigation }: any) {
 
   if (loading) {
     return (
-      <Container style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <Gradient />
-        <Text style={{ color: theme.colors.text }}>Carregando...</Text>
-      </Container>
+      <Screen>
+        <Container style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Gradient />
+          <Text style={{ color: theme.colors.text }}>Carregando...</Text>
+        </Container>
+      </Screen>
     );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      {showHeader && (
-        <Header.Root>
-          <Header.BackButton />
-          <Header.Title title='Integrações Bancárias' />
-        </Header.Root>
-      )}
+        {showHeader && (
+          <Header.Root>
+            <Header.BackButton />
+            <Header.Title title='Integrações Bancárias' />
+          </Header.Root>
+        )}
 
-      {user.premium && token && showModal && (
-        <PluggyConnectContainer>
-          <PluggyConnect
-            connectToken={token}
-            includeSandbox={false}
-            connectorTypes={[]}
-            onClose={handleOnClose}
-            onSuccess={handleOnSuccess}
-            onError={handleOnError}
-            allowFullscreen
-            theme='dark'
-          />
-        </PluggyConnectContainer>
-      )}
+        {user.premium && token && showModal && (
+          <PluggyConnectContainer>
+            <PluggyConnect
+              connectToken={token}
+              includeSandbox={false}
+              connectorTypes={[]}
+              onClose={handleOnClose}
+              onSuccess={handleOnSuccess}
+              onError={handleOnError}
+              allowFullscreen
+              theme='dark'
+            />
+          </PluggyConnectContainer>
+        )}
 
-      {!showModal && (
-        <>
-          <ConnectedAccountsList
-            data={integrations}
-            keyExtractor={(item: any) => item.id}
-            renderItem={_renderItem}
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
-            )}
-            initialNumToRender={10}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => handleRefresh()}
-              />
-            }
-            ListFooterComponent={
-              <Button.Root
-                type='secondary'
-                onPress={handlePressConnectNewAccount}
-              >
-                <Button.Text
-                  text={
-                    !user.premium
-                      ? 'Assine o Premium para novas conexões'
-                      : 'Conectar nova conta'
-                  }
+        {!showModal && (
+          <>
+            <ConnectedAccountsList
+              data={integrations}
+              keyExtractor={(item: any) => item.id}
+              renderItem={_renderItem}
+              ListEmptyComponent={() => (
+                <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
+              )}
+              initialNumToRender={10}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={() => handleRefresh()}
                 />
-              </Button.Root>
-            }
-            ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
-            contentContainerStyle={{
-              flexGrow: 1,
-              paddingTop: 8,
-              paddingBottom: bottomTabBarHeight + 16,
-            }}
-            showsVerticalScrollIndicator={false}
-          />
-        </>
-      )}
-    </Container>
+              }
+              ListFooterComponent={
+                <Button.Root
+                  type='secondary'
+                  onPress={handlePressConnectNewAccount}
+                >
+                  <Button.Text
+                    text={
+                      !user.premium
+                        ? 'Assine o Premium para novas conexões'
+                        : 'Conectar nova conta'
+                    }
+                  />
+                </Button.Root>
+              }
+              ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+              contentContainerStyle={{
+                flexGrow: 1,
+                paddingTop: 8,
+                paddingBottom: bottomTabBarHeight + 16,
+              }}
+              showsVerticalScrollIndicator={false}
+            />
+          </>
+        )}
+      </Container>
+    </Screen>
   );
 }

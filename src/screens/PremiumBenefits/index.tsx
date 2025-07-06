@@ -13,6 +13,7 @@ import {
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Benefit } from './components/Benefit';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
@@ -35,16 +36,6 @@ export function PremiumBenefits() {
   );
 
   const { packages, purchasePackage, restorePurchasesUser } = useRevenueCat();
-  // console.log('packages !! =======>', packages);
-
-  // console.log(
-  //   'package[0].product.introPrice =======->',
-  //   packages[0].product.introPrice
-  // );
-  // console.log(
-  //   'package[3].product.introPrice =======->',
-  //   packages[3].product.introPrice
-  // );
 
   async function handlePurchase(pack: PurchasesPackage) {
     await purchasePackage(pack);
@@ -72,86 +63,88 @@ export function PremiumBenefits() {
   );
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root>
-        <Header.BackButton />
-        <Header.Title title={'Escolha seu plano'} />
-      </Header.Root>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title={'Escolha seu plano'} />
+        </Header.Root>
 
-      <ScrollContent>
-        <Title>Smart Finances Premium</Title>
+        <ScrollContent>
+          <Title>Smart Finances Premium</Title>
 
-        <Description>
-          Comece a economizar seu tempo e dinheiro para o que realmente importa
-          na sua vida!
-        </Description>
+          <Description>
+            Comece a economizar seu tempo e dinheiro para o que realmente
+            importa na sua vida!
+          </Description>
 
-        <PremiumBenefitsContainer>
-          <Benefit description={'Dicas personalizadas'} />
+          <PremiumBenefitsContainer>
+            <Benefit description={'Dicas personalizadas'} />
 
-          <Benefit description={'Sincronização de contas bancárias'} />
+            <Benefit description={'Sincronização de contas bancárias'} />
 
-          <Benefit description={'Sincronização de cartões de crédito'} />
+            <Benefit description={'Sincronização de cartões de crédito'} />
 
-          <Benefit
-            description={'Insights gerados com Inteligência Artificial'}
-          />
-
-          <Benefit
-            description={
-              'Categorização das transações com Inteligência Artificial'
-            }
-          />
-        </PremiumBenefitsContainer>
-
-        <PackagesContainer>
-          {packages.map((pack, idx) => (
-            <PremiumPackageListItem
-              key={idx}
-              data={pack as PackageProps}
-              onPress={() => handlePurchase(pack)}
+            <Benefit
+              description={'Insights gerados com Inteligência Artificial'}
             />
-          ))}
-        </PackagesContainer>
 
-        <AdvicesContainer>
-          <Advice>
-            Você pode cancelar sua assinatura a qualquer momento durante o
-            período de testes. O período de testes expirará em{' '}
-            {subscriptionEndDate}.
-          </Advice>
+            <Benefit
+              description={
+                'Categorização das transações com Inteligência Artificial'
+              }
+            />
+          </PremiumBenefitsContainer>
 
-          <Advice>
-            Já assinou o Smart Finances?{' '}
-            <Advice
-              style={{ textDecorationLine: 'underline' }}
-              onPress={async () => await restorePurchasesUser()}
-            >
-              Restaurar assinatura
+          <PackagesContainer>
+            {packages.map((pack, idx) => (
+              <PremiumPackageListItem
+                key={idx}
+                data={pack as PackageProps}
+                onPress={() => handlePurchase(pack)}
+              />
+            ))}
+          </PackagesContainer>
+
+          <AdvicesContainer>
+            <Advice>
+              Você pode cancelar sua assinatura a qualquer momento durante o
+              período de testes. O período de testes expirará em{' '}
+              {subscriptionEndDate}.
             </Advice>
-            .
-          </Advice>
 
-          <Advice>
-            Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
-            <Advice
-              style={{ textDecorationLine: 'underline' }}
-              onPress={handleClickPrivacyPolicy}
-            >
-              Política de Privacidade
-            </Advice>{' '}
-            e nossos{' '}
-            <Advice
-              style={{ textDecorationLine: 'underline' }}
-              onPress={handleClickTermsOfUse}
-            >
-              Termos de Uso.
+            <Advice>
+              Já assinou o Smart Finances?{' '}
+              <Advice
+                style={{ textDecorationLine: 'underline' }}
+                onPress={async () => await restorePurchasesUser()}
+              >
+                Restaurar assinatura
+              </Advice>
+              .
             </Advice>
-          </Advice>
-        </AdvicesContainer>
-      </ScrollContent>
-    </Container>
+
+            <Advice>
+              Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
+              <Advice
+                style={{ textDecorationLine: 'underline' }}
+                onPress={handleClickPrivacyPolicy}
+              >
+                Política de Privacidade
+              </Advice>{' '}
+              e nossos{' '}
+              <Advice
+                style={{ textDecorationLine: 'underline' }}
+                onPress={handleClickTermsOfUse}
+              >
+                Termos de Uso.
+              </Advice>
+            </Advice>
+          </AdvicesContainer>
+        </ScrollContent>
+      </Container>
+    </Screen>
   );
 }

@@ -23,6 +23,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
@@ -234,84 +235,89 @@ export function RegisterCategory({ id, closeCategory }: Props) {
   );
 
   return (
-    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Gradient />
+    <Screen>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Gradient />
 
-      <Header>
-        <IconAndColor color={colorSelected.color_code} icon={iconSelected.name}>
-          <Icon name={iconSelected.name} />
-        </IconAndColor>
+        <Header>
+          <IconAndColor
+            color={colorSelected.color_code}
+            icon={iconSelected.name}
+          >
+            <Icon name={iconSelected.name} />
+          </IconAndColor>
 
-        <ControlledInputCategoryName
-          placeholder='Nome da categoria'
-          autoCapitalize='sentences'
-          autoCorrect={false}
-          defaultValue={getValues('name')}
-          name='name'
-          control={control}
-          error={errors.name}
-        />
-      </Header>
+          <ControlledInputCategoryName
+            placeholder='Nome da categoria'
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            defaultValue={getValues('name')}
+            name='name'
+            control={control}
+            error={errors.name}
+          />
+        </Header>
 
-      <ColorsList>
-        <Title>Cor da categoria</Title>
-        <FlatList
-          data={colors}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <ColorContainer
-              color={item.color_code}
-              isActive={colorSelected.id === item.id}
-            >
-              <Color
+        <ColorsList>
+          <Title>Cor da categoria</Title>
+          <FlatList
+            data={colors}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <ColorContainer
                 color={item.color_code}
                 isActive={colorSelected.id === item.id}
-                onPress={() => handleColorSelect(item)}
-              />
-            </ColorContainer>
-          )}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
-      </ColorsList>
-
-      <IconsList>
-        <Title>Ícone da categoria</Title>
-        <FlatList
-          data={icons}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <IconContainer
-              icon={item.name}
-              isActive={iconSelected.id === item.id}
-              color={colorSelected.color_code}
-            >
-              <Icon
-                name={item.name}
-                isActive={iconSelected.id === item.id}
-                onPress={() => handleIconSelect(item)}
-              />
-            </IconContainer>
-          )}
-          numColumns={5}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            alignItems: 'center',
-            paddingBottom: 250,
-          }}
-        />
-      </IconsList>
-
-      <Footer>
-        <Button.Root
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleRegisterCategory)}
-        >
-          <Button.Text
-            text={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}
+              >
+                <Color
+                  color={item.color_code}
+                  isActive={colorSelected.id === item.id}
+                  onPress={() => handleColorSelect(item)}
+                />
+              </ColorContainer>
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
           />
-        </Button.Root>
-      </Footer>
-    </Container>
+        </ColorsList>
+
+        <IconsList>
+          <Title>Ícone da categoria</Title>
+          <FlatList
+            data={icons}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <IconContainer
+                icon={item.name}
+                isActive={iconSelected.id === item.id}
+                color={colorSelected.color_code}
+              >
+                <Icon
+                  name={item.name}
+                  isActive={iconSelected.id === item.id}
+                  onPress={() => handleIconSelect(item)}
+                />
+              </IconContainer>
+            )}
+            numColumns={5}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              alignItems: 'center',
+              paddingBottom: 250,
+            }}
+          />
+        </IconsList>
+
+        <Footer>
+          <Button.Root
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleRegisterCategory)}
+          >
+            <Button.Text
+              text={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}
+            />
+          </Button.Root>
+        </Footer>
+      </Container>
+    </Screen>
   );
 }

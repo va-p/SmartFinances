@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
@@ -146,33 +147,35 @@ export function RegisterTag({ id, closeTag }: Props) {
   );
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Body>
-        <ControlledInputCategoryName
-          placeholder='Nome da etiqueta'
-          autoCapitalize='sentences'
-          autoCorrect={false}
-          defaultValue={getValues('name')}
-          name='name'
-          control={control}
-          error={errors.name}
-          returnKeyType='go'
-          onSubmitEditing={handleSubmit(handleRegisterTag)}
-        />
-      </Body>
-
-      <Footer>
-        <Button.Root
-          isLoading={buttonIsLoading}
-          onPress={handleSubmit(handleRegisterTag)}
-        >
-          <Button.Text
-            text={id !== '' ? 'Editar Etiqueta' : 'Criar Etiqueta'}
+        <Body>
+          <ControlledInputCategoryName
+            placeholder='Nome da etiqueta'
+            autoCapitalize='sentences'
+            autoCorrect={false}
+            defaultValue={getValues('name')}
+            name='name'
+            control={control}
+            error={errors.name}
+            returnKeyType='go'
+            onSubmitEditing={handleSubmit(handleRegisterTag)}
           />
-        </Button.Root>
-      </Footer>
-    </Container>
+        </Body>
+
+        <Footer>
+          <Button.Root
+            isLoading={buttonIsLoading}
+            onPress={handleSubmit(handleRegisterTag)}
+          >
+            <Button.Text
+              text={id !== '' ? 'Editar Etiqueta' : 'Criar Etiqueta'}
+            />
+          </Button.Root>
+        </Footer>
+      </Container>
+    </Screen>
   );
 }

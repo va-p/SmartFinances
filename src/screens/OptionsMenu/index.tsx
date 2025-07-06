@@ -20,6 +20,7 @@ import axios from 'axios';
 import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { ButtonToggle } from '@components/ButtonToggle';
@@ -165,95 +166,97 @@ export function OptionsMenu({ navigation }: any) {
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Header.Root style={{ justifyContent: 'center' }}>
-        <Header.Title title='Mais opções' />
-      </Header.Root>
+        <Header.Root style={{ justifyContent: 'center' }}>
+          <Header.Title title='Mais opções' />
+        </Header.Root>
 
-      <ContentScroll>
-        <Title>Conta</Title>
-        <SelectButton
-          icon={<User color={theme.colors.primary} />}
-          title='Perfil'
-          onPress={() => handleOpenProfile()}
-        />
+        <ContentScroll>
+          <Title>Conta</Title>
+          <SelectButton
+            icon={<User color={theme.colors.primary} />}
+            title='Perfil'
+            onPress={() => handleOpenProfile()}
+          />
 
-        <SelectButton
-          icon={<Trophy color={theme.colors.primary} />}
-          title='Assinatura Premium'
-          onPress={() => handleOpenSubscription()}
-        />
+          <SelectButton
+            icon={<Trophy color={theme.colors.primary} />}
+            title='Assinatura Premium'
+            onPress={() => handleOpenSubscription()}
+          />
 
-        <SelectButton
-          icon={<Wallet color={theme.colors.primary} />}
-          title='Contas Manuais'
-          onPress={() => handleOpenAccounts()}
-        />
+          <SelectButton
+            icon={<Wallet color={theme.colors.primary} />}
+            title='Contas Manuais'
+            onPress={() => handleOpenAccounts()}
+          />
 
-        <SelectButton
-          icon={<Plugs color={theme.colors.primary} />}
-          title='Integrações Bancárias'
-          onPress={() => handleOpenConnectedAccounts()}
-        />
+          <SelectButton
+            icon={<Plugs color={theme.colors.primary} />}
+            title='Integrações Bancárias'
+            onPress={() => handleOpenConnectedAccounts()}
+          />
 
-        <SelectButton
-          icon={<CirclesFour color={theme.colors.primary} />}
-          title='Categorias'
-          onPress={() => handleOpenCategories()}
-        />
+          <SelectButton
+            icon={<CirclesFour color={theme.colors.primary} />}
+            title='Categorias'
+            onPress={() => handleOpenCategories()}
+          />
 
-        <SelectButton
-          icon={<Tag color={theme.colors.primary} />}
-          title='Etiquetas'
-          onPress={() => handleOpenTags()}
-        />
+          <SelectButton
+            icon={<Tag color={theme.colors.primary} />}
+            title='Etiquetas'
+            onPress={() => handleOpenTags()}
+          />
 
-        <Title>Configurações</Title>
-        <ButtonToggle
-          icon={<Sparkle color={theme.colors.primary} />}
-          title='Insights Inteligentes'
-          onValueChange={handleChangeSmartInsights}
-          value={insights}
-          isEnabled={insights}
-        />
+          <Title>Configurações</Title>
+          <ButtonToggle
+            icon={<Sparkle color={theme.colors.primary} />}
+            title='Insights Inteligentes'
+            onValueChange={handleChangeSmartInsights}
+            value={insights}
+            isEnabled={insights}
+          />
 
-        <ButtonToggle
-          icon={<Fingerprint color={theme.colors.primary} />}
-          title='Touch / Face ID'
-          onValueChange={handleChangeUseLocalAuth}
-          value={useLocalAuth}
-          isEnabled={useLocalAuth}
-        />
+          <ButtonToggle
+            icon={<Fingerprint color={theme.colors.primary} />}
+            title='Touch / Face ID'
+            onValueChange={handleChangeUseLocalAuth}
+            value={useLocalAuth}
+            isEnabled={useLocalAuth}
+          />
 
-        <ButtonToggle
-          icon={<EyeSlash color={theme.colors.primary} />}
-          title='Ocultar informações'
-          onValueChange={handleChangeHideAmount}
-          value={hideAmount}
-          isEnabled={hideAmount}
-        />
+          <ButtonToggle
+            icon={<EyeSlash color={theme.colors.primary} />}
+            title='Ocultar informações'
+            onValueChange={handleChangeHideAmount}
+            value={hideAmount}
+            isEnabled={hideAmount}
+          />
 
-        <Title>Sobre</Title>
-        <SelectButton
-          icon={<Lifebuoy color={theme.colors.primary} />}
-          title='Central de Ajuda'
-          onPress={() => handleClickHelpCenter()}
-        />
+          <Title>Sobre</Title>
+          <SelectButton
+            icon={<Lifebuoy color={theme.colors.primary} />}
+            title='Central de Ajuda'
+            onPress={() => handleClickHelpCenter()}
+          />
 
-        <SelectButton
-          icon={<ShieldCheck color={theme.colors.primary} />}
-          title='Termos de Uso'
-          onPress={() => handleClickTermsOfUse()}
-        />
+          <SelectButton
+            icon={<ShieldCheck color={theme.colors.primary} />}
+            title='Termos de Uso'
+            onPress={() => handleClickTermsOfUse()}
+          />
 
-        <SelectButton
-          icon={<Cookie color={theme.colors.primary} />}
-          title='Política de Privacidade'
-          onPress={() => handleClickPrivacyPolicy()}
-        />
-      </ContentScroll>
-    </Container>
+          <SelectButton
+            icon={<Cookie color={theme.colors.primary} />}
+            title='Política de Privacidade'
+            onPress={() => handleClickPrivacyPolicy()}
+          />
+        </ContentScroll>
+      </Container>
+    </Screen>
   );
 }

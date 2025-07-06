@@ -5,8 +5,9 @@ import { Container } from './styles';
 import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { Load } from '@components/Button/components/Load';
+import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
+import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
@@ -72,33 +73,38 @@ export function CategorySelect({
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <CategoryListItemRegisterTransaction
-            data={item}
-            isChecked={categorySelected.id === item.id}
-            onPress={() => handleCategorySelect(item)}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações.' />
-        )}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchCategories} />
-        }
-        numColumns={4}
-        contentContainerStyle={{
-          justifyContent: 'center',
-          paddingTop: 12,
-          paddingHorizontal: 12,
-        }}
-        style={{ flex: 1, width: '100%' }}
-      />
-    </Container>
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <CategoryListItemRegisterTransaction
+              data={item}
+              isChecked={categorySelected.id === item.id}
+              onPress={() => handleCategorySelect(item)}
+            />
+          )}
+          ListEmptyComponent={() => (
+            <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações.' />
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchCategories}
+            />
+          }
+          numColumns={4}
+          contentContainerStyle={{
+            justifyContent: 'center',
+            paddingTop: 12,
+            paddingHorizontal: 12,
+          }}
+          style={{ flex: 1, width: '100%' }}
+        />
+      </Container>
+    </Screen>
   );
 }

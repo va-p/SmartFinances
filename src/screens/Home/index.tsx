@@ -80,6 +80,7 @@ import Plus from 'phosphor-react-native/src/icons/Plus';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
 
+import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
 import { PeriodRuler } from '@components/PeriodRuler';
@@ -611,197 +612,205 @@ export function Home() {
   }, [selectedDate, selectedPeriod.period]);
 
   if (loading) {
-    return <SkeletonHomeScreen />;
+    return (
+      <Screen>
+        <SkeletonHomeScreen />
+      </Screen>
+    );
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <Animated.View style={[headerStyleAnimation, styles.header]}>
-        <Header>
-          <CashFlowContainer>
-            <CashFlowTotal>
-              {!hideAmount ? cashFlowTotalBySelectedPeriod.current : '•••••'}
-            </CashFlowTotal>
-            <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
-          </CashFlowContainer>
+        <Animated.View style={[headerStyleAnimation, styles.header]}>
+          <Header>
+            <CashFlowContainer>
+              <CashFlowTotal>
+                {!hideAmount ? cashFlowTotalBySelectedPeriod.current : '•••••'}
+              </CashFlowTotal>
+              <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
+            </CashFlowContainer>
 
-          <SearchButton
-            onPress={() => setShowSearchInput((prevState) => !prevState)}
-          >
-            <MagnifyingGlass size={20} color={theme.colors.primary} />
-          </SearchButton>
+            <SearchButton
+              onPress={() => setShowSearchInput((prevState) => !prevState)}
+            >
+              <MagnifyingGlass size={20} color={theme.colors.primary} />
+            </SearchButton>
 
-          <HideDataButton onPress={() => handleHideData()}>
-            {!hideAmount ? (
-              <EyeSlash size={20} color={theme.colors.primary} />
-            ) : (
-              <Eye size={20} color={theme.colors.primary} />
-            )}
-          </HideDataButton>
-        </Header>
+            <HideDataButton onPress={() => handleHideData()}>
+              {!hideAmount ? (
+                <EyeSlash size={20} color={theme.colors.primary} />
+              ) : (
+                <Eye size={20} color={theme.colors.primary} />
+              )}
+            </HideDataButton>
+          </Header>
 
-        <FiltersContainer>
-          <FilterButtonGroup>
-            <FilterButton
-              title={`Por ${selectedPeriod.name}`}
-              onPress={handleOpenPeriodSelectedModal}
+          <FiltersContainer>
+            <FilterButtonGroup>
+              <FilterButton
+                title={`Por ${selectedPeriod.name}`}
+                onPress={handleOpenPeriodSelectedModal}
+              />
+            </FilterButtonGroup>
+          </FiltersContainer>
+
+          <Animated.View style={chartStyleAnimationOpacity}>
+            <BarChart
+              data={cashFlows.current}
+              width={SCREEN_WIDTH - 40}
+              height={80}
+              barWidth={CHART_BAR_WIDTH}
+              spacing={CHART_BAR_SPACING}
+              roundedTop
+              labelWidth={30}
+              xAxisThickness={1}
+              yAxisThickness={0}
+              noOfSections={3}
+              xAxisTextNumberOfLines={2}
+              scrollToEnd
+              isAnimated
+              formatYLabel={(label: string) => {
+                const value = Number(label);
+                const k = Math.floor(value / 1000);
+                return k > 0 ? `${k}k` : '0';
+              }}
+              yAxisTextStyle={{
+                fontSize: 10,
+                color: theme.colors.textPlaceholder,
+              }}
+              xAxisLabelTextStyle={{ fontSize: 10, color: '#90A4AE' }}
             />
-          </FilterButtonGroup>
-        </FiltersContainer>
+          </Animated.View>
 
-        <Animated.View style={chartStyleAnimationOpacity}>
-          <BarChart
-            data={cashFlows.current}
-            width={SCREEN_WIDTH - 40}
-            height={80}
-            barWidth={CHART_BAR_WIDTH}
-            spacing={CHART_BAR_SPACING}
-            roundedTop
-            labelWidth={30}
-            xAxisThickness={1}
-            yAxisThickness={0}
-            noOfSections={3}
-            xAxisTextNumberOfLines={2}
-            scrollToEnd
-            isAnimated
-            formatYLabel={(label: string) => {
-              const value = Number(label);
-              const k = Math.floor(value / 1000);
-              return k > 0 ? `${k}k` : '0';
-            }}
-            yAxisTextStyle={{
-              fontSize: 10,
-              color: theme.colors.textPlaceholder,
-            }}
-            xAxisLabelTextStyle={{ fontSize: 10, color: '#90A4AE' }}
-          />
+          <Animated.View>{_renderPeriodRuler()}</Animated.View>
+
+          {insights && showInsights && firstDayOfMonth && (
+            <Animated.View
+              style={[insightsStyleAnimationOpacity, styles.insightCard]}
+            >
+              {_renderInsightCard()}
+            </Animated.View>
+          )}
         </Animated.View>
 
-        <Animated.View>{_renderPeriodRuler()}</Animated.View>
-
-        {insights && showInsights && firstDayOfMonth && (
+        {showSearchInput && (
           <Animated.View
-            style={[insightsStyleAnimationOpacity, styles.insightCard]}
+            entering={FadeInUp.easing(Easing.bounce).duration(500)}
+            exiting={FadeOutUp.easing(Easing.linear)}
           >
-            {_renderInsightCard()}
+            <SearchInputContainer>
+              <ControlledInputWithIcon
+                icon={<MagnifyingGlass color={theme.colors.primary} />}
+                placeholder='Pesquisar...'
+                autoCorrect={false}
+                name='search'
+                control={control}
+              />
+              <ClearSearchButton onPress={() => reset()}>
+                <X size={20} color={theme.colors.primary} />
+              </ClearSearchButton>
+            </SearchInputContainer>
           </Animated.View>
         )}
-      </Animated.View>
 
-      {showSearchInput && (
-        <Animated.View
-          entering={FadeInUp.easing(Easing.bounce).duration(500)}
-          exiting={FadeOutUp.easing(Easing.linear)}
-        >
-          <SearchInputContainer>
-            <ControlledInputWithIcon
-              icon={<MagnifyingGlass color={theme.colors.primary} />}
-              placeholder='Pesquisar...'
-              autoCorrect={false}
-              name='search'
-              control={control}
-            />
-            <ClearSearchButton onPress={() => reset()}>
-              <X size={20} color={theme.colors.primary} />
-            </ClearSearchButton>
-          </SearchInputContainer>
-        </Animated.View>
-      )}
-
-      <Transactions>
-        <AnimatedFlashList
-          data={filteredTransactions}
-          keyExtractor={(item: any) => {
-            return item.isHeader ? String(item.headerTitle!) : String(item.id);
-          }}
-          renderItem={({ item, index }: any) => {
-            if (item.isHeader) {
+        <Transactions>
+          <AnimatedFlashList
+            data={filteredTransactions}
+            keyExtractor={(item: any) => {
+              return item.isHeader
+                ? String(item.headerTitle!)
+                : String(item.id);
+            }}
+            renderItem={({ item, index }: any) => {
+              if (item.isHeader) {
+                return (
+                  <SectionListHeader
+                    data={{ title: item.headerTitle, total: item.headerTotal }}
+                  />
+                );
+              }
               return (
-                <SectionListHeader
-                  data={{ title: item.headerTitle, total: item.headerTotal }}
+                <TransactionListItem
+                  data={item}
+                  index={index}
+                  hideAmount={hideAmount}
+                  onPress={() => handleOpenTransaction(item.id)}
                 />
               );
+            }}
+            getItemType={(item) =>
+              (item as FlashListTransactionItem).isHeader
+                ? 'sectionHeader'
+                : 'row'
             }
-            return (
-              <TransactionListItem
-                data={item}
-                index={index}
-                hideAmount={hideAmount}
-                onPress={() => handleOpenTransaction(item.id)}
+            estimatedItemSize={100}
+            ListEmptyComponent={_renderEmpty}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={fetchTransactions}
               />
-            );
-          }}
-          getItemType={(item) =>
-            (item as FlashListTransactionItem).isHeader
-              ? 'sectionHeader'
-              : 'row'
-          }
-          estimatedItemSize={100}
-          ListEmptyComponent={_renderEmpty}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchTransactions}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          onScroll={scrollHandlerToTop}
-          scrollEventThrottle={16}
-          ItemSeparatorComponent={() => (
-            <View style={{ minHeight: 8, maxHeight: 8 }} />
-          )}
-          contentContainerStyle={{
-            paddingTop: 16,
-            paddingBottom: bottomTabBarHeight + 8,
-          }}
-        />
-      </Transactions>
+            }
+            showsVerticalScrollIndicator={false}
+            onScroll={scrollHandlerToTop}
+            scrollEventThrottle={16}
+            ItemSeparatorComponent={() => (
+              <View style={{ minHeight: 8, maxHeight: 8 }} />
+            )}
+            contentContainerStyle={{
+              paddingTop: 16,
+              paddingBottom: bottomTabBarHeight + 8,
+            }}
+          />
+        </Transactions>
 
-      <GestureDetector gesture={onMoveRegisterTransactionButton}>
-        <Animated.View
-          style={[
-            registerTransactionButtonStyle,
-            {
-              position: 'absolute',
-              bottom: 64,
-              right: 16,
-            },
-          ]}
-        >
-          <ButtonAnimated
-            onPress={handleOpenRegisterTransactionModal}
-            style={styles.animatedButton}
+        <GestureDetector gesture={onMoveRegisterTransactionButton}>
+          <Animated.View
+            style={[
+              registerTransactionButtonStyle,
+              {
+                position: 'absolute',
+                bottom: 64,
+                right: 16,
+              },
+            ]}
           >
-            <Plus size={24} color={theme.colors.background} />
-          </ButtonAnimated>
-        </Animated.View>
-      </GestureDetector>
+            <ButtonAnimated
+              onPress={handleOpenRegisterTransactionModal}
+              style={styles.animatedButton}
+            >
+              <Plus size={24} color={theme.colors.background} />
+            </ButtonAnimated>
+          </Animated.View>
+        </GestureDetector>
 
-      <ModalViewSelection
-        title='Selecione o período'
-        bottomSheetRef={chartPeriodSelectedBottomSheetRef}
-        snapPoints={['30%', '50%']}
-      >
-        <ChartPeriodSelect
-          period={selectedPeriod}
-          closeSelectPeriod={handleClosePeriodSelectedModal}
-        />
-      </ModalViewSelection>
+        <ModalViewSelection
+          title='Selecione o período'
+          bottomSheetRef={chartPeriodSelectedBottomSheetRef}
+          snapPoints={['30%', '50%']}
+        >
+          <ChartPeriodSelect
+            period={selectedPeriod}
+            closeSelectPeriod={handleClosePeriodSelectedModal}
+          />
+        </ModalViewSelection>
 
-      <ModalViewWithoutHeader
-        bottomSheetRef={registerTransactionBottomSheetRef}
-        snapPoints={['100%']}
-      >
-        <RegisterTransaction
-          id={transactionId}
-          resetId={ClearTransactionId}
-          closeRegisterTransaction={handleCloseRegisterTransactionModal}
-          closeModal={handleCloseRegisterTransactionModal}
-        />
-      </ModalViewWithoutHeader>
-    </Container>
+        <ModalViewWithoutHeader
+          bottomSheetRef={registerTransactionBottomSheetRef}
+          snapPoints={['100%']}
+        >
+          <RegisterTransaction
+            id={transactionId}
+            resetId={ClearTransactionId}
+            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            closeModal={handleCloseRegisterTransactionModal}
+          />
+        </ModalViewWithoutHeader>
+      </Container>
+    </Screen>
   );
 }
 

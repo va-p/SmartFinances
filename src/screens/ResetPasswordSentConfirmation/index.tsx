@@ -10,6 +10,7 @@ import {
 import { useRoute } from '@react-navigation/native';
 import Envelope from 'phosphor-react-native/src/icons/Envelope';
 
+import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -23,32 +24,34 @@ export function ResetPasswordSentConfirmation({ navigation }: any) {
   }
 
   return (
-    <Container>
-      <Gradient />
+    <Screen>
+      <Container>
+        <Gradient />
 
-      <SectionHeader>
-        <Header.Root>
-          <Header.BackButton />
-          <Header.Title title={'Recuperar senha'} />
-        </Header.Root>
-      </SectionHeader>
+        <SectionHeader>
+          <Header.Root>
+            <Header.BackButton />
+            <Header.Title title={'Recuperar senha'} />
+          </Header.Root>
+        </SectionHeader>
 
-      <MainContent>
-        <Envelope size={64} color='green' style={{ alignSelf: 'center' }} />
+        <MainContent>
+          <Envelope size={64} color='green' style={{ alignSelf: 'center' }} />
 
-        <SubTitle>Verifique seu e-mail!</SubTitle>
-        <Text style={{ textAlign: 'center', marginBottom: 64 }}>
-          Por favor, verifique o endereço de e-mail {email} para obter
-          instruções sobre como redefinir sua senha.
-        </Text>
+          <SubTitle>Verifique seu e-mail!</SubTitle>
+          <Text style={{ textAlign: 'center', marginBottom: 64 }}>
+            Por favor, verifique o endereço de e-mail {email} para obter
+            instruções sobre como redefinir sua senha.
+          </Text>
 
-        <Button.Root
-          onPress={handlePressResend}
-          style={{ width: '50%', alignSelf: 'center' }}
-        >
-          <Button.Text text='Reenviar e-mail' />
-        </Button.Root>
-      </MainContent>
-    </Container>
+          <Button.Root
+            onPress={handlePressResend}
+            style={{ width: '50%', alignSelf: 'center' }}
+          >
+            <Button.Text text='Reenviar e-mail' />
+          </Button.Root>
+        </MainContent>
+      </Container>
+    </Screen>
   );
 }

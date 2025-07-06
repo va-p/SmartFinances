@@ -18,6 +18,7 @@ import UserCircle from 'phosphor-react-native/src/icons/UserCircle';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -86,52 +87,54 @@ export function ForgotPassword({ navigation }: any) {
   }
 
   return (
-    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Gradient />
+    <Screen>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Gradient />
 
-      <SectionHeader>
-        <Header.Root>
-          <Header.BackButton />
-          <Header.Title title={'Recuperar senha'} />
-        </Header.Root>
-      </SectionHeader>
+        <SectionHeader>
+          <Header.Root>
+            <Header.BackButton />
+            <Header.Title title={'Recuperar senha'} />
+          </Header.Root>
+        </SectionHeader>
 
-      <MainContent>
-        <LogoWrapper>
-          <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
-        </LogoWrapper>
+        <MainContent>
+          <LogoWrapper>
+            <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
+          </LogoWrapper>
 
-        <SubTitle>Esqueceu sua senha?</SubTitle>
-        <Text style={{ textAlign: 'center', marginBottom: 64 }}>
-          Digite seu e-mail abaixo e enviaremos à você instruções para redefinir
-          sua senha.
-        </Text>
+          <SubTitle>Esqueceu sua senha?</SubTitle>
+          <Text style={{ textAlign: 'center', marginBottom: 64 }}>
+            Digite seu e-mail abaixo e enviaremos à você instruções para
+            redefinir sua senha.
+          </Text>
 
-        <FormWrapper>
-          <ControlledInput
-            placeholder='E-mail'
-            autoCapitalize='none'
-            autoCorrect={false}
-            autoComplete='email'
-            keyboardType='email-address'
-            textContentType='emailAddress'
-            name='email'
-            control={control}
-            error={errors.email}
-            icon={UserCircle}
-          />
+          <FormWrapper>
+            <ControlledInput
+              placeholder='E-mail'
+              autoCapitalize='none'
+              autoCorrect={false}
+              autoComplete='email'
+              keyboardType='email-address'
+              textContentType='emailAddress'
+              name='email'
+              control={control}
+              error={errors.email}
+              icon={UserCircle}
+            />
 
-          <Button.Root
-            isLoading={loading}
-            onPress={handleSubmit(handleResetPassword)}
-            style={{ width: '50%', alignSelf: 'center' }}
-          >
-            <Button.Text text='Continuar' />
-          </Button.Root>
-        </FormWrapper>
+            <Button.Root
+              isLoading={loading}
+              onPress={handleSubmit(handleResetPassword)}
+              style={{ width: '50%', alignSelf: 'center' }}
+            >
+              <Button.Text text='Continuar' />
+            </Button.Root>
+          </FormWrapper>
 
-        <Text onPress={handlePressGoBack}>Voltar para Login</Text>
-      </MainContent>
-    </Container>
+          <Text onPress={handlePressGoBack}>Voltar para Login</Text>
+        </MainContent>
+      </Container>
+    </Screen>
   );
 }
