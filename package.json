@@ -5,6 +5,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "start": "npx expo start --dev-client",
+    "prebuild-android": "npx expo prebuild --platform android --no-install",
+    "prebuild-ios": "npx expo prebuild --platform ios --no-install",
     "clean-android": "cd android && ./gradlew clean",
     "build-android-dev": "cd android && ./gradlew assembleDebug",
     "build-android-release": "cd android && ./gradlew bundleRelease",

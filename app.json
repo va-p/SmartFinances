@@ -2,8 +2,10 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "2.15.0(60)",
-    "version": "2.16.0",
+    "runtimeVersion": {
+      "policy": "nativeVersion"
+    },
+    "version": "2.17.0",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -13,6 +15,7 @@
     "android": {
       "package": "com.vap.smartfinances",
       "versionCode": 60,
+      "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "VIBRATE",
         "CAMERA",
