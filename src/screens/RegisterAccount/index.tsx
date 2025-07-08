@@ -69,7 +69,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      name: 'Nome da conta',
+      name: '',
       balance: 0,
     },
   });
@@ -264,7 +264,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         <Form>
           <ControlledInputWithIcon
             icon={<PencilSimple color={theme.colors.primary} />}
-            placeholder='Nome'
+            placeholder='Nome da conta'
             autoCapitalize='sentences'
             autoCorrect={false}
             defaultValue={String(getValues('name'))}
