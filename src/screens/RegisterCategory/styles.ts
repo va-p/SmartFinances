@@ -1,8 +1,8 @@
 import { TouchableOpacity } from 'react-native';
 import styled, { css } from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 type TypeProps = 'primary' | 'secondary';
 
@@ -11,9 +11,10 @@ type Props = {
   icon?: string;
   type?: TypeProps;
   isActive?: boolean;
+  bottomInset?: number;
 };
 
-export const Container = styled.KeyboardAvoidingView`
+export const Container = styled.View`
   flex: 1;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.background};
@@ -65,7 +66,9 @@ export const Color = styled(TouchableOpacity)<Props>`
   border-radius: 20px;
 `;
 
-export const IconsList = styled.View``;
+export const IconsList = styled.View`
+  max-height: 400px;
+`;
 
 export const IconContainer = styled.TouchableOpacity<Props>`
   width: 60px;
@@ -84,11 +87,10 @@ export const Icon = styled(Ionicons)<Props>`
     isActive ? theme.colors.background : theme.colors.text};
 `;
 
-export const Footer = styled.View`
+export const Footer = styled.View<Props>`
   width: 100%;
   position: absolute;
-  bottom: 0;
+  bottom: 0px;
   left: 16px;
   padding-bottom: 16px;
-  background-color: ${({ theme }) => theme.colors.background};
 `;
