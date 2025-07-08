@@ -9,6 +9,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { Splash } from '@components/Splash';
 
@@ -37,6 +38,7 @@ enum LoadingState {
 }
 
 function App() {
+  const [queryClient] = useState(() => new QueryClient());
   const [loadingState, setLoadingState] = useState(LoadingState.Initializing);
 
   OneSignal.Debug.setLogLevel(LogLevel.Verbose); // OneSignal Debugging
@@ -96,7 +98,9 @@ function App() {
               <RevenueCatProvider>
                 <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
                   <AuthProvider>
-                    <Routes />
+                    <QueryClientProvider client={queryClient}>
+                      <Routes />
+                    </QueryClientProvider>
                   </AuthProvider>
                 </ClerkProvider>
               </RevenueCatProvider>

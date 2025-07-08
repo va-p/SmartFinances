@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
 import {
   Container,
@@ -16,9 +16,10 @@ import {
   SectionTitle,
 } from './styles';
 
-import getAccounts from '@utils/getAccounts';
+import { useTransactions } from '@hooks/useTransactions';
+import { useAccountsQuery } from '@hooks/useAccountsQuery';
+
 import formatCurrency from '@utils/formatCurrency';
-import getTransactions from '@utils/getTransactions';
 import { convertCurrency } from '@utils/convertCurrency';
 import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
@@ -64,21 +65,12 @@ import {
 
 import theme from '@themes/theme';
 
-type TotalByMonths = {
-  date: string;
-  totalRevenuesByMonth?: number;
-  totalExpensesByMonth?: number;
-  total: number;
-};
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts({ navigation }: any) {
   const bottomTabHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
   const {
     brlQuoteBtc,
@@ -95,147 +87,146 @@ export function Accounts({ navigation }: any) {
     usdQuoteBtc,
   } = useQuotes();
   const { hideAmount, setHideAmount } = useUserConfigs();
-  const [total, setTotal] = useState('R$0'); // Total assets
-  const [accounts, setAccounts] = useState<AccountProps[]>([]); // Accounts list
-  const [totalsByMonths, setTotalsByMonths] = useState<TotalByMonths[]>([]); // Totals equity chart
-
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
-  async function fetchAccounts(isRefresh: boolean = false) {
-    try {
-      isRefresh ? setRefreshing(true) : setLoading(true);
+  const {
+    data: transactions,
+    isLoading: isLoadingTransactions,
+    refetch: refetchTransactions,
+    isRefetching: isRefetchingTransactions,
+  } = useTransactions(userID);
+  const {
+    data: rawAccounts,
+    isLoading: isLoadingAccounts,
+    refetch: refetchAccounts,
+    isRefetching: isRefetchingAccounts,
+  } = useAccountsQuery(userID);
 
-      const accountsData = await getAccounts(userID);
+  const processedData = useMemo(() => {
+    if (!rawAccounts || !transactions) {
+      return {
+        totalBalanceFormatted: formatCurrency('BRL', 0, false),
+        processedAccounts: [],
+        chartData: [],
+      };
+    }
 
-      let totalAccountsBalance = 0;
+    let totalAccountsBalance = new Decimal(0);
+    const filteredAccounts = rawAccounts.filter(
+      (account: AccountProps) => !account.hide
+    );
 
-      if (!!accountsData) {
-        const filteredAccounts = accountsData.filter(
-          (account: AccountProps) => !account.hide
-        );
+    const processedAccounts = filteredAccounts.map((account) => {
+      const accountBalanceConvertedToBRL = convertCurrency({
+        amount: Number(account.balance),
+        fromCurrency: account.currency.code,
+        toCurrency: 'BRL',
+        accountCurrency: account.currency.code,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      });
+      totalAccountsBalance = totalAccountsBalance.plus(
+        accountBalanceConvertedToBRL
+      );
 
-        for (const account of filteredAccounts) {
-          const accountBalanceConvertedToBRL = convertCurrency({
-            amount: account.balance,
-            fromCurrency: account.currency.code,
-            toCurrency: 'BRL',
-            accountCurrency: account.currency.code,
-            quotes: {
-              brlQuoteBtc,
-              brlQuoteEur,
-              brlQuoteUsd,
-              btcQuoteBrl,
-              btcQuoteEur,
-              btcQuoteUsd,
-              eurQuoteBrl,
-              eurQuoteBtc,
-              eurQuoteUsd,
-              usdQuoteBrl,
-              usdQuoteBtc,
-              usdQuoteEur,
-            },
-          });
-          if (account.currency.code !== 'BRL') {
-            account.totalAccountAmountConverted = formatCurrency(
-              'BRL',
-              accountBalanceConvertedToBRL,
-              false
-            );
-          }
+      return {
+        ...account,
+        balance: formatCurrency(
+          account.currency.code,
+          Number(account.balance),
+          false
+        ),
+        totalAccountAmountConverted:
+          account.currency.code !== 'BRL'
+            ? formatCurrency('BRL', accountBalanceConvertedToBRL, false)
+            : undefined,
+      };
+    });
 
-          totalAccountsBalance += accountBalanceConvertedToBRL;
+    let totalsByMonths: any = {};
+    let accumulatedTotal = new Decimal(0);
 
-          account.balance = formatCurrency(
-            account.currency.code,
-            account.balance,
-            false
-          );
+    for (const transaction of transactions) {
+      if (new Date(transaction.created_at) <= new Date()) {
+        const ym = format(transaction.created_at, `yyyy-MM`, {
+          locale: ptBR,
+        });
 
-          setTotal(formatCurrency('BRL', totalAccountsBalance, false));
-
-          /**
-           * Totals Grouped By Months - Start
-           */
-          let totalsByMonths: any = {};
-          let accumulatedTotal = new Decimal(0);
-
-          const allTransactions = await getTransactions(userID);
-
-          for (const transaction of allTransactions) {
-            if (new Date(transaction.created_at) <= new Date()) {
-              const ym = format(transaction.created_at, `yyyy-MM`, {
-                locale: ptBR,
-              });
-
-              if (!totalsByMonths.hasOwnProperty(ym)) {
-                totalsByMonths[ym] = {
-                  date: ym,
-                  total: new Decimal(0),
-                };
-              }
-
-              const transactionAmountBRL =
-                transaction.amount_in_account_currency
-                  ? transaction.amount_in_account_currency
-                  : transaction.amount;
-
-              // Desconsidera transferências
-              if (
-                transaction.type === 'TRANSFER_CREDIT' ||
-                transaction.type === 'TRANSFER_DEBIT'
-              ) {
-                continue;
-              }
-
-              if (transaction.account.type === 'CREDIT') {
-                totalsByMonths[ym].total =
-                  totalsByMonths[ym].total.minus(transactionAmountBRL); // Credit card - subtrai
-              } else {
-                totalsByMonths[ym].total =
-                  totalsByMonths[ym].total.plus(transactionAmountBRL); // Others accounts - soma
-              }
-            }
-          }
-
-          const sortedMonths = Object.keys(totalsByMonths).sort(
-            (a, b) =>
-              parse(a, 'yyyy-MM', new Date()).getTime() -
-              parse(b, 'yyyy-MM', new Date()).getTime()
-          );
-          const formattedTotalByMonths = sortedMonths.map((monthYear) => {
-            accumulatedTotal = accumulatedTotal.plus(
-              totalsByMonths[monthYear].total
-            );
-
-            return {
-              date: format(
-                parse(`${monthYear}-01`, 'yyyy-MM-dd', new Date()),
-                "MMM '\n' yyyy",
-                { locale: ptBR }
-              ),
-
-              total: accumulatedTotal.toNumber(),
-            };
-          });
-
-          setTotalsByMonths(formattedTotalByMonths);
-          /**
-           * Totals Grouped By Months - End
-           */
+        if (!totalsByMonths.hasOwnProperty(ym)) {
+          totalsByMonths[ym] = {
+            date: ym,
+            total: new Decimal(0),
+          };
         }
 
-        setAccounts(filteredAccounts);
+        const transactionAmountBRL = transaction.amount_in_account_currency
+          ? transaction.amount_in_account_currency
+          : transaction.amount;
+
+        // Desconsidera transferências
+        if (
+          transaction.type === 'TRANSFER_CREDIT' ||
+          transaction.type === 'TRANSFER_DEBIT'
+        ) {
+          continue;
+        }
+
+        if (transaction.account.type === 'CREDIT') {
+          totalsByMonths[ym].total =
+            totalsByMonths[ym].total.minus(transactionAmountBRL); // Credit card - subtrai
+        } else {
+          totalsByMonths[ym].total =
+            totalsByMonths[ym].total.plus(transactionAmountBRL); // Others accounts - soma
+        }
       }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Contas',
-        'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
     }
+
+    const sortedMonths = Object.keys(totalsByMonths).sort(
+      (a, b) =>
+        parse(a, 'yyyy-MM', new Date()).getTime() -
+        parse(b, 'yyyy-MM', new Date()).getTime()
+    );
+    const formattedTotalByMonths = sortedMonths.map((monthYear) => {
+      accumulatedTotal = accumulatedTotal.plus(totalsByMonths[monthYear].total);
+
+      return {
+        date: format(
+          parse(`${monthYear}-01`, 'yyyy-MM-dd', new Date()),
+          "MMM '\n' yyyy",
+          { locale: ptBR }
+        ),
+
+        total: accumulatedTotal.toNumber(),
+      };
+    });
+
+    return {
+      totalBalanceFormatted: formatCurrency(
+        'BRL',
+        totalAccountsBalance.toNumber(),
+        false
+      ),
+      processedAccounts: processedAccounts,
+      chartData: formattedTotalByMonths,
+    };
+  }, [rawAccounts, transactions]);
+
+  const { totalBalanceFormatted, processedAccounts, chartData } = processedData;
+
+  function handleRefresh() {
+    Promise.all([refetchTransactions(), refetchAccounts()]);
   }
 
   function handleTouchConnectAccount() {
@@ -250,7 +241,7 @@ export function Accounts({ navigation }: any) {
 
   function handleCloseRegisterAccountModal() {
     registerAccountBottomSheetRef.current?.dismiss();
-    fetchAccounts(true);
+    refetchAccounts();
   }
 
   function handleOpenAccount(
@@ -389,11 +380,7 @@ export function Accounts({ navigation }: any) {
     );
   }
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  if (loading) {
+  if (isLoadingTransactions || isLoadingAccounts) {
     return (
       <Screen>
         <SkeletonAccountsScreen />
@@ -409,11 +396,11 @@ export function Accounts({ navigation }: any) {
           <Header>
             <CashFlowContainer>
               <CashFlowTotal>
-                {refreshing
+                {isRefetchingTransactions || isRefetchingAccounts
                   ? _renderSkeletonTotal()
                   : hideAmount
                   ? '•••••'
-                  : total}
+                  : totalBalanceFormatted}
               </CashFlowTotal>
               <CashFlowDescription>Patrimônio Total</CashFlowDescription>
             </CashFlowContainer>
@@ -429,16 +416,14 @@ export function Accounts({ navigation }: any) {
 
           <ChartContainer>
             <LineChart
-              key={totalsByMonths.length}
-              data={totalsByMonths.map((item) => {
+              key={chartData.length}
+              data={chartData.map((item) => {
                 return { value: item.total };
               })}
-              xAxisLabelTexts={totalsByMonths.map((item) => {
+              xAxisLabelTexts={chartData.map((item) => {
                 return item.date;
               })}
-              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
-                totalsByMonths
-              )}
+              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(chartData)}
               width={GRAPH_WIDTH}
               height={128}
               noOfSections={5}
@@ -480,7 +465,7 @@ export function Accounts({ navigation }: any) {
         <AccountsContainer>
           {/** ACCOUNTS */}
           <FlatList
-            data={accounts.filter(
+            data={processedAccounts.filter(
               (account) =>
                 account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
             )}
@@ -488,10 +473,8 @@ export function Accounts({ navigation }: any) {
             renderItem={_renderItem}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => {
-                  fetchAccounts(true);
-                }}
+                refreshing={isRefetchingTransactions || isRefetchingAccounts}
+                onRefresh={handleRefresh}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -501,14 +484,14 @@ export function Accounts({ navigation }: any) {
             ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
             ListFooterComponent={
               /** CREDIT CARDS */
-              accounts.some(
+              processedAccounts.some(
                 (account) =>
                   account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
               ) ? (
                 <>
                   <SectionTitle>Cartões de crédito</SectionTitle>
                   <FlatList
-                    data={accounts.filter(
+                    data={processedAccounts.filter(
                       (account) =>
                         account.type === 'CREDIT' &&
                         account.subtype === 'CREDIT_CARD'
@@ -517,7 +500,7 @@ export function Accounts({ navigation }: any) {
                     renderItem={_renderItem}
                     snapToOffsets={[
                       ...Array(
-                        accounts.filter(
+                        processedAccounts.filter(
                           (account) =>
                             account.type === 'CREDIT' &&
                             account.subtype === 'CREDIT_CARD'
@@ -528,10 +511,10 @@ export function Accounts({ navigation }: any) {
                     )}
                     refreshControl={
                       <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={() => {
-                          fetchAccounts(true);
-                        }}
+                        refreshing={
+                          isRefetchingTransactions || isRefetchingAccounts
+                        }
+                        onRefresh={handleRefresh}
                       />
                     }
                     horizontal

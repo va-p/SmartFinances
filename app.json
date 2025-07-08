@@ -2,8 +2,8 @@
   "expo": {
     "name": "Smart Finances",
     "slug": "smart-finances",
-    "runtimeVersion": "2.14.0(60)",
-    "version": "2.14.0",
+    "runtimeVersion": "2.15.0(60)",
+    "version": "2.15.0",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
