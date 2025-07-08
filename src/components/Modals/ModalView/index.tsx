@@ -8,6 +8,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import Trash from 'phosphor-react-native/src/icons/Trash';
 import { BorderlessButton } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Header as HeaderComponent } from '@components/Header';
 
@@ -37,6 +38,8 @@ export function ModalView({
   deleteChildren,
   ...rest
 }: Props) {
+  const { top } = useSafeAreaInsets();
+
   return (
     <BottomSheetModal
       ref={bottomSheetRef}
@@ -45,6 +48,7 @@ export function ModalView({
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
+      topInset={top}
       {...rest}
     >
       <BottomSheetView style={{ flex: 1 }}>
@@ -62,8 +66,7 @@ export function ModalView({
             <></>
           )}
         </Header>
-
-        <Container>{children}</Container>
+        {children}
       </BottomSheetView>
     </BottomSheetModal>
   );
