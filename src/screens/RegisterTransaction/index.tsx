@@ -7,7 +7,6 @@ import {
   TitleContainer,
   Title,
   HeaderRow,
-  InputTransactionValueContainer,
   ContentScroll,
   TransactionImageContainer,
   TransactionImage,

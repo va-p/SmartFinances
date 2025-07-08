@@ -10,11 +10,3 @@ export const Overlay = styled.View`
   right: 0;
   background-color: ${({ theme }) => theme.colors.overlay};
 `;
-
-export const Container = styled.View`
-  flex: 1;
-  border-top-left-radius: 26px;
-  border-top-right-radius: 26px;
-  background-color: ${({ theme }) => theme.colors.background};
-  overflow: hidden;
-`;

@@ -1,9 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
 import { BudgetProps } from '@interfaces/budget';
 import { TransactionProps } from '@interfaces/transactions';
+
+import { useTransactions } from '@hooks/useTransactions';
+import { useBudgetsQuery } from '@hooks/useBudgetsQuery';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
 import getTransactions from '@utils/getTransactions';
@@ -23,7 +26,6 @@ import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { RegisterBudget } from '@screens/RegisterBudget';
 
 import { useUser } from '@storage/userStorage';
-import { useQuotes } from '@storage/quotesStorage';
 import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import api from '@api/api';
@@ -32,10 +34,7 @@ import formatCurrency from '@utils/formatCurrency';
 
 export function Budgets({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
-  const [budgetsFormatted, setBudgetsFormatted] = useState<BudgetProps[]>([]);
 
   const budgetRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -43,193 +42,142 @@ export function Budgets({ navigation }: any) {
     (state) => state.setBudgetCategoriesSelected
   );
 
-  async function checkBudgets() {
-    let budgets: any = [];
-    try {
-      setLoading(true);
-      setRefreshing(true);
+  const {
+    data: transactions,
+    isLoading: isLoadingTransactions,
+    refetch: refetchTransactions,
+    isRefetching: isRefetchingTransactions,
+  } = useTransactions(userID);
+  const {
+    data: rawBudgets,
+    isLoading: isLoadingBudgets,
+    refetch: refetchBudgets,
+    isRefetching: isRefetchingBudgets,
+  } = useBudgetsQuery(userID);
 
-      const { data } = await api.get('budget', {
-        params: {
-          user_id: userID,
-        },
-      });
-
-      if (data.length > 0) {
-        budgets = data;
-      } else {
-        budgets = null;
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Orçamentos',
-        'Não foi possível buscar seus orçamentos. Verifique sua conexão com a internet e tente novamente.'
-      );
+  const budgetsFormatted = useMemo(() => {
+    if (!rawBudgets || !transactions) {
+      return [];
     }
 
-    let transactions: any = [];
-    try {
-      const data = await getTransactions(userID);
+    return rawBudgets.map((budget) => {
+      // --- Start  of business logic to each budget ---
+      let startDate = new Date(budget.start_date);
+      let endDate = startDate;
 
-      if (data && data.length > 0) {
-        transactions = data;
-      } else {
-        transactions = null;
+      switch (budget.recurrence) {
+        case 'daily':
+          endDate = addDays(new Date(endDate), 1);
+          break;
+        case 'weekly':
+          endDate = addWeeks(new Date(endDate), 1);
+          break;
+        case 'biweekly':
+          endDate = addDays(new Date(endDate), 15);
+          break;
+        case 'monthly':
+          endDate = endOfMonth(endDate);
+          break;
+        case 'semiannually':
+          endDate = addMonths(new Date(endDate), 6);
+          break;
+        case 'annually':
+          endDate = addYears(new Date(endDate), 1);
+          break;
       }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Transações',
-        'Não foi possível buscar seus orçamentos. Verifique sua conexão com a internet e tente novamente.'
-      );
-    }
 
-    if (!!budgets && !!transactions) {
-      let budgetsFormatted: any = [];
-      for (const budget of budgets) {
-        let startDate = new Date(budget.start_date);
-        let endDate = startDate;
-
+      while (endDate < new Date()) {
         switch (budget.recurrence) {
           case 'daily':
-            endDate = addDays(new Date(endDate), 1);
+            startDate = endDate;
+            endDate = addDays(new Date(startDate), 1);
             break;
           case 'weekly':
-            endDate = addWeeks(new Date(endDate), 1);
+            startDate = endDate;
+            endDate = addWeeks(new Date(startDate), 1);
             break;
           case 'biweekly':
-            endDate = addDays(new Date(endDate), 15);
+            startDate = endDate;
+            endDate = addDays(new Date(startDate), 15);
             break;
           case 'monthly':
-            endDate = endOfMonth(endDate);
+            startDate = addMonths(new Date(startDate), 1);
+            endDate = endOfMonth(startDate);
             break;
           case 'semiannually':
-            endDate = addMonths(new Date(endDate), 6);
+            startDate = endDate;
+            endDate = addMonths(new Date(startDate), 6);
             break;
           case 'annually':
-            endDate = addYears(new Date(endDate), 1);
+            startDate = endDate;
+            endDate = addYears(new Date(startDate), 1);
             break;
         }
-
-        while (endDate < new Date()) {
-          switch (budget.recurrence) {
-            case 'daily':
-              startDate = endDate;
-              endDate = addDays(new Date(startDate), 1);
-              break;
-            case 'weekly':
-              startDate = endDate;
-              endDate = addWeeks(new Date(startDate), 1);
-              break;
-            case 'biweekly':
-              startDate = endDate;
-              endDate = addDays(new Date(startDate), 15);
-              break;
-            case 'monthly':
-              startDate = addMonths(new Date(startDate), 1);
-              endDate = endOfMonth(startDate);
-              break;
-            case 'semiannually':
-              startDate = endDate;
-              endDate = addMonths(new Date(startDate), 6);
-              break;
-            case 'annually':
-              startDate = endDate;
-              endDate = addYears(new Date(startDate), 1);
-              break;
-          }
-        }
-
-        const filteredTransactions: TransactionProps[] = transactions.filter(
-          (transaction: TransactionProps) =>
-            // budget.accounts.find((accountId: any) => accountId.account_id === transaction.account.id) &&
-            budget.categories.find(
-              (categoryId: any) =>
-                categoryId.category_id === transaction.category.id
-            ) &&
-            new Date(transaction.created_at) >= startDate &&
-            new Date(transaction.created_at) <= endDate
-        );
-
-        let amountSpent = 0;
-        for (const transaction of filteredTransactions) {
-          const isTransactionInAnotherCurrency =
-            transaction.currency.code !== transaction.account.currency.code;
-
-          if (
-            transaction.type === 'TRANSFER_CREDIT' ||
-            transaction.type === 'TRANSFER_DEBIT'
-          ) {
-            continue;
-          }
-
-          // Credit cards
-          if (transaction.account.type === 'CREDIT') {
-            // Créditos no cartão de crédito DIMINUEM o saldo devedor, ou seja, são valores negativos na API da Pluggy. Débitos no cartão de crédito AUMENTAM o saldo devedor, ou seja, são positivos na API da Pluggy, PORÉM, neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
-            isTransactionInAnotherCurrency &&
-            transaction.amount_in_account_currency
-              ? (amountSpent += transaction.amount_in_account_currency)
-              : (amountSpent += transaction.amount);
-          }
-
-          // Other account types
-          if (transaction.account.type !== 'CREDIT') {
-            // Neste caso, a lógica de cálculo se inverte, pois os orçamntos são expressos sempre em valores positivos
-            isTransactionInAnotherCurrency &&
-            transaction.amount_in_account_currency
-              ? (amountSpent -= transaction.amount_in_account_currency)
-              : (amountSpent -= transaction.amount);
-          }
-
-          // Format transaction
-          transaction.amount_in_account_currency
-            ? (transaction.amount_in_account_currency_formatted =
-                formatCurrency(
-                  transaction.account.currency.code,
-                  transaction.amount_in_account_currency!
-                ))
-            : (transaction.amount_formatted = formatCurrency(
-                transaction.account.currency.code,
-                transaction.amount
-              ));
-        }
-
-        const percentage = `${((amountSpent / budget.amount) * 100).toFixed(
-          2
-        )}%`;
-
-        const start_date = formatDatePtBr(startDate).extensive();
-        const end_date = formatDatePtBr(endDate).extensive();
-
-        if (!budgetsFormatted.hasOwnProperty(endDate)) {
-          budgetsFormatted[budget.id] = {
-            id: budget.id,
-            name: budget.name,
-            amount: budget.amount,
-            amount_spent: amountSpent,
-            percentage,
-            currency: budget.currency,
-            account: budget.account,
-            categories: budget.categories,
-            start_date,
-            end_date,
-            recurrence: budget.recurrence,
-            user_id: userID,
-            transactions: filteredTransactions,
-          };
-        }
-
-        budgetsFormatted = Object.values(budgetsFormatted);
-        setBudgetsFormatted(budgetsFormatted);
-        setLoading(false);
-        setRefreshing(false);
       }
-    } else {
-      setBudgetsFormatted([]);
-      setLoading(false);
-      setRefreshing(false);
-    }
+
+      const filteredTransactions = transactions.filter(
+        (transaction: TransactionProps) =>
+          budget.categories.find(
+            (cat: any) => cat.category_id === transaction.category.id
+          ) &&
+          new Date(transaction.created_at) >= startDate &&
+          new Date(transaction.created_at) <= endDate
+      );
+
+      let amountSpent = 0;
+      for (const transaction of filteredTransactions) {
+        const isTransactionInAnotherCurrency =
+          transaction.currency.code !== transaction.account.currency.code;
+        if (
+          transaction.type === 'TRANSFER_CREDIT' ||
+          transaction.type === 'TRANSFER_DEBIT'
+        )
+          continue;
+
+        if (transaction.account.type === 'CREDIT') {
+          amountSpent +=
+            isTransactionInAnotherCurrency &&
+            transaction.amount_in_account_currency
+              ? transaction.amount_in_account_currency
+              : transaction.amount;
+        } else {
+          amountSpent -=
+            isTransactionInAnotherCurrency &&
+            transaction.amount_in_account_currency
+              ? transaction.amount_in_account_currency
+              : transaction.amount;
+        }
+
+        transaction.amount_in_account_currency
+          ? (transaction.amount_in_account_currency_formatted = formatCurrency(
+              transaction.account.currency.code,
+              transaction.amount_in_account_currency!
+            ))
+          : (transaction.amount_formatted = formatCurrency(
+              transaction.account.currency.code,
+              transaction.amount
+            ));
+      }
+
+      const percentage = (amountSpent / Number(budget.amount)) * 100;
+      const formattedStartDate = formatDatePtBr(startDate).extensive();
+      const formattedEndDate = formatDatePtBr(endDate).extensive();
+
+      return {
+        ...budget,
+        amount_spent: amountSpent,
+        percentage,
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+        transactions: filteredTransactions,
+      };
+      // --- End of business logic ---
+    });
+  }, [rawBudgets, transactions]);
+
+  function handleRefresh() {
+    refetchTransactions();
+    refetchBudgets();
   }
 
   function handleOpenRegisterBudgetModal() {
@@ -239,6 +187,7 @@ export function Budgets({ navigation }: any) {
   function handleCloseRegisterBudgetModal() {
     setBudgetCategoriesSelected([]);
     budgetRegisterBottomSheetRef.current?.dismiss();
+    refetchBudgets();
   }
 
   function handleOpenBudget(budget: BudgetProps) {
@@ -247,11 +196,7 @@ export function Budgets({ navigation }: any) {
     });
   }
 
-  useEffect(() => {
-    checkBudgets();
-  }, []);
-
-  if (loading) {
+  if (isLoadingTransactions || isLoadingBudgets) {
     return (
       <Screen>
         <SkeletonBudgetsScreen />
@@ -282,7 +227,10 @@ export function Budgets({ navigation }: any) {
             <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />
           )}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={checkBudgets} />
+            <RefreshControl
+              refreshing={isRefetchingTransactions || isRefetchingBudgets}
+              onRefresh={handleRefresh}
+            />
           }
           showsVerticalScrollIndicator={false}
           initialNumToRender={20}

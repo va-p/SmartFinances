@@ -28,6 +28,9 @@ import {
   ClearSearchButton,
 } from './styles';
 
+import { useQuotesQuery } from '@hooks/useQuotesQuery';
+import { useTransactions } from '@hooks/useTransactions';
+import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
@@ -123,8 +126,6 @@ const CHART_BAR_WIDTH = 8;
 
 export function Home() {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const { id: userID } = useUser();
   const {
     setBrlQuoteBtc,
@@ -145,39 +146,8 @@ export function Home() {
     useCurrentAccountSelected();
   const [showInsights, setShowInsights] = useState(true);
   const [showSearchInput, setShowSearchInput] = useState(false);
-  const [
-    transactionsFormattedBySelectedPeriod,
-    setTransactionsFormattedBySelectedPeriod,
-  ] = useState<any[]>([]);
   const { control, watch, reset } = useForm();
   const searchQuery = watch('search', '');
-  const optimizedTransactions = useMemo(
-    () => transactionsFormattedBySelectedPeriod,
-    [transactionsFormattedBySelectedPeriod]
-  );
-  const flattenedTransactions = flattenTransactionsForFlashList(
-    optimizedTransactions
-  );
-  const filteredTransactions = useMemo(() => {
-    if (searchQuery.length === 0) return flattenedTransactions;
-
-    const filteredGroups = transactionsFormattedBySelectedPeriod
-      .map((group) => ({
-        ...group,
-        data: group.data.filter((transaction: TransactionProps) =>
-          transaction.description
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        ),
-      }))
-      .filter((group) => group.data.length > 0);
-
-    return flattenTransactionsForFlashList(filteredGroups);
-  }, [
-    transactionsFormattedBySelectedPeriod,
-    flattenedTransactions,
-    searchQuery,
-  ]);
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const cashFlows = useRef<CashFlowChartData[]>([]);
@@ -264,21 +234,24 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  async function fetchTransactions() {
-    try {
-      setLoading(true);
+  const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
 
-      const { data } = await api.get(
-        '/banking_integration/fetch_transactions',
-        {
-          params: {
-            user_id: userID,
-          },
-        }
-      );
+  const { data: transactions, isLoading, isError } = useTransactions(userID);
 
-      // Format transactions
-      const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
+  const { mutate: syncTransactions, isPending: isSyncing } =
+    useSyncTransactions();
+
+  const processedData = useMemo(() => {
+    if (!transactions) {
+      return {
+        cashFlowChartData: [],
+        currentCashFlow: 'R$ 0,00',
+        groupedTransactions: [],
+      };
+    }
+
+    const transactionsFormattedPtbr = transactions.map(
+      (item: TransactionProps) => {
         const dmy = formatDatePtBr(item.created_at).short();
         return {
           id: item.id,
@@ -300,28 +273,49 @@ export function Home() {
           tags: item.tags,
           user_id: item.user_id,
         };
-      });
+      }
+    );
 
-      // Process transactions
-      const { cashFlowChartData, currentCashFlow, groupedTransactions } =
-        processTransactions(
-          transactionsFormattedPtbr,
-          selectedPeriod.period,
-          selectedDate
-        );
+    return processTransactions(
+      transactionsFormattedPtbr,
+      selectedPeriod.period,
+      selectedDate
+    );
+  }, [transactions, selectedPeriod.period, selectedDate]);
 
-      // Update refs and states
-      cashFlowTotalBySelectedPeriod.current = currentCashFlow;
-      cashFlows.current = cashFlowChartData;
-      setTransactionsFormattedBySelectedPeriod(groupedTransactions);
-    } catch (error) {
-      console.error('Home fetchTransactions error =>', error);
-      Alert.alert(
-        'Transações',
-        'Não foi possível buscar as transações. Verifique sua conexão com a internet e tente novamente.'
-      );
-    } finally {
-      setLoading(false);
+  cashFlowTotalBySelectedPeriod.current = processedData.currentCashFlow;
+  cashFlows.current = processedData.cashFlowChartData;
+  const transactionsFormattedBySelectedPeriod =
+    processedData.groupedTransactions;
+  const flattenedTransactions = flattenTransactionsForFlashList(
+    transactionsFormattedBySelectedPeriod
+  );
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery || searchQuery.length === 0) {
+      return flattenedTransactions;
+    }
+
+    const filteredGroups = transactionsFormattedBySelectedPeriod
+      .map((group) => ({
+        ...group,
+        data: group.data.filter((transaction: TransactionProps) =>
+          transaction.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+        ),
+      }))
+      .filter((group) => group.data.length > 0);
+
+    return flattenTransactionsForFlashList(filteredGroups);
+  }, [
+    searchQuery,
+    flattenedTransactions,
+    transactionsFormattedBySelectedPeriod,
+  ]);
+
+  function handleRefresh() {
+    if (!!userID) {
+      syncTransactions(userID);
     }
   }
 
@@ -592,30 +586,37 @@ export function Home() {
   }, []);
 
   useEffect(() => {
-    fetchQuote('BRL', 'BTC', setBrlQuoteBtc);
-    fetchQuote('BRL', 'EUR', setBrlQuoteEur);
-    fetchQuote('BRL', 'USD', setBrlQuoteUsd);
+    if (!!quotesData) {
+      setBrlQuoteBtc(quotesData.brlToBtc);
+      setBrlQuoteEur(quotesData.brlToEur);
+      setBrlQuoteUsd(quotesData.brlToUsd);
 
-    fetchQuote('BTC', 'BRL', setBtcQuoteBrl);
-    fetchQuote('BTC', 'EUR', setBtcQuoteEur);
-    fetchQuote('BTC', 'USD', setBtcQuoteUsd);
+      setBtcQuoteBrl(quotesData.btcToBrl);
+      setBtcQuoteEur(quotesData.btcToEur);
+      setBtcQuoteUsd(quotesData.btcToUsd);
 
-    fetchQuote('EUR', 'BRL', setEurQuoteBrl);
-    fetchQuote('EUR', 'BTC', setEurQuoteBtc);
-    fetchQuote('EUR', 'USD', setEurQuoteUsd);
+      setEurQuoteBrl(quotesData.eurToBrl);
+      setEurQuoteBtc(quotesData.eurToBtc);
+      setEurQuoteUsd(quotesData.eurToUsd);
 
-    fetchQuote('USD', 'BRL', setUsdQuoteBrl);
-    fetchQuote('USD', 'BTC', setUsdQuoteBtc);
-    fetchQuote('USD', 'EUR', setUsdQuoteEur);
+      setUsdQuoteBrl(quotesData.usdToBrl);
+      setUsdQuoteBtc(quotesData.usdToBtc);
+      setUsdQuoteEur(quotesData.usdToEur);
+    }
+  }, [quotesData]);
 
-    fetchTransactions();
-  }, [selectedDate, selectedPeriod.period]);
-
-  if (loading) {
+  if (isLoading && !transactions) {
     return (
       <Screen>
         <SkeletonHomeScreen />
       </Screen>
+    );
+  }
+
+  if (isError) {
+    Alert.alert(
+      'Erro',
+      'Não foi possível carregar suas transações. Por favor, tente novamente'
     );
   }
 
@@ -750,8 +751,8 @@ export function Home() {
             ListEmptyComponent={_renderEmpty}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={fetchTransactions}
+                refreshing={isSyncing}
+                onRefresh={handleRefresh}
               />
             }
             showsVerticalScrollIndicator={false}
