@@ -14,7 +14,6 @@ web-build/
 *.p8
 *.p12
 *.key
-*.keystore
 *.mobileprovision
 
 # Metro
@@ -29,10 +28,6 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# api files
-src/api/api.ts
-src/api/apiQuotes.ts
-
 # local env files
 .env*.local
 .env
@@ -45,6 +40,3 @@ digital-tech-1-b54e14ef5beb.json
 
 # Java and Kotlin files
 .kotlin/
-
-# Ignorar arquivo de propriedades do Android com segredos
-android/gradle.properties

@@ -22,17 +22,18 @@ import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@storage/userStorage';
 
 import { ColorProps, IconProps } from '@interfaces/categories';
 
 import api from '@api/api';
-import { Gradient } from '@components/Gradient';
 
 type Props = {
   id: string;
@@ -51,6 +52,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterCategory({ id, closeCategory }: Props) {
+  const { bottom: bottomInset } = useSafeAreaInsets();
   const userID = useUser((state) => state.id);
   const [iconSelected, setIconSelected] = useState({
     id: '',
@@ -252,6 +254,9 @@ export function RegisterCategory({ id, closeCategory }: Props) {
             autoCapitalize='sentences'
             autoCorrect={false}
             defaultValue={getValues('name')}
+            returnKeyType='go'
+            returnKeyLabel='Salvar'
+            onSubmitEditing={handleSubmit(handleRegisterCategory)}
             name='name'
             control={control}
             error={errors.name}
@@ -302,12 +307,12 @@ export function RegisterCategory({ id, closeCategory }: Props) {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               alignItems: 'center',
-              paddingBottom: 250,
+              paddingBottom: 16,
             }}
           />
         </IconsList>
 
-        <Footer>
+        <Footer bottomInset={bottomInset}>
           <Button.Root
             isLoading={buttonIsLoading}
             onPress={handleSubmit(handleRegisterCategory)}

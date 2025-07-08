@@ -3,7 +3,7 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "runtimeVersion": "2.15.0(60)",
-    "version": "2.15.0",
+    "version": "2.16.0",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -12,7 +12,7 @@
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 59,
+      "versionCode": 60,
       "permissions": [
         "VIBRATE",
         "CAMERA",

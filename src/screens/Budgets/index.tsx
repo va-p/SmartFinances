@@ -1,5 +1,5 @@
-import React, { useMemo, useRef } from 'react';
-import { Alert, FlatList, RefreshControl } from 'react-native';
+import React, { useMemo, useRef, useState } from 'react';
+import { FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
 import { BudgetProps } from '@interfaces/budget';
@@ -9,7 +9,6 @@ import { useTransactions } from '@hooks/useTransactions';
 import { useBudgetsQuery } from '@hooks/useBudgetsQuery';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
-import getTransactions from '@utils/getTransactions';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -35,6 +34,7 @@ import formatCurrency from '@utils/formatCurrency';
 export function Budgets({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { id: userID } = useUser();
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
   const budgetRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -175,9 +175,15 @@ export function Budgets({ navigation }: any) {
     });
   }, [rawBudgets, transactions]);
 
-  function handleRefresh() {
-    refetchTransactions();
-    refetchBudgets();
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
+    try {
+      await Promise.all([refetchTransactions(), refetchBudgets()]);
+    } catch (error) {
+      console.error('Erro durante o refresh manual:', error);
+    } finally {
+      setIsManualRefreshing(false);
+    }
   }
 
   function handleOpenRegisterBudgetModal() {
@@ -228,7 +234,7 @@ export function Budgets({ navigation }: any) {
           )}
           refreshControl={
             <RefreshControl
-              refreshing={isRefetchingTransactions || isRefetchingBudgets}
+              refreshing={isManualRefreshing}
               onRefresh={handleRefresh}
             />
           }
