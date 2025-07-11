@@ -41,8 +41,8 @@ export function ModalViewWithoutHeader({
         style={{
           flex: 1,
           overflow: 'hidden',
-          borderTopLeftRadius: 80,
-          borderTopRightRadius: 80,
+          borderTopLeftRadius: 75,
+          borderTopRightRadius: 75,
         }}
       >
         {children}

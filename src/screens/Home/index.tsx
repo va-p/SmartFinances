@@ -28,18 +28,21 @@ import {
   ClearSearchButton,
 } from './styles';
 
+// Hooks
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useTransactions } from '@hooks/useTransactions';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
+
+// Utils
 import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
-import fetchQuote from '@utils/fetchQuotes';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
 import { processTransactions } from '@utils/processTransactions';
 
+// Dependencies
 import Animated, {
   Easing,
   Extrapolation,
@@ -83,6 +86,7 @@ import Plus from 'phosphor-react-native/src/icons/Plus';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { InsightCard } from '@components/InsightCard';
@@ -96,9 +100,11 @@ import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
+// Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
+// Storages
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
@@ -106,13 +112,16 @@ import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+// Interfaces
 import { eInsightsCashFlow } from '@enums/enumsInsights';
 import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
 
+// APIs
 import api from '@api/api';
 
 import theme from '@themes/theme';
 
+// Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -801,7 +810,7 @@ export function Home() {
 
         <ModalViewWithoutHeader
           bottomSheetRef={registerTransactionBottomSheetRef}
-          snapPoints={['100%']}
+          snapPoints={['95%']}
         >
           <RegisterTransaction
             id={transactionId}
