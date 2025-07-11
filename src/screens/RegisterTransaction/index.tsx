@@ -479,8 +479,13 @@ export function RegisterTransaction({
 
       updateTransaction(payload, {
         onSuccess: () => {
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeRegisterTransaction,
+            },
+          ]);
           resetId();
-          closeModal?.();
         },
       });
       return;
@@ -556,6 +561,17 @@ export function RegisterTransaction({
         },
         {
           onSuccess: () => {
+            Alert.alert(
+              'Cadastro de Transação',
+              'Transação cadastrada com sucesso!',
+              [
+                { text: 'Cadastrar nova transação' },
+                {
+                  text: 'Voltar para a tela anterior',
+                  onPress: closeRegisterTransaction,
+                },
+              ]
+            );
             reset();
           },
         }
@@ -612,6 +628,17 @@ export function RegisterTransaction({
 
     createTransaction(transactionData, {
       onSuccess: () => {
+        Alert.alert(
+          'Cadastro de Transação',
+          'Transação cadastrada com sucesso!',
+          [
+            { text: 'Cadastrar nova transação' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeRegisterTransaction,
+            },
+          ]
+        );
         reset();
       },
     });
@@ -621,7 +648,10 @@ export function RegisterTransaction({
     try {
       deleteTransaction(id, {
         onSuccess: () => {
-          resetId();
+          Alert.alert(
+            'Exclusão de transação',
+            'Transação excluída com sucesso!'
+          );
           closeRegisterTransaction();
         },
       });

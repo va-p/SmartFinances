@@ -35,13 +35,12 @@ export function useCreateTransactionMutation() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      Alert.alert('Sucesso!', 'Transação registrada com sucesso!');
     },
     onError: (error: any) => {
       Alert.alert(
-        'Erro',
-        error.response?.data?.message ||
-          'Não foi possível registrar a transação.'
+        'Cadastro de Transação',
+        (error.response?.data as { message: string }).message,
+        [{ text: 'Tentar novamente' }]
       );
     },
   });
@@ -55,20 +54,49 @@ const updateTransactionFn = async (updatedTransaction: any) => {
 
 export function useUpdateTransactionMutation() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: updateTransactionFn,
-    onSuccess: () => {
+
+    onMutate: async (newTransactionData) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+
+      const previousTransactions = queryClient.getQueryData(['transactions']);
+      queryClient.setQueryData(['transactions'], (oldData: any) => {
+        if (!oldData) return [];
+
+        return oldData.map((transaction: any) =>
+          transaction.id === newTransactionData.transaction_id
+            ? { ...transaction, ...newTransactionData }
+            : transaction
+        );
+      });
+
+      return { previousTransactions };
+    },
+
+    // onSuccess: () => {
+    //   Alert.alert('Edição de Transação', 'Transação editada com sucesso!');
+    // },
+
+    onError: (error, newTransactionData, context) => {
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(
+          ['transactions'],
+          context.previousTransactions
+        );
+      }
+      Alert.alert(
+        'Edição de Transação',
+        (error.response?.data as { message: string }).message,
+        [{ text: 'Tentar novamente' }]
+      );
+    },
+
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      Alert.alert('Sucesso!', 'Transação atualizada com sucesso!');
-    },
-    onError: (error: any) => {
-      Alert.alert(
-        'Erro',
-        error.response?.data?.message ||
-          'Não foi possível atualizar a transação. Por favor, tente novamente.'
-      );
     },
   });
 }
