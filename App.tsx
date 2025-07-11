@@ -88,7 +88,14 @@ function App() {
       return null;
 
     case LoadingState.LoadingFonts:
-      return <Splash onComplete={() => setLoadingState(LoadingState.Ready)} />;
+      return (
+        <Splash
+          onComplete={() => {
+            setLoadingState(LoadingState.Ready);
+            SplashScreen.hideAsync();
+          }}
+        />
+      );
 
     case LoadingState.Ready:
       return (
