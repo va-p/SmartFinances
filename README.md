@@ -60,6 +60,7 @@ Aplicativo para te ajudar a gerenciar sua vida financeira de forma intuitiva, pr
 - [x] React Native Gifted Charts
 - [x] SSO Login (Google) using Clerk
 - [x] Gemini AI API integration
+- [x] TanStack Query
 
 ## 🔖 Layout
 
