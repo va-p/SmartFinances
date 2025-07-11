@@ -1,41 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { hideAsync } from 'expo-splash-screen';
-import { AVPlaybackStatus, ResizeMode, Video } from 'expo-av';
+import { useEventListener } from 'expo';
+import { useVideoPlayer, VideoView } from 'expo-video';
+
+const videoSource = require('@assets/SplashScreen.mp4');
 
 type Props = {
-  onComplete: (status: boolean) => void;
+  onComplete: () => void;
 };
 
 export function Splash({ onComplete }: Props) {
-  const [lastStatus, setLastStatus] = useState<AVPlaybackStatus>(
-    {} as AVPlaybackStatus
-  );
+  const player = useVideoPlayer(videoSource, (player) => {
+    player.volume = 0;
+    player.loop = false;
+    player.play();
+  });
 
-  function onPlaybackStatusUpdate(status: AVPlaybackStatus) {
-    if (status.isLoaded) {
-      if (lastStatus.isLoaded !== status.isLoaded) {
-        hideAsync();
-      }
-
-      if (status.didJustFinish) {
-        onComplete(true);
-      }
-    }
-
-    setLastStatus(() => status);
-  }
+  useEventListener(player, 'playToEnd', () => {
+    onComplete();
+  });
 
   return (
-    <Video
-      source={require('@assets/SplashScreen.mp4')}
-      shouldPlay
-      isMuted
-      isLooping={false}
-      resizeMode={ResizeMode.COVER}
-      onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+    <VideoView
+      player={player}
       style={StyleSheet.absoluteFill}
+      contentFit='cover'
     />
   );
 }
