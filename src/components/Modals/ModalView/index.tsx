@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Overlay, Header, Container } from './styles';
+import { Overlay, Header } from './styles';
 
 import {
   BottomSheetProps,

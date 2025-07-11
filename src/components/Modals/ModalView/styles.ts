@@ -23,8 +23,3 @@ export const Header = styled.View<ColorProps>`
   padding-left: 20px;
   background-color: ${({ color }) => color};
 `;
-
-export const Container = styled.View`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
-`;
