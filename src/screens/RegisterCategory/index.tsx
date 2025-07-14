@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, Platform } from 'react-native';
 import {
   Container,
@@ -14,14 +14,18 @@ import {
   Footer,
 } from './styles';
 
+import {
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+} from '@hooks/useCategoryMutations';
+import { useCategoryDetailQuery } from '@hooks/useCategoryDetailQuery';
+
 import { icons } from '@constants/icons';
 import { colors } from '@constants/colors';
 
-import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@components/Screen';
@@ -32,8 +36,7 @@ import { ControlledInputCategoryName } from '@components/Form/ControlledInputCat
 import { useUser } from '@storage/userStorage';
 
 import { ColorProps, IconProps } from '@interfaces/categories';
-
-import api from '@api/api';
+import { Text } from 'react-native';
 
 type Props = {
   id: string;
@@ -76,7 +79,25 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       name: '',
     },
   });
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
+
+  const { data: categoryData, isLoading: isLoadingDetails } =
+    useCategoryDetailQuery(id);
+  const { mutate: createCategory, isPending: isCreating } =
+    useCreateCategoryMutation();
+  const { mutate: updateCategory, isPending: isUpdating } =
+    useUpdateCategoryMutation();
+
+  useEffect(() => {
+    if (categoryData) {
+      setValue('name', categoryData.name);
+      setIconSelected(categoryData.icon);
+      setColorSelected(categoryData.color);
+    } else {
+      reset({ name: '' });
+      setIconSelected({ id: '', title: 'Selecione o ícone', name: '' });
+      setColorSelected({ id: '', color_code: 'rgba(150, 156, 178, 1)' });
+    }
+  }, [categoryData, id, setValue, reset]);
 
   function handleColorSelect(color: ColorProps) {
     setColorSelected(color);
@@ -100,39 +121,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     closeCategory();
   }
 
-  async function handleEditCategory(id: string, form: FormData) {
-    setButtonIsLoading(true);
-
-    const categoryEdited = {
-      category_id: id,
-      name: form.name,
-      icon: iconSelected,
-      color: colorSelected,
-    };
-    try {
-      const { status } = await api.patch('category/edit', categoryEdited);
-
-      if (status === 200) {
-        Alert.alert('Edição de categoria', 'Categoria editada com sucesso!', [
-          { text: 'Voltar para as categorias', onPress: handleCloseCategory },
-        ]);
-      }
-      reset();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de categoria', error.response?.data.message, [
-          { text: 'Tentar novamente' },
-          { text: 'Voltar para a tela anterior', onPress: handleCloseCategory },
-        ]);
-      }
-    } finally {
-      setButtonIsLoading(false);
-    }
-  }
-
-  async function handleRegisterCategory(form: FormData) {
-    setButtonIsLoading(true);
-
+  function onSubmit(form: FormData) {
     /* Validation Form - Start */
     if (iconSelected.id === '') {
       return Alert.alert(
@@ -141,7 +130,6 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         [
           {
             text: 'OK',
-            onPress: () => setButtonIsLoading(false),
           },
         ]
       );
@@ -154,28 +142,36 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         [
           {
             text: 'OK',
-            onPress: () => setButtonIsLoading(false),
           },
         ]
       );
     }
     /* Validation Form - End */
 
-    // Edit Category
-    if (id !== '') {
-      handleEditCategory(id, form);
+    // --- Edit Category ---
+    if (!!id) {
+      const categoryEdited = {
+        category_id: id,
+        name: form.name,
+        icon: iconSelected,
+        color: colorSelected,
+      };
+      updateCategory(categoryEdited, {
+        onSuccess: () => {
+          handleCloseCategory();
+        },
+      });
     }
-    // Add Category
+    // --- Create Category ---
     else {
-      try {
-        const newCategory = {
-          name: form.name,
-          icon: iconSelected,
-          color: colorSelected,
-          user_id: userID,
-        };
-        const { status } = await api.post('category', newCategory);
-        if (status === 200) {
+      const newCategory = {
+        name: form.name,
+        icon: iconSelected,
+        color: colorSelected,
+        user_id: userID,
+      };
+      createCategory(newCategory, {
+        onSuccess: () => {
           Alert.alert(
             'Cadastro de Categoria',
             'Categoria cadastrada com sucesso!',
@@ -187,54 +183,22 @@ export function RegisterCategory({ id, closeCategory }: Props) {
               },
             ]
           );
-        }
-        reset();
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Cadastro de Categoria', error.response?.data.message, [
-            { text: 'Tentar novamente' },
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: handleCloseCategory,
-            },
-          ]);
-        }
-      } finally {
-        setButtonIsLoading(false);
-      }
-    }
-  }
-
-  async function fetchCategory() {
-    setButtonIsLoading(true);
-
-    try {
-      const { data } = await api.get('category/single', {
-        params: {
-          category_id: id,
+          reset();
+          setIconSelected({ id: '', title: 'Selecione o ícone', name: '' });
+          setColorSelected({ id: '', color_code: 'rgba(150, 156, 178, 1)' });
         },
       });
-      setValue('name', data.name);
-      setIconSelected(data.icon);
-      setColorSelected(data.color);
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Categoria',
-        'Não foi possível buscar a categoria. Verifique sua conexão com a internet e tente novamente.'
-      );
-    } finally {
-      setButtonIsLoading(false);
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      if (id !== '') {
-        fetchCategory();
-      }
-    }, [id])
-  );
+  if (isLoadingDetails) {
+    return (
+      <Screen>
+        <Gradient />
+        <Text>Carregando categoria...</Text>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -256,7 +220,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
             defaultValue={getValues('name')}
             returnKeyType='go'
             returnKeyLabel='Salvar'
-            onSubmitEditing={handleSubmit(handleRegisterCategory)}
+            onSubmitEditing={handleSubmit(onSubmit)}
             name='name'
             control={control}
             error={errors.name}
@@ -314,8 +278,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
 
         <Footer bottomInset={bottomInset}>
           <Button.Root
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleRegisterCategory)}
+            isLoading={isCreating || isUpdating}
+            onPress={handleSubmit(onSubmit)}
           >
             <Button.Text
               text={id !== '' ? 'Editar Categoria' : 'Criar Categoria'}

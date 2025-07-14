@@ -16,9 +16,7 @@ const fetchBudgets = async (userID: string): Promise<BudgetProps[]> => {
 export function useBudgetsQuery(userID: string | undefined) {
   return useQuery({
     queryKey: ['budgets', userID],
-
     queryFn: () => fetchBudgets(userID!),
-
     enabled: !!userID,
   });
 }

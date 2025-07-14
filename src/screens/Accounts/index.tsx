@@ -16,8 +16,8 @@ import {
   SectionTitle,
 } from './styles';
 
-import { useTransactions } from '@hooks/useTransactions';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
@@ -94,7 +94,7 @@ export function Accounts({ navigation }: any) {
     isLoading: isLoadingTransactions,
     refetch: refetchTransactions,
     isRefetching: isRefetchingTransactions,
-  } = useTransactions(userID);
+  } = useTransactionsQuery(userID);
   const {
     data: rawAccounts,
     isLoading: isLoadingAccounts,

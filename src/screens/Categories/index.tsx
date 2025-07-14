@@ -1,12 +1,16 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import axios from 'axios';
+// Hooks
+import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
+import { useDeleteCategoryMutation } from '@hooks/useCategoryMutations';
+
+// Dependencies
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -20,45 +24,33 @@ import { RegisterCategory } from '@screens/RegisterCategory';
 
 import { useUser } from '@storage/userStorage';
 
-import { CategoryProps } from '@interfaces/categories';
-
-import api from '@api/api';
-
 export function Categories() {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
   const userID = useUser((state) => state.id);
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
-  const [refreshing, setRefreshing] = useState(true);
+  const [categoryID, setCategoryID] = useState('');
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const [categoryId, setCategoryId] = useState('');
 
-  async function fetchCategories() {
-    setLoading(true);
+  const {
+    data: categories,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useCategoriesQuery(userID);
+  const { mutate: deleteCategory, isPending: isDeleting } =
+    useDeleteCategoryMutation();
 
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
     try {
-      const { data } = await api.get('category', {
-        params: {
-          user_id: userID,
-        },
-      });
-      if (data) {
-        setCategories(data);
-        setRefreshing(false);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Categorias',
-        'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
-      );
+      await refetch();
     } finally {
-      setLoading(false);
+      setIsManualRefreshing(false);
     }
   }
 
   function handleOpenRegisterCategoryModal() {
-    setCategoryId('');
+    setCategoryID('');
     bottomSheetRef.current?.present();
   }
 
@@ -66,68 +58,40 @@ export function Categories() {
     bottomSheetRef.current?.dismiss();
   }
 
-  function handleOpenCategory(id: string) {
-    setCategoryId(id);
+  function handleOpenCategory(ID: string) {
+    setCategoryID(ID);
     bottomSheetRef.current?.present();
   }
 
   function handleCloseCategory() {
-    try {
-      setLoading(true);
-
-      setCategoryId('');
-      fetchCategories();
-      bottomSheetRef.current?.dismiss();
-    } catch (error) {
-    } finally {
-      2000;
-      setLoading(false);
-    }
-  }
-
-  async function handleDeleteCategory(id: string) {
-    try {
-      await api.delete('category/delete', {
-        params: {
-          category_id: id,
-        },
-      });
-      Alert.alert('Exclusão de categoria', 'Categoria excluída com sucesso!');
-      handleCloseCategory();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Exclusão de categoria', error.response?.data?.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: handleCloseCategory,
-          },
-        ]);
-      }
-    }
+    setCategoryID('');
+    bottomSheetRef.current?.dismiss();
   }
 
   async function handleClickDeleteCategory() {
+    if (!categoryID) return;
+
     Alert.alert(
       'Exclusão de categoria',
       'ATENÇÃO! Todas as transações desta categoria também serão excluídas. Tem certeza que deseja excluir a categoria?',
       [
-        { text: 'Não, cancelar a exclusão' },
+        { text: 'Cancelar' },
         {
-          text: 'Sim, excluir a categoria',
-          onPress: () => handleDeleteCategory(categoryId),
+          text: 'Sim, Excluir',
+          style: 'destructive',
+          onPress: () => {
+            deleteCategory(categoryID, {
+              onSuccess: () => {
+                handleCloseCategory();
+              },
+            });
+          },
         },
       ]
     );
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories();
-    }, [])
-  );
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Screen>
         <SkeletonCategoriesAndTagsScreen />
@@ -161,8 +125,8 @@ export function Categories() {
           initialNumToRender={50}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchCategories}
+              refreshing={isManualRefreshing}
+              onRefresh={handleRefresh}
             />
           }
           ListFooterComponent={
@@ -183,9 +147,9 @@ export function Categories() {
         />
 
         <ModalView
-          type={categoryId !== '' ? 'secondary' : 'primary'}
+          type={categoryID !== '' ? 'secondary' : 'primary'}
           title={
-            categoryId !== '' ? 'Editar Categoria' : 'Criar Nova Categoria'
+            categoryID !== '' ? 'Editar Categoria' : 'Criar Nova Categoria'
           }
           bottomSheetRef={bottomSheetRef}
           enableContentPanningGesture={false}
@@ -194,7 +158,7 @@ export function Categories() {
           deleteChildren={handleClickDeleteCategory}
         >
           <RegisterCategory
-            id={categoryId}
+            id={categoryID}
             closeCategory={handleCloseCategory}
           />
         </ModalView>

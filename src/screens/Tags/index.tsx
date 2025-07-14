@@ -1,10 +1,11 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import axios from 'axios';
+import { useTagsQuery } from '@hooks/useTagsQuery';
+import { useDeleteTagMutation } from '@hooks/useTagMutations';
+
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Screen } from '@components/Screen';
@@ -20,44 +21,27 @@ import { RegisterTag } from '@screens/RegisterTag';
 
 import { useUser } from '@storage/userStorage';
 
-import api from '@api/api';
-
 export function Tags() {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
   const userID = useUser((state) => state.id);
-  const [tags, setTags] = useState<TagProps[]>([]);
-  const [refreshing, setRefreshing] = useState(true);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+  const [tagID, setTagID] = useState('');
   const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const [tagId, setTagId] = useState('');
 
-  async function fetchTags() {
-    setLoading(true);
+  const { data: tagsData, isLoading, isError, refetch } = useTagsQuery(userID);
+  const { mutate: deleteTag } = useDeleteTagMutation();
 
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
     try {
-      const { data } = await api.get('tag', {
-        params: {
-          user_id: userID,
-        },
-      });
-      if (!data) {
-      } else {
-        setTags(data);
-        setRefreshing(false);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Etiquetas',
-        'Não foi possível buscar as etiquetas. Verifique sua conexão com a internet e tente novamente.'
-      );
+      await refetch();
     } finally {
-      setLoading(false);
+      setIsManualRefreshing(false);
     }
   }
 
   function handleOpenRegisterTagModal() {
-    setTagId('');
+    setTagID('');
     bottomSheetRef.current?.present();
   }
 
@@ -66,70 +50,61 @@ export function Tags() {
   }
 
   function handleOpenTag(id: string) {
-    setTagId(id);
+    setTagID(id);
     bottomSheetRef.current?.present();
   }
 
   function handleCloseEditTag() {
-    try {
-      setLoading(true);
-
-      setTagId('');
-      fetchTags();
-      bottomSheetRef.current?.dismiss();
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDeleteTag(id: string) {
-    try {
-      await api.delete('tag/delete', {
-        params: {
-          tag_id: id,
-        },
-      });
-      Alert.alert('Exclusão de etiqueta', 'Etiqueta excluída com sucesso!');
-      handleCloseEditTag();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Exclusão de etiqueta', error.response?.data.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: handleCloseRegisterTagModal,
-          },
-        ]);
-      }
-    }
+    setTagID('');
+    bottomSheetRef.current?.dismiss();
   }
 
   async function handleClickDeleteTag() {
+    if (!tagID) return;
     Alert.alert(
       'Exclusão de etiqueta',
       'Tem certeza que deseja excluir a etiqueta?',
       [
         { text: 'Não, cancelar a exclusão.' },
         {
-          text: 'Sim, excluir a etiqueta.',
-          onPress: () => handleDeleteTag(tagId),
+          text: 'Sim, Excluir.',
+          style: 'destructive',
+          onPress: () =>
+            deleteTag(tagID, {
+              onSuccess: () => {
+                handleCloseEditTag();
+              },
+              onError: (error) => {
+                Alert.alert(
+                  'Exclusão de etiqueta',
+                  error.response?.data.message,
+                  [
+                    { text: 'Tentar novamente' },
+                    {
+                      text: 'Voltar para a tela anterior',
+                      onPress: handleCloseRegisterTagModal,
+                    },
+                  ]
+                );
+              },
+            }),
         },
       ]
     );
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchTags();
-    }, [])
-  );
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Screen>
         <SkeletonCategoriesAndTagsScreen />
       </Screen>
+    );
+  }
+
+  if (isError) {
+    Alert.alert(
+      'Etiquetas',
+      'Não foi possível buscar as etiquetas. Verifique sua conexão com a internet e tente novamente.'
     );
   }
 
@@ -144,7 +119,7 @@ export function Tags() {
         </Header.Root>
 
         <FlatList
-          data={tags}
+          data={tagsData}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => (
             <TagListItem
@@ -158,7 +133,10 @@ export function Tags() {
           )}
           initialNumToRender={50}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchTags} />
+            <RefreshControl
+              refreshing={isManualRefreshing}
+              onRefresh={handleRefresh}
+            />
           }
           ListFooterComponent={
             <Button.Root
@@ -178,14 +156,14 @@ export function Tags() {
         />
 
         <ModalView
-          type={tagId !== '' ? 'secondary' : 'primary'}
-          title={tagId !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
+          type={tagID !== '' ? 'secondary' : 'primary'}
+          title={tagID !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
           bottomSheetRef={bottomSheetRef}
           snapPoints={['90%']}
           closeModal={handleCloseRegisterTagModal}
           deleteChildren={handleClickDeleteTag}
         >
-          <RegisterTag id={tagId} closeTag={handleCloseEditTag} />
+          <RegisterTag id={tagID} closeTag={handleCloseEditTag} />
         </ModalView>
       </Container>
     </Screen>

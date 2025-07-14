@@ -21,13 +21,16 @@ import {
   HeaderContainer,
 } from './styles';
 
+// Hooks
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+import { useDeleteAccountMutation } from '@hooks/useAccountMutations';
+
+// Utils
 import formatCurrency from '@utils/formatCurrency';
 import formatDatePtBr from '@utils/formatDatePtBr';
-import getTransactions from '@utils/getTransactions';
 import { processTransactions } from '@utils/processTransactions';
-import { GroupedTransactionProps } from '@utils/groupTransactionsByDate';
 
-import axios from 'axios';
+// Dependencies
 import Animated, {
   Extrapolate,
   interpolate,
@@ -57,8 +60,8 @@ import { ptBR } from 'date-fns/locale';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -72,18 +75,18 @@ import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 
+// Screens
 import { RegisterAccount } from '@screens/RegisterAccount';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
+// Storages
 import { useUser } from '@storage/userStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import { TransactionProps } from '@interfaces/transactions';
-
-import api from '@api/api';
 
 import theme from '@themes/theme';
 
@@ -92,27 +95,13 @@ const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function Account() {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(true);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { id: userID } = useUser();
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [
-    transactionsFormattedBySelectedPeriod,
-    setTransactionsFormattedBySelectedPeriod,
-  ] = useState<GroupedTransactionProps[]>([]);
-  const optimizedTransactions = useMemo(
-    () => transactionsFormattedBySelectedPeriod,
-    [transactionsFormattedBySelectedPeriod]
-  );
-  const [cashFlowBySelectedPeriod, setCashFlowBySelectedPeriod] =
-    useState('R$ 0,00');
-  const [cashFlowIsPositive, setCashFlowIsPositive] = useState(true);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
-  const navigation = useNavigation();
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const {
     accountId: accountID,
@@ -172,64 +161,75 @@ export function Account() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  async function fetchTransactions() {
-    setLoading(true);
+  const {
+    data: allTransactions,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useTransactionsQuery(userID);
+  const { mutate: deleteAccount } = useDeleteAccountMutation();
 
+  const processedData = useMemo(() => {
+    if (!allTransactions || !accountID) {
+      return {
+        transactionsFormattedBySelectedPeriod: [],
+        cashFlowBySelectedPeriod: formatCurrency('BRL', 0),
+      };
+    }
+
+    const transactionsForThisAccount = allTransactions.filter(
+      (transaction: TransactionProps) => transaction.account.id === accountID
+    );
+
+    const transactionsFormattedPtbr = transactionsForThisAccount.map(
+      (item: TransactionProps) => {
+        const dmy = formatDatePtBr(item.created_at).short();
+        return {
+          id: item.id,
+          created_at: dmy,
+          description: item.description || '',
+          amount: item.amount,
+          amount_formatted: formatCurrency(item.currency.code, item.amount),
+          amount_in_account_currency: item.amount_in_account_currency,
+          amount_in_account_currency_formatted: item.amount_in_account_currency
+            ? formatCurrency(
+                item.account.currency.code,
+                item.amount_in_account_currency
+              )
+            : undefined,
+          currency: item.currency,
+          type: item.type,
+          account: item.account,
+          category: item.category,
+          tags: item.tags,
+          user_id: item.user_id,
+        };
+      }
+    );
+    const { currentCashFlow, groupedTransactions } = processTransactions(
+      transactionsFormattedPtbr,
+      selectedPeriod.period,
+      selectedDate
+    );
+
+    const cashFlowValue = parseFloat(
+      currentCashFlow.replace(/[^\d,.-]/g, '').replace(',', '.')
+    );
+    const isCashFlowPositive = cashFlowValue >= 0;
+
+    return {
+      transactionsFormattedBySelectedPeriod: groupedTransactions,
+      cashFlowBySelectedPeriod: currentCashFlow,
+      cashFlowIsPositive: isCashFlowPositive,
+    };
+  }, [allTransactions, accountID, selectedPeriod, selectedDate]);
+
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
     try {
-      const data = await getTransactions(userID);
-      setTransactions(data);
-
-      // Format transactions
-      const transactionsFormattedPtbr = data
-        .filter(
-          (transaction: TransactionProps) =>
-            transaction.account.id === accountID
-        )
-        .map((item: TransactionProps) => {
-          const dmy = formatDatePtBr(item.created_at).short();
-          return {
-            id: item.id,
-            created_at: dmy,
-            description: item.description || '',
-            amount: item.amount,
-            amount_formatted: formatCurrency(item.currency.code, item.amount),
-            amount_in_account_currency: item.amount_in_account_currency,
-            amount_in_account_currency_formatted:
-              item.amount_in_account_currency
-                ? formatCurrency(
-                    item.account.currency.code,
-                    item.amount_in_account_currency
-                  )
-                : undefined,
-            currency: item.currency,
-            type: item.type,
-            account: item.account,
-            category: item.category,
-            tags: item.tags,
-            user_id: item.user_id,
-          };
-        });
-
-      // Process transactions
-      const { currentCashFlow, groupedTransactions } = processTransactions(
-        transactionsFormattedPtbr,
-        selectedPeriod.period,
-        selectedDate
-      );
-
-      // Update refs and states
-      setCashFlowBySelectedPeriod(currentCashFlow);
-      setTransactionsFormattedBySelectedPeriod(groupedTransactions);
-      // TODO: setCashFlowIsPositive
-
-      /**
-       * Set Transactions and Totals by Selected Period  - End
-       */
-    } catch (error) {
-      console.error(error);
+      await refetch();
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setIsManualRefreshing(false);
     }
   }
 
@@ -255,7 +255,6 @@ export function Account() {
   }
 
   function handleCloseTransaction() {
-    fetchTransactions();
     addTransactionBottomSheetRef.current?.dismiss();
   }
 
@@ -264,40 +263,31 @@ export function Account() {
     addTransactionBottomSheetRef.current?.present();
   }
 
-  async function handleDeleteAccount(id: string | null) {
-    try {
-      const { status } = await api.delete('account/delete', {
-        params: {
-          account_id: id,
-        },
-      });
-      if (status === 200) {
-        Alert.alert('Exclusão de conta', 'Conta excluída com sucesso!');
-      }
-      handleCloseEditAccount();
-      navigation.goBack();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de Conta', error?.response?.data?.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: handleCloseEditAccount,
-          },
-        ]);
-      }
-    }
-  }
-
   async function handleClickDeleteAccount() {
     Alert.alert(
       'Exclusão de conta',
       'ATENÇÃO! Todas as transações desta conta também serão excluídas. Tem certeza que deseja excluir a conta?',
       [
-        { text: 'Não, cancelar a exclusão' },
+        { text: 'Cancelar' },
         {
-          text: 'Sim, excluir a conta',
-          onPress: () => handleDeleteAccount(accountID),
+          text: 'Sim, Excluir',
+          style: 'destructive',
+          onPress: () =>
+            deleteAccount(accountID!, {
+              onError: (error: any) => {
+                Alert.alert(
+                  'Exclusão de Conta',
+                  error?.response?.data?.message,
+                  [
+                    { text: 'Tentar novamente' },
+                    {
+                      text: 'Voltar para a tela anterior',
+                      onPress: handleCloseEditAccount,
+                    },
+                  ]
+                );
+              },
+            }),
         },
       ]
     );
@@ -334,15 +324,9 @@ export function Account() {
 
   function handlePressDate(): void {}
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchTransactions();
-    }, [selectedPeriod, selectedDate])
-  );
-
   const _renderPeriodRuler = useCallback(() => {
     let months: any = {};
-    for (const item of transactions) {
+    for (const item of allTransactions || []) {
       const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
 
       if (!months.hasOwnProperty(ym)) {
@@ -401,7 +385,7 @@ export function Account() {
         horizontalPadding={16}
       />
     );
-  }, [selectedDate, transactions]);
+  }, [selectedDate, allTransactions]);
 
   function _renderEmpty() {
     return <ListEmptyComponent />;
@@ -418,9 +402,9 @@ export function Account() {
     );
   }
 
-  //if (loading) {
-  //  return <SkeletonAccountsScreen />;
-  //}
+  if (isLoading) {
+    return <SkeletonAccountsScreen />;
+  }
 
   return (
     <Screen>
@@ -462,13 +446,13 @@ export function Account() {
               <AccountCashFlow
                 balanceIsPositive={
                   !isCreditCard
-                    ? cashFlowIsPositive
+                    ? processedData.cashFlowIsPositive
                     : hasCreditCardAvailableLimit
                 }
               >
                 {!isCreditCard
                   ? !hideAmount
-                    ? cashFlowBySelectedPeriod
+                    ? processedData.cashFlowBySelectedPeriod
                     : '•••••'
                   : !hideAmount
                   ? formatCurrency(
@@ -488,7 +472,7 @@ export function Account() {
 
         <Transactions>
           <AnimatedSectionList
-            sections={optimizedTransactions}
+            sections={processedData.transactionsFormattedBySelectedPeriod}
             keyExtractor={(item: any) => item.id}
             renderItem={_renderItem}
             renderSectionHeader={({ section }: any) => (
@@ -498,8 +482,8 @@ export function Account() {
             initialNumToRender={2000}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={fetchTransactions}
+                refreshing={isManualRefreshing}
+                onRefresh={handleRefresh}
               />
             }
             showsVerticalScrollIndicator={false}

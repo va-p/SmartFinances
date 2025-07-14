@@ -1,9 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
 
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
@@ -15,7 +14,7 @@ import { useUser } from 'src/storage/userStorage';
 
 import { CategoryProps } from '@interfaces/categories';
 
-import api from '@api/api';
+import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 
 type Props = {
   categorySelected: CategoryProps;
@@ -28,32 +27,22 @@ export function CategorySelect({
   setCategory,
   closeSelectCategory,
 }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(true);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const userID = useUser((state) => state.id);
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
 
-  async function fetchCategories() {
-    setLoading(true);
+  const {
+    data: categories,
+    isLoading,
+    refetch,
+    isError,
+  } = useCategoriesQuery(userID);
 
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
     try {
-      const { data } = await api.get('category', {
-        params: {
-          user_id: userID,
-        },
-      });
-      if (data) {
-        setCategories(data);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Categorias',
-        'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
-      );
+      await refetch();
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setIsManualRefreshing(false);
     }
   }
 
@@ -62,14 +51,15 @@ export function CategorySelect({
     closeSelectCategory();
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories();
-    }, [])
-  );
-
-  if (loading) {
+  if (isLoading) {
     return <Load />;
+  }
+
+  if (isError) {
+    Alert.alert(
+      'Categorias',
+      'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
+    );
   }
 
   return (
@@ -92,8 +82,8 @@ export function CategorySelect({
           )}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchCategories}
+              refreshing={isManualRefreshing}
+              onRefresh={handleRefresh}
             />
           }
           numColumns={4}
