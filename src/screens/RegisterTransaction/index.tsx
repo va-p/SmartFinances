@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList } from 'react-native';
 import {
   Container,
@@ -28,7 +28,6 @@ import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 import { convertCurrency } from '@utils/convertCurrency';
 
 // Dependencies
-import axios from 'axios';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -37,7 +36,6 @@ import * as ImagePicker from 'expo-image-picker';
 import ImageView from 'react-native-image-viewing';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -84,6 +82,7 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
+import { useTagsQuery } from '@hooks/useTagsQuery';
 
 type Props = {
   id: string;
@@ -169,13 +168,14 @@ export function RegisterTransaction({
     setShowDatePicker(false);
     setDate(selectedDate);
   };
-  const [bankTransactionID, setBankTransactionID] = useState('');
+  const [bankTransactionID, setBankTransactionID] = useState(null);
   const [transactionDate, setTransactionDate] = useState('');
+  const [relatedTransactionID, setRelatedTransactionID] = useState(null);
   const [transactionType, setTransactionType] =
     useState<TransactionTabType>('CREDIT');
   const [selectedTransactionTab, setSelectedTransactionTab] =
     useState<CustomTab>(CustomTab.Credit);
-  const [tags, setTags] = useState<TagProps[]>([]);
+  // const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -188,6 +188,7 @@ export function RegisterTransaction({
   const { mutate: deleteTransaction, isPending: isDeleting } =
     useDeleteTransactionMutation();
 
+  const { data: tagsData, isLoading: isLoadingTags } = useTagsQuery(userID);
   const { data: transactionData, isLoading: isLoadingDetails } =
     useTransactionDetailQuery(id);
 
@@ -233,25 +234,6 @@ export function RegisterTransaction({
       title: 'Débito',
     },
   ];
-
-  async function fetchTags() {
-    try {
-      const { data } = await api.get('tag', {
-        params: {
-          user_id: userID,
-        },
-      });
-      if (data) {
-        setTags(data);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Etiquetas',
-        'Não foi possível buscar as etiquetas. Verifique sua conexão com a internet e tente novamente.'
-      );
-    }
-  }
 
   function handleTransactionsTypeSelect(tabIdx: number) {
     let transactionType: TransactionTabType;
@@ -369,8 +351,312 @@ export function RegisterTransaction({
     setOpenImage(false);
   }
 
+  async function handleEditTransaction(form: FormData) {
+    let tagsList: any = [];
+    for (const tag of tagsSelected) {
+      const tag_id = tag.id;
+      if (!tagsList.hasOwnProperty(tag_id)) {
+        tagsList[tag_id] = {
+          tag_id: tag.id,
+        };
+      }
+    }
+    tagsList = Object.values(tagsList);
+
+    let transaction_image_id: number | null = null;
+    // TODO: Gets current image transaction ID, delete and then adds new
+    if (image !== '') {
+      const newImage = {
+        file: `data:image/jpeg;base64,${image}`,
+        user_id: userID,
+      };
+      const uploadImage = await api.post('transaction/image', newImage);
+      if (uploadImage.status === 200) {
+        const imageData = uploadImage.data;
+
+        transaction_image_id = imageData.id;
+      }
+    }
+
+    const fromCurrency = currencySelected.code; // Moeda selecionada
+
+    let amountConverted = form.amount;
+    amountConverted = convertCurrency({
+      amount: form.amount,
+      fromCurrency: currencySelected.code,
+      toCurrency:
+        transactionType === 'TRANSFER' && accountDestinationSelected.id !== ''
+          ? accountDestinationSelected.currency.code
+          : accountCurrency!.code,
+      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
+    });
+
+    // --- Transfer Transaction ---
+    if (transactionType === 'TRANSFER') {
+      const transactionType =
+        form.amount > 0 ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
+      const relatedTransactionType =
+        transactionType === 'TRANSFER_CREDIT'
+          ? 'TRANSFER_DEBIT'
+          : 'TRANSFER_CREDIT';
+      const amountInAccountCurrencyRelatedTransaction =
+        fromCurrency !== accountDestinationSelected.currency!.code // If transaction currency is different to account currency
+          ? relatedTransactionType === 'TRANSFER_CREDIT'
+            ? Math.abs(amountConverted)
+            : amountConverted
+          : null;
+
+      const transferEditedPayload = {
+        transaction_id: id,
+        created_at: date,
+        bank_transaction_id: bankTransactionID,
+        description: form.description,
+        amount: form.amount,
+        amount_in_account_currency:
+          currencySelected.code !== accountCurrency?.code
+            ? amountConverted
+            : null,
+        currency_id: currencySelected.id,
+        type: transactionType,
+        account_id: accountID,
+        category_id: categorySelected.id,
+        tags: tagsList,
+        transaction_image_id,
+        // Informações para o backend lidar com a contrapartida
+        related_transaction_account_id: accountDestinationSelected.id,
+        related_transaction_type: relatedTransactionType,
+        amount_in_account_currency_related_transaction:
+          amountInAccountCurrencyRelatedTransaction,
+        user_id: userID,
+      };
+
+      updateTransaction(transferEditedPayload, {
+        onSuccess: () => {
+          Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeRegisterTransaction,
+            },
+          ]);
+        },
+      });
+      return;
+    }
+
+    // --- Plain Transaction, NO transfer ---
+    const transactionEditedPayload = {
+      transaction_id: id,
+      created_at: date,
+      bank_transaction_id: bankTransactionID,
+      date: transactionDate,
+      description: form.description,
+      amount: form.amount,
+      amount_in_account_currency:
+        currencySelected.code !== accountCurrency?.code
+          ? amountConverted
+          : null,
+      currency_id: currencySelected.id,
+      type: transactionType,
+      account_id: accountID,
+      category_id: categorySelected.id,
+      tags: tagsList,
+      transaction_image_id,
+      user_id: userID,
+    };
+
+    updateTransaction(transactionEditedPayload, {
+      onSuccess: () => {
+        Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: closeRegisterTransaction,
+          },
+        ]);
+        closeModal?.();
+      },
+    });
+  }
+
+  async function handleRegisterTransaction(form: FormData) {
+    let tagsList: any = [];
+    for (const tag of tagsSelected) {
+      const tag_id = tag.id;
+      if (!tagsList.hasOwnProperty(tag_id)) {
+        tagsList[tag_id] = {
+          tag_id: tag.id,
+        };
+      }
+    }
+    tagsList = Object.values(tagsList);
+
+    let transaction_image_id: number | null = null;
+    if (image !== '') {
+      const newImage = {
+        file: `data:image/jpeg;base64,${image}`,
+        user_id: userID,
+      };
+      const { data, status } = await api.post('transaction/image', newImage);
+      if (status === 200) {
+        transaction_image_id = data.id;
+      }
+    }
+
+    let amountConverted = form.amount;
+
+    // --- Transfer transaction ---
+    if (transactionType === 'TRANSFER') {
+      const fromCurrency = currencySelected.code; // Moeda selecionada
+      const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
+      const transactionType =
+        form.amount > 0 ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
+      const relatedTransactionType =
+        transactionType === 'TRANSFER_CREDIT'
+          ? 'TRANSFER_DEBIT'
+          : 'TRANSFER_CREDIT';
+
+      amountConverted = convertCurrency({
+        amount: form.amount,
+        fromCurrency,
+        toCurrency,
+        accountCurrency: accountCurrency!.code,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      });
+
+      const amountInAccountCurrencyRelatedTransaction =
+        fromCurrency !== accountDestinationSelected.currency!.code // If transaction currency is different to account currency
+          ? relatedTransactionType === 'TRANSFER_CREDIT'
+            ? Math.abs(amountConverted)
+            : amountConverted
+          : null;
+
+      const transferPayload = {
+        created_at: date,
+        description: form.description,
+        amount: form.amount,
+        amount_in_account_currency:
+          fromCurrency !== accountCurrency!.code // If transaction currency is different to account currency
+            ? amountConverted
+            : null,
+        currency_id: currencySelected.id,
+        type: transactionType,
+        account_id: accountID,
+        category_id: categorySelected.id,
+        tags: tagsList,
+        transaction_image_id,
+        related_transaction_account_id: accountDestinationSelected.id,
+        amount_in_account_currency_related_transaction:
+          amountInAccountCurrencyRelatedTransaction,
+        related_transaction_type: relatedTransactionType,
+        user_id: userID,
+      };
+
+      createTransaction(transferPayload, {
+        onSuccess: () => {
+          Alert.alert(
+            'Cadastro de Transação',
+            'Transação cadastrada com sucesso!',
+            [
+              { text: 'Cadastrar nova transação' },
+              {
+                text: 'Voltar para a tela anterior',
+                onPress: closeRegisterTransaction,
+              },
+            ]
+          );
+          reset();
+          return;
+        },
+      });
+      return;
+    }
+
+    // --- Plain Transaction, NO transfer ---
+    amountConverted = convertCurrency({
+      amount: form.amount,
+      fromCurrency: currencySelected.code,
+      toCurrency: accountCurrency!.code,
+      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
+    });
+
+    const transactionPayload = {
+      created_at: date,
+      description: form.description,
+      amount: form.amount,
+      amount_in_account_currency:
+        currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
+          ? amountConverted
+          : null,
+      currency_id: currencySelected.id,
+      type: transactionType,
+      account_id: accountID,
+      category_id: categorySelected.id,
+      tags: tagsList,
+      transaction_image_id,
+      user_id: userID,
+    };
+
+    createTransaction(transactionPayload, {
+      onSuccess: () => {
+        Alert.alert(
+          'Cadastro de Transação',
+          'Transação cadastrada com sucesso!',
+          [
+            { text: 'Cadastrar nova transação' },
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeRegisterTransaction,
+            },
+          ]
+        );
+        reset();
+      },
+    });
+    return;
+  }
+
   async function onSubmit(form: FormData) {
-    /* Validation Form - Start */
+    // --- Validation Form - Start ---
     if (!transactionType) {
       return Alert.alert(
         'Cadastro de Transação',
@@ -406,215 +692,16 @@ export function RegisterTransaction({
         ]
       );
     }
-    /* Validation Form - End */
+    // --- Validation Form - End ---
 
-    let tagsList: any = [];
-    for (const tag of tagsSelected) {
-      const tag_id = tag.id;
-      if (!tagsList.hasOwnProperty(tag_id)) {
-        tagsList[tag_id] = {
-          tag_id: tag.id,
-        };
-      }
+    // --- Edit Transaction ---
+    if (id !== '') {
+      handleEditTransaction(form);
     }
-    tagsList = Object.values(tagsList);
-
-    let transaction_image_id: number | null = null;
-    if (image !== '') {
-      const newImage = {
-        file: `data:image/jpeg;base64,${image}`,
-        user_id: userID,
-      };
-      const { data, status } = await api.post('transaction/image', newImage);
-      if (status === 200) {
-        transaction_image_id = data.id;
-      }
+    // --- Register Transaction ---
+    else {
+      handleRegisterTransaction(form);
     }
-
-    // Edit Transaction
-    if (id) {
-      let amountConverted = form.amount;
-      amountConverted = convertCurrency({
-        amount: form.amount,
-        fromCurrency: currencySelected.code,
-        toCurrency:
-          transactionType === 'TRANSFER' && accountDestinationSelected.id !== ''
-            ? accountDestinationSelected.currency.code
-            : accountCurrency!.code,
-        accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
-        quotes: {
-          brlQuoteBtc,
-          brlQuoteEur,
-          brlQuoteUsd,
-          btcQuoteBrl,
-          btcQuoteEur,
-          btcQuoteUsd,
-          eurQuoteBrl,
-          eurQuoteBtc,
-          eurQuoteUsd,
-          usdQuoteBrl,
-          usdQuoteBtc,
-          usdQuoteEur,
-        },
-      });
-
-      const payload = {
-        transaction_id: id,
-        created_at: date,
-        date: transactionDate,
-        description: form.description,
-        amount: form.amount,
-        amount_in_account_currency:
-          currencySelected.code !== accountCurrency?.code
-            ? amountConverted
-            : null,
-        currency_id: currencySelected.id,
-        type: transactionType,
-        account_id: accountID,
-        category_id: categorySelected.id,
-        tags: tagsList,
-        transaction_image_id,
-        user_id: userID,
-      };
-
-      updateTransaction(payload, {
-        onSuccess: () => {
-          resetId();
-          closeModal?.();
-        },
-      });
-      return;
-    }
-
-    // Add Transaction
-    let amountConverted = form.amount;
-    // Add Transfer Transaction
-    if (transactionType === 'TRANSFER') {
-      const fromCurrency = currencySelected.code; // Moeda selecionada
-      const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
-
-      amountConverted = convertCurrency({
-        amount: form.amount,
-        fromCurrency,
-        toCurrency,
-        accountCurrency: accountCurrency!.code,
-        quotes: {
-          brlQuoteBtc,
-          brlQuoteEur,
-          brlQuoteUsd,
-          btcQuoteBrl,
-          btcQuoteEur,
-          btcQuoteUsd,
-          eurQuoteBrl,
-          eurQuoteBtc,
-          eurQuoteUsd,
-          usdQuoteBrl,
-          usdQuoteBtc,
-          usdQuoteEur,
-        },
-      });
-
-      const transferDebit = {
-        created_at: date,
-        description: form.description,
-        amount: form.amount,
-        amount_in_account_currency:
-          fromCurrency !== accountCurrency!.code // If transaction currency is different to account currency
-            ? amountConverted
-            : null,
-        currency_id: currencySelected.id,
-        type: 'TRANSFER_DEBIT',
-        account_id: accountID,
-        category_id: categorySelected.id,
-        tags: tagsList,
-        transaction_image_id,
-        user_id: userID,
-      };
-
-      const transferCredit = {
-        created_at: date,
-        description: form.description,
-        amount: form.amount,
-        amount_in_account_currency:
-          fromCurrency !== accountCurrency!.code // If transaction currency is different to account currency
-            ? amountConverted
-            : null,
-        currency_id: currencySelected.id,
-        type: 'TRANSFER_CREDIT',
-        account_id: accountDestinationSelected.id,
-        category_id: categorySelected.id,
-        tags: tagsList,
-        transaction_image_id,
-        user_id: userID,
-      };
-
-      createTransaction(
-        {
-          isTransfer: true,
-          debit: transferDebit,
-          credit: transferCredit,
-        },
-        {
-          onSuccess: () => {
-            reset();
-          },
-        }
-      );
-
-      return;
-    }
-
-    // No Transfer Transaction
-    amountConverted = convertCurrency({
-      amount: form.amount,
-      fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency!.code,
-      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
-      quotes: {
-        brlQuoteBtc,
-        brlQuoteEur,
-        brlQuoteUsd,
-        btcQuoteBrl,
-        btcQuoteEur,
-        btcQuoteUsd,
-        eurQuoteBrl,
-        eurQuoteBtc,
-        eurQuoteUsd,
-        usdQuoteBrl,
-        usdQuoteBtc,
-        usdQuoteEur,
-      },
-    });
-
-    const accountResponse = await api.get('account/single_account_get_id', {
-      params: {
-        user_id: userID,
-        name: accountName,
-      },
-    });
-
-    const transactionData = {
-      created_at: date,
-      description: form.description,
-      amount: form.amount,
-      amount_in_account_currency:
-        currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
-          ? amountConverted
-          : null,
-      currency_id: currencySelected.id,
-      type: transactionType,
-      account_id: accountResponse.data.id,
-      category_id: categorySelected.id,
-      tags: tagsList,
-      transaction_image_id,
-      user_id: userID,
-    };
-
-    createTransaction(transactionData, {
-      onSuccess: () => {
-        reset();
-      },
-    });
   }
 
   async function handleDeleteTransaction(id: string) {
@@ -645,7 +732,7 @@ export function RegisterTransaction({
   }
 
   useEffect(() => {
-    fetchTags();
+    // fetchTags();
 
     if (transactionData && id !== '') {
       setCategorySelected(transactionData.category);
@@ -686,8 +773,13 @@ export function RegisterTransaction({
       setSelectedTransactionTab(transactionTab);
       setTransactionDate(transactionData.date);
       setBankTransactionID(transactionData.bank_transaction_id);
+      setRelatedTransactionID(transactionData.related_transaction_id);
     }
   }, [transactionData]);
+
+  if (isLoadingTags || isLoadingDetails) {
+    return false;
+  }
 
   return (
     <Screen>
@@ -820,7 +912,7 @@ export function RegisterTransaction({
               icon={<Tag color={categorySelected.color.color_code} />}
             />
             <FlatList
-              data={tags}
+              data={tagsData}
               keyExtractor={(item) => item.id}
               renderItem={({ item }: any) => (
                 <TagListItemRegisterTransaction
@@ -900,7 +992,7 @@ export function RegisterTransaction({
           $modal
           title='Selecione a conta'
           bottomSheetRef={accountBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
         >
           <AccountSelect
             account={{
@@ -932,7 +1024,7 @@ export function RegisterTransaction({
           $modal
           title='Selecione a conta de destino'
           bottomSheetRef={accountDestinationBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
           onClose={handleCloseSelectAccountDestinationModal}
         >
           <AccountDestinationSelect

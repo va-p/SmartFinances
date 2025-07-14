@@ -30,7 +30,7 @@ import {
 
 // Hooks
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
-import { useTransactions } from '@hooks/useTransactions';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 
 // Utils
@@ -245,7 +245,11 @@ export function Home() {
 
   const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
 
-  const { data: transactions, isLoading, isError } = useTransactions(userID);
+  const {
+    data: transactions,
+    isLoading,
+    isError,
+  } = useTransactionsQuery(userID);
 
   const { mutate: syncTransactions, isPending: isSyncing } =
     useSyncTransactions();

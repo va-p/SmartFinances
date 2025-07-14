@@ -2,15 +2,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BackHandler, RefreshControl, View } from 'react-native';
 import { Container, Month, MonthSelect, MonthSelectButton } from './styles';
 
+// Hooks
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+
+// Utils
 import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
-import getTransactions from '@utils/getTransactions';
 import { processTransactions } from '@utils/processTransactions';
 
+// Dependências
 import { ptBR } from 'date-fns/locale';
 import Animated from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
@@ -20,6 +24,7 @@ import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -28,9 +33,11 @@ import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
+// Storages
 import { useUser } from '@storage/userStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
+// Interfaces
 import { TransactionProps } from '@interfaces/transactions';
 
 import theme from '@themes/theme';
@@ -38,25 +45,36 @@ import theme from '@themes/theme';
 export function TransactionsByCategory({ navigation }: any) {
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(true);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { id: userID } = useUser();
   const route = useRoute();
   const categoryID = route.params?.id;
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
 
-  const [
-    transactionsFormattedBySelectedPeriod,
-    setTransactionsFormattedBySelectedPeriod,
-  ] = useState<any[]>([]);
-  const optimizedTransactions = useMemo(
-    () => transactionsFormattedBySelectedPeriod,
-    [transactionsFormattedBySelectedPeriod]
-  );
-  const flattenedTransactions = flattenTransactionsForFlashList(
-    optimizedTransactions
-  );
+  const {
+    data: allTransactions,
+    isLoading,
+    refetch,
+  } = useTransactionsQuery(userID);
+
+  const flattenedTransactions = useMemo(() => {
+    if (!allTransactions) {
+      return [];
+    }
+
+    const transactionsForThisCategory = allTransactions.filter(
+      (transaction) => transaction.category.id === categoryID
+    );
+
+    const { groupedTransactions } = processTransactions(
+      transactionsForThisCategory,
+      selectedPeriod.period,
+      selectedDate
+    );
+
+    return flattenTransactionsForFlashList(groupedTransactions);
+  }, [allTransactions, categoryID, selectedPeriod, selectedDate]);
 
   function handleDateChange(action: 'next' | 'prev'): void {
     if (action === 'next') {
@@ -66,61 +84,14 @@ export function TransactionsByCategory({ navigation }: any) {
     }
   }
 
-  async function fetchTransactions() {
-    setLoading(true);
-
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
     try {
-      const data = (await getTransactions(userID)).filter(
-        (transaction) => transaction.category.id === categoryID
-      );
-
-      // Format transactions
-      const transactionsFormattedPtbr = data.map((item: TransactionProps) => {
-        const dmy = formatDatePtBr(item.created_at).short();
-        return {
-          id: item.id,
-          created_at: dmy,
-          description: item.description,
-          amount: item.amount,
-          amount_formatted: formatCurrency(item.currency.code, item.amount),
-          amount_in_account_currency: item.amount_in_account_currency,
-          amount_in_account_currency_formatted: item.amount_in_account_currency
-            ? formatCurrency(
-                item.account.currency.code,
-                item.amount_in_account_currency
-              )
-            : undefined,
-          currency: item.currency,
-          type: item.type,
-          account: item.account,
-          category: item.category,
-          tags: item.tags,
-          user_id: item.user_id,
-        };
-      });
-
-      // Process transactions
-      const { groupedTransactions } = processTransactions(
-        transactionsFormattedPtbr,
-        selectedPeriod.period,
-        selectedDate
-      );
-
-      // Update states
-      setTransactionsFormattedBySelectedPeriod(groupedTransactions);
-    } catch (error) {
-      console.error(error);
+      await refetch();
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setIsManualRefreshing(false);
     }
   }
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchTransactions();
-    }, [selectedPeriod, selectedDate])
-  );
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', () =>
@@ -128,7 +99,7 @@ export function TransactionsByCategory({ navigation }: any) {
     );
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Screen>
         <SkeletonAccountsScreen />
@@ -188,8 +159,8 @@ export function TransactionsByCategory({ navigation }: any) {
           ListEmptyComponent={() => <ListEmptyComponent />}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchTransactions}
+              refreshing={isManualRefreshing}
+              onRefresh={handleRefresh}
             />
           }
           showsVerticalScrollIndicator={false}

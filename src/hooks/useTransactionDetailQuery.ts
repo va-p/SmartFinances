@@ -13,6 +13,6 @@ export function useTransactionDetailQuery(transactionID: string) {
   return useQuery({
     queryKey: ['transaction', transactionID],
     queryFn: () => fetchTransactionDetail(transactionID),
-    enabled: !!transactionID, // Só executa se houver um ID (modo de edição)
+    enabled: !!transactionID,
   });
 }

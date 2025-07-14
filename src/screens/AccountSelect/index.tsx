@@ -1,11 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
-import getAccounts from '@utils/getAccounts';
-
 import { FlatList } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
 
 import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
@@ -17,6 +14,7 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { useUser } from '@storage/userStorage';
 
 import { AccountProps } from '@interfaces/accounts';
+import { useAccountsQuery } from '@hooks/useAccountsQuery';
 
 type Props = {
   account: AccountProps;
@@ -29,33 +27,17 @@ export function AccountSelect({
   setAccount,
   closeSelectAccount,
 }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(true);
   const { id: userID } = useUser();
-  const [accounts, setAccounts] = useState<AccountProps[]>([]);
+  const {
+    data: accounts,
+    isLoading: isLoadingAccounts,
+    refetch: refetchAccounts,
+    isRefetching: isRefetchingAccounts,
+    isError,
+  } = useAccountsQuery(userID);
 
-  async function fetchAccounts() {
-    setLoading(true);
-
-    try {
-      const data = await getAccounts(userID);
-
-      if (!data) {
-        return;
-      } else {
-        setAccounts(data);
-        setRefreshing(false);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Contas',
-        'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+  function handleRefresh() {
+    refetchAccounts();
   }
 
   function handleAccountSelect(account: AccountProps) {
@@ -63,14 +45,15 @@ export function AccountSelect({
     closeSelectAccount();
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchAccounts();
-    }, [])
-  );
-
-  if (loading) {
+  if (isLoadingAccounts) {
     return <Load />;
+  }
+
+  if (isError) {
+    Alert.alert(
+      'Contas',
+      'Não foi possível buscar as suas contas. Verifique sua conexão com a internet e tente novamente.'
+    );
   }
 
   return (
@@ -93,7 +76,10 @@ export function AccountSelect({
           )}
           ItemSeparatorComponent={() => <ListSeparator />}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
+            <RefreshControl
+              refreshing={isRefetchingAccounts}
+              onRefresh={handleRefresh}
+            />
           }
           style={{ flex: 1, width: '100%' }}
         />

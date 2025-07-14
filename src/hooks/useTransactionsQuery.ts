@@ -19,12 +19,10 @@ async function getTransactions({ queryKey }: any): Promise<TransactionProps[]> {
   return data;
 }
 
-export function useTransactions(userId: string | undefined) {
+export function useTransactionsQuery(userID: string | undefined) {
   return useQuery({
-    queryKey: ['transactions', userId],
-
+    queryKey: ['transactions', userID],
     queryFn: getTransactions,
-
-    enabled: !!userId,
+    enabled: !!userID,
   });
 }

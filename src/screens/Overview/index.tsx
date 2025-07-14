@@ -12,7 +12,7 @@ import {
   ChartContainer,
 } from './styles';
 
-import { useTransactions } from '@hooks/useTransactions';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 
@@ -97,7 +97,7 @@ export function Overview({ navigation }: any) {
     isLoading: isLoadingTransactions,
     refetch: refetchTransactions,
     isRefetching: isRefetchingTransactions,
-  } = useTransactions(userID);
+  } = useTransactionsQuery(userID);
   const {
     data: accounts,
     isLoading: isLoadingAccounts,

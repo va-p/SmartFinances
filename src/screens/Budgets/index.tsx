@@ -5,7 +5,7 @@ import { Container, Footer } from './styles';
 import { BudgetProps } from '@interfaces/budget';
 import { TransactionProps } from '@interfaces/transactions';
 
-import { useTransactions } from '@hooks/useTransactions';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useBudgetsQuery } from '@hooks/useBudgetsQuery';
 
 import formatDatePtBr from '@utils/formatDatePtBr';
@@ -47,7 +47,7 @@ export function Budgets({ navigation }: any) {
     isLoading: isLoadingTransactions,
     refetch: refetchTransactions,
     isRefetching: isRefetchingTransactions,
-  } = useTransactions(userID);
+  } = useTransactionsQuery(userID);
   const {
     data: rawBudgets,
     isLoading: isLoadingBudgets,

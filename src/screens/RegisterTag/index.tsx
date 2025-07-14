@@ -1,21 +1,27 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { Container, Body, Footer } from './styles';
 
-import axios from 'axios';
+// Hooks
+import { useTagDetailQuery } from '@hooks/useTagDetailQuery';
+import {
+  useCreateTagMutation,
+  useUpdateTagMutation,
+} from '@hooks/useTagMutations';
+
+// Dependencies
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useFocusEffect } from '@react-navigation/native';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
 import { useUser } from 'src/storage/userStorage';
-
-import api from '@api/api';
 
 type Props = {
   id: string;
@@ -47,104 +53,60 @@ export function RegisterTag({ id, closeTag }: Props) {
       name: '',
     },
   });
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const { data: tagData, isLoading: isLoadingDetails } = useTagDetailQuery(id);
+  const { mutate: createTag, isPending: isCreating } = useCreateTagMutation();
+  const { mutate: updateTag, isPending: isUpdating } = useUpdateTagMutation();
+
+  useEffect(() => {
+    if (tagData) {
+      setValue('name', tagData.name);
+    } else {
+      reset({ name: '' });
+    }
+  }, [tagData, id, setValue, reset]);
 
   function handleCloseTag() {
     reset();
     closeTag();
   }
 
-  async function handleEditTag(id: string, form: FormData) {
-    try {
-      setButtonIsLoading(true);
-
-      const tagEdited = {
-        tag_id: id,
-        name: form.name,
-      };
-
-      const { status } = await api.patch('tag/edit', tagEdited);
-
-      if (status === 200) {
-        Alert.alert('Edição de Etiqueta', 'Etiqueta editada com sucesso!', [
-          { text: 'Voltar para as etiquetas', onPress: handleCloseTag },
-        ]);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de Etiqueta', error.response?.data.message, [
-          { text: 'Tentar novamente' },
-          { text: 'Voltar para a tela anterior', onPress: handleCloseTag },
-        ]);
-      }
-    } finally {
-      setButtonIsLoading(false);
+  function onSubmit(form: FormData) {
+    // --- Edit tag ---
+    if (!!id) {
+      updateTag(
+        { tag_id: id, name: form.name },
+        {
+          onSuccess: () => {
+            Alert.alert('Edição de Etiqueta', 'Etiqueta editada com sucesso!', [
+              { text: 'Voltar para as etiquetas', onPress: handleCloseTag },
+            ]);
+          },
+        }
+      );
     }
-  }
-
-  async function handleRegisterTag(form: FormData) {
-    setButtonIsLoading(true);
-
-    // Edit Tag
-    if (id !== '') {
-      handleEditTag(id, form);
-    }
-    // Add Tag
+    // --- Register tag ---
     else {
-      try {
-        const newTag = {
-          name: form.name,
-          user_id: userID,
-        };
-        const { status } = await api.post('tag', newTag);
-        if (status === 200) {
-          Alert.alert(
-            'Cadastro de Etiqueta',
-            'Etiqueta cadastrada com sucesso!',
-            [
-              { text: 'Cadastrar nova etiqueta' },
-              { text: 'Voltar para a tela anterior', onPress: handleCloseTag },
-            ]
-          );
+      createTag(
+        { name: form.name, user_id: userID },
+        {
+          onSuccess: () => {
+            Alert.alert(
+              'Cadastro de Etiqueta',
+              'Etiqueta cadastrada com sucesso!',
+              [
+                { text: 'Cadastrar nova etiqueta' },
+                {
+                  text: 'Voltar para a tela anterior',
+                  onPress: handleCloseTag,
+                },
+              ]
+            );
+            reset();
+          },
         }
-        reset();
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Cadastro de Etiqueta', error.response?.data.message, [
-            { text: 'Tentar novamente' },
-            { text: 'Voltar para a tela anterior', onPress: handleCloseTag },
-          ]);
-        }
-      } finally {
-        setButtonIsLoading(false);
-      }
-    }
-  }
-
-  async function fetchTag() {
-    try {
-      const { data } = await api.get('tag/single', {
-        params: {
-          tag_id: id,
-        },
-      });
-      setValue('name', data.name);
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Etiqueta',
-        'Não foi possível buscar a etiqueta. Verifique sua conexão com a internet e tente novamente.'
       );
     }
   }
-
-  useFocusEffect(
-    useCallback(() => {
-      if (id !== '') {
-        fetchTag();
-      }
-    }, [id])
-  );
 
   return (
     <Screen>
@@ -161,14 +123,14 @@ export function RegisterTag({ id, closeTag }: Props) {
             control={control}
             error={errors.name}
             returnKeyType='go'
-            onSubmitEditing={handleSubmit(handleRegisterTag)}
+            onSubmitEditing={handleSubmit(onSubmit)}
           />
         </Body>
 
         <Footer>
           <Button.Root
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleRegisterTag)}
+            isLoading={isCreating || isUpdating}
+            onPress={handleSubmit(onSubmit)}
           >
             <Button.Text
               text={id !== '' ? 'Editar Etiqueta' : 'Criar Etiqueta'}
