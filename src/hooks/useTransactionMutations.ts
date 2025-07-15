@@ -19,17 +19,40 @@ export function useCreateTransactionMutation() {
   return useMutation({
     mutationFn: createTransactionFn,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    onMutate: async (newTransaction) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+      const previousTransactions = queryClient.getQueryData(['transactions']);
+
+      queryClient.setQueryData(['transactions'], (oldData: any) => {
+        if (!oldData) return [newTransaction];
+        const optimisticTransaction = {
+          ...newTransaction,
+          id: `temp-${Date.now()}`,
+        };
+        return [optimisticTransaction, ...oldData];
+      });
+
+      return { previousTransactions };
     },
-    onError: (error: any) => {
+
+    onError: (error, _, context) => {
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(
+          ['transactions'],
+          context.previousTransactions
+        );
+      }
       Alert.alert(
         'Erro',
         error.response?.data?.message ||
           'Não foi possível registrar a transação. Por favor, tente novamente.'
       );
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
   });
 }
@@ -49,17 +72,41 @@ export function useUpdateTransactionMutation() {
   return useMutation({
     mutationFn: updateTransactionFn,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+    onMutate: async (updatedTransaction) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+
+      const previousTransactions = queryClient.getQueryData(['transactions']);
+
+      queryClient.setQueryData(['transactions'], (oldData: any) => {
+        if (!oldData) return [];
+        return oldData.map((transaction: any) =>
+          transaction.id === updatedTransaction.transaction_id
+            ? { ...transaction, ...updatedTransaction }
+            : transaction
+        );
+      });
+
+      return { previousTransactions };
     },
-    onError: (error: any) => {
+
+    onError: (error, _, context) => {
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(
+          ['transactions'],
+          context.previousTransactions
+        );
+      }
       Alert.alert(
         'Erro',
         error.response?.data?.message ||
           'Não foi possível atualizar a transação. Por favor, tente novamente.'
       );
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
   });
 }

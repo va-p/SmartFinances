@@ -1,7 +1,7 @@
 export type CurrencyCodes = 'BTC' | 'BRL' | 'EUR' | 'USD';
 
 export interface CurrencyProps {
-  id: string;
+  id: number;
   name: string;
   code: CurrencyCodes;
   symbol: string;

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Dimensions, Text } from 'react-native';
+import { Dimensions, Text, RefreshControl } from 'react-native';
 import {
   Container,
   ScrollContent,
@@ -12,9 +12,9 @@ import {
   ChartContainer,
 } from './styles';
 
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
@@ -45,7 +45,6 @@ import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 
 import theme from '@themes/theme';
-import { RefreshControl } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
@@ -507,7 +506,7 @@ export function Overview({ navigation }: any) {
                 <ChartContainer>
                   <PieChart
                     data={processedData.revenuesByCategory.map((item) => ({
-                      value: item.total * -1,
+                      value: item.total,
                       color: item.color.color_code,
                       text: item.percent,
                     }))}

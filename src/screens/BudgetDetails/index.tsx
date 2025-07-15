@@ -9,6 +9,11 @@ import {
 
 import formatCurrency from '@utils/formatCurrency';
 
+// Hooks
+import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
+import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
+
+// Dependencies
 import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
@@ -44,7 +49,11 @@ import api from '@api/api';
 
 export function BudgetDetails() {
   const route = useRoute();
-  const budget: BudgetProps = route.params?.budget;
+  const budgetID: string = route.params?.budget.id;
+
+  const { data: budget, isLoading } = useBudgetDetailQuery(budgetID);
+  const { mutate: deleteBudget } = useDeleteBudgetMutation();
+
   const budgetAmountReached = budget.amount_spent >= budget.amount;
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -109,13 +118,15 @@ export function BudgetDetails() {
       'Exclusão de orçamento',
       'ATENÇÃO! Todas as informações deste orçamento serão excluídas. Tem certeza que deseja excluir o orçamento?',
       [
-        { text: 'Não, cancelar a exclusão' },
+        { text: 'Cancelar' },
         {
           text: 'Sim, excluir o orçamento',
-          onPress: () => handleDeleteBudget(budget.id),
+          style: 'destructive',
+          onPress: () => handleDeleteBudget(budgetID),
         },
       ]
     );
+    handleCloseEditBudgetModal();
   }
 
   function handleCloseRegisterTransactionModal() {

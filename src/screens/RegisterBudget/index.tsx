@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import {
   Container,
@@ -8,14 +8,20 @@ import {
   Footer,
 } from './styles';
 
-import axios from 'axios';
+// hooks
+import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
+import {
+  useCreateBudgetMutation,
+  useUpdateBudgetMutation,
+} from '@hooks/useBudgetMutations';
+
+// Dependencies
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Icons
@@ -27,6 +33,7 @@ import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -40,12 +47,11 @@ import {
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
-import { useUser } from 'src/storage/userStorage';
-import { useBudgetCategoriesSelected } from 'src/storage/budgetCategoriesSelected';
-
-import api from '@api/api';
+import { useUser } from '@storage/userStorage';
+import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import theme from '@themes/theme';
+import { CurrencyProps } from '@interfaces/currencies';
 
 type Props = {
   id: string | null;
@@ -76,7 +82,39 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.setBudgetCategoriesSelected
   );
-
+  const currencies: String[] = [
+    'BRL - Real Brasileiro',
+    'BTC - Bitcoin',
+    'EUR - Euro',
+    'USD - Dólar Americano',
+  ];
+  const currenciesMap: Record<string, CurrencyProps> = {
+    'BTC - Bitcoin': {
+      id: 1,
+      name: 'Bitcoin',
+      code: 'BTC',
+      symbol: '₿',
+    },
+    'USD - Dólar Americano': {
+      id: 2,
+      name: 'Dólar Americano',
+      code: 'USD',
+      symbol: '$',
+    },
+    'EUR - Euro': {
+      id: 3,
+      name: 'Euro',
+      code: 'EUR',
+      symbol: '€',
+    },
+    'BRL - Real Brasileiro': {
+      id: 4,
+      name: 'Real Brasileiro',
+      code: 'BRL',
+      symbol: 'R$',
+    },
+  };
+  const [currencySelected, setCurrencySelected] = useState<number | null>(null);
   const [startDate, setStartDate] = useState(new Date());
   const formattedDate = format(startDate, 'dd MMMM, yyyy', { locale: ptBR });
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -106,47 +144,22 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       name: '',
     },
   });
-  const [buttonIsLoading, setButtonIsLoading] = useState(false);
-  const currencies = [
-    'BRL - Real Brasileiro',
-    'BTC - Bitcoin',
-    'EUR - Euro',
-    'USD - Dólar Americano',
-  ];
-  const [currencySelected, setCurrencySelected] = useState('');
+  const { mutate: createBudget, isPending: isCreating } =
+    useCreateBudgetMutation();
+  const { mutate: updateBudget, isPending: isUpdating } =
+    useUpdateBudgetMutation();
+  const { data: budgetData, isLoading: isLoadingDetails } =
+    useBudgetDetailQuery(id);
 
-  function handleOpenSelectCategoryModal() {
-    categoryBottomSheetRef.current?.present();
-  }
-
-  function handleCloseSelectCategoryModal() {
-    setBudgetCategoriesSelected([]);
-  }
-
-  function handleOpenSelectRecurrencePeriodModal() {
-    periodBottomSheetRef.current?.present();
-  }
-
-  function handleCloseSelectRecurrencePeriodModal() {
-    periodBottomSheetRef.current?.dismiss();
-  }
-
-  async function fetchBudget() {
-    try {
+  useEffect(() => {
+    if (budgetData) {
       let totalByDate = { id: '4', name: 'Mensalmente', period: 'monthly' };
 
-      setButtonIsLoading(true);
-
-      const { data } = await api.get('budget/single', {
-        params: {
-          budget_id: id,
-        },
-      });
-      setValue('name', data.name);
-      setValue('amount', data.amount);
-      setCurrencySelected(data.currency_id);
-      setStartDate(new Date(data.start_date));
-      switch (data.recurrence) {
+      setValue('name', budgetData.name);
+      setValue('amount', String(budgetData.amount));
+      setCurrencySelected(budgetData.currency.id);
+      setStartDate(new Date(budgetData.start_date));
+      switch (budgetData.recurrence) {
         case 'daily':
           totalByDate = {
             id: '1',
@@ -191,15 +204,14 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           break;
       }
       setBudgetPeriodSelected(totalByDate);
-      setBudgetCategoriesSelected(data.categories);
-    } catch (error) {
-      console.error('Error fetching budget', error);
-    } finally {
-      setButtonIsLoading(false);
+      setBudgetCategoriesSelected(budgetData.categories);
+    } else {
+      reset({ name: '', amount: '0' });
+      // TODO: resetar outros estados?!
     }
-  }
+  }, [budgetData, id, setValue, reset]);
 
-  async function handleEditBudget(id: string, form: FormData) {
+  function onSubmit(form: FormData) {
     let categoriesList: any = [];
     for (const item of budgetCategoriesSelected) {
       const category_id = item.id;
@@ -212,110 +224,76 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
     categoriesList = Object.values(categoriesList);
 
-    try {
+    if (!!id) {
+      // --- Update budget ---
       const editedBudget = {
         budget_id: id,
         name: form.name,
         amount: form.amount,
-        currency_id: 4,
+        currency_id: currencySelected || 4,
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
       };
-
-      const { status } = await api.patch('budget/edit', editedBudget);
-      if (status === 200) {
-        Alert.alert('Edição de Orçamento', 'Orçamento editado com sucesso!', [
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: closeBudget,
-          },
-        ]);
-        reset();
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Edição de Orçamento', error.response?.data?.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: closeBudget,
-          },
-        ]);
-      }
-    } finally {
-      setButtonIsLoading(false);
-    }
-  }
-
-  async function handleRegisterBudget(form: FormData) {
-    setButtonIsLoading(true);
-
-    if (!!id) {
-      handleEditBudget(id, form);
-      return;
-    }
-
-    let categoriesList: any = [];
-    for (const item of budgetCategoriesSelected) {
-      const category_id = item.id;
-
-      if (!categoriesList.hasOwnProperty(category_id)) {
-        categoriesList[category_id] = {
-          category_id: item.id,
-        };
-      }
-    }
-    categoriesList = Object.values(categoriesList);
-
-    try {
+      updateBudget(editedBudget, {
+        onSuccess: () => {
+          Alert.alert(
+            'Edição de Orçamento',
+            'Orçamento atualizado com sucesso!',
+            [
+              {
+                text: 'Voltar para a tela anterior',
+                onPress: closeBudget,
+              },
+            ]
+          );
+          closeBudget();
+        },
+      });
+    } else {
+      // --- Create budget ---
       const newBudget = {
         name: form.name,
         amount: form.amount,
-        currency_id: 4,
+        currency_id: currencySelected || 4,
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
         user_id: userID,
       };
-
-      const { status } = await api.post('budget', newBudget);
-      if (status === 200) {
-        Alert.alert(
-          'Cadastro de Orçamento',
-          'Orçamento cadastrado com sucesso!',
-          [
-            { text: 'Cadastrar novo orçamento' },
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: closeBudget,
-            },
-          ]
-        );
-        reset();
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Cadastro de Orçamento', error.response?.data?.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: closeBudget,
-          },
-        ]);
-      }
-    } finally {
-      setButtonIsLoading(false);
+      createBudget(newBudget, {
+        onSuccess: () => {
+          Alert.alert(
+            'Cadastro de Orçamento',
+            'Orçamento criado com sucesso!',
+            [
+              {
+                text: 'Voltar para a tela anterior',
+                onPress: closeBudget,
+              },
+            ]
+          );
+          closeBudget();
+        },
+      });
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!!id) {
-        fetchBudget();
-      }
-    }, [id])
-  );
+  function handleOpenSelectCategoryModal() {
+    categoryBottomSheetRef.current?.present();
+  }
+
+  function handleCloseSelectCategoryModal() {
+    setBudgetCategoriesSelected([]);
+  }
+
+  function handleOpenSelectRecurrencePeriodModal() {
+    periodBottomSheetRef.current?.present();
+  }
+
+  function handleCloseSelectRecurrencePeriodModal() {
+    periodBottomSheetRef.current?.dismiss();
+  }
 
   return (
     <Screen>
@@ -350,7 +328,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             <SelectDropdown
               data={currencies}
               onSelect={(selectedItem) => {
-                setCurrencySelected(selectedItem);
+                const currencySelected = currenciesMap[selectedItem].id;
+                setCurrencySelected(currencySelected);
               }}
               defaultButtonText='Moeda'
               buttonTextAfterSelection={(selectedItem) => {
@@ -425,8 +404,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <Footer>
           <Button.Root
             type='secondary'
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleRegisterBudget)}
+            isLoading={isCreating || isUpdating}
+            onPress={handleSubmit(onSubmit)}
           >
             <Button.Text
               text={id !== null ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
