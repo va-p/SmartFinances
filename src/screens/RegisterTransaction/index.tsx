@@ -732,8 +732,6 @@ export function RegisterTransaction({
   }
 
   useEffect(() => {
-    // fetchTags();
-
     if (transactionData && id !== '') {
       setCategorySelected(transactionData.category);
       setValue('amount', transactionData.amount);

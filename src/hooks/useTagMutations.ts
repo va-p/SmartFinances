@@ -4,9 +4,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '@api/api';
 
+import { TagProps } from '@components/TagListItem';
+
+const QUERY_KEY = ['tags'];
+
 // --- Create tag ---
 const createTagFn = async (newTag: { name: string; user_id: string }) => {
-  return await api.post('tag', newTag);
+  const { data } = await api.post('tag', newTag);
+  return data;
 };
 
 export function useCreateTagMutation() {
@@ -15,11 +20,25 @@ export function useCreateTagMutation() {
   return useMutation({
     mutationFn: createTagFn,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+    onMutate: async (newTag) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousTags = queryClient.getQueryData<TagProps[]>(QUERY_KEY);
+      queryClient.setQueryData<TagProps[]>(QUERY_KEY, (old = []) => [
+        { ...newTag, id: `temp-${Date.now()}` }, // ID otimista
+        ...old,
+      ]);
+      return { previousTags };
     },
-    onError: (error: any) => {
-      //
+
+    onError: (error, newTag, context) => {
+      if (context?.previousTags) {
+        queryClient.setQueryData(QUERY_KEY, context.previousTags);
+      }
+      Alert.alert('Erro', 'Não foi possível criar a etiqueta.');
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
 }
@@ -35,11 +54,29 @@ export function useUpdateTagMutation() {
   return useMutation({
     mutationFn: updateTagFn,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+    onMutate: async (updatedTag) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousTags = queryClient.getQueryData<TagProps[]>(QUERY_KEY);
+      queryClient.setQueryData<TagProps[]>(QUERY_KEY, (old = []) =>
+        old.map((tag) =>
+          tag.id === updatedTag.tag_id ? { ...tag, ...updatedTag } : tag
+        )
+      );
+      return { previousTags };
     },
-    onError: (error: any) => {
-      //
+
+    onError: (error, newTag, context) => {
+      if (context?.previousTags) {
+        queryClient.setQueryData(QUERY_KEY, context.previousTags);
+      }
+      Alert.alert(
+        'Erro',
+        'Não foi possível atualizar a etiqueta. Por favor, tente novamente.'
+      );
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
 }
@@ -55,12 +92,27 @@ export function useDeleteTagMutation() {
   return useMutation({
     mutationFn: deleteTagFn,
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
-      Alert.alert('Exclusão de etiqueta', 'Etiqueta excluída com sucesso!');
+    onMutate: async (tagIdToDelete) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousTags = queryClient.getQueryData<TagProps[]>(QUERY_KEY);
+      queryClient.setQueryData<TagProps[]>(QUERY_KEY, (old = []) =>
+        old.filter((tag) => tag.id !== tagIdToDelete)
+      );
+
+      // Alert.alert('Exclusão de etiqueta', 'Etiqueta excluída com sucesso!');
+
+      return { previousTags };
     },
-    onError: (error: any) => {
-      //
+
+    onError: (error, newTag, context) => {
+      if (context?.previousTags) {
+        queryClient.setQueryData(QUERY_KEY, context.previousTags);
+      }
+      Alert.alert('Erro', 'Não foi possível excluir a etiqueta.');
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
 }

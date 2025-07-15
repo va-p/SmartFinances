@@ -83,7 +83,12 @@ export function TabButtons({ buttons, selectedTab, setSelectedTab }: Props) {
               isActive={isActive}
               onPress={() => onTabPress(index)}
             >
-              <Title isActive={isActive} isPositive={isPositive}>
+              <Title
+                isActive={isActive}
+                isPositive={
+                  button.description === 'Despesas' ? false : isPositive
+                }
+              >
                 {button.title}
               </Title>
               {button.description && (

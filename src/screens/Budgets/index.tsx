@@ -2,34 +2,39 @@ import React, { useMemo, useRef, useState } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
-import { BudgetProps } from '@interfaces/budget';
-import { TransactionProps } from '@interfaces/transactions';
-
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+// Hooks
 import { useBudgetsQuery } from '@hooks/useBudgetsQuery';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
+// Utils
+import formatCurrency from '@utils/formatCurrency';
 import formatDatePtBr from '@utils/formatDatePtBr';
 
+// Dependencies
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { BudgetListItem } from '@components/BudgetListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 
+// Screens
 import { RegisterBudget } from '@screens/RegisterBudget';
 
+// Storages
 import { useUser } from '@storage/userStorage';
 import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
-import api from '@api/api';
-import { Gradient } from '@components/Gradient';
-import formatCurrency from '@utils/formatCurrency';
+// Interfaces
+import { BudgetProps } from '@interfaces/budget';
+import { TransactionProps } from '@interfaces/transactions';
 
 export function Budgets({ navigation }: any) {
   const bottomTabBarHeight = useBottomTabBarHeight();
