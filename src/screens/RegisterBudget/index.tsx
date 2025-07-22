@@ -9,11 +9,11 @@ import {
 } from './styles';
 
 // hooks
-import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 import {
   useCreateBudgetMutation,
   useUpdateBudgetMutation,
 } from '@hooks/useBudgetMutations';
+import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 
 // Dependencies
 import * as Yup from 'yup';
@@ -38,8 +38,9 @@ import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { SelectButton } from '@components/SelectButton';
-import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
 import {
@@ -51,10 +52,11 @@ import { useUser } from '@storage/userStorage';
 import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
 import theme from '@themes/theme';
+
 import { CurrencyProps } from '@interfaces/currencies';
 
 type Props = {
-  id: string | null;
+  id: string;
   closeBudget: () => void;
 };
 
@@ -152,7 +154,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     useBudgetDetailQuery(id);
 
   useEffect(() => {
-    if (budgetData) {
+    if (!!budgetData) {
       let totalByDate = { id: '4', name: 'Mensalmente', period: 'monthly' };
 
       setValue('name', budgetData.name);
@@ -293,6 +295,14 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   function handleCloseSelectRecurrencePeriodModal() {
     periodBottomSheetRef.current?.dismiss();
+  }
+
+  if (isLoadingDetails) {
+    return (
+      <Screen>
+        <SkeletonAccountsScreen />
+      </Screen>
+    );
   }
 
   return (

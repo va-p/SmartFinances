@@ -1,11 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@api/api';
 import { Alert } from 'react-native';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import api from '@api/api';
+
 import { BudgetProps } from '@interfaces/budget';
 
 const QUERY_KEY = ['budgets'];
 
-// --- Funções de API ---
 const createBudgetFn = async (newBudget: any) => {
   return await api.post('budget', newBudget);
 };
@@ -16,7 +18,7 @@ const deleteBudgetFn = async (budgetId: string) => {
   return await api.delete('budget/delete', { params: { budget_id: budgetId } });
 };
 
-// --- Hooks de Mutação Otimistas ---
+// --- Create budget ---
 export function useCreateBudgetMutation() {
   const queryClient = useQueryClient();
 
@@ -39,7 +41,7 @@ export function useCreateBudgetMutation() {
       return { previousBudgets };
     },
 
-    onError: (err, newBudget, context) => {
+    onError: (error, newBudget, context) => {
       if (context?.previousBudgets)
         queryClient.setQueryData(QUERY_KEY, context.previousBudgets);
       Alert.alert('Erro', 'Não foi possível criar o orçamento.');
@@ -51,6 +53,7 @@ export function useCreateBudgetMutation() {
   });
 }
 
+// --- Update budget ---
 export function useUpdateBudgetMutation() {
   const queryClient = useQueryClient();
 
@@ -81,26 +84,30 @@ export function useUpdateBudgetMutation() {
   });
 }
 
+// --- Delete budget ---
 export function useDeleteBudgetMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deleteBudgetFn,
 
-    onMutate: async (budgetId) => {
+    onMutate: async (budgetID) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEY });
       const previousBudgets =
         queryClient.getQueryData<BudgetProps[]>(QUERY_KEY);
       queryClient.setQueryData<BudgetProps[]>(QUERY_KEY, (old = []) =>
-        old.filter((b) => b.id !== budgetId)
+        old.filter((b) => b.id !== budgetID)
       );
       return { previousBudgets };
     },
 
-    onError: (error, budgetId, context) => {
+    onError: (error, budgetID, context) => {
       if (context?.previousBudgets)
         queryClient.setQueryData(QUERY_KEY, context.previousBudgets);
-      Alert.alert('Erro', 'Não foi possível excluir o orçamento.');
+      Alert.alert(
+        'Erro',
+        'Não foi possível excluir o orçamento. Por favor, tente novamente.'
+      );
     },
 
     onSettled: () => {

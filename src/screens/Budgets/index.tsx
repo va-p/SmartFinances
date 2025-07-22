@@ -203,7 +203,7 @@ export function Budgets({ navigation }: any) {
 
   function handleOpenBudget(budget: BudgetProps) {
     navigation.navigate('Orçamento', {
-      budget: budget,
+      budget,
     });
   }
 

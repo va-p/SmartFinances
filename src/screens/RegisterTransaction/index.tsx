@@ -964,7 +964,7 @@ export function RegisterTransaction({
           $modal
           title='Selecione a categoria'
           bottomSheetRef={categoryBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
         >
           <CategorySelect
             categorySelected={categorySelected}
