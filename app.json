@@ -3,8 +3,8 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "owner": "va-p",
-    "runtimeVersion": "2.19.1(72)",
-    "version": "2.19.1",
+    "runtimeVersion": "2.19.2(73)",
+    "version": "2.19.2",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -13,7 +13,7 @@
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 72,
+      "versionCode": 73,
       "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "VIBRATE",

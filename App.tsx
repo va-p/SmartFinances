@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { NativeModules, AppState, Platform } from 'react-native';
+
+const { InAppUpdate } = NativeModules;
 
 import * as Font from 'expo-font';
 import * as Updates from 'expo-updates';
@@ -38,33 +41,62 @@ enum LoadingState {
 }
 
 function App() {
+  const appState = useRef(AppState.currentState);
   const [queryClient] = useState(() => new QueryClient());
   const [loadingState, setLoadingState] = useState(LoadingState.Initializing);
 
-  OneSignal.Debug.setLogLevel(LogLevel.Verbose); // OneSignal Debugging
-  OneSignal.initialize('9b887fe6-28dc-495a-939b-ae527403a302');
-  OneSignal.Notifications.addEventListener('click', (event) => {
-    console.log('OneSignal: notification clicked:', event);
-  });
-
-  async function onFetchUpdateAsync() {
-    try {
-      const update = await Updates.checkForUpdateAsync();
-
-      if (update.isAvailable) {
-        await Updates.fetchUpdateAsync();
-        await Updates.reloadAsync();
-      }
-    } catch (error) {
-      console.error(`Error fetching latest Expo update: ${error}`);
+  const checkNativeUpdate = useCallback(() => {
+    // Este módulo só existe no Android.
+    if (Platform.OS !== 'android' || !InAppUpdate) {
+      return;
     }
-  }
+
+    InAppUpdate.checkForUpdates()
+      .then((message: string) => {
+        console.log('[InAppUpdate] Resultado da verificação:', message);
+      })
+      .catch((error: Error) => {
+        console.error('[InAppUpdate] Falha ao verificar atualização:', error);
+      });
+  }, []);
 
   useEffect(() => {
+    checkNativeUpdate();
+
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        if (Platform.OS === 'android' && InAppUpdate) {
+          InAppUpdate.onResume();
+        }
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [checkNativeUpdate]);
+
+  useEffect(() => {
+    async function onFetchUpdateOtaAsync() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        console.error(`Error fetching latest Expo (OTA) update: ${error}`);
+      }
+    }
+
     async function prepareApp() {
       try {
         await Promise.all([
-          onFetchUpdateAsync(),
+          onFetchUpdateOtaAsync(),
           NavigationBar.setBackgroundColorAsync(theme.colors.backgroundNav),
           NavigationBar.setButtonStyleAsync('dark'),
         ]);
@@ -76,11 +108,18 @@ function App() {
           Poppins_700Bold,
         });
       } catch (error) {
-        console.error(`Error during app load: ${error}`);
+        console.error(`Error during app preparation: ${error}`);
+      } finally {
+        // Movemos a transição de estado para o finally para garantir que o app
+        // avance mesmo se uma das promises falhar (ex: falha de rede no OTA).
       }
     }
 
     prepareApp();
+
+    // Inicializa o OneSignal uma única vez
+    // OneSignal.Debug.setLogLevel(LogLevel.Verbose); // Debug
+    OneSignal.initialize('9b887fe6-28dc-495a-939b-ae527403a302');
   }, []);
 
   switch (loadingState) {
