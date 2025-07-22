@@ -10,11 +10,9 @@ import {
 import formatCurrency from '@utils/formatCurrency';
 
 // Hooks
-import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 
 // Dependencies
-import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
 import { useRoute } from '@react-navigation/native';
@@ -43,15 +41,11 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
-import { BudgetProps } from '@interfaces/budget';
-
-import api from '@api/api';
-
 export function BudgetDetails() {
   const route = useRoute();
-  const budgetID: string = route.params?.budget.id;
+  const budget = route.params?.budget;
+  const budgetID = budget?.id;
 
-  const { data: budget, isLoading } = useBudgetDetailQuery(budgetID);
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
 
   const budgetAmountReached = budget.amount_spent >= budget.amount;
@@ -91,28 +85,6 @@ export function BudgetDetails() {
     budgetEditBottomSheetRef.current?.dismiss();
   }
 
-  async function handleDeleteBudget(id: string) {
-    try {
-      await api.delete('budget/delete', {
-        params: {
-          budget_id: id,
-        },
-      });
-      Alert.alert('Exclusão de orçamento', 'Orçamento excluído com sucesso!');
-      handleCloseEditBudgetModal();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Exclusão de orçamento', error.response?.data.message, [
-          { text: 'Tentar novamente' },
-          {
-            text: 'Voltar para a tela anterior',
-            onPress: handleCloseEditBudgetModal,
-          },
-        ]);
-      }
-    }
-  }
-
   async function handleClickDeleteBudget() {
     Alert.alert(
       'Exclusão de orçamento',
@@ -120,9 +92,18 @@ export function BudgetDetails() {
       [
         { text: 'Cancelar' },
         {
-          text: 'Sim, excluir o orçamento',
+          text: 'Sim, excluir',
           style: 'destructive',
-          onPress: () => handleDeleteBudget(budgetID),
+          onPress: () =>
+            deleteBudget(budget.id, {
+              onSuccess: () => {
+                Alert.alert(
+                  'Exclusão de orçamento',
+                  'Orçamento excluído com sucesso!'
+                );
+                handleCloseEditBudgetModal();
+              },
+            }),
         },
       ]
     );
@@ -234,7 +215,7 @@ export function BudgetDetails() {
           deleteChildren={handleClickDeleteBudget}
         >
           <RegisterBudget
-            id={budget.id}
+            id={budgetID}
             closeBudget={handleCloseEditBudgetModal}
           />
         </ModalView>

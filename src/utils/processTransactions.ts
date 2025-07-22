@@ -54,7 +54,7 @@ export const processTransactions = (
   // Process transactions to chart
   transactions.forEach((item) => {
     // Ignore transfers
-    if (item.type.includes('TRANSFER')) return;
+    if (!item.type || item.type.includes('TRANSFER')) return;
 
     const transactionDate = parse(item.created_at, 'dd/MM/yyyy', new Date());
     if (!isValid(transactionDate)) return;
