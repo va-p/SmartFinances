@@ -12,7 +12,7 @@ type Props = {
 
 export function Splash({ onComplete }: Props) {
   const player = useVideoPlayer(videoSource, (player) => {
-    player.volume = 0;
+    player.muted = true;
     player.loop = false;
     player.play();
   });
@@ -24,8 +24,9 @@ export function Splash({ onComplete }: Props) {
   return (
     <VideoView
       player={player}
-      style={StyleSheet.absoluteFill}
       contentFit='cover'
+      nativeControls={false}
+      style={StyleSheet.absoluteFill}
     />
   );
 }
