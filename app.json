@@ -3,8 +3,8 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "owner": "va-p",
-    "runtimeVersion": "2.19.2(73)",
-    "version": "2.19.2",
+    "runtimeVersion": "2.19.4(75)",
+    "version": "2.19.4",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -13,7 +13,7 @@
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 73,
+      "versionCode": 75,
       "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "VIBRATE",
@@ -40,7 +40,9 @@
     "ios": {
       "bundleIdentifier": "com.vap.smartfinances",
       "buildNumber": "1",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "backgroundColor": "#E6E9F4",
+      "icon": "src/assets/icon.png"
     },
     "extra": {
       "eas": {

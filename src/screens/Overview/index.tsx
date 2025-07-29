@@ -12,21 +12,25 @@ import {
   ChartContainer,
 } from './styles';
 
+// Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
+// Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
+// Dependencies
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, parse } from 'date-fns';
+import { format, getMonth, getYear, parse } from 'date-fns';
 import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
@@ -35,17 +39,22 @@ import { FilterButton } from '@components/FilterButton';
 import { TabButtons, TabButtonType } from '@components/TabButtons';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 
-import { ChartPeriodSelect, PeriodProps } from '@screens/ChartPeriodSelect';
+// Screens
+import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
+// Storages
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
+// Interfaces
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 
+// Styles
 import theme from '@themes/theme';
 
+// Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
@@ -83,13 +92,8 @@ export function Overview({ navigation }: any) {
   const [selectedTabCategoriesSection, setSelectedTabCategoriesSection] =
     useState<CustomTab>(CustomTab.Tab1);
 
-  const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const { selectedPeriod, selectedDate } = useSelectedPeriod();
-  const [chartPeriodSelected, setChartPeriodSelected] = useState<PeriodProps>({
-    id: '1',
-    name: 'Meses',
-    period: 'months',
-  });
+  const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
     data: transactions,
@@ -120,7 +124,7 @@ export function Overview({ navigation }: any) {
       };
     }
 
-    // calculateTotalAssets ---
+    // --- calculateTotalAssets ---
     let totalAssets = 0;
     const filteredAccounts = accounts.filter(
       (account: AccountProps) => !account.hide
@@ -152,68 +156,40 @@ export function Overview({ navigation }: any) {
     }
 
     // --- calculatePatrimonialEvolution ---
-    let totalsByMonths: any = {};
-    let accumulatedTotal = new Decimal(0);
-    for (const transaction of transactions) {
-      if (new Date(transaction.created_at) <= new Date()) {
-        const ym = format(transaction.created_at, `yyyy-MM`, { locale: ptBR });
-        if (!totalsByMonths.hasOwnProperty(ym)) {
-          totalsByMonths[ym] = { date: ym, total: new Decimal(0) };
-        }
-        const transactionAmountBRL =
-          transaction.amount_in_account_currency ?? transaction.amount;
-        if (
-          transaction.type === 'TRANSFER_CREDIT' ||
-          transaction.type === 'TRANSFER_DEBIT'
-        )
-          continue;
-        if (transaction.account.type === 'CREDIT') {
-          totalsByMonths[ym].total =
-            totalsByMonths[ym].total.minus(transactionAmountBRL);
-        } else {
-          totalsByMonths[ym].total =
-            totalsByMonths[ym].total.plus(transactionAmountBRL);
-        }
+    const isInSelectedPeriod = (transactionDate: Date) => {
+      switch (selectedPeriod.period) {
+        case 'months':
+          return (
+            getMonth(transactionDate) === getMonth(selectedDate) &&
+            getYear(transactionDate) === getYear(selectedDate)
+          );
+        case 'years':
+          return getYear(transactionDate) === getYear(selectedDate);
+        case 'all':
+          return true;
       }
-    }
-    const sortedMonths = Object.keys(totalsByMonths).sort(
-      (a, b) =>
-        parse(a, 'yyyy-MM', new Date()).getTime() -
-        parse(b, 'yyyy-MM', new Date()).getTime()
-    );
-    const patrimonialEvolution = sortedMonths.map((monthYear) => {
-      accumulatedTotal = accumulatedTotal.plus(totalsByMonths[monthYear].total);
-      return {
-        date: format(
-          parse(`${monthYear}-01`, 'yyyy-MM-dd', new Date()),
-          "MMM '\n' yyyy",
-          { locale: ptBR }
-        ),
-        total: accumulatedTotal.toNumber(),
-      };
-    });
+    };
 
     // --- calculateTransactionsByCategories ---
-    const transactionsBySelectedMonth = transactions.filter(
-      (t) =>
-        new Date(t.created_at).getMonth() === selectedDate.getMonth() &&
-        new Date(t.created_at).getFullYear() === selectedDate.getFullYear()
-    );
+    const transactionsBySelectedPeriod = transactions.filter((t) => {
+      const transactionDate = new Date(t.created_at);
+      return isInSelectedPeriod(transactionDate);
+    });
 
     const calculateTotals = (type: 'DEBIT' | 'CREDIT'): CategoryData[] => {
       const totalsByCategory: CategoryData[] = [];
-      let totalAmountByMonth = new Decimal(0);
-      transactionsBySelectedMonth
+      let totalAmountSelectedPeriod = new Decimal(0);
+      transactionsBySelectedPeriod
         .filter((t) => t.type === type)
         .forEach((t) => {
-          totalAmountByMonth = totalAmountByMonth.plus(
+          totalAmountSelectedPeriod = totalAmountSelectedPeriod.plus(
             new Decimal(t.amount_in_account_currency ?? t.amount).abs()
           );
         });
 
       for (const category of categories) {
         let categorySum = new Decimal(0);
-        transactionsBySelectedMonth
+        transactionsBySelectedPeriod
           .filter((t) => t.category.id === category.id && t.type === type)
           .forEach((t) => {
             const amount = new Decimal(
@@ -227,7 +203,8 @@ export function Overview({ navigation }: any) {
 
         if (!categorySum.isZero()) {
           const percent = `${(
-            (Math.abs(Number(categorySum)) / Number(totalAmountByMonth)) *
+            (Math.abs(Number(categorySum)) /
+              Number(totalAmountSelectedPeriod)) *
             100
           ).toFixed(2)}%`;
           const totalFormatted = formatCurrency(
@@ -252,14 +229,62 @@ export function Overview({ navigation }: any) {
     const revenuesByCategory = calculateTotals('CREDIT');
     const expensesByCategory = calculateTotals('DEBIT');
 
-    // All data calculated
+    // --- All data calculated ---
+    const periodConfig: Record<string, any> = {
+      months: {
+        groupKey: (date: Date) => format(date, 'yyyy-MM'),
+        outputFormat: "MMM '\n' yyyy",
+        parseFormat: 'yyyy-MM',
+      },
+      years: {
+        groupKey: (date: Date) => format(date, 'yyyy'),
+        outputFormat: 'yyyy',
+        parseFormat: 'yyyy',
+      },
+    };
+    const config = periodConfig[selectedPeriod.period] || periodConfig.months;
+
+    let totalsByPeriod: any = {};
+    let accumulatedTotal = new Decimal(0);
+    for (const transaction of transactions) {
+      if (new Date(transaction.created_at) <= new Date()) {
+        const groupKey = config.groupKey(new Date(transaction.created_at));
+        if (!totalsByPeriod.hasOwnProperty(groupKey)) {
+          totalsByPeriod[groupKey] = { date: groupKey, total: new Decimal(0) };
+        }
+        const transactionAmountBRL =
+          transaction.amount_in_account_currency ?? transaction.amount;
+        if (transaction.type.includes('TRANSFER')) continue;
+        totalsByPeriod[groupKey].total =
+          transaction.account.type === 'CREDIT'
+            ? totalsByPeriod[groupKey].total.minus(transactionAmountBRL)
+            : totalsByPeriod[groupKey].total.plus(transactionAmountBRL);
+      }
+    }
+    const sortedPeriods = Object.keys(totalsByPeriod).sort(
+      (a, b) =>
+        parse(a, config.parseFormat, new Date()).getTime() -
+        parse(b, config.parseFormat, new Date()).getTime()
+    );
+    const patrimonialEvolution = sortedPeriods.map((periodKey) => {
+      accumulatedTotal = accumulatedTotal.plus(totalsByPeriod[periodKey].total);
+      return {
+        date: format(
+          parse(periodKey, config.parseFormat, new Date()),
+          config.outputFormat,
+          { locale: ptBR }
+        ),
+        total: accumulatedTotal.toNumber(),
+      };
+    });
+
     return {
       totalAssets,
       patrimonialEvolution,
       revenuesByCategory,
       expensesByCategory,
     };
-  }, [transactions, accounts, categories, selectedDate]);
+  }, [transactions, accounts, categories, selectedPeriod, selectedDate]);
 
   function handleRefresh() {
     refetchTransactions();
@@ -276,7 +301,7 @@ export function Overview({ navigation }: any) {
   }
 
   function handleOpenCategory(id: string) {
-    navigation.navigate('Transações Por Categoria', { id });
+    navigation.navigate('Transações por Categoria', { id });
   }
 
   const curRevenues = processedData.revenuesByCategory.reduce(
@@ -369,7 +394,7 @@ export function Overview({ navigation }: any) {
           <FiltersContainer>
             <FilterButtonGroup>
               <FilterButton
-                title={`Por ${chartPeriodSelected.name}`}
+                title={`Por ${selectedPeriod.name}`}
                 onPress={handleOpenPeriodSelectedModal}
               />
             </FilterButtonGroup>
@@ -546,7 +571,7 @@ export function Overview({ navigation }: any) {
             snapPoints={['30%', '50%']}
           >
             <ChartPeriodSelect
-              period={chartPeriodSelected}
+              period={selectedPeriod}
               closeSelectPeriod={handleClosePeriodSelectedModal}
             />
           </ModalViewSelection>

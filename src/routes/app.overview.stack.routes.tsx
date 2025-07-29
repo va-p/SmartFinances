@@ -19,7 +19,7 @@ export function AppOverviewStackRoutes() {
       <Screen name='Visão Geral' component={Overview} />
 
       <Screen
-        name='Transações Por Categoria'
+        name='Transações por Categoria'
         component={TransactionsByCategory}
       />
     </Navigator>
