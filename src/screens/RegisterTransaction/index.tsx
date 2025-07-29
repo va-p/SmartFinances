@@ -22,6 +22,7 @@ import {
   useUpdateTransactionMutation,
   useDeleteTransactionMutation,
 } from '@hooks/useTransactionMutations';
+import { useTagsQuery } from '@hooks/useTagsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
@@ -82,7 +83,6 @@ import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import theme from '@themes/theme';
-import { useTagsQuery } from '@hooks/useTagsQuery';
 
 type Props = {
   id: string;
@@ -138,7 +138,7 @@ export function RegisterTransaction({
     },
   } as CategoryProps);
   const [currencySelected, setCurrencySelected] = useState({
-    id: '4',
+    id: 4,
     name: 'Real Brasileiro',
     code: 'BRL',
     symbol: 'R$',
@@ -169,13 +169,12 @@ export function RegisterTransaction({
     setDate(selectedDate);
   };
   const [bankTransactionID, setBankTransactionID] = useState(null);
-  const [transactionDate, setTransactionDate] = useState('');
+  const [transactionDate, setTransactionDate] = useState(null);
   const [relatedTransactionID, setRelatedTransactionID] = useState(null);
   const [transactionType, setTransactionType] =
     useState<TransactionTabType>('CREDIT');
   const [selectedTransactionTab, setSelectedTransactionTab] =
     useState<CustomTab>(CustomTab.Credit);
-  // const [tags, setTags] = useState<TagProps[]>([]);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -378,6 +377,7 @@ export function RegisterTransaction({
       }
     }
 
+    const hasDestinationAccount = accountDestinationSelected.id !== ''; // Checks if there is a destination account selected (contrapart)
     const fromCurrency = currencySelected.code; // Moeda selecionada
 
     let amountConverted = form.amount;
@@ -385,7 +385,7 @@ export function RegisterTransaction({
       amount: form.amount,
       fromCurrency: currencySelected.code,
       toCurrency:
-        transactionType === 'TRANSFER' && accountDestinationSelected.id !== ''
+        transactionType === 'TRANSFER' && hasDestinationAccount
           ? accountDestinationSelected.currency.code
           : accountCurrency!.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
@@ -413,17 +413,19 @@ export function RegisterTransaction({
         transactionType === 'TRANSFER_CREDIT'
           ? 'TRANSFER_DEBIT'
           : 'TRANSFER_CREDIT';
-      const amountInAccountCurrencyRelatedTransaction =
-        fromCurrency !== accountDestinationSelected.currency!.code // If transaction currency is different to account currency
+      const amountInAccountCurrencyRelatedTransaction = hasDestinationAccount
+        ? fromCurrency !== accountDestinationSelected.currency!.code // If transaction currency is different to account currency
           ? relatedTransactionType === 'TRANSFER_CREDIT'
             ? Math.abs(amountConverted)
             : amountConverted
-          : null;
+          : null
+        : null;
 
       const transferEditedPayload = {
         transaction_id: id,
         created_at: date,
         bank_transaction_id: bankTransactionID,
+        date: transactionDate,
         description: form.description,
         amount: form.amount,
         amount_in_account_currency:
@@ -437,10 +439,15 @@ export function RegisterTransaction({
         tags: tagsList,
         transaction_image_id,
         // Informações para o backend lidar com a contrapartida
-        related_transaction_account_id: accountDestinationSelected.id,
-        related_transaction_type: relatedTransactionType,
-        amount_in_account_currency_related_transaction:
-          amountInAccountCurrencyRelatedTransaction,
+        related_transaction_account_id: hasDestinationAccount
+          ? accountDestinationSelected.id
+          : null,
+        related_transaction_type: hasDestinationAccount
+          ? relatedTransactionType
+          : null,
+        amount_in_account_currency_related_transaction: hasDestinationAccount
+          ? amountInAccountCurrencyRelatedTransaction
+          : null,
         user_id: userID,
       };
 

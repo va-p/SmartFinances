@@ -44,7 +44,7 @@ type RootParamList = {
   'Editar Orçamento': BudgetNavigationProps;
   Resumo: undefined;
   'Visão Geral': undefined;
-  'Transações Por Categoria': undefined;
+  'Transações por Categoria': undefined;
   Mais: undefined;
   'Mais Opções': undefined;
   Perfil: undefined;
