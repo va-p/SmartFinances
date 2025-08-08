@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Platform } from 'react-native';
+import { Alert, FlatList, Platform, Text } from 'react-native';
 import {
   Container,
   Header,
@@ -36,7 +36,6 @@ import { ControlledInputCategoryName } from '@components/Form/ControlledInputCat
 import { useUser } from '@storage/userStorage';
 
 import { ColorProps, IconProps } from '@interfaces/categories';
-import { Text } from 'react-native';
 
 type Props = {
   id: string;

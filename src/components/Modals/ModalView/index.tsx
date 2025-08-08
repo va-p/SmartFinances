@@ -6,10 +6,9 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import Trash from 'phosphor-react-native/src/icons/Trash';
-import { BorderlessButton } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Gradient } from '@components/Gradient';
 import { Header as HeaderComponent } from '@components/Header';
 
 import theme from '@themes/theme';
@@ -47,24 +46,22 @@ export function ModalView({
       enablePanDownToClose={true}
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
+      backgroundComponent={() => <Gradient />}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       topInset={top}
       {...rest}
     >
       <BottomSheetView style={{ flex: 1 }}>
-        <Header color={color}>
+        <Header>
           <HeaderComponent.Root>
             <HeaderComponent.CloseButton handleClickCloseButton={closeModal} />
             <HeaderComponent.Title title={`${title}`} />
+            {type === 'secondary' && (
+              <HeaderComponent.DeleteButton
+                handleClickDeleteButton={deleteChildren!}
+              />
+            )}
           </HeaderComponent.Root>
-
-          {type === 'secondary' ? (
-            <BorderlessButton onPress={deleteChildren}>
-              <Trash color={theme.colors.primary} />
-            </BorderlessButton>
-          ) : (
-            <></>
-          )}
         </Header>
         {children}
       </BottomSheetView>

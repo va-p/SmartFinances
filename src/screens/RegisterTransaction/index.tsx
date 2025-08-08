@@ -88,7 +88,6 @@ type Props = {
   id: string;
   resetId: () => void;
   closeRegisterTransaction: () => void;
-  closeModal?: () => void;
 };
 
 type FormData = {
@@ -123,7 +122,6 @@ export function RegisterTransaction({
   id,
   resetId,
   closeRegisterTransaction,
-  closeModal,
 }: Props) {
   const { id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -493,7 +491,7 @@ export function RegisterTransaction({
             onPress: closeRegisterTransaction,
           },
         ]);
-        closeModal?.();
+        closeRegisterTransaction();
       },
     });
   }
@@ -795,7 +793,7 @@ export function RegisterTransaction({
           <Header color={categorySelected.color.color_code}>
             <TitleContainer>
               <BorderlessButton
-                onPress={closeModal}
+                onPress={closeRegisterTransaction}
                 style={{ position: 'absolute', top: 0, left: 0 }}
               >
                 <X size={24} color={theme.colors.text} weight='bold' />

@@ -4,7 +4,6 @@ import { NativeModules, AppState, Platform } from 'react-native';
 const { InAppUpdate } = NativeModules;
 
 import * as Font from 'expo-font';
-import * as Updates from 'expo-updates';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
@@ -46,7 +45,7 @@ function App() {
   const [loadingState, setLoadingState] = useState(LoadingState.Initializing);
 
   const checkNativeUpdate = useCallback(() => {
-    // Este módulo só existe no Android.
+    // This module exists only on Android.
     if (Platform.OS !== 'android' || !InAppUpdate) {
       return;
     }
@@ -81,22 +80,9 @@ function App() {
   }, [checkNativeUpdate]);
 
   useEffect(() => {
-    async function onFetchUpdateOtaAsync() {
-      try {
-        const update = await Updates.checkForUpdateAsync();
-        if (update.isAvailable) {
-          await Updates.fetchUpdateAsync();
-          await Updates.reloadAsync();
-        }
-      } catch (error) {
-        console.error(`Error fetching latest Expo (OTA) update: ${error}`);
-      }
-    }
-
     async function prepareApp() {
       try {
         await Promise.all([
-          onFetchUpdateOtaAsync(),
           NavigationBar.setBackgroundColorAsync(theme.colors.backgroundNav),
           NavigationBar.setButtonStyleAsync('dark'),
         ]);
@@ -109,9 +95,6 @@ function App() {
         });
       } catch (error) {
         console.error(`Error during app preparation: ${error}`);
-      } finally {
-        // Movemos a transição de estado para o finally para garantir que o app
-        // avance mesmo se uma das promises falhar (ex: falha de rede no OTA).
       }
     }
 

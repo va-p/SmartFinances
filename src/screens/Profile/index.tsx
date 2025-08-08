@@ -31,7 +31,6 @@ type FormData = {
 export function Profile() {
   const { id: userID, name, lastName, email, phone } = useUser();
   const profileImage = useUser((state) => state.profileImage);
-  const [loading, setLoading] = useState(false);
 
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('@assets/user_default.png');
@@ -199,16 +198,6 @@ export function Profile() {
             name='confirmEmail'
             control={control}
             error={errors.confirmEmail}
-          />
-
-          <ControlledInput
-            placeholder='Celular'
-            keyboardType='phone-pad'
-            value={String(phone)}
-            label='Celular'
-            name='phone'
-            control={control}
-            error={errors.phone}
           />
 
           <Button.Root onPress={handleSubmit(handleSaveProfile)}>

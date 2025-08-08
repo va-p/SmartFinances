@@ -67,7 +67,7 @@ export const Color = styled(TouchableOpacity)<Props>`
 `;
 
 export const IconsList = styled.View`
-  max-height: 400px;
+  max-height: 500px;
 `;
 
 export const IconContainer = styled.TouchableOpacity<Props>`
