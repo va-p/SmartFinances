@@ -159,7 +159,7 @@ export function Tags() {
           type={tagID !== '' ? 'secondary' : 'primary'}
           title={tagID !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
           bottomSheetRef={bottomSheetRef}
-          snapPoints={['90%']}
+          snapPoints={['30%', '60%', '90%']}
           closeModal={handleCloseRegisterTagModal}
           deleteChildren={handleClickDeleteTag}
         >

@@ -550,7 +550,6 @@ export function Account() {
             id={transactionId}
             resetId={ClearTransactionId}
             closeRegisterTransaction={handleCloseTransaction}
-            closeModal={() => addTransactionBottomSheetRef.current?.dismiss()}
           />
         </ModalViewWithoutHeader>
       </Container>

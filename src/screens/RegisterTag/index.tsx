@@ -13,12 +13,10 @@ import {
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useFocusEffect } from '@react-navigation/native';
 
 // Components
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
-import { Gradient } from '@components/Gradient';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
 import { useUser } from 'src/storage/userStorage';
@@ -111,8 +109,6 @@ export function RegisterTag({ id, closeTag }: Props) {
   return (
     <Screen>
       <Container>
-        <Gradient />
-
         <Body>
           <ControlledInputCategoryName
             placeholder='Nome da etiqueta'

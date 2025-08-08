@@ -4,15 +4,25 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '@api/api';
 
-// --- Create transaction ---
-async function createTransactionFn(newTransaction: any) {
-  const { data } = await api.post(
-    'transaction_test_related_transaction',
-    newTransaction
-  );
-  return data;
-}
+import { TransactionProps } from '@interfaces/transactions';
 
+const QUERY_KEY = ['transactions'];
+
+// --- API functions ---
+const createTransactionFn = async (newTransaction: any) => {
+  return await api.post('transaction_test_related_transaction', newTransaction);
+};
+const updateTransactionFn = async (updatedTransaction: any) => {
+  return await api.patch(
+    'transaction_test_related_transaction',
+    updatedTransaction
+  );
+};
+const deleteTransactionFn = async (transactionId: string) => {
+  await api.delete(`transaction/delete/${transactionId}`);
+};
+
+// --- Create transaction ---
 export function useCreateTransactionMutation() {
   const queryClient = useQueryClient();
 
@@ -20,16 +30,27 @@ export function useCreateTransactionMutation() {
     mutationFn: createTransactionFn,
 
     onMutate: async (newTransaction) => {
-      await queryClient.cancelQueries({ queryKey: ['transactions'] });
-      const previousTransactions = queryClient.getQueryData(['transactions']);
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousTransactions =
+        queryClient.getQueryData<TransactionProps[]>(QUERY_KEY);
 
-      queryClient.setQueryData(['transactions'], (oldData: any) => {
-        if (!oldData) return [newTransaction];
+      queryClient.setQueryData<TransactionProps[]>(QUERY_KEY, (old = []) => {
+        if (newTransaction.isTransfer) {
+          const optimisticDebit = {
+            ...newTransaction.debit,
+            id: `temp-debit-${Date.now()}`,
+          };
+          const optimisticCredit = {
+            ...newTransaction.credit,
+            id: `temp-credit-${Date.now()}`,
+          };
+          return [optimisticDebit, optimisticCredit, ...old];
+        }
         const optimisticTransaction = {
           ...newTransaction,
           id: `temp-${Date.now()}`,
         };
-        return [optimisticTransaction, ...oldData];
+        return [optimisticTransaction, ...old];
       });
 
       return { previousTransactions };
@@ -37,10 +58,7 @@ export function useCreateTransactionMutation() {
 
     onError: (error, _, context) => {
       if (context?.previousTransactions) {
-        queryClient.setQueryData(
-          ['transactions'],
-          context.previousTransactions
-        );
+        queryClient.setQueryData(QUERY_KEY, context.previousTransactions);
       }
       Alert.alert(
         'Erro',
@@ -50,7 +68,7 @@ export function useCreateTransactionMutation() {
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
@@ -58,14 +76,6 @@ export function useCreateTransactionMutation() {
 }
 
 // --- Update transaction ---
-const updateTransactionFn = async (updatedTransaction: any) => {
-  const { data } = await api.patch(
-    'transaction_test_related_transaction',
-    updatedTransaction
-  );
-  return data;
-};
-
 export function useUpdateTransactionMutation() {
   const queryClient = useQueryClient();
 
@@ -73,28 +83,25 @@ export function useUpdateTransactionMutation() {
     mutationFn: updateTransactionFn,
 
     onMutate: async (updatedTransaction) => {
-      await queryClient.cancelQueries({ queryKey: ['transactions'] });
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
 
-      const previousTransactions = queryClient.getQueryData(['transactions']);
+      const previousTransactions =
+        queryClient.getQueryData<TransactionProps[]>(QUERY_KEY);
 
-      queryClient.setQueryData(['transactions'], (oldData: any) => {
-        if (!oldData) return [];
-        return oldData.map((transaction: any) =>
+      queryClient.setQueryData<TransactionProps[]>(QUERY_KEY, (old = []) =>
+        old.map((transaction) =>
           transaction.id === updatedTransaction.transaction_id
             ? { ...transaction, ...updatedTransaction }
             : transaction
-        );
-      });
+        )
+      );
 
       return { previousTransactions };
     },
 
     onError: (error, _, context) => {
       if (context?.previousTransactions) {
-        queryClient.setQueryData(
-          ['transactions'],
-          context.previousTransactions
-        );
+        queryClient.setQueryData(QUERY_KEY, context.previousTransactions);
       }
       Alert.alert(
         'Erro',
@@ -104,7 +111,7 @@ export function useUpdateTransactionMutation() {
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
@@ -112,28 +119,34 @@ export function useUpdateTransactionMutation() {
 }
 
 // --- Delete transaction ---
-const deleteTransactionFn = async (transactionId: string) => {
-  const { data } = await api.delete('transaction/delete', {
-    params: { transaction_id: transactionId },
-  });
-  return data;
-};
-
 export function useDeleteTransactionMutation() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: deleteTransactionFn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+
+    onMutate: async (transactionId) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousTransactions =
+        queryClient.getQueryData<TransactionProps[]>(QUERY_KEY);
+      queryClient.setQueryData<TransactionProps[]>(QUERY_KEY, (old = []) =>
+        old.filter((transaction) => transaction.id !== transactionId)
+      );
+      return { previousTransactions };
     },
+
     onError: (error: any) => {
       Alert.alert(
         'Erro',
         error.response?.data?.message ||
           'Não foi possível excluir a transação. . Por favor, tente novamente.'
       );
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
   });
 }
