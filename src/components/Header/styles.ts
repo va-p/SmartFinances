@@ -4,7 +4,6 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 type ContainerProps = {
-  isSingleChild?: boolean;
   childsCount: number;
 };
 
@@ -32,9 +31,7 @@ export const Container = styled.View<ContainerProps>`
     `};
 `;
 
-export const Button = styled(BorderlessButton)`
-  color: ${({ theme }) => theme.colors.primary};
-`;
+export const Button = styled(BorderlessButton)``;
 
 export const ButtonShape = styled.View`
   width: 32px;

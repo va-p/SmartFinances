@@ -36,18 +36,19 @@ import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 // Components
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
-import { Gradient } from '@components/Gradient';
 import { SelectButton } from '@components/SelectButton';
 import { BudgetCategorySelect } from '@screens/BudgetCategorySelect';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
+// Screens
 import {
   BudgetPeriodSelect,
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
+// Storages
 import { useUser } from '@storage/userStorage';
 import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
@@ -84,6 +85,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.setBudgetCategoriesSelected
   );
+
   const currencies: String[] = [
     'BRL - Real Brasileiro',
     'BTC - Bitcoin',
@@ -308,8 +310,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   return (
     <Screen>
       <Container>
-        <Gradient />
-
         <ControlledInputWithIcon
           icon={<PencilSimple color={theme.colors.primary} />}
           placeholder='Nome do orçamento'

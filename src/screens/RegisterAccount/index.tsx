@@ -19,7 +19,6 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
-import { Gradient } from '@components/Gradient';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
@@ -259,8 +258,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   return (
     <Screen>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Gradient />
-
         <Form>
           <ControlledInputWithIcon
             icon={<PencilSimple color={theme.colors.primary} />}

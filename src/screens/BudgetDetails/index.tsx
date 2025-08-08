@@ -41,7 +41,7 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
-export function BudgetDetails() {
+export function BudgetDetails({ navigation }: any) {
   const route = useRoute();
   const budget = route.params?.budget;
   const budgetID = budget?.id;
@@ -83,6 +83,7 @@ export function BudgetDetails() {
 
   function handleCloseEditBudgetModal() {
     budgetEditBottomSheetRef.current?.dismiss();
+    navigation.goBack();
   }
 
   async function handleClickDeleteBudget() {
@@ -107,7 +108,6 @@ export function BudgetDetails() {
         },
       ]
     );
-    handleCloseEditBudgetModal();
   }
 
   function handleCloseRegisterTransactionModal() {
@@ -204,7 +204,7 @@ export function BudgetDetails() {
         </TransactionsContainer>
 
         <ModalView
-          type={'primary'}
+          type={'secondary'}
           title={'Editar Orçamento'}
           bottomSheetRef={budgetEditBottomSheetRef}
           enableContentPanningGesture={false}
@@ -228,7 +228,6 @@ export function BudgetDetails() {
             id={transactionID}
             resetId={ClearTransactionID}
             closeRegisterTransaction={handleCloseRegisterTransactionModal}
-            closeModal={handleCloseRegisterTransactionModal}
           />
         </ModalViewWithoutHeader>
       </Container>

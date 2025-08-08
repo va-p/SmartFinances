@@ -8,6 +8,7 @@ import { BudgetProps } from '@interfaces/budget';
 
 const QUERY_KEY = ['budgets'];
 
+// --- API functions ---
 const createBudgetFn = async (newBudget: any) => {
   return await api.post('budget', newBudget);
 };

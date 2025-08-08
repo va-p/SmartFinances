@@ -6,6 +6,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import { Gradient } from '@components/Gradient';
 
 import theme from '@themes/theme';
 
@@ -30,6 +31,7 @@ export function ModalViewSelection({
       enableContentPanningGesture={false}
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
+      backgroundComponent={() => <Gradient />}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       {...rest}
     >
