@@ -18,8 +18,10 @@ const updateTransactionFn = async (updatedTransaction: any) => {
     updatedTransaction
   );
 };
-const deleteTransactionFn = async (transactionId: string) => {
-  await api.delete(`transaction/delete/${transactionId}`);
+const deleteTransactionFn = async (transactionID: string) => {
+  await api.delete('transaction/delete', {
+    params: { transaction_id: transactionID },
+  });
 };
 
 // --- Create transaction ---
@@ -34,24 +36,27 @@ export function useCreateTransactionMutation() {
       const previousTransactions =
         queryClient.getQueryData<TransactionProps[]>(QUERY_KEY);
 
-      queryClient.setQueryData<TransactionProps[]>(QUERY_KEY, (old = []) => {
-        if (newTransaction.isTransfer) {
-          const optimisticDebit = {
-            ...newTransaction.debit,
-            id: `temp-debit-${Date.now()}`,
+      queryClient.setQueryData<TransactionProps[]>(
+        QUERY_KEY,
+        (oldData = []) => {
+          if (newTransaction.isTransfer) {
+            const optimisticDebit = {
+              ...newTransaction.debit,
+              id: `temp-debit-${Date.now()}`,
+            };
+            const optimisticCredit = {
+              ...newTransaction.credit,
+              id: `temp-credit-${Date.now()}`,
+            };
+            return [optimisticDebit, optimisticCredit, ...oldData];
+          }
+          const optimisticTransaction = {
+            ...newTransaction,
+            id: `temp-${Date.now()}`,
           };
-          const optimisticCredit = {
-            ...newTransaction.credit,
-            id: `temp-credit-${Date.now()}`,
-          };
-          return [optimisticDebit, optimisticCredit, ...old];
+          return [optimisticTransaction, ...oldData];
         }
-        const optimisticTransaction = {
-          ...newTransaction,
-          id: `temp-${Date.now()}`,
-        };
-        return [optimisticTransaction, ...old];
-      });
+      );
 
       return { previousTransactions };
     },
