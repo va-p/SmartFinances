@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Linking } from 'react-native';
+import { Alert } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
 // Icons
@@ -16,24 +16,28 @@ import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
 import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
 
+// Dependencies
 import axios from 'axios';
 import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
+// Screens
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
-import { useUser } from 'src/storage/userStorage';
-import { useUserConfigs } from 'src/storage/userConfigsStorage';
+// Storages
+import { useUser } from '@storage/userStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
 
 import theme from '@themes/theme';
 
+// Interfaces
 import { eUrl } from '@enums/enumsUrl';
 
 export function OptionsMenu({ navigation }: any) {
@@ -94,7 +98,7 @@ export function OptionsMenu({ navigation }: any) {
       });
       if (biometricAuth.success) {
         try {
-          const { status } = await api.post('edit_use_local_auth', {
+          const { status } = await api.post('user_config/edit_use_local_auth', {
             user_id: userId,
             use_local_authentication: !useLocalAuth,
           });
@@ -127,7 +131,7 @@ export function OptionsMenu({ navigation }: any) {
 
   async function handleChangeSmartInsights() {
     try {
-      const { status } = await api.post('edit_insights', {
+      const { status } = await api.post('user_config/edit_insights', {
         user_id: userId,
         insights: !insights,
       });
@@ -147,7 +151,7 @@ export function OptionsMenu({ navigation }: any) {
 
   async function handleChangeHideAmount() {
     try {
-      const { status } = await api.post('edit_hide_amount', {
+      const { status } = await api.post('user_config/edit_hide_amount', {
         user_id: userId,
         hide_amount: !hideAmount,
       });

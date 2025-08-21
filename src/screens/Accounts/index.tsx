@@ -267,7 +267,7 @@ export function Accounts({ navigation }: any) {
 
   async function handleHideData() {
     try {
-      const { status } = await api.post('edit_hide_amount', {
+      const { status } = await api.post('user_config/edit_hide_amount', {
         user_id: userID,
         hide_amount: !hideAmount,
       });
