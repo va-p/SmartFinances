@@ -10,13 +10,10 @@ const QUERY_KEY = ['transactions'];
 
 // --- API functions ---
 const createTransactionFn = async (newTransaction: any) => {
-  return await api.post('transaction_test_related_transaction', newTransaction);
+  return await api.post('transaction', newTransaction);
 };
 const updateTransactionFn = async (updatedTransaction: any) => {
-  return await api.patch(
-    'transaction_test_related_transaction',
-    updatedTransaction
-  );
+  return await api.patch('transaction/edit', updatedTransaction);
 };
 const deleteTransactionFn = async (transactionID: string) => {
   await api.delete('transaction/delete', {
