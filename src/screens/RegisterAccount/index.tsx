@@ -2,9 +2,13 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Container, Form, Footer } from './styles';
 
+// Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import SelectDropdown from 'react-native-select-dropdown';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Icons
 import Money from 'phosphor-react-native/src/icons/Money';
@@ -13,10 +17,7 @@ import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
-import { yupResolver } from '@hookform/resolvers/yup';
-import SelectDropdown from 'react-native-select-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
-
+// Components
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -25,10 +26,13 @@ import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
 
+// Screens
 import { CurrencySelect } from '@screens/CurrencySelect';
 
-import { useUser } from 'src/storage/userStorage';
+// Storages
+import { useUser } from '@storage/userStorage';
 
+// Interfaces
 import { AccountTypes } from '@interfaces/accounts';
 import { CurrencyProps } from '@interfaces/currencies';
 
@@ -84,7 +88,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const [typeSelected, setTypeSelected] = useState('');
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const [currencySelected, setCurrencySelected] = useState({
-    id: '4',
+    id: 4,
     name: 'Real Brasileiro',
     code: 'BRL',
     symbol: 'R$',
@@ -230,7 +234,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       hide: !hideAccount,
     };
     try {
-      const { status } = await api.post('edit_hide_account', HideAccountOption);
+      const { status } = await api.post(
+        'user_config/edit_hide_account',
+        HideAccountOption
+      );
 
       if (status === 200) {
         Alert.alert('Edição de Conta', 'Conta editada com sucesso!');
