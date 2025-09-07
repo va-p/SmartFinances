@@ -1,11 +1,11 @@
 export default {
   colors: {
     primary: 'rgb(255, 170, 41)',
-    primary_light: 'rgba(255, 82, 0, 0.5)',
+    primary_light: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(0, 0, 0)',
     backgroundNav: 'rgba(0, 0, 0, 0.95)',
-    backgroundCardHeader: 'rgba(20, 20, 20, 0.7)',
+    backgroundCardHeader: 'rgba(20, 20, 20, 0.7)', // Card of top screens
 
     gradientStart: 'rgb(20, 20, 20)',
     gradientEnd: 'rgb(0, 0, 0)',
@@ -31,6 +31,13 @@ export default {
     overlay: 'rgba(255, 255, 255, 0.1)',
     overlay10: 'rgba(255, 255, 255, 0.05)',
     overlayGray: 'rgba(100, 100, 100, 0.1)',
+  },
+
+  borders: {
+    default: '1px solid #707070',
+    borderRadiusScreenSectionContent: '75px',
+    borderRadiusShape: '25px',
+    borderRadiusButtonAndInput: '40px',
   },
 
   fonts: {
