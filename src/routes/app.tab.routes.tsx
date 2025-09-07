@@ -17,10 +17,13 @@ import { AppOptionsStackRoutes } from './app.options.stack.routes';
 import { AppAccountStackRoutes } from './app.account.stack.routes';
 import { AppOverviewStackRoutes } from './app.overview.stack.routes';
 
+import { useUserConfigs } from '@storage/userConfigsStorage';
+
 const { Navigator, Screen } = createBottomTabNavigator();
 
 export function AppTabRoutes() {
   const theme = useTheme();
+  const { darkMode } = useUserConfigs();
 
   return (
     <Navigator
@@ -38,7 +41,7 @@ export function AppTabRoutes() {
         },
         tabBarBackground: () => (
           <BlurView
-            intensity={80}
+            intensity={darkMode ? 40 : 80}
             experimentalBlurMethod='dimezisBlurView'
             style={{
               ...StyleSheet.absoluteFillObject,
@@ -47,6 +50,10 @@ export function AppTabRoutes() {
               borderTopRightRadius: 75,
               overflow: 'hidden',
               backgroundColor: 'transparent',
+              borderBlockColor: 'transparent',
+              borderColor: 'transparent',
+              borderWidth: 0,
+              borderTopWidth: 0,
             }}
           />
         ),
