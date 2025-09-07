@@ -1,7 +1,8 @@
 import styled from 'styled-components/native';
 
 import Check from 'phosphor-react-native/src/icons/Check';
-import theme from '@themes/theme';
+
+import darkTheme from '@themes/darkTheme';
 
 export const Container = styled.View`
   margin-bottom: 16px;
@@ -14,7 +15,7 @@ export const PremiumBenefit = styled.View`
 
 export const PremiumBenefitIcon = styled(Check).attrs({
   size: 16,
-  color: theme.colors.success,
+  color: darkTheme.colors.success,
 })`
   margin-right: 8px;
 `;
