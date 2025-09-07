@@ -57,6 +57,7 @@ import {
   RectButton,
 } from 'react-native-gesture-handler';
 import { ptBR } from 'date-fns/locale';
+import { useTheme } from 'styled-components';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -86,14 +87,15 @@ import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+// Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { TransactionProps } from '@interfaces/transactions';
-
-import theme from '@themes/theme';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function Account() {
+  const theme: ThemeProps = useTheme();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -168,6 +170,24 @@ export function Account() {
     isRefetching,
   } = useTransactionsQuery(userID);
   const { mutate: deleteAccount } = useDeleteAccountMutation();
+
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        header: {
+          overflow: 'hidden',
+        },
+        animatedButton: {
+          width: 45,
+          height: 45,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.primary,
+          borderRadius: 23,
+        },
+      }),
+    [theme]
+  );
 
   const processedData = useMemo(() => {
     if (!allTransactions || !accountID) {
@@ -411,7 +431,7 @@ export function Account() {
       <Container>
         <Gradient />
 
-        <Animated.View style={[headerStyleAnimation, styles.header]}>
+        <Animated.View style={[headerStyleAnimation, dynamicStyles.header]}>
           <HeaderContainer>
             <Header.Root>
               <Header.BackButton />
@@ -509,7 +529,7 @@ export function Account() {
           >
             <ButtonAnimated
               onPress={handleOpenRegisterTransactionModal}
-              style={styles.animatedButton}
+              style={dynamicStyles.animatedButton}
             >
               <Plus size={24} color={theme.colors.background} />
             </ButtonAnimated>
@@ -557,16 +577,16 @@ export function Account() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    overflow: 'hidden',
-  },
-  animatedButton: {
-    width: 45,
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.primary,
-    borderRadius: 23,
-  },
-});
+// const styles = StyleSheet.create({
+//   header: {
+//     overflow: 'hidden',
+//   },
+//   animatedButton: {
+//     width: 45,
+//     height: 45,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     backgroundColor: theme.colors.primary,
+//     borderRadius: 23,
+//   },
+// });

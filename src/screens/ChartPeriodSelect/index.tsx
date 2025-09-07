@@ -4,7 +4,6 @@ import { Container } from './styles';
 
 import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
-import { Gradient } from '@components/Gradient';
 
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
@@ -48,8 +47,6 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
   return (
     <Screen>
       <Container>
-        <Gradient />
-
         <FlatList
           data={periods}
           keyExtractor={(item) => item.id}

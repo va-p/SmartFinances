@@ -18,6 +18,7 @@ import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
 
 // Dependencies
 import axios from 'axios';
+import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
 
@@ -35,12 +36,13 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
 
-import theme from '@themes/theme';
-
 // Interfaces
 import { eUrl } from '@enums/enumsUrl';
+import { ThemeProps } from '@interfaces/theme';
 
 export function OptionsMenu({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
+
   const userId = useUser((state) => state.id);
 
   const hideAmount = useUserConfigs((state) => state.hideAmount);

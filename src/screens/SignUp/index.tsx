@@ -11,13 +11,16 @@ import {
   FormWrapper,
 } from '@screens/SignIn/styles';
 
+// Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { useOAuth, useSSO } from '@clerk/clerk-expo';
+import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
+import { useOAuth, useSSO } from '@clerk/clerk-expo';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -27,9 +30,8 @@ import { ControlledInput } from '@components/Form/ControlledInput';
 
 import api from '@api/api';
 
-import theme from '@themes/theme';
-
 import { eUrl } from '@enums/enumsUrl';
+import { ThemeProps } from '@interfaces/theme';
 
 const LOGO_URL = '@assets/logo.png';
 const GOOGLE_LOGO_URL = '@assets/googleLogo.png';
@@ -72,6 +74,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignUp({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
   const [loading, setLoading] = useState(false);
   const {
     control,

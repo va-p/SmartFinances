@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, ViewToken } from 'react-native';
 import { Container, MonthSelectButton, PeriodRulerList } from './styles';
 
+import { useTheme } from 'styled-components';
+
 import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 
 import { PeriodRulerListItem } from './components/PeriodRulerListItem';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 interface PeriodRulerListItem {
   date: string;
@@ -29,6 +31,7 @@ export function PeriodRuler({
   periodRulerListColumnWidth,
   horizontalPadding = 32,
 }: Props) {
+  const theme: ThemeProps = useTheme();
   const flatListRef = useRef<FlatList>(null);
   const [initialScrollComplete, setInitialScrollComplete] = useState(false);
 

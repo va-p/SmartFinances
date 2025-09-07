@@ -9,6 +9,7 @@ import {
 import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import axios from 'axios';
+import { useTheme } from 'styled-components';
 import { useRoute } from '@react-navigation/native';
 import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -22,13 +23,13 @@ import { Gradient } from '@components/Gradient';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 
+import { ThemeProps } from '@interfaces/theme';
 import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 
 import api from '@api/api';
 
-import theme from '@themes/theme';
-
 export function BankingIntegrations({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const route = useRoute();
   const showHeader: boolean = route.params?.showHeader;

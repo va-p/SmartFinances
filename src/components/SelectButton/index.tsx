@@ -7,10 +7,11 @@ import {
   SubTitle,
 } from './styles';
 
+import { useTheme } from 'styled-components';
 import { RectButtonProps } from 'react-native-gesture-handler';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = RectButtonProps & {
   title: string;
@@ -19,6 +20,8 @@ type Props = RectButtonProps & {
 };
 
 export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container {...rest}>
       <TitleContainer>

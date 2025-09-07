@@ -1,14 +1,18 @@
 import { Button, ButtonShape } from './styles';
 
+import { useTheme } from 'styled-components';
+
 import X from 'phosphor-react-native/src/icons/X';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = {
   handleClickCloseButton: () => void;
 };
 
 export function HeaderCloseButton({ handleClickCloseButton }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Button onPress={handleClickCloseButton}>
       <ButtonShape>

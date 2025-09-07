@@ -7,9 +7,10 @@ import {
   TrialAdvice,
 } from './styles';
 
-import { PackageProps } from '@interfaces/premiumPackage';
+import { useTheme } from 'styled-components';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
+import { PackageProps } from '@interfaces/premiumPackage';
 
 type Props = {
   data: PackageProps;
@@ -17,6 +18,8 @@ type Props = {
 };
 
 export function PremiumPackageListItem({ data, onPress }: Props) {
+  const theme: ThemeProps = useTheme();
+
   function getReccurencyStringDate() {
     switch (data.packageType) {
       case 'ANNUAL':

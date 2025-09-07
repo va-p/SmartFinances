@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useTheme } from 'styled-components';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { Tags } from '@screens/Tags';
@@ -11,13 +12,14 @@ import { PremiumBenefits } from '@screens/PremiumBenefits';
 import { BankingIntegrations } from '@screens/BankingIntegrations';
 import { BankingIntegrationDetails } from '@screens/BankingIntegrationDetails';
 
+import { ThemeProps } from '@interfaces/theme';
 import { RootParamList } from 'src/@types/navigation';
-
-import theme from '@themes/theme';
 
 const { Navigator, Screen } = createStackNavigator<RootParamList>();
 
 export function AppOptionsStackRoutes() {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Navigator
       screenOptions={{

@@ -1,12 +1,16 @@
 import React from 'react';
 import { Container } from './styles';
 
+import { useTheme } from 'styled-components';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
-import theme from '@themes/theme';
 import { Gradient } from '@components/Gradient';
 
+import { ThemeProps } from '@interfaces/theme';
+
 export function SkeletonCategoriesAndTagsScreen() {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container>
       <Gradient />

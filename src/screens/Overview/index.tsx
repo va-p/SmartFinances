@@ -25,9 +25,10 @@ import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLi
 // Dependencies
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, getMonth, getYear, parse } from 'date-fns';
+import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { format, getMonth, getYear, parse } from 'date-fns';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
 // Components
@@ -48,11 +49,9 @@ import { useQuotes } from '@storage/quotesStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 // Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
-
-// Styles
-import theme from '@themes/theme';
 
 // Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -71,6 +70,7 @@ interface CategoryData extends CategoryProps {
 }
 
 export function Overview({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
   const { id: userID } = useUser();
   const {
     brlQuoteBtc,

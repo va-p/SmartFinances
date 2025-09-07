@@ -6,9 +6,10 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import { useTheme } from 'styled-components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = BottomSheetProps & {
   children: ReactNode;
@@ -20,6 +21,7 @@ export function ModalViewWithoutHeader({
   bottomSheetRef,
   ...rest
 }: Props) {
+  const theme: ThemeProps = useTheme();
   const { top } = useSafeAreaInsets();
 
   return (
