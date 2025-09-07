@@ -4,7 +4,7 @@ export default {
     primary_light: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(0, 0, 0)',
-    backgroundNav: 'rgba(0, 0, 0, 0.95)',
+    backgroundNav: 'rgb(20, 20, 20)',
     backgroundCardHeader: 'rgba(20, 20, 20, 0.7)', // Card of top screens
 
     gradientStart: 'rgb(20, 20, 20)',
