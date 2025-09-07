@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { NativeModules, AppState, Platform } from 'react-native';
+import {
+  NativeModules,
+  AppState,
+  Platform,
+  useColorScheme,
+} from 'react-native';
 
 const { InAppUpdate } = NativeModules;
 
@@ -18,6 +23,9 @@ import { Splash } from '@components/Splash';
 import { AuthProvider } from '@contexts/AuthProvider';
 import { RevenueCatProvider } from './src/providers/RevenueCatProvider';
 
+import { useUserConfigs } from '@storage/userConfigsStorage';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+
 import { Routes } from '@routes/index';
 
 import {
@@ -26,7 +34,8 @@ import {
   Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
-import theme from './src/global/themes/theme';
+import darkTheme from '@themes/darkTheme';
+import lightTheme from '@themes/lightTheme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,6 +49,21 @@ enum LoadingState {
 }
 
 function App() {
+  const setDarkMode = useUserConfigs((state) => state.setDarkMode);
+  const deviceColorScheme: 'dark' | 'light' | null | undefined =
+    useColorScheme();
+  const darkModeUserConfig: boolean | undefined = storageConfig.getBoolean(
+    `${DATABASE_CONFIGS}.darkMode`
+  );
+  let useDarkMode: boolean;
+  if (darkModeUserConfig !== undefined) {
+    useDarkMode = darkModeUserConfig;
+  } else {
+    useDarkMode = deviceColorScheme === 'dark';
+  }
+  console.log('useDarkMode =======>', useDarkMode);
+  const theme = useDarkMode ? darkTheme : lightTheme;
+  setDarkMode(useDarkMode);
   const appState = useRef(AppState.currentState);
   const [queryClient] = useState(() => new QueryClient());
   const [loadingState, setLoadingState] = useState(LoadingState.Initializing);
@@ -84,7 +108,7 @@ function App() {
       try {
         await Promise.all([
           NavigationBar.setBackgroundColorAsync(theme.colors.backgroundNav),
-          NavigationBar.setButtonStyleAsync('dark'),
+          NavigationBar.setButtonStyleAsync(useDarkMode ? 'dark' : 'light'),
         ]);
 
         setLoadingState(LoadingState.LoadingFonts);
