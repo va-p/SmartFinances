@@ -74,6 +74,7 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
+import { useTheme } from 'styled-components';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -113,13 +114,14 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 // Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { eInsightsCashFlow } from '@enums/enumsInsights';
 import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
 
 // APIs
 import api from '@api/api';
 
-import theme from '@themes/theme';
+// import theme from '@themes/theme';
 
 // Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -134,6 +136,7 @@ const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
 export function Home() {
+  const theme: ThemeProps = useTheme();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { id: userID } = useUser();
   const {
@@ -253,6 +256,32 @@ export function Home() {
 
   const { mutate: syncTransactions, isPending: isSyncing } =
     useSyncTransactions();
+
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        header: {
+          overflow: 'hidden',
+          backgroundColor: theme.colors.backgroundCardHeader,
+          borderBottomRightRadius: 75,
+          borderBottomLeftRadius: 75,
+        },
+        insightCard: {
+          minHeight: 30,
+          marginTop: -8,
+          marginBottom: 16,
+        },
+        animatedButton: {
+          width: 45,
+          height: 45,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.primary,
+          borderRadius: 23,
+        },
+      }),
+    [theme]
+  );
 
   const processedData = useMemo(() => {
     if (!transactions) {
@@ -638,7 +667,7 @@ export function Home() {
       <Container>
         <Gradient />
 
-        <Animated.View style={[headerStyleAnimation, styles.header]}>
+        <Animated.View style={[headerStyleAnimation, dynamicStyles.header]}>
           <Header>
             <CashFlowContainer>
               <CashFlowTotal>
@@ -703,7 +732,7 @@ export function Home() {
 
           {insights && showInsights && firstDayOfMonth && (
             <Animated.View
-              style={[insightsStyleAnimationOpacity, styles.insightCard]}
+              style={[insightsStyleAnimationOpacity, dynamicStyles.insightCard]}
             >
               {_renderInsightCard()}
             </Animated.View>
@@ -794,7 +823,7 @@ export function Home() {
           >
             <ButtonAnimated
               onPress={handleOpenRegisterTransactionModal}
-              style={styles.animatedButton}
+              style={dynamicStyles.animatedButton}
             >
               <Plus size={24} color={theme.colors.background} />
             </ButtonAnimated>
@@ -804,7 +833,7 @@ export function Home() {
         <ModalViewSelection
           title='Selecione o período'
           bottomSheetRef={chartPeriodSelectedBottomSheetRef}
-          snapPoints={['30%', '50%']}
+          snapPoints={['50%']}
         >
           <ChartPeriodSelect
             period={selectedPeriod}
@@ -827,24 +856,24 @@ export function Home() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    overflow: 'hidden',
-    backgroundColor: theme.colors.backgroundCardHeader,
-    borderBottomRightRadius: 75,
-    borderBottomLeftRadius: 75,
-  },
-  insightCard: {
-    minHeight: 30,
-    marginTop: -8,
-    marginBottom: 16,
-  },
-  animatedButton: {
-    width: 45,
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.primary,
-    borderRadius: 23,
-  },
-});
+// const styles = StyleSheet.create({
+//   header: {
+//     overflow: 'hidden',
+//     backgroundColor: theme.colors.backgroundCardHeader,
+//     borderBottomRightRadius: 75,
+//     borderBottomLeftRadius: 75,
+//   },
+//   insightCard: {
+//     minHeight: 30,
+//     marginTop: -8,
+//     marginBottom: 16,
+//   },
+//   animatedButton: {
+//     width: 45,
+//     height: 45,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     backgroundColor: theme.colors.primary,
+//     borderRadius: 23,
+//   },
+// });
