@@ -121,8 +121,6 @@ import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
 // APIs
 import api from '@api/api';
 
-// import theme from '@themes/theme';
-
 // Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
 // PeriodRulerList Column
