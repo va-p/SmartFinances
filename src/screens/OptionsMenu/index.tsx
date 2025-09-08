@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
 // Icons
+import Sun from 'phosphor-react-native/src/icons/Sun';
 import Tag from 'phosphor-react-native/src/icons/Tag';
 import User from 'phosphor-react-native/src/icons/User';
 import Plugs from 'phosphor-react-native/src/icons/Plugs';
@@ -12,6 +13,7 @@ import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import Sparkle from 'phosphor-react-native/src/icons/Sparkle';
 import Lifebuoy from 'phosphor-react-native/src/icons/Lifebuoy';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import MoonStars from 'phosphor-react-native/src/icons/MoonStars';
 import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
 import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
@@ -39,20 +41,23 @@ import api from '@api/api';
 // Interfaces
 import { eUrl } from '@enums/enumsUrl';
 import { ThemeProps } from '@interfaces/theme';
+import set from 'date-fns/esm/fp/set/index.js';
 
 export function OptionsMenu({ navigation }: any) {
   const theme: ThemeProps = useTheme();
 
   const userId = useUser((state) => state.id);
 
-  const hideAmount = useUserConfigs((state) => state.hideAmount);
-  const setHideAmount = useUserConfigs((state) => state.setHideAmount);
-
-  const useLocalAuth = useUserConfigs((state) => state.useLocalAuth);
-  const setUseLocalAuth = useUserConfigs((state) => state.setUseLocalAuth);
-
-  const insights = useUserConfigs((state) => state.insights);
-  const setInsights = useUserConfigs((state) => state.setInsights);
+  const {
+    hideAmount,
+    setHideAmount,
+    darkMode,
+    setDarkMode,
+    insights,
+    setInsights,
+    useLocalAuth,
+    setUseLocalAuth,
+  } = useUserConfigs();
 
   function handleOpenProfile() {
     navigation.navigate('Perfil');
@@ -92,6 +97,59 @@ export function OptionsMenu({ navigation }: any) {
     await WebBrowser.openBrowserAsync(eUrl.PRIVACY_POLICY_URL);
   }
 
+  async function handleChangeHideAmount() {
+    try {
+      const { status } = await api.post('user_config/edit_hide_amount', {
+        user_id: userId,
+        hide_amount: !hideAmount,
+      });
+
+      if (status === 200) {
+        storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
+        setHideAmount(!hideAmount);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Ocultar informações',
+        'Não foi possível alterar a configuração, por favor, tente novamente.'
+      );
+    }
+  }
+
+  function handleChangeDarkMode() {
+    try {
+      storageConfig.set(`${DATABASE_CONFIGS}.darkMode`, !darkMode);
+      setDarkMode(!darkMode);
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Modo escuro',
+        'Não foi possível alterar o modo escuro, por favor, tente novamente.'
+      );
+    }
+  }
+
+  async function handleChangeSmartInsights() {
+    try {
+      const { status } = await api.post('user_config/edit_insights', {
+        user_id: userId,
+        insights: !insights,
+      });
+
+      if (status === 200) {
+        storageConfig.set(`${DATABASE_CONFIGS}.insights`, !insights);
+        setInsights(!insights);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Insights Inteligentes',
+        'Não foi possível alterar a configuração, por favor, tente novamente.'
+      );
+    }
+  }
+
   async function handleChangeUseLocalAuth() {
     try {
       const biometricAuth = await LocalAuthentication.authenticateAsync({
@@ -127,46 +185,6 @@ export function OptionsMenu({ navigation }: any) {
       Alert.alert(
         'Autenticação biométrica',
         'Não foi possível autenticar com a biometria, por favor, tente novamente.'
-      );
-    }
-  }
-
-  async function handleChangeSmartInsights() {
-    try {
-      const { status } = await api.post('user_config/edit_insights', {
-        user_id: userId,
-        insights: !insights,
-      });
-
-      if (status === 200) {
-        storageConfig.set(`${DATABASE_CONFIGS}.insights`, !insights);
-        setInsights(!insights);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Insights Inteligentes',
-        'Não foi possível alterar a configuração, por favor, tente novamente.'
-      );
-    }
-  }
-
-  async function handleChangeHideAmount() {
-    try {
-      const { status } = await api.post('user_config/edit_hide_amount', {
-        user_id: userId,
-        hide_amount: !hideAmount,
-      });
-
-      if (status === 200) {
-        storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, !hideAmount);
-        setHideAmount(!hideAmount);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Ocultar informações',
-        'Não foi possível alterar a configuração, por favor, tente novamente.'
       );
     }
   }
@@ -220,6 +238,22 @@ export function OptionsMenu({ navigation }: any) {
 
           <Title>Configurações</Title>
           <ButtonToggle
+            icon={<EyeSlash color={theme.colors.primary} />}
+            title='Ocultar informações'
+            onValueChange={handleChangeHideAmount}
+            value={hideAmount}
+            isEnabled={hideAmount}
+          />
+
+          <ButtonToggle
+            icon={<MoonStars color={theme.colors.primary} />}
+            title='Modo escuro'
+            onValueChange={handleChangeDarkMode}
+            value={darkMode}
+            isEnabled={darkMode}
+          />
+
+          <ButtonToggle
             icon={<Sparkle color={theme.colors.primary} />}
             title='Insights Inteligentes'
             onValueChange={handleChangeSmartInsights}
@@ -233,14 +267,6 @@ export function OptionsMenu({ navigation }: any) {
             onValueChange={handleChangeUseLocalAuth}
             value={useLocalAuth}
             isEnabled={useLocalAuth}
-          />
-
-          <ButtonToggle
-            icon={<EyeSlash color={theme.colors.primary} />}
-            title='Ocultar informações'
-            onValueChange={handleChangeHideAmount}
-            value={hideAmount}
-            isEnabled={hideAmount}
           />
 
           <Title>Sobre</Title>

@@ -61,7 +61,6 @@ function App() {
   } else {
     useDarkMode = deviceColorScheme === 'dark';
   }
-  console.log('useDarkMode =======>', useDarkMode);
   const theme = useDarkMode ? darkTheme : lightTheme;
   setDarkMode(useDarkMode);
   const appState = useRef(AppState.currentState);
