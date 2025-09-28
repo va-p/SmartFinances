@@ -33,7 +33,7 @@ export function Routes() {
       <NavigationContainer>
         <StatusBar
           barStyle={darkMode ? 'light-content' : 'dark-content'}
-          backgroundColor={theme.colors.gradientEnd}
+          backgroundColor={theme.colors.backgroundCardHeader}
         />
         <BottomSheetModalProvider>
           <Navigator

@@ -165,8 +165,8 @@ export function Budgets({ navigation }: any) {
       }
 
       const percentage = (amountSpent / Number(budget.amount)) * 100;
-      const formattedStartDate = formatDatePtBr(startDate).extensive();
-      const formattedEndDate = formatDatePtBr(endDate).extensive();
+      const formattedStartDate = formatDatePtBr(startDate).medium();
+      const formattedEndDate = formatDatePtBr(endDate).medium();
 
       return {
         ...budget,

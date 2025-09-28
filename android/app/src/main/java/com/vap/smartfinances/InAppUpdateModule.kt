@@ -25,9 +25,9 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
     private var appUpdateInfo: AppUpdateInfo? = null
 
     companion object {
-        private const val MY_REQUEST_CODE = 501
+        private const val REQUEST_CODE = 501
         private const val IMMEDIATE_UPDATE_PRIORITY_THRESHOLD =
-                4 // Prioridade 4 e 5 serão Imediatas
+                0 // All priorities (0 - 5) will be immediate
     }
 
     private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
@@ -49,7 +49,7 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
         appUpdateManager.unregisterListener(installStateUpdatedListener)
     }
 
-    // Adiciona o onResume para lidar com o fluxo de atualização imediata quando o app volta do
+    // Adds onResume to handling the immediate update flow when the app returns from the
     // background
     @ReactMethod
     fun onResume() {
@@ -57,7 +57,7 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
             if (info.updateAvailability() ==
                             UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
             ) {
-                // Se uma atualização imediata já está em progresso, reinicie o fluxo.
+                // If an update is already in progress, restart the flow.
                 startUpdate(info, AppUpdateType.IMMEDIATE, null)
             }
         }
@@ -67,22 +67,22 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
     fun checkForUpdates(promise: Promise) {
         appUpdateManager.appUpdateInfo
                 .addOnSuccessListener { info ->
-                    this.appUpdateInfo = info // Armazena a informação da atualização
+                    this.appUpdateInfo = info // Save updates info
 
                     val updatePriority = info.updatePriority()
                     val isUpdateAvailable =
                             info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
 
-                    // Lógica para decidir entre Imediata e Flexível
+                    // Logic to decide between Immediate and Flexible
                     if (isUpdateAvailable &&
                                     updatePriority >= IMMEDIATE_UPDATE_PRIORITY_THRESHOLD &&
                                     info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
                     ) {
-                        // Prioridade alta -> Iniciar fluxo IMEDIATO
+                        // Priority hight -> Start update flow IMMEDIATE
                         startUpdate(info, AppUpdateType.IMMEDIATE, promise)
                     } else if (isUpdateAvailable && info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
                     ) {
-                        // Prioridade baixa/média -> Iniciar fluxo FLEXÍVEL
+                        // Priority low/medium -> Start update flow FLEXIBLE
                         startUpdate(info, AppUpdateType.FLEXIBLE, promise)
                     } else {
                         promise.resolve("No update available or type not allowed.")
@@ -98,7 +98,7 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
                         info,
                         activity,
                         AppUpdateOptions.newBuilder(type).build(),
-                        MY_REQUEST_CODE
+                        REQUEST_CODE
                 )
                 promise?.resolve(
                         "Update flow started (type: ${if (type == AppUpdateType.IMMEDIATE) "IMMEDIATE" else "FLEXIBLE"})"
@@ -134,11 +134,10 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
             resultCode: Int,
             data: Intent?
     ) {
-        if (requestCode == MY_REQUEST_CODE) {
+        if (requestCode == REQUEST_CODE) {
             if (resultCode != Activity.RESULT_OK) {
-                // O usuário cancelou a atualização (aplicável principalmente para o fluxo
-                // Flexível).
-                // Para o Imediato, o app geralmente fecha ou a Play Store lida com novos prompts.
+                // The user canceled the update (mainly applicable for the FLEXIBLE flow).
+                // For IMMEDIATE, the app usually closes or the Play Store handles new prompts.
             }
         }
     }

@@ -93,8 +93,8 @@ android {
         applicationId 'com.vap.smartfinances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 86
-        versionName "2.21.0"
+        versionCode 89
+        versionName "2.21.3"
     }
     signingConfigs {
     debug {

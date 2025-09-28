@@ -1107,7 +1107,7 @@
     wrap-ansi "^7.0.0"
     ws "^8.12.1"
 
-"@expo/code-signing-certificates@0.0.5", "@expo/code-signing-certificates@^0.0.5":
+"@expo/code-signing-certificates@^0.0.5":
   version "0.0.5"
   resolved "https://registry.npmjs.org/@expo/code-signing-certificates/-/code-signing-certificates-0.0.5.tgz"
   integrity sha512-BNhXkY1bblxKZpltzAx98G2Egj9g1Q+JRcvR7E99DOj862FTCX+ZPsAUtPTr7aHxwtrL7+fL3r0JSmM9kBm+Bw==
@@ -3279,11 +3279,6 @@ application-config-path@^0.1.0:
   resolved "https://registry.npmjs.org/application-config-path/-/application-config-path-0.1.1.tgz"
   integrity sha512-zy9cHePtMP0YhwG+CfHm0bgwdnga2X3gZexpdCwEj//dpb+TKajtiC8REEUJUSq6Ab4f9cgNy2l8ObXzCXFkEw==
 
-arg@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.npmjs.org/arg/-/arg-4.1.0.tgz"
-  integrity sha512-ZWc51jO3qegGkVh8Hwpv636EkbesNV5ZNQPCtRa+0qytRYPEs9IYT9qITY9buezqUH5uqyzlWLcufrzU2rffdg==
-
 arg@^5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/arg/-/arg-5.0.2.tgz"
@@ -5080,11 +5075,6 @@ expo-dev-menu@6.1.14:
   dependencies:
     expo-dev-menu-interface "1.10.0"
 
-expo-eas-client@~0.14.4:
-  version "0.14.4"
-  resolved "https://registry.npmjs.org/expo-eas-client/-/expo-eas-client-0.14.4.tgz"
-  integrity sha512-TSL1BbBFIuXchJmPgbPnB7cGpOOuSGJcQ/L7gij/+zPjExwvKm5ckA5dlSulwoFhH8zQt4vb7bfISPSAWQVWBw==
-
 expo-file-system@~18.1.11:
   version "18.1.11"
   resolved "https://registry.npmjs.org/expo-file-system/-/expo-file-system-18.1.11.tgz"
@@ -5184,34 +5174,10 @@ expo-splash-screen@~0.30.10:
   dependencies:
     "@expo/prebuild-config" "^9.0.10"
 
-expo-structured-headers@~4.1.0:
-  version "4.1.0"
-  resolved "https://registry.npmjs.org/expo-structured-headers/-/expo-structured-headers-4.1.0.tgz"
-  integrity sha512-2X+aUNzC/qaw7/WyUhrVHNDB0uQ5rE12XA2H/rJXaAiYQSuOeU90ladaN0IJYV9I2XlhYrjXLktLXWbO7zgbag==
-
 expo-updates-interface@~1.1.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/expo-updates-interface/-/expo-updates-interface-1.1.0.tgz"
   integrity sha512-DeB+fRe0hUDPZhpJ4X4bFMAItatFBUPjw/TVSbJsaf3Exeami+2qbbJhWkcTMoYHOB73nOIcaYcWXYJnCJXO0w==
-
-expo-updates@~0.28.17:
-  version "0.28.17"
-  resolved "https://registry.yarnpkg.com/expo-updates/-/expo-updates-0.28.17.tgz#1303410d613adfb7063e34a7bc88d53b2bcea61a"
-  integrity sha512-OiKDrKk6EoBRP9AoK7/4tyj9lVtHw2IfaETIFeUCHMgx5xjgKGX/jjSwqhk8N9BJgLDIy0oD0Sb0MaEbSBb3lg==
-  dependencies:
-    "@expo/code-signing-certificates" "0.0.5"
-    "@expo/config" "~11.0.13"
-    "@expo/config-plugins" "~10.1.2"
-    "@expo/spawn-async" "^1.7.2"
-    arg "4.1.0"
-    chalk "^4.1.2"
-    expo-eas-client "~0.14.4"
-    expo-manifests "~0.16.6"
-    expo-structured-headers "~4.1.0"
-    expo-updates-interface "~1.1.0"
-    glob "^10.4.2"
-    ignore "^5.3.1"
-    resolve-from "^5.0.0"
 
 expo-video@~2.2.2:
   version "2.2.2"

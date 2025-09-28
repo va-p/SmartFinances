@@ -46,6 +46,7 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 // Storages
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 // Interfaces
@@ -71,6 +72,7 @@ interface CategoryData extends CategoryProps {
 
 export function Overview({ navigation }: any) {
   const theme: ThemeProps = useTheme();
+  const { darkMode } = useUserConfigs();
   const { id: userID } = useUser();
   const {
     brlQuoteBtc,
@@ -499,11 +501,11 @@ export function Overview({ navigation }: any) {
                     }))}
                     donut
                     radius={140}
+                    innerCircleColor={theme.colors.backgroundNav}
                     focusOnPress
-                    textColor='black'
                     showExternalLabels
                     externalLabelComponent={(item) => (
-                      <SvgText>{item?.text}</SvgText>
+                      <SvgText fill={theme.colors.text}>{item?.text}</SvgText>
                     )}
                     labelLineConfig={{
                       color: theme.colors.textPlaceholder,
@@ -537,11 +539,11 @@ export function Overview({ navigation }: any) {
                     }))}
                     donut
                     radius={140}
+                    innerCircleColor={theme.colors.backgroundNav}
                     focusOnPress
-                    textColor='black'
                     showExternalLabels
                     externalLabelComponent={(item) => (
-                      <SvgText>{item?.text}</SvgText>
+                      <SvgText fill={theme.colors.text}>{item?.text}</SvgText>
                     )}
                     labelLineConfig={{
                       color: theme.colors.textPlaceholder,
