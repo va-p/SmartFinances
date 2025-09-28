@@ -2,6 +2,8 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { Container, LogoWrapper, Logo, Title, Text } from './styles';
 
+import { useRouter } from 'expo-router';
+
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
@@ -9,12 +11,14 @@ import { Gradient } from '@components/Gradient';
 const LOGO_URL = '@assets/logo.png';
 
 export function Welcome({ navigation }: any) {
+  const router = useRouter();
+
   function handlePressSignIn() {
-    navigation.navigate('SignIn');
+    router.navigate('/signIn');
   }
 
   function handlePressSignUp() {
-    navigation.navigate('SignUp');
+    router.navigate('/signUp');
   }
 
   return (

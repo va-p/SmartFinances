@@ -35,6 +35,7 @@ interface AuthContextType {
   signInWithXano: (data: FormData) => Promise<User | undefined>;
   signInWithBiometrics: () => Promise<void>;
   signOut: () => Promise<void>;
+  canSignInWithBiometrics: () => Promise<boolean>;
 }
 
 const CLERK_WEBHOOK_DELAY = 4000;
@@ -133,6 +134,21 @@ export function AuthProvider({ children }: any) {
       });
     }
   }, [biometricAttempted, biometricSupportedAndEnabled, signInWithBiometrics]);
+
+  async function canSignInWithBiometrics(): Promise<boolean> {
+    try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      const useLocalAuth = storageConfig.getBoolean(
+        `${DATABASE_CONFIGS}.useLocalAuth`
+      );
+
+      return (compatible && enrolled && useLocalAuth) || false;
+    } catch (error) {
+      console.error('Erro ao verificar biometria:', error);
+      return false;
+    }
+  }
 
   useEffect(() => {
     async function fetchClerkUserDataOnXano() {
@@ -318,6 +334,7 @@ export function AuthProvider({ children }: any) {
     signInWithXano,
     signInWithBiometrics,
     signOut,
+    canSignInWithBiometrics,
   };
 
   return (

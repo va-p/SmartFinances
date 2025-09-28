@@ -17,6 +17,7 @@ import { useAuth } from '../../contexts/AuthProvider';
 // Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
+import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
@@ -56,8 +57,9 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function SignIn({ navigation }: any) {
+export function SignIn() {
   const theme: ThemeProps = useTheme();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const {
     control,
@@ -67,7 +69,8 @@ export function SignIn({ navigation }: any) {
     resolver: yupResolver(schema),
   });
 
-  const { signInWithXano } = useAuth();
+  const { canSignInWithBiometrics, signInWithBiometrics, signInWithXano } =
+    useAuth();
   const googleOAuth = useOAuth({ strategy: 'oauth_google' });
 
   async function handleSignInWithXano(form: FormData) {
@@ -117,11 +120,11 @@ export function SignIn({ navigation }: any) {
   }
 
   function handlePressForgotPassword() {
-    navigation.navigate('ForgotPassword');
+    router.navigate('/forgotPassword');
   }
 
   function handlePressSignUp() {
-    navigation.navigate('SignUp');
+    router.navigate('/signUp');
   }
 
   useEffect(() => {

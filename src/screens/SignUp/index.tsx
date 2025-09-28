@@ -14,6 +14,7 @@ import {
 // Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
+import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
@@ -73,8 +74,9 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function SignUp({ navigation }: any) {
+export function SignUp() {
   const theme: ThemeProps = useTheme();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const {
     control,
@@ -96,7 +98,7 @@ export function SignUp({ navigation }: any) {
   }
 
   function handlePressLogin() {
-    navigation.navigate('SignIn');
+    router.navigate('/signIn');
   }
 
   async function handleContinueWithGoogle() {
@@ -151,7 +153,7 @@ export function SignUp({ navigation }: any) {
         Alert.alert(
           'Cadastro de usuário',
           'Bem vindo ao Smart Finances! Você será redirecionado para a tela de login.',
-          [{ text: 'OK', onPress: () => navigation.navigate('SignIn') }]
+          [{ text: 'OK', onPress: () => router.navigate('/signIn') }]
         );
       }
     } catch (error) {

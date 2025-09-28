@@ -25,6 +25,7 @@ import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLi
 // Dependencies
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
+import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -70,9 +71,10 @@ interface CategoryData extends CategoryProps {
   percent: string;
 }
 
-export function Overview({ navigation }: any) {
+export function Overview() {
   const theme: ThemeProps = useTheme();
   const { darkMode } = useUserConfigs();
+  const router = useRouter();
   const { id: userID } = useUser();
   const {
     brlQuoteBtc,
@@ -303,7 +305,12 @@ export function Overview({ navigation }: any) {
   }
 
   function handleOpenCategory(id: string) {
-    navigation.navigate('Transações por Categoria', { id });
+    router.navigate({
+      pathname: '/bankingIntegrationDetails',
+      params: {
+        id: id,
+      },
+    });
   }
 
   const curRevenues = processedData.revenuesByCategory.reduce(

@@ -58,6 +58,7 @@ import {
 } from 'react-native-gesture-handler';
 import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
+import { useLocalSearchParams } from 'expo-router';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -90,6 +91,7 @@ import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorag
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
 import { TransactionProps } from '@interfaces/transactions';
+import { useAccountDetailQuery } from '@hooks/useAcccountDetailQuery';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -105,16 +107,52 @@ export function Account() {
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const hideAmount = useUserConfigs((state) => state.hideAmount);
+  const { accountID } = useLocalSearchParams();
+
   const {
-    accountId: accountID,
-    accountName,
-    accountBalance,
-    accountType,
-    accountSubType,
-    accountCreditData,
-  } = useCurrentAccountSelected();
+    data: account,
+    isLoading: isLoadingAccountDetails,
+    isError,
+  } = useAccountDetailQuery(accountID);
+
+  if (isLoadingAccountDetails) {
+    return <SkeletonAccountsScreen />;
+  }
+
+  if (isError || !account) {
+    return (
+      <Screen>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Erro' />
+        </Header.Root>
+        <ListEmptyComponent text='Não foi possível carregar os detalhes da conta. Tente novamente.' />
+      </Screen>
+    );
+  }
+
+  // const {
+  //   // accountId: accountID,
+  //   accountName,
+  //   accountBalance,
+  //   accountType,
+  //   accountSubType,
+  //   accountCreditData,
+  // } = useCurrentAccountSelected();
+  const {
+    name: accountName,
+    balance: accountBalance,
+    type: accountType,
+    subtype: accountSubType,
+    creditData: accountCreditData,
+  } = account;
+  console.log('accountName ===->', accountName);
+  console.log('accountBalance ===->', accountBalance);
+  console.log('accountType ===->', accountType);
+  console.log('accountSubType ===->', accountSubType);
+  console.log('accountCreditData ===->', accountCreditData);
   const balanceIsPositive =
-    parseFloat(accountBalance!.replace(/[^\d,.-]/g, '').replace(',', '.')) > 0; // TODO: Testar com outras moedas que não o real.
+    parseFloat(accountBalance.replace(/[^\d,.-]/g, '').replace(',', '.')) > 0; // TODO: Testar com outras moedas que não o real.
   const isCreditCard =
     accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
   const hasCreditCardAvailableLimit =

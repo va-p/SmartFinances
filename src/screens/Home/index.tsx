@@ -30,8 +30,8 @@ import {
 
 // Hooks
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Utils
 import {

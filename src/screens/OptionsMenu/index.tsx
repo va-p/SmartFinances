@@ -3,7 +3,6 @@ import { Alert } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
 // Icons
-import Sun from 'phosphor-react-native/src/icons/Sun';
 import Tag from 'phosphor-react-native/src/icons/Tag';
 import User from 'phosphor-react-native/src/icons/User';
 import Plugs from 'phosphor-react-native/src/icons/Plugs';
@@ -20,6 +19,8 @@ import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
 
 // Dependencies
 import axios from 'axios';
+import { reloadAppAsync } from 'expo';
+import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -41,10 +42,10 @@ import api from '@api/api';
 // Interfaces
 import { eUrl } from '@enums/enumsUrl';
 import { ThemeProps } from '@interfaces/theme';
-import set from 'date-fns/esm/fp/set/index.js';
 
-export function OptionsMenu({ navigation }: any) {
+export function OptionsMenu() {
   const theme: ThemeProps = useTheme();
+  const router = useRouter();
 
   const userId = useUser((state) => state.id);
 
@@ -60,29 +61,32 @@ export function OptionsMenu({ navigation }: any) {
   } = useUserConfigs();
 
   function handleOpenProfile() {
-    navigation.navigate('Perfil');
+    router.navigate('/profile');
   }
 
   function handleOpenSubscription() {
-    navigation.navigate('Assinatura');
+    router.navigate('/subscription');
   }
 
   function handleOpenAccounts() {
-    navigation.navigate('Contas');
+    router.navigate('/accountsList');
   }
 
   function handleOpenConnectedAccounts() {
-    navigation.navigate('Integrações Bancárias', {
-      showHeader: true,
+    router.navigate({
+      pathname: '/bankingIntegrations',
+      params: {
+        showHeader: true,
+      },
     });
   }
 
   function handleOpenCategories() {
-    navigation.navigate('Categorias');
+    router.navigate('/categories');
   }
 
   function handleOpenTags() {
-    navigation.navigate('Etiquetas');
+    router.navigate('/tags');
   }
 
   async function handleClickHelpCenter() {
@@ -117,10 +121,11 @@ export function OptionsMenu({ navigation }: any) {
     }
   }
 
-  function handleChangeDarkMode() {
+  async function handleChangeDarkMode() {
     try {
       storageConfig.set(`${DATABASE_CONFIGS}.darkMode`, !darkMode);
       setDarkMode(!darkMode);
+      // await reloadAppAsync();
     } catch (error) {
       console.error(error);
       Alert.alert(

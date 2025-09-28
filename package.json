@@ -1,5 +1,5 @@
 {
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -43,9 +43,6 @@
     "@react-native-firebase/crashlytics": "^21.12.0",
     "@react-native-firebase/perf": "^21.12.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
-    "@react-navigation/bottom-tabs": "^6.3.2",
-    "@react-navigation/native": "^6.0.11",
-    "@react-navigation/stack": "^6.2.2",
     "@shopify/flash-list": "1.7.6",
     "@tanstack/react-query": "^5.81.5",
     "axios": "^0.27.2",
@@ -60,6 +57,7 @@
     "expo-linear-gradient": "~14.1.5",
     "expo-local-authentication": "~16.0.5",
     "expo-navigation-bar": "~4.2.7",
+    "expo-router": "^6.0.8",
     "expo-splash-screen": "~0.30.10",
     "expo-video": "~2.2.2",
     "expo-web-browser": "~14.2.0",

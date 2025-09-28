@@ -38,7 +38,7 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function ForgotPassword({ navigation }: any) {
+export function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const {
     control,
@@ -65,8 +65,11 @@ export function ForgotPassword({ navigation }: any) {
       if (status === 200) {
         console.log('data ===>', data);
 
-        navigation.navigate('ResetPassSentConfirmation', {
-          email: form.email,
+        router.navigate({
+          pathname: '/resetPassSentConfirmation',
+          params: {
+            email: form.email,
+          },
         });
       }
     } catch (error) {
