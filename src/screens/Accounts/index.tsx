@@ -234,7 +234,7 @@ export function Accounts({ navigation }: any) {
 
   function handleTouchConnectAccount() {
     router.navigate({
-      pathname: '/bankingIntegrations',
+      pathname: '/accounts/bankingIntegrations',
       params: { showHeader: true },
     });
   }
@@ -266,10 +266,9 @@ export function Accounts({ navigation }: any) {
       accountBalance: balance,
       accountCreditData: creditData,
     }));
-    // router.navigate('account');
     router.navigate({
       pathname: '/accounts/[accountId]',
-      params: { accountID: id },
+      params: { id: id },
     });
   }
 

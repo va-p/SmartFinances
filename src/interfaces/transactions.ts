@@ -13,7 +13,7 @@ export type TransactionTypeProps =
   | 'transferDebit';
 
 export interface TransactionProps {
-  id: string;
+  id: number;
   created_at: any;
   description: string;
   amount: number;

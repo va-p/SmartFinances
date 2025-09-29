@@ -20,6 +20,7 @@ import {
   Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
+import { useUserConfigs } from '@storage/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import darkTheme from '@themes/darkTheme';
@@ -67,9 +68,22 @@ function RootNavigationLayout() {
 }
 
 export default function RootLayout() {
+  const setDarkMode = useUserConfigs((state) => state.setDarkMode);
+
   const deviceColorScheme = useColorScheme();
-  const useDarkMode = deviceColorScheme === 'dark';
+  const darkModeUserConfig: boolean | undefined = storageConfig.getBoolean(
+    `${DATABASE_CONFIGS}.darkMode`
+  );
+  let useDarkMode: boolean;
+
+  if (darkModeUserConfig !== undefined) {
+    useDarkMode = darkModeUserConfig;
+  } else {
+    useDarkMode = deviceColorScheme === 'dark';
+  }
+
   const theme = useDarkMode ? darkTheme : lightTheme;
+  setDarkMode(useDarkMode);
 
   const [fontsLoaded, fontError] = Font.useFonts({
     Poppins_400Regular,

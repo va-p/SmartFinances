@@ -135,7 +135,7 @@ export function BankingIntegrations({ navigation }: any) {
 
   function handlePressConnectNewAccount() {
     if (!user.premium) {
-      router.navigate('/subscription');
+      router.navigate('/options/subscription');
       return;
     }
 

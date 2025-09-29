@@ -8,6 +8,7 @@ import Target from 'phosphor-react-native/src/icons/Target';
 import ListDashes from 'phosphor-react-native/src/icons/ListDashes';
 import ChartPieSlice from 'phosphor-react-native/src/icons/ChartPieSlice';
 import DotsThreeOutline from 'phosphor-react-native/src/icons/DotsThreeOutline';
+
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
@@ -35,10 +36,15 @@ export default function AppLayout() {
             borderTopLeftRadius: 75,
             borderTopRightRadius: 75,
             overflow: 'hidden',
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+          },
+          sceneStyle: {
+            backgroundColor: 'transparent',
           },
           tabBarBackground: () => (
             <BlurView
-              intensity={darkMode ? 40 : 80}
+              intensity={darkMode ? 30 : 80}
               experimentalBlurMethod='dimezisBlurView'
               style={StyleSheet.absoluteFill}
             />

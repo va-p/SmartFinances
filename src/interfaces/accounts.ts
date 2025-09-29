@@ -38,12 +38,12 @@ export type CreditDataProps = {
 };
 
 export interface AccountProps {
-  id: string | null;
+  id: number;
   name: string;
   currency: CurrencyProps;
   type: AccountTypes;
   subtype?: AccountSubTypes;
-  balance: string;
+  balance: number;
   initialAmount: number | null;
   totalAccountAmount?: string;
   totalAccountAmountConverted?: string;

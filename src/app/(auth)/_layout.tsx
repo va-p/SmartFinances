@@ -17,7 +17,12 @@ export default function AuthLayout() {
         barStyle={darkMode ? 'light-content' : 'dark-content'}
         backgroundColor={theme.colors.background}
       />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: 'red' },
+        }}
+      >
         <Stack.Screen name='index' />
         <Stack.Screen name='signIn' />
         <Stack.Screen name='signUp' />

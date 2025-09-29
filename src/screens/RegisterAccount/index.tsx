@@ -87,6 +87,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     'Outro',
   ];
   const [typeSelected, setTypeSelected] = useState('');
+  console.log('typeSelected ===>', typeSelected);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const [currencySelected, setCurrencySelected] = useState({
     id: 4,
@@ -96,6 +97,15 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } as CurrencyProps);
   const [hideAccount, setHideAccount] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+
+  const accountTypeMap: Record<string, string> = {
+    CREDIT: 'Cartão de Crédito',
+    WALLET: 'Carteira',
+    'CRYPTOCURRENCY WALLET': 'Carteira de Criptomoedas',
+    BANK: 'Conta Corrente',
+    INVESTMENTS: 'Investimentos',
+    OTHER: 'Outro',
+  };
 
   function handleOpenSelectCurrencyModal() {
     currencyBottomSheetRef.current?.present();
@@ -213,18 +223,9 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         },
       });
 
-      const accountTypeMap: Record<string, string> = {
-        CREDIT: 'Cartão de Crédito',
-        WALLET: 'Carteira',
-        'CRYPTOCURRENCY WALLET': 'Carteira de Criptomoedas',
-        BANK: 'Conta Corrente',
-        INVESTMENTS: 'Investimentos',
-        OTHER: 'Outro',
-      };
-
       setValue('name', data.name);
       setValue('balance', data.balance);
-      setTypeSelected(accountTypeMap[data.type]);
+      setTypeSelected(data.type);
       setCurrencySelected(data.currency);
       setHideAccount(data.hide);
     } catch (error) {
@@ -328,10 +329,14 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                 case 'Outro':
                   setTypeSelected('OTHER');
                   break;
+                default:
+                  setTypeSelected('WALLET');
               }
             }}
             defaultButtonText={
-              id !== '' ? typeSelected : 'Selecione o tipo da conta'
+              id !== ''
+                ? accountTypeMap[typeSelected]
+                : 'Selecione o tipo da conta'
             }
             buttonTextAfterSelection={(selectedItem) => {
               return selectedItem;

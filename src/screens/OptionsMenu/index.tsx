@@ -61,20 +61,20 @@ export function OptionsMenu() {
   } = useUserConfigs();
 
   function handleOpenProfile() {
-    router.navigate('/profile');
+    router.navigate('/options/profile');
   }
 
   function handleOpenSubscription() {
-    router.navigate('/subscription');
+    router.navigate('/options/subscription');
   }
 
   function handleOpenAccounts() {
-    router.navigate('/accountsList');
+    router.navigate('/options/accountsList');
   }
 
   function handleOpenConnectedAccounts() {
     router.navigate({
-      pathname: '/bankingIntegrations',
+      pathname: '/options/bankingIntegrations',
       params: {
         showHeader: true,
       },
@@ -82,11 +82,11 @@ export function OptionsMenu() {
   }
 
   function handleOpenCategories() {
-    router.navigate('/categories');
+    router.navigate('/options/categories');
   }
 
   function handleOpenTags() {
-    router.navigate('/tags');
+    router.navigate('/options/tags');
   }
 
   async function handleClickHelpCenter() {
