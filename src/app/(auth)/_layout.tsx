@@ -15,12 +15,12 @@ export default function AuthLayout() {
     <>
       <StatusBar
         barStyle={darkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.colors.background}
+        backgroundColor={theme.colors.statusBar}
       />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: 'red' },
+          contentStyle: { backgroundColor: 'transparent' },
         }}
       >
         <Stack.Screen name='index' />

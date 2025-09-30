@@ -2,7 +2,12 @@ import { Stack } from 'expo-router';
 
 export default function AccountsStackLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: 'transparent' },
+      }}
+    >
       <Stack.Screen name='index' options={{ title: 'Todas as Contas' }} />
       <Stack.Screen name='[accountId]' options={{ title: 'Conta' }} />
       <Stack.Screen name='editAccount' options={{ title: 'Editar Conta' }} />

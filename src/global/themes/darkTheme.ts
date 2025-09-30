@@ -5,6 +5,7 @@ export default {
 
     background: 'rgb(0, 0, 0)',
     backgroundNav: 'rgb(20, 20, 20)',
+    statusBar: 'rgb(14, 14, 14)',
     backgroundCardHeader: 'rgba(20, 20, 20, 0.7)', // Card of top screens
 
     gradientStart: 'rgb(20, 20, 20)',

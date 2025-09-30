@@ -21,7 +21,7 @@ export default function AppLayout() {
     <>
       <StatusBar
         barStyle={darkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.colors.backgroundCardHeader}
+        backgroundColor={theme.colors.statusBar}
       />
       <Tabs
         screenOptions={{

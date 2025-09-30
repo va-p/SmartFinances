@@ -4,6 +4,7 @@ type Colors = {
 
   background: string;
   backgroundNav: string;
+  statusBar: string;
   backgroundCardHeader: string;
 
   gradientStart: string;
