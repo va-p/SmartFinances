@@ -58,6 +58,9 @@ export default function AppLayout() {
             tabBarIcon: ({ size, color }) => (
               <ListDashes size={size} color={color} />
             ),
+            sceneStyle: {
+              backgroundColor: 'transparent',
+            },
           }}
         />
         <Tabs.Screen
@@ -65,6 +68,9 @@ export default function AppLayout() {
           options={{
             title: 'Contas',
             tabBarIcon: ({ size, color }) => <Bank size={size} color={color} />,
+            sceneStyle: {
+              backgroundColor: 'transparent',
+            },
           }}
         />
         <Tabs.Screen
@@ -74,6 +80,9 @@ export default function AppLayout() {
             tabBarIcon: ({ size, color }) => (
               <Target size={size} color={color} />
             ),
+            sceneStyle: {
+              backgroundColor: 'transparent',
+            },
           }}
         />
         <Tabs.Screen
@@ -83,6 +92,9 @@ export default function AppLayout() {
             tabBarIcon: ({ size, color }) => (
               <ChartPieSlice size={size} color={color} />
             ),
+            sceneStyle: {
+              backgroundColor: 'transparent',
+            },
           }}
         />
         <Tabs.Screen
@@ -92,6 +104,9 @@ export default function AppLayout() {
             tabBarIcon: ({ size, color }) => (
               <DotsThreeOutline size={size} color={color} />
             ),
+            sceneStyle: {
+              backgroundColor: 'transparent',
+            },
           }}
         />
       </Tabs>
