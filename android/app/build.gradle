@@ -93,8 +93,8 @@ android {
         applicationId 'com.vap.smartfinances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 89
-        versionName "2.21.3"
+        versionCode 93
+        versionName "2.22.0"
     }
     signingConfigs {
     debug {
@@ -189,3 +189,6 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// @revopush/gradle
+apply from: "../../node_modules/@revopush/react-native-code-push/android/codepush.gradle"

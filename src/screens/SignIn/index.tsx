@@ -69,9 +69,11 @@ export function SignIn() {
     resolver: yupResolver(schema),
   });
 
-  const { canSignInWithBiometrics, signInWithBiometrics, signInWithXano } =
-    useAuth();
-  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+  const { signInWithXano } = useAuth();
+  const googleOAuth = useOAuth({
+    strategy: 'oauth_google',
+    redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
+  });
 
   async function handleSignInWithXano(form: FormData) {
     try {

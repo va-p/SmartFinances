@@ -3,7 +3,7 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "owner": "va-p",
-    "version": "2.21.3",
+    "version": "2.22.0",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -12,8 +12,9 @@
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 89,
+      "versionCode": 93,
       "googleServicesFile": "./android/app/google-services.json",
+      "edgeToEdgeEnabled": true,
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -67,11 +68,13 @@
           "supportsPictureInPicture": true
         }
       ],
-      "@react-native-firebase/app",
-      "@react-native-firebase/crashlytics",
       "expo-font",
+      "expo-router",
+      "expo-web-browser",
+      "expo-secure-store",
       ["expo-splash-screen"],
-      "expo-web-browser"
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics"
     ]
   }
 }

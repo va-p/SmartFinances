@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import * as Font from 'expo-font';
+import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
@@ -30,6 +31,23 @@ SplashScreen.preventAutoHideAsync();
 
 const PUBLIC_CLERK_PUBLISHABLE_KEY =
   process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+const tokenCache = {
+  async getToken(key: string) {
+    try {
+      return SecureStore.getItemAsync(key);
+    } catch (err) {
+      return null;
+    }
+  },
+  async saveToken(key: string, value: string) {
+    try {
+      return SecureStore.setItemAsync(key, value);
+    } catch (err) {
+      return;
+    }
+  },
+};
 
 function RootNavigationLayout() {
   const { isSignedIn, loading } = useAuth();
@@ -105,7 +123,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider theme={theme}>
         <RevenueCatProvider>
-          <ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY || ''}>
+          <ClerkProvider
+            tokenCache={tokenCache}
+            publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY || ''}
+          >
             <QueryClientProvider client={new QueryClient()}>
               <AuthProvider>
                 <BottomSheetModalProvider>

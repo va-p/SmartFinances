@@ -16,6 +16,8 @@ import { ThemeProps } from '@interfaces/theme';
 export default function AppLayout() {
   const theme: ThemeProps = useTheme();
   const { darkMode } = useUserConfigs();
+  console.log('theme:', theme);
+  console.log('Dark mode:', darkMode);
 
   return (
     <>
