@@ -16,6 +16,7 @@ import { processTransactions } from '@utils/processTransactions';
 
 // Dependências
 import { ptBR } from 'date-fns/locale';
+import { useTheme } from 'styled-components';
 import Animated from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
 import { addMonths, format, subMonths } from 'date-fns';
@@ -38,11 +39,10 @@ import { useUser } from '@storage/userStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 // Interfaces
-import { TransactionProps } from '@interfaces/transactions';
-
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 export function TransactionsByCategory({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);

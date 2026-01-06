@@ -51,7 +51,7 @@ export const Title = styled.Text.attrs({
   ellipsizeMode: 'tail',
 })`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(18)}px;
+  font-size: ${RFValue(16)}px;
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;

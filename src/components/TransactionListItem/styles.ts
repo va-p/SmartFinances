@@ -48,7 +48,7 @@ export const DescriptionAndAmountContainer = styled.View`
 `;
 
 export const Description = styled.Text.attrs({})<Props>`
-  max-width: 75%;
+  max-width: 70%;
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(12)}px;
   color: ${({ type, theme }) =>

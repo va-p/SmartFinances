@@ -4,7 +4,6 @@ import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
-  padding-top: 8px;
 `;
 
 export const ScrollContent = styled.ScrollView.attrs({

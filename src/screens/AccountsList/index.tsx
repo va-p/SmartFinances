@@ -3,6 +3,7 @@ import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import axios from 'axios';
+import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
@@ -22,19 +23,16 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
-import {
-  // AccountType,
-  useCurrentAccountSelected,
-} from '@storage/currentAccountSelectedStorage';
 import { useUser } from '@storage/userStorage';
+import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
 import api from '@api/api';
 
+import { ThemeProps } from '@interfaces/theme';
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
 
-import theme from '@themes/theme';
-
 export function AccountsList() {
+  const theme: ThemeProps = useTheme();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();

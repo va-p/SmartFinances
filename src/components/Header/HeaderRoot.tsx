@@ -12,6 +12,7 @@ export function HeaderRoot({ children, ...rest }: HeaderRootProps) {
   useEffect(() => {
     function countChildren() {
       if (children?.length && children.length > 1) {
+        // console.log('children.length ===>', children.length);
         setChildsCount(children.length);
       }
 

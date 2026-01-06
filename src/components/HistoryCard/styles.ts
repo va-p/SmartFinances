@@ -34,12 +34,12 @@ export const Icon = styled(Ionicons)<Props>`
 
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Amount = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.text};
 `;

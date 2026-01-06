@@ -26,6 +26,7 @@ import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLi
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
+import { useTheme } from 'styled-components';
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -62,15 +63,17 @@ import {
   AccountTypes,
   CreditDataProps,
 } from '@interfaces/accounts';
-
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
+import { useRouter } from 'expo-router';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
   const bottomTabHeight = useBottomTabBarHeight();
+  const router = useRouter();
   const { id: userID } = useUser();
   const {
     brlQuoteBtc,
@@ -230,8 +233,9 @@ export function Accounts({ navigation }: any) {
   }
 
   function handleTouchConnectAccount() {
-    navigation.navigate('Integrações Bancárias', {
-      showHeader: true,
+    router.navigate({
+      pathname: '/accounts/bankingIntegrations',
+      params: { showHeader: true },
     });
   }
 
@@ -262,7 +266,10 @@ export function Accounts({ navigation }: any) {
       accountBalance: balance,
       accountCreditData: creditData,
     }));
-    navigation.navigate('Conta');
+    router.navigate({
+      pathname: '/accounts/[accountId]',
+      params: { id: id },
+    });
   }
 
   async function handleHideData() {

@@ -20,6 +20,7 @@ import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
+import { useTheme } from 'styled-components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -52,8 +53,8 @@ import {
 import { useUser } from '@storage/userStorage';
 import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 
-import theme from '@themes/theme';
-
+// Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { CurrencyProps } from '@interfaces/currencies';
 
 type Props = {
@@ -77,6 +78,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterBudget({ id, closeBudget }: Props) {
+  const theme: ThemeProps = useTheme();
   const userID = useUser((state) => state.id);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(

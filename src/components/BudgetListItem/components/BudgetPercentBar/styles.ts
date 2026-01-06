@@ -10,4 +10,5 @@ export const Percent = styled.Text`
   position: absolute;
   top: 2px;
   padding-left: 8px;
+  color: ${({ theme }) => theme.colors.text};
 `;

@@ -14,16 +14,21 @@ import {
 
 import { useAuth } from '../../contexts/AuthProvider';
 
+// Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
+import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { useSSO, useOAuth } from '@clerk/clerk-expo';
+import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
+import { useSSO, useOAuth } from '@clerk/clerk-expo';
 import { yupResolver } from '@hookform/resolvers/yup';
+
 // Icons
 import Key from 'phosphor-react-native/src/icons/Key';
 import UserCircle from 'phosphor-react-native/src/icons/UserCircle';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
@@ -31,7 +36,7 @@ import { Gradient } from '@components/Gradient';
 import { ScreenDivider } from '@components/ScreenDivider';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 const LOGO_URL = '@assets/logo.png';
 const GOOGLE_LOGO_URL = '@assets/googleLogo.png';
@@ -52,7 +57,9 @@ const schema = Yup.object().shape({
 });
 /* Validation Form - End */
 
-export function SignIn({ navigation }: any) {
+export function SignIn() {
+  const theme: ThemeProps = useTheme();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const {
     control,
@@ -63,7 +70,10 @@ export function SignIn({ navigation }: any) {
   });
 
   const { signInWithXano } = useAuth();
-  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
+  const googleOAuth = useOAuth({
+    strategy: 'oauth_google',
+    redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
+  });
 
   async function handleSignInWithXano(form: FormData) {
     try {
@@ -112,11 +122,11 @@ export function SignIn({ navigation }: any) {
   }
 
   function handlePressForgotPassword() {
-    navigation.navigate('ForgotPassword');
+    router.navigate('/forgotPassword');
   }
 
   function handlePressSignUp() {
-    navigation.navigate('SignUp');
+    router.navigate('/signUp');
   }
 
   useEffect(() => {

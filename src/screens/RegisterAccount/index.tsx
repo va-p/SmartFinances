@@ -6,6 +6,7 @@ import { Container, Form, Footer } from './styles';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useTheme } from 'styled-components/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
@@ -33,12 +34,11 @@ import { CurrencySelect } from '@screens/CurrencySelect';
 import { useUser } from '@storage/userStorage';
 
 // Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { AccountTypes } from '@interfaces/accounts';
 import { CurrencyProps } from '@interfaces/currencies';
 
 import api from '@api/api';
-
-import theme from '@themes/theme';
 
 type FormData = {
   name: string;
@@ -61,6 +61,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterAccount({ id, closeAccount }: Props) {
+  const theme: ThemeProps = useTheme();
   const { id: userID } = useUser();
   const {
     control,
@@ -86,6 +87,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     'Outro',
   ];
   const [typeSelected, setTypeSelected] = useState('');
+  console.log('typeSelected ===>', typeSelected);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const [currencySelected, setCurrencySelected] = useState({
     id: 4,
@@ -95,6 +97,15 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } as CurrencyProps);
   const [hideAccount, setHideAccount] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+
+  const accountTypeMap: Record<string, string> = {
+    CREDIT: 'Cartão de Crédito',
+    WALLET: 'Carteira',
+    'CRYPTOCURRENCY WALLET': 'Carteira de Criptomoedas',
+    BANK: 'Conta Corrente',
+    INVESTMENTS: 'Investimentos',
+    OTHER: 'Outro',
+  };
 
   function handleOpenSelectCurrencyModal() {
     currencyBottomSheetRef.current?.present();
@@ -318,10 +329,14 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                 case 'Outro':
                   setTypeSelected('OTHER');
                   break;
+                default:
+                  setTypeSelected('WALLET');
               }
             }}
             defaultButtonText={
-              id !== '' ? typeSelected : 'Selecione o tipo da conta'
+              id !== ''
+                ? accountTypeMap[typeSelected]
+                : 'Selecione o tipo da conta'
             }
             buttonTextAfterSelection={(selectedItem) => {
               return selectedItem;

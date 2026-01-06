@@ -25,9 +25,11 @@ import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLi
 // Dependencies
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, getMonth, getYear, parse } from 'date-fns';
+import { useRouter } from 'expo-router';
+import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { format, getMonth, getYear, parse } from 'date-fns';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
 // Components
@@ -45,14 +47,13 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 // Storages
 import { useUser } from '@storage/userStorage';
 import { useQuotes } from '@storage/quotesStorage';
+import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 
 // Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
-
-// Styles
-import theme from '@themes/theme';
 
 // Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -70,7 +71,10 @@ interface CategoryData extends CategoryProps {
   percent: string;
 }
 
-export function Overview({ navigation }: any) {
+export function Overview() {
+  const theme: ThemeProps = useTheme();
+  const { darkMode } = useUserConfigs();
+  const router = useRouter();
   const { id: userID } = useUser();
   const {
     brlQuoteBtc,
@@ -301,7 +305,12 @@ export function Overview({ navigation }: any) {
   }
 
   function handleOpenCategory(id: string) {
-    navigation.navigate('Transações por Categoria', { id });
+    router.navigate({
+      pathname: '/bankingIntegrationDetails',
+      params: {
+        id: id,
+      },
+    });
   }
 
   const curRevenues = processedData.revenuesByCategory.reduce(
@@ -499,11 +508,11 @@ export function Overview({ navigation }: any) {
                     }))}
                     donut
                     radius={140}
+                    innerCircleColor={theme.colors.backgroundNav}
                     focusOnPress
-                    textColor='black'
                     showExternalLabels
                     externalLabelComponent={(item) => (
-                      <SvgText>{item?.text}</SvgText>
+                      <SvgText fill={theme.colors.text}>{item?.text}</SvgText>
                     )}
                     labelLineConfig={{
                       color: theme.colors.textPlaceholder,
@@ -537,11 +546,11 @@ export function Overview({ navigation }: any) {
                     }))}
                     donut
                     radius={140}
+                    innerCircleColor={theme.colors.backgroundNav}
                     focusOnPress
-                    textColor='black'
                     showExternalLabels
                     externalLabelComponent={(item) => (
-                      <SvgText>{item?.text}</SvgText>
+                      <SvgText fill={theme.colors.text}>{item?.text}</SvgText>
                     )}
                     labelLineConfig={{
                       color: theme.colors.textPlaceholder,

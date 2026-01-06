@@ -1,13 +1,16 @@
 import React from 'react';
 import { Container } from './styles';
 
+import { useTheme } from 'styled-components';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import { Gradient } from '@components/Gradient';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 export function SkeletonBudgetsScreen() {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container>
       <Gradient />

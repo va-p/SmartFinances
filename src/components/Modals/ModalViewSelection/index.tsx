@@ -6,9 +6,11 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import { useTheme } from 'styled-components';
+
 import { Gradient } from '@components/Gradient';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = BottomSheetProps & {
   title: string;
@@ -22,6 +24,8 @@ export function ModalViewSelection({
   children,
   ...rest
 }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <BottomSheetModal
       ref={bottomSheetRef}

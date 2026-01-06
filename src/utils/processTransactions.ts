@@ -13,7 +13,7 @@ import {
   TransactionProps,
 } from '@interfaces/transactions';
 
-import theme from '@themes/theme';
+import darkTheme from '@themes/darkTheme';
 
 type PeriodType = 'months' | 'years' | 'all';
 
@@ -139,12 +139,12 @@ export const processTransactions = (
         value: revenue || 0,
         label,
         spacing: 2,
-        frontColor: theme.colors.success_light,
+        frontColor: darkTheme.colors.success_light,
       };
 
       const expenseData = {
         value: expense || 0,
-        frontColor: theme.colors.attention_light,
+        frontColor: darkTheme.colors.attention_light,
       };
 
       return [revenueData, expenseData];

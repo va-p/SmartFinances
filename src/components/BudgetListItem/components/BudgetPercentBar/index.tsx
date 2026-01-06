@@ -8,11 +8,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useTheme } from 'styled-components';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { ThemeProps } from '@interfaces/theme';
 import { BudgetProps } from '@interfaces/budget';
-
-import theme from '@themes/theme';
 
 interface Props {
   is_amount_reached: boolean;
@@ -20,6 +20,7 @@ interface Props {
 }
 
 export function BudgetPercentBar({ is_amount_reached, data }: Props) {
+  const theme: ThemeProps = useTheme();
   const animatedWidth = useSharedValue(0);
 
   function calculatePercentage(data: BudgetProps) {

@@ -1,9 +1,13 @@
 import React from 'react';
 import { Container } from './styles';
 
-import theme from '@themes/theme';
+import { useTheme } from 'styled-components';
+
+import { ThemeProps } from '@interfaces/theme';
 
 export function Gradient() {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container
       colors={[theme.colors.gradientEnd, theme.colors.gradientStart]}

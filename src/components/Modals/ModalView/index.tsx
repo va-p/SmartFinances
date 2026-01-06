@@ -6,12 +6,15 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import { useTheme } from 'styled-components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Gradient } from '@components/Gradient';
 import { Header as HeaderComponent } from '@components/Header';
 
-import theme from '@themes/theme';
+import darkTheme from '@themes/darkTheme';
+
+import { ThemeProps } from '@interfaces/theme';
 
 type TypeProps = 'primary' | 'secondary';
 
@@ -29,7 +32,7 @@ type Props = BottomSheetProps & {
 export function ModalView({
   type = 'primary',
   title,
-  color = theme.colors.background,
+  color = darkTheme.colors.background,
   selectedIdentification,
   children,
   bottomSheetRef,
@@ -37,6 +40,7 @@ export function ModalView({
   deleteChildren,
   ...rest
 }: Props) {
+  const theme: ThemeProps = useTheme();
   const { top } = useSafeAreaInsets();
 
   return (

@@ -28,11 +28,12 @@ type FormData = {
 };
 
 interface AuthContextType {
-  user: any;
   isSignedIn: boolean;
+  user: any;
   isLoaded: boolean;
   loading: boolean;
   signInWithXano: (data: FormData) => Promise<User | undefined>;
+  canSignInWithBiometrics: () => Promise<boolean>;
   signInWithBiometrics: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -51,13 +52,9 @@ export function AuthProvider({ children }: any) {
   const { user: revenueCatUser } = useRevenueCat();
   const premium = revenueCatUser.premium;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
-
-  const [biometricAttempted, setBiometricAttempted] = useState(false);
-  const [biometricSupportedAndEnabled, setBiometricSupportedAndEnabled] =
-    useState(false);
 
   const clerk = getClerkInstance();
 
@@ -111,112 +108,23 @@ export function AuthProvider({ children }: any) {
     return loggedInUserDataFormatted;
   }
 
-  async function checkBiometric() {
-    const compatible = await LocalAuthentication.hasHardwareAsync();
-    const enrolled = await LocalAuthentication.isEnrolledAsync();
-    const useLocalAuth = storageConfig.getBoolean(
-      `${DATABASE_CONFIGS}.useLocalAuth`
-    );
-
-    if (compatible && enrolled && useLocalAuth && !clerkSignedIn) {
-      setBiometricSupportedAndEnabled(true);
-    }
-  }
-
-  useEffect(() => {
-    if (!biometricAttempted) {
-      checkBiometric().then(() => {
-        if (biometricSupportedAndEnabled) {
-          setBiometricAttempted(true);
-          signInWithBiometrics();
-        }
-      });
-    }
-  }, [biometricAttempted, biometricSupportedAndEnabled, signInWithBiometrics]);
-
-  useEffect(() => {
-    async function fetchClerkUserDataOnXano() {
-      try {
-        setLoading(true);
-
-        // Delay of few seconds, to Clerk webhook finish request to Xano
-        setTimeout(async () => {
-          const { data, status } = await api.get('/auth/clerk_sso', {
-            params: {
-              clerk_user_id: clerkUser?.id!,
-            },
-          });
-
-          if (!!data[0] && status === 200) {
-            // User token
-            storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
-
-            // User data
-            const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
-
-            setIsSignedIn(clerkSignedIn!);
-            setUser(loggedInUserDataFormatted);
-            return;
-          } else {
-            await clerk.signOut();
-
-            Alert.alert(
-              'Erro ao autenticar com o Google',
-              'Usuário não encontrado. Por favor, tente novamente.'
-            );
-            return;
-          }
-        }, CLERK_WEBHOOK_DELAY);
-      } catch (error) {
-        console.error('Erro ao buscar dados do usuário =>', error);
-        if (axios.isAxiosError(error)) {
-          Alert.alert('Login', error.response?.data?.message);
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (clerkLoaded && clerkSignedIn && clerkUser) {
-      fetchClerkUserDataOnXano();
-    }
-  }, [clerkLoaded, clerkSignedIn, clerkUser]);
-
-  async function signInWithXano(formData: FormData) {
+  async function canSignInWithBiometrics(): Promise<boolean> {
     try {
-      setLoading(true);
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      const useLocalAuth = storageConfig.getBoolean(
+        `${DATABASE_CONFIGS}.useLocalAuth`
+      );
 
-      const SignInUser = {
-        email: formData.email,
-        password: formData.password,
-      };
-
-      const { data, status } = await api.post('auth/login', SignInUser);
-      const xanoToken = data.authToken || null;
-      if (status === 200) {
-        storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(xanoToken));
-
-        const userData = (await api.get('auth/me')).data;
-
-        const loggedInUserDataFormatted = storageUserDataAndConfig(userData);
-
-        setIsSignedIn(true);
-        setUser(loggedInUserDataFormatted); // User data from Xano
-        return loggedInUserDataFormatted;
-      }
-      return;
+      return (compatible && enrolled && useLocalAuth) || false;
     } catch (error) {
-      console.error('AuthProvider, signInWithXano error =>', error);
-      Alert.alert('Login', `${error.response?.data?.message}`);
-    } finally {
-      setLoading(false);
+      console.error('Erro ao verificar biometria:', error);
+      return false;
     }
   }
 
   async function signInWithBiometrics() {
     try {
-      setLoading(true);
-
       const biometricAuth = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Entrar com Biometria',
         cancelLabel: 'Cancelar',
@@ -267,6 +175,94 @@ export function AuthProvider({ children }: any) {
         'Login',
         `Não foi possível autenticar com a biometria: ${error.response?.data?.message}. Por favor, tente novamente.`
       );
+    }
+  }
+
+  useEffect(() => {
+    if (!clerkLoaded) {
+      if (!loading) setLoading(true);
+      return;
+    }
+
+    if (clerkSignedIn) {
+      return;
+    }
+
+    const attemptBiometricLogin = async () => {
+      const canUseBiometrics = await canSignInWithBiometrics();
+      if (canUseBiometrics) {
+        await signInWithBiometrics();
+      }
+    };
+
+    if (!isSignedIn) {
+      setLoading(false);
+    }
+
+    attemptBiometricLogin();
+  }, [clerkLoaded, clerkSignedIn]);
+
+  async function fetchClerkUserDataOnXano() {
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        // Delay of few seconds, to Clerk webhook finish request to Xano
+        setTimeout(async () => {
+          try {
+            const { data, status } = await api.get('/auth/clerk_sso', {
+              params: {
+                clerk_user_id: clerkUser?.id!,
+              },
+            });
+
+            if (!!data[0] && status === 200) {
+              storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+              const loggedInUserDataFormatted = storageUserDataAndConfig(
+                data[1]
+              );
+              setIsSignedIn(clerkSignedIn!);
+              setUser(loggedInUserDataFormatted);
+            } else {
+              await clerk.signOut();
+              Alert.alert('Erro', 'Usuário não encontrado.');
+            }
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }, CLERK_WEBHOOK_DELAY);
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário =>', error);
+        reject(error);
+      }
+    });
+  }
+
+  async function signInWithXano(formData: FormData) {
+    try {
+      setLoading(true);
+
+      const SignInUser = {
+        email: formData.email,
+        password: formData.password,
+      };
+
+      const { data, status } = await api.post('auth/login', SignInUser);
+      const xanoToken = data.authToken || null;
+      if (status === 200) {
+        storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(xanoToken));
+
+        const userData = (await api.get('auth/me')).data;
+
+        const loggedInUserDataFormatted = storageUserDataAndConfig(userData);
+
+        setIsSignedIn(true);
+        setUser(loggedInUserDataFormatted); // User data from Xano
+        return loggedInUserDataFormatted;
+      }
+      return;
+    } catch (error) {
+      console.error('AuthProvider, signInWithXano error =>', error);
+      Alert.alert('Login', `${error.response?.data?.message}`);
     } finally {
       setLoading(false);
     }
@@ -310,12 +306,41 @@ export function AuthProvider({ children }: any) {
     }
   }
 
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (!clerkLoaded) {
+        return;
+      }
+
+      try {
+        if (clerkSignedIn && clerkUser) {
+          await fetchClerkUserDataOnXano();
+        } else {
+          const canUseBiometrics = await canSignInWithBiometrics();
+          if (canUseBiometrics) {
+            await signInWithBiometrics();
+          }
+        }
+      } catch (error) {
+        console.error('Erro durante a inicialização da autenticação:', error);
+        if (axios.isAxiosError(error)) {
+          Alert.alert('Login', error.response?.data?.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [clerkLoaded, clerkSignedIn, clerkUser]);
+
   const contextValue = {
-    user,
     isSignedIn,
+    user,
     loading,
     isLoaded: clerkLoaded,
     signInWithXano,
+    canSignInWithBiometrics,
     signInWithBiometrics,
     signOut,
   };

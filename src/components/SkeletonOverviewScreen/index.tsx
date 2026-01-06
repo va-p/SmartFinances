@@ -1,11 +1,14 @@
 import React from 'react';
 import { Container } from './styles';
 
+import { useTheme } from 'styled-components';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 export function SkeletonHomeScreen() {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container>
       <SkeletonPlaceholder

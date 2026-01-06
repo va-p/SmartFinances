@@ -8,7 +8,9 @@ import {
   SubTitle,
 } from './styles';
 
-import theme from '@themes/theme';
+import { useTheme } from 'styled-components';
+
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = {
   onValueChange: () => void;
@@ -27,6 +29,8 @@ export function ButtonToggle({
   subTitle,
   icon,
 }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container>
       <TitleContainer>
