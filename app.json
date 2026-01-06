@@ -49,14 +49,6 @@
         "projectId": "a17a404b-a307-4781-a880-7b717ea58c58"
       }
     },
-    "submit": {
-      "production": {
-        "android": {
-          "serviceAccountKeyPath": "./android/app/google-services.json",
-          "track": "internal"
-        }
-      }
-    },
     "updates": {
       "enabled": false
     },

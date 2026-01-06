@@ -1,8 +1,13 @@
 import React from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
+
+// Dependencies
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useTheme } from 'styled-components';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Icons
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Target from 'phosphor-react-native/src/icons/Target';
 import ListDashes from 'phosphor-react-native/src/icons/ListDashes';
@@ -12,19 +17,21 @@ import DotsThreeOutline from 'phosphor-react-native/src/icons/DotsThreeOutline';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
+import { View } from 'react-native';
 
 export default function AppLayout() {
   const theme: ThemeProps = useTheme();
   const { darkMode } = useUserConfigs();
-  console.log('theme:', theme);
-  console.log('Dark mode:', darkMode);
+  const insets = useSafeAreaInsets();
 
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: theme.colors.statusBar }}>
       <StatusBar
+        translucent
         barStyle={darkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.colors.statusBar}
+        backgroundColor='transparent'
       />
+
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -112,6 +119,15 @@ export default function AppLayout() {
           }}
         />
       </Tabs>
-    </>
+
+      {insets.bottom > 0 && (
+        <View
+          style={{
+            height: insets.bottom,
+            backgroundColor: theme.colors.background,
+          }}
+        />
+      )}
+    </View>
   );
 }

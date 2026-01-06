@@ -56,8 +56,6 @@ export function AuthProvider({ children }: any) {
   const [user, setUser] = useState<any>(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
 
-  console.log('loading =>', loading);
-
   const clerk = getClerkInstance();
 
   function storageUserDataAndConfig(userData: any): User {
