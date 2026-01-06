@@ -1,4 +1,5 @@
 package com.vap.smartfinances
+import com.microsoft.codepush.react.CodePush
 
 import android.app.Application
 import android.content.res.Configuration
@@ -32,6 +33,11 @@ class MainApplication : Application(), ReactApplication {
                         override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 
                         override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+// @generated begin @revopush/main-application-kt - expo prebuild (DO NOT MODIFY) sync-bcc47f6e88e6502f2d60de9b72f3beeea162e313
+          override fun getJSBundleFile(): String {
+              return CodePush.getJSBundleFile()
+          }
+// @generated end @revopush/main-application-kt
 
                         override val isNewArchEnabled: Boolean =
                                 BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
@@ -44,6 +50,14 @@ class MainApplication : Application(), ReactApplication {
 
     override fun onCreate() {
         super.onCreate()
+// @generated begin @revopush/main-application-kt-oncreate - expo prebuild (DO NOT MODIFY) sync-dff36c5e3e7a506aa1414ecee26ae96660d1074c
+super.onCreate()
+
+    try {
+        val deploymentKey = getString(R.string.CodePushDeploymentKey)
+        CodePush.getInstance(deploymentKey, this, BuildConfig.DEBUG)
+    } catch (e: Exception) {}
+// @generated end @revopush/main-application-kt-oncreate
         SoLoader.init(this, OpenSourceMergedSoMapping)
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             // If you opted-in for the New Architecture, we load the native entry point for this

@@ -1,16 +1,19 @@
 import React from 'react';
 import { Container, Title } from './styles';
 
+import { useTheme } from 'styled-components';
 import { RectButtonProps } from 'react-native-gesture-handler';
 import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = RectButtonProps & {
   title: string;
 };
 
 export function FilterButton({ title, ...rest }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container {...rest}>
       <Title>{title}</Title>

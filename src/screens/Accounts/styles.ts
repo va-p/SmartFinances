@@ -27,7 +27,7 @@ export const CashFlowContainer = styled.View`
 
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(18)}px;
+  font-size: ${RFValue(14)}px;
   text-align: center;
   color: ${({ theme }) => theme.colors.title};
 `;

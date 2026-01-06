@@ -2,7 +2,10 @@ import React from 'react';
 import { TextInputProps } from 'react-native';
 import { Container, ErrorMessage, Input } from './styles';
 
+import { useTheme } from 'styled-components';
 import { Control, Controller, FieldError } from 'react-hook-form';
+
+import { ThemeProps } from '@interfaces/theme';
 
 type Props = TextInputProps & {
   name: string;
@@ -11,6 +14,8 @@ type Props = TextInputProps & {
 };
 
 export function ControlledInputValue({ name, control, error, ...rest }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Container>
       <Controller
@@ -19,7 +24,12 @@ export function ControlledInputValue({ name, control, error, ...rest }: Props) {
         render={({ field: { onChange, value } }) => (
           <>
             {error && <ErrorMessage> {error.message} </ErrorMessage>}
-            <Input onChangeText={onChange} value={value} {...rest} />
+            <Input
+              onChangeText={onChange}
+              value={value}
+              placeholderTextColor={theme.colors.textPlaceholder}
+              {...rest}
+            />
           </>
         )}
       />

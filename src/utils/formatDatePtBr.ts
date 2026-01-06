@@ -9,6 +9,12 @@ function formatDatePtBr(date: Date) {
       });
       return formatted_date;
     },
+    medium() {
+      const formatted_date = format(new Date(date), "dd 'de' MMM 'de' yyyy", {
+        locale: ptBR,
+      });
+      return formatted_date;
+    },
     short() {
       const formatted_date = format(new Date(date), 'dd/MM/yyyy', {
         locale: ptBR,

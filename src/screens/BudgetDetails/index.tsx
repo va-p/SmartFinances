@@ -10,16 +10,18 @@ import {
 import formatCurrency from '@utils/formatCurrency';
 
 // Hooks
+import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 
 // Dependencies
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
-import { useRoute } from '@react-navigation/native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { formatDistanceToNowStrict, parse } from 'date-fns';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+// Components
 import {
   EndPeriod,
   PeriodContainer,
@@ -33,28 +35,49 @@ import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
 
+// Screens
 import { RegisterBudget } from '@screens/RegisterBudget';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
-export function BudgetDetails({ navigation }: any) {
-  const route = useRoute();
-  const budget = route.params?.budget;
-  const budgetID = budget?.id;
+export function BudgetDetails() {
+  const { budgetID } = useLocalSearchParams();
+  console.log('budgetID ====->', budgetID);
+  const { data: budget, isLoading, isError } = useBudgetDetailQuery(budgetID);
+  console.log('budget ====->', budget);
+  console.log('isLoading ====->', isLoading);
 
-  const { mutate: deleteBudget } = useDeleteBudgetMutation();
-
-  const budgetAmountReached = budget.amount_spent >= budget.amount;
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionID, setTransactionID] = useState('');
 
-  const bottomTabBarHeight = useBottomTabBarHeight();
   const { hideAmount } = useUserConfigs();
+
+  const { mutate: deleteBudget } = useDeleteBudgetMutation();
+
+  if (isLoading) {
+    return <SkeletonBudgetsScreen />;
+  }
+
+  if (isError || !budget) {
+    return (
+      <Screen>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Erro' />
+        </Header.Root>
+        <ListEmptyComponent text='Não foi possível carregar os detalhes do orçamento. Tente novamente.' />
+      </Screen>
+    );
+  }
+
+  const budgetAmountReached = budget.amount_spent >= budget.amount;
 
   function calculateRemainderBudget() {
     return Number(budget.amount) - Number(budget.amount_spent);
@@ -83,7 +106,7 @@ export function BudgetDetails({ navigation }: any) {
 
   function handleCloseEditBudgetModal() {
     budgetEditBottomSheetRef.current?.dismiss();
-    navigation.goBack();
+    router.back();
   }
 
   async function handleClickDeleteBudget() {

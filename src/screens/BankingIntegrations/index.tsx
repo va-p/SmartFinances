@@ -9,8 +9,9 @@ import {
 import { useRevenueCat } from '@providers/RevenueCatProvider';
 
 import axios from 'axios';
-import { useRoute } from '@react-navigation/native';
+import { useTheme } from 'styled-components';
 import { PluggyConnect } from 'react-native-pluggy-connect';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { useUser } from '@storage/userStorage';
@@ -22,16 +23,16 @@ import { Gradient } from '@components/Gradient';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { AccountConnectedListItem } from '@components/AccountConnectedListItem';
 
+import { ThemeProps } from '@interfaces/theme';
 import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 
 import api from '@api/api';
 
-import theme from '@themes/theme';
-
 export function BankingIntegrations({ navigation }: any) {
+  const theme: ThemeProps = useTheme();
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const route = useRoute();
-  const showHeader: boolean = route.params?.showHeader;
+  const router = useRouter();
+  const { showHeader } = useLocalSearchParams();
   const { user } = useRevenueCat();
   const { id: userID } = useUser();
   const [loading, setLoading] = useState(false);
@@ -134,7 +135,7 @@ export function BankingIntegrations({ navigation }: any) {
 
   function handlePressConnectNewAccount() {
     if (!user.premium) {
-      navigation.navigate('Assinatura');
+      router.navigate('/options/subscription');
       return;
     }
 
@@ -202,9 +203,12 @@ export function BankingIntegrations({ navigation }: any) {
       );
 
       if (status === 200 && !!data) {
-        navigation.navigate('Integração Bancária', {
-          bankingIntegration: bankingIntegration,
-          connectToken: data,
+        router.navigate({
+          pathname: '/bankingIntegrationDetails',
+          params: {
+            bankingIntegration: bankingIntegration,
+            connectToken: data,
+          },
         });
       }
     } catch (error) {

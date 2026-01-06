@@ -57,6 +57,8 @@ import {
   RectButton,
 } from 'react-native-gesture-handler';
 import { ptBR } from 'date-fns/locale';
+import { useTheme } from 'styled-components';
+import { useLocalSearchParams } from 'expo-router';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -86,14 +88,16 @@ import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+// Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { TransactionProps } from '@interfaces/transactions';
-
-import theme from '@themes/theme';
+import { useAccountDetailQuery } from '@hooks/useAcccountDetailQuery';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function Account() {
+  const theme: ThemeProps = useTheme();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -103,20 +107,8 @@ export function Account() {
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
   const hideAmount = useUserConfigs((state) => state.hideAmount);
-  const {
-    accountId: accountID,
-    accountName,
-    accountBalance,
-    accountType,
-    accountSubType,
-    accountCreditData,
-  } = useCurrentAccountSelected();
-  const balanceIsPositive =
-    parseFloat(accountBalance!.replace(/[^\d,.-]/g, '').replace(',', '.')) > 0; // TODO: Testar com outras moedas que não o real.
-  const isCreditCard =
-    accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
-  const hasCreditCardAvailableLimit =
-    accountCreditData?.availableCreditLimit! > 0;
+  const { id } = useLocalSearchParams();
+  const accountID: number = Number(id);
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -162,12 +154,37 @@ export function Account() {
     });
 
   const {
+    data: account,
+    isLoading: isLoadingAccountDetails,
+    isError,
+  } = useAccountDetailQuery(accountID);
+
+  const {
     data: allTransactions,
     isLoading,
     refetch,
     isRefetching,
   } = useTransactionsQuery(userID);
+
   const { mutate: deleteAccount } = useDeleteAccountMutation();
+
+  const dynamicStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        header: {
+          overflow: 'hidden',
+        },
+        animatedButton: {
+          width: 45,
+          height: 45,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.primary,
+          borderRadius: 23,
+        },
+      }),
+    [theme]
+  );
 
   const processedData = useMemo(() => {
     if (!allTransactions || !accountID) {
@@ -223,6 +240,99 @@ export function Account() {
       cashFlowIsPositive: isCashFlowPositive,
     };
   }, [allTransactions, accountID, selectedPeriod, selectedDate]);
+
+  const _renderPeriodRuler = useCallback(() => {
+    let months: any = {};
+    for (const item of allTransactions || []) {
+      const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+
+      if (!months.hasOwnProperty(ym)) {
+        months[ym] = {
+          date: ym,
+        };
+      }
+    }
+
+    months = Object.values(months).sort((a: any, b: any) => {
+      const firstDateParsed = parse(a.date, 'yyyy-MM', new Date());
+      const secondDateParsed = parse(b.date, 'yyyy-MM', new Date());
+      return secondDateParsed.getTime() - firstDateParsed.getTime();
+    });
+
+    for (let i = months.length - 1; i >= 0; i--) {
+      months[i].date = format(parseISO(months[i].date), `MMM '\n' yyyy`, {
+        locale: ptBR,
+      });
+    }
+
+    const dates = months?.map((item: any) => {
+      const dateSplit = item.date.split('\n');
+      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
+      const dateAux = trimmedDateParts.join(' ');
+
+      let parsedDate: Date | null = null;
+      try {
+        parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
+          locale: ptBR,
+        });
+        if (!isValid(parsedDate)) {
+          console.warn('Data inválida:', dateAux);
+        }
+      } catch (error) {
+        console.error('Erro ao converter data, _renderPeriodRuler:', error);
+      }
+
+      const isActive = parsedDate
+        ? getYear(selectedDate) === getYear(parsedDate) &&
+          getMonth(selectedDate) === getMonth(parsedDate)
+        : false;
+
+      return {
+        date: item.date,
+        isActive,
+      };
+    });
+
+    return (
+      <PeriodRuler
+        dates={dates}
+        handleDateChange={handleDateChange}
+        periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+        handlePressDate={handlePressDate}
+        horizontalPadding={16}
+      />
+    );
+  }, [selectedDate, allTransactions]);
+
+  if (isLoadingAccountDetails) {
+    return <SkeletonAccountsScreen />;
+  }
+
+  if (isError || !account) {
+    return (
+      <Screen>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Erro' />
+        </Header.Root>
+        <ListEmptyComponent text='Não foi possível carregar os detalhes da conta. Tente novamente.' />
+      </Screen>
+    );
+  }
+
+  const {
+    name: accountName,
+    currency: { code: accountCurrencyCode },
+    balance: accountBalance,
+    type: accountType,
+    subtype: accountSubType,
+    creditData: accountCreditData,
+  } = account;
+  const balanceIsPositive = accountBalance >= 0;
+  const isCreditCard =
+    accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
+  const hasCreditCardAvailableLimit =
+    accountCreditData?.availableCreditLimit! > 0;
 
   async function handleRefresh() {
     setIsManualRefreshing(true);
@@ -324,69 +434,6 @@ export function Account() {
 
   function handlePressDate(): void {}
 
-  const _renderPeriodRuler = useCallback(() => {
-    let months: any = {};
-    for (const item of allTransactions || []) {
-      const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
-
-      if (!months.hasOwnProperty(ym)) {
-        months[ym] = {
-          date: ym,
-        };
-      }
-    }
-
-    months = Object.values(months).sort((a: any, b: any) => {
-      const firstDateParsed = parse(a.date, 'yyyy-MM', new Date());
-      const secondDateParsed = parse(b.date, 'yyyy-MM', new Date());
-      return secondDateParsed.getTime() - firstDateParsed.getTime();
-    });
-
-    for (let i = months.length - 1; i >= 0; i--) {
-      months[i].date = format(parseISO(months[i].date), `MMM '\n' yyyy`, {
-        locale: ptBR,
-      });
-    }
-
-    const dates = months?.map((item: any) => {
-      const dateSplit = item.date.split('\n');
-      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
-      const dateAux = trimmedDateParts.join(' ');
-
-      let parsedDate: Date | null = null;
-      try {
-        parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
-          locale: ptBR,
-        });
-        if (!isValid(parsedDate)) {
-          console.warn('Data inválida:', dateAux);
-        }
-      } catch (error) {
-        console.error('Erro ao converter data, _renderPeriodRuler:', error);
-      }
-
-      const isActive = parsedDate
-        ? getYear(selectedDate) === getYear(parsedDate) &&
-          getMonth(selectedDate) === getMonth(parsedDate)
-        : false;
-
-      return {
-        date: item.date,
-        isActive,
-      };
-    });
-
-    return (
-      <PeriodRuler
-        dates={dates}
-        handleDateChange={handleDateChange}
-        periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
-        handlePressDate={handlePressDate}
-        horizontalPadding={16}
-      />
-    );
-  }, [selectedDate, allTransactions]);
-
   function _renderEmpty() {
     return <ListEmptyComponent />;
   }
@@ -411,7 +458,7 @@ export function Account() {
       <Container>
         <Gradient />
 
-        <Animated.View style={[headerStyleAnimation, styles.header]}>
+        <Animated.View style={[headerStyleAnimation, dynamicStyles.header]}>
           <HeaderContainer>
             <Header.Root>
               <Header.BackButton />
@@ -432,7 +479,9 @@ export function Account() {
           <AccountBalanceContainer>
             <AccountBalanceGroup>
               <AccountBalance balanceIsPositive={balanceIsPositive}>
-                {!hideAmount ? accountBalance : '•••••'}
+                {!hideAmount
+                  ? formatCurrency(accountCurrencyCode, accountBalance)
+                  : '•••••'}
               </AccountBalance>
               <AccountBalanceDescription>
                 {!isCreditCard && 'Saldo da conta'}
@@ -456,7 +505,7 @@ export function Account() {
                     : '•••••'
                   : !hideAmount
                   ? formatCurrency(
-                      'BRL',
+                      accountCurrencyCode,
                       accountCreditData?.availableCreditLimit!
                     )
                   : '•••••'}
@@ -509,7 +558,7 @@ export function Account() {
           >
             <ButtonAnimated
               onPress={handleOpenRegisterTransactionModal}
-              style={styles.animatedButton}
+              style={dynamicStyles.animatedButton}
             >
               <Plus size={24} color={theme.colors.background} />
             </ButtonAnimated>
@@ -556,17 +605,3 @@ export function Account() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    overflow: 'hidden',
-  },
-  animatedButton: {
-    width: 45,
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.primary,
-    borderRadius: 23,
-  },
-});

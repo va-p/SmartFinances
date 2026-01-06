@@ -2,9 +2,11 @@ import React from 'react';
 import { RectButtonProps } from 'react-native-gesture-handler';
 import { Item, Name } from './styles';
 
+import { useTheme } from 'styled-components';
+
 import CheckCircle from 'phosphor-react-native/src/icons/CheckCircle';
 
-import theme from '@themes/theme';
+import { ThemeProps } from '@interfaces/theme';
 
 type ListItemProps = {
   id: string;
@@ -17,6 +19,8 @@ type Props = RectButtonProps & {
 };
 
 export function ListItem({ data, isActive, ...rest }: Props) {
+  const theme: ThemeProps = useTheme();
+
   return (
     <Item {...rest}>
       <Name isActive={isActive}>{data.name}</Name>

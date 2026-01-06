@@ -11,6 +11,7 @@ import formatCurrency from '@utils/formatCurrency';
 import formatDatePtBr from '@utils/formatDatePtBr';
 
 // Dependencies
+import { useRouter } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
@@ -36,8 +37,9 @@ import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
 import { BudgetProps } from '@interfaces/budget';
 import { TransactionProps } from '@interfaces/transactions';
 
-export function Budgets({ navigation }: any) {
+export function Budgets() {
   const bottomTabBarHeight = useBottomTabBarHeight();
+  const router = useRouter();
   const { id: userID } = useUser();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
@@ -165,8 +167,8 @@ export function Budgets({ navigation }: any) {
       }
 
       const percentage = (amountSpent / Number(budget.amount)) * 100;
-      const formattedStartDate = formatDatePtBr(startDate).extensive();
-      const formattedEndDate = formatDatePtBr(endDate).extensive();
+      const formattedStartDate = formatDatePtBr(startDate).medium();
+      const formattedEndDate = formatDatePtBr(endDate).medium();
 
       return {
         ...budget,
@@ -202,8 +204,9 @@ export function Budgets({ navigation }: any) {
   }
 
   function handleOpenBudget(budget: BudgetProps) {
-    navigation.navigate('Orçamento', {
-      budget,
+    router.navigate({
+      pathname: '/budgets/[budgetId]',
+      params: { budgetID: budget.id },
     });
   }
 

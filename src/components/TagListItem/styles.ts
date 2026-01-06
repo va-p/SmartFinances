@@ -20,6 +20,6 @@ export const Tag = styled(RectButtonAnimated)`
 
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${RFValue(12)}px;
   color: ${({ theme }) => theme.colors.title};
 `;

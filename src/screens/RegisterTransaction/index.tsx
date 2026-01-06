@@ -33,6 +33,7 @@ import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
+import { useTheme } from 'styled-components';
 import * as ImagePicker from 'expo-image-picker';
 import ImageView from 'react-native-image-viewing';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -78,11 +79,10 @@ import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorag
 import api from '@api/api';
 
 // Interfaces
+import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
-
-import theme from '@themes/theme';
 
 type Props = {
   id: string;
@@ -123,6 +123,7 @@ export function RegisterTransaction({
   resetId,
   closeRegisterTransaction,
 }: Props) {
+  const theme: ThemeProps = useTheme();
   const { id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
