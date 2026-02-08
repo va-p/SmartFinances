@@ -46,11 +46,8 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 
 export function BudgetDetails() {
-  const { budgetID } = useLocalSearchParams();
-  console.log('budgetID ====->', budgetID);
+  const { budgetID }: { budgetID: string } = useLocalSearchParams();
   const { data: budget, isLoading, isError } = useBudgetDetailQuery(budgetID);
-  console.log('budget ====->', budget);
-  console.log('isLoading ====->', isLoading);
 
   const bottomTabBarHeight = useBottomTabBarHeight();
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -80,12 +77,12 @@ export function BudgetDetails() {
   const budgetAmountReached = budget.amount_spent >= budget.amount;
 
   function calculateRemainderBudget() {
-    return Number(budget.amount) - Number(budget.amount_spent);
+    return Number(budget?.amount) - Number(budget?.amount_spent);
   }
 
   function calculateRemainderBudgetPerDay() {
     const now = new Date();
-    const endDate = parse(budget.end_date!, "dd 'de' MMMM 'de' yyyy", now, {
+    const endDate = parse(budget?.end_date!, "dd 'de' MMMM 'de' yyyy", now, {
       locale: ptBR,
     });
 
@@ -119,7 +116,7 @@ export function BudgetDetails() {
           text: 'Sim, excluir',
           style: 'destructive',
           onPress: () =>
-            deleteBudget(budget.id, {
+            deleteBudget(budget?.id ?? '', {
               onSuccess: () => {
                 Alert.alert(
                   'Exclusão de orçamento',

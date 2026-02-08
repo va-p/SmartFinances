@@ -89,16 +89,20 @@ export function OptionsMenu() {
     router.navigate('/options/tags');
   }
 
-  async function handleClickHelpCenter() {
+  async function handleOpenkHelpCenter() {
     await WebBrowser.openBrowserAsync(eUrl.HELP_CENTER_URL);
   }
 
-  async function handleClickTermsOfUse() {
+  async function handleOpenTermsOfUse() {
     await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
   }
 
-  async function handleClickPrivacyPolicy() {
+  async function handleOpenPrivacyPolicy() {
     await WebBrowser.openBrowserAsync(eUrl.PRIVACY_POLICY_URL);
+  }
+
+  function handleOpenDevScreen() {
+    router.navigate('/options/dev');
   }
 
   async function handleChangeHideAmount() {
@@ -208,7 +212,7 @@ export function OptionsMenu() {
           <SelectButton
             icon={<User color={theme.colors.primary} />}
             title='Perfil'
-            onPress={() => handleOpenProfile()}
+            onPress={handleOpenProfile}
           />
 
           <SelectButton
@@ -278,19 +282,20 @@ export function OptionsMenu() {
           <SelectButton
             icon={<Lifebuoy color={theme.colors.primary} />}
             title='Central de Ajuda'
-            onPress={() => handleClickHelpCenter()}
+            onPress={() => handleOpenkHelpCenter()}
           />
 
           <SelectButton
             icon={<ShieldCheck color={theme.colors.primary} />}
             title='Termos de Uso'
-            onPress={() => handleClickTermsOfUse()}
+            onPress={() => handleOpenTermsOfUse()}
           />
 
           <SelectButton
             icon={<Cookie color={theme.colors.primary} />}
             title='Política de Privacidade'
-            onPress={() => handleClickPrivacyPolicy()}
+            onPress={() => handleOpenPrivacyPolicy()}
+            onLongPress={handleOpenDevScreen}
           />
         </ContentScroll>
       </Container>
