@@ -106,19 +106,19 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
-// Storages
+// Stores
+import {
+  useSelectedTransactions,
+  useClearSelection,
+  useToggleTransaction,
+  useSelectedTransactionsCount,
+} from '@stores/useTransactionsStore';
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
-
-// Stores
-import {
-  useSelectedTransactions,
-  useClearSelection,
-} from '@stores/useTransactionsStore';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -149,6 +149,8 @@ export function Home() {
   const { id: userID } = useUser();
   const selectedTransactions = useSelectedTransactions();
   const clearSelection = useClearSelection();
+  const toggleTransaction = useToggleTransaction();
+  const selectedCount = useSelectedTransactionsCount();
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,
@@ -239,8 +241,32 @@ export function Home() {
       ],
     };
   });
+  const bulkEditionButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: registerTransactionButtonPositionX.value },
+        { translateY: registerTransactionButtonPositionY.value },
+      ],
+    };
+  });
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
+    .onStart(() => {
+      initialX.current = registerTransactionButtonPositionX.value;
+      initialY.current = registerTransactionButtonPositionY.value;
+    })
+    .onUpdate((e) => {
+      registerTransactionButtonPositionX.value =
+        initialX.current + e.translationX;
+      registerTransactionButtonPositionY.value =
+        initialY.current + e.translationY;
+    })
+    .onEnd(() => {
+      registerTransactionButtonPositionX.value = withSpring(0);
+      registerTransactionButtonPositionY.value = withSpring(0);
+    });
+
+  const onMovebulkEditButton = Gesture.Pan()
     .onStart(() => {
       initialX.current = registerTransactionButtonPositionX.value;
       initialY.current = registerTransactionButtonPositionY.value;
@@ -410,10 +436,19 @@ export function Home() {
     registerTransactionBottomSheetRef.current?.dismiss();
   }
 
-  function handleOpenTransaction(id: string) {
-    setTransactionId(id);
-    registerTransactionBottomSheetRef.current?.present();
-  }
+  const handleOpenTransaction = useCallback((id: string) => {
+    if (selectedCount > 0) {
+      toggleTransaction(Number(id));
+      return;
+    } else {
+      setTransactionId(id);
+      registerTransactionBottomSheetRef.current?.present();
+    }
+  }, []);
+
+  const handleLongPress = useCallback((id: string) => {
+    toggleTransaction(Number(id));
+  }, []);
 
   function handleDateChange(action: 'prev' | 'next'): void {
     switch (selectedPeriod.period) {
@@ -800,16 +835,21 @@ export function Home() {
               if (item.isHeader) {
                 return (
                   <SectionListHeader
-                    data={{ title: item.headerTitle, total: item.headerTotal }}
+                    data={{
+                      title: item.headerTitle,
+                      total: item.headerTotal,
+                    }}
                   />
                 );
               }
               return (
                 <TransactionListItem
+                  key={item.id}
                   data={item}
                   index={index}
                   hideAmount={hideAmount}
                   onPress={() => handleOpenTransaction(item.id)}
+                  onLongPress={() => handleLongPress(item.id)}
                 />
               );
             }}
@@ -840,25 +880,27 @@ export function Home() {
         </Transactions>
 
         {selectedTransactions.length > 0 && (
-          <Animated.View
-            entering={FadeInUp.duration(300)}
-            exiting={FadeOutUp.duration(300)}
-            style={[
-              registerTransactionButtonStyle,
-              {
-                position: 'absolute',
-                bottom: BULK_EDIT_BUTTON_BOTTOM_POSITION,
-                right: FLOATING_BUTTONS_RIGHT_POSITION,
-              },
-            ]}
-          >
-            <ButtonAnimated
-              onPress={handleOpenBulkEditModal}
-              style={[dynamicStyles.bulkEditButton]}
+          <GestureDetector gesture={onMovebulkEditButton}>
+            <Animated.View
+              entering={FadeInUp.duration(300)}
+              exiting={FadeOutUp.duration(300)}
+              style={[
+                bulkEditionButtonStyle,
+                {
+                  position: 'absolute',
+                  bottom: BULK_EDIT_BUTTON_BOTTOM_POSITION,
+                  right: FLOATING_BUTTONS_RIGHT_POSITION,
+                },
+              ]}
             >
-              <PencilSimpleLine size={24} color={theme.colors.background} />
-            </ButtonAnimated>
-          </Animated.View>
+              <ButtonAnimated
+                onPress={handleOpenBulkEditModal}
+                style={[dynamicStyles.bulkEditButton]}
+              >
+                <PencilSimpleLine size={24} color={theme.colors.background} />
+              </ButtonAnimated>
+            </Animated.View>
+          </GestureDetector>
         )}
 
         <GestureDetector gesture={onMoveRegisterTransactionButton}>

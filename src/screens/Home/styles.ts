@@ -1,5 +1,6 @@
 import styled from 'styled-components/native';
 
+import Animated from 'react-native-reanimated';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
@@ -67,7 +68,7 @@ export const ClearSearchButton = styled(BorderlessButton)`
   right: 8px;
 `;
 
-export const Transactions = styled.View`
+export const Transactions = styled(Animated.View)`
   flex: 1;
   padding: 0 16px;
 `;

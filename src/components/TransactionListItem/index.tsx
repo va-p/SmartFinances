@@ -1,5 +1,10 @@
-import React, { memo, useCallback } from 'react';
-import { FlatList, TouchableWithoutFeedback, View } from 'react-native';
+import React, { memo } from 'react';
+import {
+  FlatList,
+  TouchableWithoutFeedback,
+  TouchableWithoutFeedbackProps,
+  View,
+} from 'react-native';
 import {
   Container,
   DescriptionAndAmountContainer,
@@ -37,6 +42,7 @@ type Props = {
   index: number;
   hideAmount: boolean;
   onPress: () => void;
+  onLongPress: () => void;
 };
 
 const TransactionListItem = memo(function TransactionListItem({
@@ -44,29 +50,17 @@ const TransactionListItem = memo(function TransactionListItem({
   index,
   hideAmount,
   onPress,
+  onLongPress,
   ...rest
 }: Props) {
   const theme = useTheme() as ThemeProps;
   const isSelected = useIsTransactionSelected(data.id);
-  const toggleTransaction = useToggleTransaction();
-  const selectedCount = useSelectedTransactionsCount();
-
-  const handleLongPress = useCallback(() => {
-    toggleTransaction(data.id);
-  }, [data.id, toggleTransaction]);
-
-  const handlePress = useCallback(() => {
-    if (selectedCount > 0) {
-      toggleTransaction(data.id);
-    } else {
-      onPress();
-    }
-  }, [data.id, toggleTransaction, selectedCount, onPress]);
 
   return (
     <TouchableWithoutFeedback
-      onLongPress={handleLongPress}
-      onPress={handlePress}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      {...rest}
     >
       <View>
         <Container
