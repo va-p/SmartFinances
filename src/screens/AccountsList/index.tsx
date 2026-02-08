@@ -23,8 +23,8 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
-import { useUser } from '@storage/userStorage';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
+import { useUser } from '@stores/userStorage';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 import api from '@api/api';
 

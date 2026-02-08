@@ -15,7 +15,7 @@ import Purchases, {
 
 import { Gradient } from '@components/Gradient';
 
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 import { Load } from '@components/Button/components/Load';
 
 const API_KEYS = {
