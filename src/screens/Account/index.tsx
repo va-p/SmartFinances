@@ -586,7 +586,7 @@ export function Account() {
           deleteChildren={handleClickDeleteAccount}
         >
           <RegisterAccount
-            id={accountID}
+            id={String(accountID)}
             closeAccount={handleCloseEditAccount}
           />
         </ModalView>
