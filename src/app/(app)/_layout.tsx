@@ -14,7 +14,7 @@ import ListDashes from 'phosphor-react-native/src/icons/ListDashes';
 import ChartPieSlice from 'phosphor-react-native/src/icons/ChartPieSlice';
 import DotsThreeOutline from 'phosphor-react-native/src/icons/DotsThreeOutline';
 
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 import { View } from 'react-native';

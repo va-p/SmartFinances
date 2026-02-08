@@ -31,7 +31,7 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 import { CurrencySelect } from '@screens/CurrencySelect';
 
 // Storages
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';

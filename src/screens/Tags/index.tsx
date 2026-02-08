@@ -19,7 +19,7 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterTag } from '@screens/RegisterTag';
 
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 export function Tags() {
   const bottomTabBarHeight = useBottomTabBarHeight();

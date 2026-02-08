@@ -30,8 +30,8 @@ import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { RegisterBudget } from '@screens/RegisterBudget';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
+import { useUser } from '@stores/userStorage';
+import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 // Interfaces
 import { BudgetProps } from '@interfaces/budget';

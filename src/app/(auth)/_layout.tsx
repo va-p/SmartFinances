@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from 'styled-components';
 
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 

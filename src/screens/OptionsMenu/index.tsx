@@ -33,8 +33,8 @@ import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUser } from '@stores/userStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';

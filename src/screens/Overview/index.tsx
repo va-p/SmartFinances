@@ -45,10 +45,10 @@ import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useQuotes } from '@storage/quotesStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
+import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';

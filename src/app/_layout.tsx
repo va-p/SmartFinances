@@ -21,7 +21,7 @@ import {
   Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import darkTheme from '@themes/darkTheme';

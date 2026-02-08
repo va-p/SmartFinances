@@ -24,6 +24,7 @@ import {
 } from '@hooks/useTransactionMutations';
 import { useTagsQuery } from '@hooks/useTagsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
+import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
@@ -71,9 +72,12 @@ import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useQuotes } from '@storage/quotesStorage';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
+import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
+
+// Stores
+import { useClearSelection } from '@stores/useTransactionsStore';
 
 // APIs
 import api from '@api/api';
@@ -88,6 +92,8 @@ type Props = {
   id: string;
   resetId: () => void;
   closeRegisterTransaction: () => void;
+  isBulkEdit?: boolean;
+  selectedTransactionIds?: number[];
 };
 
 type FormData = {
@@ -122,8 +128,10 @@ export function RegisterTransaction({
   id,
   resetId,
   closeRegisterTransaction,
+  isBulkEdit = false,
+  selectedTransactionIds = [],
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -154,10 +162,8 @@ export function RegisterTransaction({
     setAccountType,
     setAccountInitialAmount,
   } = useCurrentAccountSelected();
-  const [accountDestinationSelected, setAccountDestinationSelected] = useState({
-    id: '',
-    name: 'Selecione a conta de destino',
-  } as AccountProps);
+  const [accountDestinationSelected, setAccountDestinationSelected] =
+    useState<AccountProps | null>(null);
   const [date, setDate] = useState(new Date());
   const formattedDate = format(date, "dd 'de' MMMM 'de' yyyy", {
     locale: ptBR,
@@ -189,6 +195,9 @@ export function RegisterTransaction({
   const { data: tagsData, isLoading: isLoadingTags } = useTagsQuery(userID);
   const { data: transactionData, isLoading: isLoadingDetails } =
     useTransactionDetailQuery(id);
+  const { data: bulkTransactionsData, isLoading: isLoadingBulkTransactions } =
+    useBulkTransactionsQuery(isBulkEdit ? selectedTransactionIds : []);
+  const clearSelection = useClearSelection();
 
   const {
     control,
@@ -335,7 +344,7 @@ export function RegisterTransaction({
   }
 
   function handleClickSelectImage() {
-    Alert.alert('Selecionar Imagem', undefined, [
+    Alert.alert('Selecionar imagem', 'Escolha uma opção', [
       { text: 'Tirar foto', onPress: handleTakePhoto },
       { text: 'Selecionar da biblioteca', onPress: handleSelectImage },
     ]);
@@ -347,6 +356,130 @@ export function RegisterTransaction({
 
   function handleCloseImage() {
     setOpenImage(false);
+  }
+
+  // Helper function to check if all values in array are the same
+  function checkIfAllSame<T>(arr: T[]): boolean {
+    if (arr.length === 0) return true;
+    return arr.every((val) => JSON.stringify(val) === JSON.stringify(arr[0]));
+  }
+
+  // Helper function to get common value or null if mixed
+  function getCommonValue<T>(arr: T[]): T | null {
+    return checkIfAllSame(arr) ? arr[0] : null;
+  }
+
+  async function handleBulkEditTransaction(form: FormData) {
+    if (!bulkTransactionsData || bulkTransactionsData.length === 0) {
+      Alert.alert('Erro', 'Nenhuma transação selecionada para editar.');
+      return;
+    }
+
+    let tagsList: any = [];
+    for (const tag of tagsSelected) {
+      const tag_id = tag.id;
+      if (!tagsList.hasOwnProperty(tag_id)) {
+        tagsList[tag_id] = {
+          tag_id: tag.id,
+        };
+      }
+    }
+    tagsList = Object.values(tagsList);
+
+    // Process each transaction
+    const updatePromises = bulkTransactionsData.map(async (transaction) => {
+      // Use form values if changed, otherwise keep original
+      const updatedDescription =
+        form.description && form.description !== 'várias descrições*'
+          ? form.description
+          : transaction.description;
+
+      const updatedAmount =
+        form.amount && form.amount > 0 ? form.amount : transaction.amount;
+
+      const updatedCategoryId =
+        categorySelected.id !== '' &&
+        categorySelected.name !== 'Selecione a categoria'
+          ? categorySelected.id
+          : transaction.category.id;
+
+      const updatedCurrencyId =
+        currencySelected.id !== 0 && currencySelected.name !== 'várias moedas*'
+          ? currencySelected.id
+          : transaction.currency.id;
+
+      const updatedAccountId =
+        accountID !== null ? accountID : transaction.account.id;
+
+      const updatedDate = date ? date : new Date(transaction.created_at);
+
+      let amountConverted = updatedAmount;
+      const fromCurrency = currencySelected.code || transaction.currency.code;
+      const targetAccountCurrency =
+        accountCurrency?.code || transaction.account.currency.code;
+
+      if (fromCurrency !== targetAccountCurrency) {
+        amountConverted = convertCurrency({
+          amount: updatedAmount,
+          fromCurrency: fromCurrency,
+          toCurrency: targetAccountCurrency,
+          accountCurrency: fromCurrency,
+          quotes: {
+            brlQuoteBtc,
+            brlQuoteEur,
+            brlQuoteUsd,
+            btcQuoteBrl,
+            btcQuoteEur,
+            btcQuoteUsd,
+            eurQuoteBrl,
+            eurQuoteBtc,
+            eurQuoteUsd,
+            usdQuoteBrl,
+            usdQuoteBtc,
+            usdQuoteEur,
+          },
+        });
+      }
+
+      const transactionEditedPayload = {
+        transaction_id: String(transaction.id),
+        created_at: updatedDate,
+        bank_transaction_id: null,
+        date: null,
+        description: updatedDescription,
+        amount: updatedAmount,
+        amount_in_account_currency:
+          fromCurrency !== targetAccountCurrency ? amountConverted : null,
+        currency_id: updatedCurrencyId,
+        type: transactionType || transaction.type,
+        account_id: updatedAccountId,
+        category_id: updatedCategoryId,
+        tags: tagsList.length > 0 ? tagsList : transaction.tags,
+        transaction_image_id: null,
+        user_id: userID,
+      };
+
+      return api.put('transaction/update', transactionEditedPayload);
+    });
+
+    try {
+      await Promise.all(updatePromises);
+      Alert.alert(
+        'Edição em massa',
+        `${bulkTransactionsData.length} transações editadas com sucesso!`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              clearSelection();
+              closeRegisterTransaction();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível editar as transações.');
+    }
   }
 
   async function handleEditTransaction(form: FormData) {
@@ -376,7 +509,9 @@ export function RegisterTransaction({
       }
     }
 
-    const hasDestinationAccount = accountDestinationSelected.id !== ''; // Checks if there is a destination account selected (contrapart)
+    const hasDestinationAccount =
+      accountDestinationSelected !== null &&
+      accountDestinationSelected.id !== 0; // Checks if there is a destination account selected (contrapart)
     const fromCurrency = currencySelected.code; // Moeda selecionada
 
     let amountConverted = form.amount;
@@ -385,7 +520,7 @@ export function RegisterTransaction({
       fromCurrency: currencySelected.code,
       toCurrency:
         transactionType === 'TRANSFER' && hasDestinationAccount
-          ? accountDestinationSelected.currency.code
+          ? accountDestinationSelected?.currency.code
           : accountCurrency!.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
       quotes: {
@@ -413,7 +548,7 @@ export function RegisterTransaction({
           ? 'TRANSFER_DEBIT'
           : 'TRANSFER_CREDIT';
       const amountInAccountCurrencyRelatedTransaction = hasDestinationAccount
-        ? fromCurrency !== accountDestinationSelected.currency!.code // If transaction currency is different to account currency
+        ? fromCurrency !== accountDestinationSelected?.currency!.code // If transaction currency is different to account currency
           ? relatedTransactionType === 'TRANSFER_CREDIT'
             ? Math.abs(amountConverted)
             : amountConverted
@@ -439,7 +574,7 @@ export function RegisterTransaction({
         transaction_image_id,
         // Informações para o backend lidar com a contrapartida
         related_transaction_account_id: hasDestinationAccount
-          ? accountDestinationSelected.id
+          ? accountDestinationSelected?.id
           : null,
         related_transaction_type: hasDestinationAccount
           ? relatedTransactionType
@@ -525,6 +660,14 @@ export function RegisterTransaction({
 
     // --- Transfer transaction ---
     if (transactionType === 'TRANSFER') {
+      if (!accountDestinationSelected) {
+        Alert.alert(
+          'Cadastro de Transação',
+          'Selecione a conta de destino para transferências'
+        );
+        return;
+      }
+
       const fromCurrency = currencySelected.code; // Moeda selecionada
       const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
       const transactionType =
@@ -556,7 +699,7 @@ export function RegisterTransaction({
       });
 
       const amountInAccountCurrencyRelatedTransaction =
-        fromCurrency !== accountDestinationSelected.currency!.code // If transaction currency is different to account currency
+        fromCurrency !== accountDestinationSelected.currency.code // If transaction currency is different to account currency
           ? relatedTransactionType === 'TRANSFER_CREDIT'
             ? Math.abs(amountConverted)
             : amountConverted
@@ -567,7 +710,7 @@ export function RegisterTransaction({
         description: form.description,
         amount: form.amount,
         amount_in_account_currency:
-          fromCurrency !== accountCurrency!.code // If transaction currency is different to account currency
+          fromCurrency !== accountDestinationSelected.currency.code // If transaction currency is different to account currency
             ? amountConverted
             : null,
         currency_id: currencySelected.id,
@@ -700,8 +843,12 @@ export function RegisterTransaction({
     }
     // --- Validation Form - End ---
 
+    // --- Bulk Edit Transaction ---
+    if (isBulkEdit) {
+      handleBulkEditTransaction(form);
+    }
     // --- Edit Transaction ---
-    if (id !== '') {
+    else if (id !== '') {
       handleEditTransaction(form);
     }
     // --- Register Transaction ---
@@ -738,7 +885,101 @@ export function RegisterTransaction({
   }
 
   useEffect(() => {
-    if (transactionData && id !== '') {
+    if (isBulkEdit && bulkTransactionsData && bulkTransactionsData.length > 0) {
+      // Process bulk transactions to detect mixed or common values
+      const descriptions = bulkTransactionsData.map((t) => t.description);
+      const amounts = bulkTransactionsData.map((t) => t.amount);
+      const categories = bulkTransactionsData.map((t) => t.category);
+      const currencies = bulkTransactionsData.map((t) => t.currency);
+      const accounts = bulkTransactionsData.map((t) => t.account);
+      const dates = bulkTransactionsData.map((t) =>
+        new Date(t.created_at).toDateString()
+      );
+      const types = bulkTransactionsData.map((t) => t.type);
+
+      // Set common values or placeholders for mixed values
+      const commonDescription = getCommonValue(descriptions);
+      if (commonDescription) {
+        setValue('description', commonDescription);
+      } else {
+        setValue('description', 'várias descrições*');
+      }
+
+      const commonAmount = getCommonValue(amounts);
+      if (commonAmount) {
+        setValue('amount', commonAmount);
+      } else {
+        setValue('amount', 0);
+      }
+
+      const commonCategory = getCommonValue(categories);
+      if (commonCategory) {
+        setCategorySelected(commonCategory);
+      } else {
+        setCategorySelected({
+          id: '',
+          name: 'várias categorias*',
+          color: { color_code: theme.colors.primary },
+        } as CategoryProps);
+      }
+
+      const commonCurrency = getCommonValue(currencies);
+      if (commonCurrency) {
+        setCurrencySelected(commonCurrency);
+      } else {
+        setCurrencySelected({
+          id: 0,
+          name: 'várias moedas*',
+          code: 'BRL',
+          symbol: '*',
+        } as CurrencyProps);
+      }
+
+      const commonAccount = getCommonValue(accounts);
+      if (commonAccount) {
+        setAccountID(String(commonAccount.id));
+        setAccountName(commonAccount.name);
+        setAccountCurrency(commonAccount.currency);
+        setAccountType(commonAccount.type);
+      } else {
+        setAccountID(null);
+        setAccountName('várias contas*');
+      }
+
+      const commonDate = getCommonValue(dates);
+      if (commonDate) {
+        setDate(new Date(bulkTransactionsData[0].created_at));
+      }
+      // If dates are different, keep current date as default
+
+      const commonType = getCommonValue(types);
+      if (commonType) {
+        let mappedType: TransactionTabType = 'CREDIT';
+        let transactionTab: number = 0;
+
+        switch (commonType) {
+          case 'CREDIT':
+            mappedType = 'CREDIT';
+            transactionTab = 0;
+            break;
+          case 'TRANSFER_CREDIT':
+          case 'TRANSFER_DEBIT':
+            mappedType = 'TRANSFER';
+            transactionTab = 1;
+            break;
+          case 'DEBIT':
+            mappedType = 'DEBIT';
+            transactionTab = 2;
+            break;
+          default:
+            mappedType = 'CREDIT';
+            transactionTab = 0;
+            break;
+        }
+        setTransactionType(mappedType);
+        setSelectedTransactionTab(transactionTab);
+      }
+    } else if (transactionData && id !== '' && !isBulkEdit) {
       setCategorySelected(transactionData.category);
       setValue('amount', transactionData.amount);
       setValue(
@@ -779,9 +1020,9 @@ export function RegisterTransaction({
       setBankTransactionID(transactionData.bank_transaction_id);
       setRelatedTransactionID(transactionData.related_transaction_id);
     }
-  }, [transactionData]);
+  }, [transactionData, bulkTransactionsData, isBulkEdit]);
 
-  if (isLoadingTags || isLoadingDetails) {
+  if (isLoadingTags || isLoadingDetails || isLoadingBulkTransactions) {
     return false;
   }
 
@@ -800,11 +1041,13 @@ export function RegisterTransaction({
                 <X size={24} color={theme.colors.text} weight='bold' />
               </BorderlessButton>
               <Title>
-                {id !== ''
+                {isBulkEdit
+                  ? `Editar ${selectedTransactionIds.length} Transações`
+                  : id !== ''
                   ? `Editar Transação \n ${getValues('description')}`
                   : 'Adicionar Transação'}
               </Title>
-              {id !== '' && (
+              {id !== '' && !isBulkEdit && (
                 <BorderlessButton
                   onPress={() => handleClickDeleteTransaction(id)}
                   style={{ position: 'absolute', top: 0, right: 0 }}
@@ -874,7 +1117,10 @@ export function RegisterTransaction({
             />
             {transactionType === 'TRANSFER' && (
               <SelectButton
-                title={accountDestinationSelected.name}
+                title={
+                  accountDestinationSelected?.name ||
+                  'Selecione a conta de destino'
+                }
                 icon={<Wallet color={categorySelected.color.color_code} />}
                 onPress={handleOpenSelectAccountDestinationModal}
               />
@@ -892,7 +1138,6 @@ export function RegisterTransaction({
                 mode='date'
                 is24Hour={true}
                 onChange={onChangeDate}
-                dateFormat='day month year'
                 textColor={theme.colors.text}
               />
             )}
@@ -958,10 +1203,16 @@ export function RegisterTransaction({
         <Footer>
           <Button.Root
             isLoading={isCreating || isUpdating || isDeleting}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => handleSubmit(onSubmit)()}
           >
             <Button.Text
-              text={id !== '' ? 'Editar Transação' : 'Adicionar Transação'}
+              text={
+                isBulkEdit
+                  ? `Editar ${selectedTransactionIds.length} Transações`
+                  : id !== ''
+                  ? 'Editar Transação'
+                  : 'Adicionar Transação'
+              }
             />
           </Button.Root>
         </Footer>
@@ -1000,25 +1251,25 @@ export function RegisterTransaction({
         >
           <AccountSelect
             account={{
-              id: accountID,
+              id: accountID ? Number(accountID) : 0,
               name: accountName || 'Selecione a conta',
               currency: accountCurrency || {
-                id: '4',
+                id: 4,
                 name: 'Real Brasileiro',
                 code: 'BRL',
                 symbol: 'R$',
               },
               type: accountType || 'BANK',
-              balance: '0',
+              balance: 0,
               initialAmount: accountInitialAmount,
             }}
             setAccount={(account: AccountProps) => {
-              setAccountID(account.id);
+              setAccountID(String(account.id));
               setAccountName(account.name);
               setAccountCurrency(account.currency);
               setAccountType(account.type);
               setCurrencySelected(account.currency);
-              setAccountInitialAmount(account.initialAmount || 0);
+              setAccountInitialAmount(account.initialAmount ?? 0);
             }}
             closeSelectAccount={handleCloseSelectAccountModal}
           />
@@ -1032,7 +1283,21 @@ export function RegisterTransaction({
           onClose={handleCloseSelectAccountDestinationModal}
         >
           <AccountDestinationSelect
-            accountDestination={accountDestinationSelected}
+            accountDestination={
+              accountDestinationSelected || {
+                id: 0,
+                name: '',
+                currency: {
+                  id: 4,
+                  name: 'Real Brasileiro',
+                  code: 'BRL',
+                  symbol: 'R$',
+                },
+                type: 'BANK',
+                balance: 0,
+                initialAmount: 0,
+              }
+            }
             setAccountDestination={setAccountDestinationSelected}
             closeSelectAccountDestination={
               handleCloseSelectAccountDestinationModal

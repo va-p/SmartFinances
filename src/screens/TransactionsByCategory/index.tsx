@@ -35,8 +35,8 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
+import { useUser } from '@stores/userStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';

@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Container, Content, Label, Value } from './styles';
 
+import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
+import { Gradient } from '@components/Gradient';
 
 import DeviceInfo from 'react-native-device-info';
 import codePush from '@revopush/react-native-code-push';
@@ -45,7 +47,7 @@ export function DevScreen() {
     try {
       const update = await codePush.checkForUpdate();
       if (update) {
-        Alert.alert('Atualização', 'Aplicar agora?', [
+        Alert.alert('Atualização', 'Atualizar agora?', [
           { text: 'Sim', onPress: () => syncNow() },
           { text: 'Depois', onPress: () => {} },
         ]);
@@ -84,56 +86,62 @@ export function DevScreen() {
   };
 
   return (
-    <Container>
-      <Header.Root>
-        <Header.Title title='Developer Menu'></Header.Title>
-      </Header.Root>
-      <Content>
-        {/* App Version / CodePush */}
-        <Label disabled={!fullVersion}>App version</Label>
-        <Value disabled={!fullVersion}>
-          <RectButton
-            onPress={() => copy(fullVersion, 'Versão do Aplicativo copiada!')}
-          >
-            <Label disabled={!fullVersion}>{fullVersion || '—'}</Label>
-          </RectButton>
-        </Value>
+    <Screen>
+      <Container>
+        <Gradient />
 
-        {/* RevoPush extras */}
-        <Label disabled={!cpLabel}>RevoPush Label</Label>
-        <Value disabled={!cpLabel}>
-          <RectButton onPress={() => copy(cpLabel!, 'Label copiada!')}>
-            <Label disabled={!cpLabel}>{cpLabel || '—'}</Label>
-          </RectButton>
-        </Value>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Developer Menu' />
+        </Header.Root>
 
-        <Label disabled={!cpDesc}>RevoPush Description</Label>
-        <Value disabled={!cpDesc}>
-          <RectButton onPress={() => copy(cpDesc!, 'Descrição copiada!')}>
-            <Label disabled={!cpDesc}>{cpDesc || '—'}</Label>
-          </RectButton>
-        </Value>
+        <Content>
+          {/* App Version / CodePush */}
+          <Label disabled={!fullVersion}>App version</Label>
+          <Value disabled={!fullVersion}>
+            <RectButton
+              onPress={() => copy(fullVersion, 'Versão do Aplicativo copiada!')}
+            >
+              <Label disabled={!fullVersion}>{fullVersion || '—'}</Label>
+            </RectButton>
+          </Value>
 
-        <Label disabled={!cpHash}>RevoPush Package Hash</Label>
-        <Value disabled={!cpHash}>
-          <RectButton onPress={() => copy(cpHash!, 'Package hash copiado!')}>
-            <Label disabled={!cpHash}>{cpHash || '—'}</Label>
-          </RectButton>
-        </Value>
+          {/* RevoPush extras */}
+          <Label disabled={!cpLabel}>RevoPush Label</Label>
+          <Value disabled={!cpLabel}>
+            <RectButton onPress={() => copy(cpLabel!, 'Label copiada!')}>
+              <Label disabled={!cpLabel}>{cpLabel || '—'}</Label>
+            </RectButton>
+          </Value>
 
-        {/* Ações rápidas */}
-        <View style={{ height: 16 }} />
-        <Value disabled={false}>
-          <RectButton onPress={checkForUpdate}>
-            <Label disabled={false}>🔍 Check update</Label>
-          </RectButton>
-        </Value>
-        <Value disabled={false}>
-          <RectButton onPress={syncNow}>
-            <Label disabled={false}>⚡ Sync now</Label>
-          </RectButton>
-        </Value>
-      </Content>
-    </Container>
+          <Label disabled={!cpDesc}>RevoPush Description</Label>
+          <Value disabled={!cpDesc}>
+            <RectButton onPress={() => copy(cpDesc!, 'Descrição copiada!')}>
+              <Label disabled={!cpDesc}>{cpDesc || '—'}</Label>
+            </RectButton>
+          </Value>
+
+          <Label disabled={!cpHash}>RevoPush Package Hash</Label>
+          <Value disabled={!cpHash}>
+            <RectButton onPress={() => copy(cpHash!, 'Package hash copiado!')}>
+              <Label disabled={!cpHash}>{cpHash || '—'}</Label>
+            </RectButton>
+          </Value>
+
+          {/* Ações rápidas */}
+          <View style={{ height: 16 }} />
+          <Value disabled={false}>
+            <RectButton onPress={checkForUpdate}>
+              <Label disabled={false}>🔍 Check update</Label>
+            </RectButton>
+          </Value>
+          <Value disabled={false}>
+            <RectButton onPress={syncNow}>
+              <Label disabled={false}>⚡ Sync now</Label>
+            </RectButton>
+          </Value>
+        </Content>
+      </Container>
+    </Screen>
   );
 }

@@ -14,7 +14,7 @@ import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';

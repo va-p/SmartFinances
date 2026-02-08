@@ -50,8 +50,8 @@ import {
 } from '@screens/BudgetPeriodSelect';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
+import { useUser } from '@stores/userStorage';
+import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';

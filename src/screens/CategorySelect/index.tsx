@@ -10,7 +10,7 @@ import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 import { CategoryProps } from '@interfaces/categories';
 
