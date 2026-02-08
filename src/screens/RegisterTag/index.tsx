@@ -19,7 +19,7 @@ import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 type Props = {
   id: string;

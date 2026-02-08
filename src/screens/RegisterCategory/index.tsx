@@ -33,7 +33,7 @@ import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 import { ColorProps, IconProps } from '@interfaces/categories';
 
