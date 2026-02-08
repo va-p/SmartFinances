@@ -8,35 +8,45 @@ import {
   PluggyConnectContainer,
 } from './styles';
 
+// Hooks
+import { useBankingIntegrationDetailQuery } from '@hooks/useBankingIntegrationDetailQuery';
+
 import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
+import { OneSignal } from 'react-native-onesignal';
+import { router, useLocalSearchParams } from 'expo-router';
 import { PluggyConnect } from 'react-native-pluggy-connect';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 
-import { BankingIntegration as BankingIntegrationProps } from '@interfaces/bankingIntegration';
-import { OneSignal } from 'react-native-onesignal';
+import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 export function BankingIntegrationDetails() {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const bankingIntegration: BankingIntegrationProps =
-    route.params?.bankingIntegration;
-  const token: string = route.params?.connectToken;
+  const {
+    bankingIntegrationID,
+    connectToken: token,
+  }: { bankingIntegrationID: string; connectToken: string } =
+    useLocalSearchParams();
+
+  const { data: bankingIntegration, isLoading } =
+    useBankingIntegrationDetailQuery(bankingIntegrationID);
 
   const [showModal, setShowModal] = useState(false);
 
-  const formattedLastSyncDate = format(
-    parseISO(bankingIntegration.last_sync_date),
-    'dd/MM/yyyy',
-    {
-      locale: ptBR,
-    }
-  );
+  const formattedLastSyncDate = useCallback(() => {
+    if (!bankingIntegration) return '';
+
+    return format(
+      parseISO(bankingIntegration.last_sync_date || ''),
+      'dd/MM/yyyy',
+      {
+        locale: ptBR,
+      }
+    );
+  }, [bankingIntegration]);
 
   async function handlePressUpdateAccount() {
     try {
@@ -63,7 +73,7 @@ export function BankingIntegrationDetails() {
       [
         {
           text: 'OK',
-          onPress: () => navigation.goBack(),
+          onPress: () => router.back(),
         },
       ]
     );
@@ -80,6 +90,10 @@ export function BankingIntegrationDetails() {
   const handleOnClose = useCallback(() => {
     setShowModal(false);
   }, []);
+
+  if (isLoading) {
+    return <SkeletonAccountsScreen />;
+  }
 
   return (
     <Screen>

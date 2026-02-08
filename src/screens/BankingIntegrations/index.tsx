@@ -70,10 +70,10 @@ export function BankingIntegrations({ navigation }: any) {
   }
 
   async function handleRefresh() {
-    try {
-      setLoading(true);
-      setRefreshing(true);
+    setLoading(true);
+    setRefreshing(true);
 
+    try {
       const response = await api.get(
         '/banking_integration/get_and_sync_integrations',
         {
@@ -192,8 +192,9 @@ export function BankingIntegrations({ navigation }: any) {
   async function handleOpenBankingIntegration(
     bankingIntegration: BankingIntegration
   ) {
+    setLoading(true);
+
     try {
-      setLoading(true);
       const { data, status } = await api.post(
         'banking_integration/pluggy_connect_token_create_itemId',
         {
@@ -202,11 +203,13 @@ export function BankingIntegrations({ navigation }: any) {
         }
       );
 
-      if (status === 200 && !!data) {
+      if (status === 200 && data) {
+        setLoading(false);
+
         router.navigate({
-          pathname: '/bankingIntegrationDetails',
+          pathname: '/accounts/bankingIntegrationDetails',
           params: {
-            bankingIntegration: bankingIntegration,
+            bankingIntegrationID: bankingIntegration.id,
             connectToken: data,
           },
         });
