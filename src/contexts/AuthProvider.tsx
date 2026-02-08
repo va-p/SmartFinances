@@ -15,8 +15,8 @@ import {
   storageUser,
 } from '@database/database';
 
-import { useUser } from '@storage/userStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUser } from '@stores/userStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import api from '@api/api';
 

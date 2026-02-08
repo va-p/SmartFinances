@@ -22,7 +22,7 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterCategory } from '@screens/RegisterCategory';
 
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 export function Categories() {
   const bottomTabBarHeight = useBottomTabBarHeight();

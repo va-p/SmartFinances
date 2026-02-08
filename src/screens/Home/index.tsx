@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   RefreshControl,
@@ -32,23 +26,22 @@ import {
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+import { useTransactionHandlers } from './hooks/useTransactionHandlers';
+import { useDateNavigation } from './hooks/useDateNavigation';
+import { useTransactionFiltering } from './hooks/useTransactionFiltering';
+import { useHomeAnimations } from './hooks/useHomeAnimations';
 
 // Utils
-import {
-  FlashListTransactionItem,
-  flattenTransactionsForFlashList,
-} from '@utils/flattenTransactionsForFlashList';
+import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
+import { processTransactions } from '@utils/processTransactions';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
-import { processTransactions } from '@utils/processTransactions';
 
 // Dependencies
 import Animated, {
   Easing,
-  Extrapolation,
   FadeInUp,
   FadeOutUp,
-  interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -59,20 +52,7 @@ import {
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
-import {
-  addMonths,
-  addYears,
-  getMonth,
-  getYear,
-  isFirstDayOfMonth,
-  isValid,
-  lastDayOfMonth,
-  lastDayOfYear,
-  parse,
-  subMonths,
-  subYears,
-} from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { isFirstDayOfMonth } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import { FlashList } from '@shopify/flash-list';
@@ -86,12 +66,11 @@ import Eye from 'phosphor-react-native/src/icons/Eye';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
+import PencilSimpleLine from 'phosphor-react-native/src/icons/PencilSimpleLine';
 
 // Components
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
-import { InsightCard } from '@components/InsightCard';
-import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
@@ -100,6 +79,8 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
+import { PeriodRulerList } from './components/PeriodRulerList';
+import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -113,9 +94,15 @@ import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
 
+// Stores
+import {
+  useSelectedTransactions,
+  useClearSelection,
+  useSelectedTransactionsCount,
+} from '@stores/useTransactionsStore';
+
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { eInsightsCashFlow } from '@enums/enumsInsights';
 import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
 
 // APIs
@@ -123,6 +110,9 @@ import api from '@api/api';
 
 // Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const FLOATING_BUTTONS_RIGHT_POSITION = 16;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = 64;
+const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -134,9 +124,13 @@ const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
 export function Home() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { id: userID } = useUser();
+  const selectedTransactions = useSelectedTransactions();
+  const clearSelection = useClearSelection();
+  const selectedCount = useSelectedTransactionsCount();
+
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,
@@ -151,68 +145,47 @@ export function Home() {
     setUsdQuoteBtc,
     setUsdQuoteEur,
   } = useQuotes();
+
   const { hideAmount, setHideAmount, insights } = useUserConfigs();
   const { setAccountId: setAccountID, setAccountName } =
     useCurrentAccountSelected();
+
   const [showInsights, setShowInsights] = useState(true);
   const [showSearchInput, setShowSearchInput] = useState(false);
+  const [transactionId, setTransactionId] = useState('');
+
   const { control, watch, reset } = useForm();
   const searchQuery = watch('search', '');
+
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
+  const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
+
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const cashFlows = useRef<CashFlowChartData[]>([]);
   const cashFlowTotalBySelectedPeriod = useRef('');
-  const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [transactionId, setTransactionId] = useState('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
+
   // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
   const scrollHandlerToTop = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
-  let AnimatedViewInitialHeight = SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS;
-  AnimatedViewInitialHeight =
-    insights && showInsights && firstDayOfMonth
-      ? SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS
-      : SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS;
-  const headerStyleAnimation = useAnimatedStyle(() => {
-    return {
-      height: interpolate(
-        scrollY.value,
-        [0, 400],
-        [AnimatedViewInitialHeight, 0],
-        Extrapolation.CLAMP
-      ),
-      opacity: interpolate(
-        scrollY.value,
-        [0, 370],
-        [1, 0],
-        Extrapolation.CLAMP
-      ),
-    };
+
+  // Animation styles
+  const {
+    headerStyleAnimation,
+    chartStyleAnimationOpacity,
+    insightsStyleAnimationOpacity,
+  } = useHomeAnimations({
+    scrollY,
+    insights,
+    showInsights,
+    firstDayOfMonth,
   });
-  const chartStyleAnimationOpacity = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        scrollY.value,
-        [0, 300],
-        [1, 0],
-        Extrapolation.CLAMP
-      ),
-    };
-  });
-  const insightsStyleAnimationOpacity = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        scrollY.value,
-        [0, 100],
-        [1, 0],
-        Extrapolation.CLAMP
-      ),
-    };
-  });
+
   // Animated Flash List
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
+
   // Animated button register transaction
   const registerTransactionButtonPositionX = useSharedValue(0);
   const registerTransactionButtonPositionY = useSharedValue(0);
@@ -227,6 +200,17 @@ export function Home() {
       ],
     };
   });
+  const bulkEditionButtonPositionX = useSharedValue(0);
+  const bulkEditionButtonPositionY = useSharedValue(0);
+
+  const bulkEditionButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: bulkEditionButtonPositionX.value },
+        { translateY: bulkEditionButtonPositionY.value },
+      ],
+    };
+  });
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
     .onStart(() => {
@@ -238,8 +222,36 @@ export function Home() {
         initialX.current + e.translationX;
       registerTransactionButtonPositionY.value =
         initialY.current + e.translationY;
+
+      bulkEditionButtonPositionX.value = initialX.current + e.translationX;
+      bulkEditionButtonPositionY.value = initialY.current + e.translationY;
     })
     .onEnd(() => {
+      registerTransactionButtonPositionX.value = withSpring(0);
+      registerTransactionButtonPositionY.value = withSpring(0);
+
+      bulkEditionButtonPositionX.value = withSpring(0);
+      bulkEditionButtonPositionY.value = withSpring(0);
+    });
+
+  const onMovebulkEditButton = Gesture.Pan()
+    .onStart(() => {
+      initialX.current = registerTransactionButtonPositionX.value;
+      initialY.current = registerTransactionButtonPositionY.value;
+    })
+    .onUpdate((e) => {
+      bulkEditionButtonPositionX.value = initialX.current + e.translationX;
+      bulkEditionButtonPositionY.value = initialY.current + e.translationY;
+
+      registerTransactionButtonPositionX.value =
+        initialX.current + e.translationX;
+      registerTransactionButtonPositionY.value =
+        initialY.current + e.translationY;
+    })
+    .onEnd(() => {
+      bulkEditionButtonPositionX.value = withSpring(0);
+      bulkEditionButtonPositionY.value = withSpring(0);
+
       registerTransactionButtonPositionX.value = withSpring(0);
       registerTransactionButtonPositionY.value = withSpring(0);
     });
@@ -277,6 +289,14 @@ export function Home() {
           backgroundColor: theme.colors.primary,
           borderRadius: 23,
         },
+        bulkEditButton: {
+          width: 45,
+          height: 45,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.primary,
+          borderRadius: 23,
+        },
       }),
     [theme]
   );
@@ -290,31 +310,29 @@ export function Home() {
       };
     }
 
-    const transactionsFormattedPtbr = transactions.map(
-      (item: TransactionProps) => {
-        const dmy = formatDatePtBr(item.created_at).short();
-        return {
-          id: item.id,
-          created_at: dmy,
-          description: item.description || '',
-          amount: item.amount,
-          amount_formatted: formatCurrency(item.currency.code, item.amount),
-          amount_in_account_currency: item.amount_in_account_currency,
-          amount_in_account_currency_formatted: item.amount_in_account_currency
-            ? formatCurrency(
-                item.account.currency.code,
-                item.amount_in_account_currency
-              )
-            : undefined,
-          currency: item.currency,
-          type: item.type,
-          account: item.account,
-          category: item.category,
-          tags: item.tags,
-          user_id: item.user_id,
-        };
-      }
-    );
+    const transactionsFormattedPtbr = transactions.map((item: any) => {
+      const dmy = formatDatePtBr(item.created_at).short();
+      return {
+        id: item.id,
+        created_at: dmy,
+        description: item.description || '',
+        amount: item.amount,
+        amount_formatted: formatCurrency(item.currency.code, item.amount),
+        amount_in_account_currency: item.amount_in_account_currency,
+        amount_in_account_currency_formatted: item.amount_in_account_currency
+          ? formatCurrency(
+              item.account.currency.code,
+              item.amount_in_account_currency
+            )
+          : undefined,
+        currency: item.currency,
+        type: item.type,
+        account: item.account,
+        category: item.category,
+        tags: item.tags,
+        user_id: item.user_id,
+      };
+    });
 
     return processTransactions(
       transactionsFormattedPtbr,
@@ -327,31 +345,30 @@ export function Home() {
   cashFlows.current = processedData.cashFlowChartData;
   const transactionsFormattedBySelectedPeriod =
     processedData.groupedTransactions;
-  const flattenedTransactions = flattenTransactionsForFlashList(
-    transactionsFormattedBySelectedPeriod
-  );
-  const filteredTransactions = useMemo(() => {
-    if (!searchQuery || searchQuery.length === 0) {
-      return flattenedTransactions;
-    }
 
-    const filteredGroups = transactionsFormattedBySelectedPeriod
-      .map((group) => ({
-        ...group,
-        data: group.data.filter((transaction: TransactionProps) =>
-          transaction.description
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        ),
-      }))
-      .filter((group) => group.data.length > 0);
-
-    return flattenTransactionsForFlashList(filteredGroups);
-  }, [
+  // Transaction filtering with search
+  const { filteredTransactions } = useTransactionFiltering({
     searchQuery,
-    flattenedTransactions,
-    transactionsFormattedBySelectedPeriod,
-  ]);
+    transactionsGrouped: transactionsFormattedBySelectedPeriod,
+  });
+
+  // Transaction handlers
+  const {
+    handleOpenTransaction,
+    handleLongPress,
+    handleOpenBulkEditModal,
+    clearTransactionId,
+  } = useTransactionHandlers({
+    registerTransactionBottomSheetRef,
+    setTransactionId,
+  });
+
+  // Date navigation
+  const { handleDateChange, handlePressDate } = useDateNavigation({
+    selectedPeriod,
+    selectedDate,
+    setSelectedDate,
+  });
 
   function handleRefresh() {
     if (!!userID) {
@@ -369,6 +386,7 @@ export function Home() {
 
   function handleOpenRegisterTransactionModal() {
     setTransactionId('');
+    clearSelection();
     registerTransactionBottomSheetRef.current?.present();
   }
 
@@ -376,58 +394,8 @@ export function Home() {
     setTransactionId('');
     setAccountID(null);
     setAccountName(null);
+    clearSelection();
     registerTransactionBottomSheetRef.current?.dismiss();
-  }
-
-  function handleOpenTransaction(id: string) {
-    setTransactionId(id);
-    registerTransactionBottomSheetRef.current?.present();
-  }
-
-  function handleDateChange(action: 'prev' | 'next'): void {
-    switch (selectedPeriod.period) {
-      case 'months':
-        switch (action) {
-          case 'prev':
-            setSelectedDate(subMonths(selectedDate, 1));
-            break;
-          case 'next':
-            setSelectedDate(addMonths(selectedDate, 1));
-            break;
-        }
-        break;
-      case 'years':
-        switch (action) {
-          case 'prev':
-            setSelectedDate(subYears(selectedDate, 1));
-            break;
-          case 'next':
-            setSelectedDate(addYears(selectedDate, 1));
-            break;
-        }
-        break;
-    }
-  }
-
-  function handlePressDate(stringDate: string) {
-    const dateSplit = stringDate.split('\n');
-    const trimmedDateParts = dateSplit.map((part: string) => part.trim());
-    const dateAux = trimmedDateParts.join(' ');
-    const dateFormat = selectedPeriod.period === 'months' ? 'MMM yyyy' : 'yyyy';
-    const dateParsed = parse(dateAux, dateFormat, new Date(), {
-      locale: ptBR,
-    });
-
-    const selectedDateAux =
-      selectedPeriod.period === 'months'
-        ? lastDayOfMonth(new Date(dateParsed))
-        : lastDayOfYear(dateParsed);
-
-    setSelectedDate(selectedDateAux);
-  }
-
-  function ClearTransactionId() {
-    setTransactionId('');
   }
 
   async function handleHideData() {
@@ -452,168 +420,6 @@ export function Home() {
   function handleHideCashFlowInsights() {
     setShowInsights(false);
   }
-
-  const _renderPeriodRuler = useCallback(() => {
-    const dates = cashFlows.current
-      .filter((cashFlowChartData) => !!cashFlowChartData.label)
-      .map((item: any) => {
-        const dateSplit = item.label.split('\n');
-        const trimmedDateParts = dateSplit.map((part: string) => part.trim());
-        const dateAux = trimmedDateParts.join(' ');
-
-        const currentDateFormat =
-          selectedPeriod.period === 'months' ? 'MMM yyyy' : 'yyyy';
-        let parsedDate: Date | null = null;
-        try {
-          parsedDate = parse(dateAux, currentDateFormat, selectedDate, {
-            locale: ptBR,
-          });
-          if (!isValid(parsedDate)) {
-            console.warn('Data inválida:', dateAux);
-          }
-        } catch (error) {
-          console.error(
-            'Erro ao converter data, home > _renderPeriodRuler:',
-            error
-          );
-        }
-
-        function checkIsActive() {
-          let isActive = false;
-          switch (selectedPeriod.period) {
-            case 'months':
-              isActive = parsedDate
-                ? getYear(selectedDate) === getYear(parsedDate) &&
-                  getMonth(selectedDate) === getMonth(parsedDate)
-                : false;
-              break;
-
-            case 'years':
-              isActive = parsedDate
-                ? getYear(selectedDate) === getYear(parsedDate)
-                : false;
-              break;
-          }
-          return isActive;
-        }
-
-        const isActive = checkIsActive();
-
-        return {
-          date: item.label,
-          isActive,
-        };
-      })
-      .reverse();
-
-    function checkIsActive(month: string) {
-      const isActive =
-        getMonth(selectedDate) === getMonth(parse(month, 'MMM', selectedDate))
-          ? true
-          : false;
-      return isActive;
-    }
-
-    const mocks = [
-      {
-        date: `Dez \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Dez'),
-      },
-      {
-        date: `Nov \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Nov'),
-      },
-      {
-        date: `Out \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Out'),
-      },
-      {
-        date: `Set \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Set'),
-      },
-      {
-        date: `Ago \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Ago'),
-      },
-      {
-        date: `Jul \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Jul'),
-      },
-      {
-        date: `Jun \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Jun'),
-      },
-      {
-        date: `Mai \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Mai'),
-      },
-      {
-        date: `Abr \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Abr'),
-      },
-      {
-        date: `Mar \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Mar'),
-      },
-      {
-        date: `Fev \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Fev'),
-      },
-      {
-        date: `Jan \n ${getYear(selectedDate)}`,
-        isActive: checkIsActive('Jan'),
-      },
-    ];
-
-    return (
-      <PeriodRuler
-        dates={dates.length > 0 ? dates : mocks}
-        handleDateChange={handleDateChange}
-        handlePressDate={handlePressDate}
-        periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
-      />
-    );
-  }, [selectedDate, selectedPeriod.period]);
-
-  const _renderInsightCard = useCallback(() => {
-    if (cashFlows.current.length >= 1) {
-      const formattedCurrentDate =
-        formatDatePtBr(selectedDate).cashFlowChartMonth();
-
-      const lastRevenueEntryIndex =
-        cashFlows.current.findIndex(
-          (cashFlow) => cashFlow.label === formattedCurrentDate
-        ) - 2; // - 2 to get last cash flow instead current cash flow
-
-      if (lastRevenueEntryIndex === -1) return null;
-
-      const revenue = cashFlows.current[lastRevenueEntryIndex]?.value || 0;
-      const expense = cashFlows.current[lastRevenueEntryIndex + 1]?.value || 0;
-      const netCashFlow = revenue - expense;
-
-      const cashFlowIsPositive = netCashFlow >= 0;
-
-      return (
-        <InsightCard.Root>
-          <InsightCard.CloseButton onPress={handleHideCashFlowInsights} />
-          <InsightCard.Title
-            title={
-              cashFlowIsPositive
-                ? eInsightsCashFlow.CONGRATULATIONS_TITLE
-                : eInsightsCashFlow.INCENTIVE_TITLE
-            }
-          />
-          <InsightCard.Description
-            description={
-              cashFlowIsPositive
-                ? eInsightsCashFlow.CONGRATULATIONS_DESCRIPTION
-                : eInsightsCashFlow.INCENTIVE_DESCRIPTION
-            }
-          />
-        </InsightCard.Root>
-      );
-    }
-  }, []);
 
   function _renderEmpty() {
     return <ListEmptyComponent />;
@@ -726,13 +532,26 @@ export function Home() {
             />
           </Animated.View>
 
-          <Animated.View>{_renderPeriodRuler()}</Animated.View>
+          <Animated.View>
+            <PeriodRulerList
+              cashFlows={cashFlows.current}
+              selectedPeriod={selectedPeriod}
+              selectedDate={selectedDate}
+              handleDateChange={handleDateChange}
+              handlePressDate={handlePressDate}
+              periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+            />
+          </Animated.View>
 
           {insights && showInsights && firstDayOfMonth && (
             <Animated.View
               style={[insightsStyleAnimationOpacity, dynamicStyles.insightCard]}
             >
-              {_renderInsightCard()}
+              <CashFlowInsightCard
+                cashFlows={cashFlows.current}
+                selectedDate={selectedDate}
+                onClose={handleHideCashFlowInsights}
+              />
             </Animated.View>
           )}
         </Animated.View>
@@ -769,16 +588,21 @@ export function Home() {
               if (item.isHeader) {
                 return (
                   <SectionListHeader
-                    data={{ title: item.headerTitle, total: item.headerTotal }}
+                    data={{
+                      title: item.headerTitle,
+                      total: item.headerTotal,
+                    }}
                   />
                 );
               }
               return (
                 <TransactionListItem
+                  key={item.id}
                   data={item}
                   index={index}
                   hideAmount={hideAmount}
                   onPress={() => handleOpenTransaction(item.id)}
+                  onLongPress={() => handleLongPress(item.id)}
                 />
               );
             }}
@@ -808,14 +632,38 @@ export function Home() {
           />
         </Transactions>
 
+        {selectedTransactions.length > 0 && (
+          <GestureDetector gesture={onMovebulkEditButton}>
+            <Animated.View
+              entering={FadeInUp.duration(300)}
+              exiting={FadeOutUp.duration(300)}
+              style={[
+                bulkEditionButtonStyle,
+                {
+                  position: 'absolute',
+                  right: FLOATING_BUTTONS_RIGHT_POSITION,
+                  bottom: BULK_EDIT_BUTTON_BOTTOM_POSITION,
+                },
+              ]}
+            >
+              <ButtonAnimated
+                onPress={handleOpenBulkEditModal}
+                style={dynamicStyles.bulkEditButton}
+              >
+                <PencilSimpleLine size={24} color={theme.colors.background} />
+              </ButtonAnimated>
+            </Animated.View>
+          </GestureDetector>
+        )}
+
         <GestureDetector gesture={onMoveRegisterTransactionButton}>
           <Animated.View
             style={[
               registerTransactionButtonStyle,
               {
                 position: 'absolute',
-                bottom: 64,
-                right: 16,
+                right: FLOATING_BUTTONS_RIGHT_POSITION,
+                bottom: REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION,
               },
             ]}
           >
@@ -845,33 +693,13 @@ export function Home() {
         >
           <RegisterTransaction
             id={transactionId}
-            resetId={ClearTransactionId}
+            resetId={clearTransactionId}
             closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            isBulkEdit={transactionId === 'bulk-edit'}
+            selectedTransactionIds={selectedTransactions}
           />
         </ModalViewWithoutHeader>
       </Container>
     </Screen>
   );
 }
-
-// const styles = StyleSheet.create({
-//   header: {
-//     overflow: 'hidden',
-//     backgroundColor: theme.colors.backgroundCardHeader,
-//     borderBottomRightRadius: 75,
-//     borderBottomLeftRadius: 75,
-//   },
-//   insightCard: {
-//     minHeight: 30,
-//     marginTop: -8,
-//     marginBottom: 16,
-//   },
-//   animatedButton: {
-//     width: 45,
-//     height: 45,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     backgroundColor: theme.colors.primary,
-//     borderRadius: 23,
-//   },
-// });

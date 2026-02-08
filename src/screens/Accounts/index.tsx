@@ -49,11 +49,11 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
-import { useUser } from '@storage/userStorage';
-import { useQuotes } from '@storage/quotesStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 import api from '@api/api';
 

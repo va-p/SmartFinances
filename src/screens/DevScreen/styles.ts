@@ -1,12 +1,11 @@
 import styled from 'styled-components/native';
 
-export const Container = styled.ScrollView`
+export const Container = styled.View`
   flex: 1;
-  background: white;
 `;
 
 export const Content = styled.View`
-  margin-top: 20px;
+  margin-top: 24px;
 `;
 
 export const Label = styled.Text<{ disabled: boolean }>`

@@ -11,8 +11,8 @@ import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import { useUser } from '@storage/userStorage';
-import { useBudgetCategoriesSelected } from '@storage/budgetCategoriesSelected';
+import { useUser } from '@stores/userStorage';
+import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 import { CategoryProps } from '@interfaces/categories';
 

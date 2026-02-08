@@ -83,10 +83,10 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
+import { useUser } from '@stores/userStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';

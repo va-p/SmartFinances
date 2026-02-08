@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { Container, Form, ImageContainer, ProfileImage } from './styles';
 
-import { useUser } from 'src/storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';

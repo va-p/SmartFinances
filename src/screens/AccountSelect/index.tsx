@@ -11,7 +11,7 @@ import { ListSeparator } from '@components/ListSeparator';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
-import { useUser } from '@storage/userStorage';
+import { useUser } from '@stores/userStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';

@@ -43,7 +43,7 @@ import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPe
 import { RegisterBudget } from '@screens/RegisterBudget';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
-import { useUserConfigs } from '@storage/userConfigsStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();

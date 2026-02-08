@@ -5,7 +5,7 @@ import { Container } from './styles';
 import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 export interface PeriodProps {
   id: string;
