@@ -86,6 +86,7 @@ import Eye from 'phosphor-react-native/src/icons/Eye';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
+import PencilSimpleLine from 'phosphor-react-native/src/icons/PencilSimpleLine';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -106,12 +107,18 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
-import { useUser } from '@storage/userStorage';
-import { useQuotes } from '@storage/quotesStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
+import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
+
+// Stores
+import {
+  useSelectedTransactions,
+  useClearSelection,
+} from '@stores/useTransactionsStore';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -123,6 +130,9 @@ import api from '@api/api';
 
 // Constants
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const FLOATING_BUTTONS_RIGHT_POSITION = 16;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = 64;
+const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -134,9 +144,11 @@ const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
 export function Home() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { id: userID } = useUser();
+  const selectedTransactions = useSelectedTransactions();
+  const clearSelection = useClearSelection();
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,
@@ -277,6 +289,14 @@ export function Home() {
           backgroundColor: theme.colors.primary,
           borderRadius: 23,
         },
+        bulkEditButton: {
+          width: 45,
+          height: 45,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.primary,
+          borderRadius: 23,
+        },
       }),
     [theme]
   );
@@ -369,6 +389,16 @@ export function Home() {
 
   function handleOpenRegisterTransactionModal() {
     setTransactionId('');
+    clearSelection();
+    registerTransactionBottomSheetRef.current?.present();
+  }
+
+  function handleOpenBulkEditModal() {
+    if (selectedTransactions.length === 0) {
+      Alert.alert('Atenção', 'Selecione pelo menos uma transação para editar.');
+      return;
+    }
+    setTransactionId('bulk-edit');
     registerTransactionBottomSheetRef.current?.present();
   }
 
@@ -376,6 +406,7 @@ export function Home() {
     setTransactionId('');
     setAccountID(null);
     setAccountName(null);
+    clearSelection();
     registerTransactionBottomSheetRef.current?.dismiss();
   }
 
@@ -808,14 +839,36 @@ export function Home() {
           />
         </Transactions>
 
+        {selectedTransactions.length > 0 && (
+          <Animated.View
+            entering={FadeInUp.duration(300)}
+            exiting={FadeOutUp.duration(300)}
+            style={[
+              registerTransactionButtonStyle,
+              {
+                position: 'absolute',
+                bottom: BULK_EDIT_BUTTON_BOTTOM_POSITION,
+                right: FLOATING_BUTTONS_RIGHT_POSITION,
+              },
+            ]}
+          >
+            <ButtonAnimated
+              onPress={handleOpenBulkEditModal}
+              style={[dynamicStyles.bulkEditButton]}
+            >
+              <PencilSimpleLine size={24} color={theme.colors.background} />
+            </ButtonAnimated>
+          </Animated.View>
+        )}
+
         <GestureDetector gesture={onMoveRegisterTransactionButton}>
           <Animated.View
             style={[
               registerTransactionButtonStyle,
               {
                 position: 'absolute',
-                bottom: 64,
-                right: 16,
+                bottom: REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION,
+                right: FLOATING_BUTTONS_RIGHT_POSITION,
               },
             ]}
           >
@@ -847,31 +900,11 @@ export function Home() {
             id={transactionId}
             resetId={ClearTransactionId}
             closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            isBulkEdit={transactionId === 'bulk-edit'}
+            selectedTransactionIds={selectedTransactions}
           />
         </ModalViewWithoutHeader>
       </Container>
     </Screen>
   );
 }
-
-// const styles = StyleSheet.create({
-//   header: {
-//     overflow: 'hidden',
-//     backgroundColor: theme.colors.backgroundCardHeader,
-//     borderBottomRightRadius: 75,
-//     borderBottomLeftRadius: 75,
-//   },
-//   insightCard: {
-//     minHeight: 30,
-//     marginTop: -8,
-//     marginBottom: 16,
-//   },
-//   animatedButton: {
-//     width: 45,
-//     height: 45,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     backgroundColor: theme.colors.primary,
-//     borderRadius: 23,
-//   },
-// });
