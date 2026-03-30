@@ -5,11 +5,7 @@ import api from '@api/api';
 import { AccountProps } from '@interfaces/accounts';
 
 const fetchAccountDetail = async (accountID: number): Promise<AccountProps> => {
-  const { data } = await api.get('account/single', {
-    params: {
-      account_id: accountID,
-    },
-  });
+  const { data } = await api.get(`account/${accountID}`);
   return data;
 };
 

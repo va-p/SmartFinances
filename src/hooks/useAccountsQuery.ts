@@ -4,21 +4,14 @@ import api from '@api/api';
 
 import { AccountProps } from '@interfaces/accounts';
 
-const fetchAccounts = async (
-  userID: string | null
-): Promise<AccountProps[]> => {
-  const { data } = await api.get('account', {
-    params: {
-      user_id: userID,
-    },
-  });
+const fetchAccounts = async (): Promise<AccountProps[]> => {
+  const { data } = await api.get('account');
   return data;
 };
 
-export function useAccountsQuery(userID: string | undefined) {
+export function useAccountsQuery() {
   return useQuery<AccountProps[]>({
-    queryKey: ['accounts', userID],
-    queryFn: () => fetchAccounts(userID!),
-    enabled: !!userID,
+    queryKey: ['accounts'],
+    queryFn: fetchAccounts,
   });
 }

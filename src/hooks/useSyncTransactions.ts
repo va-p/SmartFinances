@@ -2,14 +2,10 @@ import { Alert } from 'react-native';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import api from '../api/api';
+import api from '@api/api';
 
-async function syncAndFetchTransactions(userID: string) {
-  return await api.get('/banking_integration/fetch_transactions', {
-    params: {
-      user_id: userID,
-    },
-  });
+async function syncAndFetchTransactions() {
+  return await api.get('/banking_integration/fetch_transactions');
 }
 
 export function useSyncTransactions() {

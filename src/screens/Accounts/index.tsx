@@ -97,13 +97,13 @@ export function Accounts() {
     isLoading: isLoadingTransactions,
     refetch: refetchTransactions,
     isRefetching: isRefetchingTransactions,
-  } = useTransactionsQuery(userID);
+  } = useTransactionsQuery();
   const {
     data: rawAccounts,
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
-  } = useAccountsQuery(userID);
+  } = useAccountsQuery();
 
   const processedData = useMemo(() => {
     if (!rawAccounts || !transactions) {
@@ -234,7 +234,6 @@ export function Accounts() {
   function handleTouchConnectAccount() {
     router.navigate({
       pathname: '/accounts/bankingIntegrations',
-      params: { showHeader: true },
     });
   }
 

@@ -21,11 +21,15 @@ import {
   Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
+import { useQuotes } from '@storage/quotesStorage';
+import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useCurrenciesQuery } from '@hooks/useCurrenciesQuery';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import darkTheme from '@themes/darkTheme';
 import lightTheme from '@themes/lightTheme';
+import { useCurrenciesStore } from '@storage/currenciesStore';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -50,6 +54,26 @@ const tokenCache = {
 };
 
 function RootNavigationLayout() {
+  const { data: currenciesData, isLoading: isLoadingCurrencies } =
+    useCurrenciesQuery();
+  const setCurrencies = useCurrenciesStore((state) => state.setCurrencies);
+
+  const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
+  const {
+    setBrlQuoteBtc,
+    setBrlQuoteEur,
+    setBrlQuoteUsd,
+    setBtcQuoteBrl,
+    setBtcQuoteEur,
+    setBtcQuoteUsd,
+    setEurQuoteBrl,
+    setEurQuoteBtc,
+    setEurQuoteUsd,
+    setUsdQuoteBrl,
+    setUsdQuoteBtc,
+    setUsdQuoteEur,
+  } = useQuotes();
+
   const { isSignedIn, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
@@ -57,6 +81,32 @@ function RootNavigationLayout() {
   const skipWelcomeScreen = storageConfig.getBoolean(
     `${DATABASE_CONFIGS}.skipWelcomeScreen`
   );
+
+  useEffect(() => {
+    if (!!currenciesData) {
+      setCurrencies(currenciesData);
+    }
+  }, [currenciesData]);
+
+  useEffect(() => {
+    if (!!quotesData) {
+      setBrlQuoteBtc(quotesData.brlToBtc);
+      setBrlQuoteEur(quotesData.brlToEur);
+      setBrlQuoteUsd(quotesData.brlToUsd);
+
+      setBtcQuoteBrl(quotesData.btcToBrl);
+      setBtcQuoteEur(quotesData.btcToEur);
+      setBtcQuoteUsd(quotesData.btcToUsd);
+
+      setEurQuoteBrl(quotesData.eurToBrl);
+      setEurQuoteBtc(quotesData.eurToBtc);
+      setEurQuoteUsd(quotesData.eurToUsd);
+
+      setUsdQuoteBrl(quotesData.usdToBrl);
+      setUsdQuoteBtc(quotesData.usdToBtc);
+      setUsdQuoteEur(quotesData.usdToEur);
+    }
+  }, [quotesData]);
 
   useEffect(() => {
     if (loading) return;
@@ -87,7 +137,6 @@ function RootNavigationLayout() {
 
 export default function RootLayout() {
   const setDarkMode = useUserConfigs((state) => state.setDarkMode);
-
   const deviceColorScheme = useColorScheme();
   const darkModeUserConfig: boolean | undefined = storageConfig.getBoolean(
     `${DATABASE_CONFIGS}.darkMode`

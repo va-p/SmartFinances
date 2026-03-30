@@ -131,20 +131,20 @@ export function Home() {
   const clearSelection = useClearSelection();
   const selectedCount = useSelectedTransactionsCount();
 
-  const {
-    setBrlQuoteBtc,
-    setBrlQuoteEur,
-    setBrlQuoteUsd,
-    setBtcQuoteBrl,
-    setBtcQuoteEur,
-    setBtcQuoteUsd,
-    setEurQuoteBrl,
-    setEurQuoteBtc,
-    setEurQuoteUsd,
-    setUsdQuoteBrl,
-    setUsdQuoteBtc,
-    setUsdQuoteEur,
-  } = useQuotes();
+  // const {
+  //   setBrlQuoteBtc,
+  //   setBrlQuoteEur,
+  //   setBrlQuoteUsd,
+  //   setBtcQuoteBrl,
+  //   setBtcQuoteEur,
+  //   setBtcQuoteUsd,
+  //   setEurQuoteBrl,
+  //   setEurQuoteBtc,
+  //   setEurQuoteUsd,
+  //   setUsdQuoteBrl,
+  //   setUsdQuoteBtc,
+  //   setUsdQuoteEur,
+  // } = useQuotes();
 
   const { hideAmount, setHideAmount, insights } = useUserConfigs();
   const { setAccountId: setAccountID, setAccountName } =
@@ -256,13 +256,9 @@ export function Home() {
       registerTransactionButtonPositionY.value = withSpring(0);
     });
 
-  const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
+  // const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
 
-  const {
-    data: transactions,
-    isLoading,
-    isError,
-  } = useTransactionsQuery(userID);
+  const { data: transactions, isLoading, isError } = useTransactionsQuery();
 
   const { mutate: syncTransactions, isPending: isSyncing } =
     useSyncTransactions();
@@ -371,9 +367,7 @@ export function Home() {
   });
 
   function handleRefresh() {
-    if (!!userID) {
-      syncTransactions(userID);
-    }
+    syncTransactions();
   }
 
   function handleOpenPeriodSelectedModal() {
@@ -431,25 +425,25 @@ export function Home() {
     });
   }, []);
 
-  useEffect(() => {
-    if (!!quotesData) {
-      setBrlQuoteBtc(quotesData.brlToBtc);
-      setBrlQuoteEur(quotesData.brlToEur);
-      setBrlQuoteUsd(quotesData.brlToUsd);
+  // useEffect(() => {
+  //   if (!!quotesData) {
+  //     setBrlQuoteBtc(quotesData.brlToBtc);
+  //     setBrlQuoteEur(quotesData.brlToEur);
+  //     setBrlQuoteUsd(quotesData.brlToUsd);
 
-      setBtcQuoteBrl(quotesData.btcToBrl);
-      setBtcQuoteEur(quotesData.btcToEur);
-      setBtcQuoteUsd(quotesData.btcToUsd);
+  //     setBtcQuoteBrl(quotesData.btcToBrl);
+  //     setBtcQuoteEur(quotesData.btcToEur);
+  //     setBtcQuoteUsd(quotesData.btcToUsd);
 
-      setEurQuoteBrl(quotesData.eurToBrl);
-      setEurQuoteBtc(quotesData.eurToBtc);
-      setEurQuoteUsd(quotesData.eurToUsd);
+  //     setEurQuoteBrl(quotesData.eurToBrl);
+  //     setEurQuoteBtc(quotesData.eurToBtc);
+  //     setEurQuoteUsd(quotesData.eurToUsd);
 
-      setUsdQuoteBrl(quotesData.usdToBrl);
-      setUsdQuoteBtc(quotesData.usdToBtc);
-      setUsdQuoteEur(quotesData.usdToEur);
-    }
-  }, [quotesData]);
+  //     setUsdQuoteBrl(quotesData.usdToBrl);
+  //     setUsdQuoteBtc(quotesData.usdToBtc);
+  //     setUsdQuoteEur(quotesData.usdToEur);
+  //   }
+  // }, [quotesData]);
 
   if (isLoading && !transactions) {
     return (

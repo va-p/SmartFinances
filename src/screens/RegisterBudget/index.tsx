@@ -13,6 +13,7 @@ import {
   useCreateBudgetMutation,
   useUpdateBudgetMutation,
 } from '@hooks/useBudgetMutations';
+import { useCurrenciesQuery } from '@hooks/useCurrenciesQuery';
 import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 
 // Dependencies
@@ -49,7 +50,7 @@ import {
   ChartPeriodProps,
 } from '@screens/BudgetPeriodSelect';
 
-// Storages
+// Stores
 import { useUser } from '@stores/userStorage';
 import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
@@ -78,7 +79,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterBudget({ id, closeBudget }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const userID = useUser((state) => state.id);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
@@ -88,39 +89,40 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     (state) => state.setBudgetCategoriesSelected
   );
 
-  const currencies: String[] = [
-    'BRL - Real Brasileiro',
-    'BTC - Bitcoin',
-    'EUR - Euro',
-    'USD - Dólar Americano',
-  ];
-  const currenciesMap: Record<string, CurrencyProps> = {
-    'BTC - Bitcoin': {
-      id: 1,
-      name: 'Bitcoin',
-      code: 'BTC',
-      symbol: '₿',
-    },
-    'USD - Dólar Americano': {
-      id: 2,
-      name: 'Dólar Americano',
-      code: 'USD',
-      symbol: '$',
-    },
-    'EUR - Euro': {
-      id: 3,
-      name: 'Euro',
-      code: 'EUR',
-      symbol: '€',
-    },
-    'BRL - Real Brasileiro': {
-      id: 4,
-      name: 'Real Brasileiro',
-      code: 'BRL',
-      symbol: 'R$',
-    },
-  };
-  const [currencySelected, setCurrencySelected] = useState<number | null>(null);
+  // const currencies: String[] = [
+  //   'BRL - Real Brasileiro',
+  //   'BTC - Bitcoin',
+  //   'EUR - Euro',
+  //   'USD - Dólar Americano',
+  // ];
+  // const currenciesMap: Record<string, CurrencyProps> = {
+  //   'BTC - Bitcoin': {
+  //     id: 1,
+  //     name: 'Bitcoin',
+  //     code: 'BTC',
+  //     symbol: '₿',
+  //   },
+  //   'USD - Dólar Americano': {
+  //     id: 2,
+  //     name: 'Dólar Americano',
+  //     code: 'USD',
+  //     symbol: '$',
+  //   },
+  //   'EUR - Euro': {
+  //     id: 3,
+  //     name: 'Euro',
+  //     code: 'EUR',
+  //     symbol: '€',
+  //   },
+  //   'BRL - Real Brasileiro': {
+  //     id: 4,
+  //     name: 'Real Brasileiro',
+  //     code: 'BRL',
+  //     symbol: 'R$',
+  //   },
+  // };
+  const [currencySelected, setCurrencySelected] =
+    useState<CurrencyProps | null>(null);
   const [startDate, setStartDate] = useState(new Date());
   const formattedDate = format(startDate, 'dd MMMM, yyyy', { locale: ptBR });
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -150,6 +152,12 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       name: '',
     },
   });
+
+  const { data: currenciesData, isLoading: isLoadingCurrencies } =
+    useCurrenciesQuery();
+  const currencies: CurrencyProps[] = currenciesData ?? [];
+  console.log('currencies ===>', currencies);
+
   const { mutate: createBudget, isPending: isCreating } =
     useCreateBudgetMutation();
   const { mutate: updateBudget, isPending: isUpdating } =
@@ -163,7 +171,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
       setValue('name', budgetData.name);
       setValue('amount', String(budgetData.amount));
-      setCurrencySelected(budgetData.currency.id);
+      setCurrencySelected(budgetData.currency);
       setStartDate(new Date(budgetData.start_date));
       switch (budgetData.recurrence) {
         case 'daily':
@@ -220,12 +228,10 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   function onSubmit(form: FormData) {
     let categoriesList: any = [];
     for (const item of budgetCategoriesSelected) {
-      const category_id = item.id;
+      const categoryId = item.id;
 
-      if (!categoriesList.hasOwnProperty(category_id)) {
-        categoriesList[category_id] = {
-          category_id: item.id,
-        };
+      if (!categoriesList[categoryId]) {
+        categoriesList.push(categoryId);
       }
     }
     categoriesList = Object.values(categoriesList);
@@ -261,7 +267,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       const newBudget = {
         name: form.name,
         amount: form.amount,
-        currency_id: currencySelected || 4,
+        currency_id: currencySelected?.id || 4,
         categories: categoriesList,
         start_date: startDate,
         recurrence: budgetPeriodSelected.period,
@@ -301,7 +307,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     periodBottomSheetRef.current?.dismiss();
   }
 
-  if (isLoadingDetails) {
+  if (isLoadingDetails || isLoadingCurrencies) {
     return (
       <Screen>
         <SkeletonAccountsScreen />
@@ -340,15 +346,16 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             <SelectDropdown
               data={currencies}
               onSelect={(selectedItem) => {
-                const currencySelected = currenciesMap[selectedItem].id;
-                setCurrencySelected(currencySelected);
+                // const currencySelected = currenciesMap[selectedItem].id;
+                // setCurrencySelected(currencySelected);
+                setCurrencySelected(selectedItem);
               }}
               defaultButtonText='Moeda'
               buttonTextAfterSelection={(selectedItem) => {
-                return selectedItem;
+                return selectedItem.name;
               }}
               rowTextForSelection={(item) => {
-                return item;
+                return item.name;
               }}
               buttonStyle={{
                 width: '90%',

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, RefreshControl, Text } from 'react-native';
+import { Alert, RefreshControl, Text, BackHandler } from 'react-native';
 import {
   ConnectedAccountsList,
   Container,
@@ -28,8 +28,8 @@ import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 
 import api from '@api/api';
 
-export function BankingIntegrations({ navigation }: any) {
-  const theme: ThemeProps = useTheme();
+export function BankingIntegrations() {
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
   const { showHeader } = useLocalSearchParams();
@@ -47,11 +47,7 @@ export function BankingIntegrations({ navigation }: any) {
     try {
       setLoading(true);
 
-      const response = await api.get('/banking_integration/get_integrations', {
-        params: {
-          user_id: userID,
-        },
-      });
+      const response = await api.get('/banking-integration/');
 
       if (!!response.data && response.data.length > 0) {
         const data = response.data;
@@ -74,14 +70,7 @@ export function BankingIntegrations({ navigation }: any) {
     setRefreshing(true);
 
     try {
-      const response = await api.get(
-        '/banking_integration/get_and_sync_integrations',
-        {
-          params: {
-            user_id: userID,
-          },
-        }
-      );
+      const response = await api.get('/banking-integration/sync');
 
       if (!!response.data && response.data.length > 0) {
         const data = response.data;
@@ -108,17 +97,10 @@ export function BankingIntegrations({ navigation }: any) {
     async function fetchToken() {
       try {
         setLoading(true);
-        const { data } = await api.post(
-          'banking_integration/pluggy_connect_token_create',
-          {
-            params: {
-              user_id: userID,
-            },
-          }
-        );
+        const { data } = await api.get('/banking-integration/connect');
 
         if (!!data) {
-          setToken(data);
+          setToken(data.accessToken);
         }
       } catch (error) {
         console.error('ConnectedAccounts fetchToken error =>', error);
@@ -146,14 +128,14 @@ export function BankingIntegrations({ navigation }: any) {
     try {
       setLoading(true);
 
-      const { status } = await api.post('/banking_integration/create', {
-        user_id: userID, // ID do usuário do app
-        pluggy_integration_id: itemData.item.id, // O ID da integração no puggly (hash)
-        connector_id: itemData.item.connector.id, // o ID da Instituição Financeira (conector)
-        last_sync_date: new Date(), // Data da sincronização inicial
-        bank_name: itemData.item.connector.name, // O nome da Instituição Financeira (conector)
+      const { status } = await api.post('/banking-integration/create', {
+        // user_id: userID, // ID do usuário do app
+        pluggyIntegrationId: itemData.item.id, // O ID da integração no puggly (hash)
+        connectorId: itemData.item.connector.id, // o ID da Instituição Financeira (conector)
+        lastSyncDate: new Date(), // Data da sincronização inicial
+        bankName: itemData.item.connector.name, // O nome da Instituição Financeira (conector)
         status: itemData.item.status,
-        execution_status: itemData.item.executionStatus,
+        executionStatus: itemData.item.executionStatus,
       });
 
       if (status === 200) {
@@ -195,12 +177,8 @@ export function BankingIntegrations({ navigation }: any) {
     setLoading(true);
 
     try {
-      const { data, status } = await api.post(
-        'banking_integration/pluggy_connect_token_create_itemId',
-        {
-          user_id: userID,
-          banking_integration_id: bankingIntegration.id,
-        }
+      const { data, status } = await api.get(
+        `banking-integration/${bankingIntegration.id}`
       );
 
       if (status === 200 && data) {
@@ -233,6 +211,13 @@ export function BankingIntegrations({ navigation }: any) {
       />
     );
   }
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', () => {
+      router.back();
+      return true;
+    });
+  }, []);
 
   if (loading) {
     return (
