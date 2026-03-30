@@ -25,7 +25,7 @@ import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLi
 
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, parse } from 'date-fns';
+import { format, parse, parseISO } from 'date-fns';
 import { useTheme } from 'styled-components';
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import { LineChart } from 'react-native-gifted-charts';
@@ -70,8 +70,8 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
-export function Accounts({ navigation }: any) {
-  const theme: ThemeProps = useTheme();
+export function Accounts() {
+  const theme = useTheme() as ThemeProps;
   const bottomTabHeight = useBottomTabBarHeight();
   const router = useRouter();
   const { id: userID } = useUser();
@@ -163,7 +163,7 @@ export function Accounts({ navigation }: any) {
 
     for (const transaction of transactions) {
       if (new Date(transaction.created_at) <= new Date()) {
-        const ym = format(transaction.created_at, `yyyy-MM`, {
+        const ym = format(parseISO(transaction.created_at), `yyyy-MM`, {
           locale: ptBR,
         });
 
@@ -178,7 +178,6 @@ export function Accounts({ navigation }: any) {
           ? transaction.amount_in_account_currency
           : transaction.amount;
 
-        // Desconsidera transferências
         if (
           transaction.type === 'TRANSFER_CREDIT' ||
           transaction.type === 'TRANSFER_DEBIT'
@@ -329,12 +328,12 @@ export function Accounts({ navigation }: any) {
             hideAmount={hideAmount}
             onPress={() =>
               handleOpenAccount(
-                item.id!,
+                String(item.id)!,
                 item.name,
                 item.type,
                 item.subtype || null,
                 item.currency,
-                item.balance,
+                String(item.balance),
                 null
               )
             }
@@ -351,12 +350,12 @@ export function Accounts({ navigation }: any) {
           hideAmount={hideAmount}
           onPress={() =>
             handleOpenAccount(
-              item.id!,
+              String(item.id)!,
               item.name,
               item.type,
               item.subtype!,
               item.currency,
-              item.balance,
+              String(item.balance),
               item.creditData || null
             )
           }

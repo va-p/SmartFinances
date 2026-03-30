@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet, StatusBar, View } from 'react-native';
 
 // Dependencies
 import { Tabs } from 'expo-router';
@@ -17,10 +17,9 @@ import DotsThreeOutline from 'phosphor-react-native/src/icons/DotsThreeOutline';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
-import { View } from 'react-native';
 
 export default function AppLayout() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
 
