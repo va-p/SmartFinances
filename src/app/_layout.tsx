@@ -6,7 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -61,28 +61,28 @@ function RootNavigationLayout() {
   useEffect(() => {
     if (loading) return;
 
-    const inAppGroup = segments[0] === '(app)';
+    const inAuthGroup = segments[0] === '(auth)';
 
-    if (isSignedIn && !inAppGroup) {
-      router.replace('/(app)/');
-    }
-
-    if (!isSignedIn && inAppGroup) {
-      const destination = skipWelcomeScreen ? '/(auth)/signIn' : '/(auth)/';
+    if (!isSignedIn && !inAuthGroup) {
+      const destination = skipWelcomeScreen ? '/(auth)/signIn' : '/(auth)';
       router.replace(destination);
     }
-  }, [isSignedIn, loading, segments, router]);
+
+    if (isSignedIn && inAuthGroup) {
+      router.replace('/(app)');
+    }
+  }, [isSignedIn, loading, segments, router, skipWelcomeScreen]);
 
   if (loading) {
     return <SkeletonHomeScreen />;
   }
 
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name='(auth)' />
-      <Stack.Screen name='(app)' />
-    </Stack>
-  );
+  const inAuthGroup = segments[0] === '(auth)';
+  if (!isSignedIn && !inAuthGroup) {
+    return null;
+  }
+
+  return <Slot />;
 }
 
 export default function RootLayout() {
