@@ -2,14 +2,14 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { Container } from './styles';
 
-import { CurrencyProps } from '@interfaces/currencies';
+import { useCurrenciesStore } from '@storage/currenciesStore';
 
 import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 
-import { currencies } from '@constants/currencies';
+import { CurrencyProps } from '@interfaces/currencies';
 
 type Props = {
   currency: CurrencyProps;
@@ -22,6 +22,8 @@ export function CurrencySelect({
   setCurrency,
   closeSelectCurrency,
 }: Props) {
+  const currencies = useCurrenciesStore((state) => state.currencies);
+
   function handleCurrencySelect(currency: CurrencyProps) {
     setCurrency(currency);
     closeSelectCurrency();
@@ -34,7 +36,7 @@ export function CurrencySelect({
 
         <FlatList
           data={currencies}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ListItem
               data={item}

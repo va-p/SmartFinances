@@ -4,27 +4,15 @@ import api from '@api/api';
 
 import { TransactionProps } from '@interfaces/transactions';
 
-async function getTransactions({ queryKey }: any): Promise<TransactionProps[]> {
-  const [_key, userID] = queryKey;
-
-  if (!userID) {
-    return [];
-  }
-
-  const { data } = await api.get('transaction', {
-    params: {
-      user_id: userID,
-    },
-  });
+async function getTransactions(): Promise<TransactionProps[]> {
+  const { data } = await api.get('transaction');
   return data;
 }
 
-export function useTransactions(userId: string | undefined) {
+export function useTransactions() {
   return useQuery({
-    queryKey: ['transactions', userId],
+    queryKey: ['transactions'],
 
     queryFn: getTransactions,
-
-    enabled: !!userId,
   });
 }

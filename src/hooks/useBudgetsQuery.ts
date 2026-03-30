@@ -4,19 +4,14 @@ import api from '@api/api';
 
 import { BudgetProps } from '@interfaces/budget';
 
-const fetchBudgets = async (userID: string): Promise<BudgetProps[]> => {
-  const { data } = await api.get('budget', {
-    params: {
-      user_id: userID,
-    },
-  });
+const fetchBudgets = async (): Promise<BudgetProps[]> => {
+  const { data } = await api.get('budget');
   return data;
 };
 
-export function useBudgetsQuery(userID: string | undefined) {
+export function useBudgetsQuery() {
   return useQuery({
-    queryKey: ['budgets', userID],
-    queryFn: () => fetchBudgets(userID!),
-    enabled: !!userID,
+    queryKey: ['budgets'],
+    queryFn: () => fetchBudgets(),
   });
 }

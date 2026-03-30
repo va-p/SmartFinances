@@ -9,7 +9,7 @@ import CheckCircle from 'phosphor-react-native/src/icons/CheckCircle';
 import { ThemeProps } from '@interfaces/theme';
 
 type ListItemProps = {
-  id: string;
+  id: number;
   name: string;
 };
 
@@ -19,7 +19,7 @@ type Props = RectButtonProps & {
 };
 
 export function ListItem({ data, isActive, ...rest }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   return (
     <Item {...rest}>

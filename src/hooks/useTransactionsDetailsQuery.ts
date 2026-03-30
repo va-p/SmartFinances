@@ -1,10 +1,9 @@
-
 import { useQuery } from '@tanstack/react-query';
 import api from '@api/api';
 import { TransactionProps } from '@interfaces/transactions';
 
 async function fetchTransactionDetails(id: string): Promise<TransactionProps> {
-  const { data } = await api.get(`transaction/show/${id}`);
+  const { data } = await api.get(`transaction/${id}`);
   return data;
 }
 

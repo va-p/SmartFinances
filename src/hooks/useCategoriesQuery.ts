@@ -4,19 +4,14 @@ import api from '@api/api';
 
 import { CategoryProps } from '@interfaces/categories';
 
-const fetchCategories = async (userID: string): Promise<CategoryProps[]> => {
-  const { data } = await api.get('category', {
-    params: {
-      user_id: userID,
-    },
-  });
+const fetchCategories = async (): Promise<CategoryProps[]> => {
+  const { data } = await api.get('category');
   return data || [];
 };
 
-export function useCategoriesQuery(userID: string | undefined) {
+export function useCategoriesQuery() {
   return useQuery({
-    queryKey: ['categories', userID],
-    queryFn: () => fetchCategories(userID!),
-    enabled: !!userID,
+    queryKey: ['categories'],
+    queryFn: fetchCategories,
   });
 }

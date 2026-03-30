@@ -18,6 +18,8 @@ import {
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
 } from '@hooks/useCategoryMutations';
+import { useIconsQuery } from '@hooks/useIconsQuery';
+import { useColorsQuery } from '@hooks/useColorsQuery';
 import { useCategoryDetailQuery } from '@hooks/useCategoryDetailQuery';
 
 import { icons } from '@constants/icons';
@@ -78,6 +80,9 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       name: '',
     },
   });
+
+  // const { data: icons, isLoading: isLoadingIcons } = useIconsQuery();
+  // const { data: colors, isLoading: isLoadingColors } = useColorsQuery();
 
   const { data: categoryData, isLoading: isLoadingDetails } =
     useCategoryDetailQuery(id);
@@ -188,6 +193,15 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         },
       });
     }
+  }
+
+  if (isLoadingIcons || isLoadingColors) {
+    return (
+      <Screen>
+        <Gradient />
+        <Text>Carregando...</Text>
+      </Screen>
+    );
   }
 
   if (isLoadingDetails) {
