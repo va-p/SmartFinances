@@ -192,7 +192,7 @@ export function RegisterTransaction({
   const { mutate: deleteTransaction, isPending: isDeleting } =
     useDeleteTransactionMutation();
 
-  const { data: tagsData, isLoading: isLoadingTags } = useTagsQuery(userID);
+  const { data: tagsData, isLoading: isLoadingTags } = useTagsQuery();
   const { data: transactionData, isLoading: isLoadingDetails } =
     useTransactionDetailQuery(id);
   const { data: bulkTransactionsData, isLoading: isLoadingBulkTransactions } =
@@ -358,13 +358,11 @@ export function RegisterTransaction({
     setOpenImage(false);
   }
 
-  // Helper function to check if all values in array are the same
   function checkIfAllSame<T>(arr: T[]): boolean {
     if (arr.length === 0) return true;
     return arr.every((val) => JSON.stringify(val) === JSON.stringify(arr[0]));
   }
 
-  // Helper function to get common value or null if mixed
   function getCommonValue<T>(arr: T[]): T | null {
     return checkIfAllSame(arr) ? arr[0] : null;
   }
@@ -386,9 +384,7 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    // Process each transaction
     const updatePromises = bulkTransactionsData.map(async (transaction) => {
-      // Use form values if changed, otherwise keep original
       const updatedDescription =
         form.description && form.description !== 'várias descrições*'
           ? form.description
@@ -980,7 +976,7 @@ export function RegisterTransaction({
         setSelectedTransactionTab(transactionTab);
       }
     } else if (transactionData && id !== '' && !isBulkEdit) {
-      setCategorySelected(transactionData.category);
+      setCategorySelected(transactionData?.category);
       setValue('amount', transactionData.amount);
       setValue(
         'amountInAccountCurrency',

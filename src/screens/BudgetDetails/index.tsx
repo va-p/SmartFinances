@@ -10,8 +10,8 @@ import {
 import formatCurrency from '@utils/formatCurrency';
 
 // Hooks
-import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
+import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 
 // Dependencies
 import { ptBR } from 'date-fns/locale';
@@ -47,8 +47,6 @@ import { useUserConfigs } from '@stores/userConfigsStorage';
 
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();
-  const { data: budget, isLoading, isError } = useBudgetDetailQuery(budgetID);
-
   const bottomTabBarHeight = useBottomTabBarHeight();
   const budgetEditBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -56,7 +54,10 @@ export function BudgetDetails() {
 
   const { hideAmount } = useUserConfigs();
 
+  const { budget, isLoading, isError } = useFormattedBudgetDetail(budgetID);
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
+
+  console.log('budgetttt ====->', budget);
 
   if (isLoading) {
     return <SkeletonBudgetsScreen />;
@@ -74,19 +75,14 @@ export function BudgetDetails() {
     );
   }
 
-  const budgetAmountReached = budget.amount_spent >= budget.amount;
+  const budgetAmountReached = budget.amount_spent >= Number(budget.amount);
 
   function calculateRemainderBudget() {
     return Number(budget?.amount) - Number(budget?.amount_spent);
   }
 
   function calculateRemainderBudgetPerDay() {
-    const now = new Date();
-    const endDate = parse(budget?.end_date!, "dd 'de' MMMM 'de' yyyy", now, {
-      locale: ptBR,
-    });
-
-    const daysToEndDate = formatDistanceToNowStrict(endDate, {
+    const daysToEndDate = formatDistanceToNowStrict(budget.current_end_date, {
       unit: 'day',
       locale: ptBR,
     }).split(' ')[0];
@@ -192,14 +188,14 @@ export function BudgetDetails() {
           data={budget}
         />
         <PeriodContainer>
-          <StartPeriod>{budget.start_date}</StartPeriod>
-          <EndPeriod>{budget.end_date}</EndPeriod>
+          <StartPeriod>{budget.formatted_start_date}</StartPeriod>
+          <EndPeriod>{budget.formatted_end_date}</EndPeriod>
         </PeriodContainer>
 
         <TransactionsContainer>
           <SectionTitle>Transações</SectionTitle>
           <FlashList
-            data={budget.transactions}
+            data={budget.budget_transactions}
             keyExtractor={(item: any) => item.id}
             showsVerticalScrollIndicator={false}
             estimatedItemSize={92}

@@ -21,19 +21,19 @@ type Props = {
 
 export function AccountConnectedListItem({ data, onPress }: Props) {
   const formattedLastSyncDate = format(
-    parseISO(data.last_sync_date),
+    parseISO(data.lastSyncDate),
     'dd/MM/yyyy',
     {
       locale: ptBR,
     }
   );
+
   return (
     <Container onPress={onPress}>
       <MainContent>
         <AccountNameContainer>
           <AccountName isTitle={false}>
-            Inst. Financeira:{' '}
-            <AccountName isTitle>{data.bank_name}</AccountName>
+            Inst. Financeira: <AccountName isTitle>{data.bankName}</AccountName>
           </AccountName>
         </AccountNameContainer>
         <LastSyncDate isTitle={false}>
@@ -45,7 +45,7 @@ export function AccountConnectedListItem({ data, onPress }: Props) {
       <StatusContainer>
         <ConnectionStatus
           status={data.status}
-          executionStatus={data.execution_status}
+          executionStatus={data.executionStatus}
         />
       </StatusContainer>
     </Container>

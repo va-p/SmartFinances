@@ -89,38 +89,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     (state) => state.setBudgetCategoriesSelected
   );
 
-  // const currencies: String[] = [
-  //   'BRL - Real Brasileiro',
-  //   'BTC - Bitcoin',
-  //   'EUR - Euro',
-  //   'USD - Dólar Americano',
-  // ];
-  // const currenciesMap: Record<string, CurrencyProps> = {
-  //   'BTC - Bitcoin': {
-  //     id: 1,
-  //     name: 'Bitcoin',
-  //     code: 'BTC',
-  //     symbol: '₿',
-  //   },
-  //   'USD - Dólar Americano': {
-  //     id: 2,
-  //     name: 'Dólar Americano',
-  //     code: 'USD',
-  //     symbol: '$',
-  //   },
-  //   'EUR - Euro': {
-  //     id: 3,
-  //     name: 'Euro',
-  //     code: 'EUR',
-  //     symbol: '€',
-  //   },
-  //   'BRL - Real Brasileiro': {
-  //     id: 4,
-  //     name: 'Real Brasileiro',
-  //     code: 'BRL',
-  //     symbol: 'R$',
-  //   },
-  // };
   const [currencySelected, setCurrencySelected] =
     useState<CurrencyProps | null>(null);
   const [startDate, setStartDate] = useState(new Date());
@@ -156,7 +124,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   const { data: currenciesData, isLoading: isLoadingCurrencies } =
     useCurrenciesQuery();
   const currencies: CurrencyProps[] = currenciesData ?? [];
-  console.log('currencies ===>', currencies);
 
   const { mutate: createBudget, isPending: isCreating } =
     useCreateBudgetMutation();

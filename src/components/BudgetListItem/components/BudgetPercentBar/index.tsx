@@ -12,27 +12,19 @@ import { useTheme } from 'styled-components';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { ThemeProps } from '@interfaces/theme';
-import { BudgetProps } from '@interfaces/budget';
+import { FormattedBudgetProps } from '@interfaces/budget';
 
 interface Props {
   is_amount_reached: boolean;
-  data: BudgetProps;
+  data: FormattedBudgetProps;
 }
 
 export function BudgetPercentBar({ is_amount_reached, data }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const animatedWidth = useSharedValue(0);
 
-  function calculatePercentage(data: BudgetProps) {
-    const totalSpent = data.amount_spent;
-    const totalBudget = data.amount;
-
-    return Math.round((Number(totalSpent) / Number(totalBudget)) * 100);
-  }
-
   function updateProgress() {
-    const calculatedPercentage = calculatePercentage(data);
-    animatedWidth.value = withTiming(calculatedPercentage, {
+    animatedWidth.value = withTiming(data.percentage, {
       duration: 2000,
       easing: Easing.inOut(Easing.quad),
     });
@@ -41,9 +33,8 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
   useFocusEffect(
     useCallback(() => {
       animatedWidth.value = 0;
-
       updateProgress();
-    }, [data])
+    }, [data.percentage])
   );
 
   const AnimatedContainerStyle = useAnimatedStyle(() => ({
@@ -64,9 +55,7 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
           },
         ]}
       ></Animated.View>
-      <Percent numberOfLines={1}>
-        {calculatePercentage(data).toFixed(2)}%
-      </Percent>
+      <Percent numberOfLines={1}>{data.percentage.toFixed(2)}%</Percent>
     </Container>
   );
 }

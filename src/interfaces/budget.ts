@@ -18,3 +18,13 @@ export interface BudgetProps {
   user_id: string;
   transactions: TransactionProps[];
 }
+
+export interface FormattedBudgetProps extends BudgetProps {
+  amount_spent: number;
+  percentage: number;
+  current_start_date: Date;
+  current_end_date: Date;
+  formatted_start_date: string;
+  formatted_end_date: string;
+  budget_transactions: TransactionProps[];
+}

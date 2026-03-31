@@ -31,4 +31,5 @@ export const BudgetTotalDescription = styled.Text`
 
 export const TransactionsContainer = styled.View`
   flex: 1;
+  margin-top: 8px;
 `;

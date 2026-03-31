@@ -7,9 +7,7 @@ import { BankingIntegration } from '@interfaces/bankingIntegration';
 const fetchBankingIntegrationDetail = async (
   bankingIntegrationID: string
 ): Promise<BankingIntegration> => {
-  const { data } = await api.get('banking_integration/single', {
-    params: { banking_integration_id: bankingIntegrationID },
-  });
+  const { data } = await api.get(`banking-integration/${bankingIntegrationID}`);
   return data;
 };
 

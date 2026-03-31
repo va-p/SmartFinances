@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, StatusBar, View } from 'react-native';
+import { StyleSheet, StatusBar, View, Platform } from 'react-native';
 
 // Dependencies
 import { Tabs } from 'expo-router';
@@ -34,18 +34,18 @@ export default function AppLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: theme.colors.text,
-          tabBarInactiveTintColor: theme.colors.primary,
+          tabBarActiveTintColor: theme.colors.primary,
+          tabBarInactiveTintColor: theme.colors.text,
           tabBarStyle: {
             position: 'absolute',
             height: 56,
-            paddingTop: 6,
-            paddingBottom: 6,
-            borderTopLeftRadius: 75,
-            borderTopRightRadius: 75,
-            overflow: 'hidden',
+            bottom: Platform.OS === 'ios' ? 24 : 16, // Extra lift for iOS home indicator
+            marginHorizontal: 20,
             backgroundColor: 'transparent',
             borderColor: 'transparent',
+            borderTopWidth: 0,
+            borderRadius: 32,
+            overflow: 'hidden',
           },
           sceneStyle: {
             backgroundColor: 'transparent',
@@ -123,7 +123,7 @@ export default function AppLayout() {
         <View
           style={{
             height: insets.bottom,
-            backgroundColor: theme.colors.background,
+            backgroundColor: theme.colors.gradientStart,
           }}
         />
       )}

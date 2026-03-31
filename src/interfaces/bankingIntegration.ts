@@ -56,16 +56,16 @@ export type ExecutionStatusTypes =
   | 'WAITING_USER_INPUT'
   | 'USER_AUTHORIZATION_PENDING';
 
-// BankingIntegration is the integration on Xano (pluggy data + some internal data)
+// BankingIntegration is the integration on database (pluggy data + some internal data)
 export interface BankingIntegration {
   id: number;
-  created_at: number;
-  user_id: number;
-  pluggy_integration_id: string; //uuid
-  last_sync_date: string;
+  createdAt: number;
+  userId: number;
+  pluggyIntegrationId: string; //uuid
+  lastSyncDate: string;
   health: HealthTypes;
   status: StatusTypes;
-  execution_status: ExecutionStatusTypes;
-  connector_id: string;
-  bank_name: string;
+  executionStatus: ExecutionStatusTypes;
+  connectorId: string;
+  bankName: string;
 }

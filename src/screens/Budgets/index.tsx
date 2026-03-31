@@ -1,20 +1,14 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
 // Hooks
-import { useBudgetsQuery } from '@hooks/useBudgetsQuery';
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
-
-// Utils
-import formatCurrency from '@utils/formatCurrency';
-import formatDatePtBr from '@utils/formatDatePtBr';
+import { useFormattedBudgets } from '@hooks/useFormattedBudgets';
 
 // Dependencies
 import { useRouter } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -30,157 +24,22 @@ import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { RegisterBudget } from '@screens/RegisterBudget';
 
 // Storages
-import { useUser } from '@stores/userStorage';
 import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 // Interfaces
 import { BudgetProps } from '@interfaces/budget';
-import { TransactionProps } from '@interfaces/transactions';
 
 export function Budgets() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
-  const { id: userID } = useUser();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-
   const budgetRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
-
   const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.setBudgetCategoriesSelected
   );
 
-  const {
-    data: transactions,
-    isLoading: isLoadingTransactions,
-    refetch: refetchTransactions,
-    isRefetching: isRefetchingTransactions,
-  } = useTransactionsQuery(userID);
-  const {
-    data: rawBudgets,
-    isLoading: isLoadingBudgets,
-    refetch: refetchBudgets,
-    isRefetching: isRefetchingBudgets,
-  } = useBudgetsQuery(userID);
-
-  const budgetsFormatted = useMemo(() => {
-    if (!rawBudgets || !transactions) {
-      return [];
-    }
-
-    return rawBudgets.map((budget) => {
-      // --- Start  of business logic to each budget ---
-      let startDate = new Date(budget.start_date);
-      let endDate = startDate;
-
-      switch (budget.recurrence) {
-        case 'daily':
-          endDate = addDays(new Date(endDate), 1);
-          break;
-        case 'weekly':
-          endDate = addWeeks(new Date(endDate), 1);
-          break;
-        case 'biweekly':
-          endDate = addDays(new Date(endDate), 15);
-          break;
-        case 'monthly':
-          endDate = endOfMonth(endDate);
-          break;
-        case 'semiannually':
-          endDate = addMonths(new Date(endDate), 6);
-          break;
-        case 'annually':
-          endDate = addYears(new Date(endDate), 1);
-          break;
-      }
-
-      while (endDate < new Date()) {
-        switch (budget.recurrence) {
-          case 'daily':
-            startDate = endDate;
-            endDate = addDays(new Date(startDate), 1);
-            break;
-          case 'weekly':
-            startDate = endDate;
-            endDate = addWeeks(new Date(startDate), 1);
-            break;
-          case 'biweekly':
-            startDate = endDate;
-            endDate = addDays(new Date(startDate), 15);
-            break;
-          case 'monthly':
-            startDate = addMonths(new Date(startDate), 1);
-            endDate = endOfMonth(startDate);
-            break;
-          case 'semiannually':
-            startDate = endDate;
-            endDate = addMonths(new Date(startDate), 6);
-            break;
-          case 'annually':
-            startDate = endDate;
-            endDate = addYears(new Date(startDate), 1);
-            break;
-        }
-      }
-
-      const filteredTransactions = transactions.filter(
-        (transaction: TransactionProps) =>
-          budget.categories.find(
-            (cat: any) => cat.category_id === transaction.category.id
-          ) &&
-          new Date(transaction.created_at) >= startDate &&
-          new Date(transaction.created_at) <= endDate
-      );
-
-      let amountSpent = 0;
-      for (const transaction of filteredTransactions) {
-        const isTransactionInAnotherCurrency =
-          transaction.currency.code !== transaction.account.currency.code;
-        if (
-          transaction.type === 'TRANSFER_CREDIT' ||
-          transaction.type === 'TRANSFER_DEBIT'
-        )
-          continue;
-
-        if (transaction.account.type === 'CREDIT') {
-          amountSpent +=
-            isTransactionInAnotherCurrency &&
-            transaction.amount_in_account_currency
-              ? transaction.amount_in_account_currency
-              : transaction.amount;
-        } else {
-          amountSpent -=
-            isTransactionInAnotherCurrency &&
-            transaction.amount_in_account_currency
-              ? transaction.amount_in_account_currency
-              : transaction.amount;
-        }
-
-        transaction.amount_in_account_currency
-          ? (transaction.amount_in_account_currency_formatted = formatCurrency(
-              transaction.account.currency.code,
-              transaction.amount_in_account_currency!
-            ))
-          : (transaction.amount_formatted = formatCurrency(
-              transaction.account.currency.code,
-              transaction.amount
-            ));
-      }
-
-      const percentage = (amountSpent / Number(budget.amount)) * 100;
-      const formattedStartDate = formatDatePtBr(startDate).medium();
-      const formattedEndDate = formatDatePtBr(endDate).medium();
-
-      return {
-        ...budget,
-        amount_spent: amountSpent,
-        percentage,
-        start_date: formattedStartDate,
-        end_date: formattedEndDate,
-        transactions: filteredTransactions,
-      };
-      // --- End of business logic ---
-    });
-  }, [rawBudgets, transactions]);
+  const { budgets, isLoading, refetchBudgets, refetchTransactions } =
+    useFormattedBudgets();
 
   async function handleRefresh() {
     setIsManualRefreshing(true);
@@ -210,7 +69,7 @@ export function Budgets() {
     });
   }
 
-  if (isLoadingTransactions || isLoadingBudgets) {
+  if (isLoading) {
     return (
       <Screen>
         <SkeletonBudgetsScreen />
@@ -228,7 +87,7 @@ export function Budgets() {
         </Header.Root>
 
         <FlatList
-          data={budgetsFormatted}
+          data={budgets}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => (
             <BudgetListItem
