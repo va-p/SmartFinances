@@ -34,7 +34,6 @@ export function BankingIntegrations() {
   const router = useRouter();
   const { showHeader } = useLocalSearchParams();
   const { user } = useRevenueCat();
-  const { id: userID } = useUser();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -178,8 +177,11 @@ export function BankingIntegrations() {
 
     try {
       const { data, status } = await api.get(
-        `banking-integration/${bankingIntegration.id}`
+        `banking-integration/connect?itemId=${bankingIntegration.pluggyIntegrationId}`
       );
+      const accessToken = data?.accessToken;
+      console.log('data ===>', data);
+      console.log('accessToken ===>', accessToken);
 
       if (status === 200 && data) {
         setLoading(false);
@@ -188,7 +190,7 @@ export function BankingIntegrations() {
           pathname: '/accounts/bankingIntegrationDetails',
           params: {
             bankingIntegrationID: bankingIntegration.id,
-            connectToken: data,
+            connectToken: accessToken,
           },
         });
       }

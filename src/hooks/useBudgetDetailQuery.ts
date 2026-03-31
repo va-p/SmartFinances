@@ -5,9 +5,7 @@ import api from '@api/api';
 import { BudgetProps } from '@interfaces/budget';
 
 const fetchBudgetDetail = async (budgetID: string): Promise<BudgetProps> => {
-  const { data } = await api.get('budget/single', {
-    params: { budget_id: budgetID },
-  });
+  const { data } = await api.get(`budget/${budgetID}`);
   return data;
 };
 

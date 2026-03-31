@@ -42,7 +42,7 @@ type Props = {
   index: number;
   hideAmount: boolean;
   onPress: () => void;
-  onLongPress: () => void;
+  onLongPress?: () => void;
 };
 
 const TransactionListItem = memo(function TransactionListItem({

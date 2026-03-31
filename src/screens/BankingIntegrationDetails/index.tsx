@@ -30,6 +30,8 @@ export function BankingIntegrationDetails() {
     connectToken: token,
   }: { bankingIntegrationID: string; connectToken: string } =
     useLocalSearchParams();
+  console.log('bankingIntegrationID ===>', bankingIntegrationID);
+  console.log('connectToken ===>', token);
 
   const { data: bankingIntegration, isLoading } =
     useBankingIntegrationDetailQuery(bankingIntegrationID);
@@ -40,7 +42,7 @@ export function BankingIntegrationDetails() {
     if (!bankingIntegration) return '';
 
     return format(
-      parseISO(bankingIntegration.last_sync_date || ''),
+      parseISO(bankingIntegration.lastSyncDate || ''),
       'dd/MM/yyyy',
       {
         locale: ptBR,
@@ -61,12 +63,6 @@ export function BankingIntegrationDetails() {
   }
 
   function handleOnSuccess() {
-    OneSignal.InAppMessages.addTrigger(
-      'pluggy_integration_updating_start',
-      'show'
-    );
-
-    // TODO: Updates on Xano
     Alert.alert(
       'Suas integrações bancárias estão sendo atualizadas...',
       'Em alguns minutos o processo será finalizado!',
@@ -103,7 +99,7 @@ export function BankingIntegrationDetails() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title
-            title={`Conexão bancária ${bankingIntegration.bank_name}`}
+            title={`Conexão bancária ${bankingIntegration?.bankName}`}
           />
         </Header.Root>
 
@@ -111,7 +107,7 @@ export function BankingIntegrationDetails() {
           <PluggyConnectContainer>
             <PluggyConnect
               connectToken={token}
-              updateItem={bankingIntegration.pluggy_integration_id}
+              updateItem={bankingIntegration?.pluggyIntegrationId}
               includeSandbox={false}
               connectorTypes={[]}
               onClose={handleOnClose}
@@ -127,7 +123,7 @@ export function BankingIntegrationDetails() {
           <>
             <AccountName isTitle={false}>
               Instituição Financeira:{' '}
-              <AccountName isTitle>{bankingIntegration.bank_name}</AccountName>
+              <AccountName isTitle>{bankingIntegration?.bankName}</AccountName>
             </AccountName>
             <LastSyncDate isTitle={false}>
               Data da últ. sincronização bem sucedida:{' '}
@@ -136,20 +132,20 @@ export function BankingIntegrationDetails() {
 
             <AccountName isTitle={false}>
               Saúde da conexão com a Inst. Financeira:{' '}
-              <AccountName isTitle>{bankingIntegration.health}</AccountName>{' '}
+              <AccountName isTitle>{bankingIntegration?.health}</AccountName>{' '}
               {/** TODO: Adc func. para tratar textos */}
             </AccountName>
 
             <AccountName isTitle={false}>
               Status da integração:{' '}
-              <AccountName isTitle>{bankingIntegration.status}</AccountName>{' '}
+              <AccountName isTitle>{bankingIntegration?.status}</AccountName>{' '}
               {/** TODO: Adc func. para tratar textos */}
             </AccountName>
 
             <AccountName isTitle={false}>
               Status da última sincronização:{' '}
               <AccountName isTitle>
-                {bankingIntegration.execution_status}
+                {bankingIntegration?.executionStatus}
               </AccountName>{' '}
               {/** TODO: Adc func. para tratar textos */}
             </AccountName>
