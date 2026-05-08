@@ -46,7 +46,7 @@ export function useCreateAccountMutation() {
 
 // --- Update account ---
 const updateAccountFn = async (accountData: any) => {
-  return await api.patch('account/edit', accountData);
+  return await api.patch(`account/${accountData.account_id}`, accountData);
 };
 
 export function useUpdateAccountMutation() {
@@ -90,9 +90,7 @@ export function useUpdateAccountMutation() {
 
 // --- Delete account ---
 const deleteAccountFn = async (accountID: string) => {
-  return await api.delete('account/delete', {
-    params: { account_id: accountID },
-  });
+  return await api.delete(`account/${accountID}`);
 };
 
 export function useDeleteAccountMutation() {
@@ -106,7 +104,7 @@ export function useDeleteAccountMutation() {
       const previousAccounts =
         queryClient.getQueryData<AccountProps[]>(QUERY_KEY);
       queryClient.setQueryData<AccountProps[]>(QUERY_KEY, (old = []) =>
-        old.filter((account) => account.id !== accountIdToDelete)
+        old.filter((account) => String(account.id) !== accountIdToDelete)
       );
       return { previousAccounts };
     },

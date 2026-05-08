@@ -7,14 +7,13 @@ import Animated from 'react-native-reanimated';
 
 type Props = {
   color: string;
-  icon: string;
 };
 
 const TouchableOpacityAnimated =
   Animated.createAnimatedComponent(TouchableOpacity);
 
 export const Container = styled(TouchableOpacityAnimated).attrs({
-  activeOpacity: 0.6,
+  activeOpacity: 0.7,
 })<Props>`
   flex: 1;
   min-height: 56px;

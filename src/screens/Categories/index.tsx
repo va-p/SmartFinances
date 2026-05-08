@@ -26,7 +26,6 @@ import { useUser } from '@stores/userStorage';
 
 export function Categories() {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const userID = useUser((state) => state.id);
   const [categoryID, setCategoryID] = useState('');
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -36,7 +35,7 @@ export function Categories() {
     isLoading,
     refetch,
     isRefetching,
-  } = useCategoriesQuery(userID);
+  } = useCategoriesQuery();
   const { mutate: deleteCategory, isPending: isDeleting } =
     useDeleteCategoryMutation();
 
@@ -91,7 +90,7 @@ export function Categories() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || isRefetching) {
     return (
       <Screen>
         <SkeletonCategoriesAndTagsScreen />

@@ -114,7 +114,10 @@ export function Budgets() {
               </Button.Root>
             </Footer>
           }
-          contentContainerStyle={{ paddingBottom: bottomTabBarHeight }}
+          contentContainerStyle={{
+            height: '100%',
+            paddingBottom: bottomTabBarHeight + 16,
+          }}
         />
 
         <ModalView

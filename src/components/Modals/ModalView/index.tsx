@@ -40,7 +40,7 @@ export function ModalView({
   deleteChildren,
   ...rest
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { top } = useSafeAreaInsets();
 
   return (

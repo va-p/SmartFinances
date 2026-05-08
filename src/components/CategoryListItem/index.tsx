@@ -15,7 +15,6 @@ export function CategoryListItem({ data, index, ...rest }: Props) {
   return (
     <Container
       entering={FadeInUp.delay(index * 100)}
-      icon={data.icon.name}
       color={data.color.color_code}
       {...rest}
     >

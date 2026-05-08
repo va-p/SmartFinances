@@ -22,9 +22,6 @@ import { useIconsQuery } from '@hooks/useIconsQuery';
 import { useColorsQuery } from '@hooks/useColorsQuery';
 import { useCategoryDetailQuery } from '@hooks/useCategoryDetailQuery';
 
-import { icons } from '@constants/icons';
-import { colors } from '@constants/colors';
-
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -81,8 +78,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     },
   });
 
-  // const { data: icons, isLoading: isLoadingIcons } = useIconsQuery();
-  // const { data: colors, isLoading: isLoadingColors } = useColorsQuery();
+  const { data: icons, isLoading: isLoadingIcons } = useIconsQuery();
+  const { data: colors, isLoading: isLoadingColors } = useColorsQuery();
 
   const { data: categoryData, isLoading: isLoadingDetails } =
     useCategoryDetailQuery(id);
@@ -157,8 +154,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       const categoryEdited = {
         category_id: id,
         name: form.name,
-        icon: iconSelected,
-        color: colorSelected,
+        icon_id: iconSelected.id,
+        color_id: colorSelected.id,
       };
       updateCategory(categoryEdited, {
         onSuccess: () => {
@@ -170,8 +167,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     else {
       const newCategory = {
         name: form.name,
-        icon: iconSelected,
-        color: colorSelected,
+        icon_id: iconSelected.id,
+        color_id: colorSelected.id,
         user_id: userID,
       };
       createCategory(newCategory, {
