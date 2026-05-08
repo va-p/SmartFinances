@@ -58,7 +58,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignIn() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const {
@@ -75,13 +75,13 @@ export function SignIn() {
     redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
   });
 
-  async function handleSignInWithXano(form: FormData) {
+  async function handleSignInWithMail(form: FormData) {
     try {
       setLoading(true);
 
       await signInWithXano(form);
     } catch (error) {
-      console.error('SignIn screen, handleSignInWithXano error =>', error);
+      console.error('SignIn screen, handleSignInWithMail error =>', error);
       if (axios.isAxiosError(error)) {
         Alert.alert('Login', `${error.response?.data?.message}`);
       }
@@ -180,7 +180,7 @@ export function SignIn() {
               error={errors.password}
               icon={Key}
               returnKeyType='go'
-              onSubmitEditing={handleSubmit(handleSignInWithXano)}
+              onSubmitEditing={handleSubmit(handleSignInWithMail)}
             />
 
             <Text
@@ -192,7 +192,7 @@ export function SignIn() {
 
             <Button.Root
               isLoading={loading}
-              onPress={handleSubmit(handleSignInWithXano)}
+              onPress={handleSubmit(handleSignInWithMail)}
               style={{ width: '50%', alignSelf: 'center' }}
             >
               <Button.Text text='Login' />

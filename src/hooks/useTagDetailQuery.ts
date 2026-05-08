@@ -5,7 +5,7 @@ import api from '@api/api';
 import { TagProps } from '@components/TagListItem';
 
 const fetchTagDetail = async (tagID: string): Promise<TagProps> => {
-  const { data } = await api.get('tag/single', { params: { tag_id: tagID } });
+  const { data } = await api.get(`tag/${tagID}`);
   return data;
 };
 

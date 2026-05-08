@@ -75,7 +75,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function SignUp() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const {

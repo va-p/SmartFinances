@@ -46,7 +46,10 @@ export function useCreateCategoryMutation() {
 
 // --- Update category ---
 const updateCategoryFn = async (categoryEdited: any) => {
-  return await api.patch('category/edit', categoryEdited);
+  return await api.patch(
+    `category/${categoryEdited.category_id}`,
+    categoryEdited
+  );
 };
 
 export function useUpdateCategoryMutation() {
@@ -87,9 +90,7 @@ export function useUpdateCategoryMutation() {
 
 // --- Delete category ---
 const deleteCategoryFn = async (categoryID: string) => {
-  return await api.delete('category/delete', {
-    params: { category_id: categoryID },
-  });
+  return await api.delete(`category/${categoryID}`);
 };
 
 export function useDeleteCategoryMutation() {

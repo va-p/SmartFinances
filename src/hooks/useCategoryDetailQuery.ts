@@ -7,11 +7,7 @@ import { CategoryProps } from '@interfaces/categories';
 const fetchCategoryDetail = async (
   categoryId: string
 ): Promise<CategoryProps> => {
-  const { data } = await api.get('category/single', {
-    params: {
-      category_id: categoryId,
-    },
-  });
+  const { data } = await api.get(`category/${categoryId}`);
   return data;
 };
 

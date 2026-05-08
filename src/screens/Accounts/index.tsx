@@ -16,20 +16,26 @@ import {
   SectionTitle,
 } from './styles';
 
+// Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
+// Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
+// Dependencies
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, parse, parseISO } from 'date-fns';
+import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
+import { format, parse, parseISO } from 'date-fns';
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+
+// Icons
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
@@ -38,6 +44,7 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
+// Components
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
@@ -49,6 +56,7 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
+// Stores
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
@@ -57,6 +65,7 @@ import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage
 
 import api from '@api/api';
 
+// Interfaces
 import {
   AccountProps,
   AccountSubTypes,
@@ -64,9 +73,9 @@ import {
   CreditDataProps,
 } from '@interfaces/accounts';
 import { ThemeProps } from '@interfaces/theme';
-import { useRouter } from 'expo-router';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
@@ -485,6 +494,7 @@ export function Accounts() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingBottom: bottomTabHeight,
+              minHeight: SCREEN_HEIGHT - bottomTabHeight,
             }}
             ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
             ListFooterComponent={
