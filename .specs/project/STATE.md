@@ -41,8 +41,35 @@
 - **Backend version:** 1.0.0
 - **API prefix:** `/api/v1`
 - **Package manager:** Yarn 1.22.22 (both repos)
-- **Frontend — Expo SDK:** 53 / React Native 0.79.6
+- **Frontend — Expo SDK:** 57 / React Native 0.86.2
 - **Backend — Node.js:** >= 18 / Express v5 / Prisma v7
+
+### SDK Upgrade Record (SDK 53 → 57)
+
+**Date:** 2026-08-04
+
+**Key changes:**
+- Expo SDK 53.0.27 → 57.0.0, React Native 0.79.6 → 0.86.2
+- Gradle 8.13 → 9.3.1, Kotlin 2.0.21 → 2.1.20
+- `app.json`: removed deprecated `edgeToEdgeEnabled`, moved `googleServicesFile` to project root
+- `@react-navigation/*` imports migrated to `expo-router` (React Navigation no longer compatible since SDK 56)
+- `useBottomTabBarHeight` replaced with custom hook at `src/hooks/useBottomTabBarHeight.ts`
+- Added `react-native-worklets@0.10.1` (required by Reanimated 4.5.1)
+- Added `@react-navigation/native` (transitive dep for expo-router types, removed as direct dep)
+- Added `@expo/vector-icons` (no longer bundled in Expo 57)
+- `MainApplication.kt` updated to Expo 57 pattern (uses `ExpoReactHostFactory.getDefaultReactHost`)
+- `InAppUpdateModule.kt` fixed for RN 0.86 API changes (`currentActivity` → `reactApplicationContext.currentActivity`, non-nullable activity/intent params)
+- Android `settings.gradle` regenerated (uses `expo-autolinking-settings` plugin)
+- `app.config.ts`: Revopush plugin temporarily disabled (incompatible with Expo 57 MainApplication template)
+- `tsconfig.json`: added `ignoreDeprecations: "6.0"` for TS 6.0 compat
+
+**⚠️ Revopush/CodePush integration:** The CodePush native integration in `MainApplication.kt` was applied manually but the `getJSBundleFile()` override pattern changed in Expo 57. The `@revopush/expo-code-push-plugin` is disabled in `app.config.ts` because it can't find the old insertion pattern. Verify OTA updates work on device.
+
+**Build status:**
+- ✅ Debug APK (`./gradlew assembleDebug`)
+- ✅ JS bundle (`npx expo export:embed`)
+- ⚠️ Release build fails due to missing production keystore (expected locally)
+- ⚠️ Some TypeScript errors remain (styled-components v6 theme type incompatibilities)
 
 ---
 
