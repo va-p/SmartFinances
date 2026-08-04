@@ -18,7 +18,7 @@ import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
-import { useOAuth, useSSO } from '@clerk/clerk-expo';
+import { useSSO } from '@clerk/clerk-expo';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // Components
@@ -86,8 +86,7 @@ export function SignUp() {
     resolver: yupResolver(schema),
   });
 
-  const googleOAuth = useOAuth({ strategy: 'oauth_google' });
-  // const googleOAuth = useSSO(); // New
+  const { startSSOFlow } = useSSO();
 
   async function handlePressTermsOfUse() {
     await WebBrowser.openBrowserAsync(eUrl.TERMS_OF_USE_URL);
@@ -104,10 +103,9 @@ export function SignUp() {
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
-      const oAuthFlow = await googleOAuth.startOAuthFlow();
-      // const oAuthFlow = await googleOAuth.startSSOFlow({
-      //   strategy: 'oauth_google',
-      // }); // New
+      const oAuthFlow = await startSSOFlow({
+        strategy: 'oauth_google',
+      });
 
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
@@ -136,6 +134,7 @@ export function SignUp() {
   }
 
   async function handleRegisterUser(form: FormData) {
+    console.log('handleRegisterUser', form);
     setLoading(true);
 
     try {

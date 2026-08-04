@@ -21,7 +21,7 @@ import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
-import { useSSO, useOAuth } from '@clerk/clerk-expo';
+import { useSSO } from '@clerk/clerk-expo';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // Icons
@@ -70,10 +70,7 @@ export function SignIn() {
   });
 
   const { signInWithXano } = useAuth();
-  const googleOAuth = useOAuth({
-    strategy: 'oauth_google',
-    redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
-  });
+  const { startSSOFlow } = useSSO();
 
   async function handleSignInWithMail(form: FormData) {
     try {
@@ -93,7 +90,10 @@ export function SignIn() {
   async function handleContinueWithGoogle() {
     try {
       setLoading(true);
-      const oAuthFlow = await googleOAuth.startOAuthFlow();
+      const oAuthFlow = await startSSOFlow({
+        strategy: 'oauth_google',
+        redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
+      });
 
       if (
         oAuthFlow.authSessionResult?.type === 'success' &&
