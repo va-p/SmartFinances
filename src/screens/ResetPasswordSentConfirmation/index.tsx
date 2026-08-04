@@ -7,7 +7,7 @@ import {
   Text,
 } from './styles';
 
-import { useRoute } from '@react-navigation/native';
+import { useRoute } from 'expo-router';
 import Envelope from 'phosphor-react-native/src/icons/Envelope';
 
 import { Screen } from '@components/Screen';

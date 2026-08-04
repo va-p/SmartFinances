@@ -42,7 +42,7 @@ import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import { Screen } from '@components/Screen';

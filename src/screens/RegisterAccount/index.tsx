@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 
 // Icons
 import Money from 'phosphor-react-native/src/icons/Money';

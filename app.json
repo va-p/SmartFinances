@@ -13,8 +13,7 @@
     "android": {
       "package": "com.vap.smartfinances",
       "versionCode": 93,
-      "googleServicesFile": "./android/app/google-services.json",
-      "edgeToEdgeEnabled": true,
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "VIBRATE",
         "CAMERA",

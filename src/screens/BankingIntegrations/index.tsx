@@ -12,7 +12,7 @@ import axios from 'axios';
 import { useTheme } from 'styled-components';
 import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 import { useUser } from '@stores/userStorage';
 

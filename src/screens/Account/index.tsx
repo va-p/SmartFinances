@@ -61,7 +61,7 @@ import { useTheme } from 'styled-components';
 import { useLocalSearchParams } from 'expo-router';
 import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import { Screen } from '@components/Screen';

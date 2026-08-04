@@ -19,7 +19,7 @@ import { FlashList } from '@shopify/flash-list';
 import { router, useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { formatDistanceToNowStrict, parse } from 'date-fns';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import {

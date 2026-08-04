@@ -3,7 +3,7 @@ import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';

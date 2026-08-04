@@ -32,7 +32,7 @@ interface AuthContextType {
   user: any;
   isLoaded: boolean;
   loading: boolean;
-  signInWithXano: (data: FormData) => Promise<User | undefined>;
+  signInWithEmail: (data: FormData) => Promise<User | undefined>;
   canSignInWithBiometrics: () => Promise<boolean>;
   signInWithBiometrics: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -202,10 +202,10 @@ export function AuthProvider({ children }: any) {
     attemptBiometricLogin();
   }, [clerkLoaded, clerkSignedIn]);
 
-  async function fetchClerkUserDataOnXano() {
+  async function fetchClerkUserDataOnDatabase() {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        // Delay of few seconds, to Clerk webhook finish request to Xano
+        // Delay of few seconds, to Clerk webhook finish request to backend
         setTimeout(async () => {
           try {
             const { data, status } = await api.get('/auth/clerk_sso', {
@@ -237,7 +237,7 @@ export function AuthProvider({ children }: any) {
     });
   }
 
-  async function signInWithXano(formData: FormData) {
+  async function signInWithEmail(formData: FormData) {
     try {
       setLoading(true);
 
@@ -247,21 +247,21 @@ export function AuthProvider({ children }: any) {
       };
 
       const { data, status } = await api.post('auth/login', SignInUser);
-      const xanoToken = data.authToken || null;
+      const token = data.authToken || null;
       if (status === 200) {
-        storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(xanoToken));
+        storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(token));
 
         const userData = (await api.get('auth/me')).data;
 
         const loggedInUserDataFormatted = storageUserDataAndConfig(userData);
 
         setIsSignedIn(true);
-        setUser(loggedInUserDataFormatted); // User data from Xano
+        setUser(loggedInUserDataFormatted); // User data from database
         return loggedInUserDataFormatted;
       }
       return;
     } catch (error) {
-      console.error('AuthProvider, signInWithXano error =>', error);
+      console.error('AuthProvider, signInWithEmail error =>', error);
       Alert.alert('Login', `${error.response?.data?.message}`);
     } finally {
       setLoading(false);
@@ -314,7 +314,7 @@ export function AuthProvider({ children }: any) {
 
       try {
         if (clerkSignedIn && clerkUser) {
-          await fetchClerkUserDataOnXano();
+          await fetchClerkUserDataOnDatabase();
         } else {
           const canUseBiometrics = await canSignInWithBiometrics();
           if (canUseBiometrics) {
@@ -339,7 +339,7 @@ export function AuthProvider({ children }: any) {
     user,
     loading,
     isLoaded: clerkLoaded,
-    signInWithXano,
+    signInWithEmail,
     canSignInWithBiometrics,
     signInWithBiometrics,
     signOut,

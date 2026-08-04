@@ -1,7 +1,7 @@
 import { Button, ButtonShape } from './styles';
 
 import { useTheme } from 'styled-components';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
 import ArrowLeft from 'phosphor-react-native/src/icons/ArrowLeft';
 
 import { ThemeProps } from '@interfaces/theme';

@@ -58,7 +58,7 @@ import { useTheme } from 'styled-components';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Icons
 import X from 'phosphor-react-native/src/icons/X';
