@@ -8,7 +8,7 @@ import { useDeleteCategoryMutation } from '@hooks/useCategoryMutations';
 
 // Dependencies
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import { Screen } from '@components/Screen';

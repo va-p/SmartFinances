@@ -134,7 +134,7 @@ export function SignUp() {
   }
 
   async function handleRegisterUser(form: FormData) {
-    console.log('handleRegisterUser', form);
+    console.log('handleRegisterUser ===>', form);
     setLoading(true);
 
     try {
@@ -245,7 +245,7 @@ export function SignUp() {
               control={control}
               error={errors.confirmPassword}
               returnKeyType='go'
-              onSubmitEditing={handleSubmit(handleRegisterUser)}
+              onSubmitEditing={handleRegisterUser}
             />
           </FormWrapper>
 

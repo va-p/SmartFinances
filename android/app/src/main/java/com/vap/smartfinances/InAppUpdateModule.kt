@@ -92,7 +92,7 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
     }
 
     private fun startUpdate(info: AppUpdateInfo, type: Int, promise: Promise?) {
-        currentActivity?.let { activity ->
+        reactApplicationContext.currentActivity?.let { activity ->
             try {
                 appUpdateManager.startUpdateFlowForResult(
                         info,
@@ -116,7 +116,7 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
     }
 
     private fun popupSnackbarForCompleteUpdate() {
-        val activity = currentActivity ?: return
+        val activity = reactApplicationContext.currentActivity ?: return
         val view = activity.findViewById<android.view.View>(android.R.id.content)
 
         Snackbar.make(
@@ -129,7 +129,7 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
     }
 
     override fun onActivityResult(
-            activity: Activity?,
+            activity: Activity,
             requestCode: Int,
             resultCode: Int,
             data: Intent?
@@ -142,5 +142,5 @@ class InAppUpdateModule(reactContext: ReactApplicationContext) :
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {}
+    override fun onNewIntent(intent: Intent) {}
 }

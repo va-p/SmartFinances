@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useTheme } from 'styled-components';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 
 import { ThemeProps } from '@interfaces/theme';
 import { FormattedBudgetProps } from '@interfaces/budget';

@@ -22,8 +22,8 @@ import { FlashList } from '@shopify/flash-list';
 import { addMonths, format, subMonths } from 'date-fns';
 import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useFocusEffect, useRoute } from 'expo-router';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import { Screen } from '@components/Screen';

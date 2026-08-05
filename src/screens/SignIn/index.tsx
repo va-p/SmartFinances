@@ -69,14 +69,14 @@ export function SignIn() {
     resolver: yupResolver(schema),
   });
 
-  const { signInWithXano } = useAuth();
+  const { signInWithEmail } = useAuth();
   const { startSSOFlow } = useSSO();
 
   async function handleSignInWithMail(form: FormData) {
     try {
       setLoading(true);
 
-      await signInWithXano(form);
+      await signInWithEmail(form);
     } catch (error) {
       console.error('SignIn screen, handleSignInWithMail error =>', error);
       if (axios.isAxiosError(error)) {

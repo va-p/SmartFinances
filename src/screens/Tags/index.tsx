@@ -6,7 +6,7 @@ import { useTagsQuery } from '@hooks/useTagsQuery';
 import { useDeleteTagMutation } from '@hooks/useTagMutations';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';

@@ -21,7 +21,7 @@ import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 import { addDays } from 'date-fns';
 import * as WebBrowser from 'expo-web-browser';
 import { Gradient } from '@components/Gradient';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { PurchasesPackage } from 'react-native-purchases';
 
 import { useRevenueCat } from '@providers/RevenueCatProvider';
