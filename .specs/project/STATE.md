@@ -19,6 +19,12 @@
 | 13 | **Decimal.js for monetary math** | Avoids floating-point errors in currency calculations (used on both frontend and backend). |
 | 14 | **Argon2 for password hashing** | Backend uses `argon2` (not bcrypt) — stronger defaults. |
 | 15 | **Passwords are nullable on User** | OAuth users (Clerk SSO) have no password. `password` field is nullable in Prisma schema. |
+| 16 | **NativeTabs for iOS (Liquid Glass)** | iOS uses `NativeTabs` from `expo-router/unstable-native-tabs` with native `UITabBarController` providing Liquid Glass effect (iOS 26+). Android/fallback uses JS `Tabs` with `BlurView` + `LinearGradient` for custom glass effect. Platform-specific via `_layout.ios.tsx`. Icons use SF Symbols on iOS, phosphor-react-native on Android. |
+| 17 | **iOS 16.4 minimum deployment target** | Expo SDK 57 requires iOS 16.4. Updated `Podfile.properties.json`, `project.pbxproj`, and `app.json`. |
+| 18 | **New Architecture (React Native 0.86)** | RN 0.82+ requires New Architecture (`newArchEnabled: true`). Old architecture flag `RCT_NEW_ARCH_ENABLED=0` is ignored. |
+| 19 | **Static frameworks for Firebase on iOS** | `ios.useFrameworks: static` in `Podfile.properties.json` + `$RNFirebaseAsStaticFramework = true` in Podfile + `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES` post-install hook required for Firebase + New Architecture compatibility. |
+| 20 | **Prisma v7 env loading** | Prisma v7 requires `prisma.config.ts` for migration URLs. Backend `prisma.ts` and `server.ts` load `.env.development` with `override: true` when `NODE_ENV=development`. Dev script sets `NODE_ENV=development`. |
+| 21 | **@gorhom/bottom-sheet v5.2.14** | Updated from 5.2.8 to fix Reanimated 4.x compatibility (SDK 57 / RN 0.86). Bottom sheets rendered overlays but content stayed hidden due to animation worklet failures in older version.
 
 ---
 
@@ -68,8 +74,27 @@
 **Build status:**
 - ✅ Debug APK (`./gradlew assembleDebug`)
 - ✅ JS bundle (`npx expo export:embed`)
-- ⚠️ Release build fails due to missing production keystore (expected locally)
+- ✅ Release AAB (`./gradlew bundleRelease`) — after restoring keystore
 - ⚠️ Some TypeScript errors remain (styled-components v6 theme type incompatibilities)
+
+### Liquid Glass & iOS Build Fixes (2026-08-06)
+
+**Tab bar migration:**
+- iOS: `Tabs` → `NativeTabs` from `expo-router/unstable-native-tabs` (native Liquid Glass via `UITabBarController`)
+- Android/fallback: JS `Tabs` with `BlurView` + `LinearGradient` for custom glass effect
+- Platform-specific via `_layout.ios.tsx` — Expo Router auto-resolves
+- Icons: SF Symbols (`sf`) on iOS, phosphor-react-native on Android
+- Tint color uses theme `primary` (`rgb(255, 170, 41)`) for active tab
+- ThemeProvider from `expo-router` wraps NativeTabs for Liquid Glass compatibility
+
+**iOS build fixes (SDK 57):**
+- `ios.deploymentTarget`: `15.1` → `16.4` (Expo SDK 57 requirement)
+- `newArchEnabled`: `false` → `true` (RN 0.82+ requires New Architecture)
+- `ios.useFrameworks`: `static` (Firebase Swift pods require frameworks)
+- `$RNFirebaseAsStaticFramework = true` in Podfile (Firebase + New Architecture)
+- `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES` in post_install (cross-module imports)
+- `GoogleService-Info.plist` added to Xcode project for Firebase iOS
+- Xcode project deployment target unified to `16.4`
 
 ---
 
@@ -86,6 +111,9 @@ yarn install
 EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
 
 npx expo start --dev-client
+
+# iOS requires GoogleService-Info.plist in ios/SmartFinances/ 
+# (download from Firebase Console)
 ```
 
 ### Backend

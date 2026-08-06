@@ -21,7 +21,7 @@ export function ModalViewWithoutHeader({
   bottomSheetRef,
   ...rest
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { top } = useSafeAreaInsets();
 
   return (
@@ -33,7 +33,7 @@ export function ModalViewWithoutHeader({
       backgroundStyle={{ display: 'none' }}
       handleStyle={{
         paddingBottom: 0,
-        marginBottom: -12,
+        marginBottom: -16,
       }}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       topInset={top}
@@ -43,8 +43,6 @@ export function ModalViewWithoutHeader({
         style={{
           flex: 1,
           overflow: 'hidden',
-          borderTopLeftRadius: 75,
-          borderTopRightRadius: 75,
         }}
       >
         {children}

@@ -41,11 +41,8 @@ type FormData = {
   name: string;
   lastName: string;
   email: string;
-  confirmEmail: string;
-  phone: string;
   password: string;
   confirmPassword: string;
-  checkbox: boolean;
 };
 
 /* Validation Form - Start */
@@ -55,9 +52,6 @@ const schema = Yup.object().shape({
   email: Yup.string()
     .required('Digite o seu e-mail')
     .email('Digite um e-mail válido'),
-  phone: Yup.number()
-    .required('Digite o seu telefone celular')
-    .typeError('Digite apenas números'),
   password: Yup.string()
     .required('Digite a sua senha')
     .min(8, 'A senha deve ter no mínimo 8 caracteres')
@@ -67,10 +61,6 @@ const schema = Yup.object().shape({
   confirmPassword: Yup.string()
     .required('Confirme a sua senha')
     .oneOf([Yup.ref('password'), null], 'As senhas não conferem'),
-  checkbox: Yup.bool().oneOf(
-    [true],
-    'Aceite os Termos de Uso e a Política de Privacidade'
-  ),
 });
 /* Validation Form - End */
 
@@ -105,50 +95,54 @@ export function SignUp() {
       setLoading(true);
       const oAuthFlow = await startSSOFlow({
         strategy: 'oauth_google',
+        redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
       });
 
-      if (
-        oAuthFlow.authSessionResult?.type === 'success' &&
-        oAuthFlow.createdSessionId
-      ) {
-        if (oAuthFlow.setActive) {
-          await oAuthFlow.setActive({
-            session: oAuthFlow.createdSessionId,
-          });
-        }
-      } else {
-        // Use signIn or signUp returned from startOAuthFlow
-        // for next steps, such as MFA
+      // Check if the OAuth flow completed
+      if (oAuthFlow.createdSessionId) {
+        await oAuthFlow.setActive!({
+          session: oAuthFlow.createdSessionId,
+        });
+        return;
       }
-    } catch (error) {
-      console.error('SignIn screen, handleContinueWithGoogle error =>', error);
-      if (axios.isAxiosError(error)) {
+
+      // Handle intermediate states (MFA, additional verification)
+      if (oAuthFlow.signIn || oAuthFlow.signUp) {
+        return;
+      }
+
+      // User cancelled or flow failed
+      if (oAuthFlow.authSessionResult?.type !== 'cancel') {
         Alert.alert(
-          'Login',
-          `Não foi possível autenticar com o Google: ${error.response?.data?.message}. Por favor, tente novamente.`
+          'Erro',
+          'Não foi possível autenticar com o Google. Por favor, tente novamente.'
         );
       }
+    } catch (error) {
+      console.error('SignUp screen, handleContinueWithGoogle error =>', error);
+      Alert.alert(
+        'Login',
+        'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+      );
     } finally {
       setLoading(false);
     }
   }
 
   async function handleRegisterUser(form: FormData) {
-    console.log('handleRegisterUser ===>', form);
     setLoading(true);
 
     try {
       const newUser = {
         name: form.name,
-        last_name: form.lastName,
+        lastName: form.lastName,
         email: form.email,
-        phone: form.phone,
         password: form.password,
       };
 
-      const { status } = await api.post('auth/signup', newUser);
+      const { status } = await api.post('auth/register', newUser);
 
-      if (status === 200) {
+      if (status === 201) {
         Alert.alert(
           'Cadastro de usuário',
           'Bem vindo ao Smart Finances! Você será redirecionado para a tela de login.',
@@ -213,6 +207,17 @@ export function SignUp() {
             />
 
             <ControlledInput
+              placeholder='Sobrenome'
+              autoCapitalize='words'
+              autoCorrect={false}
+              autoComplete='name-family'
+              textContentType='familyName'
+              name='lastName'
+              control={control}
+              error={errors.lastName}
+            />
+
+            <ControlledInput
               placeholder='E-mail'
               autoCapitalize='none'
               keyboardType='email-address'
@@ -245,7 +250,7 @@ export function SignUp() {
               control={control}
               error={errors.confirmPassword}
               returnKeyType='go'
-              onSubmitEditing={handleRegisterUser}
+              onSubmitEditing={handleSubmit(handleRegisterUser)}
             />
           </FormWrapper>
 

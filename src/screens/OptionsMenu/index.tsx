@@ -44,7 +44,7 @@ import { eUrl } from '@enums/enumsUrl';
 import { ThemeProps } from '@interfaces/theme';
 
 export function OptionsMenu() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const router = useRouter();
 
   const userId = useUser((state) => state.id);
@@ -129,7 +129,7 @@ export function OptionsMenu() {
     try {
       storageConfig.set(`${DATABASE_CONFIGS}.darkMode`, !darkMode);
       setDarkMode(!darkMode);
-      // await reloadAppAsync();
+      await reloadAppAsync();
     } catch (error) {
       console.error(error);
       Alert.alert(
