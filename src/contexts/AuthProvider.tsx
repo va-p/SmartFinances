@@ -39,6 +39,8 @@ interface AuthContextType {
 }
 
 const CLERK_WEBHOOK_DELAY = 4000;
+const MAX_SSO_RETRIES = 3;
+const SSO_RETRY_DELAY = 3000;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -205,30 +207,52 @@ export function AuthProvider({ children }: any) {
   async function fetchClerkUserDataOnDatabase() {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        // Delay of few seconds, to Clerk webhook finish request to backend
+        // Delay to allow Clerk webhook to reach the backend
         setTimeout(async () => {
-          try {
-            const { data, status } = await api.get('/auth/clerk_sso', {
-              params: {
-                clerk_user_id: clerkUser?.id!,
-              },
-            });
+          let lastError: any = null;
 
-            if (!!data[0] && status === 200) {
-              storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
-              const loggedInUserDataFormatted = storageUserDataAndConfig(
-                data[1]
-              );
-              setIsSignedIn(clerkSignedIn!);
-              setUser(loggedInUserDataFormatted);
-            } else {
-              await clerk.signOut();
-              Alert.alert('Erro', 'Usuário não encontrado.');
+          for (let attempt = 0; attempt < MAX_SSO_RETRIES; attempt++) {
+            try {
+              const { data, status } = await api.get('/auth/clerk_sso', {
+                params: { clerk_user_id: clerkUser?.id! },
+              });
+
+              if (!!data[0] && status === 200) {
+                storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+                const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
+                setIsSignedIn(clerkSignedIn!);
+                setUser(loggedInUserDataFormatted);
+                resolve();
+                return;
+              }
+
+              // If we got a 200 but no data, that's unexpected — retry
+              lastError = new Error('Empty response from auth/clerk_sso');
+            } catch (error: any) {
+              lastError = error;
+
+              // If it's a 503 (webhook still processing), retry after delay
+              if (error?.response?.status === 503 && attempt < MAX_SSO_RETRIES - 1) {
+                console.log(
+                  `SSO fetch attempt ${attempt + 1} failed (webhook pending), retrying in ${SSO_RETRY_DELAY}ms...`
+                );
+                await new Promise((r) => setTimeout(r, SSO_RETRY_DELAY));
+                continue;
+              }
+
+              // For other errors or last attempt, don't retry
+              break;
             }
-            resolve();
-          } catch (error) {
-            reject(error);
           }
+
+          // All attempts failed
+          console.error('All SSO fetch attempts failed:', lastError);
+          await clerk.signOut();
+          Alert.alert(
+            'Erro',
+            'Não foi possível completar a autenticação. Por favor, tente novamente.'
+          );
+          resolve();
         }, CLERK_WEBHOOK_DELAY);
       } catch (error) {
         console.error('Erro ao buscar dados do usuário =>', error);

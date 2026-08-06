@@ -1025,7 +1025,7 @@ export function RegisterTransaction({
   return (
     <Screen>
       <Container>
-        <Gradient />
+        <Gradient roundCorners />
 
         <MainContent>
           <Header color={categorySelected.color.color_code}>

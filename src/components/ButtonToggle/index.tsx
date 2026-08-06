@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch } from 'react-native';
+import { Platform, Switch } from 'react-native';
 import {
   Container,
   TitleContainer,
@@ -29,7 +29,8 @@ export function ButtonToggle({
   subTitle,
   icon,
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
+  const isAndroid = Platform.OS === 'android';
 
   return (
     <Container>
@@ -40,9 +41,9 @@ export function ButtonToggle({
       <SubtitleContainer>
         <SubTitle>{subTitle}</SubTitle>
         <Switch
-          trackColor={{ false: '#767577', true: theme.colors.title }}
-          thumbColor={isEnabled ? theme.colors.primary : '#f4f3f4'}
-          ios_backgroundColor='#3e3e3e'
+          trackColor={{ false: undefined, true: isAndroid ? '#ABA39A' : theme.colors.primary }}
+          thumbColor={isAndroid && isEnabled ? theme.colors.primary : undefined}
+          ios_backgroundColor={theme.colors.border}
           onValueChange={onValueChange}
           value={value}
         />

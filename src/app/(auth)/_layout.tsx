@@ -21,6 +21,18 @@ export default function AuthLayout() {
         barStyle={darkMode ? 'light-content' : 'dark-content'}
       />
 
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: theme.colors.gradientEnd,
+          zIndex: 1,
+        }}
+      />
+
       <Stack
         screenOptions={{
           headerShown: false,

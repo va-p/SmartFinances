@@ -6,6 +6,7 @@ import {
   BackHandler,
   Dimensions,
   View,
+  Platform,
 } from 'react-native';
 import {
   Container,
@@ -52,8 +53,8 @@ import {
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
-import { isFirstDayOfMonth } from 'date-fns';
 import { useForm } from 'react-hook-form';
+import { isFirstDayOfMonth } from 'date-fns';
 import { useTheme } from 'styled-components';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
@@ -72,15 +73,15 @@ import PencilSimpleLine from 'phosphor-react-native/src/icons/PencilSimpleLine';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { FilterButton } from '@components/FilterButton';
+import { PeriodRulerList } from './components/PeriodRulerList';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
-import { PeriodRulerList } from './components/PeriodRulerList';
-import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -109,9 +110,10 @@ import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
 import api from '@api/api';
 
 // Constants
+const isAndroid = Platform.OS === 'android';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const FLOATING_BUTTONS_RIGHT_POSITION = 16;
-const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = 64;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
 const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -605,7 +607,6 @@ export function Home() {
                 ? 'sectionHeader'
                 : 'row'
             }
-            estimatedItemSize={100}
             ListEmptyComponent={_renderEmpty}
             refreshControl={
               <RefreshControl

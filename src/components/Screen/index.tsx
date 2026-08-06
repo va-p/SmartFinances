@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
+import { Platform } from 'react-native';
 import { Container } from './styles';
 
 import {
   SafeAreaViewProps,
-  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
 type ScreenProps = SafeAreaViewProps & {
@@ -11,7 +11,11 @@ type ScreenProps = SafeAreaViewProps & {
 };
 
 export function Screen({ children, ...rest }: ScreenProps) {
-  const insets = useSafeAreaInsets();
+  // On iOS with NativeTabs, the tab bar controller handles bottom safe area
+  // natively. Exclude bottom edge to avoid a dead zone behind the Liquid Glass.
+  const edges = Platform.OS === 'ios'
+    ? (['top', 'left', 'right'] as const)
+    : undefined;
 
-  return <Container {...rest}>{children}</Container>;
+  return <Container edges={edges} {...rest}>{children}</Container>;
 }

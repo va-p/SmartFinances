@@ -5,8 +5,12 @@ import { useTheme } from 'styled-components';
 
 import { ThemeProps } from '@interfaces/theme';
 
-export function Gradient() {
-  const theme: ThemeProps = useTheme();
+type Props = {
+  roundCorners?: boolean;
+};
+
+export function Gradient({roundCorners}: Props) {
+  const theme = useTheme() as ThemeProps;
 
   return (
     <Container
@@ -17,6 +21,8 @@ export function Gradient() {
         right: 0,
         top: 0,
         height: '110%',
+        borderTopLeftRadius: roundCorners ? 25 : undefined,
+        borderTopRightRadius: roundCorners ? 25 : undefined,
       }}
     />
   );

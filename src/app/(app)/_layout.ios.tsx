@@ -1,10 +1,11 @@
 import React from 'react';
 import { StatusBar, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Dependencies
 import { useTheme } from 'styled-components';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { ThemeProvider, DarkTheme, DefaultTheme } from 'expo-router';
+import { ThemeProvider, DarkTheme, DefaultTheme, useSegments } from 'expo-router';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
 
@@ -33,19 +34,41 @@ const glassDefaultTheme = {
 export default function AppLayout() {
   const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
+  const insets = useSafeAreaInsets();
+  const segments = useSegments();
+
+  // First two tabs (index, accounts) use statusBar; the rest use gradientEnd
+  // so the bar blends with each screen's top section.
+  // segments[1] is undefined on the index route — fallback to 'index'.
+  const activeTab = (segments as string[])[1] || 'index';
+  const statusBarColor = (
+    activeTab === 'index' || activeTab === 'accounts'
+  ) ? theme.colors.statusBar : theme.colors.gradientEnd;
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.statusBar }}>
+    <View style={{ flex: 1 }}>
       <StatusBar
         translucent
         barStyle={darkMode ? 'light-content' : 'dark-content'}
         backgroundColor='transparent'
       />
 
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: statusBarColor,
+          zIndex: 1,
+        }}
+      />
+
       <ThemeProvider value={darkMode ? glassDarkTheme : glassDefaultTheme}>
         <NativeTabs
           labelStyle={{
-            color: theme.colors.text,
+            color: darkMode ? 'white' : 'black',
           }}
           tintColor={theme.colors.primary}
         >
@@ -54,7 +77,7 @@ export default function AppLayout() {
             <NativeTabs.Trigger.Icon
               sf={{
                 default: 'list.bullet',
-                selected: 'list.bullet.circle.fill',
+                selected: 'list.bullet',
               }}
               md={{ default: 'list', selected: 'list_alt' }}
             />
@@ -92,7 +115,7 @@ export default function AppLayout() {
             <NativeTabs.Trigger.Icon
               sf={{
                 default: 'ellipsis.circle',
-                selected: 'ellipsis.circle.fill',
+                selected: 'ellipsis.circle',
               }}
               md='more_horiz'
             />

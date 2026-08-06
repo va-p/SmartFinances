@@ -41,7 +41,7 @@
     "@clerk/clerk-expo": "^2.6.9",
     "@expo-google-fonts/poppins": "^0.1.0",
     "@expo/vector-icons": "^15.1.1",
-    "@gorhom/bottom-sheet": "^5.0.6",
+    "@gorhom/bottom-sheet": "5.2.14",
     "@hookform/resolvers": "^2.9.5",
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-native-community/datetimepicker": "9.1.0",

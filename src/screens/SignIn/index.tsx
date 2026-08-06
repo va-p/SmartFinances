@@ -95,29 +95,34 @@ export function SignIn() {
         redirectUrl: 'com.vap.smartfinances://oauth-native-callback',
       });
 
-      if (
-        oAuthFlow.authSessionResult?.type === 'success' &&
-        oAuthFlow.createdSessionId
-      ) {
+      // Check if the OAuth flow completed
+      if (oAuthFlow.createdSessionId) {
         await oAuthFlow.setActive!({
           session: oAuthFlow.createdSessionId,
         });
         return;
-      } else {
+      }
+
+      // Handle intermediate states (MFA, additional verification)
+      if (oAuthFlow.signIn || oAuthFlow.signUp) {
+        return;
+      }
+
+      // User cancelled or flow failed
+      if (oAuthFlow.authSessionResult?.type !== 'cancel') {
         Alert.alert(
           'Erro',
           'Não foi possível autenticar com o Google. Por favor, tente novamente.'
         );
-        setLoading(false);
-        return;
       }
     } catch (error) {
       console.error('SignIn screen, handleContinueWithGoogle error =>', error);
-      if (axios.isAxiosError(error)) {
-        Alert.alert('Login', error.response?.data?.message);
-      }
+      Alert.alert(
+        'Login',
+        'Não foi possível autenticar com o Google. Por favor, tente novamente.'
+      );
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   }
 
