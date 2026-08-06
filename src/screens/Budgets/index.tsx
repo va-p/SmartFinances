@@ -87,6 +87,7 @@ export function Budgets() {
         </Header.Root>
 
         <FlatList
+          style={{ flex: 1 }}
           data={budgets}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => (
@@ -107,18 +108,16 @@ export function Budgets() {
           }
           showsVerticalScrollIndicator={false}
           initialNumToRender={20}
-          ListFooterComponent={
-            <Footer>
-              <Button.Root onPress={handleOpenRegisterBudgetModal}>
-                <Button.Text text='Criar novo orçamento' />
-              </Button.Root>
-            </Footer>
-          }
           contentContainerStyle={{
-            height: '100%',
-            paddingBottom: bottomTabBarHeight + 16,
+            flexGrow: 1,
           }}
         />
+
+        <Footer style={{ paddingBottom: bottomTabBarHeight - 56 }}>
+          <Button.Root onPress={handleOpenRegisterBudgetModal}>
+            <Button.Text text='Criar novo orçamento' />
+          </Button.Root>
+        </Footer>
 
         <ModalView
           type={'primary'}

@@ -70,11 +70,16 @@ export const SectionTitle = styled.Text`
   color: ${({ theme }) => theme.colors.title};
 `;
 
-export const Footer = styled.View`
+type FooterProps = {
+  bottomTabHeight: number;
+};
+
+export const Footer = styled.View<FooterProps>`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px 8px;
+  margin-bottom: ${({ bottomTabHeight }) => bottomTabHeight}px;
 `;
 
 export const ButtonGroup = styled.View`
