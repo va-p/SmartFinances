@@ -5,6 +5,7 @@ import { StyleSheet, StatusBar, View, Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useTheme } from 'styled-components';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Icons
@@ -18,6 +19,10 @@ import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 
+/**
+ * Generic tab layout — used on Android and as a fallback for other platforms.
+ * iOS overrides this with _layout.ios.tsx (NativeTabs + Liquid Glass).
+ */
 export default function AppLayout() {
   const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
@@ -39,23 +44,47 @@ export default function AppLayout() {
           tabBarStyle: {
             position: 'absolute',
             height: 56,
-            bottom: Platform.OS === 'ios' ? 24 : 16, // Extra lift for iOS home indicator
+            bottom: Platform.OS === 'ios' ? 24 : 16,
             marginHorizontal: 20,
             backgroundColor: 'transparent',
-            borderColor: 'transparent',
-            borderTopWidth: 0,
+            // Glass edge: subtle white border for the refraction look
+            borderColor: darkMode
+              ? 'rgba(255, 255, 255, 0.12)'
+              : 'rgba(255, 255, 255, 0.6)',
+            borderWidth: 1,
+            borderTopWidth: 1,
             borderRadius: 32,
             overflow: 'hidden',
+            // Depth shadow
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.12,
+            shadowRadius: 15,
+            elevation: 10,
           },
           sceneStyle: {
             backgroundColor: 'transparent',
           },
           tabBarBackground: () => (
-            <BlurView
-              intensity={darkMode ? 30 : 80}
-              experimentalBlurMethod='dimezisBlurView'
-              style={StyleSheet.absoluteFill}
-            />
+            <View style={StyleSheet.absoluteFill}>
+              {/* Layer 1: Blur — samples content behind the tab bar */}
+              <BlurView
+                tint={darkMode ? 'dark' : 'light'}
+                intensity={darkMode ? 40 : 85}
+                style={StyleSheet.absoluteFill}
+              />
+              {/* Layer 2: Frosted glass overlay — the milky tint */}
+              <LinearGradient
+                colors={
+                  darkMode
+                    ? ['rgba(30, 30, 30, 0.35)', 'rgba(18, 18, 18, 0.55)']
+                    : ['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.5)']
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+            </View>
           ),
         }}
       >

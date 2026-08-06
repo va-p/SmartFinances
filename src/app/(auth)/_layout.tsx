@@ -1,15 +1,15 @@
 import { StatusBar, View } from 'react-native';
 
 import { Stack } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from 'styled-components';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 
 export default function AuthLayout() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
 
