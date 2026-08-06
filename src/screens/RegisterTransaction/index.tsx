@@ -451,11 +451,11 @@ export function RegisterTransaction({
         account_id: updatedAccountId,
         category_id: updatedCategoryId,
         tags: tagsList.length > 0 ? tagsList : transaction.tags,
-        transaction_image_id: null,
+        image_url: null,
         user_id: userID,
       };
 
-      return api.put('transaction/update', transactionEditedPayload);
+      return api.patch('transaction/edit', transactionEditedPayload);
     });
 
     try {
@@ -490,18 +490,15 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    let transaction_image_id: number | null = null;
+    let image_url: string | null = null;
     // TODO: Gets current image transaction ID, delete and then adds new
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
-        user_id: userID,
       };
-      const uploadImage = await api.post('transaction/image', newImage);
+      const uploadImage = await api.post('transaction/image', { file: newImage.file });
       if (uploadImage.status === 200) {
-        const imageData = uploadImage.data;
-
-        transaction_image_id = imageData.id;
+        image_url = uploadImage.data.url;
       }
     }
 
@@ -567,7 +564,7 @@ export function RegisterTransaction({
         account_id: accountID,
         category_id: categorySelected.id,
         tags: tagsList,
-        transaction_image_id,
+        image_url,
         // Informações para o backend lidar com a contrapartida
         related_transaction_account_id: hasDestinationAccount
           ? accountDestinationSelected?.id
@@ -611,7 +608,7 @@ export function RegisterTransaction({
       account_id: accountID,
       category_id: categorySelected.id,
       tags: tagsList,
-      transaction_image_id,
+      image_url,
       user_id: userID,
     };
 
@@ -640,15 +637,14 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    let transaction_image_id: number | null = null;
+    let image_url: string | null = null;
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
-        user_id: userID,
       };
-      const { data, status } = await api.post('transaction/image', newImage);
+      const { data, status } = await api.post('transaction/image', { file: newImage.file });
       if (status === 200) {
-        transaction_image_id = data.id;
+        image_url = data.url;
       }
     }
 
@@ -714,7 +710,7 @@ export function RegisterTransaction({
         account_id: accountID,
         category_id: categorySelected.id,
         tags: tagsList,
-        transaction_image_id,
+        image_url,
         related_transaction_account_id: accountDestinationSelected.id,
         amount_in_account_currency_related_transaction:
           amountInAccountCurrencyRelatedTransaction,
@@ -777,7 +773,7 @@ export function RegisterTransaction({
       account_id: accountID,
       category_id: categorySelected.id,
       tags: tagsList,
-      transaction_image_id,
+      image_url,
       user_id: userID,
     };
 
