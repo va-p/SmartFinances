@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
+import { Alert, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
 import {
   Container,
   Header,
@@ -479,6 +479,7 @@ export function Accounts() {
         <AccountsContainer>
           {/** ACCOUNTS */}
           <FlatList
+            style={{ flex: 1 }}
             data={processedAccounts.filter(
               (account) =>
                 account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
@@ -493,8 +494,8 @@ export function Accounts() {
             }
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              paddingBottom: bottomTabHeight,
-              minHeight: SCREEN_HEIGHT - bottomTabHeight,
+              flexGrow: 1,
+              paddingBottom: 8,
             }}
             ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
             ListFooterComponent={
@@ -541,49 +542,30 @@ export function Accounts() {
                       paddingLeft: 16,
                     }}
                   />
-
-                  {/** SCREEN FOOTER */}
-                  <Footer>
-                    <ButtonGroup>
-                      <AddAccountButton
-                        icon='card'
-                        title='Integrações Bancárias'
-                        onPress={handleTouchConnectAccount}
-                      />
-                    </ButtonGroup>
-
-                    <ButtonGroup>
-                      <AddAccountButton
-                        icon='wallet'
-                        title='Criar Conta Manual'
-                        onPress={handleOpenRegisterAccountModal}
-                      />
-                    </ButtonGroup>
-                  </Footer>
                 </>
-              ) : (
-                // SCREEN FOOTER
-                <Footer>
-                  <ButtonGroup>
-                    <AddAccountButton
-                      icon='card'
-                      title='Integrações Bancárias'
-                      onPress={handleTouchConnectAccount}
-                    />
-                  </ButtonGroup>
-
-                  <ButtonGroup>
-                    <AddAccountButton
-                      icon='wallet'
-                      title='Criar Conta Manual'
-                      onPress={handleOpenRegisterAccountModal}
-                    />
-                  </ButtonGroup>
-                </Footer>
-              )
+              ) : null
             }
             ListEmptyComponent={_renderEmpty}
           />
+
+          {/** SCREEN FOOTER */}
+          <Footer bottomTabHeight={Platform.OS === 'ios' ? bottomTabHeight - 54 : bottomTabHeight - 32}>
+            <ButtonGroup>
+              <AddAccountButton
+                icon='card'
+                title='Integrações Bancárias'
+                onPress={handleTouchConnectAccount}
+              />
+            </ButtonGroup>
+
+            <ButtonGroup>
+              <AddAccountButton
+                icon='wallet'
+                title='Criar Conta Manual'
+                onPress={handleOpenRegisterAccountModal}
+              />
+            </ButtonGroup>
+          </Footer>
         </AccountsContainer>
 
         <ModalView
