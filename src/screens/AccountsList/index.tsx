@@ -59,11 +59,7 @@ export function AccountsList() {
     setLoading(true);
 
     try {
-      const { data } = await api.get('account/manual_accounts', {
-        params: {
-          user_id: userID,
-        },
-      });
+      const { data } = await api.get('account');
       if (data) {
         setAccounts(data);
       }
