@@ -87,13 +87,31 @@ export const Footer = styled.View`
 // ── Date Quick-Select Pills ───────────────────────────
 
 export const DateSelectorContainer = styled.View`
-  padding: 0 16px 8px;
+  min-height: 56px;
+  max-height: 56px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
 `;
 
-export const DatePillsRow = styled.View`
+export const DateSelectorLeft = styled.Pressable`
   flex-direction: row;
-  padding: 8px 0 0;
-  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+`;
+
+export const DateSelectorLabel = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(12)}px;
+  padding-left: 8px;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+export const DateSelectorRight = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 `;
 
 type PillProps = {
@@ -102,11 +120,10 @@ type PillProps = {
 };
 
 export const DatePill = styled.TouchableOpacity<PillProps>`
-  flex: 1;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
-  border-radius: 16px;
+  padding: 4px 8px;
+  border-radius: 12px;
   background-color: ${({ active, accentColor }) =>
     active ? accentColor : 'transparent'};
   border: 1px solid ${({ accentColor }) => accentColor};
@@ -114,7 +131,7 @@ export const DatePill = styled.TouchableOpacity<PillProps>`
 
 export const DatePillText = styled.Text<PillProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(11)}px;
+  font-size: ${RFValue(10)}px;
   color: ${({ active, accentColor, theme }) =>
     active ? theme.colors.text : accentColor};
 `;

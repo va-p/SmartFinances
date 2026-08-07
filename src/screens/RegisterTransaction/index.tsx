@@ -15,7 +15,9 @@ import {
   InputTransactionValuesContainer,
   InputTransactionValueGroup,
   DateSelectorContainer,
-  DatePillsRow,
+  DateSelectorLeft,
+  DateSelectorLabel,
+  DateSelectorRight,
   DatePill,
   DatePillText,
 } from './styles';
@@ -1239,13 +1241,21 @@ export function RegisterTransaction({
             )}
 
             <DateSelectorContainer>
-              <SelectButton
-                title={formattedDate}
-                icon={<Calendar color={categorySelected.color.color_code} />}
+              {/* Left: icon + date label */}
+              <DateSelectorLeft
                 onPress={() => setShowDatePicker(true)}
-              />
+              >
+                <Calendar
+                  size={20}
+                  color={categorySelected.color.color_code}
+                />
+                <DateSelectorLabel>
+                  {formattedDate}
+                </DateSelectorLabel>
+              </DateSelectorLeft>
 
-              <DatePillsRow>
+              {/* Right: quick-date pills */}
+              <DateSelectorRight>
                 <DatePill
                   active={getActivePill() === 'isToday'}
                   accentColor={categorySelected.color.color_code}
@@ -1297,7 +1307,7 @@ export function RegisterTransaction({
                     Outra
                   </DatePillText>
                 </DatePill>
-              </DatePillsRow>
+              </DateSelectorRight>
             </DateSelectorContainer>
 
             {showDatePicker && (
