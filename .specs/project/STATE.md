@@ -24,7 +24,13 @@
 | 18 | **New Architecture (React Native 0.86)** | RN 0.82+ requires New Architecture (`newArchEnabled: true`). Old architecture flag `RCT_NEW_ARCH_ENABLED=0` is ignored. |
 | 19 | **Static frameworks for Firebase on iOS** | `ios.useFrameworks: static` in `Podfile.properties.json` + `$RNFirebaseAsStaticFramework = true` in Podfile + `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES` post-install hook required for Firebase + New Architecture compatibility. |
 | 20 | **Prisma v7 env loading** | Prisma v7 requires `prisma.config.ts` for migration URLs. Backend `prisma.ts` and `server.ts` load `.env.development` with `override: true` when `NODE_ENV=development`. Dev script sets `NODE_ENV=development`. |
-| 21 | **@gorhom/bottom-sheet v5.2.14** | Updated from 5.2.8 to fix Reanimated 4.x compatibility (SDK 57 / RN 0.86). Bottom sheets rendered overlays but content stayed hidden due to animation worklet failures in older version.
+| 21 | **@gorhom/bottom-sheet v5.2.14** | Updated from 5.2.8 to fix Reanimated 4.x compatibility (SDK 57 / RN 0.86). Bottom sheets rendered overlays but content stayed hidden due to animation worklet failures in older version. |
+| 22 | **Express v5 req immutability** | Express v5 defines `req.query`, `req.params`, and `req.body` as getter-only properties. The `validate.ts` middleware was reassigning them (`req.query = result.data`), causing a 500 error. Fixed by mutating the object in place via `Object.assign`. |
+| 23 | **Removed CLERK_WEBHOOK_DELAY** | The 4-second delay before calling `/auth/clerk_sso` is unnecessary: the backend's `clerkSSO` controller already fetches the user from Clerk API directly if the webhook hasn't created them yet. SSO login is now ~4 seconds faster. Retry logic preserved for server errors (5xx). |
+| 24 | **PATCH for frontend updates, keep PUT in backend** | Frontend uses PATCH for all updates (safer for mobile — partial updates won't nullify unfilled fields). Backend retains both PUT and PATCH routes for external consumers. Exception: Tags use PUT (backend only provides PUT). |
+| 25 | **Transaction images: add backend support** | Added `imageUrl` (`@db.Text`) to Transaction model + `POST /transaction/image` endpoint (validates base64, max 5MB). Frontend changed from `transaction_image_id` (numeric FK) to `image_url` (base64 string). |
+| 26 | **Profile save: update URL only, flag as broken** | Updated image upload from `POST upload/user_profile_image` to `PATCH user/:id`. Flagged `handleSaveProfile()` as broken — builds `profileEdited` but never calls API to persist it. Needs dedicated fix. |
+| 27 | **Tags use PUT (not PATCH)** | Backend only has `PUT /tag/:id` (no PATCH route). Frontend uses PUT for tag updates. Consider adding `PATCH /tag/:id` in future backend update for consistency. |
 
 ---
 
@@ -34,10 +40,13 @@
 |---|---|---|---|
 | 1 | RevenueCat | Apple API key is empty (`''`) in `RevenueCatProvider.tsx` | Open |
 | 2 | Revopush | iOS and Android share the same deployment key — verify if intended or misconfiguration | Open |
-| 3 | Auth delay | 4-second hardcoded `CLERK_WEBHOOK_DELAY` on the frontend to wait for the Clerk webhook to reach the backend — fragile on slow networks | Open |
+| 3 | Auth delay | ~~4-second hardcoded `CLERK_WEBHOOK_DELAY` on the frontend to wait for the Clerk webhook to reach the backend — fragile on slow networks~~ → **Resolved**: Removed delay; backend `clerkSSO` controller fetches user from Clerk API directly if webhook hasn't arrived yet. | Resolved |
 | 4 | QueryClient | `new QueryClient()` is instantiated inline inside `RootLayout` JSX — recreates on every render. Should be a stable `useState` or module-level constant | Open |
 | 5 | `apiQuotes.ts` | Currency quotes API base URL is not yet documented — needs to be confirmed and configured | Open |
 | 6 | Backend README drift | Backend `README.md` and `CPANEL_DEPLOYMENT.md` mention MariaDB/MySQL and the old Xano-style URL prefix `/api:456w6v7k` — these are outdated; real stack is PostgreSQL + `/api/v1` | Open |
+| 7 | Express v5 req immutability | ~~`req.query = ...` crashes in Express v5 (getter-only property).~~ → **Resolved**: `validate.ts` middleware now mutates object in place via `Object.assign`. |
+| 8 | Profile editing broken | `handleSaveProfile()` in `Profile/index.tsx` builds `profileEdited` but never calls an API to persist it. Image upload endpoint was fixed in endpoint-migration, but the actual save is still missing. ⚠️ FIXME comment added. | Open |
+| 9 | Transaction image DB migration | `add_transaction_image_url` migration SQL created but not applied (PostgreSQL not running locally). Must run `npx prisma migrate deploy` on cPanel after deployment. | Open | Resolved |
 
 ---
 
