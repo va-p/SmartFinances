@@ -10,6 +10,7 @@ import Cookie from 'phosphor-react-native/src/icons/Cookie';
 import Trophy from 'phosphor-react-native/src/icons/Trophy';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import Sparkle from 'phosphor-react-native/src/icons/Sparkle';
+import SignOut from 'phosphor-react-native/src/icons/SignOut';
 import Lifebuoy from 'phosphor-react-native/src/icons/Lifebuoy';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import MoonStars from 'phosphor-react-native/src/icons/MoonStars';
@@ -32,10 +33,11 @@ import { Gradient } from '@components/Gradient';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 
-// Storages
+// Storages, providers
 import { useUser } from '@stores/userStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { useAuth } from '@providers/AuthProvider';
 
 import api from '@api/api';
 
@@ -59,6 +61,8 @@ export function OptionsMenu() {
     useLocalAuth,
     setUseLocalAuth,
   } = useUserConfigs();
+
+  const { signOut } = useAuth();
 
   function handleOpenProfile() {
     router.navigate('/options/profile');
@@ -195,6 +199,21 @@ export function OptionsMenu() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      Alert.alert(
+        'Sair',
+        'Tem certeza que deseja sair?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Sair', style: 'destructive', onPress: async () => await signOut() },
+        ]
+      );
+    } catch (error) {
+      console.error('handleLogout error:', error);
+    }
+  }
+
   return (
     <Screen>
       <Container>
@@ -292,6 +311,13 @@ export function OptionsMenu() {
             icon={<Cookie color={theme.colors.primary} />}
             title='Política de Privacidade'
             onPress={() => handleOpenPrivacyPolicy()}
+            onLongPress={handleOpenDevScreen}
+          />
+
+          <SelectButton
+            icon={<SignOut color={theme.colors.primary} />}
+            title='Sair'
+            onPress={() => handleLogout()}
             onLongPress={handleOpenDevScreen}
           />
         </ContentScroll>

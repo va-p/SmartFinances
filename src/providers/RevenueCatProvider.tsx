@@ -65,15 +65,17 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     async function init() {
+      if (Platform.OS === 'ios') {
+        setIsReady(true);
+        return;
+      }
+
       if (Platform.OS === 'android') {
         Purchases.configure({ apiKey: API_KEYS.google, appUserID: userID });
       }
-      if (Platform.OS === 'ios') {
-        Purchases.configure({ apiKey: API_KEYS.apple, appUserID: userID });
-      }
 
       setIsReady(true);
-      Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+      // Purchases.setLogLevel(LOG_LEVEL.DEBUG);
 
       Purchases.addCustomerInfoUpdateListener(async (info) => {
         updateCustomerInfo(info);

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 import { useRevenueCat } from '@providers/RevenueCatProvider';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useUser as useClerkUser, getClerkInstance } from '@clerk/clerk-expo';
@@ -40,6 +41,10 @@ interface AuthContextType {
 
 const MAX_SSO_RETRIES = 3;
 const SSO_RETRY_DELAY = 1500;
+
+// SecureStore keys for persistent (survives app kill) biometric re-auth tokens
+const SECURE_REFRESH_TOKEN_KEY = 'smartfinances_refresh_token';
+const SECURE_USER_EMAIL_KEY = 'smartfinances_user_email';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -131,51 +136,53 @@ export function AuthProvider({ children }: any) {
         cancelLabel: 'Cancelar',
       });
       if (biometricAuth.success) {
-        const jsonUser = storageUser.getString('user');
-
-        const useLocalAuth = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.useLocalAuth`
+        // Read refresh token from SecureStore (survives app kill)
+        const storedRefreshToken = await SecureStore.getItemAsync(
+          SECURE_REFRESH_TOKEN_KEY
         );
-        const hideAmount = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.hideAmount`
-        );
-        const insights = storageConfig.getBoolean(
-          `${DATABASE_CONFIGS}.insights`
-        );
-        const userConfigObject = {
-          useLocalAuth: useLocalAuth || false,
-          hideAmount: hideAmount || false,
-          insights: insights || false,
-        };
-        if (jsonUser && userConfigObject) {
-          const userObject = JSON.parse(jsonUser);
 
-          useUser.setState(() => ({
-            id: userObject.id,
-            name: userObject.name,
-            lastName: userObject.lastName,
-            email: userObject.email,
-            phone: userObject.phone,
-            role: userObject.role,
-            profileImage: userObject.image,
-          }));
+        if (!storedRefreshToken) {
+          Alert.alert(
+            'Login',
+            'Sessão expirada. Por favor, faça o login novamente.'
+          );
+          return;
+        }
 
-          useUserConfigs.setState(() => ({
-            insights: userConfigObject.insights,
-            hideAmount: userConfigObject.hideAmount,
-            useLocalAuth: userConfigObject.useLocalAuth,
-          }));
+        // Call backend to exchange refresh token for a new JWT
+        const { data, status } = await api.post('/auth/refresh', {
+          refreshToken: storedRefreshToken,
+        });
+
+        if (status === 200 && data.authToken && data.user) {
+          // Store new JWT
+          storageToken.set(
+            `${DATABASE_TOKENS}`,
+            JSON.stringify(data.authToken)
+          );
+
+          const loggedInUserDataFormatted =
+            storageUserDataAndConfig(data.user);
 
           setIsSignedIn(true);
-          setUser(userObject);
+          setUser(loggedInUserDataFormatted);
         }
       }
     } catch (error) {
       console.error('AuthProvider, signInWithBiometrics error =>', error);
-      Alert.alert(
-        'Login',
-        `Não foi possível autenticar com a biometria: ${error.response?.data?.message}. Por favor, tente novamente.`
-      );
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        // Refresh token expired — clear it so user must login in again
+        await SecureStore.deleteItemAsync(SECURE_REFRESH_TOKEN_KEY);
+        Alert.alert(
+          'Login',
+          'Sessão expirada. Por favor, faça o login novamente.'
+        );
+      } else {
+        Alert.alert(
+          'Login',
+          'Não foi possível autenticar com a biometria. Por favor, tente novamente.'
+        );
+      }
     }
   }
 
@@ -189,18 +196,11 @@ export function AuthProvider({ children }: any) {
       return;
     }
 
-    const attemptBiometricLogin = async () => {
-      const canUseBiometrics = await canSignInWithBiometrics();
-      if (canUseBiometrics) {
-        await signInWithBiometrics();
-      }
-    };
-
+    // Not signed in — stop loading so the login screen renders.
+    // Biometric is auto-triggered by the SignIn screen, not here.
     if (!isSignedIn) {
       setLoading(false);
     }
-
-    attemptBiometricLogin();
   }, [clerkLoaded, clerkSignedIn]);
 
   async function fetchClerkUserDataOnDatabase() {
@@ -216,6 +216,22 @@ export function AuthProvider({ children }: any) {
 
             if (!!data[0] && status === 200) {
               storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
+
+              // Store refresh token from SSO response (3rd array element)
+              if (data[2]) {
+                await SecureStore.setItemAsync(
+                  SECURE_REFRESH_TOKEN_KEY,
+                  data[2]
+                );
+                const userEmail = data[1]?.email || '';
+                if (userEmail) {
+                  await SecureStore.setItemAsync(
+                    SECURE_USER_EMAIL_KEY,
+                    userEmail
+                  );
+                }
+              }
+
               const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
               setIsSignedIn(clerkSignedIn!);
               setUser(loggedInUserDataFormatted);
@@ -271,6 +287,18 @@ export function AuthProvider({ children }: any) {
       if (status === 200) {
         storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(token));
 
+        // Persist refresh token for biometric re-auth after app restart
+        if (data.refreshToken) {
+          await SecureStore.setItemAsync(
+            SECURE_REFRESH_TOKEN_KEY,
+            data.refreshToken
+          );
+          await SecureStore.setItemAsync(
+            SECURE_USER_EMAIL_KEY,
+            formData.email
+          );
+        }
+
         const userData = (await api.get('auth/me')).data;
 
         const loggedInUserDataFormatted = storageUserDataAndConfig(userData);
@@ -299,6 +327,10 @@ export function AuthProvider({ children }: any) {
       storageUser.set(`${DATABASE_USERS}`, '');
       storageToken.set(`${DATABASE_TOKENS}`, '');
       storageConfig.set(`${DATABASE_CONFIGS}`, '');
+
+      // Clears SecureStore (refresh token for biometric re-auth)
+      await SecureStore.deleteItemAsync(SECURE_REFRESH_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(SECURE_USER_EMAIL_KEY);
 
       // Clears Zustand state
       useUser.setState(() => ({
@@ -335,11 +367,6 @@ export function AuthProvider({ children }: any) {
       try {
         if (clerkSignedIn && clerkUser) {
           await fetchClerkUserDataOnDatabase();
-        } else {
-          const canUseBiometrics = await canSignInWithBiometrics();
-          if (canUseBiometrics) {
-            await signInWithBiometrics();
-          }
         }
       } catch (error) {
         console.error('Erro durante a inicialização da autenticação:', error);

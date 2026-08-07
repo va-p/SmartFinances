@@ -26,6 +26,9 @@ export interface TransactionProps {
   category: CategoryProps;
   tags: [];
   user_id: string;
+  image_url?: string | null;
+  is_recurring?: boolean;
+  recurrence_rule?: string | null;
 }
 
 export type CashFLowData = {

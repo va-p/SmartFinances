@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { FlatList, RefreshControl } from 'react-native';
+import { FlatList, Platform, RefreshControl } from 'react-native';
 import { Container, Footer } from './styles';
 
 // Hooks
@@ -113,7 +113,7 @@ export function Budgets() {
           }}
         />
 
-        <Footer style={{ paddingBottom: bottomTabBarHeight - 56 }}>
+        <Footer style={{ paddingBottom: Platform.OS === 'ios' ? bottomTabBarHeight - 56 : bottomTabBarHeight - 16 }}>
           <Button.Root onPress={handleOpenRegisterBudgetModal}>
             <Button.Text text='Criar novo orçamento' />
           </Button.Root>
