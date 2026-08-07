@@ -20,7 +20,7 @@ type Props = RectButtonProps & {
 };
 
 export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   return (
     <Container {...rest}>

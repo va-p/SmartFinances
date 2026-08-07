@@ -23,6 +23,7 @@ import {
   AmountNotConvertedContainer,
   AmountNotConverted,
   CategoryAndAccountSeparator,
+  RecurrenceBadge,
 } from './styles';
 
 import { FadeInUp } from 'react-native-reanimated';
@@ -36,6 +37,7 @@ import {
 } from '@stores/useTransactionsStore';
 import { useTheme } from 'styled-components/native';
 import { ThemeProps } from '@interfaces/theme';
+import Repeat from 'phosphor-react-native/src/icons/Repeat';
 
 type Props = {
   data: TransactionProps;
@@ -108,6 +110,11 @@ const TransactionListItem = memo(function TransactionListItem({
                 </CategoryAndAccountSeparator>
                 <Account>{data.account.name}</Account>
               </CategoryAndAccountContainer>
+              {data.is_recurring && (
+                <RecurrenceBadge>
+                  <Repeat size={10} color={theme.colors.primary} weight="bold" />
+                </RecurrenceBadge>
+              )}
               <AmountNotConvertedContainer>
                 <AmountNotConverted>
                   {data.amount_in_account_currency &&

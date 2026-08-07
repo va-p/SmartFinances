@@ -121,3 +121,11 @@ export const AmountNotConverted = styled.Text`
 export const TagsContainer = styled.View`
   padding-top: 4px;
 `;
+
+export const RecurrenceBadge = styled.View`
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  align-items: center;
+  justify-content: center;
+`;

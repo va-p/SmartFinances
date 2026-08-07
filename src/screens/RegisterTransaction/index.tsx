@@ -17,7 +17,7 @@ import {
   DateSelectorContainer,
   DateSelectorLeft,
   DateSelectorLabel,
-  DateSelectorRight,
+  DatePillsLeft,
   DatePill,
   DatePillText,
 } from './styles';
@@ -538,6 +538,9 @@ export function RegisterTransaction({
         category_id: updatedCategoryId,
         tags: tagsList.length > 0 ? tagsList : transaction.tags,
         image_url: null,
+        is_recurring: isRecurring,
+        recurrence_interval: isRecurring ? recurrenceInterval : null,
+        recurrence_period: isRecurring ? recurrencePeriod : null,
         user_id: userID,
       };
 
@@ -1241,73 +1244,74 @@ export function RegisterTransaction({
             )}
 
             <DateSelectorContainer>
-              {/* Left: icon + date label */}
-              <DateSelectorLeft
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Calendar
-                  size={20}
-                  color={categorySelected.color.color_code}
-                />
-                <DateSelectorLabel>
-                  {formattedDate}
-                </DateSelectorLabel>
-              </DateSelectorLeft>
+              <Calendar
+                size={24}
+                color={categorySelected.color.color_code}
+              />
 
-              {/* Right: quick-date pills */}
-              <DateSelectorRight>
-                <DatePill
-                  active={getActivePill() === 'isToday'}
-                  accentColor={categorySelected.color.color_code}
-                  onPress={() => handleQuickDateSelect('isToday')}
-                >
-                  <DatePillText
+              {/* Quick-date mode: show pills */}
+              {dateLabelKey !== null ? (
+                <DatePillsLeft>
+                  <DatePill
                     active={getActivePill() === 'isToday'}
                     accentColor={categorySelected.color.color_code}
+                    onPress={() => handleQuickDateSelect('isToday')}
                   >
-                    Hoje
-                  </DatePillText>
-                </DatePill>
+                    <DatePillText
+                      active={getActivePill() === 'isToday'}
+                      accentColor={categorySelected.color.color_code}
+                    >
+                      Hoje
+                    </DatePillText>
+                  </DatePill>
 
-                <DatePill
-                  active={getActivePill() === 'isYesterday'}
-                  accentColor={categorySelected.color.color_code}
-                  onPress={() => handleQuickDateSelect('isYesterday')}
-                >
-                  <DatePillText
+                  <DatePill
                     active={getActivePill() === 'isYesterday'}
                     accentColor={categorySelected.color.color_code}
+                    onPress={() => handleQuickDateSelect('isYesterday')}
                   >
-                    Ontem
-                  </DatePillText>
-                </DatePill>
+                    <DatePillText
+                      active={getActivePill() === 'isYesterday'}
+                      accentColor={categorySelected.color.color_code}
+                    >
+                      Ontem
+                    </DatePillText>
+                  </DatePill>
 
-                <DatePill
-                  active={getActivePill() === 'isTomorrow'}
-                  accentColor={categorySelected.color.color_code}
-                  onPress={() => handleQuickDateSelect('isTomorrow')}
-                >
-                  <DatePillText
+                  <DatePill
                     active={getActivePill() === 'isTomorrow'}
                     accentColor={categorySelected.color.color_code}
+                    onPress={() => handleQuickDateSelect('isTomorrow')}
                   >
-                    Amanhã
-                  </DatePillText>
-                </DatePill>
+                    <DatePillText
+                      active={getActivePill() === 'isTomorrow'}
+                      accentColor={categorySelected.color.color_code}
+                    >
+                      Amanhã
+                    </DatePillText>
+                  </DatePill>
 
-                <DatePill
-                  active={getActivePill() === null}
-                  accentColor={categorySelected.color.color_code}
-                  onPress={() => handleQuickDateSelect('other')}
-                >
-                  <DatePillText
-                    active={getActivePill() === null}
+                  <DatePill
+                    active={false}
                     accentColor={categorySelected.color.color_code}
+                    onPress={() => handleQuickDateSelect('other')}
                   >
-                    Outra
-                  </DatePillText>
-                </DatePill>
-              </DateSelectorRight>
+                    <DatePillText
+                      active={false}
+                      accentColor={categorySelected.color.color_code}
+                    >
+                      Outra
+                    </DatePillText>
+                  </DatePill>
+                </DatePillsLeft>
+              ) : (
+                /* Custom-date mode: show formatted text */
+                <DateSelectorLeft
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <DateSelectorLabel>{formattedDate}</DateSelectorLabel>
+                </DateSelectorLeft>
+              )}
             </DateSelectorContainer>
 
             {showDatePicker && (

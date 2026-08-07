@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, TouchableOpacity, TextInput } from 'react-native';
+import { Alert } from 'react-native';
 import {
   Container,
   Content,
@@ -14,15 +14,15 @@ import {
 } from './styles';
 
 import { Screen } from '@components/Screen';
-import { Gradient } from '@components/Gradient';
 import { Button } from '@components/Button';
+import { Gradient } from '@components/Gradient';
 
 import { useTheme } from 'styled-components';
 import { ThemeProps } from '@interfaces/theme';
 
 import CaretUp from 'phosphor-react-native/src/icons/CaretUp';
-import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 import Calendar from 'phosphor-react-native/src/icons/Calendar';
+import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 
 export type RecurrencePeriod = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 
@@ -121,10 +121,10 @@ export function RecurrenceSelect({
       <Container>
         <Gradient />
         <Content>
-          <Label>Configurar recorrência</Label>
+          {/*<Label>Configurar recorrência</Label>*/}
 
           {/* ── Quantity Input ──────────────────────────────── */}
-          <Label secondary>Quantidade</Label>
+          <Label secondary>Intervalo</Label>
           <QuantityRow>
             <QuantityButton onPress={handleDecrement}>
               <QuantityButtonText>
@@ -155,22 +155,10 @@ export function RecurrenceSelect({
             <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
           </PeriodSelector>
 
-          {/* ── Preview ─────────────────────────────────────── */}
-          <Label secondary>Pré-visualização</Label>
-          <Label>{getRecurrenceDescription()}</Label>
-
           {/* ── Actions ─────────────────────────────────────── */}
           <Footer>
             <Button.Root onPress={handleSave}>
               <Button.Text text="Salvar" />
-            </Button.Root>
-
-            <Button.Root
-              onPress={onCancel}
-              type="secondary"
-              style={{ marginTop: 8 }}
-            >
-              <Button.Text text="Cancelar" />
             </Button.Root>
           </Footer>
         </Content>
