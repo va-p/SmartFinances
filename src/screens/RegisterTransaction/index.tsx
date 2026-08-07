@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList } from 'react-native';
+import { Alert, FlatList, Switch, TouchableOpacity } from 'react-native';
 import {
   Container,
   MainContent,
@@ -49,6 +49,7 @@ import Trash from 'phosphor-react-native/src/icons/Trash';
 import Image from 'phosphor-react-native/src/icons/Image';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import Calendar from 'phosphor-react-native/src/icons/Calendar';
+import Repeat from 'phosphor-react-native/src/icons/Repeat';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
@@ -184,6 +185,50 @@ export function RegisterTransaction({
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [openImage, setOpenImage] = useState(false);
+
+  // Recurrence state
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrencePeriod, setRecurrencePeriod] = useState<
+    'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+  >('MONTHLY');
+  const [recurrenceDate, setRecurrenceDate] = useState<number | null>(null);
+  const recurrenceDateBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const recurrencePeriodOptions = [
+    { key: 'DAILY' as const, label: 'Diário' },
+    { key: 'WEEKLY' as const, label: 'Semanal' },
+    { key: 'MONTHLY' as const, label: 'Mensal' },
+    { key: 'YEARLY' as const, label: 'Anual' },
+  ];
+
+  const dayNames = [
+    'Domingo', 'Segunda', 'Terça', 'Quarta',
+    'Quinta', 'Sexta', 'Sábado',
+  ];
+
+  const monthDays = Array.from({ length: 31 }, (_, i) => i + 1);
+
+  function getRecurrenceDateLabel(): string {
+    if (recurrenceDate == null) return 'Selecionar data';
+    switch (recurrencePeriod) {
+      case 'WEEKLY':
+        return dayNames[recurrenceDate] || `Dia ${recurrenceDate}`;
+      case 'MONTHLY':
+        return `Dia ${recurrenceDate}`;
+      case 'YEARLY':
+        return `Dia ${recurrenceDate}`;
+      default:
+        return 'Selecionar data';
+    }
+  }
+
+  function handleOpenRecurrenceDateModal() {
+    recurrenceDateBottomSheetRef.current?.present();
+  }
+
+  function handleCloseRecurrenceDateModal() {
+    recurrenceDateBottomSheetRef.current?.dismiss();
+  }
 
   const { mutate: createTransaction, isPending: isCreating } =
     useCreateTransactionMutation();
@@ -565,6 +610,10 @@ export function RegisterTransaction({
         category_id: categorySelected.id,
         tags: tagsList,
         image_url,
+        is_recurring: isRecurring,
+        recurrence_rule: isRecurring
+          ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
+          : null,
         // Informações para o backend lidar com a contrapartida
         related_transaction_account_id: hasDestinationAccount
           ? accountDestinationSelected?.id
@@ -609,6 +658,10 @@ export function RegisterTransaction({
       category_id: categorySelected.id,
       tags: tagsList,
       image_url,
+      is_recurring: isRecurring,
+      recurrence_rule: isRecurring
+        ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
+        : null,
       user_id: userID,
     };
 
@@ -711,6 +764,10 @@ export function RegisterTransaction({
         category_id: categorySelected.id,
         tags: tagsList,
         image_url,
+        is_recurring: isRecurring,
+        recurrence_rule: isRecurring
+          ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
+          : null,
         related_transaction_account_id: accountDestinationSelected.id,
         amount_in_account_currency_related_transaction:
           amountInAccountCurrencyRelatedTransaction,
@@ -774,6 +831,10 @@ export function RegisterTransaction({
       category_id: categorySelected.id,
       tags: tagsList,
       image_url,
+      is_recurring: isRecurring,
+      recurrence_rule: isRecurring
+        ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
+        : null,
       user_id: userID,
     };
 
@@ -1011,6 +1072,26 @@ export function RegisterTransaction({
       setTransactionDate(transactionData.date);
       setBankTransactionID(transactionData.bank_transaction_id);
       setRelatedTransactionID(transactionData.related_transaction_id);
+
+      // Pre-fill recurrence fields when editing
+      if (transactionData.is_recurring && transactionData.recurrence_rule) {
+        setIsRecurring(true);
+        try {
+          const rule = JSON.parse(transactionData.recurrence_rule);
+          if (
+            rule.period &&
+            ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(rule.period)
+          ) {
+            setRecurrencePeriod(rule.period);
+            setRecurrenceDate(rule.date ?? null);
+          }
+        } catch {
+          // Malformed JSON — leave defaults
+          setIsRecurring(false);
+        }
+      } else {
+        setIsRecurring(false);
+      }
     }
   }, [transactionData, bulkTransactionsData, isBulkEdit]);
 
@@ -1132,6 +1213,63 @@ export function RegisterTransaction({
                 onChange={onChangeDate}
                 textColor={theme.colors.text}
               />
+            )}
+
+            {/* ── Recurrence Toggle ─────────────────────────────────── */}
+            <SelectButton
+              title='Recorrente'
+              icon={<Repeat color={categorySelected.color.color_code} />}
+              onPress={() => setIsRecurring(!isRecurring)}
+            />
+            <Switch
+              value={isRecurring}
+              onValueChange={setIsRecurring}
+              trackColor={{
+                false: theme.colors.background,
+                true: categorySelected.color.color_code,
+              }}
+              thumbColor={
+                isRecurring
+                  ? theme.colors.text
+                  : theme.colors.background
+              }
+              style={{ alignSelf: 'center', marginBottom: 8 }}
+            />
+
+            {/* ── Period Selector ───────────────────────────────────── */}
+            {isRecurring && (
+              <>
+                <TransactionsTypes>
+                  <TransactionTypeButton
+                    buttons={recurrencePeriodOptions.map((opt) => ({
+                      title: opt.label,
+                    }))}
+                    selectedTab={recurrencePeriodOptions.findIndex(
+                      (opt) => opt.key === recurrencePeriod
+                    )}
+                    setSelectedTab={(idx: number) => {
+                      const period = recurrencePeriodOptions[idx]?.key;
+                      if (period) {
+                        setRecurrencePeriod(period);
+                        if (period === 'DAILY') {
+                          setRecurrenceDate(null);
+                        } else {
+                          setRecurrenceDate(null);
+                        }
+                      }
+                    }}
+                  />
+                </TransactionsTypes>
+
+                {/* ── Date Selector ─────────────────────────────── */}
+                {recurrencePeriod !== 'DAILY' && (
+                  <SelectButton
+                    title={getRecurrenceDateLabel()}
+                    icon={<Calendar color={categorySelected.color.color_code} />}
+                    onPress={handleOpenRecurrenceDateModal}
+                  />
+                )}
+              </>
             )}
 
             <ControlledInputWithIcon
@@ -1294,6 +1432,61 @@ export function RegisterTransaction({
             closeSelectAccountDestination={
               handleCloseSelectAccountDestinationModal
             }
+          />
+        </ModalViewSelection>
+
+        {/* ── Recurrence Date Picker Bottom Sheet ──────────────── */}
+        <ModalViewSelection
+          $modal
+          title='Selecionar data de recorrência'
+          bottomSheetRef={recurrenceDateBottomSheetRef}
+          snapPoints={['50%']}
+          onClose={handleCloseRecurrenceDateModal}
+        >
+          <FlatList
+            data={
+              recurrencePeriod === 'WEEKLY'
+                ? dayNames.map((name, idx) => ({ label: name, value: idx }))
+                : (recurrencePeriod === 'YEARLY'
+                  ? monthDays.slice(0, 28)
+                  : monthDays
+                ).map((day) => ({ label: String(day), value: day }))
+            }
+            keyExtractor={(item) => String(item.value)}
+            numColumns={recurrencePeriod === 'WEEKLY' ? 1 : 7}
+            renderItem={({ item }) => {
+              const isSelected = recurrenceDate === item.value;
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    setRecurrenceDate(item.value);
+                    handleCloseRecurrenceDateModal();
+                  }}
+                  style={{
+                    flex: recurrencePeriod === 'WEEKLY' ? undefined : 1,
+                    padding: 12,
+                    margin: 4,
+                    borderRadius: 10,
+                    backgroundColor: isSelected
+                      ? categorySelected.color.color_code
+                      : 'transparent',
+                    borderWidth: 1,
+                    borderColor: categorySelected.color.color_code,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Title
+                    style={{
+                      color: isSelected
+                        ? theme.colors.text
+                        : categorySelected.color.color_code,
+                    }}
+                  >
+                    {item.label}
+                  </Title>
+                </TouchableOpacity>
+              );
+            }}
           />
         </ModalViewSelection>
 
