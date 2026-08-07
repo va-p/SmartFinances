@@ -170,6 +170,9 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         icon_id: iconSelected.id,
         color_id: colorSelected.id,
         user_id: userID,
+        // Full objects for accurate optimistic UI (CategoryListItem expects data.color.color_code)
+        icon: { id: iconSelected.id, name: iconSelected.name, title: iconSelected.title },
+        color: { id: colorSelected.id, color_code: colorSelected.color_code },
       };
       createCategory(newCategory, {
         onSuccess: () => {
