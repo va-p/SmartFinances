@@ -1,14 +1,17 @@
 # Recurring Transactions — UI + Backend Plumbing
 
-**Status:** Specify
+**Status:** Complete (v2 — multiplicative model + engine + badges + bulk)
 **Date:** 2026-08-07
-**Scope:** Large (frontend UI + backend schemas/controllers, ~8-10 tasks)
+**Scope:** Large (~13 tasks across backend + frontend)
 
 ## Summary
 
-The Prisma schema already defines recurrence fields on the Transaction model (`isRecurring`, `recurrenceRule`, `parentTransactionId`), but the backend validation schemas (Zod), controllers, and the frontend RegisterTransaction screen don't expose or handle them. This feature adds the full plumbing: Zod validation for recurrence fields, controller handling, and a recurrence selector UI in the RegisterTransaction form.
-
-The recurrence **engine** (auto-generating future child transactions) is explicitly **out of scope** — this feature only stores the user's recurrence choice alongside the transaction.
+Full recurrence transaction lifecycle:
+- **UI**: RecurrenceSelect screen (interval stepper + period picker) inside a modal
+- **Persistence**: Multiplicative model: `recurrenceInterval` (Int) × `recurrencePeriod` (enum DAILY/WEEKLY/MONTHLY/YEARLY)
+- **Engine**: POST /transaction/generate-recurring auto-creates child transactions for due parents
+- **Badges**: Repeat icon pill on transaction cards in list view
+- **Bulk edit**: Recurrence fields included in bulk payloads
 
 ---
 
@@ -163,3 +166,55 @@ When editing an existing transaction, pre-fill the recurrence UI from the fetche
 ## Total Tasks Estimate
 
 ~8-10 atomic tasks across backend (4) + frontend (5-6)
+
+---
+
+## Phase 2 — Engine + Badges + Bulk (2026-08-07)
+
+### R10 — Backend: Recurrence Engine
+
+Auto-generate child transactions via `POST /transaction/generate-recurring`.
+
+**Model change:** Added `nextOccurrenceAt DateTime?` — tracks when the next child should be created. Set on create when recurring.
+
+**Engine logic:**
+1. Find parents: `isRecurring=true`, `parentTransactionId=null`, `nextOccurrenceAt <= now()`
+2. Create child copy (same data, `isRecurring=false`, `parentTransactionId=parent.id`)
+3. Update account balance
+4. Advance `nextOccurrenceAt` by `interval × period`
+
+**AC:**
+- AC10.1: `nextOccurrenceAt` set on create
+- AC10.2: Generate creates children + updates balances + advances atomically
+- AC10.3: Skips parents without interval/period
+
+### R11 — Frontend: Recurrence Badge
+
+Show `Repeat` icon pill on `TransactionListItem` when `is_recurring=true`.
+
+**AC:**
+- AC11.1: Badge visible in footer row next to category/account
+
+### R12 — Frontend: Bulk Edit Recurrence
+
+`handleBulkEditTransaction` payload includes `is_recurring`, `recurrence_interval`, `recurrence_period`.
+
+**AC:**
+- AC12.1: Recurrence fields present in bulk payload
+
+### AD-027 — Recurrence Engine Design
+
+- **Trigger:** External cron calls `POST /transaction/generate-recurring`
+- **Idempotent:** Running multiple times is safe (nextOccurrenceAt advances past now)
+- **Child immutability:** Children are snapshots; editing the parent does not retroactively update children
+
+### Updated Affected Files
+
+| File | Change |
+|------|--------|
+| `smart-finances-backend/prisma/schema.prisma` | Add `nextOccurrenceAt`, `RecurrencePeriod` enum |
+| `smart-finances-backend/src/controllers/transaction.controller.ts` | `calculateNextOccurrence`, `generateRecurringTransactions`, set `nextOccurrenceAt` on create |
+| `smart-finances-backend/src/routes/transaction.routes.ts` | Add `POST /generate-recurring` route |
+| `SmartFinances/src/components/TransactionListItem/index.tsx` | Add `RecurrenceBadge` with `Repeat` icon |
+| `SmartFinances/src/components/TransactionListItem/styles.ts` | Add `RecurrenceBadge` styled component |
+| `SmartFinances/src/screens/RegisterTransaction/index.tsx` | Include recurrence in bulk payload |
