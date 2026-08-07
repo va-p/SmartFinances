@@ -91,7 +91,6 @@ export const DateSelectorContainer = styled.View`
   max-height: 56px;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
   padding: 0 16px;
 `;
 
@@ -108,10 +107,11 @@ export const DateSelectorLabel = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const DateSelectorRight = styled.View`
+export const DatePillsLeft = styled.View`
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  padding-left: 8px;
 `;
 
 type PillProps = {
@@ -122,16 +122,15 @@ type PillProps = {
 export const DatePill = styled.TouchableOpacity<PillProps>`
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background-color: ${({ active, accentColor }) =>
-    active ? accentColor : 'transparent'};
-  border: 1px solid ${({ accentColor }) => accentColor};
+  padding: 3px 7px;
+  border-radius: 10px;
+  background-color: ${({ active, accentColor, theme }) =>
+    active ? accentColor : theme.colors.overlayGray};
 `;
 
 export const DatePillText = styled.Text<PillProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${RFValue(9)}px;
   color: ${({ active, accentColor, theme }) =>
-    active ? theme.colors.text : accentColor};
+    active ? theme.colors.text : theme.colors.textPlaceholder};
 `;

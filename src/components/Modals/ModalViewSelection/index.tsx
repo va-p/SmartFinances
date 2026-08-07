@@ -24,7 +24,7 @@ export function ModalViewSelection({
   children,
   ...rest
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   return (
     <BottomSheetModal
