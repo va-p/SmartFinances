@@ -83,3 +83,38 @@ export const Footer = styled.View`
   width: 100%;
   padding: 16px;
 `;
+
+// ── Date Quick-Select Pills ───────────────────────────
+
+export const DateSelectorContainer = styled.View`
+  padding: 0 16px 8px;
+`;
+
+export const DatePillsRow = styled.View`
+  flex-direction: row;
+  padding: 8px 0 0;
+  gap: 8px;
+`;
+
+type PillProps = {
+  active: boolean;
+  accentColor: string;
+};
+
+export const DatePill = styled.TouchableOpacity<PillProps>`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 16px;
+  background-color: ${({ active, accentColor }) =>
+    active ? accentColor : 'transparent'};
+  border: 1px solid ${({ accentColor }) => accentColor};
+`;
+
+export const DatePillText = styled.Text<PillProps>`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(11)}px;
+  color: ${({ active, accentColor, theme }) =>
+    active ? theme.colors.text : accentColor};
+`;

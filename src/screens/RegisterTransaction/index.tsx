@@ -14,6 +14,10 @@ import {
   Footer,
   InputTransactionValuesContainer,
   InputTransactionValueGroup,
+  DateSelectorContainer,
+  DatePillsRow,
+  DatePill,
+  DatePillText,
 } from './styles';
 
 // Hooks
@@ -31,7 +35,7 @@ import { convertCurrency } from '@utils/convertCurrency';
 
 // Dependencies
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { addDays, format, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -90,6 +94,7 @@ import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 import { ButtonToggle } from '@components/ButtonToggle';
+import { isToday, isTomorrow, isYesterday } from 'date-fns';
 
 type Props = {
   id: string;
@@ -168,13 +173,54 @@ export function RegisterTransaction({
   const [accountDestinationSelected, setAccountDestinationSelected] =
     useState<AccountProps | null>(null);
   const [date, setDate] = useState(new Date());
-  const formattedDate = format(date, "dd 'de' MMMM 'de' yyyy", {
-    locale: ptBR,
-  });
+
+  const shortDatesMap: Record<string, string> = {
+    isToday: 'Hoje',
+    isTomorrow: 'Amanhã',
+    isYesterday: 'Ontem',
+  };
+
+  const dateLabelKey = isToday(date)
+    ? 'isToday'
+    : isTomorrow(date)
+    ? 'isTomorrow'
+    : isYesterday(date)
+    ? 'isYesterday'
+    : null;
+
+  const formattedDate = dateLabelKey
+    ? shortDatesMap[dateLabelKey]
+    : format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+
+  function getActivePill(): string | null {
+    return dateLabelKey;
+  }
+
+  function handleQuickDateSelect(pill: string) {
+    const today = new Date();
+    switch (pill) {
+      case 'isToday':
+        setDate(today);
+        break;
+      case 'isYesterday':
+        setDate(subDays(today, 1));
+        break;
+      case 'isTomorrow':
+        setDate(addDays(today, 1));
+        break;
+      case 'other':
+      default:
+        setShowDatePicker(true);
+        break;
+    }
+  }
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const onChangeDate = (_: any, selectedDate: any) => {
     setShowDatePicker(false);
-    setDate(selectedDate);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
   };
   const [bankTransactionID, setBankTransactionID] = useState(null);
   const [transactionDate, setTransactionDate] = useState(null);
@@ -1192,11 +1238,68 @@ export function RegisterTransaction({
               />
             )}
 
-            <SelectButton
-              title={formattedDate}
-              icon={<Calendar color={categorySelected.color.color_code} />}
-              onPress={() => setShowDatePicker(true)}
-            />
+            <DateSelectorContainer>
+              <SelectButton
+                title={formattedDate}
+                icon={<Calendar color={categorySelected.color.color_code} />}
+                onPress={() => setShowDatePicker(true)}
+              />
+
+              <DatePillsRow>
+                <DatePill
+                  active={getActivePill() === 'isToday'}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('isToday')}
+                >
+                  <DatePillText
+                    active={getActivePill() === 'isToday'}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Hoje
+                  </DatePillText>
+                </DatePill>
+
+                <DatePill
+                  active={getActivePill() === 'isYesterday'}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('isYesterday')}
+                >
+                  <DatePillText
+                    active={getActivePill() === 'isYesterday'}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Ontem
+                  </DatePillText>
+                </DatePill>
+
+                <DatePill
+                  active={getActivePill() === 'isTomorrow'}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('isTomorrow')}
+                >
+                  <DatePillText
+                    active={getActivePill() === 'isTomorrow'}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Amanhã
+                  </DatePillText>
+                </DatePill>
+
+                <DatePill
+                  active={getActivePill() === null}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('other')}
+                >
+                  <DatePillText
+                    active={getActivePill() === null}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Outra
+                  </DatePillText>
+                </DatePill>
+              </DatePillsRow>
+            </DateSelectorContainer>
+
             {showDatePicker && (
               <DateTimePicker
                 testID='dateTimePicker'
@@ -1223,13 +1326,6 @@ export function RegisterTransaction({
               value={isRecurring}
               isEnabled={isRecurring}
             />
-            {isRecurring && (
-              <SelectButton
-                title="Configurar recorrência"
-                icon={<Repeat color={categorySelected.color.color_code} />}
-                onPress={handleOpenRecurrenceModal}
-              />
-            )}
 
             <ControlledInputWithIcon
               icon={<PencilSimple color={categorySelected.color.color_code} />}
