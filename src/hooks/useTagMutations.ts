@@ -45,7 +45,7 @@ export function useCreateTagMutation() {
 
 // --- Update tag ---
 const updateTagFn = async (tagEdited: { tag_id: string; name: string }) => {
-  return await api.patch('tag/edit', tagEdited);
+  return await api.put(`tag/${tagEdited.tag_id}`, { name: tagEdited.name });
 };
 
 export function useUpdateTagMutation() {
@@ -83,7 +83,7 @@ export function useUpdateTagMutation() {
 
 // --- Delete tag ---
 const deleteTagFn = async (tagId: string) => {
-  return await api.delete('tag/delete', { params: { tag_id: tagId } });
+  return await api.delete(`tag/${tagId}`);
 };
 
 export function useDeleteTagMutation() {

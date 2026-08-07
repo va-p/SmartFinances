@@ -10,9 +10,7 @@ const fetchBulkTransactions = async (transactionIds: number[]) => {
 
   // Fetch all transactions in parallel
   const promises = transactionIds.map((id) =>
-    api.get('transaction/single', {
-      params: { transaction_id: id },
-    })
+    api.get(`transaction/${id}`)
   );
 
   const results = await Promise.all(promises);

@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@api/api';
 
 async function syncAndFetchTransactions() {
-  return await api.get('/banking_integration/fetch_transactions');
+  return await api.get('/banking-integration/sync');
 }
 
 export function useSyncTransactions() {

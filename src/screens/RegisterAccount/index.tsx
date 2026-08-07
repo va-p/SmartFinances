@@ -217,11 +217,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
   async function fetchAccount() {
     try {
-      const { data } = await api.get('account/single', {
-        params: {
-          account_id: id,
-        },
-      });
+      const { data } = await api.get(`account/${id}`);
 
       setValue('name', data.name);
       setValue('balance', data.balance);
@@ -240,15 +236,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   async function handleHideAccount() {
     setButtonIsLoading(true);
 
-    const HideAccountOption = {
-      account_id: id,
-      hide: !hideAccount,
-    };
     try {
-      const { status } = await api.post(
-        'user_config/edit_hide_account',
-        HideAccountOption
-      );
+      const { status } = await api.patch(`account/${id}`, {
+        hide: !hideAccount,
+      });
 
       if (status === 200) {
         Alert.alert('Edição de Conta', 'Conta editada com sucesso!');

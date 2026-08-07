@@ -102,19 +102,10 @@ export function Profile() {
 
   async function handleSaveProfile(data: FormData) {
     try {
-      let profile_image_id: number | null = null;
       if (image !== '') {
-        const newImage = {
-          file: `data:image/jpeg;base64,${image}`,
-          user_id: userID,
-        };
-        const { data, status } = await api.post(
-          'upload/user_profile_image',
-          newImage
-        );
-        if (status === 200) {
-          profile_image_id = data.id;
-        }
+        const { status } = await api.patch(`user/${userID}`, {
+          profile_image: `data:image/jpeg;base64,${image}`,
+        });
       }
 
       const profileEdited = {
@@ -123,9 +114,11 @@ export function Profile() {
         email: data.email,
         phone: data.phone,
         password: data.password,
-        profile_image_id,
-        user_id: userID,
       };
+
+      // ⚠️ FIXME: handleSaveProfile builds profileEdited but never calls API to persist it.
+      // The profileEdited object (lines above) is constructed but not sent to the backend.
+      // Profile editing is functionally broken — needs a dedicated fix to call PATCH user/:id.
     } catch (error) {
       console.error(error);
       // Alert.alert('Perfil', error.response?.data.message);

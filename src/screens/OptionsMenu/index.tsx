@@ -107,8 +107,7 @@ export function OptionsMenu() {
 
   async function handleChangeHideAmount() {
     try {
-      const { status } = await api.post('user_config/edit_hide_amount', {
-        user_id: userId,
+      const { status } = await api.patch(`user/${userId}/configs`, {
         hide_amount: !hideAmount,
       });
 
@@ -141,8 +140,7 @@ export function OptionsMenu() {
 
   async function handleChangeSmartInsights() {
     try {
-      const { status } = await api.post('user_config/edit_insights', {
-        user_id: userId,
+      const { status } = await api.patch(`user/${userId}/configs`, {
         insights: !insights,
       });
 
@@ -167,8 +165,7 @@ export function OptionsMenu() {
       });
       if (biometricAuth.success) {
         try {
-          const { status } = await api.post('user_config/edit_use_local_auth', {
-            user_id: userId,
+          const { status } = await api.patch(`user/${userId}/configs`, {
             use_local_authentication: !useLocalAuth,
           });
 

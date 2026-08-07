@@ -396,8 +396,7 @@ export function Home() {
 
   async function handleHideData() {
     try {
-      const { status } = await api.post('user_config/edit_hide_amount', {
-        user_id: userID,
+      const { status } = await api.patch(`user/${userID}/configs`, {
         hide_amount: !hideAmount,
       });
 
