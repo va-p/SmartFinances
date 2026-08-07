@@ -23,8 +23,25 @@ export function useCreateCategoryMutation() {
       await queryClient.cancelQueries({ queryKey: QUERY_KEY });
       const previousCategories =
         queryClient.getQueryData<CategoryProps[]>(QUERY_KEY);
+
+      // Build a properly-shaped optimistic entry so CategoryListItem
+      // doesn't crash trying to access data.color.color_code.
+      const optimistic: CategoryProps = {
+        id: `temp-${Date.now()}`,
+        name: newCategory.name,
+        color: newCategory.color || {
+          id: newCategory.color_id || '',
+          color_code: '',
+        },
+        icon: newCategory.icon || {
+          id: newCategory.icon_id || '',
+          name: '',
+          title: null,
+        },
+      };
+
       queryClient.setQueryData<CategoryProps[]>(QUERY_KEY, (old = []) => [
-        { ...newCategory, id: `temp-${Date.now()}` },
+        optimistic,
         ...old,
       ]);
       return { previousCategories };
