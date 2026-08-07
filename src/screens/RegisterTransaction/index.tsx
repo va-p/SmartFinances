@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, Switch, TouchableOpacity } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import {
   Container,
   MainContent,
@@ -71,6 +71,7 @@ import { AccountSelect } from '@screens/AccountSelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
+import { RecurrenceSelect } from '@screens/RecurrenceSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
@@ -88,6 +89,7 @@ import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
+import { ButtonToggle } from '@components/ButtonToggle';
 
 type Props = {
   id: string;
@@ -188,46 +190,37 @@ export function RegisterTransaction({
 
   // Recurrence state
   const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
   const [recurrencePeriod, setRecurrencePeriod] = useState<
     'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
-  >('MONTHLY');
-  const [recurrenceDate, setRecurrenceDate] = useState<number | null>(null);
-  const recurrenceDateBottomSheetRef = useRef<BottomSheetModal>(null);
+  >('DAILY');
+  const recurrenceSelectBottomSheetRef = useRef<BottomSheetModal>(null);
 
-  const recurrencePeriodOptions = [
-    { key: 'DAILY' as const, label: 'Diário' },
-    { key: 'WEEKLY' as const, label: 'Semanal' },
-    { key: 'MONTHLY' as const, label: 'Mensal' },
-    { key: 'YEARLY' as const, label: 'Anual' },
-  ];
-
-  const dayNames = [
-    'Domingo', 'Segunda', 'Terça', 'Quarta',
-    'Quinta', 'Sexta', 'Sábado',
-  ];
-
-  const monthDays = Array.from({ length: 31 }, (_, i) => i + 1);
-
-  function getRecurrenceDateLabel(): string {
-    if (recurrenceDate == null) return 'Selecionar data';
-    switch (recurrencePeriod) {
-      case 'WEEKLY':
-        return dayNames[recurrenceDate] || `Dia ${recurrenceDate}`;
-      case 'MONTHLY':
-        return `Dia ${recurrenceDate}`;
-      case 'YEARLY':
-        return `Dia ${recurrenceDate}`;
-      default:
-        return 'Selecionar data';
-    }
+  function handleOpenRecurrenceModal() {
+    recurrenceSelectBottomSheetRef.current?.present();
   }
 
-  function handleOpenRecurrenceDateModal() {
-    recurrenceDateBottomSheetRef.current?.present();
+  function handleCloseRecurrenceModal() {
+    recurrenceSelectBottomSheetRef.current?.dismiss();
   }
 
-  function handleCloseRecurrenceDateModal() {
-    recurrenceDateBottomSheetRef.current?.dismiss();
+  function handleRecurrenceSave(data: { interval: number; period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' }) {
+    setRecurrenceInterval(data.interval);
+    setRecurrencePeriod(data.period);
+    handleCloseRecurrenceModal();
+  }
+
+  function getRecurrenceSubtitle(): string {
+    if (!isRecurring) return '';
+    const labels: Record<string, string> = {
+      DAILY: 'dia',
+      WEEKLY: 'semana',
+      MONTHLY: 'mês',
+      YEARLY: 'ano',
+    };
+    const unit = labels[recurrencePeriod] || recurrencePeriod.toLowerCase();
+    const plural = recurrenceInterval > 1 ? 's' : '';
+    return `A cada ${recurrenceInterval} ${unit}${plural}`;
   }
 
   const { mutate: createTransaction, isPending: isCreating } =
@@ -611,9 +604,8 @@ export function RegisterTransaction({
         tags: tagsList,
         image_url,
         is_recurring: isRecurring,
-        recurrence_rule: isRecurring
-          ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
-          : null,
+        recurrence_interval: isRecurring ? recurrenceInterval : null,
+        recurrence_period: isRecurring ? recurrencePeriod : null,
         // Informações para o backend lidar com a contrapartida
         related_transaction_account_id: hasDestinationAccount
           ? accountDestinationSelected?.id
@@ -659,9 +651,8 @@ export function RegisterTransaction({
       tags: tagsList,
       image_url,
       is_recurring: isRecurring,
-      recurrence_rule: isRecurring
-        ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
-        : null,
+      recurrence_interval: isRecurring ? recurrenceInterval : null,
+      recurrence_period: isRecurring ? recurrencePeriod : null,
       user_id: userID,
     };
 
@@ -765,9 +756,8 @@ export function RegisterTransaction({
         tags: tagsList,
         image_url,
         is_recurring: isRecurring,
-        recurrence_rule: isRecurring
-          ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
-          : null,
+        recurrence_interval: isRecurring ? recurrenceInterval : null,
+        recurrence_period: isRecurring ? recurrencePeriod : null,
         related_transaction_account_id: accountDestinationSelected.id,
         amount_in_account_currency_related_transaction:
           amountInAccountCurrencyRelatedTransaction,
@@ -832,9 +822,8 @@ export function RegisterTransaction({
       tags: tagsList,
       image_url,
       is_recurring: isRecurring,
-      recurrence_rule: isRecurring
-        ? JSON.stringify({ period: recurrencePeriod, date: recurrenceDate })
-        : null,
+      recurrence_interval: isRecurring ? recurrenceInterval : null,
+      recurrence_period: isRecurring ? recurrencePeriod : null,
       user_id: userID,
     };
 
@@ -1074,20 +1063,24 @@ export function RegisterTransaction({
       setRelatedTransactionID(transactionData.related_transaction_id);
 
       // Pre-fill recurrence fields when editing
-      if (transactionData.is_recurring && transactionData.recurrence_rule) {
+      if (transactionData.is_recurring) {
         setIsRecurring(true);
-        try {
-          const rule = JSON.parse(transactionData.recurrence_rule);
-          if (
-            rule.period &&
-            ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(rule.period)
-          ) {
-            setRecurrencePeriod(rule.period);
-            setRecurrenceDate(rule.date ?? null);
-          }
-        } catch {
-          // Malformed JSON — leave defaults
-          setIsRecurring(false);
+        if (transactionData.recurrence_interval) {
+          setRecurrenceInterval(transactionData.recurrence_interval);
+        }
+        if (
+          transactionData.recurrence_period &&
+          ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(
+            transactionData.recurrence_period
+          )
+        ) {
+          setRecurrencePeriod(
+            transactionData.recurrence_period as
+              | 'DAILY'
+              | 'WEEKLY'
+              | 'MONTHLY'
+              | 'YEARLY'
+          );
         }
       } else {
         setIsRecurring(false);
@@ -1216,60 +1209,26 @@ export function RegisterTransaction({
             )}
 
             {/* ── Recurrence Toggle ─────────────────────────────────── */}
-            <SelectButton
-              title='Recorrente'
+            <ButtonToggle
               icon={<Repeat color={categorySelected.color.color_code} />}
-              onPress={() => setIsRecurring(!isRecurring)}
-            />
-            <Switch
-              value={isRecurring}
-              onValueChange={setIsRecurring}
-              trackColor={{
-                false: theme.colors.background,
-                true: categorySelected.color.color_code,
+              title='Recorrente'
+              subTitle={getRecurrenceSubtitle()}
+              onValueChange={() => {
+                const next = !isRecurring;
+                setIsRecurring(next);
+                if (next) {
+                  handleOpenRecurrenceModal();
+                }
               }}
-              thumbColor={
-                isRecurring
-                  ? theme.colors.text
-                  : theme.colors.background
-              }
-              style={{ alignSelf: 'center', marginBottom: 8 }}
+              value={isRecurring}
+              isEnabled={isRecurring}
             />
-
-            {/* ── Period Selector ───────────────────────────────────── */}
             {isRecurring && (
-              <>
-                <TransactionsTypes>
-                  <TransactionTypeButton
-                    buttons={recurrencePeriodOptions.map((opt) => ({
-                      title: opt.label,
-                    }))}
-                    selectedTab={recurrencePeriodOptions.findIndex(
-                      (opt) => opt.key === recurrencePeriod
-                    )}
-                    setSelectedTab={(idx: number) => {
-                      const period = recurrencePeriodOptions[idx]?.key;
-                      if (period) {
-                        setRecurrencePeriod(period);
-                        if (period === 'DAILY') {
-                          setRecurrenceDate(null);
-                        } else {
-                          setRecurrenceDate(null);
-                        }
-                      }
-                    }}
-                  />
-                </TransactionsTypes>
-
-                {/* ── Date Selector ─────────────────────────────── */}
-                {recurrencePeriod !== 'DAILY' && (
-                  <SelectButton
-                    title={getRecurrenceDateLabel()}
-                    icon={<Calendar color={categorySelected.color.color_code} />}
-                    onPress={handleOpenRecurrenceDateModal}
-                  />
-                )}
-              </>
+              <SelectButton
+                title="Configurar recorrência"
+                icon={<Repeat color={categorySelected.color.color_code} />}
+                onPress={handleOpenRecurrenceModal}
+              />
             )}
 
             <ControlledInputWithIcon
@@ -1435,58 +1394,19 @@ export function RegisterTransaction({
           />
         </ModalViewSelection>
 
-        {/* ── Recurrence Date Picker Bottom Sheet ──────────────── */}
+        {/* ── Recurrence Select Modal ───────────────────────── */}
         <ModalViewSelection
           $modal
-          title='Selecionar data de recorrência'
-          bottomSheetRef={recurrenceDateBottomSheetRef}
-          snapPoints={['50%']}
-          onClose={handleCloseRecurrenceDateModal}
+          title='Recorrência'
+          bottomSheetRef={recurrenceSelectBottomSheetRef}
+          snapPoints={['65%']}
+          onClose={handleCloseRecurrenceModal}
         >
-          <FlatList
-            data={
-              recurrencePeriod === 'WEEKLY'
-                ? dayNames.map((name, idx) => ({ label: name, value: idx }))
-                : (recurrencePeriod === 'YEARLY'
-                  ? monthDays.slice(0, 28)
-                  : monthDays
-                ).map((day) => ({ label: String(day), value: day }))
-            }
-            keyExtractor={(item) => String(item.value)}
-            numColumns={recurrencePeriod === 'WEEKLY' ? 1 : 7}
-            renderItem={({ item }) => {
-              const isSelected = recurrenceDate === item.value;
-              return (
-                <TouchableOpacity
-                  onPress={() => {
-                    setRecurrenceDate(item.value);
-                    handleCloseRecurrenceDateModal();
-                  }}
-                  style={{
-                    flex: recurrencePeriod === 'WEEKLY' ? undefined : 1,
-                    padding: 12,
-                    margin: 4,
-                    borderRadius: 10,
-                    backgroundColor: isSelected
-                      ? categorySelected.color.color_code
-                      : 'transparent',
-                    borderWidth: 1,
-                    borderColor: categorySelected.color.color_code,
-                    alignItems: 'center',
-                  }}
-                >
-                  <Title
-                    style={{
-                      color: isSelected
-                        ? theme.colors.text
-                        : categorySelected.color.color_code,
-                    }}
-                  >
-                    {item.label}
-                  </Title>
-                </TouchableOpacity>
-              );
-            }}
+          <RecurrenceSelect
+            initialInterval={recurrenceInterval}
+            initialPeriod={recurrencePeriod}
+            onSave={handleRecurrenceSave}
+            onCancel={handleCloseRecurrenceModal}
           />
         </ModalViewSelection>
 

@@ -28,7 +28,8 @@ export interface TransactionProps {
   user_id: string;
   image_url?: string | null;
   is_recurring?: boolean;
-  recurrence_rule?: string | null;
+  recurrence_interval?: number | null;
+  recurrence_period?: string | null;
 }
 
 export type CashFLowData = {
