@@ -83,3 +83,55 @@ export const Footer = styled.View`
   width: 100%;
   padding: 16px;
 `;
+
+// ── Date Quick-Select Pills ───────────────────────────
+
+export const DateSelectorContainer = styled.View`
+  min-height: 56px;
+  max-height: 56px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+`;
+
+export const DateSelectorLeft = styled.Pressable`
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+`;
+
+export const DateSelectorLabel = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(12)}px;
+  padding-left: 8px;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+export const DateSelectorRight = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+`;
+
+type PillProps = {
+  active: boolean;
+  accentColor: string;
+};
+
+export const DatePill = styled.TouchableOpacity<PillProps>`
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background-color: ${({ active, accentColor }) =>
+    active ? accentColor : 'transparent'};
+  border: 1px solid ${({ accentColor }) => accentColor};
+`;
+
+export const DatePillText = styled.Text<PillProps>`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(10)}px;
+  color: ${({ active, accentColor, theme }) =>
+    active ? theme.colors.text : accentColor};
+`;

@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import * as Font from 'expo-font';
-import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { ThemeProvider } from 'styled-components';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,8 +12,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { SkeletonHomeScreen } from '@components/SkeletonOverviewScreen';
 
-import { AuthProvider, useAuth } from '@contexts/AuthProvider';
-import { RevenueCatProvider } from '../providers/RevenueCatProvider';
+import { AuthProvider, useAuth } from '@providers/AuthProvider';
+import { RevenueCatProvider } from '@providers/RevenueCatProvider';
 import {
   Poppins_400Regular,
   Poppins_500Medium,
@@ -36,20 +35,16 @@ SplashScreen.preventAutoHideAsync();
 const PUBLIC_CLERK_PUBLISHABLE_KEY =
   process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+// In-memory token cache so Clerk sessions do NOT survive app restarts.
+// When the app is killed and reopened, the user must authenticate again.
+const inMemoryCache = new Map<string, string>();
+
 const tokenCache = {
   async getToken(key: string) {
-    try {
-      return SecureStore.getItemAsync(key);
-    } catch (err) {
-      return null;
-    }
+    return inMemoryCache.get(key) || null;
   },
   async saveToken(key: string, value: string) {
-    try {
-      return SecureStore.setItemAsync(key, value);
-    } catch (err) {
-      return;
-    }
+    inMemoryCache.set(key, value);
   },
 };
 

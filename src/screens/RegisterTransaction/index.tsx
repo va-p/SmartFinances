@@ -14,6 +14,12 @@ import {
   Footer,
   InputTransactionValuesContainer,
   InputTransactionValueGroup,
+  DateSelectorContainer,
+  DateSelectorLeft,
+  DateSelectorLabel,
+  DateSelectorRight,
+  DatePill,
+  DatePillText,
 } from './styles';
 
 // Hooks
@@ -31,7 +37,7 @@ import { convertCurrency } from '@utils/convertCurrency';
 
 // Dependencies
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { addDays, format, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -49,6 +55,7 @@ import Trash from 'phosphor-react-native/src/icons/Trash';
 import Image from 'phosphor-react-native/src/icons/Image';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import Calendar from 'phosphor-react-native/src/icons/Calendar';
+import Repeat from 'phosphor-react-native/src/icons/Repeat';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
@@ -70,6 +77,7 @@ import { AccountSelect } from '@screens/AccountSelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
+import { RecurrenceSelect } from '@screens/RecurrenceSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
@@ -87,6 +95,8 @@ import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
+import { ButtonToggle } from '@components/ButtonToggle';
+import { isToday, isTomorrow, isYesterday } from 'date-fns';
 
 type Props = {
   id: string;
@@ -165,13 +175,54 @@ export function RegisterTransaction({
   const [accountDestinationSelected, setAccountDestinationSelected] =
     useState<AccountProps | null>(null);
   const [date, setDate] = useState(new Date());
-  const formattedDate = format(date, "dd 'de' MMMM 'de' yyyy", {
-    locale: ptBR,
-  });
+
+  const shortDatesMap: Record<string, string> = {
+    isToday: 'Hoje',
+    isTomorrow: 'Amanhã',
+    isYesterday: 'Ontem',
+  };
+
+  const dateLabelKey = isToday(date)
+    ? 'isToday'
+    : isTomorrow(date)
+    ? 'isTomorrow'
+    : isYesterday(date)
+    ? 'isYesterday'
+    : null;
+
+  const formattedDate = dateLabelKey
+    ? shortDatesMap[dateLabelKey]
+    : format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+
+  function getActivePill(): string | null {
+    return dateLabelKey;
+  }
+
+  function handleQuickDateSelect(pill: string) {
+    const today = new Date();
+    switch (pill) {
+      case 'isToday':
+        setDate(today);
+        break;
+      case 'isYesterday':
+        setDate(subDays(today, 1));
+        break;
+      case 'isTomorrow':
+        setDate(addDays(today, 1));
+        break;
+      case 'other':
+      default:
+        setShowDatePicker(true);
+        break;
+    }
+  }
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const onChangeDate = (_: any, selectedDate: any) => {
     setShowDatePicker(false);
-    setDate(selectedDate);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
   };
   const [bankTransactionID, setBankTransactionID] = useState(null);
   const [transactionDate, setTransactionDate] = useState(null);
@@ -184,6 +235,41 @@ export function RegisterTransaction({
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [openImage, setOpenImage] = useState(false);
+
+  // Recurrence state
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
+  const [recurrencePeriod, setRecurrencePeriod] = useState<
+    'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+  >('DAILY');
+  const recurrenceSelectBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  function handleOpenRecurrenceModal() {
+    recurrenceSelectBottomSheetRef.current?.present();
+  }
+
+  function handleCloseRecurrenceModal() {
+    recurrenceSelectBottomSheetRef.current?.dismiss();
+  }
+
+  function handleRecurrenceSave(data: { interval: number; period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' }) {
+    setRecurrenceInterval(data.interval);
+    setRecurrencePeriod(data.period);
+    handleCloseRecurrenceModal();
+  }
+
+  function getRecurrenceSubtitle(): string {
+    if (!isRecurring) return '';
+    const labels: Record<string, string> = {
+      DAILY: 'dia',
+      WEEKLY: 'semana',
+      MONTHLY: 'mês',
+      YEARLY: 'ano',
+    };
+    const unit = labels[recurrencePeriod] || recurrencePeriod.toLowerCase();
+    const plural = recurrenceInterval > 1 ? 's' : '';
+    return `A cada ${recurrenceInterval} ${unit}${plural}`;
+  }
 
   const { mutate: createTransaction, isPending: isCreating } =
     useCreateTransactionMutation();
@@ -565,6 +651,9 @@ export function RegisterTransaction({
         category_id: categorySelected.id,
         tags: tagsList,
         image_url,
+        is_recurring: isRecurring,
+        recurrence_interval: isRecurring ? recurrenceInterval : null,
+        recurrence_period: isRecurring ? recurrencePeriod : null,
         // Informações para o backend lidar com a contrapartida
         related_transaction_account_id: hasDestinationAccount
           ? accountDestinationSelected?.id
@@ -609,6 +698,9 @@ export function RegisterTransaction({
       category_id: categorySelected.id,
       tags: tagsList,
       image_url,
+      is_recurring: isRecurring,
+      recurrence_interval: isRecurring ? recurrenceInterval : null,
+      recurrence_period: isRecurring ? recurrencePeriod : null,
       user_id: userID,
     };
 
@@ -711,6 +803,9 @@ export function RegisterTransaction({
         category_id: categorySelected.id,
         tags: tagsList,
         image_url,
+        is_recurring: isRecurring,
+        recurrence_interval: isRecurring ? recurrenceInterval : null,
+        recurrence_period: isRecurring ? recurrencePeriod : null,
         related_transaction_account_id: accountDestinationSelected.id,
         amount_in_account_currency_related_transaction:
           amountInAccountCurrencyRelatedTransaction,
@@ -774,6 +869,9 @@ export function RegisterTransaction({
       category_id: categorySelected.id,
       tags: tagsList,
       image_url,
+      is_recurring: isRecurring,
+      recurrence_interval: isRecurring ? recurrenceInterval : null,
+      recurrence_period: isRecurring ? recurrencePeriod : null,
       user_id: userID,
     };
 
@@ -1011,6 +1109,30 @@ export function RegisterTransaction({
       setTransactionDate(transactionData.date);
       setBankTransactionID(transactionData.bank_transaction_id);
       setRelatedTransactionID(transactionData.related_transaction_id);
+
+      // Pre-fill recurrence fields when editing
+      if (transactionData.is_recurring) {
+        setIsRecurring(true);
+        if (transactionData.recurrence_interval) {
+          setRecurrenceInterval(transactionData.recurrence_interval);
+        }
+        if (
+          transactionData.recurrence_period &&
+          ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(
+            transactionData.recurrence_period
+          )
+        ) {
+          setRecurrencePeriod(
+            transactionData.recurrence_period as
+              | 'DAILY'
+              | 'WEEKLY'
+              | 'MONTHLY'
+              | 'YEARLY'
+          );
+        }
+      } else {
+        setIsRecurring(false);
+      }
     }
   }, [transactionData, bulkTransactionsData, isBulkEdit]);
 
@@ -1118,11 +1240,76 @@ export function RegisterTransaction({
               />
             )}
 
-            <SelectButton
-              title={formattedDate}
-              icon={<Calendar color={categorySelected.color.color_code} />}
-              onPress={() => setShowDatePicker(true)}
-            />
+            <DateSelectorContainer>
+              {/* Left: icon + date label */}
+              <DateSelectorLeft
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Calendar
+                  size={20}
+                  color={categorySelected.color.color_code}
+                />
+                <DateSelectorLabel>
+                  {formattedDate}
+                </DateSelectorLabel>
+              </DateSelectorLeft>
+
+              {/* Right: quick-date pills */}
+              <DateSelectorRight>
+                <DatePill
+                  active={getActivePill() === 'isToday'}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('isToday')}
+                >
+                  <DatePillText
+                    active={getActivePill() === 'isToday'}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Hoje
+                  </DatePillText>
+                </DatePill>
+
+                <DatePill
+                  active={getActivePill() === 'isYesterday'}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('isYesterday')}
+                >
+                  <DatePillText
+                    active={getActivePill() === 'isYesterday'}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Ontem
+                  </DatePillText>
+                </DatePill>
+
+                <DatePill
+                  active={getActivePill() === 'isTomorrow'}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('isTomorrow')}
+                >
+                  <DatePillText
+                    active={getActivePill() === 'isTomorrow'}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Amanhã
+                  </DatePillText>
+                </DatePill>
+
+                <DatePill
+                  active={getActivePill() === null}
+                  accentColor={categorySelected.color.color_code}
+                  onPress={() => handleQuickDateSelect('other')}
+                >
+                  <DatePillText
+                    active={getActivePill() === null}
+                    accentColor={categorySelected.color.color_code}
+                  >
+                    Outra
+                  </DatePillText>
+                </DatePill>
+              </DateSelectorRight>
+            </DateSelectorContainer>
+
             {showDatePicker && (
               <DateTimePicker
                 testID='dateTimePicker'
@@ -1133,6 +1320,22 @@ export function RegisterTransaction({
                 textColor={theme.colors.text}
               />
             )}
+
+            {/* ── Recurrence Toggle ─────────────────────────────────── */}
+            <ButtonToggle
+              icon={<Repeat color={categorySelected.color.color_code} />}
+              title='Recorrente'
+              subTitle={getRecurrenceSubtitle()}
+              onValueChange={() => {
+                const next = !isRecurring;
+                setIsRecurring(next);
+                if (next) {
+                  handleOpenRecurrenceModal();
+                }
+              }}
+              value={isRecurring}
+              isEnabled={isRecurring}
+            />
 
             <ControlledInputWithIcon
               icon={<PencilSimple color={categorySelected.color.color_code} />}
@@ -1294,6 +1497,22 @@ export function RegisterTransaction({
             closeSelectAccountDestination={
               handleCloseSelectAccountDestinationModal
             }
+          />
+        </ModalViewSelection>
+
+        {/* ── Recurrence Select Modal ───────────────────────── */}
+        <ModalViewSelection
+          $modal
+          title='Recorrência'
+          bottomSheetRef={recurrenceSelectBottomSheetRef}
+          snapPoints={['65%']}
+          onClose={handleCloseRecurrenceModal}
+        >
+          <RecurrenceSelect
+            initialInterval={recurrenceInterval}
+            initialPeriod={recurrencePeriod}
+            onSave={handleRecurrenceSave}
+            onCancel={handleCloseRecurrenceModal}
           />
         </ModalViewSelection>
 

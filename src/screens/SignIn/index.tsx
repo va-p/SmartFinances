@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import {
   Container,
@@ -12,16 +12,16 @@ import {
   SocialLoginButton,
 } from './styles';
 
-import { useAuth } from '../../contexts/AuthProvider';
+import { useAuth } from '../../providers/AuthProvider';
 
 // Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
+import { useSSO } from '@clerk/clerk-expo';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
-import { useSSO } from '@clerk/clerk-expo';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // Icons
@@ -69,8 +69,24 @@ export function SignIn() {
     resolver: yupResolver(schema),
   });
 
-  const { signInWithEmail } = useAuth();
+  const { signInWithEmail, canSignInWithBiometrics, signInWithBiometrics } =
+    useAuth();
   const { startSSOFlow } = useSSO();
+
+  const biometricTriggered = useRef(false);
+
+  useEffect(() => {
+    if (biometricTriggered.current) return;
+    biometricTriggered.current = true;
+
+    async function attemptBiometric() {
+      const available = await canSignInWithBiometrics();
+      if (available) {
+        await signInWithBiometrics();
+      }
+    }
+    attemptBiometric();
+  }, []);
 
   async function handleSignInWithMail(form: FormData) {
     try {
