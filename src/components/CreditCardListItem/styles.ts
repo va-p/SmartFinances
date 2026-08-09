@@ -32,9 +32,13 @@ export const Amount = styled.Text`
 `;
 
 export const NameContainer = styled.View`
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 8px;
+  flex-direction: column;
+`;
+
+export const InstitutionName = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: ${RFValue(9)}px;
+  color: ${({ theme }) => theme.colors.textPlaceholder};
 `;
 
 export const Name = styled.Text`

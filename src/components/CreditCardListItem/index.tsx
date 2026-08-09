@@ -3,6 +3,7 @@ import {
   Amount,
   AmountContainer,
   Container,
+  InstitutionName,
   Name,
   NameContainer,
 } from './styles';
@@ -36,6 +37,11 @@ export function CreditCardListItem({
       </AmountContainer>
 
       <NameContainer>
+        {data.institution && (
+          <InstitutionName numberOfLines={1}>
+            {data.institution.name}
+          </InstitutionName>
+        )}
         <Name>{data.name}</Name>
       </NameContainer>
     </Container>
