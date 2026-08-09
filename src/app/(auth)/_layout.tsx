@@ -45,15 +45,6 @@ export default function AuthLayout() {
         <Stack.Screen name='forgotPassword' />
         <Stack.Screen name='resetPassSentConfirmation' />
       </Stack>
-
-      {insets.bottom > 0 && (
-        <View
-          style={{
-            height: insets.bottom,
-            backgroundColor: theme.colors.background,
-          }}
-        />
-      )}
     </View>
   );
 }

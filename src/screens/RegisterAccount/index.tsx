@@ -61,7 +61,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterAccount({ id, closeAccount }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { id: userID } = useUser();
   const {
     control,
@@ -87,7 +87,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     'Outro',
   ];
   const [typeSelected, setTypeSelected] = useState('');
-  console.log('typeSelected ===>', typeSelected);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const [currencySelected, setCurrencySelected] = useState({
     id: 4,

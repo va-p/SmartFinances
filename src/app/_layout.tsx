@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { Appearance, useColorScheme } from 'react-native';
 
 import * as Font from 'expo-font';
 import { ClerkProvider } from '@clerk/clerk-expo';
@@ -158,6 +158,16 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  // The app manages light/dark mode manually (independent of the OS setting),
+  // but native iOS chrome — like the Liquid Glass tab bar's blur material —
+  // reads the real UITraitCollection userInterfaceStyle, which the Info.plist
+  // locks to Light. Without this, the native tab bar renders its light-mode
+  // glass material even when the app is in dark mode, showing as a light-gray
+  // tinted blur instead of a proper dark, translucent glass effect.
+  useEffect(() => {
+    Appearance.setColorScheme(useDarkMode ? 'dark' : 'light');
+  }, [useDarkMode]);
 
   if (!fontsLoaded && !fontError) {
     return null;
