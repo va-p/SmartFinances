@@ -51,6 +51,10 @@ import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
+import {
+  InstitutionCard,
+  InstitutionCardData,
+} from '@components/InstitutionCard';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
@@ -62,6 +66,7 @@ import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
+import { useCurrentInstitutionSelected } from '@stores/currentInstitutionSelectedStorage';
 
 import api from '@api/api';
 
@@ -308,6 +313,31 @@ export function Accounts() {
     standaloneAccounts,
   } = processedData;
 
+  // Merge institution cards and standalone accounts into a single list,
+  // sorted as two concatenated alphabetical blocks — institutions first,
+  // then standalone accounts — per AC12.4 (two separate Array.sort() calls,
+  // not one combined comparator, so "institutions first" always holds
+  // regardless of name collisions between the two blocks).
+  const accountsListData = useMemo(() => {
+    const sortedInstitutionCards = [...institutionCards].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    const sortedStandaloneAccounts = [...standaloneAccounts].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    return [
+      ...sortedInstitutionCards.map((institution) => ({
+        kind: 'institution' as const,
+        data: institution,
+      })),
+      ...sortedStandaloneAccounts.map((account) => ({
+        kind: 'account' as const,
+        data: account,
+      })),
+    ];
+  }, [institutionCards, standaloneAccounts]);
+
   function handleRefresh() {
     Promise.all([refetchTransactions(), refetchAccounts()]);
   }
@@ -375,35 +405,45 @@ export function Accounts() {
     );
   }
 
+  function getAccountIcon(type: AccountTypes) {
+    switch (type) {
+      case 'OTHER':
+      case 'WALLET':
+        return <Wallet color={theme.colors.primary} />;
+      case 'CRYPTOCURRENCY WALLET':
+        return <CurrencyBtc color={theme.colors.primary} />;
+      case 'INVESTMENTS':
+      case 'BANK':
+        return <Bank color={theme.colors.primary} />;
+      case 'CREDIT':
+        return <CreditCard color={theme.colors.primary} />;
+      default:
+        return <Wallet color={theme.colors.primary} />;
+    }
+  }
+
+  function handleOpenInstitution(institution: InstitutionCardData) {
+    useCurrentInstitutionSelected.setState(() => ({
+      institutionId: institution.id,
+      institutionName: institution.name,
+    }));
+    router.navigate({
+      pathname: '/accounts/institutionDetails',
+    });
+  }
+
   type _renderItemProps = {
     item: AccountProps;
     index: number;
   };
   function _renderItem({ item, index }: _renderItemProps) {
-    const getAccountIcon = () => {
-      switch (item.type) {
-        case 'OTHER':
-        case 'WALLET':
-          return <Wallet color={theme.colors.primary} />;
-        case 'CRYPTOCURRENCY WALLET':
-          return <CurrencyBtc color={theme.colors.primary} />;
-        case 'INVESTMENTS':
-        case 'BANK':
-          return <Bank color={theme.colors.primary} />;
-        case 'CREDIT':
-          return <CreditCard color={theme.colors.primary} />;
-        default:
-          return <Wallet color={theme.colors.primary} />;
-      }
-    };
-
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
         <AccountsContent>
           <AccountListItem
             data={item}
             index={index}
-            icon={getAccountIcon()}
+            icon={getAccountIcon(item.type)}
             hideAmount={hideAmount}
             onPress={() =>
               handleOpenAccount(
@@ -443,6 +483,54 @@ export function Accounts() {
     }
 
     return null;
+  }
+
+  type _renderAccountsListItemProps = {
+    item:
+      | { kind: 'institution'; data: InstitutionCardData }
+      | { kind: 'account'; data: AccountProps };
+    index: number;
+  };
+  function _renderAccountsListItem({
+    item,
+    index,
+  }: _renderAccountsListItemProps) {
+    if (item.kind === 'institution') {
+      return (
+        <AccountsContent>
+          <InstitutionCard
+            data={item.data}
+            index={index}
+            hideAmount={hideAmount}
+            onPress={() => handleOpenInstitution(item.data)}
+          />
+        </AccountsContent>
+      );
+    }
+
+    const account = item.data;
+
+    return (
+      <AccountsContent>
+        <AccountListItem
+          data={account}
+          index={index}
+          icon={getAccountIcon(account.type)}
+          hideAmount={hideAmount}
+          onPress={() =>
+            handleOpenAccount(
+              String(account.id)!,
+              account.name,
+              account.type,
+              account.subtype || null,
+              account.currency,
+              String(account.balance),
+              null
+            )
+          }
+        />
+      </AccountsContent>
+    );
   }
 
   function _renderSkeletonTotal() {
@@ -551,12 +639,13 @@ export function Accounts() {
           {/** ACCOUNTS */}
           <FlatList
             style={{ flex: 1 }}
-            data={processedAccounts.filter(
-              (account) =>
-                account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
-            )}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={_renderItem}
+            data={accountsListData}
+            keyExtractor={(item) =>
+              item.kind === 'institution'
+                ? `institution-${item.data.id}`
+                : String(item.data.id)
+            }
+            renderItem={_renderAccountsListItem}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetchingTransactions || isRefetchingAccounts}
