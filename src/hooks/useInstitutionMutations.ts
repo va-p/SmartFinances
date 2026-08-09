@@ -1,5 +1,6 @@
 import { Alert } from 'react-native';
 
+import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '@api/api';
@@ -42,11 +43,15 @@ export function useCreateInstitutionMutation() {
       if (context?.previousInstitutions) {
         queryClient.setQueryData(QUERY_KEY, context.previousInstitutions);
       }
-      // Callers that need to branch on a 409 conflict (AC11.5) should inspect
-      // error.response?.status themselves before this generic Alert fires
-      // (e.g. by handling the error at the call site instead of relying only
-      // on this hook's onError). This Alert still fires as the default UX
-      // for non-conflict failures.
+      // DEVIATION from the original hook implementation: skip the generic
+      // Alert on a 409 (duplicate name) so callers (RegisterInstitution's
+      // distinct "already exists" Alert, InstitutionSelect's silent
+      // resolve-to-existing per AC11.5) fully control the UX for that case
+      // instead of a conflicting/duplicate Alert firing first. This Alert
+      // still fires as the default UX for non-conflict failures.
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        return;
+      }
       Alert.alert('Erro', 'Não foi possível criar a instituição.');
     },
 
@@ -91,6 +96,12 @@ export function useUpdateInstitutionMutation() {
     onError: (error, newInstitution, context) => {
       if (context?.previousInstitutions) {
         queryClient.setQueryData(QUERY_KEY, context.previousInstitutions);
+      }
+      // Same 409 deviation as useCreateInstitutionMutation above — let the
+      // caller (RegisterInstitution) show a distinct "name already exists"
+      // message instead of this generic one.
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        return;
       }
       Alert.alert(
         'Erro',
