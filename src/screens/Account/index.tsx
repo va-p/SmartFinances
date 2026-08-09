@@ -42,12 +42,10 @@ import Animated, {
 import {
   addMonths,
   addYears,
-  format,
   getMonth,
   getYear,
   isValid,
   parse,
-  parseISO,
   subMonths,
   subYears,
 } from 'date-fns';
@@ -97,7 +95,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function Account() {
-  const theme: ThemeProps = useTheme();
+  const theme  = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { id: userID } = useUser();
@@ -163,8 +161,7 @@ export function Account() {
     data: allTransactions,
     isLoading,
     refetch,
-    isRefetching,
-  } = useTransactionsQuery(userID);
+  } = useTransactionsQuery();
 
   const { mutate: deleteAccount } = useDeleteAccountMutation();
 
@@ -242,56 +239,61 @@ export function Account() {
   }, [allTransactions, accountID, selectedPeriod, selectedDate]);
 
   const _renderPeriodRuler = useCallback(() => {
-    let months: any = {};
-    for (const item of allTransactions || []) {
-      const ym = format(item.created_at, `yyyy-MM`, { locale: ptBR });
+    const MONTH_ABBREVIATIONS = [
+      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
+    ];
 
-      if (!months.hasOwnProperty(ym)) {
-        months[ym] = {
-          date: ym,
-        };
-      }
-    }
+    let dates: { date: string; isActive: boolean }[] = [];
 
-    months = Object.values(months).sort((a: any, b: any) => {
-      const firstDateParsed = parse(a.date, 'yyyy-MM', new Date());
-      const secondDateParsed = parse(b.date, 'yyyy-MM', new Date());
-      return secondDateParsed.getTime() - firstDateParsed.getTime();
-    });
+    if (selectedPeriod.period === 'years') {
+      const yearsSet = new Set<number>();
 
-    for (let i = months.length - 1; i >= 0; i--) {
-      months[i].date = format(parseISO(months[i].date), `MMM '\n' yyyy`, {
-        locale: ptBR,
-      });
-    }
-
-    const dates = months?.map((item: any) => {
-      const dateSplit = item.date.split('\n');
-      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
-      const dateAux = trimmedDateParts.join(' ');
-
-      let parsedDate: Date | null = null;
-      try {
-        parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
-          locale: ptBR,
-        });
-        if (!isValid(parsedDate)) {
-          console.warn('Data inválida:', dateAux);
+      for (const item of allTransactions || []) {
+        try {
+          const parsed = parse(item.created_at, 'dd/MM/yyyy', new Date());
+          if (isValid(parsed)) {
+            yearsSet.add(getYear(parsed));
+          }
+        } catch {
+          // skip invalid dates
         }
-      } catch (error) {
-        console.error('Erro ao converter data, _renderPeriodRuler:', error);
       }
 
-      const isActive = parsedDate
-        ? getYear(selectedDate) === getYear(parsedDate) &&
-          getMonth(selectedDate) === getMonth(parsedDate)
-        : false;
+      // Ensure the selected year is always included
+      yearsSet.add(getYear(selectedDate));
 
-      return {
-        date: item.date,
-        isActive,
-      };
-    });
+      const yearsArray = Array.from(yearsSet).sort((a, b) => b - a);
+
+      dates = yearsArray.map((year) => ({
+        date: String(year),
+        isActive: getYear(selectedDate) === year,
+      }));
+    } else {
+      // 'months' and 'all' — show all 12 months of the selected year
+      const year = getYear(selectedDate);
+
+      dates = MONTH_ABBREVIATIONS.map((month) => {
+        const dateStr = `${month} \n ${year}`;
+        const dateAux = `${month} ${year}`;
+
+        let parsedDate: Date | null = null;
+        try {
+          parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
+            locale: ptBR,
+          });
+        } catch {
+          // parsing failure — skip silently
+        }
+
+        const isActive = parsedDate && isValid(parsedDate)
+          ? getYear(selectedDate) === getYear(parsedDate) &&
+            getMonth(selectedDate) === getMonth(parsedDate)
+          : false;
+
+        return { date: dateStr, isActive };
+      }).reverse(); // newest-first: Dez → Jan (matching FlatList inverted order)
+    }
 
     return (
       <PeriodRuler
@@ -302,7 +304,7 @@ export function Account() {
         horizontalPadding={16}
       />
     );
-  }, [selectedDate, allTransactions]);
+  }, [selectedDate, allTransactions, selectedPeriod.period]);
 
   if (isLoadingAccountDetails) {
     return <SkeletonAccountsScreen />;
@@ -495,7 +497,7 @@ export function Account() {
               <AccountCashFlow
                 balanceIsPositive={
                   !isCreditCard
-                    ? processedData.cashFlowIsPositive
+                    ? processedData.cashFlowIsPositive ?? false
                     : hasCreditCardAvailableLimit
                 }
               >
