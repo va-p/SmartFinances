@@ -13,8 +13,8 @@ type Props = TextInputProps & {
   error?: FieldError;
 };
 
-export function ControlledInputValue({ name, control, error, ...rest }: Props) {
-  const theme: ThemeProps = useTheme();
+export function ControlledInputValue({ name, control, error, keyboardType, ...rest }: Props) {
+  const theme = useTheme() as ThemeProps;
 
   return (
     <Container>
@@ -25,8 +25,15 @@ export function ControlledInputValue({ name, control, error, ...rest }: Props) {
           <>
             {error && <ErrorMessage> {error.message} </ErrorMessage>}
             <Input
-              onChangeText={onChange}
+              onChangeText={(text: string) => {
+                // iOS decimal-pad may emit a comma as the decimal
+                // separator depending on the device region.  Normalize
+                // it to a dot so the value stays compatible with the
+                // Yup number schema and the database Decimal column.
+                onChange(text.replace(',', '.'));
+              }}
               value={value}
+              keyboardType={keyboardType ?? 'decimal-pad'}
               placeholderTextColor={theme.colors.textPlaceholder}
               {...rest}
             />

@@ -29,15 +29,14 @@ import {
   useDeleteTransactionMutation,
 } from '@hooks/useTransactionMutations';
 import { useTagsQuery } from '@hooks/useTagsQuery';
-import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
+import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
 
 // Dependencies
 import * as Yup from 'yup';
-import { addDays, format, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -47,6 +46,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { addDays, format, subDays, isToday, isTomorrow, isYesterday } from 'date-fns';
 
 // Icons
 import X from 'phosphor-react-native/src/icons/X';
@@ -54,8 +54,8 @@ import Tag from 'phosphor-react-native/src/icons/Tag';
 import Trash from 'phosphor-react-native/src/icons/Trash';
 import Image from 'phosphor-react-native/src/icons/Image';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
-import Calendar from 'phosphor-react-native/src/icons/Calendar';
 import Repeat from 'phosphor-react-native/src/icons/Repeat';
+import Calendar from 'phosphor-react-native/src/icons/Calendar';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
@@ -76,8 +76,8 @@ import { TagListItemRegisterTransaction } from '@screens/RegisterTransaction/com
 import { AccountSelect } from '@screens/AccountSelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
-import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 import { RecurrenceSelect } from '@screens/RecurrenceSelect';
+import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
@@ -96,7 +96,6 @@ import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
 import { ButtonToggle } from '@components/ButtonToggle';
-import { isToday, isTomorrow, isYesterday } from 'date-fns';
 
 type Props = {
   id: string;
@@ -1207,7 +1206,7 @@ export function RegisterTransaction({
                 <InputTransactionValueGroup>
                   <ControlledInputValue
                     placeholder={String(getValues('amount'))}
-                    keyboardType='numeric'
+                    keyboardType='decimal-pad'
                     textAlign='right'
                     defaultValue={String(getValues('amount'))}
                     name='amount'
@@ -1224,7 +1223,7 @@ export function RegisterTransaction({
                 {getValues('amountInAccountCurrency') !== null && (
                   <InputTransactionValueGroup>
                     <ControlledInputValue
-                      keyboardType='numeric'
+                      keyboardType='decimal-pad'
                       textAlign='right'
                       style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
                       defaultValue={String(
