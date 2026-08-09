@@ -19,6 +19,7 @@ import {
 // Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
@@ -31,18 +32,16 @@ import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { format, parse, parseISO } from 'date-fns';
-import Eye from 'phosphor-react-native/src/icons/Eye';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 // Icons
+import Eye from 'phosphor-react-native/src/icons/Eye';
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
-import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -52,6 +51,7 @@ import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -447,7 +447,7 @@ export function Accounts() {
               curved
               showVerticalLines
               verticalLinesUptoDataPoint
-              initialSpacing={8}
+              initialSpacing={16}
               endSpacing={8}
               focusEnabled
               showStripOnFocus
