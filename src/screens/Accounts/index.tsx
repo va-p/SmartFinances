@@ -24,14 +24,13 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
-import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
 
 // Dependencies
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
-import { format, parse, parseISO } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
@@ -236,50 +235,54 @@ export function Accounts() {
       });
     });
 
-    let totalsByMonths: any = {};
-    let accumulatedTotal = new Decimal(0);
+    // ── Net Worth Chart Data ────────────────────────────────────────────
+    // Monthly flows: DEBIT reduces net worth, CREDIT increases it.
+    // Sign is derived from the transaction type to handle both old
+    // (all-positive) and new (DEBIT-negative) data consistently.
+    let totalsByMonths: Record<string, Decimal> = {};
 
     for (const transaction of transactions) {
-      if (new Date(transaction.created_at) <= new Date()) {
-        const ym = format(parseISO(transaction.created_at), `yyyy-MM`, {
-          locale: ptBR,
-        });
+      const transactionDate = new Date(transaction.created_at);
+      if (isNaN(transactionDate.getTime())) continue;
+      if (transactionDate > new Date()) continue;
 
-        if (!totalsByMonths.hasOwnProperty(ym)) {
-          totalsByMonths[ym] = {
-            date: ym,
-            total: new Decimal(0),
-          };
-        }
-
-        const transactionAmountBRL = transaction.amount_in_account_currency
-          ? transaction.amount_in_account_currency
-          : transaction.amount;
-
-        if (
-          transaction.type === 'TRANSFER_CREDIT' ||
-          transaction.type === 'TRANSFER_DEBIT'
-        ) {
-          continue;
-        }
-
-        if (transaction.account.type === 'CREDIT') {
-          totalsByMonths[ym].total =
-            totalsByMonths[ym].total.minus(transactionAmountBRL); // Credit card - subtrai
-        } else {
-          totalsByMonths[ym].total =
-            totalsByMonths[ym].total.plus(transactionAmountBRL); // Others accounts - soma
-        }
+      // Skip transfers — they move money between accounts, not net worth.
+      if (
+        transaction.type === 'TRANSFER_CREDIT' ||
+        transaction.type === 'TRANSFER_DEBIT'
+      ) {
+        continue;
       }
+
+      const rawAmount =
+        transaction.amount_in_account_currency ?? transaction.amount;
+      const isDebit = transaction.type === 'DEBIT';
+      const signedAmount = isDebit
+        ? -Math.abs(Number(rawAmount))
+        : Math.abs(Number(rawAmount));
+
+      const ym = format(transactionDate, 'yyyy-MM', { locale: ptBR });
+
+      if (!totalsByMonths[ym]) {
+        totalsByMonths[ym] = new Decimal(0);
+      }
+      totalsByMonths[ym] = totalsByMonths[ym].plus(signedAmount);
     }
 
-    const sortedMonths = Object.keys(totalsByMonths).sort(
-      (a, b) =>
-        parse(a, 'yyyy-MM', new Date()).getTime() -
-        parse(b, 'yyyy-MM', new Date()).getTime()
+    // Sum of all monthly flows so we can back-calculate initial net worth.
+    let sumOfAllFlows = new Decimal(0);
+    for (const monthlyTotal of Object.values(totalsByMonths)) {
+      sumOfAllFlows = sumOfAllFlows.plus(monthlyTotal);
+    }
+
+    // Seed starting point so the final point equals totalAccountsBalance.
+    let accumulatedTotal = totalAccountsBalance.minus(sumOfAllFlows);
+
+    const sortedMonths = Object.keys(totalsByMonths).sort((a, b) =>
+      a.localeCompare(b)
     );
-    const formattedTotalByMonths = sortedMonths.map((monthYear) => {
-      accumulatedTotal = accumulatedTotal.plus(totalsByMonths[monthYear].total);
+    const chartData = sortedMonths.map((monthYear) => {
+      accumulatedTotal = accumulatedTotal.plus(totalsByMonths[monthYear]);
 
       return {
         date: format(
@@ -299,7 +302,7 @@ export function Accounts() {
         false
       ),
       processedAccounts: processedAccounts,
-      chartData: formattedTotalByMonths,
+      chartData: chartData,
       institutionCards,
       standaloneAccounts,
     };
@@ -623,7 +626,6 @@ export function Accounts() {
               xAxisLabelTexts={chartData.map((item) => {
                 return item.date;
               })}
-              yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(chartData)}
               width={GRAPH_WIDTH}
               height={128}
               noOfSections={5}
@@ -645,6 +647,32 @@ export function Accounts() {
                 fontSize: 10,
                 color: '#90A4AE',
                 paddingRight: 12,
+              }}
+              formatYLabel={(label: string) => {
+                // The chart library formats labels according to the device
+                // locale.  Detect whether comma or dot is the decimal
+                // separator, then normalize to a plain JS number.
+                const s = String(label);
+                const lastComma = s.lastIndexOf(',');
+                const lastDot = s.lastIndexOf('.');
+
+                let value: number;
+                if (lastComma > lastDot) {
+                  // pt-BR style: dot=thousands, comma=decimal
+                  // "6.667,4" → 6667.4
+                  value = Number(s.replace(/\./g, '').replace(',', '.'));
+                } else if (lastDot > lastComma) {
+                  // US/UK style: comma=thousands, dot=decimal
+                  // "6,667.4" → 6667.4
+                  value = Number(s.replace(/,/g, ''));
+                } else {
+                  // Plain number or already formatted (e.g. "6.7K")
+                  value = Number(s.replace(/,/g, ''));
+                }
+
+                if (isNaN(value)) return s;
+                const k = Math.floor(value / 1000);
+                return k > 0 ? `${k}k` : '0';
               }}
               yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
               rulesColor='#455A64'
