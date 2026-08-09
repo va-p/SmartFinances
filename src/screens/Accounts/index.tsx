@@ -120,6 +120,8 @@ export function Accounts() {
         totalBalanceFormatted: formatCurrency('BRL', 0, false),
         processedAccounts: [],
         chartData: [],
+        institutionCards: [],
+        standaloneAccounts: [],
       };
     }
 
@@ -164,7 +166,69 @@ export function Accounts() {
           account.currency.code !== 'BRL'
             ? formatCurrency('BRL', accountBalanceConvertedToBRL, false)
             : undefined,
+        // Raw BRL-converted balance (not formatted) reused below to build
+        // per-institution aggregated totals without re-implementing currency
+        // conversion (AC13.1 / design.md §6 "Accounts screen changes")
+        accountBalanceConvertedToBRL,
       };
+    });
+
+    // Partition non-credit-card accounts by institution (AC12.1). Institution
+    // groups of length 1 are reclassified into standalone accounts, bypassing
+    // the InstitutionCard wrapper entirely (AC12.3) — this self-corrects on
+    // every render, so no extra invalidation is needed when an institution
+    // becomes single-account after a delete/edit elsewhere (design.md §7).
+    const institutionGroups = new Map<string, typeof processedAccounts>();
+    const standaloneAccounts: typeof processedAccounts = [];
+
+    processedAccounts
+      .filter(
+        (account) =>
+          account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
+      )
+      .forEach((account) => {
+        const institutionId = account.institution?.id;
+
+        if (!institutionId) {
+          standaloneAccounts.push(account);
+          return;
+        }
+
+        if (!institutionGroups.has(institutionId)) {
+          institutionGroups.set(institutionId, []);
+        }
+        institutionGroups.get(institutionId)!.push(account);
+      });
+
+    const institutionCards: {
+      id: string;
+      name: string;
+      totalFormatted: string;
+      accountCount: number;
+    }[] = [];
+
+    institutionGroups.forEach((accounts) => {
+      if (accounts.length < 2) {
+        standaloneAccounts.push(...accounts);
+        return;
+      }
+
+      const totalConverted = accounts.reduce(
+        (sum, account) =>
+          sum.plus(account.accountBalanceConvertedToBRL ?? 0),
+        new Decimal(0)
+      );
+
+      institutionCards.push({
+        id: accounts[0].institution!.id,
+        name: accounts[0].institution!.name,
+        totalFormatted: formatCurrency(
+          'BRL',
+          totalConverted.toNumber(),
+          false
+        ),
+        accountCount: accounts.length,
+      });
     });
 
     let totalsByMonths: any = {};
@@ -231,10 +295,18 @@ export function Accounts() {
       ),
       processedAccounts: processedAccounts,
       chartData: formattedTotalByMonths,
+      institutionCards,
+      standaloneAccounts,
     };
   }, [rawAccounts, transactions]);
 
-  const { totalBalanceFormatted, processedAccounts, chartData } = processedData;
+  const {
+    totalBalanceFormatted,
+    processedAccounts,
+    chartData,
+    institutionCards,
+    standaloneAccounts,
+  } = processedData;
 
   function handleRefresh() {
     Promise.all([refetchTransactions(), refetchAccounts()]);
