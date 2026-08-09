@@ -517,7 +517,7 @@ export function Home() {
               formatYLabel={(label: string) => {
                 const value = Number(label);
                 const k = Math.floor(value / 1000);
-                return k > 0 ? `${k}k` : '0';
+                return k > 0 ? `${k}k` : String(value);
               }}
               yAxisTextStyle={{
                 fontSize: 10,

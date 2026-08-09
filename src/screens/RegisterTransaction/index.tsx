@@ -479,6 +479,11 @@ export function RegisterTransaction({
       const updatedAmount =
         form.amount && form.amount > 0 ? form.amount : transaction.amount;
 
+      // DEBIT transactions must be saved as negative numbers.
+      const resolvedType = transactionType || transaction.type;
+      const signedAmount =
+        resolvedType === 'DEBIT' ? -Math.abs(updatedAmount) : updatedAmount;
+
       const updatedCategoryId =
         categorySelected.id !== '' &&
         categorySelected.name !== 'Selecione a categoria'
@@ -495,14 +500,14 @@ export function RegisterTransaction({
 
       const updatedDate = date ? date : new Date(transaction.created_at);
 
-      let amountConverted = updatedAmount;
+      let amountConverted = signedAmount;
       const fromCurrency = currencySelected.code || transaction.currency.code;
       const targetAccountCurrency =
         accountCurrency?.code || transaction.account.currency.code;
 
       if (fromCurrency !== targetAccountCurrency) {
         amountConverted = convertCurrency({
-          amount: updatedAmount,
+          amount: signedAmount,
           fromCurrency: fromCurrency,
           toCurrency: targetAccountCurrency,
           accountCurrency: fromCurrency,
@@ -529,7 +534,7 @@ export function RegisterTransaction({
         bank_transaction_id: null,
         date: null,
         description: updatedDescription,
-        amount: updatedAmount,
+        amount: signedAmount,
         amount_in_account_currency:
           fromCurrency !== targetAccountCurrency ? amountConverted : null,
         currency_id: updatedCurrencyId,
@@ -568,6 +573,12 @@ export function RegisterTransaction({
   }
 
   async function handleEditTransaction(form: FormData) {
+    // DEBIT transactions must be saved as negative numbers so that
+    // downstream calculations (cash flow, patrimonial evolution) can
+    // distinguish expenses from revenues purely by sign.
+    const amount =
+      transactionType === 'DEBIT' ? -Math.abs(form.amount) : form.amount;
+
     let tagsList: any = [];
     for (const tag of tagsSelected) {
       const tag_id = tag.id;
@@ -596,9 +607,9 @@ export function RegisterTransaction({
       accountDestinationSelected.id !== 0; // Checks if there is a destination account selected (contrapart)
     const fromCurrency = currencySelected.code; // Moeda selecionada
 
-    let amountConverted = form.amount;
+    let amountConverted = amount;
     amountConverted = convertCurrency({
-      amount: form.amount,
+      amount,
       fromCurrency: currencySelected.code,
       toCurrency:
         transactionType === 'TRANSFER' && hasDestinationAccount
@@ -624,7 +635,7 @@ export function RegisterTransaction({
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
       const transactionType =
-        form.amount > 0 ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
+        amount > 0 ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
       const relatedTransactionType =
         transactionType === 'TRANSFER_CREDIT'
           ? 'TRANSFER_DEBIT'
@@ -643,12 +654,13 @@ export function RegisterTransaction({
         bank_transaction_id: bankTransactionID,
         date: transactionDate,
         description: form.description,
-        amount: form.amount,
+        amount,
         amount_in_account_currency:
           currencySelected.code !== accountCurrency?.code
             ? amountConverted
             : null,
         currency_id: currencySelected.id,
+        currency: currencySelected,
         type: transactionType,
         account_id: accountID,
         category_id: categorySelected.id,
@@ -690,12 +702,13 @@ export function RegisterTransaction({
       bank_transaction_id: bankTransactionID,
       date: transactionDate,
       description: form.description,
-      amount: form.amount,
+      amount,
       amount_in_account_currency:
         currencySelected.code !== accountCurrency?.code
           ? amountConverted
           : null,
       currency_id: currencySelected.id,
+      currency: currencySelected,
       type: transactionType,
       account_id: accountID,
       category_id: categorySelected.id,
@@ -721,6 +734,12 @@ export function RegisterTransaction({
   }
 
   async function handleRegisterTransaction(form: FormData) {
+    // DEBIT transactions must be saved as negative numbers so that
+    // downstream calculations (cash flow, patrimonial evolution) can
+    // distinguish expenses from revenues purely by sign.
+    const amount =
+      transactionType === 'DEBIT' ? -Math.abs(form.amount) : form.amount;
+
     let tagsList: any = [];
     for (const tag of tagsSelected) {
       const tag_id = tag.id;
@@ -743,7 +762,7 @@ export function RegisterTransaction({
       }
     }
 
-    let amountConverted = form.amount;
+    let amountConverted = amount;
 
     // --- Transfer transaction ---
     if (transactionType === 'TRANSFER') {
@@ -765,7 +784,7 @@ export function RegisterTransaction({
           : 'TRANSFER_CREDIT';
 
       amountConverted = convertCurrency({
-        amount: form.amount,
+        amount,
         fromCurrency,
         toCurrency,
         accountCurrency: accountCurrency!.code,
@@ -795,12 +814,13 @@ export function RegisterTransaction({
       const transferPayload = {
         created_at: date,
         description: form.description,
-        amount: form.amount,
+        amount,
         amount_in_account_currency:
           fromCurrency !== accountDestinationSelected.currency.code // If transaction currency is different to account currency
             ? amountConverted
             : null,
         currency_id: currencySelected.id,
+        currency: currencySelected,
         type: transactionType,
         account_id: accountID,
         category_id: categorySelected.id,
@@ -838,7 +858,7 @@ export function RegisterTransaction({
 
     // --- Plain Transaction, NO transfer ---
     amountConverted = convertCurrency({
-      amount: form.amount,
+      amount,
       fromCurrency: currencySelected.code,
       toCurrency: accountCurrency!.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
@@ -861,12 +881,13 @@ export function RegisterTransaction({
     const transactionPayload = {
       created_at: date,
       description: form.description,
-      amount: form.amount,
+      amount,
       amount_in_account_currency:
         currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
           ? amountConverted
           : null,
       currency_id: currencySelected.id,
+      currency: currencySelected,
       type: transactionType,
       account_id: accountID,
       category_id: categorySelected.id,
