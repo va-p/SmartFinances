@@ -1340,7 +1340,7 @@ export function RegisterTransaction({
                 value={date}
                 mode='date'
                 is24Hour={true}
-                onChange={onChangeDate}
+                onValueChange={onChangeDate}
                 textColor={theme.colors.text}
               />
             )}
