@@ -38,6 +38,7 @@ import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 // Stores
 import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 import { useCurrentInstitutionSelected } from '@stores/currentInstitutionSelectedStorage';
 
@@ -102,6 +103,7 @@ export function InstitutionDetails() {
   const router = useRouter();
   const bottomTabHeight = useBottomTabBarHeight();
   const { institutionId, institutionName } = useCurrentInstitutionSelected();
+  const { hideAmount } = useUserConfigs();
   const {
     brlQuoteBtc,
     brlQuoteEur,
@@ -281,6 +283,7 @@ export function InstitutionDetails() {
         data={item}
         index={index}
         icon={getAccountIcon(item.type)}
+        hideAmount={hideAmount}
         onPress={() => handleOpenAccount(item)}
       />
     );
@@ -305,7 +308,9 @@ export function InstitutionDetails() {
         </Header.Root>
 
         <SummaryContainer>
-          <TotalBalance>{totalBalanceFormatted}</TotalBalance>
+          <TotalBalance>
+            {!hideAmount ? totalBalanceFormatted : '•••••'}
+          </TotalBalance>
           <TotalBalanceDescription>
             Patrimônio na instituição
           </TotalBalanceDescription>
