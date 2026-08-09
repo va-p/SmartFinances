@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
-import { Container, Form, Footer } from './styles';
+import { Container, Form, Footer, ErrorMessage } from './styles';
 
 // Dependencies
 import axios from 'axios';
@@ -12,6 +12,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import { useFocusEffect } from 'expo-router';
 
 // Icons
+import Bank from 'phosphor-react-native/src/icons/Bank';
 import Money from 'phosphor-react-native/src/icons/Money';
 import Coins from 'phosphor-react-native/src/icons/Coins';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
@@ -29,6 +30,7 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 
 // Screens
 import { CurrencySelect } from '@screens/CurrencySelect';
+import { InstitutionSelect } from '@screens/InstitutionSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
@@ -37,6 +39,7 @@ import { useUser } from '@stores/userStorage';
 import { ThemeProps } from '@interfaces/theme';
 import { AccountTypes } from '@interfaces/accounts';
 import { CurrencyProps } from '@interfaces/currencies';
+import { InstitutionProps } from '@interfaces/institutions';
 
 import api from '@api/api';
 
@@ -44,6 +47,8 @@ type FormData = {
   name: string;
   currency: string;
   balance: number;
+  type?: string;
+  institution_id?: string | null;
 };
 
 type Props = {
@@ -51,12 +56,26 @@ type Props = {
   closeAccount: () => void;
 };
 
+// Account types that, in practice, always have a real financial institution
+// behind them (per context.md decision #2 / AC11.3) — the institution field
+// is required for these, optional for the rest (AC11.4).
+const ACCOUNT_TYPES_REQUIRING_INSTITUTION = ['BANK', 'INVESTMENTS', 'CREDIT'];
+
 /* Validation Form - Start */
 const schema = Yup.object().shape({
   name: Yup.string().required('Digite o nome da conta'),
   balance: Yup.number()
     .required('Digite o saldo da conta')
     .typeError('Digite somente números e pontos.'),
+  type: Yup.string(),
+  institution_id: Yup.string()
+    .nullable()
+    .when('type', {
+      is: (type: string) =>
+        ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(type),
+      then: (currentSchema) =>
+        currentSchema.required('Selecione a instituição financeira'),
+    }),
 });
 /* Validation Form - End */
 
@@ -75,6 +94,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     defaultValues: {
       name: '',
       balance: 0,
+      type: '',
+      institution_id: null,
     },
   });
   const accountTypes: AccountTypes[] = [
@@ -96,6 +117,9 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   } as CurrencyProps);
   const [hideAccount, setHideAccount] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
+  const institutionBottomSheetRef = useRef<BottomSheetModal>(null);
+  const [institutionSelected, setInstitutionSelected] =
+    useState<InstitutionProps | null>(null);
 
   const accountTypeMap: Record<string, string> = {
     CREDIT: 'Cartão de Crédito',
@@ -106,12 +130,39 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     OTHER: 'Outro',
   };
 
+  const institutionIsOptional = !ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(
+    typeSelected
+  );
+  const institutionLabel = institutionIsOptional
+    ? 'Instituição financeira (opcional)'
+    : 'Instituição financeira';
+
   function handleOpenSelectCurrencyModal() {
     currencyBottomSheetRef.current?.present();
   }
 
   function handleCloseSelectCurrencyModal() {
     currencyBottomSheetRef.current?.dismiss();
+  }
+
+  function handleOpenSelectInstitutionModal() {
+    institutionBottomSheetRef.current?.present();
+  }
+
+  function handleCloseSelectInstitutionModal() {
+    institutionBottomSheetRef.current?.dismiss();
+  }
+
+  function handleSetType(type: string) {
+    setTypeSelected(type);
+    setValue('type', type, { shouldValidate: true });
+  }
+
+  function handleSetInstitution(institution: InstitutionProps | null) {
+    setInstitutionSelected(institution);
+    setValue('institution_id', institution?.id ?? null, {
+      shouldValidate: true,
+    });
   }
 
   function handleCloseAccount() {
@@ -127,6 +178,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       currency_id: currencySelected.id, // TODO: only if is manual account
       balance: form.balance,
       hide: hideAccount,
+      institution_id: institutionSelected?.id ?? null,
     };
     try {
       const { status } = await api.patch('account/edit', AccountEdited);
@@ -186,6 +238,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           balance: form.balance,
           hide: false,
           user_id: userID,
+          institution_id: institutionSelected?.id ?? null,
         };
         const { status } = await api.post('account', newAccount);
         if (status === 200) {
@@ -220,9 +273,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
       setValue('name', data.name);
       setValue('balance', data.balance);
-      setTypeSelected(data.type);
+      handleSetType(data.type);
       setCurrencySelected(data.currency);
       setHideAccount(data.hide);
+      handleSetInstitution(data.institution ?? null);
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -301,26 +355,26 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             onSelect={(selectedItem) => {
               switch (selectedItem) {
                 case 'Cartão de Crédito':
-                  setTypeSelected('CREDIT');
+                  handleSetType('CREDIT');
                   break;
                 case 'Carteira':
-                  setTypeSelected('WALLET');
+                  handleSetType('WALLET');
                   break;
                 case 'Carteira de Criptomoedas':
-                  setTypeSelected('CRYPTOCURRENCY WALLET');
+                  handleSetType('CRYPTOCURRENCY WALLET');
                   break;
                 case 'Conta Corrente':
-                  setTypeSelected('BANK');
+                  handleSetType('BANK');
                   break;
                 case 'Investimentos':
                 case 'Poupança':
-                  setTypeSelected('INVESTMENTS');
+                  handleSetType('INVESTMENTS');
                   break;
                 case 'Outro':
-                  setTypeSelected('OTHER');
+                  handleSetType('OTHER');
                   break;
                 default:
-                  setTypeSelected('WALLET');
+                  handleSetType('WALLET');
               }
             }}
             defaultButtonText={
@@ -357,6 +411,16 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             dropdownStyle={{ borderRadius: 10 }}
           />
 
+          <SelectButton
+            title={institutionLabel}
+            subTitle={institutionSelected?.name ?? 'Selecione a instituição'}
+            icon={<Bank color={theme.colors.primary} />}
+            onPress={handleOpenSelectInstitutionModal}
+          />
+          {errors.institution_id && (
+            <ErrorMessage>{errors.institution_id.message}</ErrorMessage>
+          )}
+
           {id !== '' && (
             <ButtonToggle
               icon={<EyeSlash color={theme.colors.primary} />}
@@ -388,6 +452,19 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             currency={currencySelected}
             setCurrency={setCurrencySelected}
             closeSelectCurrency={handleCloseSelectCurrencyModal}
+          />
+        </ModalViewSelection>
+
+        <ModalViewSelection
+          $modal
+          title='Selecione a instituição'
+          bottomSheetRef={institutionBottomSheetRef}
+          snapPoints={['75%']}
+        >
+          <InstitutionSelect
+            institutionSelected={institutionSelected}
+            setInstitution={handleSetInstitution}
+            closeSelectInstitution={handleCloseSelectInstitutionModal}
           />
         </ModalViewSelection>
       </Container>
