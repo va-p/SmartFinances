@@ -5,6 +5,7 @@ import {
   SectionList,
   Alert,
   Dimensions,
+  Platform,
 } from 'react-native';
 import {
   Container,
@@ -91,8 +92,10 @@ import { ThemeProps } from '@interfaces/theme';
 import { TransactionProps } from '@interfaces/transactions';
 import { useAccountDetailQuery } from '@hooks/useAcccountDetailQuery';
 
+const isAndroid = Platform.OS === 'android';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
 
 export function Account() {
   const theme  = useTheme() as ThemeProps;
@@ -385,7 +388,7 @@ export function Account() {
           text: 'Sim, Excluir',
           style: 'destructive',
           onPress: () =>
-            deleteAccount(accountID!, {
+            deleteAccount(String(accountID)!, {
               onError: (error: any) => {
                 Alert.alert(
                   'Exclusão de Conta',
@@ -553,7 +556,7 @@ export function Account() {
               registerTransactionButtonStyle,
               {
                 position: 'absolute',
-                bottom: 64,
+                bottom: REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION,
                 right: 16,
               },
             ]}
