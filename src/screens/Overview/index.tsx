@@ -72,7 +72,7 @@ interface CategoryData extends CategoryProps {
 }
 
 export function Overview() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const router = useRouter();
   const { id: userID } = useUser();
@@ -104,19 +104,19 @@ export function Overview() {
     isLoading: isLoadingTransactions,
     refetch: refetchTransactions,
     isRefetching: isRefetchingTransactions,
-  } = useTransactionsQuery(userID);
+  } = useTransactionsQuery();
   const {
     data: accounts,
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
-  } = useAccountsQuery(userID);
+  } = useAccountsQuery();
   const {
     data: categories,
     isLoading: isLoadingCategories,
     refetch: refetchCategories,
     isRefetching: isRefetchingCategories,
-  } = useCategoriesQuery(userID);
+  } = useCategoriesQuery();
 
   const processedData = useMemo(() => {
     if (!transactions || !accounts || !categories) {

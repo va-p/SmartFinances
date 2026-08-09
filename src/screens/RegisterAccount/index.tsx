@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Container, Form, Footer, ErrorMessage } from './styles';
 
@@ -34,6 +34,7 @@ import { InstitutionSelect } from '@screens/InstitutionSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
+import { useCurrenciesStore } from '@storage/currenciesStore';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -109,17 +110,31 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   ];
   const [typeSelected, setTypeSelected] = useState('');
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
-  const [currencySelected, setCurrencySelected] = useState({
-    id: 4,
-    name: 'Real Brasileiro',
-    code: 'BRL',
-    symbol: 'R$',
-  } as CurrencyProps);
+  const currencies = useCurrenciesStore((state) => state.currencies);
+  const [currencySelected, setCurrencySelected] = useState<CurrencyProps>(
+    () => currencies.find((c) => c.code === 'BRL') || ({
+      id: 0,
+      name: '',
+      code: 'BRL' as CurrencyProps['code'],
+      symbol: '',
+    })
+  );
   const [hideAccount, setHideAccount] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const institutionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [institutionSelected, setInstitutionSelected] =
     useState<InstitutionProps | null>(null);
+
+  // When creating a new account, pre-select BRL as the base currency.
+  // The currency list is fetched globally in _layout and stored in Zustand.
+  useEffect(() => {
+    if (id === '' && currencies.length > 0 && !currencySelected.id) {
+      const brl = currencies.find((c) => c.code === 'BRL');
+      if (brl) {
+        setCurrencySelected(brl);
+      }
+    }
+  }, [currencies, id, currencySelected.id]);
 
   const accountTypeMap: Record<string, string> = {
     CREDIT: 'Cartão de Crédito',
