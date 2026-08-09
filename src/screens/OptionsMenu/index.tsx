@@ -4,6 +4,7 @@ import { Container, ContentScroll, Title } from './styles';
 
 // Icons
 import Tag from 'phosphor-react-native/src/icons/Tag';
+import Bank from 'phosphor-react-native/src/icons/Bank';
 import User from 'phosphor-react-native/src/icons/User';
 import Plugs from 'phosphor-react-native/src/icons/Plugs';
 import Cookie from 'phosphor-react-native/src/icons/Cookie';
@@ -91,6 +92,10 @@ export function OptionsMenu() {
 
   function handleOpenTags() {
     router.navigate('/options/tags');
+  }
+
+  function handleOpenInstitutions() {
+    router.navigate('/options/institutions');
   }
 
   async function handleOpenkHelpCenter() {
@@ -259,6 +264,12 @@ export function OptionsMenu() {
             icon={<Tag color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
+          />
+
+          <SelectButton
+            icon={<Bank color={theme.colors.primary} />}
+            title='Instituições'
+            onPress={() => handleOpenInstitutions()}
           />
 
           <Title>Configurações</Title>

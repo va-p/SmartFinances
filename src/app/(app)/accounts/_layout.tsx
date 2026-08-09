@@ -19,6 +19,10 @@ export default function AccountsStackLayout() {
         name='bankingIntegrationDetails'
         options={{ title: 'Detalhes da Integração Bancária' }}
       />
+      <Stack.Screen
+        name='institutionDetails'
+        options={{ title: 'Detalhes da Instituição' }}
+      />
       <Stack.Screen name='subscription' options={{ title: 'Assinatura' }} />
     </Stack>
   );

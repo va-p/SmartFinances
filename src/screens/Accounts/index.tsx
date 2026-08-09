@@ -51,6 +51,10 @@ import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
+import {
+  InstitutionCard,
+  InstitutionCardData,
+} from '@components/InstitutionCard';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
@@ -62,6 +66,7 @@ import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
+import { useCurrentInstitutionSelected } from '@stores/currentInstitutionSelectedStorage';
 
 import api from '@api/api';
 
@@ -120,6 +125,8 @@ export function Accounts() {
         totalBalanceFormatted: formatCurrency('BRL', 0, false),
         processedAccounts: [],
         chartData: [],
+        institutionCards: [],
+        standaloneAccounts: [],
       };
     }
 
@@ -164,7 +171,69 @@ export function Accounts() {
           account.currency.code !== 'BRL'
             ? formatCurrency('BRL', accountBalanceConvertedToBRL, false)
             : undefined,
+        // Raw BRL-converted balance (not formatted) reused below to build
+        // per-institution aggregated totals without re-implementing currency
+        // conversion (AC13.1 / design.md §6 "Accounts screen changes")
+        accountBalanceConvertedToBRL,
       };
+    });
+
+    // Partition non-credit-card accounts by institution (AC12.1). Institution
+    // groups of length 1 are reclassified into standalone accounts, bypassing
+    // the InstitutionCard wrapper entirely (AC12.3) — this self-corrects on
+    // every render, so no extra invalidation is needed when an institution
+    // becomes single-account after a delete/edit elsewhere (design.md §7).
+    const institutionGroups = new Map<string, typeof processedAccounts>();
+    const standaloneAccounts: typeof processedAccounts = [];
+
+    processedAccounts
+      .filter(
+        (account) =>
+          account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
+      )
+      .forEach((account) => {
+        const institutionId = account.institution?.id;
+
+        if (!institutionId) {
+          standaloneAccounts.push(account);
+          return;
+        }
+
+        if (!institutionGroups.has(institutionId)) {
+          institutionGroups.set(institutionId, []);
+        }
+        institutionGroups.get(institutionId)!.push(account);
+      });
+
+    const institutionCards: {
+      id: string;
+      name: string;
+      totalFormatted: string;
+      accountCount: number;
+    }[] = [];
+
+    institutionGroups.forEach((accounts) => {
+      if (accounts.length < 2) {
+        standaloneAccounts.push(...accounts);
+        return;
+      }
+
+      const totalConverted = accounts.reduce(
+        (sum, account) =>
+          sum.plus(account.accountBalanceConvertedToBRL ?? 0),
+        new Decimal(0)
+      );
+
+      institutionCards.push({
+        id: accounts[0].institution!.id,
+        name: accounts[0].institution!.name,
+        totalFormatted: formatCurrency(
+          'BRL',
+          totalConverted.toNumber(),
+          false
+        ),
+        accountCount: accounts.length,
+      });
     });
 
     let totalsByMonths: any = {};
@@ -231,10 +300,70 @@ export function Accounts() {
       ),
       processedAccounts: processedAccounts,
       chartData: formattedTotalByMonths,
+      institutionCards,
+      standaloneAccounts,
     };
   }, [rawAccounts, transactions]);
 
-  const { totalBalanceFormatted, processedAccounts, chartData } = processedData;
+  const {
+    totalBalanceFormatted,
+    processedAccounts,
+    chartData,
+    institutionCards,
+    standaloneAccounts,
+  } = processedData;
+
+  // Merge institution cards and standalone accounts into a single list,
+  // sorted as two concatenated alphabetical blocks — institutions first,
+  // then standalone accounts — per AC12.4 (two separate Array.sort() calls,
+  // not one combined comparator, so "institutions first" always holds
+  // regardless of name collisions between the two blocks).
+  const accountsListData = useMemo(() => {
+    const sortedInstitutionCards = [...institutionCards].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    const sortedStandaloneAccounts = [...standaloneAccounts].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    return [
+      ...sortedInstitutionCards.map((institution) => ({
+        kind: 'institution' as const,
+        data: institution,
+      })),
+      ...sortedStandaloneAccounts.map((account) => ({
+        kind: 'account' as const,
+        data: account,
+      })),
+    ];
+  }, [institutionCards, standaloneAccounts]);
+
+  // Credit card carousel: sorted alphabetically by institution name (cards
+  // without an institution sort last), account name as tiebreaker/fallback
+  // (AC15.2) — a flat sort, no sub-grouping or headers (AC15.3).
+  const creditCardAccounts = useMemo(() => {
+    return processedAccounts
+      .filter(
+        (account) =>
+          account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
+      )
+      .sort((a, b) => {
+        const institutionA = a.institution?.name;
+        const institutionB = b.institution?.name;
+
+        if (institutionA && institutionB) {
+          const institutionComparison =
+            institutionA.localeCompare(institutionB);
+          if (institutionComparison !== 0) return institutionComparison;
+        } else if (institutionA && !institutionB) {
+          return -1;
+        } else if (!institutionA && institutionB) {
+          return 1;
+        }
+
+        return a.name.localeCompare(b.name);
+      });
+  }, [processedAccounts]);
 
   function handleRefresh() {
     Promise.all([refetchTransactions(), refetchAccounts()]);
@@ -303,35 +432,45 @@ export function Accounts() {
     );
   }
 
+  function getAccountIcon(type: AccountTypes) {
+    switch (type) {
+      case 'OTHER':
+      case 'WALLET':
+        return <Wallet color={theme.colors.primary} />;
+      case 'CRYPTOCURRENCY WALLET':
+        return <CurrencyBtc color={theme.colors.primary} />;
+      case 'INVESTMENTS':
+      case 'BANK':
+        return <Bank color={theme.colors.primary} />;
+      case 'CREDIT':
+        return <CreditCard color={theme.colors.primary} />;
+      default:
+        return <Wallet color={theme.colors.primary} />;
+    }
+  }
+
+  function handleOpenInstitution(institution: InstitutionCardData) {
+    useCurrentInstitutionSelected.setState(() => ({
+      institutionId: institution.id,
+      institutionName: institution.name,
+    }));
+    router.navigate({
+      pathname: '/accounts/institutionDetails',
+    });
+  }
+
   type _renderItemProps = {
     item: AccountProps;
     index: number;
   };
   function _renderItem({ item, index }: _renderItemProps) {
-    const getAccountIcon = () => {
-      switch (item.type) {
-        case 'OTHER':
-        case 'WALLET':
-          return <Wallet color={theme.colors.primary} />;
-        case 'CRYPTOCURRENCY WALLET':
-          return <CurrencyBtc color={theme.colors.primary} />;
-        case 'INVESTMENTS':
-        case 'BANK':
-          return <Bank color={theme.colors.primary} />;
-        case 'CREDIT':
-          return <CreditCard color={theme.colors.primary} />;
-        default:
-          return <Wallet color={theme.colors.primary} />;
-      }
-    };
-
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
         <AccountsContent>
           <AccountListItem
             data={item}
             index={index}
-            icon={getAccountIcon()}
+            icon={getAccountIcon(item.type)}
             hideAmount={hideAmount}
             onPress={() =>
               handleOpenAccount(
@@ -371,6 +510,54 @@ export function Accounts() {
     }
 
     return null;
+  }
+
+  type _renderAccountsListItemProps = {
+    item:
+      | { kind: 'institution'; data: InstitutionCardData }
+      | { kind: 'account'; data: AccountProps };
+    index: number;
+  };
+  function _renderAccountsListItem({
+    item,
+    index,
+  }: _renderAccountsListItemProps) {
+    if (item.kind === 'institution') {
+      return (
+        <AccountsContent>
+          <InstitutionCard
+            data={item.data}
+            index={index}
+            hideAmount={hideAmount}
+            onPress={() => handleOpenInstitution(item.data)}
+          />
+        </AccountsContent>
+      );
+    }
+
+    const account = item.data;
+
+    return (
+      <AccountsContent>
+        <AccountListItem
+          data={account}
+          index={index}
+          icon={getAccountIcon(account.type)}
+          hideAmount={hideAmount}
+          onPress={() =>
+            handleOpenAccount(
+              String(account.id)!,
+              account.name,
+              account.type,
+              account.subtype || null,
+              account.currency,
+              String(account.balance),
+              null
+            )
+          }
+        />
+      </AccountsContent>
+    );
   }
 
   function _renderSkeletonTotal() {
@@ -479,12 +666,13 @@ export function Accounts() {
           {/** ACCOUNTS */}
           <FlatList
             style={{ flex: 1 }}
-            data={processedAccounts.filter(
-              (account) =>
-                account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
-            )}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={_renderItem}
+            data={accountsListData}
+            keyExtractor={(item) =>
+              item.kind === 'institution'
+                ? `institution-${item.data.id}`
+                : String(item.data.id)
+            }
+            renderItem={_renderAccountsListItem}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetchingTransactions || isRefetchingAccounts}
@@ -499,28 +687,15 @@ export function Accounts() {
             ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
             ListFooterComponent={
               /** CREDIT CARDS */
-              processedAccounts.some(
-                (account) =>
-                  account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
-              ) ? (
+              creditCardAccounts.length > 0 ? (
                 <>
                   <SectionTitle>Cartões de crédito</SectionTitle>
                   <FlatList
-                    data={processedAccounts.filter(
-                      (account) =>
-                        account.type === 'CREDIT' &&
-                        account.subtype === 'CREDIT_CARD'
-                    )}
+                    data={creditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={_renderItem}
                     snapToOffsets={[
-                      ...Array(
-                        processedAccounts.filter(
-                          (account) =>
-                            account.type === 'CREDIT' &&
-                            account.subtype === 'CREDIT_CARD'
-                        ).length
-                      ),
+                      ...Array(creditCardAccounts.length),
                     ].map(
                       (x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32
                     )}

@@ -49,4 +49,5 @@ export interface AccountProps {
   totalAccountAmountConverted?: string;
   hide?: boolean;
   creditData?: CreditDataProps;
+  institution?: { id: string; name: string } | null;
 }
