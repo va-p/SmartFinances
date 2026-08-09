@@ -243,6 +243,12 @@ export function OptionsMenu() {
           />
 
           <SelectButton
+            icon={<Bank color={theme.colors.primary} />}
+            title='Instituições'
+            onPress={() => handleOpenInstitutions()}
+          />
+
+          <SelectButton
             icon={<Wallet color={theme.colors.primary} />}
             title='Contas Manuais'
             onPress={() => handleOpenAccounts()}
@@ -264,12 +270,6 @@ export function OptionsMenu() {
             icon={<Tag color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
-          />
-
-          <SelectButton
-            icon={<Bank color={theme.colors.primary} />}
-            title='Instituições'
-            onPress={() => handleOpenInstitutions()}
           />
 
           <Title>Configurações</Title>

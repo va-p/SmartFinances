@@ -31,7 +31,7 @@ export function PeriodRuler({
   periodRulerListColumnWidth,
   horizontalPadding = 32,
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const flatListRef = useRef<FlatList>(null);
   const [initialScrollComplete, setInitialScrollComplete] = useState(false);
 
