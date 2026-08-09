@@ -22,6 +22,10 @@ export default function AccountsStackLayout() {
       />
       <Stack.Screen name='categories' options={{ title: 'Categorias' }} />
       <Stack.Screen name='tags' options={{ title: 'Etiquetas' }} />
+      <Stack.Screen
+        name='institutions'
+        options={{ title: 'Instituições' }}
+      />
     </Stack>
   );
 }
