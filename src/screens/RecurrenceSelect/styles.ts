@@ -22,7 +22,7 @@ export const Label = styled.Text<{ secondary?: boolean }>`
 export const QuantityRow = styled.View`
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   margin-bottom: 8px;
 `;
 
@@ -32,8 +32,7 @@ export const QuantityButton = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.colors.primary};
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const QuantityButtonText = styled.View`
@@ -44,9 +43,7 @@ export const QuantityButtonText = styled.View`
 export const QuantityInput = styled.TextInput`
   width: 80px;
   height: 48px;
-  margin: 0 12px;
   border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.colors.primary};
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.text};
@@ -58,8 +55,7 @@ export const PeriodSelector = styled.TouchableOpacity`
   align-items: center;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.colors.primary};
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => theme.colors.shape};
   margin-bottom: 8px;
 `;
 
