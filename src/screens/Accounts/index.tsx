@@ -338,6 +338,33 @@ export function Accounts() {
     ];
   }, [institutionCards, standaloneAccounts]);
 
+  // Credit card carousel: sorted alphabetically by institution name (cards
+  // without an institution sort last), account name as tiebreaker/fallback
+  // (AC15.2) — a flat sort, no sub-grouping or headers (AC15.3).
+  const creditCardAccounts = useMemo(() => {
+    return processedAccounts
+      .filter(
+        (account) =>
+          account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
+      )
+      .sort((a, b) => {
+        const institutionA = a.institution?.name;
+        const institutionB = b.institution?.name;
+
+        if (institutionA && institutionB) {
+          const institutionComparison =
+            institutionA.localeCompare(institutionB);
+          if (institutionComparison !== 0) return institutionComparison;
+        } else if (institutionA && !institutionB) {
+          return -1;
+        } else if (!institutionA && institutionB) {
+          return 1;
+        }
+
+        return a.name.localeCompare(b.name);
+      });
+  }, [processedAccounts]);
+
   function handleRefresh() {
     Promise.all([refetchTransactions(), refetchAccounts()]);
   }
@@ -660,28 +687,15 @@ export function Accounts() {
             ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
             ListFooterComponent={
               /** CREDIT CARDS */
-              processedAccounts.some(
-                (account) =>
-                  account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
-              ) ? (
+              creditCardAccounts.length > 0 ? (
                 <>
                   <SectionTitle>Cartões de crédito</SectionTitle>
                   <FlatList
-                    data={processedAccounts.filter(
-                      (account) =>
-                        account.type === 'CREDIT' &&
-                        account.subtype === 'CREDIT_CARD'
-                    )}
+                    data={creditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={_renderItem}
                     snapToOffsets={[
-                      ...Array(
-                        processedAccounts.filter(
-                          (account) =>
-                            account.type === 'CREDIT' &&
-                            account.subtype === 'CREDIT_CARD'
-                        ).length
-                      ),
+                      ...Array(creditCardAccounts.length),
                     ].map(
                       (x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32
                     )}
