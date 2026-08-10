@@ -301,7 +301,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             <ControlledInputWithIcon
               icon={<Money color={theme.colors.primary} />}
               placeholder='Valor do orçamento'
-              keyboardType='numeric'
+              keyboardType='decimal-pad'
               defaultValue={getValues('amount')}
               name='amount'
               control={control}

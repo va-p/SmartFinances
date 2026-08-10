@@ -67,7 +67,7 @@ const schema = Yup.object().shape({
   name: Yup.string().required('Digite o nome da conta'),
   balance: Yup.number()
     .required('Digite o saldo da conta')
-    .typeError('Digite somente números e pontos.'),
+    .typeError('Digite um valor numérico'),
   type: Yup.string(),
   institution_id: Yup.string()
     .nullable()
@@ -350,7 +350,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           <ControlledInputWithIcon
             icon={<Money color={theme.colors.primary} />}
             placeholder='Saldo da conta'
-            keyboardType='numeric'
+            keyboardType='decimal-pad'
             returnKeyType='go'
             defaultValue={String(getValues('balance'))}
             name='balance'
