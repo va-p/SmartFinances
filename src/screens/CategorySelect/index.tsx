@@ -28,14 +28,13 @@ export function CategorySelect({
   closeSelectCategory,
 }: Props) {
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-  const userID = useUser((state) => state.id);
 
   const {
     data: categories,
     isLoading,
     refetch,
     isError,
-  } = useCategoriesQuery(userID);
+  } = useCategoriesQuery();
 
   async function handleRefresh() {
     setIsManualRefreshing(true);
