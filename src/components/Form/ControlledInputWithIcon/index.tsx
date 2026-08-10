@@ -4,6 +4,8 @@ import { Container, ErrorMessage, Content, Input } from './styles';
 
 import { Control, Controller, FieldError } from 'react-hook-form';
 
+import { parseDecimalInput } from '@utils/parseDecimalInput';
+
 type Props = TextInputProps & {
   icon: any;
   name: string;
@@ -18,6 +20,9 @@ export function ControlledInputWithIcon({
   error,
   ...rest
 }: Props) {
+  const isNumericKeyboard =
+    rest.keyboardType === 'decimal-pad' || rest.keyboardType === 'numeric';
+
   return (
     <Container>
       <Controller
@@ -29,7 +34,13 @@ export function ControlledInputWithIcon({
 
             <Content>
               <>{icon}</>
-              <Input onChangeText={onChange} value={value} {...rest} />
+              <Input
+                onChangeText={(text: string) => {
+                  onChange(isNumericKeyboard ? parseDecimalInput(text) : text);
+                }}
+                value={value}
+                {...rest}
+              />
             </Content>
           </>
         )}

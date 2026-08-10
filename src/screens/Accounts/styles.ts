@@ -62,12 +62,23 @@ export const AccountsContent = styled.View`
   padding: 0 16px;
 `;
 
+export const SectionTitleAndFilterContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+`;
+
 export const SectionTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${RFValue(16)}px;
   padding-left: 16px;
   margin: 8px 0;
   color: ${({ theme }) => theme.colors.title};
+`;
+
+export const SortingButton = styled.TouchableOpacity`
+  padding: 8px;
 `;
 
 type FooterProps = {

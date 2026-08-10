@@ -8,6 +8,9 @@ export interface GroupedTransactionProps {
 
 const calculateGroupTotal = (transactions: TransactionProps[]): string => {
   const total = transactions.reduce((acc, transaction) => {
+    // Skip items without account data (e.g., optimistic updates missing nested objects)
+    if (!transaction.account?.type) return acc;
+
     const isCreditAccount = transaction.account.type === 'CREDIT';
     const isTransfer = transaction.type.includes('TRANSFER');
 

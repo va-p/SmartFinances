@@ -33,7 +33,7 @@ import { processTransactions } from '@utils/processTransactions';
 
 // Dependencies
 import Animated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -117,8 +117,8 @@ export function Account() {
   });
   const headerStyleAnimation = useAnimatedStyle(() => {
     return {
-      height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolate.CLAMP),
-      opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolate.CLAMP),
+      height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolation.CLAMP),
+      opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolation.CLAMP),
     };
   });
   // Animated section list

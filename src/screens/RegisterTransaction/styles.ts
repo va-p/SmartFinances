@@ -6,7 +6,7 @@ type ColorProps = {
   color: string;
 };
 
-export const Container = styled.View`
+export const Container = styled.KeyboardAvoidingView`
   flex: 1;
   justify-content: space-between;
 `;

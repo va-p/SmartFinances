@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList } from 'react-native';
+import { Alert, FlatList, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
 import {
   Container,
   MainContent,
@@ -531,7 +531,7 @@ export function RegisterTransaction({
         transaction_id: String(transaction.id),
         created_at: updatedDate,
         bank_transaction_id: null,
-        date: null,
+        transaction_date: updatedDate,
         description: updatedDescription,
         amount: signedAmount,
         amount_in_account_currency:
@@ -650,6 +650,7 @@ export function RegisterTransaction({
       const transferEditedPayload = {
         transaction_id: id,
         created_at: date,
+        transaction_date: date,
         bank_transaction_id: bankTransactionID,
         date: transactionDate,
         description: form.description,
@@ -698,6 +699,7 @@ export function RegisterTransaction({
     const transactionEditedPayload = {
       transaction_id: id,
       created_at: date,
+      transaction_date: date,
       bank_transaction_id: bankTransactionID,
       date: transactionDate,
       description: form.description,
@@ -727,7 +729,6 @@ export function RegisterTransaction({
             onPress: closeRegisterTransaction,
           },
         ]);
-        closeRegisterTransaction();
       },
     });
   }
@@ -810,7 +811,18 @@ export function RegisterTransaction({
             : amountConverted
           : null;
 
+      // --- Build full account & category objects for optimistic cache update ---
+      const accountForOptimistic = {
+        id: Number(accountID) || 0,
+        name: accountName || '',
+        currency: accountCurrency!,
+        type: accountType!,
+        balance: 0,
+        initialAmount: accountInitialAmount,
+      };
+
       const transferPayload = {
+        transaction_date: date,
         created_at: date,
         description: form.description,
         amount,
@@ -822,7 +834,9 @@ export function RegisterTransaction({
         currency: currencySelected,
         type: transactionType,
         account_id: accountID,
+        account: accountForOptimistic,
         category_id: categorySelected.id,
+        category: categorySelected,
         tags: tagsList,
         image_url,
         is_recurring: isRecurring,
@@ -877,7 +891,18 @@ export function RegisterTransaction({
       },
     });
 
+    // --- Build full account object for optimistic cache update ---
+    const accountForOptimistic = {
+      id: Number(accountID) || 0,
+      name: accountName || '',
+      currency: accountCurrency!,
+      type: accountType!,
+      balance: 0,
+      initialAmount: accountInitialAmount,
+    };
+
     const transactionPayload = {
+      transaction_date: date,
       created_at: date,
       description: form.description,
       amount,
@@ -889,7 +914,9 @@ export function RegisterTransaction({
       currency: currencySelected,
       type: transactionType,
       account_id: accountID,
+      account: accountForOptimistic,
       category_id: categorySelected.id,
+      category: categorySelected,
       tags: tagsList,
       image_url,
       is_recurring: isRecurring,
@@ -1165,10 +1192,14 @@ export function RegisterTransaction({
 
   return (
     <Screen>
-      <Container>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Gradient roundCorners />
 
         <MainContent>
+          <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            accessible={false}
+          >
           <Header color={categorySelected.color.color_code}>
             <TitleContainer>
               <BorderlessButton
@@ -1220,7 +1251,7 @@ export function RegisterTransaction({
                   />
                 </InputTransactionValueGroup>
 
-                {getValues('amountInAccountCurrency') !== null && (
+                {getValues('amountInAccountCurrency') && (
                   <InputTransactionValueGroup>
                     <ControlledInputValue
                       keyboardType='decimal-pad'
@@ -1245,8 +1276,9 @@ export function RegisterTransaction({
               </InputTransactionValuesContainer>
             </HeaderRow>
           </Header>
+          </TouchableWithoutFeedback>
 
-          <ContentScroll>
+          <ContentScroll keyboardDismissMode="on-drag">
             <SelectButton
               title={accountName || 'Selecione a conta'}
               icon={<Wallet color={categorySelected.color.color_code} />}
@@ -1340,7 +1372,7 @@ export function RegisterTransaction({
                 value={date}
                 mode='date'
                 is24Hour={true}
-                onChange={onChangeDate}
+                onValueChange={onChangeDate}
                 textColor={theme.colors.text}
               />
             )}

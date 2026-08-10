@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert, Keyboard, Platform, TouchableWithoutFeedback, View } from 'react-native';
 import { Container, Form, Footer, ErrorMessage } from './styles';
 
 // Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useFocusEffect } from 'expo-router';
 import { useTheme } from 'styled-components/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
-import { useFocusEffect } from 'expo-router';
 
 // Icons
 import Bank from 'phosphor-react-native/src/icons/Bank';
@@ -67,7 +67,7 @@ const schema = Yup.object().shape({
   name: Yup.string().required('Digite o nome da conta'),
   balance: Yup.number()
     .required('Digite o saldo da conta')
-    .typeError('Digite somente números e pontos.'),
+    .typeError('Digite um valor numérico'),
   type: Yup.string(),
   institution_id: Yup.string()
     .nullable()
@@ -114,7 +114,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const [currencySelected, setCurrencySelected] = useState<CurrencyProps>(
     () => currencies.find((c) => c.code === 'BRL') || ({
       id: 0,
-      name: '',
+      name: 'Real Brasileiro',
       code: 'BRL' as CurrencyProps['code'],
       symbol: '',
     })
@@ -139,7 +139,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const accountTypeMap: Record<string, string> = {
     CREDIT: 'Cartão de Crédito',
     WALLET: 'Carteira',
-    'CRYPTOCURRENCY WALLET': 'Carteira de Criptomoedas',
+    'CRYPTOCURRENCY_WALLET': 'Carteira de Criptomoedas',
     BANK: 'Conta Corrente',
     INVESTMENTS: 'Investimentos',
     OTHER: 'Outro',
@@ -335,6 +335,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   return (
     <Screen>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+          accessible={false}
+          style={{ flex: 1 }}
+        >
+          <View style={{ flex: 1 }}>
         <Form>
           <ControlledInputWithIcon
             icon={<PencilSimple color={theme.colors.primary} />}
@@ -350,7 +356,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           <ControlledInputWithIcon
             icon={<Money color={theme.colors.primary} />}
             placeholder='Saldo da conta'
-            keyboardType='numeric'
+            keyboardType='decimal-pad'
             returnKeyType='go'
             defaultValue={String(getValues('balance'))}
             name='balance'
@@ -376,7 +382,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                   handleSetType('WALLET');
                   break;
                 case 'Carteira de Criptomoedas':
-                  handleSetType('CRYPTOCURRENCY WALLET');
+                  handleSetType('CRYPTOCURRENCY_WALLET');
                   break;
                 case 'Conta Corrente':
                   handleSetType('BANK');
@@ -482,6 +488,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             closeSelectInstitution={handleCloseSelectInstitutionModal}
           />
         </ModalViewSelection>
+          </View>
+        </TouchableWithoutFeedback>
       </Container>
     </Screen>
   );

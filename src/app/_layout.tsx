@@ -132,6 +132,7 @@ function RootNavigationLayout() {
 
 export default function RootLayout() {
   const setDarkMode = useUserConfigs((state) => state.setDarkMode);
+  const setSortingOption = useUserConfigs((state) => state.setSortingOption);
   const deviceColorScheme = useColorScheme();
   const darkModeUserConfig: boolean | undefined = storageConfig.getBoolean(
     `${DATABASE_CONFIGS}.darkMode`
@@ -142,6 +143,19 @@ export default function RootLayout() {
     useDarkMode = darkModeUserConfig;
   } else {
     useDarkMode = deviceColorScheme === 'dark';
+  }
+
+  // Restore persisted sorting preference (client-only, not from backend).
+  const savedSorting = storageConfig.getString(
+    `${DATABASE_CONFIGS}.sortingOption`
+  );
+  if (
+    savedSorting === 'name-asc' ||
+    savedSorting === 'name-desc' ||
+    savedSorting === 'balance-asc' ||
+    savedSorting === 'balance-desc'
+  ) {
+    setSortingOption(savedSorting);
   }
 
   const theme = useDarkMode ? darkTheme : lightTheme;

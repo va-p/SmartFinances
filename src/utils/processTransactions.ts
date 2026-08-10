@@ -60,6 +60,10 @@ export const processTransactions = (
     if (!isValid(transactionDate)) return;
 
     const groupKey = config.groupKey(transactionDate);
+
+    // Skip items without account data (e.g., optimistic updates missing nested objects)
+    if (!item.account?.type) return;
+
     const isCreditAccount = item.account.type === 'CREDIT';
     const amount = new Decimal(item.amount);
 
