@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert, Keyboard, Platform, TouchableWithoutFeedback, View } from 'react-native';
 import { Container, Form, Footer, ErrorMessage } from './styles';
 
 // Dependencies
@@ -335,6 +335,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   return (
     <Screen>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+          accessible={false}
+          style={{ flex: 1 }}
+        >
+          <View style={{ flex: 1 }}>
         <Form>
           <ControlledInputWithIcon
             icon={<PencilSimple color={theme.colors.primary} />}
@@ -482,6 +488,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             closeSelectInstitution={handleCloseSelectInstitutionModal}
           />
         </ModalViewSelection>
+          </View>
+        </TouchableWithoutFeedback>
       </Container>
     </Screen>
   );

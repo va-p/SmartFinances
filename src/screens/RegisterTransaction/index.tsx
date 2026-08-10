@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, Platform } from 'react-native';
+import { Alert, FlatList, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
 import {
   Container,
   MainContent,
@@ -1196,6 +1196,10 @@ export function RegisterTransaction({
         <Gradient roundCorners />
 
         <MainContent>
+          <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            accessible={false}
+          >
           <Header color={categorySelected.color.color_code}>
             <TitleContainer>
               <BorderlessButton
@@ -1247,7 +1251,7 @@ export function RegisterTransaction({
                   />
                 </InputTransactionValueGroup>
 
-                {getValues('amountInAccountCurrency') !== null && (
+                {getValues('amountInAccountCurrency') && (
                   <InputTransactionValueGroup>
                     <ControlledInputValue
                       keyboardType='decimal-pad'
@@ -1272,8 +1276,9 @@ export function RegisterTransaction({
               </InputTransactionValuesContainer>
             </HeaderRow>
           </Header>
+          </TouchableWithoutFeedback>
 
-          <ContentScroll>
+          <ContentScroll keyboardDismissMode="on-drag">
             <SelectButton
               title={accountName || 'Selecione a conta'}
               icon={<Wallet color={categorySelected.color.color_code} />}
