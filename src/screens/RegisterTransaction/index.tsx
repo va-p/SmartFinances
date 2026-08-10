@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList } from 'react-native';
+import { Alert, FlatList, Platform } from 'react-native';
 import {
   Container,
   MainContent,
@@ -1192,7 +1192,7 @@ export function RegisterTransaction({
 
   return (
     <Screen>
-      <Container>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Gradient roundCorners />
 
         <MainContent>
