@@ -21,7 +21,7 @@
 
 | Req | Description | Evidence | Status |
 |-----|-------------|----------|--------|
-| R7 | Dismiss keyboard on tap outside | `src/components/Screen/index.tsx:21-24` — `TouchableWithoutFeedback` + `Keyboard.dismiss()` | ✅ |
+| R7 | Dismiss keyboard on tap outside | Per-screen `TouchableWithoutFeedback` + `Keyboard.dismiss()` on `RegisterAccount` (full form) and `RegisterTransaction` (header area); `ContentScroll` uses `keyboardDismissMode="on-drag"` | ✅ |
 | R8 | `KeyboardAvoidingView` on `RegisterTransaction` | `styles.ts:9` — `styled.KeyboardAvoidingView`; `index.tsx:1194` — `behavior` prop | ✅ |
 | R9 | Content visibility when keyboard open | Achieved via R8 (KeyboardAvoidingView padding behavior) + existing `ContentScroll` (`ScrollView`) | ✅ |
 
