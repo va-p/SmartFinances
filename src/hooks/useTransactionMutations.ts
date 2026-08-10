@@ -132,7 +132,7 @@ export function useDeleteTransactionMutation() {
       const previousTransactions =
         queryClient.getQueryData<TransactionProps[]>(QUERY_KEY);
       queryClient.setQueryData<TransactionProps[]>(QUERY_KEY, (old = []) =>
-        old.filter((transaction) => transaction.id !== transactionId)
+        old.filter((transaction) => transaction.id !== Number(transactionId))
       );
       return { previousTransactions };
     },
