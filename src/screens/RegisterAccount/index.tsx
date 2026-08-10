@@ -6,10 +6,10 @@ import { Container, Form, Footer, ErrorMessage } from './styles';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { useFocusEffect } from 'expo-router';
 import { useTheme } from 'styled-components/native';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
-import { useFocusEffect } from 'expo-router';
 
 // Icons
 import Bank from 'phosphor-react-native/src/icons/Bank';
@@ -114,7 +114,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const [currencySelected, setCurrencySelected] = useState<CurrencyProps>(
     () => currencies.find((c) => c.code === 'BRL') || ({
       id: 0,
-      name: '',
+      name: 'Real Brasileiro',
       code: 'BRL' as CurrencyProps['code'],
       symbol: '',
     })
@@ -139,7 +139,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const accountTypeMap: Record<string, string> = {
     CREDIT: 'Cartão de Crédito',
     WALLET: 'Carteira',
-    'CRYPTOCURRENCY WALLET': 'Carteira de Criptomoedas',
+    'CRYPTOCURRENCY_WALLET': 'Carteira de Criptomoedas',
     BANK: 'Conta Corrente',
     INVESTMENTS: 'Investimentos',
     OTHER: 'Outro',
@@ -382,7 +382,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                   handleSetType('WALLET');
                   break;
                 case 'Carteira de Criptomoedas':
-                  handleSetType('CRYPTOCURRENCY WALLET');
+                  handleSetType('CRYPTOCURRENCY_WALLET');
                   break;
                 case 'Conta Corrente':
                   handleSetType('BANK');

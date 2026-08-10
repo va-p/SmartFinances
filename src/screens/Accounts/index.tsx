@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
 import {
   Container,
@@ -14,6 +14,8 @@ import {
   ButtonGroup,
   HeaderContainer,
   SectionTitle,
+  SectionTitleAndFilterContainer,
+  SortingButton,
 } from './styles';
 
 // Hooks
@@ -29,20 +31,26 @@ import { convertCurrency } from '@utils/convertCurrency';
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
-import { useTheme } from 'styled-components';
 import { format, parse } from 'date-fns';
+import { useTheme } from 'styled-components';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 // Icons
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import FunnelIcon from 'phosphor-react-native/src/icons/Funnel';
 import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 
 // Components
+import {
+  InstitutionCard,
+  InstitutionCardData,
+} from '@components/InstitutionCard';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
@@ -50,13 +58,11 @@ import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
-import {
-  InstitutionCard,
-  InstitutionCardData,
-} from '@components/InstitutionCard';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
+// Screens
+import { SortingOptions } from '@screens/SortingOptions';
 import { RegisterAccount } from '@screens/RegisterAccount';
 
 // Stores
@@ -104,6 +110,10 @@ export function Accounts() {
   } = useQuotes();
   const { hideAmount, setHideAmount } = useUserConfigs();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const sortingBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  type SortingOption = 'name-asc' | 'name-desc' | 'balance-asc' | 'balance-desc';
+  const [sortingOption, setSortingOption] = useState<SortingOption>('name-asc');
 
   const {
     data: transactions,
@@ -170,6 +180,8 @@ export function Accounts() {
           account.currency.code !== 'BRL'
             ? formatCurrency('BRL', accountBalanceConvertedToBRL, false)
             : undefined,
+        // Raw numeric balance preserved for sorting by balance value.
+        rawBalance: Number(account.balance),
         // Raw BRL-converted balance (not formatted) reused below to build
         // per-institution aggregated totals without re-implementing currency
         // conversion (AC13.1 / design.md §6 "Accounts screen changes")
@@ -209,6 +221,7 @@ export function Accounts() {
       name: string;
       totalFormatted: string;
       accountCount: number;
+      totalRaw: number;
     }[] = [];
 
     institutionGroups.forEach((accounts) => {
@@ -232,6 +245,7 @@ export function Accounts() {
           false
         ),
         accountCount: accounts.length,
+        totalRaw: totalConverted.toNumber(),
       });
     });
 
@@ -322,12 +336,34 @@ export function Accounts() {
   // not one combined comparator, so "institutions first" always holds
   // regardless of name collisions between the two blocks).
   const accountsListData = useMemo(() => {
-    const sortedInstitutionCards = [...institutionCards].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
-    const sortedStandaloneAccounts = [...standaloneAccounts].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    // Comparator factories: given a sort option, return a comparator for
+    // institution cards (sorted by name/aggregate balance) or standalone
+    // accounts (sorted by name/rawBalance).
+    const byNameAsc = (a: { name: string }, b: { name: string }) =>
+      a.name.localeCompare(b.name);
+    const byNameDesc = (a: { name: string }, b: { name: string }) =>
+      b.name.localeCompare(a.name);
+
+    const institutionCmp =
+      sortingOption === 'name-asc'
+        ? byNameAsc
+        : sortingOption === 'name-desc'
+          ? byNameDesc
+          : sortingOption === 'balance-asc'
+            ? (a: InstitutionCardData, b: InstitutionCardData) => a.totalRaw - b.totalRaw
+            : (a: InstitutionCardData, b: InstitutionCardData) => b.totalRaw - a.totalRaw;
+
+    const accountCmp =
+      sortingOption === 'name-asc'
+        ? byNameAsc
+        : sortingOption === 'name-desc'
+          ? byNameDesc
+          : sortingOption === 'balance-asc'
+            ? (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => a.rawBalance - b.rawBalance
+            : (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => b.rawBalance - a.rawBalance;
+
+    const sortedInstitutionCards = [...institutionCards].sort(institutionCmp);
+    const sortedStandaloneAccounts = [...standaloneAccounts].sort(accountCmp);
 
     return [
       ...sortedInstitutionCards.map((institution) => ({
@@ -339,7 +375,7 @@ export function Accounts() {
         data: account,
       })),
     ];
-  }, [institutionCards, standaloneAccounts]);
+  }, [institutionCards, standaloneAccounts, sortingOption]);
 
   // Credit card carousel: sorted alphabetically by institution name (cards
   // without an institution sort last), account name as tiebreaker/fallback
@@ -460,6 +496,14 @@ export function Accounts() {
     router.navigate({
       pathname: '/accounts/institutionDetails',
     });
+  }
+
+  function handleSortingPress() {
+    sortingBottomSheetRef.current?.present();
+  }
+
+  function handleCloseSortingModal() {
+    sortingBottomSheetRef.current?.dismiss();
   }
 
   type _renderItemProps = {
@@ -712,7 +756,14 @@ export function Accounts() {
               flexGrow: 1,
               paddingBottom: 8,
             }}
-            ListHeaderComponent={<SectionTitle>Contas</SectionTitle>}
+            ListHeaderComponent={
+              <SectionTitleAndFilterContainer>
+                <SectionTitle>Contas</SectionTitle>
+                <SortingButton onPress={handleSortingPress}>
+                  <FunnelIcon size={20} color={theme.colors.primary} />
+                </SortingButton>
+              </SectionTitleAndFilterContainer>
+            }
             ListFooterComponent={
               /** CREDIT CARDS */
               creditCardAccounts.length > 0 ? (
@@ -781,6 +832,18 @@ export function Accounts() {
             closeAccount={handleCloseRegisterAccountModal}
           />
         </ModalView>
+
+        <ModalViewSelection
+          title='Selecione a ordenação'
+          bottomSheetRef={sortingBottomSheetRef}
+          snapPoints={['50%']}
+        >
+          <SortingOptions
+            selectedOption={sortingOption}
+            onSelect={setSortingOption}
+            handleClose={handleCloseSortingModal}
+          />
+        </ModalViewSelection>
       </Container>
     </Screen>
   );

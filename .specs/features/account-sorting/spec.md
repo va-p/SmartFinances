@@ -1,0 +1,67 @@
+# Account Sorting — Sort Options for the Accounts Screen
+
+## Summary
+
+Add a sorting modal to the Accounts screen so users can reorder the account list by name or balance. A funnel icon button next to the "Contas" section title opens a bottom sheet with sorting options. The selected option is visually indicated and persists within the session (reset on screen leave).
+
+## Requirements
+
+### R1 — Sorting State
+A `sortingOption` state variable on the `Accounts` screen with type:
+```ts
+type SortingOption = 'name-asc' | 'name-desc' | 'balance-asc' | 'balance-desc';
+```
+Default: `'name-asc'` (current behavior — alphabetical A-Z).
+
+### R2 — Sorting Options UI (`SortingOptions` screen)
+The `SortingOptions` component renders 4 tappable rows, one per option:
+1. Nome (A → Z)
+2. Nome (Z → A)
+3. Saldo (menor → maior)
+4. Saldo (maior → menor)
+
+Each row shows:
+- The option label
+- A radio/check indicator showing which one is currently selected
+
+Props:
+- `selectedOption: SortingOption`
+- `onSelect: (option: SortingOption) => void`
+- `handleClose: () => void`
+
+### R3 — Sorting Logic
+The `accountsListData` `useMemo` dependency array gains `sortingOption`. Within the memo:
+- `standaloneAccounts` are sorted by the selected criterion
+- Institution cards are also re-sorted by the same criterion (using their aggregate BRL balance for balance sort; using institution name for name sort)
+- The two-group structure (institutions first, then standalone) is preserved
+
+For balance sorting: the current `processedAccounts` mapping overrides `balance` with a formatted string. A `rawBalance` field must be added to the mapped object so the sort comparator has a numeric value to compare.
+
+### R4 — Balance Sort Uses Raw Numeric Value
+Add a `rawBalance: number` field to each item in `processedAccounts` so sort comparators have access to the unformatted balance. The `InstitutionCardData` type already has `accountCount` but no raw balance — for institution balance sort, use the `accountBalanceConvertedToBRL` sum computed during institution card creation (expose it on the card data type, or compute on the fly).
+
+### R5 — Visual Feedback
+The selected option shows a checkmark (e.g., `Check` icon from phosphor-react-native) on the `SortingOptions` row. Tapping an already-selected option dismisses the modal (no-op sort).
+
+### R6 — Modal Dismiss on Select
+Tapping a sorting option calls `onSelect(option)`, which updates state in `Accounts`. After selection, `handleClose()` is called to dismiss the bottom sheet automatically.
+
+## Non-Requirements
+
+- **Persistence across sessions**: Sorting preference is not saved to AsyncStorage/Zustand. It resets when the user navigates away.
+- **Credit card carousel sorting**: The credit card list at the bottom maintains its existing sort (institution → name). Sorting options only affect the main accounts list.
+- **Filtering**: Out of scope for this feature. The modal is designed to accommodate filtering options in a future iteration.
+
+## Affected Files
+
+| File | Change |
+|------|--------|
+| `src/screens/Accounts/index.tsx` | Add `sortingOption` state; expose raw balance; wire sorting into `useMemo`; pass props to `SortingOptions` |
+| `src/screens/SortingOptions/index.tsx` | Implement option rows, selection handling, checkmark indicator |
+| `src/screens/SortingOptions/styles.ts` | Style rows, labels, checkmark |
+
+## Decisions
+
+**Sorting scope**: Only the main accounts list (`accountsListData`) is sorted. Institutions stay before standalone accounts. Within each group, all items (both institution cards and standalone accounts) are sorted by the same criterion. For institution cards, "balance" means aggregate BRL balance; "name" means institution name (A-Z, Z-A still works).
+
+**Default sort**: `name-asc` — preserves backward compatibility with current alphabetical default.

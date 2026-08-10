@@ -26,6 +26,7 @@ export type InstitutionCardData = {
   name: string;
   totalFormatted: string;
   accountCount: number;
+  totalRaw: number;
 };
 
 type Props = RectButtonProps & {
