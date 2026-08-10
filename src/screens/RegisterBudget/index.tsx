@@ -123,9 +123,9 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     useCurrenciesQuery();
   const currencies: CurrencyProps[] = currenciesData ?? [];
 
-  const { mutate: createBudget, isPending: isCreating } =
+  const { mutateAsync: createBudgetAsync, isPending: isCreating } =
     useCreateBudgetMutation();
-  const { mutate: updateBudget, isPending: isUpdating } =
+  const { mutateAsync: updateBudgetAsync, isPending: isUpdating } =
     useUpdateBudgetMutation();
   const { data: budgetData, isLoading: isLoadingDetails } =
     useBudgetDetailQuery(id);
@@ -212,7 +212,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
   }
 
-  function onSubmit(form: FormData) {
+  async function onSubmit(form: FormData) {
     let categoriesList: any = [];
     for (const item of budgetCategoriesSelected) {
       const categoryId = item.id;
@@ -237,27 +237,26 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         end_date: endDate,
         recurrence: budgetPeriodSelected.period,
       };
-      updateBudget(editedBudget, {
-        onSuccess: () => {
-          Alert.alert(
-            'Edição de Orçamento',
-            'Orçamento atualizado com sucesso!',
-            [
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeBudget,
-              },
-            ]
-          );
-        },
-        onError: () => {
-          Alert.alert(
-            'Erro',
-            'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
-            [{ text: 'OK' }]
-          );
-        },
-      });
+
+      try {
+        await updateBudgetAsync(editedBudget);
+        Alert.alert(
+          'Edição de Orçamento',
+          'Orçamento atualizado com sucesso!',
+          [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeBudget,
+            },
+          ]
+        );
+      } catch {
+        Alert.alert(
+          'Erro',
+          'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
+          [{ text: 'OK' }]
+        );
+      }
     } else {
       // --- Create budget ---
       const newBudget = {
@@ -269,27 +268,26 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         end_date: endDate,
         recurrence: budgetPeriodSelected.period,
       };
-      createBudget(newBudget, {
-        onSuccess: () => {
-          Alert.alert(
-            'Cadastro de Orçamento',
-            'Orçamento criado com sucesso!',
-            [
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeBudget,
-              },
-            ]
-          );
-        },
-        onError: () => {
-          Alert.alert(
-            'Erro',
-            'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
-            [{ text: 'OK' }]
-          );
-        },
-      });
+
+      try {
+        await createBudgetAsync(newBudget);
+        Alert.alert(
+          'Cadastro de Orçamento',
+          'Orçamento criado com sucesso!',
+          [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeBudget,
+            },
+          ]
+        );
+      } catch {
+        Alert.alert(
+          'Erro',
+          'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
+          [{ text: 'OK' }]
+        );
+      }
     }
   }
 

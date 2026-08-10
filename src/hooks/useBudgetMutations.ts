@@ -42,10 +42,9 @@ export function useCreateBudgetMutation() {
       return { previousBudgets };
     },
 
-    onError: (error, newBudget, context) => {
+    onError: (_error, _newBudget, context) => {
       if (context?.previousBudgets)
         queryClient.setQueryData(QUERY_KEY, context.previousBudgets);
-      Alert.alert('Erro', 'Não foi possível criar o orçamento.');
     },
 
     onSettled: () => {
@@ -73,10 +72,9 @@ export function useUpdateBudgetMutation() {
       return { previousBudgets };
     },
 
-    onError: (error, updatedBudget, context) => {
+    onError: (_error, _updatedBudget, context) => {
       if (context?.previousBudgets)
         queryClient.setQueryData(QUERY_KEY, context.previousBudgets);
-      Alert.alert('Erro', 'Não foi possível atualizar o orçamento.');
     },
 
     onSettled: () => {
