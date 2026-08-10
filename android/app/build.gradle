@@ -94,8 +94,8 @@ android {
         applicationId 'com.vap.smartfinances'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 99
-        versionName "2.26.0"
+        versionCode 100
+        versionName "2.26.1"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }

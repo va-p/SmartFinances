@@ -144,10 +144,10 @@ When editing an existing transaction, pre-fill the recurrence UI from the fetche
 
 - **WEEKLY:** `date` = day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 - **MONTHLY:** `date` = day of month (1-31)
-- **YEARLY:** `date` = day of month (1-31) — month is not stored separately; the parent transaction's `transaction_date` month is the anchor
+- **YEARLY:** `date` = day of month (1-31) — month is not stored separately; the parent transaction's `created_at` month is the anchor
 - **DAILY:** `date` = null (not used)
 
-**Rationale:** For YEARLY, the month is implicit from the transaction date itself. If the user creates a transaction on January 15 and marks it YEARLY with date=15, it recurs every January 15. The recurrence engine (future) would use the parent transaction's date as the anchor.
+**Rationale:** For YEARLY, the month is implicit from the transaction date itself. If the user creates a transaction on January 15 and marks it YEARLY with date=15, it recurs every January 15. The recurrence engine uses the parent transaction's `created_at` date as the anchor, which is the canonical transaction date field across the application.
 
 ---
 
