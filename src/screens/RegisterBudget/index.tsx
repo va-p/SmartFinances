@@ -18,7 +18,7 @@ import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 
 // Dependencies
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -51,7 +51,6 @@ import {
 } from '@screens/BudgetPeriodSelect';
 
 // Stores
-import { useUser } from '@stores/userStorage';
 import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 // Interfaces
@@ -80,7 +79,6 @@ const schema = Yup.object().shape({
 
 export function RegisterBudget({ id, closeBudget }: Props) {
   const theme = useTheme() as ThemeProps;
-  const userID = useUser((state) => state.id);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.budgetCategoriesSelected
@@ -192,6 +190,28 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
   }, [budgetData, id, setValue, reset]);
 
+  function computeEndDate(
+    start: Date,
+    recurrence: string
+  ): Date {
+    switch (recurrence) {
+      case 'DAILY':
+        return addDays(start, 1);
+      case 'WEEKLY':
+        return addWeeks(start, 1);
+      case 'BIWEEKLY':
+        return addWeeks(start, 2);
+      case 'MONTHLY':
+        return addMonths(start, 1);
+      case 'SEMIANNUALLY':
+        return addMonths(start, 6);
+      case 'ANNUALLY':
+        return addYears(start, 1);
+      default:
+        return addMonths(start, 1);
+    }
+  }
+
   function onSubmit(form: FormData) {
     let categoriesList: any = [];
     for (const item of budgetCategoriesSelected) {
@@ -203,15 +223,18 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
     categoriesList = Object.values(categoriesList);
 
+    const endDate = computeEndDate(startDate, budgetPeriodSelected.period);
+
     if (!!id) {
       // --- Update budget ---
       const editedBudget = {
         budget_id: id,
         name: form.name,
         amount: form.amount,
-        currency_id: currencySelected || 4,
+        currency_id: currencySelected?.id || 4,
         categories: categoriesList,
         start_date: startDate,
+        end_date: endDate,
         recurrence: budgetPeriodSelected.period,
       };
       updateBudget(editedBudget, {
@@ -243,8 +266,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         currency_id: currencySelected?.id || 4,
         categories: categoriesList,
         start_date: startDate,
+        end_date: endDate,
         recurrence: budgetPeriodSelected.period,
-        user_id: userID,
       };
       createBudget(newBudget, {
         onSuccess: () => {
