@@ -37,8 +37,11 @@ The `accountsListData` `useMemo` dependency array gains `sortingOption`. Within 
 
 For balance sorting: the current `processedAccounts` mapping overrides `balance` with a formatted string. A `rawBalance` field must be added to the mapped object so the sort comparator has a numeric value to compare.
 
-### R4 — Balance Sort Uses Raw Numeric Value
-Add a `rawBalance: number` field to each item in `processedAccounts` so sort comparators have access to the unformatted balance. The `InstitutionCardData` type already has `accountCount` but no raw balance — for institution balance sort, use the `accountBalanceConvertedToBRL` sum computed during institution card creation (expose it on the card data type, or compute on the fly).
+### R4 — Balance Sort Is BRL-Normalized
+Standalone accounts are sorted by their `accountBalanceConvertedToBRL` value (already computed during data processing), not their native-currency `rawBalance`. This ensures fair cross-currency comparison — e.g., a USD 1,000 account sorts correctly against a BRL 5,000 account. Institution cards already aggregate in BRL, so they use `totalRaw` (BRL sum).
+
+### R4b — `rawBalance` and `totalRaw` Fields
+A `rawBalance: number` field is added to each item in `processedAccounts` (preserving the original native-currency balance for future use). `InstitutionCardData` gains a `totalRaw: number` field for the aggregate BRL balance of the institution group.
 
 ### R5 — Visual Feedback
 The selected option shows a checkmark (e.g., `Check` icon from phosphor-react-native) on the `SortingOptions` row. Tapping an already-selected option dismisses the modal (no-op sort).
@@ -46,9 +49,14 @@ The selected option shows a checkmark (e.g., `Check` icon from phosphor-react-na
 ### R6 — Modal Dismiss on Select
 Tapping a sorting option calls `onSelect(option)`, which updates state in `Accounts`. After selection, `handleClose()` is called to dismiss the bottom sheet automatically.
 
+### R7 — Persistence via Zustand + MMKV
+The selected `sortingOption` is persisted to MMKV via `storageConfig.set()` and restored on app init from `storageConfig.getString()` in `_layout.tsx`. The `useUserConfigs` Zustand store holds the in-memory value; `Accounts` reads it via `useUserConfigs()` and writes both to the store and MMKV on change.
+
+### R8 — Use `ListItem` Component for Selection Rows
+The `SortingOptions` screen uses the existing `<ListItem>` component (`src/components/ListItem/index.tsx`) for its selection rows. This component is the standard pattern for plain-list selection items throughout the app (provides `RectButton` touch handling + active-state checkmark styling).
+
 ## Non-Requirements
 
-- **Persistence across sessions**: Sorting preference is not saved to AsyncStorage/Zustand. It resets when the user navigates away.
 - **Credit card carousel sorting**: The credit card list at the bottom maintains its existing sort (institution → name). Sorting options only affect the main accounts list.
 - **Filtering**: Out of scope for this feature. The modal is designed to accommodate filtering options in a future iteration.
 
@@ -56,9 +64,12 @@ Tapping a sorting option calls `onSelect(option)`, which updates state in `Accou
 
 | File | Change |
 |------|--------|
-| `src/screens/Accounts/index.tsx` | Add `sortingOption` state; expose raw balance; wire sorting into `useMemo`; pass props to `SortingOptions` |
-| `src/screens/SortingOptions/index.tsx` | Implement option rows, selection handling, checkmark indicator |
-| `src/screens/SortingOptions/styles.ts` | Style rows, labels, checkmark |
+| `src/screens/Accounts/index.tsx` | Add sorting from store; expose raw/total balance fields; wire BRL-normalized sorting into `useMemo`; persist on change |
+| `src/screens/SortingOptions/index.tsx` | Implement option rows using `ListItem` component, selection handling |
+| `src/screens/SortingOptions/styles.ts` | Minimal container styles (rows styled by `ListItem`) |
+| `src/stores/userConfigsStorage.ts` | Add `sortingOption` + `setSortingOption` to Zustand store |
+| `src/app/_layout.tsx` | Restore persisted sorting preference from MMKV on app init |
+| `src/components/InstitutionCard/index.tsx` | Add `totalRaw: number` to `InstitutionCardData` type |
 
 ## Decisions
 
