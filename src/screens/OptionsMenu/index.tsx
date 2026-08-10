@@ -244,7 +244,7 @@ export function OptionsMenu() {
 
           <SelectButton
             icon={<Bank color={theme.colors.primary} />}
-            title='Instituições'
+            title='Instituições Bancárias'
             onPress={() => handleOpenInstitutions()}
           />
 

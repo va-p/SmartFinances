@@ -104,7 +104,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     useState<ChartPeriodProps>({
       id: '4',
       name: 'Mensalmente',
-      period: 'monthly',
+      period: 'MONTHLY',
     });
   const {
     control,
@@ -226,7 +226,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
               },
             ]
           );
-          closeBudget();
+        },
+        onError: () => {
+          Alert.alert(
+            'Erro',
+            'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
+            [{ text: 'OK' }]
+          );
         },
       });
     } else {
@@ -252,7 +258,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
               },
             ]
           );
-          closeBudget();
+        },
+        onError: () => {
+          Alert.alert(
+            'Erro',
+            'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
+            [{ text: 'OK' }]
+          );
         },
       });
     }
@@ -313,8 +325,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             <SelectDropdown
               data={currencies}
               onSelect={(selectedItem) => {
-                // const currencySelected = currenciesMap[selectedItem].id;
-                // setCurrencySelected(currencySelected);
                 setCurrencySelected(selectedItem);
               }}
               defaultButtonText='Moeda'
@@ -374,7 +384,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             value={startDate}
             mode='date'
             is24Hour={true}
-            onChange={onChangeDate}
+            onValueChange={onChangeDate}
             dateFormat='day month year'
             textColor={theme.colors.text}
           />
@@ -394,7 +404,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             onPress={handleSubmit(onSubmit)}
           >
             <Button.Text
-              text={id !== null ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+              text={id ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
             />
           </Button.Root>
         </Footer>
@@ -403,7 +413,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           $modal
           title='Categorias'
           bottomSheetRef={categoryBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
           onClose={handleCloseSelectCategoryModal}
         >
           <BudgetCategorySelect />
@@ -412,7 +422,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <ModalViewSelection
           title='Período do orçamento'
           bottomSheetRef={periodBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
         >
           <BudgetPeriodSelect
             period={budgetPeriodSelected}
