@@ -28,13 +28,12 @@ export function AccountDestinationSelect({
   setAccountDestination,
   closeSelectAccountDestination,
 }: Props) {
-  const { id: userID } = useUser();
   const {
     data: accounts,
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
-  } = useAccountsQuery(userID);
+  } = useAccountsQuery();
 
   function handleRefresh() {
     refetchAccounts();
