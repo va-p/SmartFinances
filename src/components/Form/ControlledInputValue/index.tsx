@@ -6,6 +6,7 @@ import { useTheme } from 'styled-components';
 import { Control, Controller, FieldError } from 'react-hook-form';
 
 import { ThemeProps } from '@interfaces/theme';
+import { parseDecimalInput } from '@utils/parseDecimalInput';
 
 type Props = TextInputProps & {
   name: string;
@@ -26,11 +27,7 @@ export function ControlledInputValue({ name, control, error, keyboardType, ...re
             {error && <ErrorMessage> {error.message} </ErrorMessage>}
             <Input
               onChangeText={(text: string) => {
-                // iOS decimal-pad may emit a comma as the decimal
-                // separator depending on the device region.  Normalize
-                // it to a dot so the value stays compatible with the
-                // Yup number schema and the database Decimal column.
-                onChange(text.replace(',', '.'));
+                onChange(parseDecimalInput(text));
               }}
               value={value}
               keyboardType={keyboardType ?? 'decimal-pad'}
