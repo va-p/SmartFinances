@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Alert, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
 import {
   Container,
@@ -108,12 +108,10 @@ export function Accounts() {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const { hideAmount, setHideAmount } = useUserConfigs();
+  const { hideAmount, setHideAmount, sortingOption, setSortingOption } =
+    useUserConfigs();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const sortingBottomSheetRef = useRef<BottomSheetModal>(null);
-
-  type SortingOption = 'name-asc' | 'name-desc' | 'balance-asc' | 'balance-desc';
-  const [sortingOption, setSortingOption] = useState<SortingOption>('name-asc');
 
   const {
     data: transactions,
@@ -359,8 +357,8 @@ export function Accounts() {
         : sortingOption === 'name-desc'
           ? byNameDesc
           : sortingOption === 'balance-asc'
-            ? (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => a.rawBalance - b.rawBalance
-            : (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => b.rawBalance - a.rawBalance;
+            ? (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => a.accountBalanceConvertedToBRL - b.accountBalanceConvertedToBRL
+            : (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => b.accountBalanceConvertedToBRL - a.accountBalanceConvertedToBRL;
 
     const sortedInstitutionCards = [...institutionCards].sort(institutionCmp);
     const sortedStandaloneAccounts = [...standaloneAccounts].sort(accountCmp);
@@ -504,6 +502,11 @@ export function Accounts() {
 
   function handleCloseSortingModal() {
     sortingBottomSheetRef.current?.dismiss();
+  }
+
+  function handleSelectSorting(option: typeof sortingOption) {
+    setSortingOption(option);
+    storageConfig.set(`${DATABASE_CONFIGS}.sortingOption`, option);
   }
 
   type _renderItemProps = {
@@ -840,7 +843,7 @@ export function Accounts() {
         >
           <SortingOptions
             selectedOption={sortingOption}
-            onSelect={setSortingOption}
+            onSelect={handleSelectSorting}
             handleClose={handleCloseSortingModal}
           />
         </ModalViewSelection>

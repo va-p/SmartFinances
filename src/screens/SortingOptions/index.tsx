@@ -1,11 +1,7 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
-import { Container, OptionRow, OptionLabel, CheckmarkContainer } from './styles';
+import { Container} from './styles';
 
-import { useTheme } from 'styled-components';
-import Check from 'phosphor-react-native/src/icons/Check';
-
-import { ThemeProps } from '@interfaces/theme';
+import { ListItem } from '@components/ListItem';
 
 type SortingOption = 'name-asc' | 'name-desc' | 'balance-asc' | 'balance-desc';
 
@@ -28,8 +24,6 @@ type Props = {
 };
 
 export function SortingOptions({ selectedOption, onSelect, handleClose }: Props) {
-  const theme = useTheme() as ThemeProps;
-
   function handlePress(option: SortingOption) {
     onSelect(option);
     handleClose();
@@ -37,24 +31,16 @@ export function SortingOptions({ selectedOption, onSelect, handleClose }: Props)
 
   return (
     <Container>
-      {OPTIONS.map((option) => {
+      {OPTIONS.map((option, index) => {
         const isSelected = option.value === selectedOption;
 
         return (
-          <TouchableOpacity
+          <ListItem
             key={option.value}
-            activeOpacity={0.6}
+            data={{ id: index, name: option.label }}
+            isActive={isSelected}
             onPress={() => handlePress(option.value)}
-          >
-            <OptionRow>
-              <OptionLabel isSelected={isSelected}>{option.label}</OptionLabel>
-              {isSelected && (
-                <CheckmarkContainer>
-                  <Check size={20} color={theme.colors.primary} weight="bold" />
-                </CheckmarkContainer>
-              )}
-            </OptionRow>
-          </TouchableOpacity>
+          />
         );
       })}
     </Container>
