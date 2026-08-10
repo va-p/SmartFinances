@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Platform } from 'react-native';
+import { Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
 import { Container } from './styles';
 
 import {
@@ -17,5 +17,13 @@ export function Screen({ children, ...rest }: ScreenProps) {
     ? (['top', 'left', 'right'] as const)
     : undefined;
 
-  return <Container edges={edges} {...rest}>{children}</Container>;
+  return (
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+      style={{ flex: 1 }}
+    >
+      <Container edges={edges} {...rest}>{children}</Container>
+    </TouchableWithoutFeedback>
+  );
 }
