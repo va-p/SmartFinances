@@ -4,6 +4,8 @@ import { OneSignal } from 'react-native-onesignal';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { storageConfig, DATABASE_CONFIGS } from '@database/database';
 
+const ONESIGNAL_APP_ID = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
+
 export function useNotificationPermission() {
   const hasRequested = useRef(false);
   const notificationsEnabled = useUserConfigs((s) => s.notificationsEnabled);
@@ -24,21 +26,32 @@ export function useNotificationPermission() {
           return;
         }
 
+        // OneSignal v5 on Android requires explicit initialization.
+        // iOS auto-initializes from native config, but calling initialize()
+        // on both platforms is safe (idempotent).
+        if (ONESIGNAL_APP_ID) {
+          OneSignal.initialize(ONESIGNAL_APP_ID);
+        } else {
+          console.warn(
+            '[useNotificationPermission] EXPO_PUBLIC_ONESIGNAL_APP_ID is not set — OneSignal may not be initialized on Android'
+          );
+        }
+
         console.log(
           '[useNotificationPermission] Requesting notification permission...'
         );
         const granted =
           await OneSignal.Notifications.requestPermission(true);
 
-        const actualPermission =
-          await OneSignal.Notifications.hasPermission();
+        console.log(
+          '[useNotificationPermission] Permission result:',
+          granted
+        );
 
-        console.log('[useNotificationPermission] Permission result:', {
-          granted,
-          actualPermission,
-        });
-
-        if (!actualPermission && notificationsEnabled) {
+        // requestPermission() returns the authoritative OS decision.
+        // Do NOT use the deprecated hasPermission() — it returns stale
+        // data immediately after a fresh grant on iOS.
+        if (!granted) {
           console.log(
             '[useNotificationPermission] OS denied permission, syncing config to false'
           );

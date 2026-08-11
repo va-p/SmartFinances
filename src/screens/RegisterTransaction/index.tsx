@@ -394,6 +394,17 @@ export function RegisterTransaction({
 
   async function handleSelectImage() {
     try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permissão necessária',
+          'Para selecionar imagens, permita o acesso à biblioteca de fotos nas configurações do dispositivo.'
+        );
+        return;
+      }
+
       const imageSelected = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -412,6 +423,17 @@ export function RegisterTransaction({
 
   async function handleTakePhoto() {
     try {
+      const { status } =
+        await ImagePicker.requestCameraPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permissão necessária',
+          'Para tirar fotos, permita o acesso à câmera nas configurações do dispositivo.'
+        );
+        return;
+      }
+
       const photoTacked = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -589,8 +611,10 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    let image_url: string | null = null;
-    // TODO: Gets current image transaction ID, delete and then adds new
+    // Preserve existing image URL when no new image is selected.
+    // If `image` (base64) is empty but `imageUrl` was pre-filled from
+    // transaction data, we keep the current image.
+    let image_url: string | null = imageUrl || null;
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
@@ -1135,9 +1159,7 @@ export function RegisterTransaction({
       setDate(parsedDate);
       setValue('description', transactionData.description);
       setTagsSelected(transactionData.tags);
-      {
-        transactionData.image && setImageUrl(transactionData.image.url);
-      }
+      setImageUrl(transactionData?.image_url);
       setTransactionType(transactionData.type);
       let transactionTab: number;
       switch (transactionData.type) {

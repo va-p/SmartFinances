@@ -683,7 +683,7 @@ export function Home() {
 
         <ModalViewWithoutHeader
           bottomSheetRef={registerTransactionBottomSheetRef}
-          snapPoints={['96%']}
+          snapPoints={['100%']}
         >
           <RegisterTransaction
             id={transactionId}

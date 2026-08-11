@@ -6,6 +6,7 @@ import { Container, ContentScroll, Title } from './styles';
 import Tag from 'phosphor-react-native/src/icons/Tag';
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import User from 'phosphor-react-native/src/icons/User';
+import Bell from 'phosphor-react-native/src/icons/Bell';
 import Plugs from 'phosphor-react-native/src/icons/Plugs';
 import Cookie from 'phosphor-react-native/src/icons/Cookie';
 import Trophy from 'phosphor-react-native/src/icons/Trophy';
@@ -18,15 +19,14 @@ import MoonStars from 'phosphor-react-native/src/icons/MoonStars';
 import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
 import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
-import Bell from 'phosphor-react-native/src/icons/Bell';
 
 // Dependencies
 import axios from 'axios';
-import { OneSignal } from 'react-native-onesignal';
 import { reloadAppAsync } from 'expo';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
+import { OneSignal } from 'react-native-onesignal';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 // Screens
@@ -38,9 +38,9 @@ import { SelectButton } from '@components/SelectButton';
 
 // Storages, providers
 import { useUser } from '@stores/userStorage';
+import { useAuth } from '@providers/AuthProvider';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-import { useAuth } from '@providers/AuthProvider';
 
 import api from '@api/api';
 
