@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
 `;
@@ -38,7 +36,7 @@ export const Logo = styled.Image.attrs({
 
 export const SubTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   text-align: left;
   color: ${({ theme }) => theme.colors.text};
 `;
@@ -51,6 +49,6 @@ export const FormWrapper = styled.View`
 
 export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   color: ${({ theme }) => theme.colors.text};
 `;

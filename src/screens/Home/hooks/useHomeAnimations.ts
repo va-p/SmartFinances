@@ -8,8 +8,8 @@ import {
 } from 'react-native-reanimated';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.48;
-const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
+const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.46;
+const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.30;
 
 type UseHomeAnimationsProps = {
   scrollY: SharedValue<number>;

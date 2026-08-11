@@ -1,8 +1,7 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled(RectButton)`
   width: 60px;
@@ -21,7 +20,7 @@ type TitleProps = {
 };
 export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))}px;
+  font-size: ${({ theme, size }) => (size ? size : theme.fonts.sizeTitle)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -29,7 +28,7 @@ type IconProps = {
   size?: number;
 };
 export const Icon = styled(Ionicons)<IconProps>`
-  font-size: ${({ size }) => (size ? RFValue(size) : RFValue(14))}px;
+  font-size: ${({ size, theme }) => (size ? size : theme.fonts.sizeTitle)}px;
   padding-left: 5px;
   color: ${({ theme }) => theme.colors.text};
 `;

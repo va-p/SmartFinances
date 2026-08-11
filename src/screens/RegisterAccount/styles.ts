@@ -1,13 +1,11 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   padding: 0 16px;
   color: ${({ theme }) => theme.colors.attention};
 `;

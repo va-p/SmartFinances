@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-
 type BalanceProps = {
   balanceIsPositive: boolean;
 };
@@ -21,7 +19,7 @@ export const FiltersContainer = styled.View`
 `;
 
 export const FilterButtonGroup = styled.View`
-  width: ${RFPercentage(12)}px;
+  width: 24%;
 `;
 
 export const AccountBalanceContainer = styled.View`
@@ -49,14 +47,14 @@ export const AccountBalanceSeparator = styled.View`
 
 export const AccountBalance = styled.Text<BalanceProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(16)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme, balanceIsPositive }) =>
     balanceIsPositive ? theme.colors.success : theme.colors.attention};
 `;
 
 export const AccountBalanceDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
@@ -64,14 +62,14 @@ export const AccountBalanceDescription = styled.Text`
 
 export const AccountCashFlow = styled.Text<BalanceProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(16)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme, balanceIsPositive }) =>
     balanceIsPositive ? theme.colors.success : theme.colors.attention};
 `;
 
 export const AccountCashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};

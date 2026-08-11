@@ -1,5 +1,4 @@
 import styled from 'styled-components/native';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
@@ -12,7 +11,7 @@ export const Content = styled.View`
 
 export const Label = styled.Text<{ secondary?: boolean }>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(13)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   color: ${({ theme, secondary }) =>
     secondary ? theme.colors.text_secondary || theme.colors.text : theme.colors.text};
   margin-bottom: ${({ secondary }) => (secondary ? 8 : 12)}px;
@@ -45,7 +44,7 @@ export const QuantityInput = styled.TextInput`
   height: 48px;
   border-radius: 12px;
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(16)}px;
+  font-size: 16px;
   color: ${({ theme }) => theme.colors.text};
   text-align: center;
 `;
@@ -61,7 +60,7 @@ export const PeriodSelector = styled.TouchableOpacity`
 
 export const PeriodText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme }) => theme.colors.text};
   margin-left: 10px;
 `;

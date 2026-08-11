@@ -36,7 +36,7 @@ export const Button = styled.Pressable`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  min-height: 72px;
+  min-height: 64px;
 `;
 
 export const Icon = styled(Ionicons)<ButtonProps>`
@@ -65,7 +65,7 @@ export const Icon = styled(Ionicons)<ButtonProps>`
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   align-self: center;
   color: ${({ theme }) => theme.colors.text};
 `;

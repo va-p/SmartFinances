@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
 type ItemProps = {
@@ -19,7 +18,7 @@ export const Item = styled(RectButton)`
 
 export const Name = styled.Text<ItemProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme, isActive }) =>
     isActive ? theme.colors.primary : theme.colors.text};
 `;

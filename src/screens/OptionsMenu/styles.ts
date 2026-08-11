@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.View`
   flex: 1;
 `;
@@ -15,7 +13,7 @@ export const ContentScroll = styled.ScrollView.attrs({
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(18)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
   padding-top: 16px;
   padding-left: 16px;
   color: ${({ theme }) => theme.colors.title};

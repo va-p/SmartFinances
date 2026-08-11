@@ -1,14 +1,11 @@
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-
 type ColorProps = {
   color: string;
 };
 
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
-  justify-content: space-between;
 `;
 
 export const MainContent = styled.View`
@@ -16,11 +13,8 @@ export const MainContent = styled.View`
 `;
 
 export const Header = styled.View<ColorProps>`
-  min-height: ${RFPercentage(20)}px;
-  max-height: ${RFPercentage(20)}px;
   align-items: center;
   padding: 16px;
-  margin-bottom: 3px;
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
   background-color: ${({ color }) => color};
@@ -28,8 +22,8 @@ export const Header = styled.View<ColorProps>`
 
 export const TitleContainer = styled.View`
   width: 100%;
-  min-height: ${RFPercentage(8)}px;
-  max-height: ${RFPercentage(8)}px;
+  min-height: '10%';
+  max-height: '10%';
   flex-direction: row;
   justify-content: center;
 `;
@@ -38,7 +32,7 @@ export const Title = styled.Text.attrs({
   numberOfLines: 3,
 })`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;
@@ -47,7 +41,6 @@ export const HeaderRow = styled.View`
   width: 100%;
   flex-direction: row;
   align-items: center;
-  padding: 6px 0;
 `;
 
 export const InputTransactionValuesContainer = styled.View`
@@ -64,7 +57,7 @@ export const InputTransactionValueGroup = styled.View`
 
 export const ContentScroll = styled.ScrollView.attrs({
   shownsVerticalScrollIndicator: false,
-  contentContainerStyle: { paddingBottom: 16 },
+  contentContainerStyle: { marginBottom: 64 },
 })``;
 
 export const TransactionImageContainer = styled.Pressable`
@@ -82,8 +75,11 @@ export const TransactionsTypes = styled.View`
 `;
 
 export const Footer = styled.View`
-  width: 100%;
-  padding: 16px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px 16px;
 `;
 
 // ── Date Quick-Select Pills ───────────────────────────
@@ -104,7 +100,7 @@ export const DateSelectorLeft = styled.Pressable`
 
 export const DateSelectorLabel = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   padding-left: 8px;
   color: ${({ theme }) => theme.colors.text};
 `;
@@ -132,7 +128,7 @@ export const DatePill = styled.TouchableOpacity<PillProps>`
 
 export const DatePillText = styled.Text<PillProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(9)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ active, accentColor, theme }) =>
     active ? theme.colors.text : theme.colors.textPlaceholder};
 `;

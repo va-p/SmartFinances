@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.View`
   flex: 1;
 `;
@@ -21,7 +19,7 @@ export const FiltersContainer = styled.View`
 `;
 
 export const FilterButtonGroup = styled.View`
-  width: ${RFPercentage(12)}px;
+  width: 24%;
 `;
 
 export const CashFlowSection = styled.View`
@@ -34,7 +32,7 @@ export const CategoriesSection = styled.View`
 
 export const SectionTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(16)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
   margin-bottom: 8px;
   color: ${({ theme }) => theme.colors.title};
 `;

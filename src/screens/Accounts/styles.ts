@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
@@ -27,14 +26,14 @@ export const CashFlowContainer = styled.View`
 
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   text-align: center;
   color: ${({ theme }) => theme.colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
@@ -71,7 +70,7 @@ export const SectionTitleAndFilterContainer = styled.View`
 
 export const SectionTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(16)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
   padding-left: 16px;
   margin: 8px 0;
   color: ${({ theme }) => theme.colors.title};

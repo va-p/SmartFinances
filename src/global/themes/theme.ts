@@ -4,7 +4,7 @@ export default {
     primary_light: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(230, 233, 244)',
-    backgroundNav: 'rgba(255, 255, 255, 0.95)',
+    backgroundNav: 'rgba(255, 255, 255, 0.95)', // Statusbar in auth route
     backgroundCardHeader: 'rgba(255, 255, 255, 0.5)', // Card of top screens
 
     gradientStart: '#FFEBCE',
@@ -43,8 +43,9 @@ export default {
     regular: 'Poppins_400Regular',
     medium: 'Poppins_500Medium',
     bold: 'Poppins_700Bold',
-    sizeTitle: 18,
-    sizeSubtitle: 14,
-    sizeText: 12,
+    sizeTitleXl: '18px',
+    sizeTitle: '16px',
+    sizeSubtitle: '14px',
+    sizeText: '12px',
   },
 };

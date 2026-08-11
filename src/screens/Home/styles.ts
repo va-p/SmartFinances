@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import Animated from 'react-native-reanimated';
 import { BorderlessButton } from 'react-native-gesture-handler';
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
@@ -18,16 +17,16 @@ export const CashFlowContainer = styled.View``;
 
 export const CashFlowTotal = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   text-align: center;
   color: ${({ theme }) => theme.colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
-  margin-top: -8px;
+  margin-top: -4px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -50,7 +49,7 @@ export const FiltersContainer = styled.View`
 `;
 
 export const FilterButtonGroup = styled.View`
-  width: ${RFPercentage(12)}px;
+  width: 24%;
 `;
 
 export const SearchInputContainer = styled.View`

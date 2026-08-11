@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, StatusBar, View, Platform } from 'react-native';
 
 // Dependencies
-import { Tabs } from 'expo-router';
+import { Tabs, useSegments } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useTheme } from 'styled-components';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,8 +28,17 @@ export default function AppLayout() {
   const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
+  const segments = useSegments();
 
   useNotificationPermission();
+
+  // First two tabs (index, accounts) use statusBar; the rest use gradientEnd
+  // so the bar blends with each screen's top section.
+  // segments[1] is undefined on the index route — fallback to 'index'.
+  const activeTab = (segments as string[])[1] || 'index';
+  const statusBarColor = (
+    activeTab === 'index' || activeTab === 'accounts'
+  ) ? theme.colors.backgroundCardHeader : theme.colors.gradientEnd;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.statusBar }}>
@@ -37,6 +46,18 @@ export default function AppLayout() {
         translucent
         barStyle={darkMode ? 'light-content' : 'dark-content'}
         backgroundColor='transparent'
+      />
+
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: statusBarColor,
+          zIndex: 1,
+        }}
       />
 
       <Tabs
