@@ -138,7 +138,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       setValue('amount', String(budgetData.amount));
       setCurrencySelected(budgetData.currency);
       setStartDate(new Date(budgetData.start_date));
-      switch (budgetData.recurrence) {
+      switch (budgetData.recurrence?.toLowerCase()) {
         case 'daily':
           totalByDate = {
             id: '1',
@@ -174,7 +174,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             period: 'monthly',
           };
           break;
-        case 'monthly':
+        case 'annually':
           totalByDate = {
             id: '6',
             name: 'Anualmente',
@@ -251,11 +251,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           ]
         );
       } catch {
-        // Alert.alert(
-        //   'Erro',
-        //   'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
-        //   [{ text: 'OK' }]
-        // );
+        Alert.alert(
+          'Erro',
+          'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
+          [{ text: 'OK' }]
+        );
       }
     } else {
       // --- Create budget ---
@@ -282,11 +282,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           ]
         );
       } catch {
-        // Alert.alert(
-        //   'Erro',
-        //   'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
-        //   [{ text: 'OK' }]
-        // );
+        Alert.alert(
+          'Erro',
+          'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
+          [{ text: 'OK' }]
+        );
       }
     }
   }

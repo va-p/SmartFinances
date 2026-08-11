@@ -23,7 +23,7 @@ export const BudgetTotalDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
   font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
-  margin-top: -8px;
+  margin-top: -4px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
