@@ -77,12 +77,12 @@
 
 ## Potential Future Features
 
-- [ ] Recurring transactions
-- [ ] Financial goals / savings targets
+- [x] Recurring transactions
 - [ ] Subscription management (Netflix, Spotify, etc.) with automatic identification based on transactions.
+- [ ] Financial goals / savings targets
+- [ ] Widgets (iOS / Android home screen)
 - [ ] Export data (CSV / PDF)
 - [ ] Multi-user / shared wallet support
-- [ ] Widgets (iOS / Android home screen)
 - [ ] Transaction reminders / notifications
 - [ ] Automated insights via AI
 - [ ] Investment portfolio tracking

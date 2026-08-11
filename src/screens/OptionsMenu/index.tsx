@@ -6,6 +6,7 @@ import { Container, ContentScroll, Title } from './styles';
 import Tag from 'phosphor-react-native/src/icons/Tag';
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import User from 'phosphor-react-native/src/icons/User';
+import Bell from 'phosphor-react-native/src/icons/Bell';
 import Plugs from 'phosphor-react-native/src/icons/Plugs';
 import Cookie from 'phosphor-react-native/src/icons/Cookie';
 import Trophy from 'phosphor-react-native/src/icons/Trophy';
@@ -25,6 +26,7 @@ import { reloadAppAsync } from 'expo';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
+import { OneSignal } from 'react-native-onesignal';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 // Screens
@@ -36,9 +38,9 @@ import { SelectButton } from '@components/SelectButton';
 
 // Storages, providers
 import { useUser } from '@stores/userStorage';
+import { useAuth } from '@providers/AuthProvider';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-import { useAuth } from '@providers/AuthProvider';
 
 import api from '@api/api';
 
@@ -61,6 +63,8 @@ export function OptionsMenu() {
     setInsights,
     useLocalAuth,
     setUseLocalAuth,
+    notificationsEnabled,
+    setNotificationsEnabled,
   } = useUserConfigs();
 
   const { signOut } = useAuth();
@@ -204,6 +208,41 @@ export function OptionsMenu() {
     }
   }
 
+  async function handleChangeNotifications() {
+    try {
+      if (!notificationsEnabled) {
+        // Turning ON: request OS permission
+        const granted =
+          await OneSignal.Notifications.requestPermission(true);
+        if (!granted) {
+          Alert.alert(
+            'Notificações',
+            'Permissão negada. Ative as notificações nas configurações do dispositivo.'
+          );
+          return;
+        }
+      }
+
+      const { status } = await api.patch(`user/${userId}/configs`, {
+        notifications_enabled: !notificationsEnabled,
+      });
+
+      if (status === 200) {
+        storageConfig.set(
+          `${DATABASE_CONFIGS}.notificationsEnabled`,
+          !notificationsEnabled
+        );
+        setNotificationsEnabled(!notificationsEnabled);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Notificações',
+        'Não foi possível alterar a configuração, por favor, tente novamente.'
+      );
+    }
+  }
+
   async function handleLogout() {
     try {
       Alert.alert(
@@ -303,6 +342,14 @@ export function OptionsMenu() {
             onValueChange={handleChangeUseLocalAuth}
             value={useLocalAuth}
             isEnabled={useLocalAuth}
+          />
+
+          <ButtonToggle
+            icon={<Bell color={theme.colors.primary} />}
+            title='Notificações'
+            onValueChange={handleChangeNotifications}
+            value={notificationsEnabled}
+            isEnabled={notificationsEnabled}
           />
 
           <Title>Sobre</Title>

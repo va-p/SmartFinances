@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { View } from 'react-native';
 import { Overlay } from './styles';
 
 import {
@@ -28,23 +29,46 @@ export function ModalViewWithoutHeader({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
-      enableContentPanningGesture={false}
+      enableContentPanningGesture={true}
       backdropComponent={() => <Overlay />}
-      backgroundStyle={{ display: 'none' }}
-      handleStyle={{
-        paddingBottom: 0,
-        marginBottom: -16,
-      }}
-      handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
+      keyboardBehavior='extend'
       topInset={top}
+      backgroundComponent={null}
+      handleComponent={null}
+      style={{ backgroundColor: 'transparent' }}
+      backgroundStyle={{ backgroundColor: 'transparent' }}
       {...rest}
     >
       <BottomSheetView
         style={{
           flex: 1,
-          overflow: 'hidden',
+          backgroundColor: 'transparent',
+          position: 'relative'
         }}
       >
+
+        <View
+          style={{
+            position: 'absolute',
+            top: 4,
+            left: 0,
+            right: 0,
+            alignItems: 'center',
+            zIndex: 10,
+            pointerEvents: 'none',
+          }}
+        >
+          {/* Custom handle indicator */}
+          <View
+            style={{
+              width: 48,
+              height: 5,
+              borderRadius: 3,
+              backgroundColor: theme.colors.primary,
+            }}
+          />
+        </View>
+
         {children}
       </BottomSheetView>
     </BottomSheetModal>

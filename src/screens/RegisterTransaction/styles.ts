@@ -11,7 +11,9 @@ export const Container = styled.KeyboardAvoidingView`
   justify-content: space-between;
 `;
 
-export const MainContent = styled.View``;
+export const MainContent = styled.View`
+  flex: 1;
+`;
 
 export const Header = styled.View<ColorProps>`
   min-height: ${RFPercentage(20)}px;

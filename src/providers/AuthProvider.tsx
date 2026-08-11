@@ -80,6 +80,7 @@ export function AuthProvider({ children }: any) {
         useLocalAuth: userData.use_local_authentication,
         hideAmount: userData.hide_amount,
         insights: userData.insights,
+        notificationsEnabled: userData.notifications_enabled,
       },
     };
     storageUser.set(
@@ -105,10 +106,15 @@ export function AuthProvider({ children }: any) {
     storageConfig.set(`${DATABASE_CONFIGS}.hideAmount`, userData.hide_amount);
     storageConfig.set(`${DATABASE_CONFIGS}.insights`, userData.insights);
     storageConfig.set(`${DATABASE_CONFIGS}.skipWelcomeScreen`, true);
+    storageConfig.set(
+      `${DATABASE_CONFIGS}.notificationsEnabled`,
+      userData.notifications_enabled
+    );
     useUserConfigs.setState(() => ({
       useLocalAuth: userData.use_local_authentication,
       hideAmount: userData.hide_amount,
       insights: userData.insights,
+      notificationsEnabled: userData.notifications_enabled,
     }));
 
     return loggedInUserDataFormatted;
@@ -346,6 +352,7 @@ export function AuthProvider({ children }: any) {
         insights: false,
         hideAmount: false,
         useLocalAuth: false,
+        notificationsEnabled: false,
       }));
     } catch (error) {
       console.error('AuthProvider, signOut error =>', error);
