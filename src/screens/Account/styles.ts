@@ -54,7 +54,7 @@ export const AccountBalance = styled.Text<BalanceProps>`
 
 export const AccountBalanceDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
@@ -69,7 +69,7 @@ export const AccountCashFlow = styled.Text<BalanceProps>`
 
 export const AccountCashFlowDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};

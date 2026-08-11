@@ -1,7 +1,6 @@
 import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 
@@ -29,13 +28,13 @@ export const Container = styled(TouchableOpacityAnimated).attrs({
 `;
 
 export const Icon = styled(Ionicons)<Props>`
-  font-size: ${RFValue(20)}px;
+  font-size: 20px;
   margin-right: 8px;
   color: ${({ color }) => color};
 `;
 
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme }) => theme.colors.title};
 `;

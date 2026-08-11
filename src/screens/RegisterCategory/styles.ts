@@ -2,7 +2,6 @@ import { TouchableOpacity } from 'react-native';
 import styled, { css } from 'styled-components/native';
 
 import { Ionicons } from '@expo/vector-icons';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 type TypeProps = 'primary' | 'secondary';
 
@@ -39,7 +38,7 @@ export const IconAndColor = styled.TouchableOpacity<Props>`
 
 export const Title = styled.Text`
   text-align: left;
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   ${({ theme }) => css`
     font-family: ${theme.fonts.medium};
     color: ${theme.colors.title};
@@ -82,7 +81,7 @@ export const IconContainer = styled.TouchableOpacity<Props>`
 `;
 
 export const Icon = styled(Ionicons)<Props>`
-  font-size: ${RFValue(30)}px;
+  font-size: 30px;
   color: ${({ theme, isActive }) =>
     isActive ? theme.colors.background : theme.colors.text};
 `;

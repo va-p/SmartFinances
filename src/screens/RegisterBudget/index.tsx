@@ -18,17 +18,17 @@ import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 
 // Dependencies
 import * as Yup from 'yup';
-import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import SelectDropdown from 'react-native-select-dropdown';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 
 // Icons
 import Money from 'phosphor-react-native/src/icons/Money';
-import SelectDropdown from 'react-native-select-dropdown';
 import Repeat from 'phosphor-react-native/src/icons/Repeat';
 import Calendar from 'phosphor-react-native/src/icons/Calendar';
 import CaretDown from 'phosphor-react-native/src/icons/CaretDown';

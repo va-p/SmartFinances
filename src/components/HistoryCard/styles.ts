@@ -1,7 +1,6 @@
 import styled from 'styled-components/native';
 
 import { Ionicons } from '@expo/vector-icons';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 type Props = {
   color: string;
@@ -27,7 +26,7 @@ export const Details = styled.View`
 `;
 
 export const Icon = styled(Ionicons)<Props>`
-  font-size: ${RFValue(20)}px;
+  font-size: 20px;
   margin-right: 8px;
   color: ${({ color }) => color};
 `;

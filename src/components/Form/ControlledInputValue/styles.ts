@@ -6,7 +6,7 @@ export const Container = styled.View`
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.shapeDark};
   position: absolute;
   top: -20px;

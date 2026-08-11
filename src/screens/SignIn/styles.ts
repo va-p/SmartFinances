@@ -52,7 +52,7 @@ export const FormWrapper = styled.View`
 
 export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 

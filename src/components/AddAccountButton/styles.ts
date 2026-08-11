@@ -1,8 +1,7 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled(RectButton)`
   width: 100%;
@@ -15,7 +14,7 @@ export const Container = styled(RectButton)`
 `;
 
 export const Icon = styled(Ionicons)`
-  font-size: ${RFValue(24)}px;
+  font-size: 24px;
   color: ${({ theme }) => theme.colors.primary};
 `;
 

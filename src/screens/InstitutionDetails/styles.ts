@@ -20,7 +20,7 @@ export const TotalBalance = styled.Text`
 
 export const TotalBalanceDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
   margin-top: -4px;
   color: ${({ theme }) => theme.colors.text};
