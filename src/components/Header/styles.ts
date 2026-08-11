@@ -10,6 +10,7 @@ type ContainerProps = {
 export const Container = styled.View<ContainerProps>`
   width: 100%;
   flex-direction: row;
+  padding-bottom: 8px;
   column-gap: 16px;
 
   ${({ childsCount }) =>

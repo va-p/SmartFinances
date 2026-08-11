@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import {
   Container,
   AmountContainer,
@@ -18,7 +18,7 @@ import { useBudgetDetailQuery } from '@hooks/useBudgetDetailQuery';
 
 // Dependencies
 import * as Yup from 'yup';
-import { format } from 'date-fns';
+import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -51,7 +51,6 @@ import {
 } from '@screens/BudgetPeriodSelect';
 
 // Stores
-import { useUser } from '@stores/userStorage';
 import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 
 // Interfaces
@@ -80,7 +79,6 @@ const schema = Yup.object().shape({
 
 export function RegisterBudget({ id, closeBudget }: Props) {
   const theme = useTheme() as ThemeProps;
-  const userID = useUser((state) => state.id);
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.budgetCategoriesSelected
@@ -104,7 +102,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     useState<ChartPeriodProps>({
       id: '4',
       name: 'Mensalmente',
-      period: 'monthly',
+      period: 'MONTHLY',
     });
   const {
     control,
@@ -125,9 +123,9 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     useCurrenciesQuery();
   const currencies: CurrencyProps[] = currenciesData ?? [];
 
-  const { mutate: createBudget, isPending: isCreating } =
+  const { mutateAsync: createBudgetAsync, isPending: isCreating } =
     useCreateBudgetMutation();
-  const { mutate: updateBudget, isPending: isUpdating } =
+  const { mutateAsync: updateBudgetAsync, isPending: isUpdating } =
     useUpdateBudgetMutation();
   const { data: budgetData, isLoading: isLoadingDetails } =
     useBudgetDetailQuery(id);
@@ -192,7 +190,29 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
   }, [budgetData, id, setValue, reset]);
 
-  function onSubmit(form: FormData) {
+  function computeEndDate(
+    start: Date,
+    recurrence: string
+  ): Date {
+    switch (recurrence) {
+      case 'DAILY':
+        return addDays(start, 1);
+      case 'WEEKLY':
+        return addWeeks(start, 1);
+      case 'BIWEEKLY':
+        return addWeeks(start, 2);
+      case 'MONTHLY':
+        return addMonths(start, 1);
+      case 'SEMIANNUALLY':
+        return addMonths(start, 6);
+      case 'ANNUALLY':
+        return addYears(start, 1);
+      default:
+        return addMonths(start, 1);
+    }
+  }
+
+  async function onSubmit(form: FormData) {
     let categoriesList: any = [];
     for (const item of budgetCategoriesSelected) {
       const categoryId = item.id;
@@ -203,32 +223,40 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
     categoriesList = Object.values(categoriesList);
 
+    const endDate = computeEndDate(startDate, budgetPeriodSelected.period);
+
     if (!!id) {
       // --- Update budget ---
       const editedBudget = {
         budget_id: id,
         name: form.name,
         amount: form.amount,
-        currency_id: currencySelected || 4,
+        currency_id: currencySelected?.id || 4,
         categories: categoriesList,
         start_date: startDate,
+        end_date: endDate,
         recurrence: budgetPeriodSelected.period,
       };
-      updateBudget(editedBudget, {
-        onSuccess: () => {
-          Alert.alert(
-            'Edição de Orçamento',
-            'Orçamento atualizado com sucesso!',
-            [
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeBudget,
-              },
-            ]
-          );
-          closeBudget();
-        },
-      });
+
+      try {
+        await updateBudgetAsync(editedBudget);
+        Alert.alert(
+          'Edição de Orçamento',
+          'Orçamento atualizado com sucesso!',
+          [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeBudget,
+            },
+          ]
+        );
+      } catch {
+        // Alert.alert(
+        //   'Erro',
+        //   'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
+        //   [{ text: 'OK' }]
+        // );
+      }
     } else {
       // --- Create budget ---
       const newBudget = {
@@ -237,24 +265,29 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         currency_id: currencySelected?.id || 4,
         categories: categoriesList,
         start_date: startDate,
+        end_date: endDate,
         recurrence: budgetPeriodSelected.period,
-        user_id: userID,
       };
-      createBudget(newBudget, {
-        onSuccess: () => {
-          Alert.alert(
-            'Cadastro de Orçamento',
-            'Orçamento criado com sucesso!',
-            [
-              {
-                text: 'Voltar para a tela anterior',
-                onPress: closeBudget,
-              },
-            ]
-          );
-          closeBudget();
-        },
-      });
+
+      try {
+        await createBudgetAsync(newBudget);
+        Alert.alert(
+          'Cadastro de Orçamento',
+          'Orçamento criado com sucesso!',
+          [
+            {
+              text: 'Voltar para a tela anterior',
+              onPress: closeBudget,
+            },
+          ]
+        );
+      } catch {
+        // Alert.alert(
+        //   'Erro',
+        //   'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
+        //   [{ text: 'OK' }]
+        // );
+      }
     }
   }
 
@@ -284,7 +317,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   return (
     <Screen>
-      <Container>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+      >
+        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ControlledInputWithIcon
           icon={<PencilSimple color={theme.colors.primary} />}
           placeholder='Nome do orçamento'
@@ -313,8 +350,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             <SelectDropdown
               data={currencies}
               onSelect={(selectedItem) => {
-                // const currencySelected = currenciesMap[selectedItem].id;
-                // setCurrencySelected(currencySelected);
                 setCurrencySelected(selectedItem);
               }}
               defaultButtonText='Moeda'
@@ -374,7 +409,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             value={startDate}
             mode='date'
             is24Hour={true}
-            onChange={onChangeDate}
+            onValueChange={onChangeDate}
             dateFormat='day month year'
             textColor={theme.colors.text}
           />
@@ -394,7 +429,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             onPress={handleSubmit(onSubmit)}
           >
             <Button.Text
-              text={id !== null ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
+              text={id ? 'Editar Orçamento' : 'Criar Novo Orçamento'}
             />
           </Button.Root>
         </Footer>
@@ -403,7 +438,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           $modal
           title='Categorias'
           bottomSheetRef={categoryBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
           onClose={handleCloseSelectCategoryModal}
         >
           <BudgetCategorySelect />
@@ -412,7 +447,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <ModalViewSelection
           title='Período do orçamento'
           bottomSheetRef={periodBottomSheetRef}
-          snapPoints={['50%']}
+          snapPoints={['75%']}
         >
           <BudgetPeriodSelect
             period={budgetPeriodSelected}
@@ -421,6 +456,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           />
         </ModalViewSelection>
       </Container>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

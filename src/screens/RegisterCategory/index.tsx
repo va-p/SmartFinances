@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Platform, Text } from 'react-native';
+import { Alert, FlatList, Keyboard, Platform, Text, TouchableWithoutFeedback } from 'react-native';
 import {
   Container,
   Header,
@@ -215,7 +215,11 @@ export function RegisterCategory({ id, closeCategory }: Props) {
 
   return (
     <Screen>
-      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+      >
+        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Gradient />
 
         <Header>
@@ -300,6 +304,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
           </Button.Root>
         </Footer>
       </Container>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

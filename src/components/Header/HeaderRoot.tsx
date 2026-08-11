@@ -10,18 +10,11 @@ export function HeaderRoot({ children, ...rest }: HeaderRootProps) {
   const [childsCount, setChildsCount] = useState(0);
 
   useEffect(() => {
-    function countChildren() {
-      if (children?.length && children.length > 1) {
-        // console.log('children.length ===>', children.length);
-        setChildsCount(children.length);
-      }
-
-      if (!children?.length) {
-        setChildsCount(1);
-      }
-    }
-
-    countChildren();
+    // React.Children.toArray filters out null, undefined, and false
+    // (conditionally rendered children that aren't shown), so we get
+    // the count of only the actually-rendered elements.
+    const realCount = React.Children.toArray(children).length;
+    setChildsCount(realCount || 1);
   }, [children]);
 
   return (

@@ -27,32 +27,32 @@ export function BudgetPeriodSelect({
     {
       id: '1',
       name: 'Diariamente',
-      period: 'daily',
+      period: 'DAILY',
     },
     {
       id: '2',
       name: 'Semanalmente',
-      period: 'weekly',
+      period: 'WEEKLY',
     },
     {
       id: '3',
       name: 'Quinzenalmente',
-      period: 'biweekly',
+      period: 'BIWEEKLY',
     },
     {
       id: '4',
       name: 'Mensalmente',
-      period: 'monthly',
+      period: 'MONTHLY',
     },
     {
       id: '5',
       name: 'Semestralmente',
-      period: 'semiannually',
+      period: 'SEMI-YEARLY',
     },
     {
       id: '6',
       name: 'Anualmente',
-      period: 'annually',
+      period: 'YEARLY',
     },
   ];
 

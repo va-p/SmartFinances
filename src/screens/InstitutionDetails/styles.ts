@@ -4,6 +4,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 
 export const Container = styled.View`
   flex: 1;
+  padding: 16px 16px 0;
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
@@ -29,7 +30,6 @@ export const TotalBalanceDescription = styled.Text`
 
 export const AccountsList = styled.View`
   flex: 1;
-  padding: 0 16px;
 `;
 
 export const SectionTitle = styled.Text`

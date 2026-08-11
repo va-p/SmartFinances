@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
 import { Container, Body, Footer } from './styles';
 
 // Hooks
@@ -108,7 +108,11 @@ export function RegisterTag({ id, closeTag }: Props) {
 
   return (
     <Screen>
-      <Container>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+      >
+        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Body>
           <ControlledInputCategoryName
             placeholder='Nome da etiqueta'
@@ -134,6 +138,7 @@ export function RegisterTag({ id, closeTag }: Props) {
           </Button.Root>
         </Footer>
       </Container>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

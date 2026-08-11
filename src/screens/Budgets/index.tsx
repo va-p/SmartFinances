@@ -130,7 +130,7 @@ export function Budgets() {
           onClose={handleCloseRegisterBudgetModal}
         >
           <RegisterBudget
-            id={null}
+            id={''}
             closeBudget={handleCloseRegisterBudgetModal}
           />
         </ModalView>

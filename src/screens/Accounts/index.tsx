@@ -805,7 +805,7 @@ export function Accounts() {
           />
 
           {/** SCREEN FOOTER */}
-          <Footer bottomTabHeight={Platform.OS === 'ios' ? bottomTabHeight - 54 : bottomTabHeight - 32}>
+          <Footer bottomTabHeight={Platform.OS === 'ios' ? bottomTabHeight - 32 : bottomTabHeight - 32}>
             <ButtonGroup>
               <AddAccountButton
                 icon='card'
