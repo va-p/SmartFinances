@@ -59,7 +59,6 @@ export function Budgets() {
   function handleCloseRegisterBudgetModal() {
     setBudgetCategoriesSelected([]);
     budgetRegisterBottomSheetRef.current?.dismiss();
-    refetchBudgets();
   }
 
   function handleOpenBudget(budget: BudgetProps) {

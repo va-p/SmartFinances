@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Appearance, useColorScheme } from 'react-native';
 
 import * as Font from 'expo-font';
@@ -131,6 +131,7 @@ function RootNavigationLayout() {
 }
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient());
   const setDarkMode = useUserConfigs((state) => state.setDarkMode);
   const setSortingOption = useUserConfigs((state) => state.setSortingOption);
   const deviceColorScheme = useColorScheme();
@@ -195,7 +196,7 @@ export default function RootLayout() {
             tokenCache={tokenCache}
             publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY || ''}
           >
-            <QueryClientProvider client={new QueryClient()}>
+            <QueryClientProvider client={queryClient}>
               <AuthProvider>
                 <BottomSheetModalProvider>
                   <RootNavigationLayout />

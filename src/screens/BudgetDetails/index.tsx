@@ -99,7 +99,6 @@ export function BudgetDetails() {
 
   function handleCloseEditBudgetModal() {
     budgetEditBottomSheetRef.current?.dismiss();
-    router.back();
   }
 
   async function handleClickDeleteBudget() {

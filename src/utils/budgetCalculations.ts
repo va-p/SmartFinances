@@ -8,11 +8,14 @@ export function formatBudgetInfo(
   budget: BudgetProps,
   transactions: TransactionProps[]
 ): FormattedBudgetProps {
+  // Normalize recurrence to lowercase — backend stores uppercase enum values.
+  const recurrence = (budget.recurrence || '').toLowerCase();
+
   let startDate = new Date(budget.start_date);
   let endDate = startDate;
 
   // 1. Calcula o primeiro período
-  switch (budget.recurrence) {
+  switch (recurrence) {
     case 'daily':
       endDate = addDays(new Date(endDate), 1);
       break;
@@ -34,7 +37,7 @@ export function formatBudgetInfo(
   }
 
   while (endDate < new Date()) {
-    switch (budget.recurrence) {
+    switch (recurrence) {
       case 'daily':
         startDate = endDate;
         endDate = addDays(new Date(startDate), 1);

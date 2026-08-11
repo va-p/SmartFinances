@@ -13,9 +13,9 @@ export function InsightCardRoot({ children }: InsightCardRootProps) {
     <Container>
       <BlurView
         intensity={50}
-        experimentalBlurMethod='dimezisBlurView'
+        blurMethod='dimezisBlurView'
         style={{
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
           flex: 1,
           borderRadius: 25,
           overflow: 'hidden',
