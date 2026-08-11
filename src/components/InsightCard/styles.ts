@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
@@ -23,7 +22,7 @@ export const TitleContainer = styled.View``;
 export const InsightTitle = styled.Text`
   box-sizing: border-box;
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
   text-overflow: ellipsis;
   color: ${({ theme }) => theme.colors.title};
@@ -32,7 +31,7 @@ export const InsightTitle = styled.Text`
 export const InsightText = styled.Text`
   box-sizing: border-box;
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(11)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;

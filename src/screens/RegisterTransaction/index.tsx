@@ -231,8 +231,8 @@ export function RegisterTransaction({
   const [selectedTransactionTab, setSelectedTransactionTab] =
     useState<CustomTab>(CustomTab.Credit);
   const [tagsSelected, setTagsSelected] = useState<TagProps[]>([]);
-  const [image, setImage] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [image, setImage] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [openImage, setOpenImage] = useState(false);
 
   // Recurrence state
@@ -615,7 +615,7 @@ export function RegisterTransaction({
     // If `image` (base64) is empty but `imageUrl` was pre-filled from
     // transaction data, we keep the current image.
     let image_url: string | null = imageUrl || null;
-    if (image !== '') {
+    if (image) {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
       };
@@ -775,7 +775,7 @@ export function RegisterTransaction({
     }
     tagsList = Object.values(tagsList);
 
-    let image_url: string | null = null;
+    let image_url: string | null = imageUrl || null;
     if (image !== '') {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
@@ -1213,7 +1213,7 @@ export function RegisterTransaction({
   }
 
   return (
-    <Screen>
+    <Screen edges={Platform.OS === 'ios' ? ['left', 'right'] : undefined}>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Gradient roundCorners />
 
@@ -1453,11 +1453,11 @@ export function RegisterTransaction({
             />
 
             <SelectButton
-              title={imageUrl !== '' ? 'Alterar imagem' : 'Selecionar imagem'}
+              title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
               icon={<Image color={categorySelected.color.color_code} />}
               onPress={handleClickSelectImage}
             />
-            {imageUrl !== '' && (
+            {imageUrl && (
               <TransactionImageContainer onPress={handleOpenImage}>
                 <TransactionImage source={{ uri: imageUrl }} />
               </TransactionImageContainer>
@@ -1595,7 +1595,7 @@ export function RegisterTransaction({
         </ModalViewSelection>
 
         <ImageView
-          images={[{ uri: imageUrl }]}
+          images={[{ uri: imageUrl ?? '' }]}
           imageIndex={0}
           visible={openImage}
           onRequestClose={handleCloseImage}

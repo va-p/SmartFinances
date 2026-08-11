@@ -3,7 +3,6 @@ import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 import { RectButton } from 'react-native-gesture-handler';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import { TransactionTypeProps } from '@interfaces/transactions';
 
@@ -31,7 +30,7 @@ export const IconContainer = styled.View`
 
 export const Icon = styled(Ionicons)<Props>`
   position: absolute;
-  font-size: ${RFValue(20)}px;
+  font-size: 24px;
   color: ${({ theme, type }) =>
     type === 'CREDIT' ? theme.colors.success : theme.colors.primary};
 `;
@@ -50,7 +49,7 @@ export const DescriptionAndAmountContainer = styled.View`
 export const Description = styled.Text.attrs({})<Props>`
   max-width: 70%;
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ type, theme }) =>
     type === 'CREDIT' ? theme.colors.success : theme.colors.text};
 `;
@@ -61,13 +60,13 @@ export const AmountContainer = styled.View`
 `;
 
 export const TransferDirectionIcon = styled(Ionicons)`
-  font-size: ${RFValue(10)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Amount = styled.Text<Props>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ type, theme }) =>
     type === 'CREDIT' ? theme.colors.success : theme.colors.text};
   margin-left: 4px;
@@ -90,14 +89,14 @@ export const Category = styled.Text.attrs({
   ellipsizeMode: 'tail',
 })`
   max-width: 60%;
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const CategoryAndAccountSeparator = styled.Text.attrs({
   numberOfLines: 1,
 })`
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -107,14 +106,14 @@ export const Account = styled.Text.attrs({
 })`
   min-width: 52%;
   max-width: 52%;
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const AmountNotConvertedContainer = styled.View``;
 
 export const AmountNotConverted = styled.Text`
-  font-size: ${RFValue(10)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
 `;
 

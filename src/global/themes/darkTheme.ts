@@ -45,5 +45,8 @@ export default {
     regular: 'Poppins_400Regular',
     medium: 'Poppins_500Medium',
     bold: 'Poppins_700Bold',
+    sizeTitle: '16px',
+    sizeSubtitle: '14px',
+    sizeText: '12px',
   },
 };
