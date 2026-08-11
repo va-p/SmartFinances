@@ -8,6 +8,7 @@ import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { ThemeProvider, DarkTheme, DefaultTheme, useSegments } from 'expo-router';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useNotificationPermission } from '@hooks/useNotificationPermission';
 
 import { ThemeProps } from '@interfaces/theme';
 
@@ -36,6 +37,8 @@ export default function AppLayout() {
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
   const segments = useSegments();
+
+  useNotificationPermission();
 
   // First two tabs (index, accounts) use statusBar; the rest use gradientEnd
   // so the bar blends with each screen's top section.

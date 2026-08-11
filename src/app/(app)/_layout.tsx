@@ -16,6 +16,7 @@ import ChartPieSlice from 'phosphor-react-native/src/icons/ChartPieSlice';
 import DotsThreeOutline from 'phosphor-react-native/src/icons/DotsThreeOutline';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useNotificationPermission } from '@hooks/useNotificationPermission';
 
 import { ThemeProps } from '@interfaces/theme';
 
@@ -27,6 +28,8 @@ export default function AppLayout() {
   const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
+
+  useNotificationPermission();
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.statusBar }}>
