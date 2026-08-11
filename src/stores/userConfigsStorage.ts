@@ -9,6 +9,8 @@ type UserConfigs = {
   setHideAmount: (hideAmount: boolean) => void;
   insights: boolean;
   setInsights: (insights: boolean) => void;
+  notificationsEnabled: boolean;
+  setNotificationsEnabled: (notificationsEnabled: boolean) => void;
   darkMode: boolean;
   setDarkMode: (darkMode: boolean) => void;
   sortingOption: SortingOption;
@@ -19,12 +21,15 @@ export const useUserConfigs = create<UserConfigs>((set) => ({
   useLocalAuth: false,
   hideAmount: false,
   insights: true,
+  notificationsEnabled: true,
   darkMode: false,
   sortingOption: 'name-asc',
   setUseLocalAuth: (useLocalAuth) =>
     set(() => ({ useLocalAuth: useLocalAuth })),
   setHideAmount: (hideAmount) => set(() => ({ hideAmount: hideAmount })),
   setInsights: (insights) => set(() => ({ insights: insights })),
+  setNotificationsEnabled: (notificationsEnabled) =>
+    set(() => ({ notificationsEnabled: notificationsEnabled })),
   setDarkMode: (darkMode) => set(() => ({ darkMode: darkMode })),
   setSortingOption: (sortingOption) =>
     set(() => ({ sortingOption: sortingOption })),
