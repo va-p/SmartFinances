@@ -18,9 +18,11 @@ import MoonStars from 'phosphor-react-native/src/icons/MoonStars';
 import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
 import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
+import Bell from 'phosphor-react-native/src/icons/Bell';
 
 // Dependencies
 import axios from 'axios';
+import { OneSignal } from 'react-native-onesignal';
 import { reloadAppAsync } from 'expo';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
@@ -61,6 +63,8 @@ export function OptionsMenu() {
     setInsights,
     useLocalAuth,
     setUseLocalAuth,
+    notificationsEnabled,
+    setNotificationsEnabled,
   } = useUserConfigs();
 
   const { signOut } = useAuth();
@@ -204,6 +208,41 @@ export function OptionsMenu() {
     }
   }
 
+  async function handleChangeNotifications() {
+    try {
+      if (!notificationsEnabled) {
+        // Turning ON: request OS permission
+        const granted =
+          await OneSignal.Notifications.requestPermission(true);
+        if (!granted) {
+          Alert.alert(
+            'Notificações',
+            'Permissão negada. Ative as notificações nas configurações do dispositivo.'
+          );
+          return;
+        }
+      }
+
+      const { status } = await api.patch(`user/${userId}/configs`, {
+        notifications_enabled: !notificationsEnabled,
+      });
+
+      if (status === 200) {
+        storageConfig.set(
+          `${DATABASE_CONFIGS}.notificationsEnabled`,
+          !notificationsEnabled
+        );
+        setNotificationsEnabled(!notificationsEnabled);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        'Notificações',
+        'Não foi possível alterar a configuração, por favor, tente novamente.'
+      );
+    }
+  }
+
   async function handleLogout() {
     try {
       Alert.alert(
@@ -303,6 +342,14 @@ export function OptionsMenu() {
             onValueChange={handleChangeUseLocalAuth}
             value={useLocalAuth}
             isEnabled={useLocalAuth}
+          />
+
+          <ButtonToggle
+            icon={<Bell color={theme.colors.primary} />}
+            title='Notificações'
+            onValueChange={handleChangeNotifications}
+            value={notificationsEnabled}
+            isEnabled={notificationsEnabled}
           />
 
           <Title>Sobre</Title>
