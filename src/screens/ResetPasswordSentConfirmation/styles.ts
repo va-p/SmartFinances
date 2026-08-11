@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.View`
   flex: 1;
 `;
@@ -27,13 +25,13 @@ export const MainContent = styled.View`
 
 export const SubTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;

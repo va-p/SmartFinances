@@ -5,7 +5,7 @@ export const Container = styled.KeyboardAvoidingView`
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   padding: 0 16px;
   color: ${({ theme }) => theme.colors.attention};
 `;

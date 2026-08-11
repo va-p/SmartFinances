@@ -3,7 +3,6 @@ import styled from 'styled-components/native';
 import { css } from 'styled-components';
 import { Ionicons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 export type TransactionTypeProps = 'down' | 'swap' | 'up';
 
@@ -40,7 +39,7 @@ export const Button = styled.Pressable`
 `;
 
 export const Icon = styled(Ionicons)<ButtonProps>`
-  font-size: ${RFValue(20)}px;
+  font-size: 20px;
   margin-right: 5px;
 
   ${({ isActive, type }) =>

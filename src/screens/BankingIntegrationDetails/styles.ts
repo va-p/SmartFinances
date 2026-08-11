@@ -1,4 +1,3 @@
-import { RFValue } from 'react-native-responsive-fontsize';
 import styled, { css } from 'styled-components/native';
 
 type Props = {
@@ -11,7 +10,7 @@ export const Container = styled.View`
 `;
 
 export const AccountName = styled.Text<Props>`
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
 
   ${({ isTitle }) =>
     isTitle &&
@@ -28,7 +27,7 @@ export const AccountName = styled.Text<Props>`
 `;
 
 export const LastSyncDate = styled.Text<Props>`
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
 
   ${({ isTitle }) =>
     isTitle &&

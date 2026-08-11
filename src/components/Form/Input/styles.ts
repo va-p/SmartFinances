@@ -1,10 +1,8 @@
 import { TextInput } from 'react-native';
 import styled, { css } from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Label = styled.Text`
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   margin: 16px 0 -12px;
   ${({ theme }) => css`
     font-family: ${theme.fonts.regular};
@@ -29,7 +27,7 @@ export const InputText = styled(TextInput).attrs(({ theme }) => ({
   height: 48px;
   padding: 8px 0;
   padding-left: 20px;
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   ${({ theme }) => css`
     font-family: ${theme.fonts.regular};
     color: ${theme.colors.text};

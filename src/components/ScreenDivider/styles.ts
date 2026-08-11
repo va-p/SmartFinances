@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.View`
   height: 24px;
   flex-direction: row;
@@ -19,7 +17,7 @@ export const Line = styled.View`
 
 export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: left;
   text-transform: uppercase;
   color: ${({ theme }) => theme.colors.text};

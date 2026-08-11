@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import Animated from 'react-native-reanimated';
 import { RectButton } from 'react-native-gesture-handler';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 type BudgetProps = { is_amount_reached: boolean };
 
@@ -48,12 +47,12 @@ export const PeriodContainer = styled.View`
 
 export const StartPeriod = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const EndPeriod = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
 `;

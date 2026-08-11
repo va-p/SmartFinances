@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import Animated from 'react-native-reanimated';
 import { RectButton } from 'react-native-gesture-handler';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
@@ -27,7 +26,7 @@ export const AmountContainer = styled.View`
 
 export const Amount = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -37,12 +36,12 @@ export const NameContainer = styled.View`
 
 export const InstitutionName = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(9)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.textPlaceholder};
 `;
 
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.title};
 `;

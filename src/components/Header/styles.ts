@@ -1,6 +1,5 @@
 import styled, { css } from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
 type ContainerProps = {
@@ -52,14 +51,14 @@ export const Title = styled.Text.attrs({
   ellipsizeMode: 'tail',
 })`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(16)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const Description = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;

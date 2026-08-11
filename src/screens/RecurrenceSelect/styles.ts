@@ -11,7 +11,7 @@ export const Content = styled.View`
 
 export const Label = styled.Text<{ secondary?: boolean }>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme, secondary }) =>
     secondary ? theme.colors.text_secondary || theme.colors.text : theme.colors.text};
   margin-bottom: ${({ secondary }) => (secondary ? 8 : 12)}px;

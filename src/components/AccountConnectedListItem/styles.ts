@@ -1,6 +1,5 @@
 import styled, { css } from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
 import {
@@ -40,7 +39,7 @@ export const AccountNameContainer = styled.View`
 `;
 
 export const AccountName = styled.Text<Props>`
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
 
   ${({ isTitle }) =>
     isTitle &&
@@ -57,7 +56,7 @@ export const AccountName = styled.Text<Props>`
 `;
 
 export const LastSyncDate = styled.Text<Props>`
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
 
   ${({ isTitle }) =>
     isTitle &&

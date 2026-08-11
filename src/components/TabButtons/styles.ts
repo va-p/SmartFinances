@@ -2,7 +2,6 @@ import styled from 'styled-components/native';
 
 import { css } from 'styled-components';
 import Animated from 'react-native-reanimated';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 type ButtonProps = {
   isActive: boolean;
@@ -35,7 +34,7 @@ export const Button = styled.Pressable<ButtonProps>`
 
 export const Title = styled.Text<ButtonProps>`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   align-self: center;
 
   ${({ isActive, isPositive }) =>
@@ -61,7 +60,7 @@ export const Title = styled.Text<ButtonProps>`
 
 export const Description = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   align-self: center;
   color: ${({ theme }) => theme.colors.text};
 `;

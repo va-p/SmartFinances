@@ -1,8 +1,7 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RectButton } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
+import { RectButton } from 'react-native-gesture-handler';
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
@@ -20,6 +19,6 @@ export const Tag = styled(RectButtonAnimated)`
 
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.title};
 `;

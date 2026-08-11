@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton } from 'react-native-gesture-handler';
 
@@ -29,13 +28,13 @@ export const Category = styled.View<CheckedProps>`
 `;
 
 export const Icon = styled(Ionicons)<ColorProps>`
-  font-size: ${RFValue(25)}px;
+  font-size: 25px;
   color: ${({ color }) => color};
 `;
 
 export const Name = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(10)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
 `;
