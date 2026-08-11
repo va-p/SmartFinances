@@ -37,16 +37,8 @@ export function useNotificationPermission() {
           );
         }
 
-        console.log(
-          '[useNotificationPermission] Requesting notification permission...'
-        );
         const granted =
           await OneSignal.Notifications.requestPermission(true);
-
-        console.log(
-          '[useNotificationPermission] Permission result:',
-          granted
-        );
 
         // requestPermission() returns the authoritative OS decision.
         // Do NOT use the deprecated hasPermission() — it returns stale

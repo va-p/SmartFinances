@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { View } from 'react-native';
 import { Overlay } from './styles';
 
 import {
@@ -10,7 +11,6 @@ import { useTheme } from 'styled-components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemeProps } from '@interfaces/theme';
-import { View } from 'react-native';
 
 type Props = BottomSheetProps & {
   children: ReactNode;
@@ -50,7 +50,7 @@ export function ModalViewWithoutHeader({
         <View
           style={{
             position: 'absolute',
-            top: 48,
+            top: 4,
             left: 0,
             right: 0,
             alignItems: 'center',
