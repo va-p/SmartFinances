@@ -5,13 +5,13 @@ export default {
 
     background: 'rgb(0, 0, 0)',
     backgroundNav: 'rgb(20, 20, 20)',
-    statusBar: 'rgb(14, 14, 14)',
+    statusBar: 'rgb(14, 14, 14)', // Statusbar in auth route
     backgroundCardHeader: 'rgba(20, 20, 20, 0.7)', // Card of top screens
 
     gradientStart: 'rgb(20, 20, 20)',
     gradientEnd: 'rgb(0, 0, 0)',
 
-    shape: 'rgba(40, 40, 40, 0.8)',
+    shape: 'rgba(20, 20, 20, 0.7)',
     shapeDark: 'rgb(120, 120, 120)',
 
     button: 'rgb(255, 170, 41)',
@@ -45,6 +45,7 @@ export default {
     regular: 'Poppins_400Regular',
     medium: 'Poppins_500Medium',
     bold: 'Poppins_700Bold',
+    sizeTitleXl: '18px',
     sizeTitle: '16px',
     sizeSubtitle: '14px',
     sizeText: '12px',

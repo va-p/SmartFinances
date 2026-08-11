@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 export const Container = styled.View`
   flex: 1;
   padding: 16px 16px 0;
@@ -15,14 +13,14 @@ export const SummaryContainer = styled.View`
 
 export const TotalBalance = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${RFValue(20)}px;
+  font-size: 20px;
   text-align: center;
   color: ${({ theme }) => theme.colors.title};
 `;
 
 export const TotalBalanceDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   text-align: center;
   margin-top: -4px;
   color: ${({ theme }) => theme.colors.text};
@@ -34,7 +32,7 @@ export const AccountsList = styled.View`
 
 export const SectionTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   margin: 8px 0;
   color: ${({ theme }) => theme.colors.title};
 `;

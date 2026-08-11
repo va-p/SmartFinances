@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
@@ -26,7 +25,7 @@ export const QuickAddButton = styled(RectButton)`
 
 export const QuickAddButtonText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${RFValue(14)}px;
+  ${({ theme }) => theme.fonts.sizeTitle};
   padding-left: 8px;
   color: ${({ theme }) => theme.colors.primary};
 `;
@@ -47,7 +46,7 @@ export const QuickAddInput = styled.TextInput.attrs(({ theme }) => ({
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.shape};
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme }) => theme.colors.title};
 `;
 

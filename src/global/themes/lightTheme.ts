@@ -5,7 +5,7 @@ export default {
 
     background: 'rgb(230, 233, 244)',
     backgroundNav: 'rgba(255, 255, 255, 0.95)',
-    statusBar: 'rgb(230, 233, 244)',
+    statusBar: 'rgb(230, 233, 244)', // Statusbar in auth route
     backgroundCardHeader: 'rgba(255, 255, 255, 0.5)', // Card of top screens
 
     gradientStart: '#FFEBCE',
@@ -33,6 +33,7 @@ export default {
     overlay10: 'rgba(0, 0, 0, 0.1)',
     overlayGray: 'rgba(150, 156, 178, 0.1)',
   },
+
   borders: {
     default: '1px solid #707070',
     borderRadiusScreenSectionContent: '75px',
@@ -44,6 +45,7 @@ export default {
     regular: 'Poppins_400Regular',
     medium: 'Poppins_500Medium',
     bold: 'Poppins_700Bold',
+    sizeTitleXl: '18px',
     sizeTitle: '16px',
     sizeSubtitle: '14px',
     sizeText: '12px',

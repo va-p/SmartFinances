@@ -3,7 +3,6 @@ import styled from 'styled-components/native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton } from 'react-native-gesture-handler';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 type ColorProps = {
   color: string;
@@ -35,15 +34,15 @@ export const Description = styled.View`
 
 export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
 `;
 
 export const Icon = styled(Ionicons)<ColorProps>`
-  font-size: ${RFValue(30)}px;
+  font-size: 30px;
   color: ${({ color }) => color};
 `;
 
 export const IconChevronDown = styled(Ionicons)`
-  font-size: ${RFValue(20)}px;
+  font-size: 20px;
   color: ${({ theme }) => theme.colors.text};
 `;

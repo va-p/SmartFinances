@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 type TitleProps = {
   primary?: boolean;
 };
@@ -26,7 +24,7 @@ export const Logo = styled.Image.attrs({
 
 export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(24)}px;
+  font-size: 24px;
   text-align: center;
   margin-bottom: 32px;
   color: ${({ theme, primary = false }) =>
@@ -35,6 +33,6 @@ export const Title = styled.Text<TitleProps>`
 
 export const Text = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(14)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   color: ${({ theme }) => theme.colors.text};
 `;

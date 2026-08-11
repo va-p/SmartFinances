@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
-
 type BudgetTotalType = 'positive' | 'negative';
 type BudgetTotalProps = {
   type: BudgetTotalType;
@@ -15,7 +13,7 @@ export const Container = styled.View`
 
 export const BudgetTotal = styled.Text<BudgetTotalProps>`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(18)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   text-align: center;
   color: ${({ theme, type }) =>
     type === 'positive' ? theme.colors.success : theme.colors.attention};
@@ -23,7 +21,7 @@ export const BudgetTotal = styled.Text<BudgetTotalProps>`
 
 export const BudgetTotalDescription = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${RFValue(12)}px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubTitle};
   text-align: center;
   margin-top: -8px;
   color: ${({ theme }) => theme.colors.text};
