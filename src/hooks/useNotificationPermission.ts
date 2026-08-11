@@ -30,7 +30,8 @@ export function useNotificationPermission() {
         const granted =
           await OneSignal.Notifications.requestPermission(true);
 
-        const actualPermission = OneSignal.Notifications.permission;
+        const actualPermission =
+          await OneSignal.Notifications.hasPermission();
 
         console.log('[useNotificationPermission] Permission result:', {
           granted,
