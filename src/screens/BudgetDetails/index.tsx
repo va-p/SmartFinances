@@ -57,8 +57,6 @@ export function BudgetDetails() {
   const { budget, isLoading, isError } = useFormattedBudgetDetail(budgetID);
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
 
-  console.log('budgetttt ====->', budget);
-
   if (isLoading) {
     return <SkeletonBudgetsScreen />;
   }
