@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import {
   Container,
   AmountContainer,
@@ -251,11 +251,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           ]
         );
       } catch {
-        Alert.alert(
-          'Erro',
-          'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
-          [{ text: 'OK' }]
-        );
+        // Alert.alert(
+        //   'Erro',
+        //   'Não foi possível atualizar o orçamento. Verifique os dados e tente novamente.',
+        //   [{ text: 'OK' }]
+        // );
       }
     } else {
       // --- Create budget ---
@@ -282,11 +282,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           ]
         );
       } catch {
-        Alert.alert(
-          'Erro',
-          'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
-          [{ text: 'OK' }]
-        );
+        // Alert.alert(
+        //   'Erro',
+        //   'Não foi possível criar o orçamento. Verifique os dados e tente novamente.',
+        //   [{ text: 'OK' }]
+        // );
       }
     }
   }
@@ -317,7 +317,11 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   return (
     <Screen>
-      <Container>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+      >
+        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ControlledInputWithIcon
           icon={<PencilSimple color={theme.colors.primary} />}
           placeholder='Nome do orçamento'
@@ -452,6 +456,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           />
         </ModalViewSelection>
       </Container>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

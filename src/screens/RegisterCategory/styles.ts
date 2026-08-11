@@ -14,7 +14,7 @@ type Props = {
   bottomInset?: number;
 };
 
-export const Container = styled.View`
+export const Container = styled.KeyboardAvoidingView`
   flex: 1;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.background};

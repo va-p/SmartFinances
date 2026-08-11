@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
 import { Container, Body, Footer } from './styles';
 
 // Hooks
-import { useInstitutionsQuery } from '@hooks/useInstitutionsQuery';
 import {
   useCreateInstitutionMutation,
   useUpdateInstitutionMutation,
 } from '@hooks/useInstitutionMutations';
+import { useInstitutionsQuery } from '@hooks/useInstitutionsQuery';
 
 // Dependencies
 import axios from 'axios';
@@ -138,7 +138,11 @@ export function RegisterInstitution({ id, closeInstitution }: Props) {
 
   return (
     <Screen>
-      <Container>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+      >
+        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Body>
           <ControlledInputCategoryName
             placeholder='Nome da instituição'
@@ -164,6 +168,7 @@ export function RegisterInstitution({ id, closeInstitution }: Props) {
           </Button.Root>
         </Footer>
       </Container>
+      </TouchableWithoutFeedback>
     </Screen>
   );
 }

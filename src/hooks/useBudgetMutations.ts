@@ -45,6 +45,7 @@ export function useCreateBudgetMutation() {
     onError: (_error, _newBudget, context) => {
       if (context?.previousBudgets)
         queryClient.setQueryData(QUERY_KEY, context.previousBudgets);
+        Alert.alert('Erro', 'Não foi possível atualizar o orçamento.');
     },
 
     onSettled: () => {
@@ -75,6 +76,7 @@ export function useUpdateBudgetMutation() {
     onError: (_error, _updatedBudget, context) => {
       if (context?.previousBudgets)
         queryClient.setQueryData(QUERY_KEY, context.previousBudgets);
+      Alert.alert('Erro', 'Não foi possível atualizar o orçamento.');
     },
 
     onSettled: () => {
