@@ -16,6 +16,7 @@ import Bank from 'phosphor-react-native/src/icons/Bank';
 import Money from 'phosphor-react-native/src/icons/Money';
 import Coins from 'phosphor-react-native/src/icons/Coins';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
+import Star from 'phosphor-react-native/src/icons/Star';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
@@ -120,6 +121,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     })
   );
   const [hideAccount, setHideAccount] = useState(false);
+  const [isDefault, setIsDefault] = useState(false);
   const [buttonIsLoading, setButtonIsLoading] = useState(false);
   const institutionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [institutionSelected, setInstitutionSelected] =
@@ -185,6 +187,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     closeAccount();
   }
 
+  function handleToggleDefaultAccount() {
+    setIsDefault((prevState) => !prevState);
+  }
+
   async function handleEditAccount(id: string | null, form: FormData) {
     const AccountEdited = {
       account_id: id,
@@ -193,6 +199,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       currency_id: currencySelected.id, // TODO: only if is manual account
       balance: form.balance,
       hide: hideAccount,
+      is_default: isDefault,
       institution_id: institutionSelected?.id ?? null,
     };
     try {
@@ -252,6 +259,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           currency_id: currencySelected.id,
           balance: form.balance,
           hide: false,
+          is_default: isDefault,
           user_id: userID,
           institution_id: institutionSelected?.id ?? null,
         };
@@ -291,6 +299,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       handleSetType(data.type);
       setCurrencySelected(data.currency);
       setHideAccount(data.hide);
+      setIsDefault(data.isDefault ?? false);
       handleSetInstitution(data.institution ?? null);
     } catch (error) {
       console.error(error);
@@ -451,6 +460,15 @@ export function RegisterAccount({ id, closeAccount }: Props) {
               isEnabled={hideAccount}
             />
           )}
+
+          <ButtonToggle
+            icon={<Star color={theme.colors.primary} />}
+            title='Definir como conta padrão'
+            subTitle='Esta conta virá pré-selecionada ao adicionar transações'
+            onValueChange={handleToggleDefaultAccount}
+            value={isDefault}
+            isEnabled={isDefault}
+          />
         </Form>
 
         <Footer>
