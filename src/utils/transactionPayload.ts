@@ -141,6 +141,24 @@ export type TransferEditInput = TransferBaseInput & {
 };
 
 /**
+ * D-08/AC-6.3: when editing, the destination selector is pre-filled from the
+ * related leg's account — but only when the edited transaction is a transfer
+ * leg. Pure decision, unit-tested.
+ */
+export function resolveTransferDestinationAccount<T>(
+  transactionType: string | undefined,
+  relatedAccount: T | null,
+): T | null {
+  if (
+    transactionType !== 'TRANSFER_CREDIT' &&
+    transactionType !== 'TRANSFER_DEBIT'
+  ) {
+    return null;
+  }
+  return relatedAccount ?? null;
+}
+
+/**
  * TR-4/TR-6 edit contract: `updateRelated: true` plus the counterpart fields.
  * The primary leg keeps its stored type; the counterpart is always the
  * opposite and lives in the destination account.

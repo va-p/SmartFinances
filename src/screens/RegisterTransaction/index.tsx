@@ -34,7 +34,7 @@ import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
-import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags } from '@utils/transactionPayload';
+import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags, resolveTransferDestinationAccount } from '@utils/transactionPayload';
 
 // Dependencies
 import * as Yup from 'yup';
@@ -1152,7 +1152,10 @@ export function RegisterTransaction({
       // Pre-fill the destination selector when editing a transfer leg
       // (D-08): GET /transaction/:id now returns the related leg's account.
       setAccountDestinationSelected(
-        transactionData.related_transaction?.account ?? null
+        resolveTransferDestinationAccount(
+          transactionData.type,
+          transactionData.related_transaction?.account ?? null
+        )
       );
 
       // Pre-fill recurrence fields when editing

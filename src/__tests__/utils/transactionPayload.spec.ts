@@ -3,6 +3,7 @@ import {
   buildTransferEditPayload,
   convertToAccountCurrency,
   normalizeTags,
+  resolveTransferDestinationAccount,
   Quotes,
 } from '@utils/transactionPayload';
 
@@ -26,7 +27,7 @@ const quotes: Quotes = {
   usdQuoteEur: { price: 1.1 },
 };
 
-const baseInput = (overrides: Record<string, unknown> = {}) => ({
+const baseInput = <T extends Record<string, any>>(overrides: T = {} as T) => ({
   description: 'Transfer to savings',
   amount: 100,
   selectedCurrency: { id: 2, code: 'USD' },
@@ -155,6 +156,29 @@ describe('buildTransferEditPayload (TR-4 / TR-6)', () => {
 
     expect(payload.amount_in_account_currency).toBeNull(); // origin USD
     expect(payload.amount_in_account_currency_related_transaction).toBe(500);
+  });
+});
+
+describe('resolveTransferDestinationAccount (AC-6.3)', () => {
+  const account = { id: 20, name: 'Savings' };
+
+  it('returns the related account for transfer legs', () => {
+    expect(resolveTransferDestinationAccount('TRANSFER_DEBIT', account)).toBe(
+      account
+    );
+    expect(resolveTransferDestinationAccount('TRANSFER_CREDIT', account)).toBe(
+      account
+    );
+  });
+
+  it('returns null for plain types (never pre-fills)', () => {
+    expect(resolveTransferDestinationAccount('DEBIT', account)).toBeNull();
+    expect(resolveTransferDestinationAccount('CREDIT', account)).toBeNull();
+    expect(resolveTransferDestinationAccount(undefined, account)).toBeNull();
+  });
+
+  it('returns null when no related account exists', () => {
+    expect(resolveTransferDestinationAccount('TRANSFER_DEBIT', null)).toBeNull();
   });
 });
 
