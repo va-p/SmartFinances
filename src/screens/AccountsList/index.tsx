@@ -2,14 +2,19 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
+// Dependencies
 import axios from 'axios';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect, useNavigation } from 'expo-router';
+
+// Icons
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
-import { useFocusEffect, useNavigation } from 'expo-router';
+
+// Screens
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
@@ -32,7 +37,7 @@ import { ThemeProps } from '@interfaces/theme';
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
 
 export function AccountsList() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();
@@ -159,7 +164,7 @@ export function AccountsList() {
         case 'OTHER':
         case 'WALLET':
           return <Wallet color={theme.colors.primary} />;
-        case 'CRYPTOCURRENCY WALLET':
+        case 'CRYPTOCURRENCY_WALLET':
           return <CurrencyBtc color={theme.colors.primary} />;
         case 'INVESTMENTS':
         case 'BANK':
