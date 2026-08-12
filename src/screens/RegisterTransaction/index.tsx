@@ -34,6 +34,7 @@ import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
+import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags } from '@utils/transactionPayload';
 
 // Dependencies
 import * as Yup from 'yup';
@@ -776,7 +777,7 @@ export function RegisterTransaction({
     tagsList = Object.values(tagsList);
 
     let image_url: string | null = imageUrl || null;
-    if (image !== '') {
+    if (image) {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
       };
@@ -798,20 +799,19 @@ export function RegisterTransaction({
         return;
       }
 
-      const fromCurrency = currencySelected.code; // Moeda selecionada
-      const toCurrency = accountDestinationSelected.currency.code; // Moeda da conta de destino
-      const transactionType =
-        form.amount > 0 ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
-      const relatedTransactionType =
-        transactionType === 'TRANSFER_CREDIT'
-          ? 'TRANSFER_DEBIT'
-          : 'TRANSFER_CREDIT';
-
-      amountConverted = convertCurrency({
-        amount,
-        fromCurrency,
-        toCurrency,
-        accountCurrency: accountCurrency!.code,
+      const transferPayload = buildTransferCreatePayload({
+        description: form.description,
+        amount: form.amount,
+        selectedCurrency: currencySelected,
+        originAccount: { id: Number(accountID), currency: accountCurrency! },
+        destinationAccount: accountDestinationSelected,
+        categoryId: categorySelected.id,
+        tags: tagsList,
+        date,
+        imageUrl: image_url,
+        isRecurring,
+        recurrenceInterval,
+        recurrencePeriod,
         quotes: {
           brlQuoteBtc,
           brlQuoteEur,
@@ -827,51 +827,6 @@ export function RegisterTransaction({
           usdQuoteEur,
         },
       });
-
-      const amountInAccountCurrencyRelatedTransaction =
-        fromCurrency !== accountDestinationSelected.currency.code // If transaction currency is different to account currency
-          ? relatedTransactionType === 'TRANSFER_CREDIT'
-            ? Math.abs(amountConverted)
-            : amountConverted
-          : null;
-
-      // --- Build full account & category objects for optimistic cache update ---
-      const accountForOptimistic = {
-        id: Number(accountID) || 0,
-        name: accountName || '',
-        currency: accountCurrency!,
-        type: accountType!,
-        balance: 0,
-        initialAmount: accountInitialAmount,
-      };
-
-      const transferPayload = {
-        transaction_date: date,
-        created_at: date,
-        description: form.description,
-        amount,
-        amount_in_account_currency:
-          fromCurrency !== accountDestinationSelected.currency.code // If transaction currency is different to account currency
-            ? amountConverted
-            : null,
-        currency_id: currencySelected.id,
-        currency: currencySelected,
-        type: transactionType,
-        account_id: accountID,
-        account: accountForOptimistic,
-        category_id: categorySelected.id,
-        category: categorySelected,
-        tags: tagsList,
-        image_url,
-        is_recurring: isRecurring,
-        recurrence_interval: isRecurring ? recurrenceInterval : null,
-        recurrence_period: isRecurring ? recurrencePeriod : null,
-        related_transaction_account_id: accountDestinationSelected.id,
-        amount_in_account_currency_related_transaction:
-          amountInAccountCurrencyRelatedTransaction,
-        related_transaction_type: relatedTransactionType,
-        user_id: userID,
-      };
 
       createTransaction(transferPayload, {
         onSuccess: () => {
@@ -941,7 +896,7 @@ export function RegisterTransaction({
       account: accountForOptimistic,
       category_id: categorySelected.id,
       category: categorySelected,
-      tags: tagsList,
+      tags: normalizeTags(tagsList),
       image_url,
       is_recurring: isRecurring,
       recurrence_interval: isRecurring ? recurrenceInterval : null,
