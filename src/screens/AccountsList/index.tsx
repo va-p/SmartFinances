@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
@@ -29,9 +29,12 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 import { RegisterAccount } from '@screens/RegisterAccount';
 
 import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 import api from '@api/api';
+
+import { processAccountsForList } from '@utils/processAccountsForList';
 
 import { ThemeProps } from '@interfaces/theme';
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
@@ -59,6 +62,14 @@ export function AccountsList() {
     (state) => state.setAccountInitialAmount
   );
   const navigation = useNavigation();
+  const quotes = useQuotes();
+
+  // Format balances in each account's currency (and add a BRL-converted
+  // secondary line for non-BRL accounts), mirroring the Accounts screen.
+  const processedAccounts = useMemo(
+    () => processAccountsForList(accounts, quotes),
+    [accounts, quotes]
+  );
 
   async function fetchAccounts() {
     setLoading(true);
@@ -214,7 +225,7 @@ export function AccountsList() {
         </Header.Root>
 
         <FlatList
-          data={accounts}
+          data={processedAccounts}
           keyExtractor={(_, idx) => String(idx)}
           renderItem={_renderItem}
           ListEmptyComponent={() => (
