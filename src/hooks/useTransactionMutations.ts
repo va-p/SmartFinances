@@ -33,20 +33,16 @@ export function useCreateTransactionMutation() {
       const previousTransactions =
         queryClient.getQueryData<TransactionProps[]>(QUERY_KEY);
 
+      if (newTransaction.isTransfer) {
+        // Transfer legs are created atomically server-side; skip temporary
+        // rows (leg payloads lack the account/category/currency objects the
+        // list renders) and rely on onSettled invalidation to show the pair.
+        return { previousTransactions };
+      }
+
       queryClient.setQueryData<TransactionProps[]>(
         QUERY_KEY,
         (oldData = []) => {
-          if (newTransaction.isTransfer) {
-            const optimisticDebit = {
-              ...newTransaction.debit,
-              id: `temp-debit-${Date.now()}`,
-            };
-            const optimisticCredit = {
-              ...newTransaction.credit,
-              id: `temp-credit-${Date.now()}`,
-            };
-            return [optimisticDebit, optimisticCredit, ...oldData];
-          }
           const optimisticTransaction = {
             ...newTransaction,
             id: `temp-${Date.now()}`,

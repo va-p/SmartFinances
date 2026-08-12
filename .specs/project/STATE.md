@@ -31,6 +31,7 @@
 | 25 | **Transaction images: add backend support** | Added `imageUrl` (`@db.Text`) to Transaction model + `POST /transaction/image` endpoint (validates base64, max 5MB). Frontend changed from `transaction_image_id` (numeric FK) to `image_url` (base64 string). |
 | 26 | **Profile save: update URL only, flag as broken** | Updated image upload from `POST upload/user_profile_image` to `PATCH user/:id`. Flagged `handleSaveProfile()` as broken — builds `profileEdited` but never calls API to persist it. Needs dedicated fix. |
 | 27 | **Tags use PUT (not PATCH)** | Backend only has `PUT /tag/:id` (no PATCH route). Frontend uses PUT for tag updates. Consider adding `PATCH /tag/:id` in future backend update for consistency. |
+| 28 | **API responses must be uncacheable — fix at server layer** | The cPanel/LiteSpeed reverse proxy stamps every response with `Cache-Control: public, max-age=14400` + `Expires` + `ETag` (Express only adds the ETag; the backend sets no cache headers). iOS `NSURLCache` (disk-backed, survives restarts) then serves stale GET responses for up to 4h — POSTs bypass the cache, so writes hit the DB (visible in pgAdmin) while lists never refresh, even after app restart. Fix belongs at the server layer (.htaccess/LiteSpeed: force `Cache-Control: no-store`) — no Express/RN code changes. |
 
 ---
 
@@ -47,6 +48,8 @@
 | 7 | Express v5 req immutability | ~~`req.query = ...` crashes in Express v5 (getter-only property).~~ → **Resolved**: `validate.ts` middleware now mutates object in place via `Object.assign`. |
 | 8 | Profile editing broken | `handleSaveProfile()` in `Profile/index.tsx` builds `profileEdited` but never calls an API to persist it. Image upload endpoint was fixed in endpoint-migration, but the actual save is still missing. ⚠️ FIXME comment added. | Open |
 | 9 | Transaction image DB migration | `add_transaction_image_url` migration SQL created but not applied (PostgreSQL not running locally). Must run `npx prisma migrate deploy` on cPanel after deployment. | Open | Resolved |
+| 10 | Production lists stale (4h HTTP cache) | Prod responses carry `cache-control: public, max-age=14400` + `expires` + `etag` (injected by cPanel/LiteSpeed layer). iOS NSURLCache serves stale GETs (transactions/categories) for 4h, surviving app restarts; POSTs uncached → DB updated but UI stale. Server-layer fix (no-store) being applied by user — pending re-verification of prod headers. | Open |
+| 11 | Global rate limiter strict budget | Without `X-Device-Fingerprint` header the prod limit is 30 req/15min/IP (frontend doesn't send the header yet). Normal app usage (screen loads + invalidations) can hit 429s. Consider raising `RATE_LIMIT_STRICT_MAX` or implementing the fingerprint header. | Open |
 
 ---
 
