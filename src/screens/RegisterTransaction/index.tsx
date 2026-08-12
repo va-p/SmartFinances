@@ -345,6 +345,23 @@ export function RegisterTransaction({
         break;
     }
 
+    // Converting a plain transaction into a transfer on edit is not
+    // supported (the backend only creates counterparts at transfer creation
+    // time — see spec.md TR-4). Keep the edit tab on the stored type.
+    if (
+      tabIdx === 1 &&
+      id !== '' &&
+      transactionData &&
+      transactionData.type !== 'TRANSFER_CREDIT' &&
+      transactionData.type !== 'TRANSFER_DEBIT'
+    ) {
+      Alert.alert(
+        'Edição de Transação',
+        'Não é possível converter esta transação em uma transferência durante a edição.'
+      );
+      return;
+    }
+
     setSelectedTransactionTab(tabIdx);
     setTransactionType(transactionType);
   }
@@ -563,7 +580,7 @@ export function RegisterTransaction({
         type: transactionType || transaction.type,
         account_id: updatedAccountId,
         category_id: updatedCategoryId,
-        tags: tagsList.length > 0 ? tagsList : transaction.tags,
+        tags: normalizeTags(tagsList.length > 0 ? tagsList : transaction.tags),
         image_url: null,
         is_recurring: isRecurring,
         recurrence_interval: isRecurring ? recurrenceInterval : null,
@@ -629,16 +646,12 @@ export function RegisterTransaction({
     const hasDestinationAccount =
       accountDestinationSelected !== null &&
       accountDestinationSelected.id !== 0; // Checks if there is a destination account selected (contrapart)
-    const fromCurrency = currencySelected.code; // Moeda selecionada
 
     let amountConverted = amount;
     amountConverted = convertCurrency({
       amount,
       fromCurrency: currencySelected.code,
-      toCurrency:
-        transactionType === 'TRANSFER' && hasDestinationAccount
-          ? accountDestinationSelected?.currency.code
-          : accountCurrency!.code,
+      toCurrency: accountCurrency!.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
       quotes: {
         brlQuoteBtc,
@@ -658,54 +671,49 @@ export function RegisterTransaction({
 
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
-      const transactionType =
-        amount > 0 ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
-      const relatedTransactionType =
-        transactionType === 'TRANSFER_CREDIT'
-          ? 'TRANSFER_DEBIT'
-          : 'TRANSFER_CREDIT';
-      const amountInAccountCurrencyRelatedTransaction = hasDestinationAccount
-        ? fromCurrency !== accountDestinationSelected?.currency!.code // If transaction currency is different to account currency
-          ? relatedTransactionType === 'TRANSFER_CREDIT'
-            ? Math.abs(amountConverted)
-            : amountConverted
-          : null
-        : null;
+      if (!hasDestinationAccount) {
+        Alert.alert(
+          'Edição de Transação',
+          'Selecione a conta de destino para transferências'
+        );
+        return;
+      }
 
-      const transferEditedPayload = {
-        transaction_id: id,
-        created_at: date,
-        transaction_date: date,
-        bank_transaction_id: bankTransactionID,
-        date: transactionDate,
+      const transferEditedPayload = buildTransferEditPayload({
+        transactionId: id,
         description: form.description,
-        amount,
-        amount_in_account_currency:
-          currencySelected.code !== accountCurrency?.code
-            ? amountConverted
-            : null,
-        currency_id: currencySelected.id,
-        currency: currencySelected,
-        type: transactionType,
-        account_id: accountID,
-        category_id: categorySelected.id,
+        amount: form.amount,
+        selectedCurrency: currencySelected,
+        originAccount: { id: Number(accountID), currency: accountCurrency! },
+        destinationAccount: accountDestinationSelected!,
+        categoryId: categorySelected.id,
         tags: tagsList,
-        image_url,
-        is_recurring: isRecurring,
-        recurrence_interval: isRecurring ? recurrenceInterval : null,
-        recurrence_period: isRecurring ? recurrencePeriod : null,
-        // Informações para o backend lidar com a contrapartida
-        related_transaction_account_id: hasDestinationAccount
-          ? accountDestinationSelected?.id
-          : null,
-        related_transaction_type: hasDestinationAccount
-          ? relatedTransactionType
-          : null,
-        amount_in_account_currency_related_transaction: hasDestinationAccount
-          ? amountInAccountCurrencyRelatedTransaction
-          : null,
-        user_id: userID,
-      };
+        date,
+        imageUrl: image_url,
+        isRecurring,
+        recurrenceInterval,
+        recurrencePeriod,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+        // The primary leg keeps its stored type; direction is fixed by the
+        // account selectors (D-02), never derived from the sign.
+        primaryType:
+          transactionData?.type === 'TRANSFER_CREDIT'
+            ? 'TRANSFER_CREDIT'
+            : 'TRANSFER_DEBIT',
+      });
 
       updateTransaction(transferEditedPayload, {
         onSuccess: () => {
@@ -738,11 +746,15 @@ export function RegisterTransaction({
       type: transactionType,
       account_id: accountID,
       category_id: categorySelected.id,
-      tags: tagsList,
+      tags: normalizeTags(tagsList),
       image_url,
       is_recurring: isRecurring,
       recurrence_interval: isRecurring ? recurrenceInterval : null,
       recurrence_period: isRecurring ? recurrencePeriod : null,
+      // Editing a transaction that is (or was) a transfer with a plain type
+      // un-transfers it: the backend severs the link and removes the
+      // counterpart leg (TR-4.5).
+      updateRelated: relatedTransactionID !== null,
       user_id: userID,
     };
 
@@ -1136,6 +1148,12 @@ export function RegisterTransaction({
       setTransactionDate(transactionData.date);
       setBankTransactionID(transactionData.bank_transaction_id);
       setRelatedTransactionID(transactionData.related_transaction_id);
+
+      // Pre-fill the destination selector when editing a transfer leg
+      // (D-08): GET /transaction/:id now returns the related leg's account.
+      setAccountDestinationSelected(
+        transactionData.related_transaction?.account ?? null
+      );
 
       // Pre-fill recurrence fields when editing
       if (transactionData.is_recurring) {
