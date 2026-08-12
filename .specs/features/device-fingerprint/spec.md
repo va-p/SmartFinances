@@ -29,6 +29,7 @@ budget.
 | AC1.3 | If the native call throws, a non-empty fallback value is returned and requests still proceed (no crash, no missing header). |
 | AC1.4 | The tracked template `src/api/api_example.ts` documents the wiring so a fresh clone (where `api.ts` is gitignored) reproduces it. |
 | AC1.5 | A unit test covers memoization (single native call) and the fallback path. |
+| AC1.6 | The interceptor wiring itself is covered by a test that asserts the `X-Device-Fingerprint` header is attached to an outgoing request (against the tracked `api_example.ts`, the canonical copy of the gitignored `api.ts`). |
 
 ## Notes
 
