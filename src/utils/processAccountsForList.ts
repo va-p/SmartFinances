@@ -9,6 +9,8 @@ export type ProcessedAccountListItem = Omit<AccountProps, 'balance'> & {
   balance: string;
   /** Numeric balance in the account's own currency, for sorting/comparisons. */
   rawBalance: number;
+  /** Numeric BRL-normalized balance, used as the balance-sort key. */
+  balanceConvertedToBRL: number;
   /** BRL-converted balance (secondary line), only for non-BRL accounts. */
   totalAccountAmountConverted?: string;
 };
@@ -27,6 +29,7 @@ export function processAccountsForList(
     const rawBalance = Number(account.balance);
     const isBRL = account.currency.code === 'BRL';
 
+    let balanceConvertedToBRL = rawBalance;
     let totalAccountAmountConverted: string | undefined;
     if (!isBRL) {
       try {
@@ -37,6 +40,7 @@ export function processAccountsForList(
           accountCurrency: account.currency.code,
           quotes,
         });
+        balanceConvertedToBRL = converted;
         totalAccountAmountConverted = formatCurrency('BRL', converted, false);
       } catch {
         // Unsupported currency pair: omit the secondary line rather than crash.
@@ -48,6 +52,7 @@ export function processAccountsForList(
       ...account,
       balance: formatCurrency(account.currency.code, rawBalance, false),
       rawBalance,
+      balanceConvertedToBRL,
       totalAccountAmountConverted,
     };
   });
