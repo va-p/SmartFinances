@@ -15,7 +15,6 @@ import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 
 // Screens
-
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
@@ -23,6 +22,7 @@ import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SortFilterButton } from '@components/SortFilterButton';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
@@ -30,14 +30,19 @@ import { RegisterAccount } from '@screens/RegisterAccount';
 
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
+
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
 
 import { processAccountsForList } from '@utils/processAccountsForList';
+import { sortAccountsByOption } from '@utils/sortAccountsByOption';
 
 import { ThemeProps } from '@interfaces/theme';
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
+import type { SortingOption } from '@stores/userConfigsStorage';
 
 export function AccountsList() {
   const theme = useTheme() as ThemeProps;
@@ -63,6 +68,7 @@ export function AccountsList() {
   );
   const navigation = useNavigation();
   const quotes = useQuotes();
+  const { sortingOption, setSortingOption } = useUserConfigs();
 
   // Format balances in each account's currency (and add a BRL-converted
   // secondary line for non-BRL accounts), mirroring the Accounts screen.
@@ -70,6 +76,16 @@ export function AccountsList() {
     () => processAccountsForList(accounts, quotes),
     [accounts, quotes]
   );
+
+  const sortedAccounts = useMemo(
+    () => sortAccountsByOption(processedAccounts, sortingOption),
+    [processedAccounts, sortingOption]
+  );
+
+  function handleSelectSorting(option: SortingOption) {
+    setSortingOption(option);
+    storageConfig.set(`${DATABASE_CONFIGS}.sortingOption`, option);
+  }
 
   async function fetchAccounts() {
     setLoading(true);
@@ -222,10 +238,14 @@ export function AccountsList() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title={'Contas Manuais'} />
+          <SortFilterButton
+            selectedOption={sortingOption}
+            onSelect={handleSelectSorting}
+          />
         </Header.Root>
 
         <FlatList
-          data={processedAccounts}
+          data={sortedAccounts}
           keyExtractor={(_, idx) => String(idx)}
           renderItem={_renderItem}
           ListEmptyComponent={() => (
