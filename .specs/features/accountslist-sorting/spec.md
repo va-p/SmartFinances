@@ -19,7 +19,7 @@ New `src/utils/sortAccountsByOption.ts`: pure function `(accounts, option)` retu
 Includes Jest tests (spec-anchored, all 4 modes + cross-currency fairness).
 
 ### R4 — Wired into AccountsList
-AccountsList reads `sortingOption`/`setSortingOption` from `useUserConfigs` and persists to MMKV (`config.sortingOption`, same key as Accounts — one global account-sort preference, restored in `_layout.tsx`). The processed list is sorted via `sortAccountsByOption` in a `useMemo`. The funnel button is placed in the list header (a title/filter row, same visual pattern as Accounts).
+AccountsList reads `sortingOption`/`setSortingOption` from `useUserConfigs` and persists to MMKV (`config.sortingOption`, same key as Accounts — one global account-sort preference, restored in `_layout.tsx`). The processed list is sorted via `sortAccountsByOption` in a `useMemo`. The funnel button is placed in the screen's `Header.Root` row (back button + title + funnel, same third-child pattern as `Header.Icon` on Account/BudgetDetails).
 
 ### R5 — Accounts screen refactored to use the shared control
 `Accounts/index.tsx` replaces its local `sortingBottomSheetRef`, `handleSortingPress`, `handleCloseSortingModal` and the `ModalViewSelection` block with `<SortFilterButton selectedOption={sortingOption} onSelect={handleSelectSorting} />`. Behavior unchanged (verified by existing sorting tests + manual check).
@@ -39,8 +39,7 @@ AccountsList reads `sortingOption`/`setSortingOption` from `useUserConfigs` and 
 | `src/screens/SortingOptions/index.tsx` | Import shared `SortingOption` type |
 | `src/utils/sortAccountsByOption.ts` | New pure util + Jest test |
 | `src/utils/processAccountsForList.ts` | Expose `balanceConvertedToBRL` per item (R3 input) |
-| `src/screens/AccountsList/index.tsx` | Sort state + memo + header button |
-| `src/screens/AccountsList/styles.ts` | Title/filter row styles |
+| `src/screens/AccountsList/index.tsx` | Sort state + memo + header-row button |
 | `src/screens/Accounts/index.tsx` | Use `SortFilterButton` (R5) |
 
 ## Decisions
