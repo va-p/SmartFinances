@@ -3,7 +3,7 @@ import { Container} from './styles';
 
 import { ListItem } from '@components/ListItem';
 
-type SortingOption = 'name-asc' | 'name-desc' | 'balance-asc' | 'balance-desc';
+import { SortingOption } from '@stores/userConfigsStorage';
 
 type OptionConfig = {
   value: SortingOption;

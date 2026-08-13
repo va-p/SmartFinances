@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 
-type SortingOption = 'name-asc' | 'name-desc' | 'balance-asc' | 'balance-desc';
+export type SortingOption =
+  | 'name-asc'
+  | 'name-desc'
+  | 'balance-asc'
+  | 'balance-desc';
 
 type UserConfigs = {
   useLocalAuth: boolean;
