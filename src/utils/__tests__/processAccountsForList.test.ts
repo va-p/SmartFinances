@@ -48,6 +48,19 @@ describe('processAccountsForList', () => {
     expect(processed.balance).toBe('US$\u00A0100,00');
   });
 
+  // R1 — BTC uses 8 decimal places (formatCurrency BTC branch)
+  it('formats BTC balance with 8 decimal places', () => {
+    const btcAccount = {
+      ...brlAccount,
+      id: 3,
+      name: 'Carteira BTC',
+      balance: 0.12345678,
+      currency: { id: 3, name: 'Bitcoin', code: 'BTC', symbol: '₿' },
+    } as AccountProps;
+    const [processed] = processAccountsForList([btcAccount], quotes);
+    expect(processed.balance).toBe('BTC\u00A00,12345678');
+  });
+
   // R2 — BRL-converted secondary line only for non-BRL accounts
   it('adds BRL-converted secondary line for non-BRL accounts', () => {
     const [processed] = processAccountsForList([usdAccount], quotes);
