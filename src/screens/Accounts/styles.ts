@@ -76,10 +76,6 @@ export const SectionTitle = styled.Text`
   color: ${({ theme }) => theme.colors.title};
 `;
 
-export const SortingButton = styled.TouchableOpacity`
-  padding: 8px;
-`;
-
 type FooterProps = {
   bottomTabHeight: number;
 };

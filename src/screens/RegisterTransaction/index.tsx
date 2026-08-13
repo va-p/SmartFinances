@@ -31,9 +31,11 @@ import {
 import { useTagsQuery } from '@hooks/useTagsQuery';
 import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
+import { useAccountsQuery } from '@hooks/useAccountsQuery';
 
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
+import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags, resolveTransferDestinationAccount } from '@utils/transactionPayload';
 
 // Dependencies
@@ -279,6 +281,7 @@ export function RegisterTransaction({
     useDeleteTransactionMutation();
 
   const { data: tagsData, isLoading: isLoadingTags } = useTagsQuery();
+  const { data: accountsData } = useAccountsQuery();
   const { data: transactionData, isLoading: isLoadingDetails } =
     useTransactionDetailQuery(id);
   const { data: bulkTransactionsData, isLoading: isLoadingBulkTransactions } =
@@ -1183,6 +1186,27 @@ export function RegisterTransaction({
       }
     }
   }, [transactionData, bulkTransactionsData, isBulkEdit]);
+
+  // default-account spec AC-5/AC-6: when creating a new transaction with no
+  // account context selected, pre-select the user's default account.
+  useEffect(() => {
+    if (id !== '' || isBulkEdit) {
+      return;
+    }
+    if (accountID) {
+      return;
+    }
+    const defaultAccount = pickDefaultAccount(accountsData);
+    if (!defaultAccount) {
+      return;
+    }
+    setAccountID(String(defaultAccount.id));
+    setAccountName(defaultAccount.name);
+    setAccountCurrency(defaultAccount.currency);
+    setAccountType(defaultAccount.type);
+    setAccountInitialAmount(defaultAccount.initialAmount ?? 0);
+    setCurrencySelected(defaultAccount.currency);
+  }, [id, isBulkEdit, accountID, accountsData]);
 
   if (isLoadingTags || isLoadingDetails || isLoadingBulkTransactions) {
     return false;

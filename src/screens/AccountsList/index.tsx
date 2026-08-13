@@ -1,16 +1,20 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
+// Dependencies
 import axios from 'axios';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect, useNavigation } from 'expo-router';
+
+// Icons
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
-import { useFocusEffect, useNavigation } from 'expo-router';
 
+// Screens
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
@@ -18,21 +22,30 @@ import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SortFilterButton } from '@components/SortFilterButton';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
 import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
+
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import api from '@api/api';
 
+import { processAccountsForList } from '@utils/processAccountsForList';
+import { sortAccountsByOption } from '@utils/sortAccountsByOption';
+
 import { ThemeProps } from '@interfaces/theme';
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
+import type { SortingOption } from '@stores/userConfigsStorage';
 
 export function AccountsList() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
   const { id: userID } = useUser();
@@ -54,6 +67,25 @@ export function AccountsList() {
     (state) => state.setAccountInitialAmount
   );
   const navigation = useNavigation();
+  const quotes = useQuotes();
+  const { sortingOption, setSortingOption } = useUserConfigs();
+
+  // Format balances in each account's currency (and add a BRL-converted
+  // secondary line for non-BRL accounts), mirroring the Accounts screen.
+  const processedAccounts = useMemo(
+    () => processAccountsForList(accounts, quotes),
+    [accounts, quotes]
+  );
+
+  const sortedAccounts = useMemo(
+    () => sortAccountsByOption(processedAccounts, sortingOption),
+    [processedAccounts, sortingOption]
+  );
+
+  function handleSelectSorting(option: SortingOption) {
+    setSortingOption(option);
+    storageConfig.set(`${DATABASE_CONFIGS}.sortingOption`, option);
+  }
 
   async function fetchAccounts() {
     setLoading(true);
@@ -159,7 +191,7 @@ export function AccountsList() {
         case 'OTHER':
         case 'WALLET':
           return <Wallet color={theme.colors.primary} />;
-        case 'CRYPTOCURRENCY WALLET':
+        case 'CRYPTOCURRENCY_WALLET':
           return <CurrencyBtc color={theme.colors.primary} />;
         case 'INVESTMENTS':
         case 'BANK':
@@ -206,10 +238,14 @@ export function AccountsList() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title={'Contas Manuais'} />
+          <SortFilterButton
+            selectedOption={sortingOption}
+            onSelect={handleSelectSorting}
+          />
         </Header.Root>
 
         <FlatList
-          data={accounts}
+          data={sortedAccounts}
           keyExtractor={(_, idx) => String(idx)}
           renderItem={_renderItem}
           ListEmptyComponent={() => (
