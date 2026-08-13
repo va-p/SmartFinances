@@ -15,7 +15,6 @@ import {
   HeaderContainer,
   SectionTitle,
   SectionTitleAndFilterContainer,
-  SortingButton,
 } from './styles';
 
 // Hooks
@@ -42,7 +41,6 @@ import Eye from 'phosphor-react-native/src/icons/Eye';
 import Bank from 'phosphor-react-native/src/icons/Bank';
 import Wallet from 'phosphor-react-native/src/icons/Wallet';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import FunnelIcon from 'phosphor-react-native/src/icons/Funnel';
 import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
 import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
 
@@ -58,11 +56,10 @@ import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
-import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { SortFilterButton } from '@components/SortFilterButton';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 // Screens
-import { SortingOptions } from '@screens/SortingOptions';
 import { RegisterAccount } from '@screens/RegisterAccount';
 
 // Stores
@@ -111,7 +108,6 @@ export function Accounts() {
   const { hideAmount, setHideAmount, sortingOption, setSortingOption } =
     useUserConfigs();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
-  const sortingBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
     data: transactions,
@@ -496,14 +492,6 @@ export function Accounts() {
     });
   }
 
-  function handleSortingPress() {
-    sortingBottomSheetRef.current?.present();
-  }
-
-  function handleCloseSortingModal() {
-    sortingBottomSheetRef.current?.dismiss();
-  }
-
   function handleSelectSorting(option: typeof sortingOption) {
     setSortingOption(option);
     storageConfig.set(`${DATABASE_CONFIGS}.sortingOption`, option);
@@ -762,9 +750,10 @@ export function Accounts() {
             ListHeaderComponent={
               <SectionTitleAndFilterContainer>
                 <SectionTitle>Contas</SectionTitle>
-                <SortingButton onPress={handleSortingPress}>
-                  <FunnelIcon size={20} color={theme.colors.primary} />
-                </SortingButton>
+                <SortFilterButton
+                  selectedOption={sortingOption}
+                  onSelect={handleSelectSorting}
+                />
               </SectionTitleAndFilterContainer>
             }
             ListFooterComponent={
@@ -835,18 +824,6 @@ export function Accounts() {
             closeAccount={handleCloseRegisterAccountModal}
           />
         </ModalView>
-
-        <ModalViewSelection
-          title='Selecione a ordenação'
-          bottomSheetRef={sortingBottomSheetRef}
-          snapPoints={['50%']}
-        >
-          <SortingOptions
-            selectedOption={sortingOption}
-            onSelect={handleSelectSorting}
-            handleClose={handleCloseSortingModal}
-          />
-        </ModalViewSelection>
       </Container>
     </Screen>
   );
