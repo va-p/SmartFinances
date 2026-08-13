@@ -443,7 +443,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
           <SelectButton
             title={institutionLabel}
-            subTitle={institutionSelected?.name ?? 'Selecione a instituição'}
+            subTitle={institutionSelected?.name ?? 'Selecione a instituição financeira'}
             icon={<Bank color={theme.colors.primary} />}
             onPress={handleOpenSelectInstitutionModal}
           />

@@ -1,9 +1,9 @@
 import React from 'react';
 import {
   Container,
+  IconContainer,
   TitleContainer,
   Title,
-  SubtitleContainer,
   SubTitle,
 } from './styles';
 
@@ -24,14 +24,14 @@ export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
 
   return (
     <Container {...rest}>
-      <TitleContainer>
+      <IconContainer>
         {icon}
+      </IconContainer>
+
+      <TitleContainer>
         <Title>{title}</Title>
-      </TitleContainer>
-      <SubtitleContainer>
         <SubTitle>{subTitle}</SubTitle>
-        <CaretRight size={16} color={theme.colors.text} />
-      </SubtitleContainer>
+      </TitleContainer>
     </Container>
   );
 }

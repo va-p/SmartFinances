@@ -22,10 +22,9 @@ export const Header = styled.View<ColorProps>`
 
 export const TitleContainer = styled.View`
   width: 100%;
-  min-height: '10%';
-  max-height: '10%';
   flex-direction: row;
   justify-content: center;
+  margin-bottom: 16px;
 `;
 
 export const Title = styled.Text.attrs({
@@ -72,6 +71,7 @@ export const TransactionImage = styled.Image`
 
 export const TransactionsTypes = styled.View`
   padding: 0 16px;
+  margin-top: 8px;
 `;
 
 export const Footer = styled.View`

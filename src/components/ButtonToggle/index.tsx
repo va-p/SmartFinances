@@ -2,9 +2,10 @@ import React from 'react';
 import { Platform, Switch } from 'react-native';
 import {
   Container,
+  IconContainer,
+  Content,
   TitleContainer,
   Title,
-  SubtitleContainer,
   SubTitle,
 } from './styles';
 
@@ -34,20 +35,25 @@ export function ButtonToggle({
 
   return (
     <Container>
-      <TitleContainer>
+      <IconContainer>
         {icon}
-        <Title>{title}</Title>
-      </TitleContainer>
-      <SubtitleContainer>
-        <SubTitle>{subTitle}</SubTitle>
-        <Switch
-          trackColor={{ false: undefined, true: isAndroid ? '#ABA39A' : theme.colors.primary }}
-          thumbColor={isAndroid && isEnabled ? theme.colors.primary : undefined}
-          ios_backgroundColor={theme.colors.border}
-          onValueChange={onValueChange}
-          value={value}
-        />
-      </SubtitleContainer>
+      </IconContainer>
+
+      <Content>
+        <TitleContainer>
+          <Title>{title}</Title>
+
+          <Switch
+            trackColor={{ false: undefined, true: isAndroid ? '#ABA39A' : theme.colors.primary }}
+            thumbColor={isAndroid && isEnabled ? theme.colors.primary : undefined}
+            ios_backgroundColor={theme.colors.border}
+            onValueChange={onValueChange}
+            value={value}
+          />
+        </TitleContainer>
+
+          <SubTitle>{subTitle}</SubTitle>
+      </Content>
     </Container>
   );
 }
