@@ -3,6 +3,7 @@ import {
   buildTransferEditPayload,
   convertToAccountCurrency,
   normalizeTags,
+  resolveTransactionTab,
   resolveTransferDestinationAccount,
   Quotes,
 } from '@utils/transactionPayload';
@@ -179,6 +180,41 @@ describe('resolveTransferDestinationAccount (AC-6.3)', () => {
 
   it('returns null when no related account exists', () => {
     expect(resolveTransferDestinationAccount('TRANSFER_DEBIT', null)).toBeNull();
+  });
+});
+
+describe('resolveTransactionTab (edit init / TR-6)', () => {
+  it('maps transfer legs to the single TRANSFER tab', () => {
+    expect(resolveTransactionTab('TRANSFER_DEBIT')).toEqual({
+      type: 'TRANSFER',
+      tab: 1,
+    });
+    expect(resolveTransactionTab('TRANSFER_CREDIT')).toEqual({
+      type: 'TRANSFER',
+      tab: 1,
+    });
+  });
+
+  it('maps plain types to their own tabs', () => {
+    expect(resolveTransactionTab('CREDIT')).toEqual({
+      type: 'CREDIT',
+      tab: 0,
+    });
+    expect(resolveTransactionTab('DEBIT')).toEqual({
+      type: 'DEBIT',
+      tab: 2,
+    });
+  });
+
+  it('falls back to CREDIT for unknown/legacy types', () => {
+    expect(resolveTransactionTab('transferCredit')).toEqual({
+      type: 'CREDIT',
+      tab: 0,
+    });
+    expect(resolveTransactionTab(undefined)).toEqual({
+      type: 'CREDIT',
+      tab: 0,
+    });
   });
 });
 
