@@ -25,12 +25,11 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
+import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 
 // Dependencies
 import Decimal from 'decimal.js';
-import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
-import { format, parse } from 'date-fns';
 import { useTheme } from 'styled-components';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -82,7 +81,6 @@ import {
 import { ThemeProps } from '@interfaces/theme';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
@@ -243,64 +241,14 @@ export function Accounts() {
       });
     });
 
-    // ── Net Worth Chart Data ────────────────────────────────────────────
-    // Monthly flows: DEBIT reduces net worth, CREDIT increases it.
-    // Sign is derived from the transaction type to handle both old
-    // (all-positive) and new (DEBIT-negative) data consistently.
-    let totalsByMonths: Record<string, Decimal> = {};
-
-    for (const transaction of transactions) {
-      const transactionDate = new Date(transaction.created_at);
-      if (isNaN(transactionDate.getTime())) continue;
-      if (transactionDate > new Date()) continue;
-
-      // Skip transfers — they move money between accounts, not net worth.
-      if (
-        transaction.type === 'TRANSFER_CREDIT' ||
-        transaction.type === 'TRANSFER_DEBIT'
-      ) {
-        continue;
-      }
-
-      const rawAmount =
-        transaction.amount_in_account_currency ?? transaction.amount;
-      const isDebit = transaction.type === 'DEBIT';
-      const signedAmount = isDebit
-        ? -Math.abs(Number(rawAmount))
-        : Math.abs(Number(rawAmount));
-
-      const ym = format(transactionDate, 'yyyy-MM', { locale: ptBR });
-
-      if (!totalsByMonths[ym]) {
-        totalsByMonths[ym] = new Decimal(0);
-      }
-      totalsByMonths[ym] = totalsByMonths[ym].plus(signedAmount);
-    }
-
-    // Sum of all monthly flows so we can back-calculate initial net worth.
-    let sumOfAllFlows = new Decimal(0);
-    for (const monthlyTotal of Object.values(totalsByMonths)) {
-      sumOfAllFlows = sumOfAllFlows.plus(monthlyTotal);
-    }
-
-    // Seed starting point so the final point equals totalAccountsBalance.
-    let accumulatedTotal = totalAccountsBalance.minus(sumOfAllFlows);
-
-    const sortedMonths = Object.keys(totalsByMonths).sort((a, b) =>
-      a.localeCompare(b)
-    );
-    const chartData = sortedMonths.map((monthYear) => {
-      accumulatedTotal = accumulatedTotal.plus(totalsByMonths[monthYear]);
-
-      return {
-        date: format(
-          parse(`${monthYear}-01`, 'yyyy-MM-dd', new Date()),
-          "MMM '\n' yyyy",
-          { locale: ptBR }
-        ),
-
-        total: accumulatedTotal.toNumber(),
-      };
+    // ── Net Worth Chart Data ──────────────────────────────────────────────
+    // Extracted to a shared utility — same calculation as the Overview
+    // screen.  Seeds the accumulated total with the current net worth so
+    // the final chart point equals totalBalanceFormatted.
+    const chartData = buildNetWorthEvolution({
+      transactions,
+      totalAssets: totalAccountsBalance.toNumber(),
+      period: 'months',
     });
 
     return {

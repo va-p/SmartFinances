@@ -20,7 +20,7 @@ import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
-import generateYAxisLabelsTotalAssetsChart from '@utils/generateYAxisLabelsForLineChart';
+import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 
 // Dependencies
 import Decimal from 'decimal.js';
@@ -73,9 +73,7 @@ interface CategoryData extends CategoryProps {
 
 export function Overview() {
   const theme = useTheme() as ThemeProps;
-  const { darkMode } = useUserConfigs();
   const router = useRouter();
-  const { id: userID } = useUser();
   const {
     brlQuoteBtc,
     brlQuoteEur,
@@ -233,53 +231,14 @@ export function Overview() {
     const revenuesByCategory = calculateTotals('CREDIT');
     const expensesByCategory = calculateTotals('DEBIT');
 
-    // --- All data calculated ---
-    const periodConfig: Record<string, any> = {
-      months: {
-        groupKey: (date: Date) => format(date, 'yyyy-MM'),
-        outputFormat: "MMM '\n' yyyy",
-        parseFormat: 'yyyy-MM',
-      },
-      years: {
-        groupKey: (date: Date) => format(date, 'yyyy'),
-        outputFormat: 'yyyy',
-        parseFormat: 'yyyy',
-      },
-    };
-    const config = periodConfig[selectedPeriod.period] || periodConfig.months;
-
-    let totalsByPeriod: any = {};
-    let accumulatedTotal = new Decimal(0);
-    for (const transaction of transactions) {
-      if (new Date(transaction.created_at) <= new Date()) {
-        const groupKey = config.groupKey(new Date(transaction.created_at));
-        if (!totalsByPeriod.hasOwnProperty(groupKey)) {
-          totalsByPeriod[groupKey] = { date: groupKey, total: new Decimal(0) };
-        }
-        const transactionAmountBRL =
-          transaction.amount_in_account_currency ?? transaction.amount;
-        if (transaction.type.includes('TRANSFER')) continue;
-        totalsByPeriod[groupKey].total =
-          transaction.account.type === 'CREDIT'
-            ? totalsByPeriod[groupKey].total.minus(transactionAmountBRL)
-            : totalsByPeriod[groupKey].total.plus(transactionAmountBRL);
-      }
-    }
-    const sortedPeriods = Object.keys(totalsByPeriod).sort(
-      (a, b) =>
-        parse(a, config.parseFormat, new Date()).getTime() -
-        parse(b, config.parseFormat, new Date()).getTime()
-    );
-    const patrimonialEvolution = sortedPeriods.map((periodKey) => {
-      accumulatedTotal = accumulatedTotal.plus(totalsByPeriod[periodKey].total);
-      return {
-        date: format(
-          parse(periodKey, config.parseFormat, new Date()),
-          config.outputFormat,
-          { locale: ptBR }
-        ),
-        total: accumulatedTotal.toNumber(),
-      };
+    // --- patrimonial evolution (net worth chart) ---
+    // Extracted to a shared utility — same calculation as the Accounts
+    // screen.  Seeds the accumulated total with totalAssets so the final
+    // chart point equals the current net worth.
+    const patrimonialEvolution = buildNetWorthEvolution({
+      transactions,
+      totalAssets,
+      period: selectedPeriod.period,
     });
 
     return {
@@ -428,9 +387,6 @@ export function Overview() {
                     return String(item.date);
                   }
                 )}
-                yAxisLabelTexts={generateYAxisLabelsTotalAssetsChart(
-                  processedData.patrimonialEvolution
-                )}
                 width={GRAPH_WIDTH}
                 height={180}
                 noOfSections={5}
@@ -441,7 +397,7 @@ export function Overview() {
                 curved
                 showVerticalLines
                 verticalLinesUptoDataPoint
-                initialSpacing={8}
+                initialSpacing={16}
                 endSpacing={8}
                 focusEnabled
                 showStripOnFocus
@@ -452,6 +408,32 @@ export function Overview() {
                   fontSize: 10,
                   color: '#90A4AE',
                   paddingRight: 12,
+                }}
+                formatYLabel={(label: string) => {
+                  // The chart library formats labels according to the device
+                  // locale.  Detect whether comma or dot is the decimal
+                  // separator, then normalize to a plain JS number.
+                  const s = String(label);
+                  const lastComma = s.lastIndexOf(',');
+                  const lastDot = s.lastIndexOf('.');
+
+                  let value: number;
+                  if (lastComma > lastDot) {
+                    // pt-BR style: dot=thousands, comma=decimal
+                    // "6.667,4" → 6667.4
+                    value = Number(s.replace(/\./g, '').replace(',', '.'));
+                  } else if (lastDot > lastComma) {
+                    // US/UK style: comma=thousands, dot=decimal
+                    // "6,667.4" → 6667.4
+                    value = Number(s.replace(/,/g, ''));
+                  } else {
+                    // Plain number or already formatted (e.g. "6.7K")
+                    value = Number(s.replace(/,/g, ''));
+                  }
+
+                  if (isNaN(value)) return s;
+                  const k = Math.floor(value / 1000);
+                  return k > 0 ? `${k}k` : '0';
                 }}
                 yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
                 rulesColor='#455A64'
