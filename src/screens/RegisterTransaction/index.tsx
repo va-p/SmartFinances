@@ -36,7 +36,7 @@ import { useAccountsQuery } from '@hooks/useAccountsQuery';
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
-import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags, resolveTransferDestinationAccount } from '@utils/transactionPayload';
+import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags, resolveTransactionTab, resolveTransferDestinationAccount } from '@utils/transactionPayload';
 
 // Dependencies
 import * as Yup from 'yup';
@@ -1088,30 +1088,9 @@ export function RegisterTransaction({
 
       const commonType = getCommonValue(types);
       if (commonType) {
-        let mappedType: TransactionTabType = 'CREDIT';
-        let transactionTab: number = 0;
-
-        switch (commonType) {
-          case 'CREDIT':
-            mappedType = 'CREDIT';
-            transactionTab = 0;
-            break;
-          case 'TRANSFER_CREDIT':
-          case 'TRANSFER_DEBIT':
-            mappedType = 'TRANSFER';
-            transactionTab = 1;
-            break;
-          case 'DEBIT':
-            mappedType = 'DEBIT';
-            transactionTab = 2;
-            break;
-          default:
-            mappedType = 'CREDIT';
-            transactionTab = 0;
-            break;
-        }
-        setTransactionType(mappedType);
-        setSelectedTransactionTab(transactionTab);
+        const { type, tab } = resolveTransactionTab(commonType);
+        setTransactionType(type);
+        setSelectedTransactionTab(tab);
       }
     } else if (transactionData && id !== '' && !isBulkEdit) {
       setCategorySelected(transactionData?.category);
@@ -1130,24 +1109,12 @@ export function RegisterTransaction({
       setValue('description', transactionData.description);
       setTagsSelected(transactionData.tags);
       setImageUrl(transactionData?.image_url);
-      setTransactionType(transactionData.type);
-      let transactionTab: number;
-      switch (transactionData.type) {
-        case 'CREDIT':
-          transactionTab = 0;
-          break;
-        case 'TRANSFER_CREDIT':
-        case 'TRANSFER_DEBIT':
-          transactionTab = 1;
-          break;
-        case 'DEBIT':
-          transactionTab = 2;
-          break;
-        default:
-          transactionTab = 0;
-          break;
-      }
-      setSelectedTransactionTab(transactionTab);
+      // Collapse stored transfer leg types into the 'TRANSFER' tab — keeping
+      // the raw backend enum here made the edit fall into the plain branch
+      // and the backend rejected it with 400 (TR-6).
+      const { type, tab } = resolveTransactionTab(transactionData.type);
+      setTransactionType(type);
+      setSelectedTransactionTab(tab);
       setTransactionDate(transactionData.date);
       setBankTransactionID(transactionData.bank_transaction_id);
       setRelatedTransactionID(transactionData.related_transaction_id);

@@ -158,6 +158,36 @@ export function resolveTransferDestinationAccount<T>(
   return relatedAccount ?? null;
 }
 
+export type TransactionTabSelection = {
+  type: 'CREDIT' | 'DEBIT' | 'TRANSFER';
+  // RegisterTransaction tab bar index: 0 Crédito, 1 Transferência, 2 Débito.
+  tab: number;
+};
+
+/**
+ * Maps a stored transaction type (backend enum) to the register screen's
+ * tab selection when opening an edit. Transfer legs collapse into the single
+ * 'TRANSFER' tab so `handleEditTransaction` stays on the transfer path and
+ * sends `buildTransferEditPayload`'s counterpart fields — storing the raw
+ * leg type made the edit fall into the plain branch and hit the backend 400
+ * "related_transaction_account_id is required to update a transfer".
+ * Unknown/legacy types fall back to CREDIT, preserving previous behavior.
+ */
+export function resolveTransactionTab(
+  storedType: string | undefined,
+): TransactionTabSelection {
+  switch (storedType) {
+    case 'DEBIT':
+      return { type: 'DEBIT', tab: 2 };
+    case 'TRANSFER_CREDIT':
+    case 'TRANSFER_DEBIT':
+      return { type: 'TRANSFER', tab: 1 };
+    case 'CREDIT':
+    default:
+      return { type: 'CREDIT', tab: 0 };
+  }
+}
+
 /**
  * TR-4/TR-6 edit contract: `updateRelated: true` plus the counterpart fields.
  * The primary leg keeps its stored type; the counterpart is always the
