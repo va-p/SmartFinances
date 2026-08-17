@@ -24,19 +24,18 @@ import {
 } from './styles';
 
 // Hooks
-import { useQuotesQuery } from '@hooks/useQuotesQuery';
+import { useDateNavigation } from './hooks/useDateNavigation';
+import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useTransactionHandlers } from './hooks/useTransactionHandlers';
-import { useDateNavigation } from './hooks/useDateNavigation';
 import { useTransactionFiltering } from './hooks/useTransactionFiltering';
-import { useHomeAnimations } from './hooks/useHomeAnimations';
 
 // Utils
-import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
-import { processTransactions } from '@utils/processTransactions';
-import formatDatePtBr from '@utils/formatDatePtBr';
 import formatCurrency from '@utils/formatCurrency';
+import formatDatePtBr from '@utils/formatDatePtBr';
+import { processTransactions } from '@utils/processTransactions';
+import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
 
 // Dependencies
 import Animated, {
@@ -54,12 +53,12 @@ import {
   GestureDetector,
 } from 'react-native-gesture-handler';
 import { useForm } from 'react-hook-form';
-import { isFirstDayOfMonth } from 'date-fns';
 import { useTheme } from 'styled-components';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { isFirstDayOfMonth, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
 
 // Icons
 import X from 'phosphor-react-native/src/icons/X';
@@ -89,7 +88,6 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
 import { useUser } from '@storage/userStorage';
-import { useQuotes } from '@storage/quotesStorage';
 import { useUserConfigs } from '@storage/userConfigsStorage';
 import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
@@ -104,7 +102,7 @@ import {
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { CashFlowChartData, TransactionProps } from '@interfaces/transactions';
+import { CashFlowChartData } from '@interfaces/transactions';
 
 // APIs
 import api from '@api/api';
@@ -117,10 +115,6 @@ const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 :
 const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-
-const SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS = SCREEN_HEIGHT * 0.48;
-const SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS = SCREEN_HEIGHT * 0.32;
 
 const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
@@ -132,21 +126,6 @@ export function Home() {
   const selectedTransactions = useSelectedTransactions();
   const clearSelection = useClearSelection();
   const selectedCount = useSelectedTransactionsCount();
-
-  // const {
-  //   setBrlQuoteBtc,
-  //   setBrlQuoteEur,
-  //   setBrlQuoteUsd,
-  //   setBtcQuoteBrl,
-  //   setBtcQuoteEur,
-  //   setBtcQuoteUsd,
-  //   setEurQuoteBrl,
-  //   setEurQuoteBtc,
-  //   setEurQuoteUsd,
-  //   setUsdQuoteBrl,
-  //   setUsdQuoteBtc,
-  //   setUsdQuoteEur,
-  // } = useQuotes();
 
   const { hideAmount, setHideAmount, insights } = useUserConfigs();
   const { setAccountId: setAccountID, setAccountName } =
@@ -257,8 +236,6 @@ export function Home() {
       registerTransactionButtonPositionX.value = withSpring(0);
       registerTransactionButtonPositionY.value = withSpring(0);
     });
-
-  // const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
 
   const { data: transactions, isLoading, isError } = useTransactionsQuery();
 
@@ -426,26 +403,6 @@ export function Home() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (!!quotesData) {
-  //     setBrlQuoteBtc(quotesData.brlToBtc);
-  //     setBrlQuoteEur(quotesData.brlToEur);
-  //     setBrlQuoteUsd(quotesData.brlToUsd);
-
-  //     setBtcQuoteBrl(quotesData.btcToBrl);
-  //     setBtcQuoteEur(quotesData.btcToEur);
-  //     setBtcQuoteUsd(quotesData.btcToUsd);
-
-  //     setEurQuoteBrl(quotesData.eurToBrl);
-  //     setEurQuoteBtc(quotesData.eurToBtc);
-  //     setEurQuoteUsd(quotesData.eurToUsd);
-
-  //     setUsdQuoteBrl(quotesData.usdToBrl);
-  //     setUsdQuoteBtc(quotesData.usdToBtc);
-  //     setUsdQuoteEur(quotesData.usdToEur);
-  //   }
-  // }, [quotesData]);
-
   if (isLoading && !transactions) {
     return (
       <Screen>
@@ -584,7 +541,13 @@ export function Home() {
                 return (
                   <SectionListHeader
                     data={{
-                      title: item.headerTitle,
+                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                        ? 'Hoje'
+                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                          ? 'Ontem'
+                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                            ? 'Amanhã'
+                            : item.headerTitle,
                       total: item.headerTotal,
                     }}
                   />

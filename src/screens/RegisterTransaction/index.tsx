@@ -29,9 +29,9 @@ import {
   useDeleteTransactionMutation,
 } from '@hooks/useTransactionMutations';
 import { useTagsQuery } from '@hooks/useTagsQuery';
+import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
-import { useAccountsQuery } from '@hooks/useAccountsQuery';
 
 // Utils
 import { convertCurrency } from '@utils/convertCurrency';
@@ -180,16 +180,16 @@ export function RegisterTransaction({
 
   const shortDatesMap: Record<string, string> = {
     isToday: 'Hoje',
-    isTomorrow: 'Amanhã',
     isYesterday: 'Ontem',
+    isTomorrow: 'Amanhã',
   };
 
   const dateLabelKey = isToday(date)
     ? 'isToday'
-    : isTomorrow(date)
-    ? 'isTomorrow'
     : isYesterday(date)
     ? 'isYesterday'
+    : isTomorrow(date)
+    ? 'isTomorrow'
     : null;
 
   const formattedDate = dateLabelKey
