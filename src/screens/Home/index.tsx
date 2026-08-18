@@ -24,7 +24,7 @@ import {
 } from './styles';
 
 // Hooks
-import { useDateNavigation } from './hooks/useDateNavigation';
+import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
