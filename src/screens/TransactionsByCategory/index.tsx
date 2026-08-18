@@ -34,9 +34,11 @@ import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
+import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
@@ -48,7 +50,9 @@ export function TransactionsByCategory({ navigation }: any) {
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+  const [transactionId, setTransactionId] = useState('');
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
+  const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const route = useRoute();
   const categoryID = route.params?.categoryId;
 
@@ -107,6 +111,16 @@ export function TransactionsByCategory({ navigation }: any) {
 
   function handleClosePeriodSelectedModal() {
     chartPeriodSelectedBottomSheetRef.current?.dismiss();
+  }
+
+  function handleOpenTransaction(id: number) {
+    setTransactionId(String(id));
+    registerTransactionBottomSheetRef.current?.present();
+  }
+
+  function handleCloseRegisterTransactionModal() {
+    setTransactionId('');
+    registerTransactionBottomSheetRef.current?.dismiss();
   }
 
   async function handleRefresh() {
@@ -181,7 +195,7 @@ export function TransactionsByCategory({ navigation }: any) {
                 data={item}
                 index={index}
                 hideAmount={false}
-                onPress={() => null}
+                onPress={() => handleOpenTransaction(item.id)}
               />
             );
           }}
@@ -219,6 +233,17 @@ export function TransactionsByCategory({ navigation }: any) {
             closeSelectPeriod={handleClosePeriodSelectedModal}
           />
         </ModalViewSelection>
+
+        <ModalViewWithoutHeader
+          bottomSheetRef={registerTransactionBottomSheetRef}
+          snapPoints={['100%']}
+        >
+          <RegisterTransaction
+            id={transactionId}
+            resetId={() => setTransactionId('')}
+            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+          />
+        </ModalViewWithoutHeader>
       </Container>
     </Screen>
   );
