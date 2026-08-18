@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BackHandler, RefreshControl, View } from 'react-native';
 import { Container, Month, MonthSelect, MonthSelectButton } from './styles';
 
@@ -10,20 +10,21 @@ import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
-import formatDatePtBr from '@utils/formatDatePtBr';
-import formatCurrency from '@utils/formatCurrency';
+import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
 
 // Dependências
 import { ptBR } from 'date-fns/locale';
+import { useRoute } from 'expo-router';
 import { useTheme } from 'styled-components';
 import Animated from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
-import { addMonths, format, subMonths } from 'date-fns';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { addMonths, format, isToday, subMonths, parse, isYesterday, isTomorrow } from 'date-fns';
+
+// Icons
 import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
-import { useFocusEffect, useRoute } from 'expo-router';
-import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -35,20 +36,18 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 // Storages
-import { useUser } from '@stores/userStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
 
 export function TransactionsByCategory({ navigation }: any) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-  const { id: userID } = useUser();
   const route = useRoute();
-  const categoryID = route.params?.id;
+  const categoryID = route.params?.categoryId;
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
 
@@ -56,7 +55,7 @@ export function TransactionsByCategory({ navigation }: any) {
     data: allTransactions,
     isLoading,
     refetch,
-  } = useTransactionsQuery(userID);
+  } = useTransactionsQuery();
 
   const flattenedTransactions = useMemo(() => {
     if (!allTransactions) {
@@ -68,7 +67,7 @@ export function TransactionsByCategory({ navigation }: any) {
     );
 
     const { groupedTransactions } = processTransactions(
-      transactionsForThisCategory,
+      formatTransactions(transactionsForThisCategory),
       selectedPeriod.period,
       selectedDate
     );
@@ -138,7 +137,13 @@ export function TransactionsByCategory({ navigation }: any) {
             if (item.isHeader) {
               return (
                 <SectionListHeader
-                  data={{ title: item.headerTitle, total: item.headerTotal }}
+                  data={{ title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                    ? 'Hoje'
+                    : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                      ? 'Ontem'
+                      : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                        ? 'Amanhã'
+                        : item.headerTitle, total: item.headerTotal }}
                 />
               );
             }
@@ -147,6 +152,7 @@ export function TransactionsByCategory({ navigation }: any) {
                 data={item}
                 index={index}
                 hideAmount={false}
+                onPress={() => null}
               />
             );
           }}
@@ -155,7 +161,6 @@ export function TransactionsByCategory({ navigation }: any) {
               ? 'sectionHeader'
               : 'row'
           }
-          estimatedItemSize={100}
           ListEmptyComponent={() => <ListEmptyComponent />}
           refreshControl={
             <RefreshControl
