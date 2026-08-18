@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { BackHandler, RefreshControl, View } from 'react-native';
-import { Container, Month, MonthSelect, MonthSelectButton } from './styles';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, Dimensions, RefreshControl, View } from 'react-native';
+import { Container, FiltersContainer } from './styles';
 
 // Hooks
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+import { useDateNavigation } from '@hooks/useDateNavigation';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Utils
 import {
@@ -12,40 +14,41 @@ import {
 } from '@utils/flattenTransactionsForFlashList';
 import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
+import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 
-// Dependências
-import { ptBR } from 'date-fns/locale';
+// Dependencies
 import { useRoute } from 'expo-router';
-import { useTheme } from 'styled-components';
 import Animated from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
-import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-import { addMonths, format, isToday, subMonths, parse, isYesterday, isTomorrow } from 'date-fns';
-
-// Icons
-import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { parse, isToday, isYesterday, isTomorrow } from 'date-fns';
 
 // Components
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
+import { PeriodRuler } from '@components/PeriodRuler';
+import { FilterButton } from '@components/FilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
+
+// Screens
+import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Storages
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
-// Interfaces
-import { ThemeProps } from '@interfaces/theme';
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 export function TransactionsByCategory({ navigation }: any) {
-  const theme = useTheme() as ThemeProps;
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+  const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const route = useRoute();
   const categoryID = route.params?.categoryId;
 
@@ -57,15 +60,22 @@ export function TransactionsByCategory({ navigation }: any) {
     refetch,
   } = useTransactionsQuery();
 
-  const flattenedTransactions = useMemo(() => {
+  const { handleDateChange, handlePressDate } = useDateNavigation({
+    selectedPeriod,
+    selectedDate,
+    setSelectedDate,
+  });
+
+  const transactionsForThisCategory = useMemo(() => {
     if (!allTransactions) {
       return [];
     }
-
-    const transactionsForThisCategory = allTransactions.filter(
+    return allTransactions.filter(
       (transaction) => transaction.category.id === categoryID
     );
+  }, [allTransactions, categoryID]);
 
+  const flattenedTransactions = useMemo(() => {
     const { groupedTransactions } = processTransactions(
       formatTransactions(transactionsForThisCategory),
       selectedPeriod.period,
@@ -73,14 +83,30 @@ export function TransactionsByCategory({ navigation }: any) {
     );
 
     return flattenTransactionsForFlashList(groupedTransactions);
-  }, [allTransactions, categoryID, selectedPeriod, selectedDate]);
+  }, [transactionsForThisCategory, selectedPeriod, selectedDate]);
 
-  function handleDateChange(action: 'next' | 'prev'): void {
-    if (action === 'next') {
-      setSelectedDate(addMonths(selectedDate, 1));
-    } else {
-      setSelectedDate(subMonths(selectedDate, 1));
+  const periodRulerDates = useMemo(() => {
+    const years = new Set<number>();
+    for (const transaction of transactionsForThisCategory) {
+      const transactionDate = new Date(transaction.created_at);
+      if (!Number.isNaN(transactionDate.getTime())) {
+        years.add(transactionDate.getFullYear());
+      }
     }
+
+    return buildPeriodRulerDates({
+      period: selectedPeriod.period,
+      selectedDate,
+      years: Array.from(years),
+    });
+  }, [transactionsForThisCategory, selectedPeriod, selectedDate]);
+
+  function handleOpenPeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.present();
+  }
+
+  function handleClosePeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.dismiss();
   }
 
   async function handleRefresh() {
@@ -116,17 +142,20 @@ export function TransactionsByCategory({ navigation }: any) {
           <Header.Title title={'Transações por categoria'} />
         </Header.Root>
 
-        <MonthSelect>
-          <MonthSelectButton onPress={() => handleDateChange('prev')}>
-            <CaretLeft size={20} color={theme.colors.text} />
-          </MonthSelectButton>
+        <FiltersContainer>
+          <FilterButton
+            title={`Por ${selectedPeriod.name}`}
+            onPress={handleOpenPeriodSelectedModal}
+          />
+        </FiltersContainer>
 
-          <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
-
-          <MonthSelectButton onPress={() => handleDateChange('next')}>
-            <CaretRight size={20} color={theme.colors.text} />
-          </MonthSelectButton>
-        </MonthSelect>
+        <PeriodRuler
+          dates={periodRulerDates}
+          handleDateChange={handleDateChange}
+          handlePressDate={handlePressDate}
+          periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+          horizontalPadding={0}
+        />
 
         <AnimatedFlashList
           data={flattenedTransactions}
@@ -178,6 +207,18 @@ export function TransactionsByCategory({ navigation }: any) {
             paddingBottom: bottomTabBarHeight,
           }}
         />
+
+        <ModalViewSelection
+          title='Selecione o período'
+          bottomSheetRef={chartPeriodSelectedBottomSheetRef}
+          snapPoints={['30%', '50%']}
+          onClose={handleClosePeriodSelectedModal}
+        >
+          <ChartPeriodSelect
+            period={selectedPeriod}
+            closeSelectPeriod={handleClosePeriodSelectedModal}
+          />
+        </ModalViewSelection>
       </Container>
     </Screen>
   );
