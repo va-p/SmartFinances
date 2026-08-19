@@ -7,8 +7,10 @@ export const Container = styled.View`
 `;
 
 export const FiltersContainer = styled.View`
+  width: 24%;
   flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 8px;
 `;
