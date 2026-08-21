@@ -12,6 +12,7 @@ import formatCurrency from '@utils/formatCurrency';
 // Hooks
 import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Dependencies
 import { ptBR } from 'date-fns/locale';
@@ -30,6 +31,7 @@ import {
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
+import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 import { InsightCard } from '@components/InsightCard';
 import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
@@ -55,6 +57,7 @@ export function BudgetDetails() {
   const { hideAmount } = useUserConfigs();
 
   const { budget, isLoading, isError } = useFormattedBudgetDetail(budgetID);
+  const { data: transactions } = useTransactionsQuery();
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
 
   if (isLoading) {
@@ -188,6 +191,11 @@ export function BudgetDetails() {
           <StartPeriod>{budget.formatted_start_date}</StartPeriod>
           <EndPeriod>{budget.formatted_end_date}</EndPeriod>
         </PeriodContainer>
+
+        <BudgetHistoryChart
+          budget={budget}
+          transactions={transactions ?? []}
+        />
 
         <TransactionsContainer>
           <SectionTitle>Transações</SectionTitle>
