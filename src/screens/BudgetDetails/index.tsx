@@ -16,9 +16,9 @@ import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 // Dependencies
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { formatDistanceToNowStrict, parse } from 'date-fns';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Components
