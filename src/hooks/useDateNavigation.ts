@@ -32,7 +32,9 @@ export function useDateNavigation({
   const handleDateChange = useCallback(
     (action: 'prev' | 'next'): void => {
       switch (selectedPeriod.period) {
+        // 'all' renders the months ruler, so it navigates like 'months'
         case 'months':
+        case 'all':
           switch (action) {
             case 'prev':
               setSelectedDate(subMonths(selectedDate, 1));
@@ -62,16 +64,17 @@ export function useDateNavigation({
       const dateSplit = stringDate.split('\n');
       const trimmedDateParts = dateSplit.map((part: string) => part.trim());
       const dateAux = trimmedDateParts.join(' ');
+      // 'all' shows month labels, so it parses and jumps like 'months'
       const dateFormat =
-        selectedPeriod.period === 'months' ? 'MMM yyyy' : 'yyyy';
+        selectedPeriod.period === 'years' ? 'yyyy' : 'MMM yyyy';
       const dateParsed = parse(dateAux, dateFormat, new Date(), {
         locale: ptBR,
       });
 
       const selectedDateAux =
-        selectedPeriod.period === 'months'
-          ? lastDayOfMonth(new Date(dateParsed))
-          : lastDayOfYear(dateParsed);
+        selectedPeriod.period === 'years'
+          ? lastDayOfYear(dateParsed)
+          : lastDayOfMonth(new Date(dateParsed));
 
       setSelectedDate(selectedDateAux);
     },

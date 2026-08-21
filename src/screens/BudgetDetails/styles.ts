@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 type BudgetTotalType = 'positive' | 'negative';
@@ -7,7 +8,7 @@ type BudgetTotalProps = {
 
 export const Container = styled.View`
   flex: 1;
-  padding: 16px 16px 0;
+  padding: ${Platform.OS === 'ios' ? '0 16px 20px' : '0 16px'};
   background-color: ${({ theme }) => theme.colors.background};
 `;
 

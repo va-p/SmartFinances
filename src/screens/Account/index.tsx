@@ -28,8 +28,8 @@ import { useDeleteAccountMutation } from '@hooks/useAccountMutations';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
-import formatDatePtBr from '@utils/formatDatePtBr';
 import { processTransactions } from '@utils/processTransactions';
+import { formatTransactions } from '@utils/formatTransactions';
 
 // Dependencies
 import Animated, {
@@ -198,30 +198,8 @@ export function Account() {
       (transaction: TransactionProps) => transaction.account.id === accountID
     );
 
-    const transactionsFormattedPtbr = transactionsForThisAccount.map(
-      (item: TransactionProps) => {
-        const dmy = formatDatePtBr(item.created_at).short();
-        return {
-          id: item.id,
-          created_at: dmy,
-          description: item.description || '',
-          amount: item.amount,
-          amount_formatted: formatCurrency(item.currency.code, item.amount),
-          amount_in_account_currency: item.amount_in_account_currency,
-          amount_in_account_currency_formatted: item.amount_in_account_currency
-            ? formatCurrency(
-                item.account.currency.code,
-                item.amount_in_account_currency
-              )
-            : undefined,
-          currency: item.currency,
-          type: item.type,
-          account: item.account,
-          category: item.category,
-          tags: item.tags,
-          user_id: item.user_id,
-        };
-      }
+    const transactionsFormattedPtbr = formatTransactions(
+      transactionsForThisAccount
     );
     const { currentCashFlow, groupedTransactions } = processTransactions(
       transactionsFormattedPtbr,

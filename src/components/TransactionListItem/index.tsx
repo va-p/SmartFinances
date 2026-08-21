@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import {
   FlatList,
   TouchableWithoutFeedback,
-  TouchableWithoutFeedbackProps,
   View,
 } from 'react-native';
 import {
@@ -32,8 +31,6 @@ import { TagTransaction } from '@components/TransactionListItem/components/TagTr
 import { TransactionProps } from '@interfaces/transactions';
 import {
   useIsTransactionSelected,
-  useToggleTransaction,
-  useSelectedTransactionsCount,
 } from '@stores/useTransactionsStore';
 import { useTheme } from 'styled-components/native';
 import { ThemeProps } from '@interfaces/theme';

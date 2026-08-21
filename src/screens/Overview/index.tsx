@@ -28,8 +28,8 @@ import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
+import { format, getMonth, getYear } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { format, getMonth, getYear, parse } from 'date-fns';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
 // Components
@@ -45,9 +45,7 @@ import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Storages
-import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
-import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
@@ -265,10 +263,8 @@ export function Overview() {
 
   function handleOpenCategory(id: string) {
     router.navigate({
-      pathname: '/bankingIntegrationDetails',
-      params: {
-        id: id,
-      },
+      pathname: '/overview/[categoryId]',
+      params: { categoryId: id, },
     });
   }
 

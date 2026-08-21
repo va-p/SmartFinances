@@ -5,7 +5,7 @@ import formatCurrency from '@utils/formatCurrency';
 
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
-import { format, parse, isValid } from 'date-fns';
+import { format, parse, parseISO, isValid } from 'date-fns';
 
 import {
   CashFlowChartData,
@@ -23,6 +23,19 @@ interface ProcessTransactionsResult {
   currentCashFlow: string; // Current CashFlow (by selected period)
   groupedTransactions: any[]; // Transactions grouped by day with total of the day, to show on SectionList
 }
+
+// Accepts both raw API timestamps (ISO 8601 / Date / epoch) and the
+// `dd/MM/yyyy` display strings produced by formatDatePtBr, so callers don't
+// need to pre-format `created_at` before calling processTransactions.
+const toTransactionDate = (createdAt: unknown): Date => {
+  if (createdAt instanceof Date) return createdAt;
+  if (typeof createdAt === 'number') return new Date(createdAt);
+  const value = String(createdAt);
+  const parsedFromIso = parseISO(value);
+  return isValid(parsedFromIso)
+    ? parsedFromIso
+    : parse(value, 'dd/MM/yyyy', new Date());
+};
 
 export const processTransactions = (
   transactions: TransactionProps[],
@@ -56,7 +69,7 @@ export const processTransactions = (
     // Ignore transfers
     if (!item.type || item.type.includes('TRANSFER')) return;
 
-    const transactionDate = parse(item.created_at, 'dd/MM/yyyy', new Date());
+    const transactionDate = toTransactionDate(item.created_at);
     if (!isValid(transactionDate)) return;
 
     const groupKey = config.groupKey(transactionDate);
@@ -172,11 +185,22 @@ export const processTransactions = (
     }
   };
 
-  // Filter transactions by selected date and period
-  const filteredTransactions = transactions.filter((item) => {
-    const transactionDate = parse(item.created_at, 'dd/MM/yyyy', new Date());
-    return isValid(transactionDate) && isInSelectedPeriod(transactionDate);
-  });
+  // Filter transactions by selected date and period, normalizing `created_at`
+  // to `dd/MM/yyyy` so grouped day titles stay display-ready for every caller.
+  const filteredTransactions = transactions.reduce(
+    (acc: TransactionProps[], item) => {
+      const transactionDate = toTransactionDate(item.created_at);
+      if (!isValid(transactionDate) || !isInSelectedPeriod(transactionDate)) {
+        return acc;
+      }
+      acc.push({
+        ...item,
+        created_at: format(transactionDate, 'dd/MM/yyyy'),
+      });
+      return acc;
+    },
+    []
+  );
 
   // Group transactions by day and calc total of day (to use on section list)
   const groupedTransactions = groupTransactionsByDate(
