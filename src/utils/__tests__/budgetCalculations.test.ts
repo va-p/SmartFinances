@@ -291,6 +291,11 @@ describe('formatBudgetInfo', () => {
       category: foodCategory,
       amount: -999,
     });
+    const exactlyOnPeriodStart = makeTransaction({
+      id: 7,
+      created_at: '2026-08-15T12:00:00',
+      amount: -10,
+    });
 
     const result = formatBudgetInfo(
       budget,
@@ -301,6 +306,7 @@ describe('formatBudgetInfo', () => {
         anotherInAugust,
         foreignCurrencyInAugust,
         otherCategoryInAugust,
+        exactlyOnPeriodStart,
       ],
       upTo
     );
@@ -313,14 +319,14 @@ describe('formatBudgetInfo', () => {
       endOfMonth(new Date(2026, 7, 15)).getTime()
     );
 
-    // 100 + 50 + 55 = 205 (transfer and out-of-period/out-of-category excluded)
-    expect(result.amount_spent).toBe(205);
-    expect(result.percentage).toBe(20.5);
+    // 100 + 50 + 55 + 10 = 215 (transfer and out-of-period/out-of-category excluded)
+    expect(result.amount_spent).toBe(215);
+    expect(result.percentage).toBe(21.5);
 
     // Transfers stay in the transaction list even though they don't count.
-    expect(result.budget_transactions).toHaveLength(4);
+    expect(result.budget_transactions).toHaveLength(5);
     expect(
       result.budget_transactions.map((transaction) => transaction.id)
-    ).toEqual([1, 3, 4, 5]);
+    ).toEqual([1, 3, 4, 5, 7]);
   });
 });

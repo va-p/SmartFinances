@@ -130,6 +130,28 @@ describe('buildBudgetHistory', () => {
     ]);
   });
 
+  it('includes transactions exactly on a period start or end boundary', () => {
+    const onPeriodStart = makeTransaction({
+      id: 10,
+      created_at: '2026-01-15T12:00:00',
+      amount: -40,
+    });
+    const onPeriodEnd = makeTransaction({
+      id: 11,
+      created_at: endOfMonth(new Date(2026, 0, 15)).toISOString(),
+      amount: -60,
+    });
+
+    const history = buildBudgetHistory(
+      makeBudget(),
+      [onPeriodStart, onPeriodEnd],
+      upTo
+    );
+
+    // Both land in the January period (inclusive boundaries).
+    expect(history[0].amountSpent).toBe(100);
+  });
+
   it('excludes transfers, other-category and out-of-range transactions', () => {
     const marchTransfer = makeTransaction({
       id: 3,
@@ -193,6 +215,22 @@ describe('buildBudgetHistory', () => {
 
     expect(JSON.stringify(budget)).toBe(budgetBefore);
     expect(JSON.stringify(transaction)).toBe(transactionBefore);
+  });
+
+  it('returns a single future first period when the budget starts after upTo', () => {
+    const futureBudget = makeBudget({
+      start_date: '2026-12-01T12:00:00',
+    });
+
+    const history = buildBudgetHistory(futureBudget, [], upTo);
+
+    expect(history).toHaveLength(1);
+    expect(history[0].startDate.getTime()).toBe(
+      new Date(2026, 11, 1, 12).getTime()
+    );
+    expect(history[0].endDate.getTime()).toBe(
+      endOfMonth(new Date(2026, 11, 1)).getTime()
+    );
   });
 });
 

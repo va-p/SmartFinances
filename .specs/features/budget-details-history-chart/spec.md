@@ -18,7 +18,7 @@ Create `src/utils/buildBudgetHistory.ts` exporting a pure function `buildBudgetH
 
 **Acceptance Criteria:**
 
-- AC-001.1: Return type is `{ startDate: Date; endDate: Date; amountSpent: number }[]`; the last entry is the in-progress period whose `endDate >= upTo` (default `upTo` = now).
+- AC-001.1: Return type is `{ startDate: Date; endDate: Date; amountSpent: number }[]`; the last entry is the period in progress at `upTo` (default `upTo` = now), whose `endDate >= upTo`. When the budget starts after `upTo`, the single returned entry is that future first period (its `endDate` may be `< upTo`).
 - AC-001.2: Period boundaries match the recurrence logic used by `formatBudgetInfo` for `daily`, `weekly`, `biweekly`, `monthly`, `semiannually`, `annually`.
 - AC-001.3: Only transactions whose `category.id` is in the budget's categories and whose `created_at` falls within the period's `[startDate, endDate]` contribute to that period.
 - AC-001.4: Amount rules are identical to `formatBudgetInfo`: transfers (`TRANSFER_CREDIT`/`TRANSFER_DEBIT`) contribute 0; foreign-currency transactions use `amount_in_account_currency`; credit-card accounts add the amount, other accounts subtract it.
