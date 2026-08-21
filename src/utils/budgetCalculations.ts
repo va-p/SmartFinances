@@ -4,66 +4,117 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 import { BudgetProps, FormattedBudgetProps } from '@interfaces/budget';
 import { TransactionProps } from '@interfaces/transactions';
 
-export function formatBudgetInfo(
-  budget: BudgetProps,
-  transactions: TransactionProps[]
-): FormattedBudgetProps {
+export type BudgetPeriod = {
+  startDate: Date;
+  endDate: Date;
+};
+
+function getFirstPeriodEnd(recurrence: string, startDate: Date): Date {
+  switch (recurrence) {
+    case 'daily':
+      return addDays(new Date(startDate), 1);
+    case 'weekly':
+      return addWeeks(new Date(startDate), 1);
+    case 'biweekly':
+      return addDays(new Date(startDate), 15);
+    case 'monthly':
+      return endOfMonth(startDate);
+    case 'semiannually':
+      return addMonths(new Date(startDate), 6);
+    case 'annually':
+      return addYears(new Date(startDate), 1);
+    default:
+      return new Date(startDate);
+  }
+}
+
+function stepPeriod(
+  recurrence: string,
+  startDate: Date,
+  endDate: Date
+): BudgetPeriod {
+  switch (recurrence) {
+    case 'daily':
+      return { startDate: endDate, endDate: addDays(new Date(endDate), 1) };
+    case 'weekly':
+      return { startDate: endDate, endDate: addWeeks(new Date(endDate), 1) };
+    case 'biweekly':
+      return { startDate: endDate, endDate: addDays(new Date(endDate), 15) };
+    case 'monthly': {
+      const nextStartDate = addMonths(new Date(startDate), 1);
+      return { startDate: nextStartDate, endDate: endOfMonth(nextStartDate) };
+    }
+    case 'semiannually':
+      return { startDate: endDate, endDate: addMonths(new Date(endDate), 6) };
+    case 'annually':
+      return { startDate: endDate, endDate: addYears(new Date(endDate), 1) };
+    default:
+      return { startDate, endDate };
+  }
+}
+
+export function getBudgetPeriods(
+  budget: Pick<BudgetProps, 'start_date' | 'recurrence'>,
+  upTo: Date = new Date()
+): BudgetPeriod[] {
   // Normalize recurrence to lowercase — backend stores uppercase enum values.
   const recurrence = (budget.recurrence || '').toLowerCase();
 
   let startDate = new Date(budget.start_date);
-  let endDate = startDate;
+  let endDate = getFirstPeriodEnd(recurrence, startDate);
 
-  // 1. Calcula o primeiro período
-  switch (recurrence) {
-    case 'daily':
-      endDate = addDays(new Date(endDate), 1);
-      break;
-    case 'weekly':
-      endDate = addWeeks(new Date(endDate), 1);
-      break;
-    case 'biweekly':
-      endDate = addDays(new Date(endDate), 15);
-      break;
-    case 'monthly':
-      endDate = endOfMonth(endDate);
-      break;
-    case 'semiannually':
-      endDate = addMonths(new Date(endDate), 6);
-      break;
-    case 'annually':
-      endDate = addYears(new Date(endDate), 1);
-      break;
-  }
+  const periods: BudgetPeriod[] = [{ startDate, endDate }];
 
-  while (endDate < new Date()) {
-    switch (recurrence) {
-      case 'daily':
-        startDate = endDate;
-        endDate = addDays(new Date(startDate), 1);
-        break;
-      case 'weekly':
-        startDate = endDate;
-        endDate = addWeeks(new Date(startDate), 1);
-        break;
-      case 'biweekly':
-        startDate = endDate;
-        endDate = addDays(new Date(startDate), 15);
-        break;
-      case 'monthly':
-        startDate = addMonths(new Date(startDate), 1);
-        endDate = endOfMonth(startDate);
-        break;
-      case 'semiannually':
-        startDate = endDate;
-        endDate = addMonths(new Date(startDate), 6);
-        break;
-      case 'annually':
-        startDate = endDate;
-        endDate = addYears(new Date(startDate), 1);
-        break;
+  while (endDate < upTo) {
+    const nextPeriod = stepPeriod(recurrence, startDate, endDate);
+
+    // Guard against unknown recurrences, which would otherwise never advance.
+    if (
+      nextPeriod.startDate.getTime() === startDate.getTime() &&
+      nextPeriod.endDate.getTime() === endDate.getTime()
+    ) {
+      break;
     }
+
+    startDate = nextPeriod.startDate;
+    endDate = nextPeriod.endDate;
+    periods.push({
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+    });
   }
+
+  return periods;
+}
+
+export function getTransactionSpentAmount(
+  transaction: TransactionProps
+): number {
+  if (
+    transaction.type === 'TRANSFER_CREDIT' ||
+    transaction.type === 'TRANSFER_DEBIT'
+  ) {
+    return 0;
+  }
+
+  const isTransactionInAnotherCurrency =
+    transaction.currency.code !== transaction.account.currency.code;
+
+  const amount =
+    isTransactionInAnotherCurrency && transaction.amount_in_account_currency
+      ? transaction.amount_in_account_currency
+      : transaction.amount;
+
+  return transaction.account.type === 'CREDIT' ? amount : -amount;
+}
+
+export function formatBudgetInfo(
+  budget: BudgetProps,
+  transactions: TransactionProps[],
+  upTo: Date = new Date()
+): FormattedBudgetProps {
+  const periods = getBudgetPeriods(budget, upTo);
+  const { startDate, endDate } = periods[periods.length - 1];
 
   const filteredTransactions = transactions.filter(
     (transaction) =>
@@ -76,26 +127,15 @@ export function formatBudgetInfo(
 
   let amountSpent = 0;
   for (const transaction of filteredTransactions) {
-    const isTransactionInAnotherCurrency =
-      transaction.currency.code !== transaction.account.currency.code;
-
-    if (
+    const isTransfer =
       transaction.type === 'TRANSFER_CREDIT' ||
-      transaction.type === 'TRANSFER_DEBIT'
-    ) {
+      transaction.type === 'TRANSFER_DEBIT';
+
+    if (isTransfer) {
       continue;
     }
 
-    const amount =
-      isTransactionInAnotherCurrency && transaction.amount_in_account_currency
-        ? transaction.amount_in_account_currency
-        : transaction.amount;
-
-    if (transaction.account.type === 'CREDIT') {
-      amountSpent += amount;
-    } else {
-      amountSpent -= amount;
-    }
+    amountSpent += getTransactionSpentAmount(transaction);
 
     transaction.amount_in_account_currency
       ? (transaction.amount_in_account_currency_formatted = formatCurrency(
