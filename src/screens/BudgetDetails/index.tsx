@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import {
+  Container,
+  ScrollContent,
   BudgetTotal,
   BudgetTotalDescription,
-  Container,
   TransactionsContainer,
 } from './styles';
 
@@ -171,6 +172,7 @@ export function BudgetDetails() {
           <Header.Icon onPress={handleOpenEditBudgetModal} />
         </Header.Root>
 
+        <ScrollContent>
         <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
           {formatCurrency(
             budget.currency.code,
@@ -268,7 +270,8 @@ export function BudgetDetails() {
               paddingBottom: bottomTabBarHeight,
             }}
           />
-        </TransactionsContainer>
+          </TransactionsContainer>
+        </ScrollContent>
 
         <ModalView
           type={'secondary'}

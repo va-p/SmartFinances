@@ -132,7 +132,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   useEffect(() => {
     if (!!budgetData) {
-      let totalByDate = { id: '4', name: 'Mensalmente', period: 'monthly' };
+      let totalByDate = { id: '4', name: 'Mensalmente', period: 'MONTHLY' };
 
       setValue('name', budgetData.name);
       setValue('amount', String(budgetData.amount));
@@ -143,42 +143,42 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           totalByDate = {
             id: '1',
             name: 'Diariamente',
-            period: 'monthly',
+            period: 'DAILY',
           };
           break;
         case 'weekly':
           totalByDate = {
             id: '2',
             name: 'Semanalmente',
-            period: 'monthly',
+            period: 'WEEKLY',
           };
           break;
         case 'biweekly':
           totalByDate = {
             id: '3',
             name: 'Quinzenalmente',
-            period: 'monthly',
+            period: 'BIWEEKLY',
           };
           break;
         case 'monthly':
           totalByDate = {
             id: '4',
             name: 'Mensalmente',
-            period: 'monthly',
+            period: 'MONTHLY',
           };
           break;
         case 'semiannually':
           totalByDate = {
             id: '5',
             name: 'Semestralmente',
-            period: 'monthly',
+            period: 'SEMIANNUALLY',
           };
           break;
         case 'annually':
           totalByDate = {
             id: '6',
             name: 'Anualmente',
-            period: 'monthly',
+            period: 'ANNUALLY',
           };
           break;
       }
