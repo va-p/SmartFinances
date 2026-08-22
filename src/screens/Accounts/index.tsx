@@ -418,7 +418,7 @@ export function Accounts() {
       case 'OTHER':
       case 'WALLET':
         return <Wallet color={theme.colors.primary} />;
-      case 'CRYPTOCURRENCY WALLET':
+      case 'CRYPTOCURRENCY_WALLET':
         return <CurrencyBtc color={theme.colors.primary} />;
       case 'INVESTMENTS':
       case 'BANK':

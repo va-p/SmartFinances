@@ -10,7 +10,7 @@ export type AccountTypes =
   | 'Outro'
   | 'CREDIT'
   | 'WALLET'
-  | 'CRYPTOCURRENCY WALLET'
+  | 'CRYPTOCURRENCY_WALLET'
   | 'BANK'
   | 'INVESTMENTS'
   | 'OTHER';
