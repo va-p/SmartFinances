@@ -32,6 +32,10 @@ export default {
     overlay: 'rgba(255, 255, 255, 0.1)',
     overlay10: 'rgba(255, 255, 255, 0.05)',
     overlayGray: 'rgba(100, 100, 100, 0.1)',
+
+    chartRule: 'rgba(255, 255, 255, 0.1)',
+    xAxisColor: 'rgba(255, 255, 255, 0.1)',
+    xAxisLabel: '#90A4AE',
   },
 
   borders: {

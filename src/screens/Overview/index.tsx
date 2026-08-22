@@ -387,8 +387,8 @@ export function Overview() {
                 height={180}
                 noOfSections={5}
                 mostNegativeValue={0}
-                xAxisColor='#455A64'
-                yAxisColor='#455A64'
+                xAxisColor={theme.colors.xAxisColor}
+                yAxisColor={theme.colors.xAxisColor}
                 areaChart
                 curved
                 showVerticalLines
@@ -402,7 +402,7 @@ export function Overview() {
                 xAxisTextNumberOfLines={2}
                 xAxisLabelTextStyle={{
                   fontSize: 10,
-                  color: '#90A4AE',
+                  color: theme.colors.xAxisLabel,
                   paddingRight: 12,
                 }}
                 formatYLabel={(label: string) => {
@@ -431,9 +431,10 @@ export function Overview() {
                   const k = Math.floor(value / 1000);
                   return k > 0 ? `${k}k` : '0';
                 }}
-                yAxisTextStyle={{ fontSize: 11, color: '#90A4AE' }}
-                rulesColor='#455A64'
-                verticalLinesColor='#455A64'
+                yAxisTextStyle={{ fontSize: 11, color: theme.colors.xAxisLabel }}
+                verticalLinesColor={theme.colors.xAxisColor}
+                rulesThickness={1}
+                rulesColor={theme.colors.chartRule}
                 color1={theme.colors.primary}
                 dataPointsColor1={theme.colors.primary}
                 startFillColor1={theme.colors.primary}
@@ -456,7 +457,14 @@ export function Overview() {
                 roundedBottom
                 xAxisThickness={1}
                 yAxisThickness={0}
-                yAxisTextStyle={{ color: theme.colors.textPlaceholder }}
+                yAxisTextStyle={{ fontSize: 10, color: theme.colors.textPlaceholder }}
+                xAxisLabelTextStyle={{
+                  fontSize: 10,
+                  color: theme.colors.xAxisLabel,
+                }}
+                rulesThickness={1}
+                rulesColor={theme.colors.chartRule}
+                xAxisColor={theme.colors.xAxisColor}
                 noOfSections={4}
                 formatYLabel={(label: string) => {
                   const value = Number(label);

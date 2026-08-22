@@ -4,7 +4,7 @@ import {
   RefreshControl,
   StyleSheet,
   BackHandler,
-  Dimensions,
+  useWindowDimensions,
   View,
   Platform,
 } from 'react-native';
@@ -108,17 +108,17 @@ import api from '@api/api';
 
 // Constants
 const isAndroid = Platform.OS === 'android';
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const FLOATING_BUTTONS_RIGHT_POSITION = 16;
 const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
 const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
-const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
 export function Home() {
+  const SCREEN_WIDTH = useWindowDimensions().width;
+  const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { id: userID } = useUser();
@@ -436,7 +436,7 @@ export function Home() {
           <Animated.View style={chartStyleAnimationOpacity}>
             <BarChart
               data={cashFlows.current}
-              width={SCREEN_WIDTH - 40}
+              width={SCREEN_WIDTH - 100}
               height={80}
               barWidth={CHART_BAR_WIDTH}
               spacing={CHART_BAR_SPACING}
@@ -444,6 +444,7 @@ export function Home() {
               labelWidth={30}
               xAxisThickness={1}
               yAxisThickness={0}
+              xAxisColor={theme.colors.xAxisColor}
               noOfSections={3}
               xAxisTextNumberOfLines={2}
               scrollToEnd
@@ -457,7 +458,9 @@ export function Home() {
                 fontSize: 10,
                 color: theme.colors.textPlaceholder,
               }}
-              xAxisLabelTextStyle={{ fontSize: 10, color: '#90A4AE' }}
+              xAxisLabelTextStyle={{ fontSize: 10, color: theme.colors.xAxisLabel }}
+              rulesThickness={1}
+              rulesColor={theme.colors.chartRule}
             />
           </Animated.View>
 

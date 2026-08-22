@@ -38,6 +38,7 @@ export function useFormattedBudgetDetail(budgetID: string) {
     data: rawBudget,
     isLoading: isLoadingBudget,
     isError,
+    refetch: refetchBudget,
   } = useBudgetDetailQuery(budgetID);
   const { data: transactions, isLoading: isLoadingTransactions } =
     useTransactionsQuery();
@@ -52,5 +53,6 @@ export function useFormattedBudgetDetail(budgetID: string) {
     budget: formattedBudget,
     isLoading: isLoadingBudget || isLoadingTransactions,
     isError,
+    refetchBudget,
   };
 }

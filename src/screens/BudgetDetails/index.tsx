@@ -1,15 +1,23 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import {
+  Container,
+  ScrollContent,
   BudgetTotal,
   BudgetTotalDescription,
-  Container,
   TransactionsContainer,
 } from './styles';
 
 import formatCurrency from '@utils/formatCurrency';
+import { formatTransactions } from '@utils/formatTransactions';
+import { processTransactions } from '@utils/processTransactions';
+import {
+  FlashListTransactionItem,
+  flattenTransactionsForFlashList,
+} from '@utils/flattenTransactionsForFlashList';
 
 // Hooks
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 
@@ -17,9 +25,9 @@ import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import { formatDistanceToNowStrict } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { formatDistanceToNowStrict, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
 
 // Components
 import {
@@ -35,6 +43,7 @@ import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
@@ -44,6 +53,7 @@ import { RegisterBudget } from '@screens/RegisterBudget';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { SectionListHeader } from '@components/SectionListHeader';
 
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();
@@ -54,8 +64,23 @@ export function BudgetDetails() {
 
   const { hideAmount } = useUserConfigs();
 
-  const { budget, isLoading, isError } = useFormattedBudgetDetail(budgetID);
+  const { budget, isLoading, isError, refetchBudget } = useFormattedBudgetDetail(budgetID);
+  const { data: transactions } = useTransactionsQuery();
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
+
+  const budgetTransactionsGroupedByDate = useMemo(() => {
+    if (!budget) {
+      return [];
+    }
+
+    const { groupedTransactions } = processTransactions(
+      formatTransactions(budget.budget_transactions),
+      'all',
+      new Date()
+    );
+
+    return flattenTransactionsForFlashList(groupedTransactions);
+  }, [budget]);
 
   if (isLoading) {
     return <SkeletonBudgetsScreen />;
@@ -97,6 +122,11 @@ export function BudgetDetails() {
 
   function handleCloseEditBudgetModal() {
     budgetEditBottomSheetRef.current?.dismiss();
+  }
+
+  function handleFinishedEditBudget() {
+    budgetEditBottomSheetRef.current?.dismiss();
+    refetchBudget();
   }
 
   async function handleClickDeleteBudget() {
@@ -147,6 +177,7 @@ export function BudgetDetails() {
           <Header.Icon onPress={handleOpenEditBudgetModal} />
         </Header.Root>
 
+        <ScrollContent>
         <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
           {formatCurrency(
             budget.currency.code,
@@ -189,21 +220,51 @@ export function BudgetDetails() {
           <EndPeriod>{budget.formatted_end_date}</EndPeriod>
         </PeriodContainer>
 
+        <BudgetHistoryChart
+          budget={budget}
+          transactions={transactions ?? []}
+        />
+
         <TransactionsContainer>
           <SectionTitle>Transações</SectionTitle>
           <FlashList
-            data={budget.budget_transactions}
-            keyExtractor={(item: any) => item.id}
+            data={budgetTransactionsGroupedByDate}
+            keyExtractor={(item: any) =>
+              item.isHeader ? String(item.headerTitle!) : String(item.id)
+            }
             showsVerticalScrollIndicator={false}
-            estimatedItemSize={92}
-            renderItem={({ item, index }: any) => (
-              <TransactionListItem
-                data={item}
-                index={index}
-                hideAmount={hideAmount}
-                onPress={() => handleOpenTransaction(item.id)}
-              />
-            )}
+            renderItem={({ item, index }: any) => {
+              if (item.isHeader) {
+                return (
+                  <SectionListHeader
+                    data={{
+                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                        ? 'Hoje'
+                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                          ? 'Ontem'
+                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                            ? 'Amanhã'
+                            : item.headerTitle,
+                      total: item.headerTotal,
+                    }}
+                  />
+                );
+              }
+              return (
+                <TransactionListItem
+                  key={item.id}
+                  data={item}
+                  index={index}
+                  hideAmount={hideAmount}
+                  onPress={() => handleOpenTransaction(item.id)}
+                />
+              );
+            }}
+            getItemType={(item) =>
+              (item as FlashListTransactionItem).isHeader
+                ? 'sectionHeader'
+                : 'row'
+            }
             ListEmptyComponent={() => (
               <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
             )}
@@ -214,7 +275,8 @@ export function BudgetDetails() {
               paddingBottom: bottomTabBarHeight,
             }}
           />
-        </TransactionsContainer>
+          </TransactionsContainer>
+        </ScrollContent>
 
         <ModalView
           type={'secondary'}
@@ -229,7 +291,7 @@ export function BudgetDetails() {
         >
           <RegisterBudget
             id={budgetID}
-            closeBudget={handleCloseEditBudgetModal}
+            closeBudget={handleFinishedEditBudget}
           />
         </ModalView>
 
