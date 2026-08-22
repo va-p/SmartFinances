@@ -64,7 +64,7 @@ export function BudgetDetails() {
 
   const { hideAmount } = useUserConfigs();
 
-  const { budget, isLoading, isError } = useFormattedBudgetDetail(budgetID);
+  const { budget, isLoading, isError, refetchBudget } = useFormattedBudgetDetail(budgetID);
   const { data: transactions } = useTransactionsQuery();
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
 
@@ -122,6 +122,11 @@ export function BudgetDetails() {
 
   function handleCloseEditBudgetModal() {
     budgetEditBottomSheetRef.current?.dismiss();
+  }
+
+  function handleFinishedEditBudget() {
+    budgetEditBottomSheetRef.current?.dismiss();
+    refetchBudget();
   }
 
   async function handleClickDeleteBudget() {
@@ -286,7 +291,7 @@ export function BudgetDetails() {
         >
           <RegisterBudget
             id={budgetID}
-            closeBudget={handleCloseEditBudgetModal}
+            closeBudget={handleFinishedEditBudget}
           />
         </ModalView>
 
