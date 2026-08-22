@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import {
   BudgetTotal,
@@ -8,6 +8,12 @@ import {
 } from './styles';
 
 import formatCurrency from '@utils/formatCurrency';
+import { formatTransactions } from '@utils/formatTransactions';
+import { processTransactions } from '@utils/processTransactions';
+import {
+  FlashListTransactionItem,
+  flattenTransactionsForFlashList,
+} from '@utils/flattenTransactionsForFlashList';
 
 // Hooks
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
@@ -60,6 +66,20 @@ export function BudgetDetails() {
   const { budget, isLoading, isError } = useFormattedBudgetDetail(budgetID);
   const { data: transactions } = useTransactionsQuery();
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
+
+  const budgetTransactionsGroupedByDate = useMemo(() => {
+    if (!budget) {
+      return [];
+    }
+
+    const { groupedTransactions } = processTransactions(
+      formatTransactions(budget.budget_transactions),
+      'all',
+      new Date()
+    );
+
+    return flattenTransactionsForFlashList(groupedTransactions);
+  }, [budget]);
 
   if (isLoading) {
     return <SkeletonBudgetsScreen />;
@@ -201,8 +221,10 @@ export function BudgetDetails() {
         <TransactionsContainer>
           <SectionTitle>Transações</SectionTitle>
           <FlashList
-            data={budget.budget_transactions}
-            keyExtractor={(item: any) => item.id}
+            data={budgetTransactionsGroupedByDate}
+            keyExtractor={(item: any) =>
+              item.isHeader ? String(item.headerTitle!) : String(item.id)
+            }
             showsVerticalScrollIndicator={false}
             renderItem={({ item, index }: any) => {
               if (item.isHeader) {
@@ -231,6 +253,11 @@ export function BudgetDetails() {
                 />
               );
             }}
+            getItemType={(item) =>
+              (item as FlashListTransactionItem).isHeader
+                ? 'sectionHeader'
+                : 'row'
+            }
             ListEmptyComponent={() => (
               <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
             )}
