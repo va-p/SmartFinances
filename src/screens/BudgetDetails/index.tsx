@@ -10,17 +10,17 @@ import {
 import formatCurrency from '@utils/formatCurrency';
 
 // Hooks
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Dependencies
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import { formatDistanceToNowStrict } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { formatDistanceToNowStrict, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
 
 // Components
 import {
@@ -31,12 +31,12 @@ import {
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
-import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 import { InsightCard } from '@components/InsightCard';
 import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
@@ -46,6 +46,7 @@ import { RegisterBudget } from '@screens/RegisterBudget';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { SectionListHeader } from '@components/SectionListHeader';
 
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();
@@ -203,15 +204,33 @@ export function BudgetDetails() {
             data={budget.budget_transactions}
             keyExtractor={(item: any) => item.id}
             showsVerticalScrollIndicator={false}
-            estimatedItemSize={92}
-            renderItem={({ item, index }: any) => (
-              <TransactionListItem
-                data={item}
-                index={index}
-                hideAmount={hideAmount}
-                onPress={() => handleOpenTransaction(item.id)}
-              />
-            )}
+            renderItem={({ item, index }: any) => {
+              if (item.isHeader) {
+                return (
+                  <SectionListHeader
+                    data={{
+                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                        ? 'Hoje'
+                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                          ? 'Ontem'
+                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                            ? 'Amanhã'
+                            : item.headerTitle,
+                      total: item.headerTotal,
+                    }}
+                  />
+                );
+              }
+              return (
+                <TransactionListItem
+                  key={item.id}
+                  data={item}
+                  index={index}
+                  hideAmount={hideAmount}
+                  onPress={() => handleOpenTransaction(item.id)}
+                />
+              );
+            }}
             ListEmptyComponent={() => (
               <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
             )}

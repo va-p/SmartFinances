@@ -444,6 +444,7 @@ export function Home() {
               labelWidth={30}
               xAxisThickness={1}
               yAxisThickness={0}
+              xAxisColor={theme.colors.xAxisColor}
               noOfSections={3}
               xAxisTextNumberOfLines={2}
               scrollToEnd
@@ -457,7 +458,9 @@ export function Home() {
                 fontSize: 10,
                 color: theme.colors.textPlaceholder,
               }}
-              xAxisLabelTextStyle={{ fontSize: 10, color: '#90A4AE' }}
+              xAxisLabelTextStyle={{ fontSize: 10, color: theme.colors.xAxisLabel }}
+              rulesThickness={1}
+              rulesColor={theme.colors.chartRule}
             />
           </Animated.View>
 

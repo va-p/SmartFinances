@@ -32,7 +32,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 // BudgetDetails container horizontal padding is 16px on each side.
 const CHART_WIDTH = SCREEN_WIDTH - 32;
 const Y_AXIS_LABEL_WIDTH = 35;
-const CHART_HEIGHT = 180;
+const CHART_HEIGHT = 100;
 const MAX_EVENLY_SPREAD_PERIODS = 12;
 const MIN_BAR_WIDTH = 10;
 const MAX_BAR_WIDTH = 40;
@@ -110,8 +110,10 @@ export function BudgetHistoryChart({
         roundedTop
         xAxisThickness={1}
         yAxisThickness={0}
+        xAxisColor={theme.colors.xAxisColor}
         noOfSections={4}
         isAnimated
+        animationDuration={2000}
         scrollToEnd={!fillsWidth}
         showLine
         lineData={averageLineData}
@@ -130,8 +132,11 @@ export function BudgetHistoryChart({
         yAxisTextStyle={{ fontSize: 10, color: theme.colors.textPlaceholder }}
         xAxisLabelTextStyle={{
           fontSize: 10,
-          color: theme.colors.textPlaceholder,
+          color: theme.colors.xAxisLabel,
         }}
+        rulesType='solid'
+        rulesThickness={1}
+        rulesColor={theme.colors.chartRule}
       />
 
       <LegendContainer>
@@ -141,7 +146,8 @@ export function BudgetHistoryChart({
         </LegendItem>
         <LegendItem>
           <LegendDash />
-          <LegendText>Média de gastos dos períodos exibidos</LegendText>
+          <LegendDash style={{ marginRight: 6 }} />
+          <LegendText>Média de gastos dos períodos</LegendText>
         </LegendItem>
       </LegendContainer>
     </ChartContainer>

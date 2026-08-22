@@ -31,6 +31,10 @@ type Colors = {
   overlay: string;
   overlay10: string;
   overlayGray: string;
+
+  chartRule: string;
+  xAxisColor: string;
+  xAxisLabel: string;
 };
 
 type fonts = {

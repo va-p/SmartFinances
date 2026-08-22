@@ -26,9 +26,8 @@ export const LegendSquare = styled.View`
 `;
 
 export const LegendDash = styled.View`
-  width: 20px;
+  width: 5px;
   height: 2px;
-  margin-right: 6px;
   border-top-width: 2px;
   border-style: dashed;
   border-color: ${({ theme }) => theme.colors.textPlaceholder};
