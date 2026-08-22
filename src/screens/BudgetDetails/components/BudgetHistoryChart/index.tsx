@@ -1,19 +1,5 @@
 import React, { useMemo } from 'react';
-import { Dimensions } from 'react-native';
-import { BarChart } from 'react-native-gifted-charts';
-import { useTheme } from 'styled-components';
-
-import { SectionTitle } from '@screens/Overview/styles';
-
-import { FormattedBudgetProps } from '@interfaces/budget';
-import { ThemeProps } from '@interfaces/theme';
-import { TransactionProps } from '@interfaces/transactions';
-import {
-  buildBudgetHistory,
-  formatBudgetHistoryLabel,
-  getAverageBudgetSpending,
-} from '@utils/buildBudgetHistory';
-
+import { useWindowDimensions } from 'react-native';
 import {
   ChartContainer,
   LegendContainer,
@@ -23,15 +9,28 @@ import {
   LegendText,
 } from './styles';
 
+import {
+  buildBudgetHistory,
+  formatBudgetHistoryLabel,
+  getAverageBudgetSpending,
+} from '@utils/buildBudgetHistory';
+
+import { useTheme } from 'styled-components';
+import { BarChart } from 'react-native-gifted-charts';
+
+import { SectionTitle } from '@screens/Overview/styles';
+
+import { ThemeProps } from '@interfaces/theme';
+import { FormattedBudgetProps } from '@interfaces/budget';
+import { TransactionProps } from '@interfaces/transactions';
+
 type BudgetHistoryChartProps = {
   budget: FormattedBudgetProps;
   transactions: TransactionProps[];
 };
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
 // BudgetDetails container horizontal padding is 16px on each side.
-const CHART_WIDTH = SCREEN_WIDTH - 32;
-const Y_AXIS_LABEL_WIDTH = 35;
+const Y_AXIS_LABEL_WIDTH = 24;
 const CHART_HEIGHT = 100;
 const MAX_EVENLY_SPREAD_PERIODS = 12;
 const MIN_BAR_WIDTH = 10;
@@ -43,6 +42,8 @@ export function BudgetHistoryChart({
   budget,
   transactions,
 }: BudgetHistoryChartProps) {
+  const SCREEN_WIDTH = useWindowDimensions().width;
+  const CHART_WIDTH = SCREEN_WIDTH - 104;
   const theme = useTheme() as ThemeProps;
 
   const history = useMemo(
