@@ -6,10 +6,12 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 // Icons
 import Play from 'phosphor-react-native/src/icons/Play';
-import MusicNotes from 'phosphor-react-native/src/icons/MusicNotes';
+import YoutubeLogo from 'phosphor-react-native/src/icons/YoutubeLogo';
+import SpotifyLogo from 'phosphor-react-native/src/icons/SpotifyLogo';
 import GameController from 'phosphor-react-native/src/icons/GameController';
 import WindowsLogo from 'phosphor-react-native/src/icons/WindowsLogo';
 import AppleLogo from 'phosphor-react-native/src/icons/AppleLogo';
+import GooglePlayLogo from 'phosphor-react-native/src/icons/GooglePlayLogo';
 import ShoppingCart from 'phosphor-react-native/src/icons/ShoppingCart';
 import Download from 'phosphor-react-native/src/icons/Download';
 import Monitor from 'phosphor-react-native/src/icons/Monitor';
@@ -44,7 +46,7 @@ const CATEGORY_EXAMPLES = [
   {
     Icon: Play,
     title: 'Serviços de transmissão (Streaming)',
-    examples: 'Netflix, Disney+, Spotify.',
+    examples: 'Netflix, Disney+, Spotify, YouTube.',
   },
   {
     Icon: Download,
@@ -81,16 +83,19 @@ export function SubscriptionHelpSheet({ bottomSheetRef, close }: Props) {
       <ContentScroll>
         <IconsRow>
           <OverlappingIconFirst>
-            <Play size={22} weight='fill' color={theme.colors.primary} />
+            <YoutubeLogo size={22} weight='fill' color='#FF0000' />
           </OverlappingIconFirst>
           <OverlappingIcon>
-            <MusicNotes size={22} weight='fill' color={theme.colors.success} />
+            <SpotifyLogo size={22} weight='fill' color={theme.colors.success} />
           </OverlappingIcon>
           <OverlappingIcon>
             <GameController size={22} weight='fill' color={theme.colors.attention} />
           </OverlappingIcon>
           <OverlappingIcon>
             <AppleLogo size={22} weight='fill' color={theme.colors.text} />
+          </OverlappingIcon>
+          <OverlappingIcon>
+            <GooglePlayLogo size={22} weight='fill' color='#FBBC04' />
           </OverlappingIcon>
           <OverlappingIcon>
             <WindowsLogo size={22} weight='fill' color='#00A4EF' />
