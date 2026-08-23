@@ -4,12 +4,13 @@ import { TouchableOpacity } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
+  padding: 0 16px;
 `;
 
 export const ContentScroll = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingBottom: 48,
   },
 })``;
