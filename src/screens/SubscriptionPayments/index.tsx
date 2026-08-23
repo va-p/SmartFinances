@@ -24,9 +24,12 @@ import { useSubscriptionPaymentsQuery } from '@hooks/useSubscriptionPaymentsQuer
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
-import { monthLabel } from '@utils/buildSubscriptionPeriodOptions';
+import {
+  buildSubscriptionPeriodOptions,
+  monthKey,
+  monthLabel,
+} from '@utils/buildSubscriptionPeriodOptions';
 import { computePaymentsTotal } from '@utils/subscriptionPaymentsSummary';
-import { buildSubscriptionPeriodOptions } from '@utils/buildSubscriptionPeriodOptions';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
@@ -57,8 +60,10 @@ export function SubscriptionPayments() {
   const router = useRouter();
   const quotes = useQuotes();
 
-  const { month }: { month: string } = useLocalSearchParams();
-  const [selectedMonth, setSelectedMonth] = useState(month);
+  const { month }: { month?: string } = useLocalSearchParams();
+  const [selectedMonth, setSelectedMonth] = useState(
+    month ?? monthKey(new Date())
+  );
 
   const periodSheetRef = useRef<BottomSheetModal>(null);
   const helpSheetRef = useRef<BottomSheetModal>(null);
