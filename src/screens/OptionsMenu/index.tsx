@@ -287,12 +287,6 @@ export function OptionsMenu() {
           />
 
           <SelectButton
-            icon={<Receipt color={theme.colors.primary} />}
-            title='Minhas assinaturas'
-            onPress={() => handleOpenSubscriptionsList()}
-          />
-
-          <SelectButton
             icon={<Bank color={theme.colors.primary} />}
             title='Instituições Bancárias'
             onPress={() => handleOpenInstitutions()}
@@ -320,6 +314,12 @@ export function OptionsMenu() {
             icon={<Tag color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
+          />
+
+          <SelectButton
+            icon={<Receipt color={theme.colors.primary} />}
+            title='Minhas assinaturas'
+            onPress={() => handleOpenSubscriptionsList()}
           />
 
           <Title>Configurações</Title>
