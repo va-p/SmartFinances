@@ -8,17 +8,16 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 // Animations
 import Animated, {
   Easing,
-  FadeInDown,
+  FadeInUp,
   FadeOutUp,
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 
 // Icons
-import Lock from 'phosphor-react-native/src/icons/Lock';
 import Eye from 'phosphor-react-native/src/icons/Eye';
+import Lock from 'phosphor-react-native/src/icons/Lock';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
@@ -72,12 +71,14 @@ import { SubscriptionRecurrencePeriod } from '@interfaces/subscriptions';
 
 const AnimatedSectionBody = Animated.createAnimatedComponent(SectionBody);
 
-const COLLAPSE_DURATION = 200;
+const COLLAPSE_DURATION = 300;
 
 /**
- * A single CaretDown that spins between its resting (expanded, 0°) and
- * rotated (collapsed, 180° — pointing up) positions instead of swapping
- * between two icons.
+ * A single CaretDown that spins 180° clockwise on every toggle instead of
+ * swapping between two icons. The rotation is cumulative (+180° per toggle),
+ * so both the collapse and the expand motions run clockwise while the resting
+ * orientation still matches the state (expanded = multiple of 360°,
+ * collapsed = odd multiple of 180°).
  */
 type RotatingCaretProps = {
   expanded: boolean;
@@ -85,19 +86,22 @@ type RotatingCaretProps = {
 };
 
 function RotatingCaret({ expanded, color }: RotatingCaretProps) {
-  const progress = useSharedValue(expanded ? 1 : 0);
+  const rotation = useSharedValue(expanded ? 0 : 180);
+  const prevExpanded = useRef(expanded);
 
   useEffect(() => {
-    progress.value = withTiming(expanded ? 1 : 0, {
+    // Ignore mount (and any duplicate runs): only animate on real toggles.
+    if (prevExpanded.current === expanded) return;
+    prevExpanded.current = expanded;
+
+    rotation.value = withTiming(rotation.value + 180, {
       duration: COLLAPSE_DURATION,
       easing: Easing.inOut(Easing.quad),
     });
-  }, [expanded, progress]);
+  }, [expanded, rotation]);
 
   const caretStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${interpolate(progress.value, [0, 1], [180, 0])}deg` },
-    ],
+    transform: [{ rotate: `${rotation.value}deg` }],
   }));
 
   return (
@@ -290,7 +294,7 @@ export function SubscriptionDetails() {
 
             {paymentsExpanded && (
               <AnimatedSectionBody
-                entering={FadeInDown.duration(COLLAPSE_DURATION)}
+                entering={FadeInUp.duration(COLLAPSE_DURATION)}
                 exiting={FadeOutUp.duration(COLLAPSE_DURATION)}
               >
                 <DetailLine>
@@ -317,7 +321,6 @@ export function SubscriptionDetails() {
               </AnimatedSectionBody>
             )}
 
-            {/* Exibição na lista (AC15.4/15.5) */}
             <SectionHeaderRow>
               <SectionHeaderTitle>Exibição na lista</SectionHeaderTitle>
               <EditButton onPress={() => setListExpanded((v) => !v)}>
@@ -330,7 +333,7 @@ export function SubscriptionDetails() {
 
             {listExpanded && (
               <AnimatedSectionBody
-                entering={FadeInDown.duration(COLLAPSE_DURATION)}
+                entering={FadeInUp.duration(COLLAPSE_DURATION)}
                 exiting={FadeOutUp.duration(COLLAPSE_DURATION)}
               >
                 <Row onPress={handleMarkNotSubscription}>
