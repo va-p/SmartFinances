@@ -10,6 +10,7 @@ import Animated, {
   Easing,
   FadeInUp,
   FadeOutUp,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -74,11 +75,10 @@ const AnimatedSectionBody = Animated.createAnimatedComponent(SectionBody);
 const COLLAPSE_DURATION = 300;
 
 /**
- * A single CaretDown that spins 180° clockwise on every toggle instead of
- * swapping between two icons. The rotation is cumulative (+180° per toggle),
- * so both the collapse and the expand motions run clockwise while the resting
- * orientation still matches the state (expanded = multiple of 360°,
- * collapsed = odd multiple of 180°).
+ * A single CaretDown that rotates between its collapsed (pointing up, -180°)
+ * and expanded (pointing down, 0°) positions. Expanding increases the angle
+ * (clockwise); closing decreases it, reversing the previous rotation back to
+ * the original position.
  */
 type RotatingCaretProps = {
   expanded: boolean;
@@ -86,22 +86,19 @@ type RotatingCaretProps = {
 };
 
 function RotatingCaret({ expanded, color }: RotatingCaretProps) {
-  const rotation = useSharedValue(expanded ? 0 : 180);
-  const prevExpanded = useRef(expanded);
+  const progress = useSharedValue(expanded ? 1 : 0);
 
   useEffect(() => {
-    // Ignore mount (and any duplicate runs): only animate on real toggles.
-    if (prevExpanded.current === expanded) return;
-    prevExpanded.current = expanded;
-
-    rotation.value = withTiming(rotation.value + 180, {
+    progress.value = withTiming(expanded ? 1 : 0, {
       duration: COLLAPSE_DURATION,
       easing: Easing.inOut(Easing.quad),
     });
-  }, [expanded, rotation]);
+  }, [expanded, progress]);
 
   const caretStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
+    transform: [
+      { rotate: `${interpolate(progress.value, [0, 1], [-180, 0])}deg` },
+    ],
   }));
 
   return (
