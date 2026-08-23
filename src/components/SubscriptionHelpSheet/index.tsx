@@ -1,0 +1,126 @@
+import React from 'react';
+import type { RefObject } from 'react';
+
+import { useTheme } from 'styled-components';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+
+// Icons
+import Play from 'phosphor-react-native/src/icons/Play';
+import MusicNotes from 'phosphor-react-native/src/icons/MusicNotes';
+import GameController from 'phosphor-react-native/src/icons/GameController';
+import WindowsLogo from 'phosphor-react-native/src/icons/WindowsLogo';
+import ShoppingCart from 'phosphor-react-native/src/icons/ShoppingCart';
+import Download from 'phosphor-react-native/src/icons/Download';
+import Monitor from 'phosphor-react-native/src/icons/Monitor';
+
+// Components
+import { Button } from '@components/Button';
+import { ModalView } from '@components/Modals/ModalView';
+
+import {
+  ContentScroll,
+  IconsRow,
+  OverlappingIcon,
+  OverlappingIconFirst,
+  Explanation,
+  ExamplesTitle,
+  CategoryRow,
+  CategoryIconCircle,
+  CategoryTextContainer,
+  CategoryTitle,
+  CategoryExamples,
+  Footer,
+} from './styles';
+
+import { ThemeProps } from '@interfaces/theme';
+
+type Props = {
+  bottomSheetRef: RefObject<BottomSheetModal>;
+  close: () => void;
+};
+
+const CATEGORY_EXAMPLES = [
+  {
+    Icon: Play,
+    title: 'Serviços de transmissão (Streaming)',
+    examples: 'Netflix, Disney+, Spotify.',
+  },
+  {
+    Icon: Download,
+    title: 'Armazenamento em nuvem',
+    examples: 'Apple iCloud, Google One, OneDrive.',
+  },
+  {
+    Icon: ShoppingCart,
+    title: 'Programas de varejo',
+    examples: 'Amazon Prime, Meli+, Clube iFood.',
+  },
+  {
+    Icon: Monitor,
+    title: 'Licenças de software',
+    examples: 'Microsoft, Adobe, Canva.',
+  },
+];
+
+/**
+ * Tela 2 — explains what the app classifies as "Assinaturas" with service
+ * category examples (spec.md R13). Shared by the Subscriptions (Tela 1) and
+ * SubscriptionPayments (Tela 5) screens.
+ */
+export function SubscriptionHelpSheet({ bottomSheetRef, close }: Props) {
+  const theme = useTheme() as ThemeProps;
+
+  return (
+    <ModalView
+      title='Ajuda'
+      bottomSheetRef={bottomSheetRef}
+      closeModal={close}
+      snapPoints={['85%']}
+    >
+      <ContentScroll>
+        <IconsRow>
+          <OverlappingIconFirst>
+            <Play size={22} weight='fill' color={theme.colors.primary} />
+          </OverlappingIconFirst>
+          <OverlappingIcon>
+            <MusicNotes size={22} weight='fill' color={theme.colors.success} />
+          </OverlappingIcon>
+          <OverlappingIcon>
+            <GameController size={22} weight='fill' color={theme.colors.attention} />
+          </OverlappingIcon>
+          <OverlappingIcon>
+            <WindowsLogo size={22} weight='fill' color={theme.colors.text} />
+          </OverlappingIcon>
+          <OverlappingIcon>
+            <ShoppingCart size={22} weight='fill' color={theme.colors.primary} />
+          </OverlappingIcon>
+        </IconsRow>
+
+        <Explanation>
+          Acompanhe aqui seus pagamentos classificados como "Assinaturas"
+        </Explanation>
+        <ExamplesTitle>
+          Exemplos de serviços nesta categoria no aplicativo:
+        </ExamplesTitle>
+
+        {CATEGORY_EXAMPLES.map(({ Icon, title, examples }) => (
+          <CategoryRow key={title}>
+            <CategoryIconCircle>
+              <Icon size={20} weight='fill' color={theme.colors.primary} />
+            </CategoryIconCircle>
+            <CategoryTextContainer>
+              <CategoryTitle>{title}</CategoryTitle>
+              <CategoryExamples>{examples}</CategoryExamples>
+            </CategoryTextContainer>
+          </CategoryRow>
+        ))}
+      </ContentScroll>
+
+      <Footer>
+        <Button.Root onPress={close}>
+          <Button.Text text='Entendi' />
+        </Button.Root>
+      </Footer>
+    </ModalView>
+  );
+}
