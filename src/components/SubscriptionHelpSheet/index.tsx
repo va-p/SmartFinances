@@ -35,7 +35,7 @@ import {
 import { ThemeProps } from '@interfaces/theme';
 
 type Props = {
-  bottomSheetRef: RefObject<BottomSheetModal>;
+  bottomSheetRef: RefObject<BottomSheetModal | null>;
   close: () => void;
 };
 

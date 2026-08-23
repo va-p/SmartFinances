@@ -11,6 +11,18 @@ export default function AccountsStackLayout() {
       <Stack.Screen name='index' options={{ title: 'Mais Opções' }} />
       <Stack.Screen name='profile' options={{ title: 'Perfil' }} />
       <Stack.Screen name='subscription' options={{ title: 'Assinatura' }} />
+      <Stack.Screen
+        name='subscriptions'
+        options={{ title: 'Minhas assinaturas' }}
+      />
+      <Stack.Screen
+        name='subscriptionDetails'
+        options={{ title: 'Detalhes da Assinatura' }}
+      />
+      <Stack.Screen
+        name='subscriptionPayments'
+        options={{ title: 'Próximos Pagamentos' }}
+      />
       <Stack.Screen name='accountsList' options={{ title: 'Contas' }} />
       <Stack.Screen
         name='bankingIntegrations'
