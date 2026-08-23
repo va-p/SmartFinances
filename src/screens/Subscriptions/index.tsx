@@ -180,7 +180,7 @@ export function Subscriptions() {
         {upcomingSummary && (
           <Footer
             onPress={handleOpenPayments}
-            style={{ marginBottom: bottomTabBarHeight + 16 }}
+            style={{ marginBottom: bottomTabBarHeight - 32}}
           >
             <FooterTextContainer>
               <FooterTitle>Próximos pagamentos</FooterTitle>
@@ -189,7 +189,7 @@ export function Subscriptions() {
                 {upcomingCountText}
               </FooterSubtitle>
             </FooterTextContainer>
-            <CaretRight size={20} color={theme.colors.background} />
+            <CaretRight size={20} color={theme.colors.primary} />
           </Footer>
         )}
 

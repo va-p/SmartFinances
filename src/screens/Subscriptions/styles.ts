@@ -48,7 +48,7 @@ export const Footer = styled(TouchableOpacity).attrs({
   margin-bottom: 16px;
   padding: 16px;
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const FooterTextContainer = styled.View`
@@ -59,12 +59,12 @@ export const FooterTextContainer = styled.View`
 export const FooterTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
   font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.title};
 `;
 
 export const FooterSubtitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   font-size: 12px;
-  color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
   opacity: 0.9;
 `;
