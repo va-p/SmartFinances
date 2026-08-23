@@ -1,9 +1,10 @@
 import styled from 'styled-components/native';
 
-import { TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
+  padding: ${Platform.OS === 'ios' ? '0 16px' : '8px 16px'};
 `;
 
 export const PeriodRow = styled(TouchableOpacity).attrs({
@@ -13,7 +14,6 @@ export const PeriodRow = styled(TouchableOpacity).attrs({
   align-items: center;
   justify-content: space-between;
   min-height: 56px;
-  margin-horizontal: 16px;
   margin-bottom: 16px;
   padding-horizontal: 16px;
   background-color: ${({ theme }) => theme.colors.shape};
@@ -44,7 +44,6 @@ export const PeriodValueContainer = styled.View`
 `;
 
 export const TotalContainer = styled.View`
-  margin-horizontal: 16px;
   margin-bottom: 16px;
 `;
 
@@ -71,13 +70,12 @@ export const SectionHeader = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-horizontal: 16px;
   margin-bottom: 8px;
 `;
 
 export const SectionHeaderTitle = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 

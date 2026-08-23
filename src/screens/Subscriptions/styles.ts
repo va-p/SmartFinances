@@ -1,16 +1,16 @@
 import styled from 'styled-components/native';
 
-import { TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
+  padding: ${Platform.OS === 'ios' ? '0 16px' : '8px 16px'};
 `;
 
 export const SectionHeader = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-horizontal: 16px;
   padding-vertical: 12px;
 `;
 
@@ -44,7 +44,6 @@ export const Footer = styled(TouchableOpacity).attrs({
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-horizontal: 16px;
   margin-bottom: 16px;
   padding: 16px;
   border-radius: 12px;

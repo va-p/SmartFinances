@@ -1,9 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
 
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 // Icons
 import Question from 'phosphor-react-native/src/icons/Question';
@@ -204,7 +204,6 @@ export function SubscriptionPayments() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingHorizontal: 16,
               paddingTop: 4,
               paddingBottom: 24,
             }}

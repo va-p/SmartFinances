@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList } from 'react-native';
+import { ActivityIndicator, FlatList, Platform } from 'react-native';
 
-import { useFocusEffect, useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect, useRouter } from 'expo-router';
 
 // Icons
 import Plus from 'phosphor-react-native/src/icons/Plus';
@@ -14,17 +14,17 @@ import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
-import { SubscriptionListItem } from '@components/SubscriptionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { SubscriptionListItem } from '@components/SubscriptionListItem';
 import { SubscriptionHelpSheet } from '@components/SubscriptionHelpSheet';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
-import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Screens
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Hooks
 import { useSubscriptionsQuery } from '@hooks/useSubscriptionsQuery';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
@@ -170,7 +170,6 @@ export function Subscriptions() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingHorizontal: 16,
               paddingTop: 8,
               paddingBottom: 24,
             }}
@@ -180,7 +179,7 @@ export function Subscriptions() {
         {upcomingSummary && (
           <Footer
             onPress={handleOpenPayments}
-            style={{ marginBottom: bottomTabBarHeight - 32}}
+            style={{ marginBottom: Platform.OS === 'ios' ? bottomTabBarHeight - 32 : bottomTabBarHeight - 16}}
           >
             <FooterTextContainer>
               <FooterTitle>Próximos pagamentos</FooterTitle>
