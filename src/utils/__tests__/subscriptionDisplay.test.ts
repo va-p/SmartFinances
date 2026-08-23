@@ -1,4 +1,5 @@
 import {
+  formatShortDayMonth,
   subscriptionFrequencyText,
   subscriptionRecurrenceLabel,
 } from '../subscriptionDisplay';
@@ -35,5 +36,22 @@ describe('subscriptionFrequencyText', () => {
     expect(
       subscriptionFrequencyText({ recurrence_period: null, day: 6 })
     ).toBe('');
+  });
+});
+
+describe('formatShortDayMonth', () => {
+  // Payment rows: "6 AGO."
+  it('formats a Date as "d MMM."', () => {
+    expect(formatShortDayMonth(new Date(2026, 7, 6))).toBe('6 AGO.');
+  });
+
+  it('formats an ISO string as "d MMM."', () => {
+    expect(formatShortDayMonth('2026-06-15T12:00:00.000Z')).toMatch(
+      /^15 JUN\.$/
+    );
+  });
+
+  it('does not zero-pad the day', () => {
+    expect(formatShortDayMonth(new Date(2026, 0, 5))).toBe('5 JAN.');
   });
 });

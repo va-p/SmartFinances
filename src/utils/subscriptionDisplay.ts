@@ -3,6 +3,27 @@ import {
   SubscriptionRecurrencePeriod,
 } from '@interfaces/subscriptions';
 
+const MONTH_ABBREVIATIONS = [
+  'JAN',
+  'FEV',
+  'MAR',
+  'ABR',
+  'MAI',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SET',
+  'OUT',
+  'NOV',
+  'DEZ',
+];
+
+/** "2026-08-06T…" → "6 AGO." (payment rows, no year, no zero-padding). */
+export function formatShortDayMonth(value: Date | string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  return `${date.getDate()} ${MONTH_ABBREVIATIONS[date.getMonth()]}.`;
+}
+
 /** 'MONTHLY' → 'Mensal', 'YEARLY' → 'Anual', otherwise ''. */
 export function subscriptionRecurrenceLabel(
   period: SubscriptionRecurrencePeriod | null | undefined
