@@ -10,7 +10,6 @@ export const Container = styled.View`
 export const ContentScroll = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: {
-    // paddingHorizontal: 16,
     paddingBottom: 48,
   },
 })``;
@@ -41,7 +40,7 @@ export const RowIcon = styled.View`
 export const RowLabel = styled.Text`
   flex: 1;
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.title};
 `;
 
@@ -51,7 +50,7 @@ export const RowLabelDanger = styled(RowLabel)`
 
 export const RowValue = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -69,7 +68,7 @@ export const SectionHeaderRow = styled.View`
 export const SectionHeaderTitle = styled.Text`
   flex: 1;
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.title};
 `;
 
@@ -85,7 +84,7 @@ export const EditButton = styled(TouchableOpacity).attrs({
 
 export const EditButtonText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.primary};
 `;
 
@@ -105,13 +104,13 @@ export const DetailLine = styled.View`
 
 export const DetailLabel = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: 13px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
 `;
 
 export const DetailValue = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.title};
 `;
 
@@ -124,7 +123,7 @@ export const EditSheetContent = styled.View`
 
 export const InputLabel = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: 13px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: 6px;
   margin-top: 12px;

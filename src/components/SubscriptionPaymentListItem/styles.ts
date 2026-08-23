@@ -40,7 +40,7 @@ export const Name = styled.Text.attrs({
 
 export const PaymentDate = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.fonts.sizeText};
   color: ${({ theme }) => theme.colors.text};
 `;
 
@@ -51,7 +51,7 @@ export const RightContainer = styled.View`
 `;
 
 export const Amount = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => theme.fonts.medium};
+  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.title};
 `;

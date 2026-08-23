@@ -56,7 +56,7 @@ export const FooterTextContainer = styled.View`
 `;
 
 export const FooterTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
+  font-family: ${({ theme }) => theme.fonts.medium};
   font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
   color: ${({ theme }) => theme.colors.title};
 `;
