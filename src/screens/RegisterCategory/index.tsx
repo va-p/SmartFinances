@@ -214,7 +214,6 @@ export function RegisterCategory({ id, closeCategory }: Props) {
   }
 
   return (
-    <Screen>
       <TouchableWithoutFeedback
         onPress={Keyboard.dismiss}
         accessible={false}
@@ -305,6 +304,5 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         </Footer>
       </Container>
       </TouchableWithoutFeedback>
-    </Screen>
   );
 }

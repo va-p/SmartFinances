@@ -4,14 +4,10 @@ import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
 
-import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
-import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-
-import { useUser } from '@stores/userStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
@@ -27,14 +23,13 @@ export function AccountSelect({
   setAccount,
   closeSelectAccount,
 }: Props) {
-  const { id: userID } = useUser();
   const {
     data: accounts,
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
     isError,
-  } = useAccountsQuery(userID);
+  } = useAccountsQuery();
 
   function handleRefresh() {
     refetchAccounts();
@@ -57,10 +52,7 @@ export function AccountSelect({
   }
 
   return (
-    <Screen>
       <Container>
-        <Gradient />
-
         <FlatList
           data={accounts}
           keyExtractor={(item) => String(item.id)}
@@ -84,6 +76,5 @@ export function AccountSelect({
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }

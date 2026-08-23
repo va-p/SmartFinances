@@ -4,13 +4,9 @@ import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
 
-import { Screen } from '@components/Screen';
-import { Gradient } from '@components/Gradient';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
-
-import { useUser } from '@stores/userStorage';
 
 import { CategoryProps } from '@interfaces/categories';
 
@@ -62,10 +58,7 @@ export function CategorySelect({
   }
 
   return (
-    <Screen>
       <Container>
-        <Gradient />
-
         <FlatList
           data={categories}
           keyExtractor={(item) => String(item.id)}
@@ -94,6 +87,5 @@ export function CategorySelect({
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }

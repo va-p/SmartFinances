@@ -2,7 +2,6 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { Container } from './styles';
 
-import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
@@ -45,7 +44,6 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
   }
 
   return (
-    <Screen>
       <Container>
         <FlatList
           data={periods}
@@ -59,6 +57,5 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
           )}
         />
       </Container>
-    </Screen>
   );
 }

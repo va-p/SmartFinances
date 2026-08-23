@@ -13,9 +13,7 @@ import {
   Footer,
 } from './styles';
 
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
-import { Gradient } from '@components/Gradient';
 
 import { useTheme } from 'styled-components';
 import { ThemeProps } from '@interfaces/theme';
@@ -117,9 +115,7 @@ export function RecurrenceSelect({
   }
 
   return (
-    <Screen>
       <Container>
-        <Gradient />
         <Content>
           {/*<Label>Configurar recorrência</Label>*/}
 
@@ -163,6 +159,5 @@ export function RecurrenceSelect({
           </Footer>
         </Content>
       </Container>
-    </Screen>
   );
 }
