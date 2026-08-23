@@ -1,16 +1,26 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
+// Animations
+import Animated, {
+  Easing,
+  FadeInDown,
+  FadeOutUp,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
 // Icons
 import Lock from 'phosphor-react-native/src/icons/Lock';
 import Eye from 'phosphor-react-native/src/icons/Eye';
 import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
 import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
-import CaretUp from 'phosphor-react-native/src/icons/CaretUp';
 import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
 
@@ -59,6 +69,43 @@ import {
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionRecurrencePeriod } from '@interfaces/subscriptions';
+
+const AnimatedSectionBody = Animated.createAnimatedComponent(SectionBody);
+
+const COLLAPSE_DURATION = 200;
+
+/**
+ * A single CaretDown that spins between its resting (expanded, 0°) and
+ * rotated (collapsed, 180° — pointing up) positions instead of swapping
+ * between two icons.
+ */
+type RotatingCaretProps = {
+  expanded: boolean;
+  color: string;
+};
+
+function RotatingCaret({ expanded, color }: RotatingCaretProps) {
+  const progress = useSharedValue(expanded ? 1 : 0);
+
+  useEffect(() => {
+    progress.value = withTiming(expanded ? 1 : 0, {
+      duration: COLLAPSE_DURATION,
+      easing: Easing.inOut(Easing.quad),
+    });
+  }, [expanded, progress]);
+
+  const caretStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${interpolate(progress.value, [0, 1], [180, 0])}deg` },
+    ],
+  }));
+
+  return (
+    <Animated.View style={caretStyle}>
+      <CaretDown size={18} color={color} />
+    </Animated.View>
+  );
+}
 
 export function SubscriptionDetails() {
   const theme = useTheme() as ThemeProps;
@@ -234,16 +281,18 @@ export function SubscriptionDetails() {
                 <EditButtonText>Editar</EditButtonText>
               </EditButton>
               <EditButton onPress={() => setPaymentsExpanded((v) => !v)}>
-                {paymentsExpanded ? (
-                  <CaretDown size={18} color={theme.colors.text} />
-                ) : (
-                  <CaretUp size={18} color={theme.colors.text} />
-                )}
+                <RotatingCaret
+                  expanded={paymentsExpanded}
+                  color={theme.colors.text}
+                />
               </EditButton>
             </SectionHeaderRow>
 
             {paymentsExpanded && (
-              <SectionBody>
+              <AnimatedSectionBody
+                entering={FadeInDown.duration(COLLAPSE_DURATION)}
+                exiting={FadeOutUp.duration(COLLAPSE_DURATION)}
+              >
                 <DetailLine>
                   <DetailLabel>Valor</DetailLabel>
                   <DetailValue>
@@ -265,23 +314,25 @@ export function SubscriptionDetails() {
                   <DetailLabel>Dia de cobrança</DetailLabel>
                   <DetailValue>Dia {subscription.day}</DetailValue>
                 </DetailLine>
-              </SectionBody>
+              </AnimatedSectionBody>
             )}
 
             {/* Exibição na lista (AC15.4/15.5) */}
             <SectionHeaderRow>
               <SectionHeaderTitle>Exibição na lista</SectionHeaderTitle>
               <EditButton onPress={() => setListExpanded((v) => !v)}>
-                {listExpanded ? (
-                  <CaretDown size={18} color={theme.colors.text} />
-                ) : (
-                  <CaretUp size={18} color={theme.colors.text} />
-                )}
+                <RotatingCaret
+                  expanded={listExpanded}
+                  color={theme.colors.text}
+                />
               </EditButton>
             </SectionHeaderRow>
 
             {listExpanded && (
-              <SectionBody>
+              <AnimatedSectionBody
+                entering={FadeInDown.duration(COLLAPSE_DURATION)}
+                exiting={FadeOutUp.duration(COLLAPSE_DURATION)}
+              >
                 <Row onPress={handleMarkNotSubscription}>
                   <RowLeft>
                     <RowIcon>
@@ -307,7 +358,7 @@ export function SubscriptionDetails() {
                   </RowLeft>
                   <CaretRight size={16} color={theme.colors.text} />
                 </Row>
-              </SectionBody>
+              </AnimatedSectionBody>
             )}
           </ContentScroll>
         )}
