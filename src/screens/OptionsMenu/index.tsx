@@ -19,6 +19,7 @@ import MoonStars from 'phosphor-react-native/src/icons/MoonStars';
 import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
 import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
 import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
+import Receipt from 'phosphor-react-native/src/icons/Receipt';
 
 // Dependencies
 import axios from 'axios';
@@ -75,6 +76,10 @@ export function OptionsMenu() {
 
   function handleOpenSubscription() {
     router.navigate('/options/subscription');
+  }
+
+  function handleOpenSubscriptionsList() {
+    router.navigate('/options/subscriptions');
   }
 
   function handleOpenAccounts() {
@@ -309,6 +314,12 @@ export function OptionsMenu() {
             icon={<Tag color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
+          />
+
+          <SelectButton
+            icon={<Receipt color={theme.colors.primary} />}
+            title='Minhas assinaturas'
+            onPress={() => handleOpenSubscriptionsList()}
           />
 
           <Title>Configurações</Title>

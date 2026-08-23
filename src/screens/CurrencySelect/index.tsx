@@ -4,7 +4,6 @@ import { Container } from './styles';
 
 import { useCurrenciesStore } from '@storage/currenciesStore';
 
-import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
@@ -30,7 +29,6 @@ export function CurrencySelect({
   }
 
   return (
-    <Screen>
       <Container>
         <Gradient />
 
@@ -48,6 +46,5 @@ export function CurrencySelect({
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }

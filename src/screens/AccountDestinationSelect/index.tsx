@@ -1,17 +1,13 @@
 import React from 'react';
-import { Alert, RefreshControl } from 'react-native';
+import { RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
 
-import { Screen } from '@components/Screen';
 import { ListItem } from '@components/ListItem';
-import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-
-import { useUser } from '@stores/userStorage';
 
 import { AccountProps } from '@interfaces/accounts';
 
@@ -49,10 +45,7 @@ export function AccountDestinationSelect({
   }
 
   return (
-    <Screen>
       <Container>
-        <Gradient />
-
         <FlatList
           data={accounts}
           keyExtractor={(item) => String(item.id)}
@@ -76,6 +69,5 @@ export function AccountDestinationSelect({
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }

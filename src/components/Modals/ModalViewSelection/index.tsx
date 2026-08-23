@@ -30,16 +30,15 @@ export function ModalViewSelection({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
-      maxDynamicContentSize={400}
       enablePanDownToClose={true}
       enableContentPanningGesture={false}
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
-      backgroundComponent={() => <Gradient />}
+      backgroundComponent={() => <Gradient roundCorners />}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       {...rest}
     >
-      <BottomSheetView style={{ flex: 1 }}>
+      <BottomSheetView>
         <Title>{title}</Title>
 
         <Container>{children}</Container>

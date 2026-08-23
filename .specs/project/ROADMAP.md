@@ -67,6 +67,15 @@
 - [x] RevenueCat in-app subscription
 - [x] Restore purchases
 
+### Subscription Management
+- [x] Subscription list ("Minhas assinaturas") auto-identified from recurring monthly/yearly transactions
+- [x] Subscription details (last/next payment, collapsible payment details)
+- [x] Edit subscription payment details (amount, billing day, recurrence)
+- [x] Classification actions ("Não é uma assinatura", "Ocultar da lista"/"Exibir na lista")
+- [x] Upcoming payments month view with paid/pending status and BRL totals
+- [x] Period selector (last 12 → next 12 months)
+- [x] Help sheet explaining subscription classification
+
 ### Infrastructure
 - [x] OTA updates via Revopush
 - [x] Firebase Analytics, Crashlytics, Performance
@@ -78,7 +87,7 @@
 ## Potential Future Features
 
 - [x] Recurring transactions
-- [ ] Subscription management (Netflix, Spotify, etc.) with automatic identification based on transactions.
+- [x] Subscription management (Netflix, Spotify, etc.) with automatic identification based on transactions.
 - [ ] Financial goals / savings targets
 - [ ] Widgets (iOS / Android home screen)
 - [ ] Export data (CSV / PDF)

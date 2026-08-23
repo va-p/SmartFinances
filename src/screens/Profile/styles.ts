@@ -1,9 +1,10 @@
+import { Platform } from 'react-native';
 import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
   width: 100%;
-  padding: 16px;
+  padding: ${Platform.OS === 'ios' ? '0 16px' : '8px 16px'};
 `;
 
 export const ImageContainer = styled.Pressable`

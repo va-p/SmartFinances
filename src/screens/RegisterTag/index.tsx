@@ -15,7 +15,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
@@ -107,7 +106,6 @@ export function RegisterTag({ id, closeTag }: Props) {
   }
 
   return (
-    <Screen>
       <TouchableWithoutFeedback
         onPress={Keyboard.dismiss}
         accessible={false}
@@ -139,6 +137,5 @@ export function RegisterTag({ id, closeTag }: Props) {
         </Footer>
       </Container>
       </TouchableWithoutFeedback>
-    </Screen>
   );
 }
