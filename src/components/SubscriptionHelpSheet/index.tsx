@@ -9,6 +9,7 @@ import Play from 'phosphor-react-native/src/icons/Play';
 import MusicNotes from 'phosphor-react-native/src/icons/MusicNotes';
 import GameController from 'phosphor-react-native/src/icons/GameController';
 import WindowsLogo from 'phosphor-react-native/src/icons/WindowsLogo';
+import AppleLogo from 'phosphor-react-native/src/icons/AppleLogo';
 import ShoppingCart from 'phosphor-react-native/src/icons/ShoppingCart';
 import Download from 'phosphor-react-native/src/icons/Download';
 import Monitor from 'phosphor-react-native/src/icons/Monitor';
@@ -89,7 +90,10 @@ export function SubscriptionHelpSheet({ bottomSheetRef, close }: Props) {
             <GameController size={22} weight='fill' color={theme.colors.attention} />
           </OverlappingIcon>
           <OverlappingIcon>
-            <WindowsLogo size={22} weight='fill' color={theme.colors.text} />
+            <AppleLogo size={22} weight='fill' color={theme.colors.text} />
+          </OverlappingIcon>
+          <OverlappingIcon>
+            <WindowsLogo size={22} weight='fill' color='#00A4EF' />
           </OverlappingIcon>
           <OverlappingIcon>
             <ShoppingCart size={22} weight='fill' color={theme.colors.primary} />
