@@ -42,6 +42,8 @@
 | 36 | **BRL totals client-side** | Subscription totals (list footer, month view) are BRL-converted on the frontend via `convertCurrency` + quotes store (same pattern as `processAccountsForList`); backend stays currency-agnostic. Unsupported pairs are skipped, never thrown. |
 | 37 | **Hide = in-session undo only** | "Ocultar da lista" hides from both the list (Tela 1) and payments (Tela 5). The details screen toggles to "Exibir na lista" after hiding (undo while on screen). No standalone unhide list in this iteration. |
 | 38 | **Payment row ⋮ opens details** | The wireframe's ⋮ menu is undefined; both row tap and ⋮ navigate to the subscription details screen. |
+| 39 | **Virtual goal reserve accounts are real `Account` rows flagged `is_virtual`** | Financial Goals: reserve balances must count toward Net Worth but never appear in account UIs. Any UI rendering account lists or pickers MUST filter `isVirtual`; Net Worth totals MUST include them. Virtual accounts are created/deleted only through the goals flow (`deleteAccount` rejects them). `GET /account` returns them unfiltered — filtering is a client responsibility. |
+| 40 | **Goal money movement only via internal transfer pairs** | Goal deposits/withdrawals/delete transfer-backs are standard two-leg transfers (`TRANSFER_DEBIT`/`TRANSFER_CREDIT`) via `createTransferPair`, exposed through dedicated `/goal/:id/deposit\|withdraw` endpoints. No direct balance mutation, no side ledgers. Goal progress is always derivable from account balances. |
 
 ---
 
@@ -64,11 +66,13 @@
 | 13 | TransactionsByCategory screen coverage | Verifier gap G1 (fix-transactions-by-category): the screen-level composition `formatTransactions → processTransactions` has no automated test (a reverted mapper unwiring survives the full suite). Deferred: utils are unit-tested and `processTransactions` hardening independently covers the empty-list regression; screen-level jest tests are currently blocked by the pre-existing `phosphor-react-native` transform failure (`profile.spec.tsx` fails at base). Add a composition/render test when screen-test infra is fixed. | Open |
 | 14 | TransactionsByCategory modal/ruler wiring coverage | Verifier gap (transactions-by-category-period-ruler-and-edit): PeriodRuler/FilterButton/modal-open/close wiring has no automated test (unwiring the card-tap handler survives the suite). Partially mitigated by `useDateNavigation` hook tests. Same blocker as #13. Also: the shared-hook `all`-mode fix changed Home's `all` behavior (was broken) — worth a manual QA pass on Home in `all` mode. | Open |
 | 15 | Subscription flags DB migration | `add_subscription_flags` migration SQL created (`prisma/migrations/20260822000000_add_subscription_flags/`) but not applied (PostgreSQL not running locally; migrations dir gitignored by convention). Must run `npx prisma migrate deploy` on cPanel when deploying backend `feat/subscription-management`. | Open |
+| 16 | Financial goals DB migration | `add_financial_goals` migration SQL generated via `prisma migrate diff` (`prisma/migrations/20260825085131_add_financial_goals/`) but not applied (dev DB unreachable; migrations dir gitignored by convention). Must run `npx prisma migrate deploy` on cPanel when deploying backend `goals-target-savings`. | Open |
 
 ---
 
 ## Active Context
 
+- **Active feature:** `financial-goals` (specs in `.specs/features/financial-goals/`). Backend Phase 1 (T1–T5: schema, zod, goal.service) committed on branch `goals-target-savings`; Phase 2 (API wiring T6–T10) next; frontend phases after.
 - **Frontend version:** 2.24.x (from Revopush scripts target binary version `2.24.0`)
 - **Backend version:** 1.0.0
 - **API prefix:** `/api/v1`
