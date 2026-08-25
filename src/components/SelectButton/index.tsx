@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Container,
+  IconAndTextsContainer,
   IconContainer,
   TitleContainer,
   Title,
@@ -11,6 +12,7 @@ import { useTheme } from 'styled-components';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { ThemeProps } from '@interfaces/theme';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 type Props = RectButtonProps & {
   title: string;
@@ -23,6 +25,7 @@ export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
 
   return (
     <Container {...rest}>
+      <IconAndTextsContainer>
       <IconContainer>
         {icon}
       </IconContainer>
@@ -31,6 +34,9 @@ export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
         <Title>{title}</Title>
         <SubTitle>{subTitle}</SubTitle>
       </TitleContainer>
+      </IconAndTextsContainer>
+
+      <CaretRightIcon size={16} color={theme.colors.text} />
     </Container>
   );
 }

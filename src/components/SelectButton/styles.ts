@@ -9,6 +9,12 @@ export const Container = styled(RectButton)`
   padding: 16px;
 `;
 
+export const IconAndTextsContainer = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: flex-start;
+`;
+
 export const IconContainer = styled.View`
   max-width: 10%;
 `;
