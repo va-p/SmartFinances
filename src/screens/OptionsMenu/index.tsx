@@ -79,8 +79,8 @@ export function OptionsMenu() {
     router.navigate('/options/subscription');
   }
 
-  function handleOpenSubscriptionsList() {
-    router.navigate('/options/subscriptions');
+  function handleOpenInstitutions() {
+    router.navigate('/options/institutions');
   }
 
   function handleOpenAccounts() {
@@ -104,8 +104,12 @@ export function OptionsMenu() {
     router.navigate('/options/tags');
   }
 
-  function handleOpenInstitutions() {
-    router.navigate('/options/institutions');
+  function handleOpenGoals() {
+    // router.navigate('/options/goals');
+  }
+
+  function handleOpenSubscriptionsList() {
+    router.navigate('/options/subscriptions');
   }
 
   async function handleOpenkHelpCenter() {
@@ -283,7 +287,7 @@ export function OptionsMenu() {
 
           <SelectButton
             icon={<CertificateIcon color={theme.colors.primary} />}
-            title='Assinatura Premium'
+            title='Smart Finances Premium'
             onPress={() => handleOpenSubscription()}
           />
 
@@ -320,12 +324,12 @@ export function OptionsMenu() {
           <SelectButton
             icon={<TrophyIcon color={theme.colors.primary} />}
             title='Metas e Objetivos'
-            onPress={() => handleOpenSubscriptionsList()}
+            onPress={() => handleOpenGoals()}
           />
 
           <SelectButton
             icon={<ReceiptIcon color={theme.colors.primary} />}
-            title='Minhas assinaturas'
+            title='Minhas Assinaturas'
             onPress={() => handleOpenSubscriptionsList()}
           />
 

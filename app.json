@@ -3,7 +3,7 @@
     "name": "Smart Finances",
     "slug": "smart-finances",
     "owner": "va-p",
-    "version": "2.22.0",
+    "version": "2.29.2",
     "scheme": "com.vap.smartfinances",
     "jsEngine": "hermes",
     "orientation": "portrait",
@@ -12,8 +12,8 @@
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 93,
-      "googleServicesFile": "./google-services.json",
+      "versionCode": 106,
+      "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -52,6 +52,19 @@
       "enabled": false
     },
     "plugins": [
+      [
+        "@revopush/expo-code-push-plugin",
+        {
+          "ios": {
+            "CodePushDeploymentKey": "2S47-wY5h-5-wY25R_KLdc1NWkNqE12osk8wMe",
+            "CodePushServerUrl": "https://api.revopush.org"
+          },
+          "android": {
+            "CodePushDeploymentKey": "2S47-wY5h-5-wY25R_KLdc1NWkNqE12osk8wMe",
+            "CodePushServerUrl": "https://api.revopush.org"
+          }
+        }
+      ],
       [
         "expo-video",
         {

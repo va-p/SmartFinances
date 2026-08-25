@@ -1,4 +1,5 @@
 package com.vap.smartfinances
+
 import com.microsoft.codepush.react.CodePush
 
 import android.app.Application
@@ -17,38 +18,39 @@ import expo.modules.ExpoReactHostFactory
 
 class MainApplication : Application(), ReactApplication {
 
-  override val reactHost: ReactHost by lazy {
-    ExpoReactHostFactory.getDefaultReactHost(
-      context = applicationContext,
-      packageList =
-        PackageList(this).packages.apply {
-          // Packages that cannot be autolinked yet can be added manually here, for example:
-          // add(MyReactNativePackage())
-          add(InAppUpdatePackage())
-        }
-    )
-  }
-
-  override fun onCreate() {
-    super.onCreate()
-// @generated begin @revopush/main-application-kt-oncreate - expo prebuild (DO NOT MODIFY) sync-dff36c5e3e7a506aa1414ecee26ae96660d1074c
-    super.onCreate()
-    try {
-        val deploymentKey = getString(R.string.CodePushDeploymentKey)
-        CodePush.getInstance(deploymentKey, this, BuildConfig.DEBUG)
-    } catch (e: Exception) {}
-// @generated end @revopush/main-application-kt-oncreate
-    DefaultNewArchitectureEntryPoint.releaseLevel = try {
-      ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
-    } catch (e: IllegalArgumentException) {
-      ReleaseLevel.STABLE
+    override val reactHost: ReactHost by lazy {
+        ExpoReactHostFactory.getDefaultReactHost(
+            context = applicationContext,
+            packageList =
+                PackageList(this).packages.apply {
+                    // Packages that cannot be autolinked yet can be added manually here, for example:
+                    // add(MyReactNativePackage())
+                    add(InAppUpdatePackage())
+                }
+        )
     }
-    loadReactNative(this)
-    ApplicationLifecycleDispatcher.onApplicationCreate(this)
-  }
 
-  override fun onConfigurationChanged(newConfig: Configuration) {
-    super.onConfigurationChanged(newConfig)
-    ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
-  }
+    override fun onCreate() {
+        super.onCreate()
+// @generated begin @revopush/main-application-kt-oncreate - expo prebuild (DO NOT MODIFY) sync-dff36c5e3e7a506aa1414ecee26ae96660d1074c
+        super.onCreate()
+        try {
+            val deploymentKey = getString(R.string.CodePushDeploymentKey)
+            CodePush.getInstance(deploymentKey, this, BuildConfig.DEBUG)
+        } catch (e: Exception) {
+        }
+// @generated end @revopush/main-application-kt-oncreate
+        DefaultNewArchitectureEntryPoint.releaseLevel = try {
+            ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
+        } catch (e: IllegalArgumentException) {
+            ReleaseLevel.STABLE
+        }
+        loadReactNative(this)
+        ApplicationLifecycleDispatcher.onApplicationCreate(this)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
+    }
 }
