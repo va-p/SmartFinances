@@ -84,10 +84,7 @@ export function BudgetCategorySelect() {
   }
 
   return (
-    <Screen>
       <Container>
-        <Gradient />
-
         <FlatList
           data={categories}
           keyExtractor={(item) => String(item.id)}
@@ -114,10 +111,10 @@ export function BudgetCategorySelect() {
             justifyContent: 'center',
             paddingTop: 12,
             paddingHorizontal: 12,
+            rowGap: 8,
           }}
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }
