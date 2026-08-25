@@ -32,7 +32,7 @@ export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
 
       <TitleContainer>
         <Title>{title}</Title>
-        <SubTitle>{subTitle}</SubTitle>
+        {subTitle && <SubTitle>{subTitle}</SubTitle>}
       </TitleContainer>
       </IconAndTextsContainer>
 
