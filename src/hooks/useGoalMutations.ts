@@ -163,8 +163,13 @@ export function useDeleteGoalMutation() {
       );
     },
 
-    onSettled: () => {
+    onSettled: (_data, _error, { goalId }) => {
+      // Delete may transfer the reserve balance back to a real account
+      // server-side, so accounts/transactions change too (GOAL-37).
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['goal', goalId] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
   });
 }
