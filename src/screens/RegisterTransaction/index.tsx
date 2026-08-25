@@ -52,14 +52,14 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays, format, subDays, isToday, isTomorrow, isYesterday } from 'date-fns';
 
 // Icons
-import X from 'phosphor-react-native/src/icons/X';
-import Tag from 'phosphor-react-native/src/icons/Tag';
-import Trash from 'phosphor-react-native/src/icons/Trash';
-import Image from 'phosphor-react-native/src/icons/Image';
-import Wallet from 'phosphor-react-native/src/icons/Wallet';
-import Repeat from 'phosphor-react-native/src/icons/Repeat';
-import Calendar from 'phosphor-react-native/src/icons/Calendar';
-import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
+import {XIcon} from 'phosphor-react-native/src/icons/X';
+import {TagIcon} from 'phosphor-react-native/src/icons/Tag';
+import {TrashIcon} from 'phosphor-react-native/src/icons/Trash';
+import {ImageIcon} from 'phosphor-react-native/src/icons/Image';
+import {WalletIcon} from 'phosphor-react-native/src/icons/Wallet';
+import {RepeatIcon} from 'phosphor-react-native/src/icons/Repeat';
+import {CalendarIcon} from 'phosphor-react-native/src/icons/Calendar';
+import {PencilSimpleIcon} from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -157,7 +157,7 @@ export function RegisterTransaction({
     },
   } as CategoryProps);
   const [currencySelected, setCurrencySelected] = useState({
-    id: 4,
+    id: 1,
     name: 'Real Brasileiro',
     code: 'BRL',
     symbol: 'R$',
@@ -1195,7 +1195,7 @@ export function RegisterTransaction({
                 onPress={closeRegisterTransaction}
                 style={{ position: 'absolute', top: 0, left: 0 }}
               >
-                <X size={24} color={theme.colors.text} weight='bold' />
+                <XIcon size={24} color={theme.colors.text} weight='bold' />
               </BorderlessButton>
               <Title>
                 {isBulkEdit
@@ -1209,7 +1209,7 @@ export function RegisterTransaction({
                   onPress={() => handleClickDeleteTransaction(id)}
                   style={{ position: 'absolute', top: 0, right: 0 }}
                 >
-                  <Trash size={24} color={theme.colors.text} weight='bold' />
+                  <TrashIcon size={24} color={theme.colors.text} weight='bold' />
                 </BorderlessButton>
               )}
             </TitleContainer>
@@ -1270,7 +1270,7 @@ export function RegisterTransaction({
           <ContentScroll keyboardDismissMode="on-drag">
             <SelectButton
               title={accountName || 'Selecione a conta'}
-              icon={<Wallet color={categorySelected.color.color_code} />}
+              icon={<WalletIcon color={categorySelected.color.color_code} />}
               onPress={handleOpenSelectAccountModal}
             />
             {transactionType === 'TRANSFER' && (
@@ -1279,13 +1279,13 @@ export function RegisterTransaction({
                   accountDestinationSelected?.name ||
                   'Selecione a conta de destino'
                 }
-                icon={<Wallet color={categorySelected.color.color_code} />}
+                icon={<WalletIcon color={categorySelected.color.color_code} />}
                 onPress={handleOpenSelectAccountDestinationModal}
               />
             )}
 
             <DateSelectorContainer>
-              <Calendar
+              <CalendarIcon
                 size={24}
                 color={categorySelected.color.color_code}
               />
@@ -1368,7 +1368,7 @@ export function RegisterTransaction({
 
             {/* ── Recurrence Toggle ─────────────────────────────────── */}
             <ButtonToggle
-              icon={<Repeat color={categorySelected.color.color_code} />}
+              icon={<RepeatIcon color={categorySelected.color.color_code} />}
               title='Recorrente'
               subTitle={getRecurrenceSubtitle()}
               onValueChange={() => {
@@ -1383,7 +1383,7 @@ export function RegisterTransaction({
             />
 
             <ControlledInputWithIcon
-              icon={<PencilSimple color={categorySelected.color.color_code} />}
+              icon={<PencilSimpleIcon color={categorySelected.color.color_code} />}
               placeholder='Descrição'
               numberOfLines={2}
               autoCapitalize='sentences'
@@ -1398,7 +1398,7 @@ export function RegisterTransaction({
 
             <SelectButton
               title='Etiquetas'
-              icon={<Tag color={categorySelected.color.color_code} />}
+              icon={<TagIcon color={categorySelected.color.color_code} />}
             />
             <FlatList
               data={tagsData}
@@ -1421,7 +1421,7 @@ export function RegisterTransaction({
 
             <SelectButton
               title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
-              icon={<Image color={categorySelected.color.color_code} />}
+              icon={<ImageIcon color={categorySelected.color.color_code} />}
               onPress={handleClickSelectImage}
             />
             {imageUrl && (

@@ -6,9 +6,9 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 // Icons
-import Plus from 'phosphor-react-native/src/icons/Plus';
-import Question from 'phosphor-react-native/src/icons/Question';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+import { QuestionIcon } from 'phosphor-react-native/src/icons/Question';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -143,14 +143,14 @@ export function Subscriptions() {
           <Header.BackButton />
           <Header.Title title='Minhas assinaturas' />
           <HeaderIconButton onPress={handleOpenRegisterTransaction}>
-            <Plus size={22} color={theme.colors.primary} />
+            <PlusIcon size={22} color={theme.colors.primary} />
           </HeaderIconButton>
         </Header.Root>
 
         <SectionHeader>
           <SectionHeaderTitle>Classificadas como assinaturas</SectionHeaderTitle>
           <HelpButton onPress={handleOpenHelp}>
-            <Question size={20} color={theme.colors.primary} />
+            <QuestionIcon size={20} color={theme.colors.primary} />
           </HelpButton>
         </SectionHeader>
 
@@ -188,7 +188,7 @@ export function Subscriptions() {
                 {upcomingCountText}
               </FooterSubtitle>
             </FooterTextContainer>
-            <CaretRight size={20} color={theme.colors.primary} />
+            <CaretRightIcon size={20} color={theme.colors.primary} />
           </Footer>
         )}
 

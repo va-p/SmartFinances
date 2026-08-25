@@ -25,8 +25,8 @@ import * as WebBrowser from 'expo-web-browser';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // Icons
-import Key from 'phosphor-react-native/src/icons/Key';
-import UserCircle from 'phosphor-react-native/src/icons/UserCircle';
+import { KeyIcon } from 'phosphor-react-native/src/icons/Key';
+import { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -188,7 +188,7 @@ export function SignIn() {
               name='email'
               control={control}
               error={errors.email}
-              icon={UserCircle}
+              icon={UserCircleIcon}
             />
             <ControlledInput
               placeholder='Senha'
@@ -199,7 +199,7 @@ export function SignIn() {
               name='password'
               control={control}
               error={errors.password}
-              icon={Key}
+              icon={KeyIcon}
               returnKeyType='go'
               onSubmitEditing={handleSubmit(handleSignInWithMail)}
             />

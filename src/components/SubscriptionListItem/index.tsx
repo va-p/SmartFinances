@@ -14,7 +14,7 @@ import { useTheme } from 'styled-components';
 
 import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 import { SubscriptionAvatar } from '@components/SubscriptionAvatar';
 
@@ -48,7 +48,7 @@ export function SubscriptionListItem({ data, index, ...rest }: Props) {
 
       <RightContainer>
         <Amount>{formatCurrency(data.currency.code, data.amount)}</Amount>
-        <CaretRight size={16} color={theme.colors.text} />
+        <CaretRightIcon size={16} color={theme.colors.text} />
       </RightContainer>
     </Container>
   );

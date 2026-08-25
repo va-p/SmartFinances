@@ -8,6 +8,8 @@
 
 - **Batch 2 (Phase 2: T6–T10)** — ✅ Complete. Backend branch `goals-target-savings`: `5051016` (T6), `e6851c7` (T7), `0a2b331` (T8), `edcc33c` (T9), `ac5d789` (T10). Full gate: 174 passed, 0 failed, 12 files; build green. 8 endpoints under `/api/v1/goal` registered. Notes: `deleteAccount` isVirtual guard's AppError(400) surfaces as 401 due to that controller's pre-existing catch-all (out-of-scope tech debt, documented in commit); GET /goal/:id includes reserve `transactions` newest-first (GOAL-17).
 
+- **Batch 3 (Phase 3: T11–T14)** — ✅ Complete. App branch `goals-target-savings`: `39c170f` (T11), `597ba72` (T12), `5329ddd` (T13), `59b7e92` (T14). Tests: 8 passed (goalCalculations). Pre-existing gate conditions (unchanged, verified byte-identical): 626 tsc errors (styled-components theme typings), eslint broken (missing `eslint-config-airbnb`). Orchestrator follow-up commit `b74c169`: delete mutation now also invalidates `['accounts']`/`['transactions']` (transfer-back side effect, GOAL-37).
+
 ## Execution Protocol (MANDATORY -- do not skip)
 
 Implement these tasks with the `tlc-spec-driven-v3` skill: **activate it by name and follow its Execute flow and Critical Rules.** Do not search for skill files by filesystem path. The skill is the source of truth for the full flow (per-task cycle, sub-agent delegation, adequacy review, Verifier, discrimination sensor).

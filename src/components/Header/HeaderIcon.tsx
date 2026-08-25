@@ -2,7 +2,7 @@ import { EditButton } from './styles';
 
 import { useTheme } from 'styled-components';
 
-import DotsThreeCircle from 'phosphor-react-native/src/icons/DotsThreeCircle';
+import { DotsThreeCircleIcon } from 'phosphor-react-native/src/icons/DotsThreeCircle';
 
 import { ThemeProps } from '@interfaces/theme';
 
@@ -11,11 +11,11 @@ type HeaderIconProps = {
 };
 
 export function HeaderIcon({ onPress }: HeaderIconProps) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   return (
     <EditButton onPress={onPress}>
-      <DotsThreeCircle size={20} color={theme.colors.primary} />
+      <DotsThreeCircleIcon size={20} color={theme.colors.primary} />
     </EditButton>
   );
 }

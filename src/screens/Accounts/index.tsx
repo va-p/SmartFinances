@@ -36,12 +36,12 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 // Icons
-import Eye from 'phosphor-react-native/src/icons/Eye';
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import Wallet from 'phosphor-react-native/src/icons/Wallet';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
-import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
+import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
+import { CurrencyBtcIcon } from 'phosphor-react-native/src/icons/CurrencyBtc';
 
 // Components
 import {
@@ -53,9 +53,9 @@ import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
 import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
+import { SortFilterButton } from '@components/SortFilterButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
-import { SortFilterButton } from '@components/SortFilterButton';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 // Screens
@@ -417,16 +417,16 @@ export function Accounts() {
     switch (type) {
       case 'OTHER':
       case 'WALLET':
-        return <Wallet color={theme.colors.primary} />;
+        return <WalletIcon color={theme.colors.primary} />;
       case 'CRYPTOCURRENCY_WALLET':
-        return <CurrencyBtc color={theme.colors.primary} />;
+        return <CurrencyBtcIcon color={theme.colors.primary} />;
       case 'INVESTMENTS':
       case 'BANK':
-        return <Bank color={theme.colors.primary} />;
+        return <BankIcon color={theme.colors.primary} />;
       case 'CREDIT':
-        return <CreditCard color={theme.colors.primary} />;
+        return <CreditCardIcon color={theme.colors.primary} />;
       default:
-        return <Wallet color={theme.colors.primary} />;
+        return <WalletIcon color={theme.colors.primary} />;
     }
   }
 
@@ -593,9 +593,9 @@ export function Accounts() {
 
             <HideDataButton onPress={() => handleHideData()}>
               {!hideAmount ? (
-                <EyeSlash size={20} color={theme.colors.primary} />
+                <EyeSlashIcon size={20} color={theme.colors.primary} />
               ) : (
-                <Eye size={20} color={theme.colors.primary} />
+                <EyeIcon size={20} color={theme.colors.primary} />
               )}
             </HideDataButton>
           </Header>

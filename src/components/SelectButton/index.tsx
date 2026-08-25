@@ -9,7 +9,6 @@ import {
 
 import { useTheme } from 'styled-components';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
 
 import { ThemeProps } from '@interfaces/theme';
 

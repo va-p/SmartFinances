@@ -60,12 +60,12 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { isFirstDayOfMonth, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
 
 // Icons
-import X from 'phosphor-react-native/src/icons/X';
-import Eye from 'phosphor-react-native/src/icons/Eye';
-import Plus from 'phosphor-react-native/src/icons/Plus';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
-import PencilSimpleLine from 'phosphor-react-native/src/icons/PencilSimpleLine';
+import { XIcon } from 'phosphor-react-native/src/icons/X';
+import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
+import { PencilSimpleLineIcon } from 'phosphor-react-native/src/icons/PencilSimpleLine';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -412,14 +412,14 @@ export function Home() {
             <SearchButton
               onPress={() => setShowSearchInput((prevState) => !prevState)}
             >
-              <MagnifyingGlass size={20} color={theme.colors.primary} />
+              <MagnifyingGlassIcon size={20} color={theme.colors.primary} />
             </SearchButton>
 
             <HideDataButton onPress={() => handleHideData()}>
               {!hideAmount ? (
-                <EyeSlash size={20} color={theme.colors.primary} />
+                <EyeSlashIcon size={20} color={theme.colors.primary} />
               ) : (
-                <Eye size={20} color={theme.colors.primary} />
+                <EyeIcon size={20} color={theme.colors.primary} />
               )}
             </HideDataButton>
           </Header>
@@ -495,14 +495,14 @@ export function Home() {
           >
             <SearchInputContainer>
               <ControlledInputWithIcon
-                icon={<MagnifyingGlass color={theme.colors.primary} />}
+                icon={<MagnifyingGlassIcon color={theme.colors.primary} />}
                 placeholder='Pesquisar...'
                 autoCorrect={false}
                 name='search'
                 control={control}
               />
               <ClearSearchButton onPress={() => reset()}>
-                <X size={20} color={theme.colors.primary} />
+                <XIcon size={20} color={theme.colors.primary} />
               </ClearSearchButton>
             </SearchInputContainer>
           </Animated.View>
@@ -587,7 +587,7 @@ export function Home() {
                 onPress={handleOpenBulkEditModal}
                 style={dynamicStyles.bulkEditButton}
               >
-                <PencilSimpleLine size={24} color={theme.colors.background} />
+                <PencilSimpleLineIcon size={24} color={theme.colors.background} />
               </ButtonAnimated>
             </Animated.View>
           </GestureDetector>
@@ -608,7 +608,7 @@ export function Home() {
               onPress={handleOpenRegisterTransactionModal}
               style={dynamicStyles.animatedButton}
             >
-              <Plus size={24} color={theme.colors.background} />
+              <PlusIcon size={24} color={theme.colors.background} />
             </ButtonAnimated>
           </Animated.View>
         </GestureDetector>

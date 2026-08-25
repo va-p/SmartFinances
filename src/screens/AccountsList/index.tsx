@@ -9,10 +9,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from 'expo-router';
 
 // Icons
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import Wallet from 'phosphor-react-native/src/icons/Wallet';
-import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
-import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
+import { CurrencyBtcIcon } from 'phosphor-react-native/src/icons/CurrencyBtc';
 
 // Screens
 import { Screen } from '@components/Screen';
@@ -190,14 +190,14 @@ export function AccountsList() {
       switch (item.type) {
         case 'OTHER':
         case 'WALLET':
-          return <Wallet color={theme.colors.primary} />;
+          return <WalletIcon color={theme.colors.primary} />;
         case 'CRYPTOCURRENCY_WALLET':
-          return <CurrencyBtc color={theme.colors.primary} />;
+          return <CurrencyBtcIcon color={theme.colors.primary} />;
         case 'INVESTMENTS':
         case 'BANK':
-          return <Bank color={theme.colors.primary} />;
+          return <BankIcon color={theme.colors.primary} />;
         case 'CREDIT':
-          return <CreditCard color={theme.colors.primary} />;
+          return <CreditCardIcon color={theme.colors.primary} />;
         default:
           'WALLET';
           break;

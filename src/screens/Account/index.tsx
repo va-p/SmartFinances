@@ -58,7 +58,7 @@ import {
 import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
 import { useLocalSearchParams } from 'expo-router';
-import Plus from 'phosphor-react-native/src/icons/Plus';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
@@ -543,7 +543,7 @@ export function Account() {
               onPress={handleOpenRegisterTransactionModal}
               style={dynamicStyles.animatedButton}
             >
-              <Plus size={24} color={theme.colors.background} />
+              <PlusIcon size={24} color={theme.colors.background} />
             </ButtonAnimated>
           </Animated.View>
         </GestureDetector>

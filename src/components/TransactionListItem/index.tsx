@@ -34,7 +34,7 @@ import {
 } from '@stores/useTransactionsStore';
 import { useTheme } from 'styled-components/native';
 import { ThemeProps } from '@interfaces/theme';
-import Repeat from 'phosphor-react-native/src/icons/Repeat';
+import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
 
 type Props = {
   data: TransactionProps;
@@ -109,7 +109,7 @@ const TransactionListItem = memo(function TransactionListItem({
               </CategoryAndAccountContainer>
               {data.is_recurring && (
                 <RecurrenceBadge>
-                  <Repeat size={10} color={theme.colors.primary} weight="bold" />
+                  <RepeatIcon size={10} color={theme.colors.primary} weight="bold" />
                 </RecurrenceBadge>
               )}
               <AmountNotConvertedContainer>

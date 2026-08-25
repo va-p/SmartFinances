@@ -28,12 +28,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 
 // Icons
-import Money from 'phosphor-react-native/src/icons/Money';
-import Repeat from 'phosphor-react-native/src/icons/Repeat';
-import Calendar from 'phosphor-react-native/src/icons/Calendar';
-import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
-import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
-import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
+import {MoneyIcon} from 'phosphor-react-native/src/icons/Money';
+import {RepeatIcon} from 'phosphor-react-native/src/icons/Repeat';
+import {CalendarIcon} from 'phosphor-react-native/src/icons/Calendar';
+import {CaretDownIcon} from 'phosphor-react-native/src/icons/CaretDown';
+import {CirclesFourIcon} from 'phosphor-react-native/src/icons/CirclesFour';
+import {PencilSimpleIcon} from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -323,7 +323,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       >
         <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ControlledInputWithIcon
-          icon={<PencilSimple color={theme.colors.primary} />}
+          icon={<PencilSimpleIcon color={theme.colors.primary} />}
           placeholder='Nome do orçamento'
           autoCapitalize='sentences'
           autoCorrect={false}
@@ -336,7 +336,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <AmountContainer>
           <AmountGroup>
             <ControlledInputWithIcon
-              icon={<Money color={theme.colors.primary} />}
+              icon={<MoneyIcon color={theme.colors.primary} />}
               placeholder='Valor do orçamento'
               keyboardType='decimal-pad'
               defaultValue={getValues('amount')}
@@ -374,7 +374,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
                 color: theme.colors.text,
               }}
               renderDropdownIcon={() => {
-                return <CaretDown color={theme.colors.text} size={16} />;
+                return <CaretDownIcon color={theme.colors.text} size={16} />;
               }}
               dropdownIconPosition='right'
               rowStyle={{ backgroundColor: theme.colors.background }}
@@ -393,14 +393,14 @@ export function RegisterBudget({ id, closeBudget }: Props) {
                 : `${budgetCategoriesSelected.length} categoria`
               : 'Selecione as categorias'
           }
-          icon={<CirclesFour color={theme.colors.primary} />}
+          icon={<CirclesFourIcon color={theme.colors.primary} />}
           onPress={handleOpenSelectCategoryModal}
         />
 
         <SelectButton
           title='Data de início'
           subTitle={formattedDate}
-          icon={<Calendar color={theme.colors.primary} />}
+          icon={<CalendarIcon color={theme.colors.primary} />}
           onPress={() => setShowDatePicker(true)}
         />
         {showDatePicker && (
@@ -418,7 +418,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
         <SelectButton
           title='Repetir'
           subTitle={budgetPeriodSelected.name}
-          icon={<Repeat color={theme.colors.primary} />}
+          icon={<RepeatIcon color={theme.colors.primary} />}
           onPress={handleOpenSelectRecurrencePeriodModal}
         />
 

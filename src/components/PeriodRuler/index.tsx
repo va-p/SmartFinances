@@ -4,8 +4,8 @@ import { Container, MonthSelectButton, PeriodRulerList } from './styles';
 
 import { useTheme } from 'styled-components';
 
-import CaretLeft from 'phosphor-react-native/src/icons/CaretLeft';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import { CaretLeftIcon } from 'phosphor-react-native/src/icons/CaretLeft';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 import { PeriodRulerListItem } from './components/PeriodRulerListItem';
 
@@ -72,7 +72,7 @@ export function PeriodRuler({
   return (
     <Container horizontalPadding={horizontalPadding}>
       <MonthSelectButton onPress={() => handleDateChange('prev')}>
-        <CaretLeft size={18} color={theme.colors.text} />
+        <CaretLeftIcon size={18} color={theme.colors.text} />
       </MonthSelectButton>
       <PeriodRulerList
         ref={flatListRef}
@@ -93,7 +93,7 @@ export function PeriodRuler({
         }}
       />
       <MonthSelectButton onPress={() => handleDateChange('next')}>
-        <CaretRight size={18} color={theme.colors.text} />
+        <CaretRightIcon size={18} color={theme.colors.text} />
       </MonthSelectButton>
     </Container>
   );

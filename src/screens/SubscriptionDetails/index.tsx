@@ -17,12 +17,12 @@ import Animated, {
 } from 'react-native-reanimated';
 
 // Icons
-import Eye from 'phosphor-react-native/src/icons/Eye';
-import Lock from 'phosphor-react-native/src/icons/Lock';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
-import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
+import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
+import { LockIcon } from 'phosphor-react-native/src/icons/Lock';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -259,7 +259,7 @@ export function SubscriptionDetails() {
                     : '—'}
                 </RowValue>
               </RowLeft>
-              <CaretRight size={16} color={theme.colors.text} />
+              <CaretRightIcon size={16} color={theme.colors.text} />
             </Row>
 
             <Row>
@@ -271,14 +271,14 @@ export function SubscriptionDetails() {
                     : '—'}
                 </RowValue>
               </RowLeft>
-              <CaretRight size={16} color={theme.colors.text} />
+              <CaretRightIcon size={16} color={theme.colors.text} />
             </Row>
 
             {/* Detalhes sobre pagamento (collapsible, AC15.3) */}
             <SectionHeaderRow>
               <SectionHeaderTitle>Detalhes sobre pagamento</SectionHeaderTitle>
               <EditButton onPress={handleOpenEdit}>
-                <PencilSimple size={16} color={theme.colors.primary} />
+                <PencilSimpleIcon size={16} color={theme.colors.primary} />
                 <EditButtonText>Editar</EditButtonText>
               </EditButton>
               <EditButton onPress={() => setPaymentsExpanded((v) => !v)}>
@@ -336,27 +336,27 @@ export function SubscriptionDetails() {
                 <Row onPress={handleMarkNotSubscription}>
                   <RowLeft>
                     <RowIcon>
-                      <Lock size={20} color={theme.colors.attention} />
+                      <LockIcon size={20} color={theme.colors.attention} />
                     </RowIcon>
                     <RowLabelDanger>Não é uma assinatura</RowLabelDanger>
                   </RowLeft>
-                  <CaretRight size={16} color={theme.colors.attention} />
+                  <CaretRightIcon size={16} color={theme.colors.attention} />
                 </Row>
 
                 <Row onPress={handleToggleHide}>
                   <RowLeft>
                     <RowIcon>
                       {hideFromList ? (
-                        <Eye size={20} color={theme.colors.primary} />
+                        <EyeIcon size={20} color={theme.colors.primary} />
                       ) : (
-                        <EyeSlash size={20} color={theme.colors.primary} />
+                        <EyeSlashIcon size={20} color={theme.colors.primary} />
                       )}
                     </RowIcon>
                     <RowLabel>
                       {hideFromList ? 'Exibir na lista' : 'Ocultar da lista'}
                     </RowLabel>
                   </RowLeft>
-                  <CaretRight size={16} color={theme.colors.text} />
+                  <CaretRightIcon size={16} color={theme.colors.text} />
                 </Row>
               </AnimatedSectionBody>
             )}

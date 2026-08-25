@@ -6,8 +6,8 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 // Icons
-import Question from 'phosphor-react-native/src/icons/Question';
-import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
+import { QuestionIcon } from 'phosphor-react-native/src/icons/Question';
+import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -151,7 +151,7 @@ export function SubscriptionPayments() {
           <Header.CloseButton handleClickCloseButton={handleClose} />
           <Header.Title title='Próximos pagamentos' />
           <HeaderIconButton onPress={handleOpenHelp}>
-            <Question size={20} color={theme.colors.primary} />
+            <QuestionIcon size={20} color={theme.colors.primary} />
           </HeaderIconButton>
         </Header.Root>
 
@@ -161,7 +161,7 @@ export function SubscriptionPayments() {
           </PeriodRowLeft>
           <PeriodValueContainer>
             <PeriodValue>{monthLabel(selectedMonth)}</PeriodValue>
-            <CaretDown size={16} color={theme.colors.text} />
+            <CaretDownIcon size={16} color={theme.colors.text} />
           </PeriodValueContainer>
         </PeriodRow>
 

@@ -16,8 +16,9 @@ import { useTheme } from 'styled-components';
 
 import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+
+import {BankIcon} from 'phosphor-react-native/src/icons/Bank';
+import {CaretRightIcon} from 'phosphor-react-native/src/icons/CaretRight';
 
 import { ThemeProps } from '@interfaces/theme';
 
@@ -41,13 +42,13 @@ export function InstitutionCard({
   hideAmount = false,
   ...rest
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>
       <DetailsContainer>
         <IconContainer>
-          <Bank color={theme.colors.primary} />
+          <BankIcon color={theme.colors.primary} />
         </IconContainer>
         <NameContainer>
           <NameRow>
@@ -63,7 +64,7 @@ export function InstitutionCard({
           </AmountsContainer>
         </NameContainer>
       </DetailsContainer>
-      <CaretRight size={16} color={theme.colors.text} />
+      <CaretRightIcon size={16} color={theme.colors.text} />
     </Container>
   );
 }

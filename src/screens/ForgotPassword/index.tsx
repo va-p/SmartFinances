@@ -14,7 +14,7 @@ import {
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import UserCircle from 'phosphor-react-native/src/icons/UserCircle';
+import { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -23,6 +23,7 @@ import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ControlledInput } from '@components/Form/ControlledInput';
+import { router } from 'expo-router';
 
 const LOGO_URL = '@assets/logo.png';
 
@@ -63,7 +64,6 @@ export function ForgotPassword() {
       );
 
       if (status === 200) {
-        console.log('data ===>', data);
 
         router.navigate({
           pathname: '/resetPassSentConfirmation',
@@ -86,7 +86,7 @@ export function ForgotPassword() {
   }
 
   function handlePressGoBack() {
-    navigation.goBack();
+    navigation.back();
   }
 
   return (
@@ -123,7 +123,7 @@ export function ForgotPassword() {
               name='email'
               control={control}
               error={errors.email}
-              icon={UserCircle}
+              icon={UserCircleIcon}
             />
 
             <Button.Root

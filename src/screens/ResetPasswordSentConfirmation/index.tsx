@@ -8,7 +8,7 @@ import {
 } from './styles';
 
 import { useRoute } from 'expo-router';
-import Envelope from 'phosphor-react-native/src/icons/Envelope';
+import {EnvelopeIcon} from 'phosphor-react-native/src/icons/Envelope';
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
@@ -36,7 +36,7 @@ export function ResetPasswordSentConfirmation({ navigation }: any) {
         </SectionHeader>
 
         <MainContent>
-          <Envelope size={64} color='green' style={{ alignSelf: 'center' }} />
+          <EnvelopeIcon size={64} color='green' style={{ alignSelf: 'center' }} />
 
           <SubTitle>Verifique seu e-mail!</SubTitle>
           <Text style={{ textAlign: 'center', marginBottom: 64 }}>

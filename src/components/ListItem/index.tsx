@@ -4,7 +4,7 @@ import { Item, Name } from './styles';
 
 import { useTheme } from 'styled-components';
 
-import CheckCircle from 'phosphor-react-native/src/icons/CheckCircle';
+import { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';
 
 import { ThemeProps } from '@interfaces/theme';
 
@@ -25,7 +25,7 @@ export function ListItem({ data, isActive, ...rest }: Props) {
     <Item {...rest}>
       <Name isActive={isActive}>{data.name}</Name>
       {isActive ? (
-        <CheckCircle size={20} weight='fill' color={theme.colors.primary} />
+        <CheckCircleIcon size={20} weight='fill' color={theme.colors.primary} />
       ) : (
         ''
       )}

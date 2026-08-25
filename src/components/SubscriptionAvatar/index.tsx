@@ -10,8 +10,8 @@ import {
   StatusBadge,
 } from './styles';
 
-import CheckCircle from 'phosphor-react-native/src/icons/CheckCircle';
-import Clock from 'phosphor-react-native/src/icons/Clock';
+import { ClockIcon } from 'phosphor-react-native/src/icons/Clock';
+import { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';
 
 import { ThemeProps } from '@interfaces/theme';
 import { CategoryProps } from '@interfaces/categories';
@@ -63,9 +63,9 @@ export function SubscriptionAvatar({
       {isPaid !== undefined && (
         <StatusBadge>
           {isPaid ? (
-            <CheckCircle size={14} weight='fill' color={theme.colors.success} />
+            <CheckCircleIcon size={14} weight='fill' color={theme.colors.success} />
           ) : (
-            <Clock size={14} weight='fill' color={theme.colors.primary} />
+            <ClockIcon size={14} weight='fill' color={theme.colors.primary} />
           )}
         </StatusBadge>
       )}

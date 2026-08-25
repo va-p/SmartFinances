@@ -5,16 +5,16 @@ import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 // Icons
-import Play from 'phosphor-react-native/src/icons/Play';
-import YoutubeLogo from 'phosphor-react-native/src/icons/YoutubeLogo';
-import SpotifyLogo from 'phosphor-react-native/src/icons/SpotifyLogo';
-import GameController from 'phosphor-react-native/src/icons/GameController';
-import WindowsLogo from 'phosphor-react-native/src/icons/WindowsLogo';
-import AppleLogo from 'phosphor-react-native/src/icons/AppleLogo';
-import GooglePlayLogo from 'phosphor-react-native/src/icons/GooglePlayLogo';
-import ShoppingCart from 'phosphor-react-native/src/icons/ShoppingCart';
-import Download from 'phosphor-react-native/src/icons/Download';
-import Monitor from 'phosphor-react-native/src/icons/Monitor';
+import {PlayIcon} from 'phosphor-react-native/src/icons/Play';
+import {YoutubeLogoIcon} from 'phosphor-react-native/src/icons/YoutubeLogo';
+import {SpotifyLogoIcon} from 'phosphor-react-native/src/icons/SpotifyLogo';
+import {GameControllerIcon} from 'phosphor-react-native/src/icons/GameController';
+import {WindowsLogoIcon} from 'phosphor-react-native/src/icons/WindowsLogo';
+import {AppleLogoIcon} from 'phosphor-react-native/src/icons/AppleLogo';
+import {GooglePlayLogoIcon} from 'phosphor-react-native/src/icons/GooglePlayLogo';
+import {ShoppingCartIcon} from 'phosphor-react-native/src/icons/ShoppingCart';
+import {DownloadIcon} from 'phosphor-react-native/src/icons/Download';
+import {MonitorIcon} from 'phosphor-react-native/src/icons/Monitor';
 
 // Components
 import { Button } from '@components/Button';
@@ -44,22 +44,22 @@ type Props = {
 
 const CATEGORY_EXAMPLES = [
   {
-    Icon: Play,
+    Icon: PlayIcon,
     title: 'Serviços de transmissão (Streaming)',
     examples: 'Netflix, Disney+, Spotify, YouTube.',
   },
   {
-    Icon: Download,
+    Icon: DownloadIcon,
     title: 'Armazenamento em nuvem',
     examples: 'Apple iCloud, Google One, OneDrive.',
   },
   {
-    Icon: ShoppingCart,
+    Icon: ShoppingCartIcon,
     title: 'Programas de varejo',
     examples: 'Amazon Prime, Meli+, Clube iFood.',
   },
   {
-    Icon: Monitor,
+    Icon: MonitorIcon,
     title: 'Licenças de software',
     examples: 'Microsoft, Adobe, Canva.',
   },
@@ -83,25 +83,25 @@ export function SubscriptionHelpSheet({ bottomSheetRef, close }: Props) {
       <ContentScroll>
         <IconsRow>
           <OverlappingIconFirst>
-            <YoutubeLogo size={22} weight='fill' color='#FF0000' />
+            <YoutubeLogoIcon size={22} weight='fill' color='#FF0000' />
           </OverlappingIconFirst>
           <OverlappingIcon>
-            <SpotifyLogo size={22} weight='fill' color={theme.colors.success} />
+            <SpotifyLogoIcon size={22} weight='fill' color={theme.colors.success} />
           </OverlappingIcon>
           <OverlappingIcon>
-            <GameController size={22} weight='fill' color={theme.colors.attention} />
+            <GameControllerIcon size={22} weight='fill' color={theme.colors.attention} />
           </OverlappingIcon>
           <OverlappingIcon>
-            <AppleLogo size={22} weight='fill' color={theme.colors.text} />
+            <AppleLogoIcon size={22} weight='fill' color={theme.colors.text} />
           </OverlappingIcon>
           <OverlappingIcon>
-            <GooglePlayLogo size={22} weight='fill' color='#FBBC04' />
+            <GooglePlayLogoIcon size={22} weight='fill' color='#FBBC04' />
           </OverlappingIcon>
           <OverlappingIcon>
-            <WindowsLogo size={22} weight='fill' color='#00A4EF' />
+            <WindowsLogoIcon size={22} weight='fill' color='#00A4EF' />
           </OverlappingIcon>
           <OverlappingIcon>
-            <ShoppingCart size={22} weight='fill' color={theme.colors.primary} />
+            <ShoppingCartIcon size={22} weight='fill' color={theme.colors.primary} />
           </OverlappingIcon>
         </IconsRow>
 

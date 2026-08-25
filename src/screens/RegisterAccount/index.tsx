@@ -12,13 +12,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
 
 // Icons
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import Money from 'phosphor-react-native/src/icons/Money';
-import Coins from 'phosphor-react-native/src/icons/Coins';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import Star from 'phosphor-react-native/src/icons/Star';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
-import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
+import { CoinsIcon } from 'phosphor-react-native/src/icons/Coins';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { StarIcon } from 'phosphor-react-native/src/icons/Star';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -352,7 +352,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           <View style={{ flex: 1 }}>
         <Form>
           <ControlledInputWithIcon
-            icon={<PencilSimple color={theme.colors.primary} />}
+            icon={<PencilSimpleIcon color={theme.colors.primary} />}
             placeholder='Nome da conta'
             autoCapitalize='sentences'
             autoCorrect={false}
@@ -363,7 +363,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           />
 
           <ControlledInputWithIcon
-            icon={<Money color={theme.colors.primary} />}
+            icon={<MoneyIcon color={theme.colors.primary} />}
             placeholder='Saldo da conta'
             keyboardType='decimal-pad'
             returnKeyType='go'
@@ -376,7 +376,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
           <SelectButton
             title={currencySelected.name}
-            icon={<Coins color={theme.colors.primary} />}
+            icon={<CoinsIcon color={theme.colors.primary} />}
             onPress={handleOpenSelectCurrencyModal}
           />
 
@@ -433,7 +433,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
               color: theme.colors.text,
             }}
             renderDropdownIcon={() => {
-              return <CaretRight size={20} color={theme.colors.text} />;
+              return <CaretRightIcon size={20} color={theme.colors.text} />;
             }}
             dropdownIconPosition='right'
             rowStyle={{ backgroundColor: theme.colors.background }}
@@ -444,7 +444,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           <SelectButton
             title={institutionLabel}
             subTitle={institutionSelected?.name ?? 'Selecione a instituição financeira'}
-            icon={<Bank color={theme.colors.primary} />}
+            icon={<BankIcon color={theme.colors.primary} />}
             onPress={handleOpenSelectInstitutionModal}
           />
           {errors.institution_id && (
@@ -453,7 +453,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
 
           {id !== '' && (
             <ButtonToggle
-              icon={<EyeSlash color={theme.colors.primary} />}
+              icon={<EyeSlashIcon color={theme.colors.primary} />}
               title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
               onValueChange={handleHideAccount}
               value={hideAccount}
@@ -462,7 +462,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           )}
 
           <ButtonToggle
-            icon={<Star color={theme.colors.primary} />}
+            icon={<StarIcon color={theme.colors.primary} />}
             title='Definir como conta padrão'
             subTitle='Esta conta virá pré-selecionada ao adicionar transações'
             onValueChange={handleToggleDefaultAccount}
