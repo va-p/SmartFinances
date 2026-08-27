@@ -23,6 +23,9 @@ import {
   Footer,
   FooterButtonGroup,
   DeletePickerFooter,
+  ActionButtonTouchable,
+  ActionButtonIconContainer,
+  ActionButtonText,
 } from './styles';
 
 import formatCurrency from '@utils/formatCurrency';
@@ -47,7 +50,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { FlatList } from 'react-native-gesture-handler';
 
 // Icons
+import {TrashIcon} from 'phosphor-react-native/src/icons/Trash';
 import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
+import { TrophyIcon } from 'phosphor-react-native/src/icons/Trophy';
+import { ArchiveIcon } from 'phosphor-react-native/src/icons/Archive';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -279,6 +285,80 @@ export function GoalDetails() {
           {isActive && <Header.Icon onPress={handleOpenEditGoalModal} />}
         </Header.Root>
 
+          <HeaderCard>
+            <GoalCurrent>
+              {hideAmount ? '•••••' : progress.currentFormatted}
+            </GoalCurrent>
+            <GoalTargetDescription>
+              {`de ${
+                hideAmount
+                  ? '•••••'
+                  : formatCurrency(
+                      goal.currency.code,
+                      Number(goal.target_amount)
+                    )
+              } (${progress.percentage.toFixed(2)}%)`}
+            </GoalTargetDescription>
+            <PercentBarContainer>
+              <GoalPercentBar
+                percentage={progress.percentage}
+                isAmountReached={progress.isAmountReached}
+              />
+            </PercentBarContainer>
+            {goal.deadline && (
+              <GoalDeadline>
+                {`Prazo: ${format(
+                  new Date(goal.deadline),
+                  'dd MMMM, yyyy',
+                  {
+                    locale: ptBR,
+                  }
+                )}`}
+              </GoalDeadline>
+            )}
+            {progress.isAmountReached && (
+              <ReachedBadge>
+                <CheckIcon
+                  size={12}
+                  weight='bold'
+                  color={theme.colors.shape}
+                />
+                <ReachedBadgeText> Meta atingida</ReachedBadgeText>
+              </ReachedBadge>
+            )}
+          </HeaderCard>
+
+          {!isActive && (
+            <ReadOnlyNote>
+              {goal.status === 'COMPLETED'
+                ? 'Meta concluída. Somente leitura.'
+                : 'Meta arquivada. Somente leitura.'}
+            </ReadOnlyNote>
+          )}
+
+          {goal.linked_accounts.length > 0 && (
+            <View style={{ marginBottom: 16 }}>
+              <SectionTitle>Contas vinculadas</SectionTitle>
+              {goal.linked_accounts.map((account) => (
+                <LinkedAccountRow key={account.id}>
+                  <LinkedAccountName>{account.name}</LinkedAccountName>
+                  <LinkedAccountBalance>
+                    {hideAmount
+                      ? '•••••'
+                      : formatCurrency(
+                          account.currency.code,
+                          Number(account.balance)
+                        )}
+                  </LinkedAccountBalance>
+                </LinkedAccountRow>
+              ))}
+            </View>
+          )}
+
+
+
+          <SectionTitle>Histórico</SectionTitle>
+
         <FlashList
           style={{ flex: 1 }}
           data={reserveHistory}
@@ -309,118 +389,6 @@ export function GoalDetails() {
               </HistoryDate>
             </HistoryItemContainer>
           )}
-          ListHeaderComponent={() => (
-            <View>
-              <HeaderCard>
-                <GoalCurrent>
-                  {hideAmount ? '•••••' : progress.currentFormatted}
-                </GoalCurrent>
-                <GoalTargetDescription>
-                  {`de ${
-                    hideAmount
-                      ? '•••••'
-                      : formatCurrency(
-                          goal.currency.code,
-                          Number(goal.target_amount)
-                        )
-                  } (${progress.percentage.toFixed(2)}%)`}
-                </GoalTargetDescription>
-                <PercentBarContainer>
-                  <GoalPercentBar
-                    percentage={progress.percentage}
-                    isAmountReached={progress.isAmountReached}
-                  />
-                </PercentBarContainer>
-                {goal.deadline && (
-                  <GoalDeadline>
-                    {`Prazo: ${format(
-                      new Date(goal.deadline),
-                      'dd MMMM, yyyy',
-                      {
-                        locale: ptBR,
-                      }
-                    )}`}
-                  </GoalDeadline>
-                )}
-                {progress.isAmountReached && (
-                  <ReachedBadge>
-                    <CheckIcon
-                      size={12}
-                      weight='bold'
-                      color={theme.colors.shape}
-                    />
-                    <ReachedBadgeText> Meta atingida</ReachedBadgeText>
-                  </ReachedBadge>
-                )}
-              </HeaderCard>
-
-              {!isActive && (
-                <ReadOnlyNote>
-                  {goal.status === 'COMPLETED'
-                    ? 'Meta concluída. Somente leitura.'
-                    : 'Meta arquivada. Somente leitura.'}
-                </ReadOnlyNote>
-              )}
-
-              {goal.linked_accounts.length > 0 && (
-                <View style={{ marginBottom: 16 }}>
-                  <SectionTitle>Contas vinculadas</SectionTitle>
-                  {goal.linked_accounts.map((account) => (
-                    <LinkedAccountRow key={account.id}>
-                      <LinkedAccountName>{account.name}</LinkedAccountName>
-                      <LinkedAccountBalance>
-                        {hideAmount
-                          ? '•••••'
-                          : formatCurrency(
-                              account.currency.code,
-                              Number(account.balance)
-                            )}
-                      </LinkedAccountBalance>
-                    </LinkedAccountRow>
-                  ))}
-                </View>
-              )}
-
-              <ActionsContainer>
-                {isActive && (
-                  <>
-                    <Button.Root
-                      type='secondary'
-                      onPress={handleClickConcludeGoal}
-                      style={{ marginBottom: 8 }}
-                    >
-                      <Button.Text text='Concluir meta' />
-                    </Button.Root>
-                    <Button.Root
-                      type='secondary'
-                      onPress={handleClickArchiveGoal}
-                      style={{ marginBottom: 8 }}
-                    >
-                      <Button.Text text='Arquivar meta' />
-                    </Button.Root>
-                  </>
-                )}
-                {goal.status === 'COMPLETED' && (
-                  <Button.Root
-                    type='secondary'
-                    onPress={handleClickArchiveGoal}
-                    style={{ marginBottom: 8 }}
-                  >
-                    <Button.Text text='Arquivar meta' />
-                  </Button.Root>
-                )}
-                <Button.Root
-                  type='secondary'
-                  onPress={handleClickDeleteGoal}
-                  style={{ marginBottom: 8 }}
-                >
-                  <Button.Text text='Excluir meta' />
-                </Button.Root>
-              </ActionsContainer>
-
-              <SectionTitle>Histórico</SectionTitle>
-            </View>
-          )}
           ListEmptyComponent={() => (
             <ListEmptyComponent text='Nenhuma movimentação ainda. Deposite para começar a guardar.' />
           )}
@@ -439,6 +407,64 @@ export function GoalDetails() {
             paddingBottom: 16,
           }}
         />
+
+        <ActionsContainer>
+          {isActive && (
+            <>
+              <ActionButtonTouchable onPress={handleClickConcludeGoal}>
+                <ActionButtonIconContainer>
+                  <TrophyIcon
+                    size={24}
+                    weight='bold'
+                    color={theme.colors.primary}
+                  />
+                </ActionButtonIconContainer>
+                <ActionButtonText>
+                  Concluir
+                </ActionButtonText>
+              </ActionButtonTouchable>
+
+              <ActionButtonTouchable onPress={handleClickArchiveGoal}>
+                <ActionButtonIconContainer>
+                  <ArchiveIcon
+                    size={24}
+                    weight='bold'
+                    color={theme.colors.primary}
+                  />
+                </ActionButtonIconContainer>
+                <ActionButtonText>
+                  Arquivar
+                </ActionButtonText>
+              </ActionButtonTouchable>
+            </>
+          )}
+          {goal.status === 'COMPLETED' && (
+            <ActionButtonTouchable onPress={handleClickArchiveGoal}>
+              <ActionButtonIconContainer>
+                <ArchiveIcon
+                  size={24}
+                  weight='bold'
+                  color={theme.colors.primary}
+                />
+              </ActionButtonIconContainer>
+              <ActionButtonText>
+                Arquivar
+              </ActionButtonText>
+            </ActionButtonTouchable>
+          )}
+          <ActionButtonTouchable onPress={handleClickDeleteGoal}>
+            <ActionButtonIconContainer>
+              <TrashIcon
+                size={24}
+                weight='bold'
+                color={theme.colors.primary}
+              />
+            </ActionButtonIconContainer>
+            <ActionButtonText>
+              Excluir
+            </ActionButtonText>
+          </ActionButtonTouchable>
+        </ActionsContainer>
 
         {isActive && (
           <Footer

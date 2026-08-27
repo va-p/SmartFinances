@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
+import { RectButton } from 'react-native-gesture-handler';
 
 import { ThemeProps } from '@interfaces/theme';
 
@@ -130,8 +131,34 @@ export const HistoryDate = styled.Text`
 
 export const ActionsContainer = styled.View`
   width: 100%;
-  margin-bottom: 16px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.overlay};
+  border-radius: 32px;
 `;
+
+export const ActionButtonTouchable = styled(RectButton)`
+  min-width: 64px;
+  max-width: 64px;
+  align-items: center;
+`;
+
+export const ActionButtonIconContainer = styled.View`
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.primary_light};
+  border-radius: 32px;
+`;
+
+export const ActionButtonText = styled.Text`
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  color: ${({ theme }) => (theme as ThemeProps).colors.primary};
+`;
+
 
 export const Footer = styled.View`
   flex-direction: row;

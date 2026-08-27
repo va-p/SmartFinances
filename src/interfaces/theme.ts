@@ -1,6 +1,7 @@
 type Colors = {
   primary: string;
   primary_light: string;
+  primary_dark: string;
 
   background: string;
   backgroundNav: string;

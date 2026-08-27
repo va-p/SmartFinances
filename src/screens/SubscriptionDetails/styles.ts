@@ -156,7 +156,7 @@ export const PeriodPill = styled(TouchableOpacity).attrs({
   border-color: ${({ theme, isActive }) =>
     isActive ? theme.colors.primary : theme.colors.border};
   background-color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary_light : theme.colors.shape};
+    isActive ? theme.colors.primary_dark : theme.colors.shape};
 `;
 
 export const PeriodPillText = styled.Text<{ isActive: boolean }>`

@@ -1,7 +1,8 @@
 export default {
   colors: {
     primary: 'rgb(255, 170, 41)',
-    primary_light: 'rgba(255, 82, 0, 0.3)',
+    primary_light: 'rgba(255, 170, 41, 0.2)',
+    primary_dark: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(0, 0, 0)',
     backgroundNav: 'rgb(20, 20, 20)',

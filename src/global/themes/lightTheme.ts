@@ -2,6 +2,7 @@ export default {
   colors: {
     primary: 'rgb(255, 170, 41)',
     primary_light: 'rgba(255, 82, 0, 0.3)',
+    primary_dark: 'rgba(255, 82, 0, 0.3)',
 
     background: 'rgb(230, 233, 244)',
     backgroundNav: 'rgba(255, 255, 255, 0.95)',

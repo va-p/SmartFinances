@@ -66,7 +66,7 @@ const TransactionListItem = memo(function TransactionListItem({
           entering={FadeInUp.delay(index * 100)}
           style={{
             backgroundColor: isSelected
-              ? theme.colors.primary_light
+              ? theme.colors.primary_dark
               : theme.colors.shape,
           }}
           {...rest}
