@@ -506,6 +506,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SmartFinances/SmartFinances.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4F6254H3QS;
 				INFOPLIST_FILE = SmartFinances/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Smart Finances";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
