@@ -64,6 +64,7 @@ import { GoalPercentBar } from '@components/GoalListItem/components/GoalPercentB
 
 // Screens
 import { RegisterGoal } from '@screens/RegisterGoal';
+import { RegisterGoalMovement } from '@screens/RegisterGoalMovement';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
@@ -489,8 +490,12 @@ export function GoalDetails() {
           closeModal={handleCloseMovementModal}
           onClose={handleCloseMovementModal}
         >
-          {/* wired in T19: <RegisterGoalMovement goalId={goalId} type={movementType} goal={goal} closeMovement={handleCloseMovementModal} /> */}
-          <View />
+          <RegisterGoalMovement
+            goalId={goalId}
+            type={movementType}
+            goal={goal}
+            closeMovement={handleCloseMovementModal}
+          />
         </ModalView>
 
         <ModalViewSelection
