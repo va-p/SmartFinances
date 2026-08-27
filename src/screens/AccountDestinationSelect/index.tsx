@@ -44,10 +44,15 @@ export function AccountDestinationSelect({
     return <Load />;
   }
 
+  // Virtual goal reserves are never offered as selectable accounts (GOAL-26).
+  const selectableAccounts = (accounts ?? []).filter(
+    (account) => !account.isVirtual
+  );
+
   return (
       <Container>
         <FlatList
-          data={accounts}
+          data={selectableAccounts}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ListItem

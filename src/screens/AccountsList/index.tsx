@@ -72,8 +72,13 @@ export function AccountsList() {
 
   // Format balances in each account's currency (and add a BRL-converted
   // secondary line for non-BRL accounts), mirroring the Accounts screen.
+  // Virtual goal reserves never render in the management list (GOAL-24).
   const processedAccounts = useMemo(
-    () => processAccountsForList(accounts, quotes),
+    () =>
+      processAccountsForList(
+        accounts.filter((account) => !account.isVirtual),
+        quotes
+      ),
     [accounts, quotes]
   );
 

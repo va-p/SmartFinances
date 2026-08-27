@@ -192,7 +192,11 @@ export function Accounts() {
     processedAccounts
       .filter(
         (account) =>
-          account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD'
+          // Virtual goal reserves stay in the total above but never render
+          // in the accounts list (GOAL-24).
+          !account.isVirtual &&
+          account.type !== 'CREDIT' &&
+          account.subtype !== 'CREDIT_CARD'
       )
       .forEach((account) => {
         const institutionId = account.institution?.id;
@@ -326,7 +330,9 @@ export function Accounts() {
     return processedAccounts
       .filter(
         (account) =>
-          account.type === 'CREDIT' && account.subtype === 'CREDIT_CARD'
+          !account.isVirtual &&
+          account.type === 'CREDIT' &&
+          account.subtype === 'CREDIT_CARD'
       )
       .sort((a, b) => {
         const institutionA = a.institution?.name;
