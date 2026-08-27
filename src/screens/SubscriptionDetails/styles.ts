@@ -1,6 +1,7 @@
 import styled from 'styled-components/native';
-
 import { TouchableOpacity } from 'react-native';
+
+import { ThemeProps } from '@interfaces/theme';
 
 export const Container = styled.View`
   flex: 1;
@@ -23,7 +24,7 @@ export const Row = styled(TouchableOpacity).attrs({
   min-height: 56px;
   padding-horizontal: 16px;
   margin-bottom: 8px;
-  background-color: ${({ theme }) => theme.colors.shape};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 10px;
 `;
 
@@ -39,19 +40,19 @@ export const RowIcon = styled.View`
 
 export const RowLabel = styled.Text`
   flex: 1;
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const RowLabelDanger = styled(RowLabel)`
-  color: ${({ theme }) => theme.colors.attention};
+  color: ${({ theme }) => (theme as ThemeProps).colors.attention};
 `;
 
 export const RowValue = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const SectionHeaderRow = styled.View`
@@ -61,15 +62,15 @@ export const SectionHeaderRow = styled.View`
   min-height: 56px;
   padding-horizontal: 16px;
   margin-bottom: 8px;
-  background-color: ${({ theme }) => theme.colors.shape};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 10px;
 `;
 
 export const SectionHeaderTitle = styled.Text`
   flex: 1;
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const EditButton = styled(TouchableOpacity).attrs({
@@ -83,9 +84,9 @@ export const EditButton = styled(TouchableOpacity).attrs({
 `;
 
 export const EditButtonText = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.primary};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.primary};
 `;
 
 export const SectionBody = styled.View`
@@ -103,15 +104,15 @@ export const DetailLine = styled.View`
 `;
 
 export const DetailLabel = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const DetailValue = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 // ── Edit bottom sheet ──────────────────────────────────────────────────────
@@ -122,9 +123,9 @@ export const EditSheetContent = styled.View`
 `;
 
 export const InputLabel = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
   margin-bottom: 6px;
   margin-top: 12px;
 `;
@@ -133,10 +134,10 @@ export const EditInput = styled.TextInput`
   min-height: 48px;
   padding-horizontal: 16px;
   border-radius: 10px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const PeriodPills = styled.View`
@@ -154,16 +155,16 @@ export const PeriodPill = styled(TouchableOpacity).attrs({
   border-radius: 10px;
   border-width: 1px;
   border-color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary : theme.colors.border};
+    isActive ? (theme as ThemeProps).colors.primary : (theme as ThemeProps).colors.border};
   background-color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary_dark : theme.colors.shape};
+    isActive ? (theme as ThemeProps).colors.primary_dark : (theme as ThemeProps).colors.shape};
 `;
 
 export const PeriodPillText = styled.Text<{ isActive: boolean }>`
-  font-family: ${({ theme }) => theme.fonts.medium};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
   font-size: 13px;
   color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.primary : theme.colors.text};
+    isActive ? (theme as ThemeProps).colors.primary : (theme as ThemeProps).colors.text};
 `;
 
 export const SaveButtonContainer = styled.View`

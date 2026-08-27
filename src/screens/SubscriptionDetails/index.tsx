@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
 
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 // Animations
 import Animated, {
@@ -103,7 +103,7 @@ function RotatingCaret({ expanded, color }: RotatingCaretProps) {
 
   return (
     <Animated.View style={caretStyle}>
-      <CaretDown size={18} color={color} />
+      <CaretDownIcon size={18} color={color} />
     </Animated.View>
   );
 }

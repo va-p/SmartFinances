@@ -38,13 +38,25 @@ type Colors = {
   xAxisLabel: string;
 };
 
-type fonts = {
+type Borders = {
+  default: string;
+  borderRadiusScreenSectionContent: string;
+  borderRadiusShape: string;
+  borderRadiusButtonAndInput: string;
+}
+
+type Fonts = {
   regular: string;
   medium: string;
   bold: string;
+  sizeTitleXl: string;
+  sizeTitle: string;
+  sizeSubtitle: string;
+  sizeText: string;
 };
 
 export interface ThemeProps {
   colors: Colors;
-  fonts: fonts;
+  borders: Borders;
+  fonts: Fonts;
 }
