@@ -10,6 +10,8 @@
 
 - **Batch 3 (Phase 3: T11–T14)** — ✅ Complete. App branch `goals-target-savings`: `39c170f` (T11), `597ba72` (T12), `5329ddd` (T13), `59b7e92` (T14). Tests: 8 passed (goalCalculations). Pre-existing gate conditions (unchanged, verified byte-identical): 626 tsc errors (styled-components theme typings), eslint broken (missing `eslint-config-airbnb`). Orchestrator follow-up commit `b74c169`: delete mutation now also invalidates `['accounts']`/`['transactions']` (transfer-back side effect, GOAL-37).
 
+- **Batch 4 (Phases 4+5: T15–T21)** — ✅ Complete. App branch `goals-target-savings`: `42a24f0` (T15), `2a28dc7` (T16), `1528379` (T17), `76d50a9` (T18), `5ebfd19` (T19), `d581114` (T20), `edcd8b9` (T21). Tests: 137 passed, 0 failed (`profile.spec.tsx` red but pre-existing phosphor-transform issue, proven on clean baseline). tsc: 0 new errors vs 615 baseline. Notes: new styles files cast `(theme as ThemeProps)` to dodge the repo-wide broken DefaultTheme augmentation; T21 audit table + GOAL-27 net-worth reasoning in commit body; RegisterTransaction needed no edit (pickers filtered at AccountSelect/AccountDestinationSelect). Batch interrupted twice by billing 429s; resumed cleanly.
+
 ## Execution Protocol (MANDATORY -- do not skip)
 
 Implement these tasks with the `tlc-spec-driven-v3` skill: **activate it by name and follow its Execute flow and Critical Rules.** Do not search for skill files by filesystem path. The skill is the source of truth for the full flow (per-task cycle, sub-agent delegation, adequacy review, Verifier, discrimination sensor).

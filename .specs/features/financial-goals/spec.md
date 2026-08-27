@@ -224,50 +224,50 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| GOAL-01 | P1: Entry & List — options-menu navigation | - | Pending |
-| GOAL-02 | P1: Entry & List — active goal cards | - | Pending |
-| GOAL-03 | P1: Entry & List — empty state | - | Pending |
-| GOAL-04 | P1: Entry & List — create FAB | - | Pending |
-| GOAL-05 | P1: Entry & List — hideAmount masking | - | Pending |
-| GOAL-06 | P1: Entry & List — navigation to Completed/Archived | - | Pending |
-| GOAL-07 | P1: Create — goal + virtual account creation | - | Pending |
-| GOAL-08 | P1: Create — form validation | - | Pending |
-| GOAL-09 | P1: Create — link existing accounts | - | Pending |
-| GOAL-10 | P1: Create — deadline validation | - | Pending |
-| GOAL-11 | P1: Create — API failure rollback | - | Pending |
-| GOAL-12 | P1: Details — deposit as transfer | - | Pending |
-| GOAL-13 | P1: Details — withdrawal as transfer | - | Pending |
-| GOAL-14 | P1: Details — withdraw-over-balance rejection | - | Pending |
-| GOAL-15 | P1: Details — duplicate-submission guard | - | Pending |
-| GOAL-16 | P1: Details — multi-currency conversion | - | Pending |
-| GOAL-17 | P1: Details — history newest-first | - | Pending |
-| GOAL-18 | P1: Details — query refresh after mutation | - | Pending |
-| GOAL-19 | P1: Completion — "Meta atingida" flag | - | Pending |
-| GOAL-20 | P1: Completion — manual conclude | - | Pending |
-| GOAL-21 | P1: Completion — completed list content | - | Pending |
-| GOAL-22 | P1: Completion — completed read-only | - | Pending |
-| GOAL-23 | P1: Completion — completed empty state | - | Pending |
-| GOAL-24 | P1: Visibility — excluded from Accounts tab/lists | - | Pending |
-| GOAL-25 | P1: Visibility — included in Net Worth | - | Pending |
-| GOAL-26 | P1: Visibility — excluded from pickers | - | Pending |
-| GOAL-27 | P1: Visibility — net worth unchanged by deposit | - | Pending |
-| GOAL-28 | P2: Edit — persist & recompute | - | Pending |
-| GOAL-29 | P2: Edit — target ≤ current keeps ACTIVE + flag | - | Pending |
-| GOAL-30 | P2: Edit — unlink account | - | Pending |
-| GOAL-31 | P2: Archive — archive with previous status | - | Pending |
-| GOAL-32 | P2: Archive — archived list | - | Pending |
-| GOAL-33 | P2: Archive — unarchive restores previous | - | Pending |
-| GOAL-34 | P2: Archive — archived read-only | - | Pending |
-| GOAL-35 | P2: Archive — archived empty state | - | Pending |
-| GOAL-36 | P2: Delete — zero-balance delete | - | Pending |
-| GOAL-37 | P2: Delete — transfer-back then delete | - | Pending |
-| GOAL-38 | P2: Delete — unlink real accounts | - | Pending |
-| GOAL-39 | P2: Delete — transfer-relation integrity | - | Pending |
-| GOAL-40 | P2: Delete — abort on transfer-back failure | - | Pending |
-| GOAL-41 | P2: Interplay — linked account deletion unlinks | - | Pending |
-| GOAL-42 | P2: Interplay — reserve untouched by account deletion | - | Pending |
+| GOAL-01 | P1: Entry & List — options-menu navigation | - | Implementing |
+| GOAL-02 | P1: Entry & List — active goal cards | - | Implementing |
+| GOAL-03 | P1: Entry & List — empty state | - | Implementing |
+| GOAL-04 | P1: Entry & List — create FAB | - | Implementing |
+| GOAL-05 | P1: Entry & List — hideAmount masking | - | Implementing |
+| GOAL-06 | P1: Entry & List — navigation to Completed/Archived | - | Implementing |
+| GOAL-07 | P1: Create — goal + virtual account creation | - | Implementing |
+| GOAL-08 | P1: Create — form validation | - | Implementing |
+| GOAL-09 | P1: Create — link existing accounts | - | Implementing |
+| GOAL-10 | P1: Create — deadline validation | - | Implementing |
+| GOAL-11 | P1: Create — API failure rollback | - | Implementing |
+| GOAL-12 | P1: Details — deposit as transfer | - | Implementing |
+| GOAL-13 | P1: Details — withdrawal as transfer | - | Implementing |
+| GOAL-14 | P1: Details — withdraw-over-balance rejection | - | Implementing |
+| GOAL-15 | P1: Details — duplicate-submission guard | - | Implementing |
+| GOAL-16 | P1: Details — multi-currency conversion | - | Implementing |
+| GOAL-17 | P1: Details — history newest-first | - | Implementing |
+| GOAL-18 | P1: Details — query refresh after mutation | - | Implementing |
+| GOAL-19 | P1: Completion — "Meta atingida" flag | - | Implementing |
+| GOAL-20 | P1: Completion — manual conclude | - | Implementing |
+| GOAL-21 | P1: Completion — completed list content | - | Implementing |
+| GOAL-22 | P1: Completion — completed read-only | - | Implementing |
+| GOAL-23 | P1: Completion — completed empty state | - | Implementing |
+| GOAL-24 | P1: Visibility — excluded from Accounts tab/lists | - | Implementing |
+| GOAL-25 | P1: Visibility — included in Net Worth | - | Implementing |
+| GOAL-26 | P1: Visibility — excluded from pickers | - | Implementing |
+| GOAL-27 | P1: Visibility — net worth unchanged by deposit | - | Implementing |
+| GOAL-28 | P2: Edit — persist & recompute | - | Implementing |
+| GOAL-29 | P2: Edit — target ≤ current keeps ACTIVE + flag | - | Implementing |
+| GOAL-30 | P2: Edit — unlink account | - | Implementing |
+| GOAL-31 | P2: Archive — archive with previous status | - | Implementing |
+| GOAL-32 | P2: Archive — archived list | - | Implementing |
+| GOAL-33 | P2: Archive — unarchive restores previous | - | Implementing |
+| GOAL-34 | P2: Archive — archived read-only | - | Implementing |
+| GOAL-35 | P2: Archive — archived empty state | - | Implementing |
+| GOAL-36 | P2: Delete — zero-balance delete | - | Implementing |
+| GOAL-37 | P2: Delete — transfer-back then delete | - | Implementing |
+| GOAL-38 | P2: Delete — unlink real accounts | - | Implementing |
+| GOAL-39 | P2: Delete — transfer-relation integrity | - | Implementing |
+| GOAL-40 | P2: Delete — abort on transfer-back failure | - | Implementing |
+| GOAL-41 | P2: Interplay — linked account deletion unlinks | - | Implementing |
+| GOAL-42 | P2: Interplay — reserve untouched by account deletion | - | Implementing |
 
-**Coverage:** 42 total, 0 mapped to tasks yet (Tasks phase pending), 42 unmapped ⚠️ (expected at Specify)
+**Coverage:** 42 total, 42 mapped to tasks (T1–T21), 0 unmapped — all Implemented, pending Verifier pass
 
 ---
 
