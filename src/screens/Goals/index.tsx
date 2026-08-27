@@ -210,12 +210,6 @@ export function Goals() {
           ListEmptyComponent={() => (
             <EmptyContainer>
               <ListEmptyComponent text='Nenhuma meta ativa. Crie sua primeira meta para começar a guardar.' />
-              <Button.Root
-                type='secondary'
-                onPress={handleOpenRegisterGoalModal}
-              >
-                <Button.Text text='Criar primeira meta' />
-              </Button.Root>
             </EmptyContainer>
           )}
           refreshControl={

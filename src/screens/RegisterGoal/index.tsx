@@ -31,13 +31,13 @@ import * as Yup from 'yup';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
+import { format, startOfDay } from 'date-fns';
 // @ts-expect-error -- pre-existing: @hookform/resolvers/yup ships no
 // resolvable typings (same TS7016 as RegisterBudget/RegisterAccount).
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import SelectDropdown from 'react-native-select-dropdown';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { format, startOfDay } from 'date-fns';
 
 // Icons
 import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
@@ -47,7 +47,6 @@ import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
@@ -230,14 +229,11 @@ export function RegisterGoal({ id, closeGoal }: Props) {
 
   if (isLoadingDetails || isLoadingCurrencies) {
     return (
-      <Screen>
         <SkeletonAccountsScreen />
-      </Screen>
     );
   }
 
   return (
-    <Screen>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <ControlledInputWithIcon
@@ -372,6 +368,5 @@ export function RegisterGoal({ id, closeGoal }: Props) {
           </ModalViewSelection>
         </Container>
       </TouchableWithoutFeedback>
-    </Screen>
   );
 }
