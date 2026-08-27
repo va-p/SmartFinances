@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Platform, RefreshControl, View } from 'react-native';
+import { Platform, RefreshControl } from 'react-native';
 import {
   Container,
   HeaderActions,
@@ -40,9 +40,13 @@ import { GoalListItem } from '@components/GoalListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 
+// Screens
+import { RegisterGoal } from '@screens/RegisterGoal';
+
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useGoalAccountsSelected } from '@stores/goalAccountsSelected';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -126,6 +130,7 @@ export function Goals() {
   }
 
   function handleCloseRegisterGoalModal() {
+    useGoalAccountsSelected.setState(() => ({ goalAccountsSelected: [] }));
     goalRegisterBottomSheetRef.current?.dismiss();
   }
 
@@ -248,8 +253,7 @@ export function Goals() {
           closeModal={handleCloseRegisterGoalModal}
           onClose={handleCloseRegisterGoalModal}
         >
-          {/* wired in T17: <RegisterGoal id={''} closeGoal={handleCloseRegisterGoalModal} /> */}
-          <View />
+          <RegisterGoal id={''} closeGoal={handleCloseRegisterGoalModal} />
         </ModalView>
       </Container>
     </Screen>
