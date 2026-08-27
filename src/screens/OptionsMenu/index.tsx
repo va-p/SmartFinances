@@ -9,7 +9,7 @@ import {UserIcon} from 'phosphor-react-native/src/icons/User';
 import {BellIcon} from 'phosphor-react-native/src/icons/Bell';
 import {PlugsIcon} from 'phosphor-react-native/src/icons/Plugs';
 import {CookieIcon} from 'phosphor-react-native/src/icons/Cookie';
-import {TrophyIcon} from 'phosphor-react-native/src/icons/Trophy';
+import {TargetIcon} from 'phosphor-react-native/src/icons/Target';
 import {WalletIcon} from 'phosphor-react-native/src/icons/Wallet';
 import {SparkleIcon} from 'phosphor-react-native/src/icons/Sparkle';
 import {SignOutIcon} from 'phosphor-react-native/src/icons/SignOut';
@@ -105,7 +105,7 @@ export function OptionsMenu() {
   }
 
   function handleOpenGoals() {
-    // router.navigate('/options/goals');
+    router.navigate('/options/goals');
   }
 
   function handleOpenSubscriptionsList() {
@@ -304,6 +304,12 @@ export function OptionsMenu() {
           />
 
           <SelectButton
+            icon={<TargetIcon color={theme.colors.primary} />}
+            title='Metas & Objetivos'
+            onPress={() => handleOpenGoals()}
+          />
+
+          <SelectButton
             icon={<PlugsIcon color={theme.colors.primary} />}
             title='Integrações Bancárias'
             onPress={() => handleOpenConnectedAccounts()}
@@ -319,12 +325,6 @@ export function OptionsMenu() {
             icon={<TagIcon color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
-          />
-
-          <SelectButton
-            icon={<TrophyIcon color={theme.colors.primary} />}
-            title='Metas e Objetivos'
-            onPress={() => handleOpenGoals()}
           />
 
           <SelectButton
