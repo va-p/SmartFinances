@@ -136,7 +136,7 @@ export const ActionsContainer = styled.View`
   justify-content: space-between;
   padding: 8px 16px;
   margin-bottom: 8px;
-  background-color: ${({ theme }) => (theme as ThemeProps).colors.overlay};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 32px;
 `;
 
