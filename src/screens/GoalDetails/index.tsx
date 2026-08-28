@@ -41,13 +41,13 @@ import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Dependencies
-import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
-import { FlashList } from '@shopify/flash-list';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
+import { FlashList } from '@shopify/flash-list';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { FlatList } from 'react-native-gesture-handler';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 // Icons
 import {TrashIcon} from 'phosphor-react-native/src/icons/Trash';
@@ -61,11 +61,11 @@ import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ListItem } from '@components/ListItem';
-import { ListSeparator } from '@components/ListSeparator';
 import { ModalView } from '@components/Modals/ModalView';
+import { ListSeparator } from '@components/ListSeparator';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { GoalPercentBar } from '@components/GoalListItem/components/GoalPercentBar';
 
 // Screens
