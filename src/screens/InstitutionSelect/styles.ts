@@ -25,7 +25,7 @@ export const QuickAddButton = styled(RectButton)`
 
 export const QuickAddButtonText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
-  ${({ theme }) => theme.fonts.sizeTitle};
+  font-size: ${({ theme }) => theme.fonts.sizeTitle};
   padding-left: 8px;
   color: ${({ theme }) => theme.colors.primary};
 `;
