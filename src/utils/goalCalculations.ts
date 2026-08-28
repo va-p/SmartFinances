@@ -24,9 +24,9 @@ export function computeGoalProgress(
 ): GoalProgress {
   const goalCurrencyCode = goal.currency.code;
 
-  let currentAmount = Number(goal.reserve_account.balance);
+  let currentAmount = Number(goal?.reserve_account?.balance ?? 0);
 
-  for (const account of goal.linked_accounts) {
+  for (const account of goal?.linked_accounts ?? []) {
     if (account.currency.code === goalCurrencyCode) {
       currentAmount += Number(account.balance);
       continue;
