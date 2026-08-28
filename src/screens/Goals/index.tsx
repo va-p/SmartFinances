@@ -206,23 +206,6 @@ export function Goals() {
               onPress={() => handleOpenGoal(item)}
             />
           )}
-          // ListHeaderComponent={() => (
-          //   <SummaryCard>
-          //     <SummaryTotal>
-          //       {hideAmount ? '•••••' : totalSavedFormatted}
-          //     </SummaryTotal>
-          //     <SummaryLabel>Total em metas</SummaryLabel>
-          //     <SummaryDescription>
-          //       {`${activeGoals.length} ${
-          //         activeGoals.length === 1 ? 'meta ativa' : 'metas ativas'
-          //       }`}
-          //       {reachedCount > 0 &&
-          //         ` • ${reachedCount} ${
-          //           reachedCount === 1 ? 'atingida' : 'atingidas'
-          //         }`}
-          //     </SummaryDescription>
-          //   </SummaryCard>
-          // )}
           ListEmptyComponent={() => (
             <EmptyContainer>
               <ListEmptyComponent text='Nenhuma meta ativa. Crie sua primeira meta para começar a guardar.' />

@@ -48,7 +48,6 @@ export function AccountsList() {
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
-  const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);

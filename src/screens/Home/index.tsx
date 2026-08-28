@@ -32,8 +32,8 @@ import { useTransactionHandlers } from './hooks/useTransactionHandlers';
 import { useTransactionFiltering } from './hooks/useTransactionFiltering';
 
 // Utils
-import { processTransactions } from '@utils/processTransactions';
 import { formatTransactions } from '@utils/formatTransactions';
+import { processTransactions } from '@utils/processTransactions';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
 
 // Dependencies
