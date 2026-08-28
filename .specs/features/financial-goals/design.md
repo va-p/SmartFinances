@@ -78,12 +78,12 @@ model Goal {
   previousStatus   GoalStatus? @map("previous_status") // set on archive, consumed on unarchive
   completedAt      DateTime? @map("completed_at")
   userId           String    @map("user_id")
-  reserveAccountId Int       @unique @map("reserve_account_id")
+  reserveAccountId Int?      @unique @map("reserve_account_id") // null when the goal has linked accounts (amended 2026-08-27)
   createdAt/updatedAt
 
   user           User               @relation(..., onDelete: Cascade)
   currency       Currency           @relation(...)
-  reserveAccount Account            @relation("GoalReserve", fields: [reserveAccountId], references: [id])
+  reserveAccount Account?           @relation("GoalReserve", fields: [reserveAccountId], references: [id])
   linkedAccounts GoalLinkedAccount[]
   @@map("goals")
 }
@@ -102,7 +102,7 @@ isVirtual     Boolean @default(false) @map("is_virtual")
 goalReserve   Goal?   @relation("GoalReserve")
 ```
 
-**Relationships**: `Goal` 1:1 `Account` (reserve); `Goal` N:M `Account` via junction (linked). Junction cascades cover both goal deletion and linked-account deletion (GOAL-41).
+**Relationships**: `Goal` 1:0..1 `Account` (reserve, optional since 2026-08-27 amendment); `Goal` N:M `Account` via junction (linked). Junction cascades cover both goal deletion and linked-account deletion (GOAL-41). Invariant: every goal has ≥1 money target — a reserve, or ≥1 linked account (edit re-creates the reserve when the last link is removed, GOAL-45).
 
 ### `src/routes/goal.routes.ts`
 Per-route `authenticate` + `validate` + `asyncHandler`, registered in `server.ts` as `app.use(`${API_PREFIX}/goal`, goalRoutes)`. Endpoints:
@@ -111,12 +111,18 @@ Per-route `authenticate` + `validate` + `asyncHandler`, registered in `server.ts
 | --- | --- | --- |
 | GET | `/goal` | List goals (+ reserve account, currency, linked accounts) — all statuses, client filters |
 | GET | `/goal/:id` | Goal detail (+ reserve account transactions, newest first) |
-| POST | `/goal` | Create goal + reserve account + links, atomically |
-| PATCH | `/goal/:id` | Edit name/target/deadline/linked accounts (ACTIVE only; currency immutable) |
+| POST | `/goal` | Create goal + links atomically; reserve account created only when no accounts linked (GOAL-43/44) |
+| PATCH | `/goal/:id` | Edit name/target/deadline/linked accounts (ACTIVE only; currency immutable); emptying links on a reserve-less goal re-creates the reserve (GOAL-45) |
 | PATCH | `/goal/:id/status` | `{ action: conclude \| archive \| unarchive }` with transition guards |
-| POST | `/goal/:id/deposit` | `{ amount, source_account_id, amount_in_account_currency?, category_id?, description?, transaction_date? }` |
-| POST | `/goal/:id/withdraw` | `{ amount, destination_account_id, amount_in_account_currency?, category_id?, description?, transaction_date? }` |
-| DELETE | `/goal/:id` | `destination_account_id` required when reserve balance > 0 |
+| POST | `/goal/:id/deposit` | `{ amount, source_account_id, linked_account_id?, amount_in_account_currency?, category_id?, description?, transaction_date? }` — `linked_account_id` picks the linked target when no reserve exists (GOAL-46/48) |
+| POST | `/goal/:id/withdraw` | `{ amount, destination_account_id, linked_account_id?, ... }` — `linked_account_id` picks the linked source when no reserve exists (GOAL-47/48) |
+| DELETE | `/goal/:id` | `destination_account_id` required only when a reserve exists AND its balance > 0 |
+
+### `GET /account` virtual filtering (amendment 2026-08-27, GOAL-49/50)
+
+- Default: `where: { userId, isVirtual: false }` — virtual reserves never reach default consumers (lists, pickers).
+- `?include_virtual=true`: returns all accounts; the formatter ALWAYS exposes `isVirtual` on every account (the omission of this field was the root cause of the Accounts-screen leak found in UAT).
+- Frontend: `useAccountsQuery(includeVirtual?)` — `queryKey ['accounts']` vs `['accounts', 'include-virtual']` (prefix invalidation on `['accounts']` still covers both). Only the Accounts screen (net worth) passes `true`; its list/grouping filters keep excluding `isVirtual` client-side while totals include them.
 
 ### `src/schemas/goal.schema.ts`
 Zod v4 schemas mirroring transaction/budget style: `createGoalSchema` (name min 1, `target_amount` positive, `currency_id` coerced int, `deadline` iso datetime optional, `linked_account_ids` int array optional), `updateGoalSchema`, `goalIdParamSchema`, `goalStatusSchema`, `goalDepositSchema`/`goalWithdrawSchema` (amount positive), `deleteGoalSchema` (optional `destination_account_id`).
@@ -124,17 +130,19 @@ Zod v4 schemas mirroring transaction/budget style: `createGoalSchema` (name min 
 ### `src/controllers/goal.controller.ts`
 Hand-formatted snake_case DTOs (`target_amount: goal.targetAmount.toString()`, etc.); `AppError` + logger + rethrow pattern from `transaction.controller.ts` (NOT the older account.controller 401 style).
 
-### `src/services/goal.service.ts`
+### `src/services/goal.service.ts` (amended 2026-08-27)
 Pure, testable functions taking `Prisma.TransactionClient`:
-- `createGoalWithReserve(tx, userId, data)` — creates reserve `Account` (`isVirtual: true`, type `OTHER`, name `Reserva: {goalName}`) + `Goal` + junction rows.
-- `depositToGoal(tx, goal, data)` — guards (ACTIVE, amount > 0, source owned & `!isVirtual`), resolves category, calls `createTransferPair`.
-- `withdrawFromGoal(tx, goal, data)` — same guards + `amount <= reserve.balance` (reserve-currency comparison via Decimal).
-- `deleteGoalWithTransferBack(tx, goal, destinationAccountId?)` — transfer-back pair when balance > 0, then delete goal + reserve account.
+- `createGoalWithReserve(tx, userId, data)` — creates `Goal` + junction rows; creates the reserve `Account` (`isVirtual: true`, type `OTHER`, name `Reserva: {goalName}`) ONLY when `linkedAccountIds` is empty (GOAL-43/44).
+- `ensureGoalReserve(tx, goal)` — helper: creates an empty reserve for a reserve-less goal (used by edit when the last link is removed, GOAL-45).
+- `depositToGoal(tx, goal, data)` — guards (ACTIVE, amount > 0, source owned & `!isVirtual`), resolves category. Target: `data.linkedAccountId` when provided (must be linked to the goal, else 400 — GOAL-48) or the reserve when present; a reserve-less goal without `linkedAccountId` is a 400.
+- `withdrawFromGoal(tx, goal, data)` — same guards + `amount <=` chosen source balance (reserve, or the chosen linked account — Decimal comparison, GOAL-14).
+- `deleteGoalWithTransferBack(tx, goal, destinationAccountId?)` — transfer-back pair only when a reserve exists AND balance > 0; then delete goal (+ reserve account when present). No-reserve goals skip the transfer-back (GOAL-36).
 - `transitionGoalStatus(goal, action)` — state machine: conclude (ACTIVE→COMPLETED, sets `completedAt`), archive (ACTIVE|COMPLETED→ARCHIVED, stores `previousStatus`), unarchive (ARCHIVED→`previousStatus ?? ACTIVE`, clears it); invalid → `AppError(400)`.
 - `resolveGoalTransferCategory(tx, userId, categoryId?)` — provided id → validate ownership; else user's "Sem categoria"; else first category; none → `AppError(400)`.
 
-### `account.controller.ts` change (minimal)
-`deleteAccount`: reject with `AppError(400)` when `account.isVirtual` ("Conta virtual de meta — exclua pela tela da meta").
+### `account.controller.ts` changes
+- `deleteAccount`: reject with `AppError(400)` when `account.isVirtual` ("Conta virtual de meta — exclua pela tela da meta").
+- `getAccounts`: `isVirtual: false` filter by default, `?include_virtual=true` opt-in, `isVirtual` always present in the formatted DTO (GOAL-49/50).
 
 ---
 
@@ -165,13 +173,13 @@ Pure, testable functions taking `Prisma.TransactionClient`:
 - `useGoalMovementMutations.ts` — deposit/withdraw; on success invalidate `['goals']`, `['goal', id]`, `['accounts']`, `['transactions']`; CTA disabled via `isPending` (GOAL-15).
 
 ### Interfaces & stores & utils
-- `src/interfaces/goals.ts` — `GoalProps { id, name, target_amount, currency, deadline?, status, completed_at?, reserve_account: AccountProps, linked_accounts: AccountProps[] }`; `GoalStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'`.
+- `src/interfaces/goals.ts` — `GoalProps { id, name, target_amount, currency, deadline?, status, completed_at?, reserve_account: ReserveAccountProps | null, linked_accounts: LinkedAccountProps[] }`; `GoalStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'`.
 - `src/interfaces/accounts.ts` — add `isVirtual?: boolean` to `AccountProps`.
 - `src/stores/goalAccountsSelected.ts` — mirror `budgetCategoriesSelected`.
-- `src/utils/goalCalculations.ts` — `computeGoalProgress(goal, quotes)`: `(reserve + Σ linked balances converted to goal currency) / target`, returns `{ currentAmount, percentage, isAmountReached }`; pure + unit-testable.
+- `src/utils/goalCalculations.ts` — `computeGoalProgress(goal, quotes)`: `((reserve?.balance ?? 0) + Σ linked balances converted to goal currency) / target`, returns `{ currentAmount, percentage, isAmountReached }`; pure + unit-testable; null-reserve safe.
 
-### Visibility filtering (GOAL-24/26)
-Audit + filter `isVirtual` in: `src/screens/Accounts/index.tsx` (list/groupings ONLY — not the total), `src/screens/AccountsList/index.tsx`, account picker components/screens (`AccountDestinationSelect`, account selects in `RegisterTransaction`, Home filter). Each gets a `.filter((a) => !a.isVirtual)`; Accounts total deliberately untouched.
+### Visibility filtering (GOAL-24/26, amended 2026-08-27)
+Server-side default exclusion on `GET /account` is the primary mechanism (GOAL-49/50); the Accounts screen fetches with `include_virtual=true` (net worth must include reserves, GOAL-25) and keeps its client-side `!isVirtual` filters for list/grouping render paths only. `AccountsList`, pickers, and Home filters use the default (already-excluded) response — their client filters remain as harmless defense-in-depth.
 
 ---
 
@@ -185,13 +193,13 @@ Audit + filter `isVirtual` in: `src/screens/Accounts/index.tsx` (list/groupings 
   id: string; name: string; target_amount: string; status: 'ACTIVE'|'COMPLETED'|'ARCHIVED';
   deadline: string | null; completed_at: string | null;
   currency: { id: number; code: string; symbol: string };
-  reserve_account: { id: number; name: string; balance: number; is_virtual: true; currency_id: number };
+  reserve_account: { id: number; name: string; balance: number; is_virtual: true; currency_id: number } | null;
   linked_accounts: { id: number; name: string; balance: number; currency: {...}; type: string }[];
   created_at: string; updated_at: string;
 }
 ```
 
-**Relationships**: Goal 1:1 reserve Account; Goal N:M real Accounts; reserve Account transactions = goal history.
+**Relationships**: Goal 1:0..1 reserve Account; Goal N:M real Accounts; reserve (or linked accounts' goal-tagged transfer legs) = goal history.
 
 ---
 
@@ -200,7 +208,8 @@ Audit + filter `isVirtual` in: `src/screens/Accounts/index.tsx` (list/groupings 
 | Error Scenario | Handling | User Impact |
 | --- | --- | --- |
 | API failure on any mutation | Optimistic rollback + `Alert.alert` (CONVENTIONS pattern) | pt-BR error alert, state restored |
-| Withdraw > reserve balance | Server `AppError(400)`; client pre-validates and shows field error | "Saldo da reserva insuficiente" |
+| Withdraw > chosen source balance | Server `AppError(400)`; client pre-validates and shows field error | "Saldo insuficiente" |
+| Deposit/withdraw naming a non-linked account | Server `AppError(400)` (GOAL-48) | Error alert |
 | Delete with balance, no destination picked | Client blocks CTA until account picked; server `AppError(400)` as backstop | Form hint |
 | Transfer-back failure during delete | Entire delete runs in one `$transaction` → rollback | Goal intact + error alert |
 | Invalid status transition (e.g. conclude ARCHIVED) | `AppError(400)` from state machine | Error alert |
@@ -215,7 +224,8 @@ Audit + filter `isVirtual` in: `src/screens/Accounts/index.tsx` (list/groupings 
 | --- | --- | --- | --- |
 | Account pickers/list renderers scattered — easy to miss one and leak a virtual account into UI | `src/screens/Accounts/index.tsx`, `AccountsList`, `RegisterTransaction`, Home filters | GOAL-24/26 violation | Dedicated audit task (grep every `accounts.map`/`.filter`) + Verifier spec-check on GOAL-24/26 |
 | Accounts total sums ALL non-hidden accounts | `src/screens/Accounts/index.tsx:135-137` | Correct for goals, but any future non-goal virtual account would join the total | `isVirtual` documented as goal-reserve-only in STATE.md decision AD-001 |
-| `GET /account` has no server-side filter; older app versions would render virtual accounts | `backend/src/controllers/account.controller.ts` | Users on stale app versions see "Reserva: X" accounts | Accepted risk — app ships OTA via Revopush; noted here |
+| `GET /account` has no server-side filter; older app versions would render virtual accounts | `backend/src/controllers/account.controller.ts` | Users on stale app versions see "Reserva: X" accounts | **Resolved 2026-08-27**: server now default-excludes virtual accounts (GOAL-49); stale clients never receive them |
+| `getAccounts` formatter omitted `isVirtual` from the DTO (found in UAT: reserve rendered on the Accounts screen despite client filters) | `account.controller.ts` `formattedAccounts` | Every client `!isVirtual` filter was dead code | Formatter always exposes `isVirtual` (GOAL-50); backend default-exclusion is now the primary mechanism |
 | `categoryId` is required on transfer legs but goals UX has no category picker | `transaction.service.ts:126-132` | Deposits would 400 without a category | `resolveGoalTransferCategory` fallback chain |
 | `deleteAccount` catches and responds 401 for all errors | `account.controller.ts:598-601` | `isVirtual` guard error would surface as 401 | Keep guard inside try; frontend treats failure generically; flag as pre-existing tech debt (not in scope to refactor) |
 | Decimal `Decimal(20,8)` balance comparisons in JS | withdraw guard | Float rounding could allow 1-cent over-withdrawal | Compare via Prisma `Decimal` (`new Decimal(a).greaterThan(b)`) in `goal.service` |
@@ -235,5 +245,7 @@ Audit + filter `isVirtual` in: `src/screens/Accounts/index.tsx` (list/groupings 
 | Progress computation | Client-side (`computeGoalProgress` + quotes), server returns raw balances | Consistent with budgets and net worth (both client-computed) |
 | Status transitions | Single `PATCH /goal/:id/status` with action enum + `previousStatus` column | Unarchive-restore (GOAL-33) needs the memory column; one endpoint keeps guards centralized |
 | Entry point placement | Nested `options/goals/` stack (not a tab) | Spec: entry via OptionsMenu only |
+| Reserve existence (amended 2026-08-27) | Reserve created only when no accounts linked (`reserveAccountId` nullable); deposits/withdrawals route to a chosen linked account when no reserve exists | User decision: redundant reserves for linked goals; direct-to-linked routing |
+| Virtual exposure on `GET /account` (2026-08-27) | Default-exclude + `include_virtual=true` opt-in + always expose `isVirtual` in DTO | Client-side-only filtering already failed once; safe-by-default on the server |
 
 > Project-level decisions appended to `.specs/STATE.md` (AD-001, AD-002).

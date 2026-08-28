@@ -32,8 +32,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
-| Virtual reserve account existence | Every goal owns exactly one virtual reserve account, created atomically at goal creation — even when real accounts are linked | Uniform deposit target; spec requires virtual accounts at least as fallback; always creating avoids ambiguous "where does a deposit go" for linked-only goals | n |
-| Deposit/withdraw routing | Deposits/withdrawals always move between a real account and the goal's virtual reserve; linked real accounts contribute passively via their balance | Keeps the goal ledger clean; moving money in/out of linked accounts stays possible via the normal transfer flow | n |
+| ~~Virtual reserve account existence~~ **Amended 2026-08-27 (user decision)** | A virtual reserve account is created ONLY when no existing account is linked to the goal; a goal with linked accounts has NO reserve (prevents redundant records). Invariant: every goal always has ≥1 money target (reserve or linked account) — removing the last link via edit re-creates an empty reserve | User review found always-created reserves redundant for linked goals | y |
+| ~~Deposit/withdraw routing~~ **Amended 2026-08-27 (user decision)** | Deposits/withdrawals move between a real account and the goal's reserve WHEN one exists; for linked-only goals they move directly in/out of a chosen linked account (transfer from/to any real account) | User decision: direct-to-linked routing; no reserve for linked goals | y |
+| Virtual account exposure in API | `GET /account` excludes virtual accounts by default and includes them only with `?include_virtual=true`; the response DTO always exposes `isVirtual`. Net-worth consumers (Accounts screen) fetch with the param; pickers/lists get the default | Client-side filtering failed once already (field never reached the DTO); server-side default-exclude makes the safe path the default | y |
 | Virtual accounts in regular pickers | Virtual reserve accounts are NOT offered in regular transaction/transfer account pickers (Goals flow only) | Stated to user as default during discuss; no objection | y |
 | Unarchive target status | Unarchive restores the previous status (ACTIVE → ACTIVE, COMPLETED → COMPLETED) | Stated to user as default during discuss; no objection | y |
 | Deleting a linked real account | Deleting a real account that is linked to goals unlinks it (no block); goal current amounts recalculate | Blocking account deletion would couple two features' lifecycles; unlink mirrors SetNull-style conventions | n |
@@ -77,11 +78,14 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Acceptance Criteria**:
 
-1. WHEN the user submits the create-goal form with a non-empty name, a target amount greater than zero, and a currency THEN the system SHALL create the goal in ACTIVE status and SHALL atomically create its virtual reserve account in the goal's currency with zero balance. <!-- event-driven -->
+1. WHEN the user submits the create-goal form with a non-empty name, a target amount greater than zero, and a currency THEN the system SHALL create the goal in ACTIVE status. <!-- event-driven -->
 2. IF the form is submitted with an empty name or a target amount less than or equal to zero THEN the system SHALL show field-level validation errors and SHALL NOT call the API. <!-- unwanted-behavior -->
 3. WHERE the user selects one or more existing accounts during creation the system SHALL link them to the goal and include their full balances in the goal's current amount. <!-- optional-feature -->
 4. WHEN the user sets a deadline THEN the system SHALL require the date to be today or later. <!-- event-driven -->
 5. IF the create-goal API call fails THEN the system SHALL roll back any optimistic state and display an error alert. <!-- unwanted-behavior -->
+6. WHERE no existing accounts are linked at creation the system SHALL atomically create a virtual reserve account in the goal's currency with zero balance. <!-- optional-feature -->
+7. WHERE one or more existing accounts are linked at creation the system SHALL NOT create a virtual reserve account. <!-- optional-feature -->
+8. WHEN an edit removes the last linked account from a goal that has no reserve account THEN the system SHALL atomically create an empty virtual reserve account in the goal's currency as part of that edit. <!-- event-driven -->
 
 **Independent Test**: Create a goal "Viagem" with target R$ 5.000, no linked accounts → goal appears in active list at 0%; create another goal linking a savings account → its current amount equals that account's balance.
 
@@ -95,13 +99,16 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Acceptance Criteria**:
 
-1. WHEN the user confirms a deposit with an amount greater than zero and a source account THEN the system SHALL create an internal TRANSFER from the source account to the goal's virtual reserve account and the goal's current amount SHALL increase by the deposited amount (in goal currency). <!-- event-driven -->
-2. WHEN the user confirms a withdrawal with an amount greater than zero and a destination account THEN the system SHALL create an internal TRANSFER from the goal's virtual reserve account to the destination account and the goal's current amount SHALL decrease accordingly. <!-- event-driven -->
-3. IF the withdrawal amount exceeds the goal's virtual reserve balance THEN the system SHALL reject the operation with a validation message and SHALL NOT create any transaction. <!-- unwanted-behavior -->
+1. WHILE a goal has a reserve account, WHEN the user confirms a deposit with an amount greater than zero and a source account THEN the system SHALL create an internal TRANSFER from the source account to the goal's virtual reserve account and the goal's current amount SHALL increase by the deposited amount (in goal currency). <!-- complex -->
+2. WHILE a goal has a reserve account, WHEN the user confirms a withdrawal with an amount greater than zero and a destination account THEN the system SHALL create an internal TRANSFER from the goal's virtual reserve account to the destination account and the goal's current amount SHALL decrease accordingly. <!-- complex -->
+3. IF the withdrawal amount exceeds the balance of the chosen goal source (the reserve, or the chosen linked account) THEN the system SHALL reject the operation with a validation message and SHALL NOT create any transaction. <!-- unwanted-behavior -->
 4. WHILE a deposit or withdrawal mutation is in flight the system SHALL disable the confirmation button to prevent duplicate submissions. <!-- state-driven -->
 5. WHERE the picked account's currency differs from the goal currency the system SHALL execute the transfer using the existing multi-currency transfer conversion (per-leg `amount_in_account_currency`). <!-- optional-feature -->
-6. WHEN the user opens a goal's details screen THEN the system SHALL display the goal's progress, its linked accounts, and the contribution/withdrawal history (transfer legs on the virtual reserve account) ordered newest first. <!-- event-driven -->
+6. WHEN the user opens a goal's details screen THEN the system SHALL display the goal's progress, its linked accounts, and the contribution/withdrawal history (transfer legs on the reserve account, or on the linked accounts when no reserve exists) ordered newest first. <!-- event-driven -->
 7. WHEN a deposit or withdrawal completes THEN the system SHALL refresh the accounts and transactions queries so balances and histories stay consistent. <!-- event-driven -->
+8. WHILE a goal has no reserve account, WHEN the user confirms a deposit THEN the system SHALL create an internal TRANSFER from the chosen source account to the chosen linked account of the goal. <!-- complex -->
+9. WHILE a goal has no reserve account, WHEN the user confirms a withdrawal THEN the system SHALL create an internal TRANSFER from the chosen linked account of the goal to the chosen destination account. <!-- complex -->
+10. IF a deposit or withdrawal targets an account that is not linked to the goal THEN the system SHALL reject the operation with a 400 error and SHALL NOT create any transaction. <!-- unwanted-behavior -->
 
 **Independent Test**: Create a goal, deposit R$ 500 from checking → checking balance −500, goal +500, net worth unchanged; withdraw R$ 200 to savings → goal 300; attempt withdraw R$ 400 → rejected, no transaction created.
 
@@ -137,6 +144,8 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 2. The system SHALL include virtual reserve account balances in the Total Net Worth ("Patrimônio Total") calculation and its historical evolution chart. <!-- ubiquitous -->
 3. The system SHALL NOT offer virtual reserve accounts as selectable accounts in regular transaction or transfer pickers. <!-- ubiquitous -->
 4. WHEN a deposit transfer pair is created THEN the system SHALL leave Total Net Worth unchanged (money moves between two accounts owned by the user). <!-- event-driven -->
+5. The system SHALL exclude virtual accounts from `GET /account` responses by default. <!-- ubiquitous -->
+6. WHERE the `include_virtual=true` query parameter is present the system SHALL include virtual accounts in the `GET /account` response, and the response SHALL expose the `isVirtual` field on every account. <!-- optional-feature -->
 
 **Independent Test**: Create a goal with a deposit → Accounts tab shows no new account; "Patrimônio Total" is identical before and after the deposit; virtual account is absent from transfer pickers.
 
@@ -184,7 +193,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Acceptance Criteria**:
 
-1. WHEN the user deletes a goal whose virtual reserve balance is zero THEN the system SHALL delete the goal and its virtual reserve account without changing Total Net Worth. <!-- event-driven -->
+1. WHEN the user deletes a goal whose reserve balance is zero, or which has no reserve account THEN the system SHALL delete the goal (and its reserve account when present) without changing Total Net Worth and without requiring a destination account. <!-- event-driven -->
 2. WHEN the user deletes a goal whose virtual reserve balance is greater than zero THEN the system SHALL require the user to pick a destination account and SHALL atomically transfer the full reserve balance to it before deletion. <!-- event-driven -->
 3. WHEN a goal is deleted THEN the system SHALL unlink any linked real accounts without modifying them or their transactions. <!-- event-driven -->
 4. The system SHALL preserve transaction-history integrity on real accounts when a goal is deleted (no dangling transfer relations). <!-- ubiquitous -->
@@ -230,14 +239,14 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | GOAL-04 | P1: Entry & List — create FAB | - | Implementing |
 | GOAL-05 | P1: Entry & List — hideAmount masking | - | Implementing |
 | GOAL-06 | P1: Entry & List — navigation to Completed/Archived | - | Implementing |
-| GOAL-07 | P1: Create — goal + virtual account creation | - | Implementing |
+| GOAL-07 | P1: Create — goal creation | - | Implementing |
 | GOAL-08 | P1: Create — form validation | - | Implementing |
 | GOAL-09 | P1: Create — link existing accounts | - | Implementing |
 | GOAL-10 | P1: Create — deadline validation | - | Implementing |
 | GOAL-11 | P1: Create — API failure rollback | - | Implementing |
-| GOAL-12 | P1: Details — deposit as transfer | - | Implementing |
-| GOAL-13 | P1: Details — withdrawal as transfer | - | Implementing |
-| GOAL-14 | P1: Details — withdraw-over-balance rejection | - | Implementing |
+| GOAL-12 | P1: Details — deposit as transfer (to reserve) | - | Implementing |
+| GOAL-13 | P1: Details — withdrawal as transfer (from reserve) | - | Implementing |
+| GOAL-14 | P1: Details — withdraw-over-balance rejection (reserve or linked source) | - | Implementing |
 | GOAL-15 | P1: Details — duplicate-submission guard | - | Implementing |
 | GOAL-16 | P1: Details — multi-currency conversion | - | Implementing |
 | GOAL-17 | P1: Details — history newest-first | - | Implementing |
@@ -259,15 +268,23 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | GOAL-33 | P2: Archive — unarchive restores previous | - | Implementing |
 | GOAL-34 | P2: Archive — archived read-only | - | Implementing |
 | GOAL-35 | P2: Archive — archived empty state | - | Implementing |
-| GOAL-36 | P2: Delete — zero-balance delete | - | Implementing |
+| GOAL-36 | P2: Delete — zero-balance / no-reserve delete | - | Implementing |
 | GOAL-37 | P2: Delete — transfer-back then delete | - | Implementing |
 | GOAL-38 | P2: Delete — unlink real accounts | - | Implementing |
 | GOAL-39 | P2: Delete — transfer-relation integrity | - | Implementing |
 | GOAL-40 | P2: Delete — abort on transfer-back failure | - | Implementing |
 | GOAL-41 | P2: Interplay — linked account deletion unlinks | - | Implementing |
 | GOAL-42 | P2: Interplay — reserve untouched by account deletion | - | Implementing |
+| GOAL-43 | P1: Create — reserve created when no accounts linked | - | Implementing |
+| GOAL-44 | P1: Create — no reserve when accounts linked | - | Implementing |
+| GOAL-45 | P2: Edit — removing last link re-creates empty reserve | - | Implementing |
+| GOAL-46 | P1: Details — deposit to linked account (no reserve) | - | Implementing |
+| GOAL-47 | P1: Details — withdraw from linked account (no reserve) | - | Implementing |
+| GOAL-48 | P1: Details — non-linked target account rejected | - | Implementing |
+| GOAL-49 | P1: Visibility — GET /account excludes virtual by default | - | Implementing |
+| GOAL-50 | P1: Visibility — include_virtual param + isVirtual in DTO | - | Implementing |
 
-**Coverage:** 42 total, 42 mapped to tasks (T1–T21), 0 unmapped — all Implemented, pending Verifier pass
+**Coverage:** 50 total, 50 mapped to tasks (T1–T21 + amendment tasks A1–A5), 0 unmapped — all Implemented, pending Verifier pass
 
 ---
 

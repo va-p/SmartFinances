@@ -36,6 +36,13 @@ Financial Goals let users set savings targets (name, target amount, currency, op
 - Linked accounts in other currencies convert into the goal currency at current quotes (same math as net worth).
 - Source account for a deposit is picked per operation (pre-selecting the user's default account).
 
+### Reserve existence & API exposure (discussed 2026-08-27, user decision — supersedes earlier assumptions)
+
+- Reserve accounts are created ONLY when the goal has no linked accounts (at creation, or when an edit removes the last linked account). Linked-only goals have no reserve.
+- Deposits/withdrawals on linked-only goals move money directly in/out of a chosen linked account (transfer from/to any real account). The movement sheet offers the goal's linked accounts as the second picker, auto-selected when only one.
+- Withdrawal bound applies to the chosen source: reserve balance, or the chosen linked account's balance.
+- `GET /account` excludes virtual accounts by default; `?include_virtual=true` opts in; the account DTO always exposes `isVirtual`. The Accounts screen (net worth) is the include-virtual consumer; pickers/lists use the default exclusion.
+
 ### Agent's Discretion
 
 - Exact visual layout of goal cards, details screen, and create/edit form (follow Budgets feature patterns).
@@ -44,7 +51,7 @@ Financial Goals let users set savings targets (name, target amount, currency, op
 
 ### Declined / Undiscussed Gray Areas → Assumptions
 
-- Whether every goal always owns a virtual reserve account (vs. only when no real account is linked) — logged as assumption in spec: always create, uniform deposit target.
+- ~~Whether every goal always owns a virtual reserve account~~ — resolved by user 2026-08-27: reserve only when no accounts linked.
 - Whether goal-linked real accounts can be deleted — assumption: deleting unlinks them and progress recalculates.
 
 ---
