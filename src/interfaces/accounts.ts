@@ -43,7 +43,7 @@ export interface AccountProps {
   currency: CurrencyProps;
   type: AccountTypes;
   subtype?: AccountSubTypes;
-  balance: number;
+  balance: number | string;
   initialAmount: number | null;
   totalAccountAmount?: string;
   totalAccountAmountConverted?: string;
