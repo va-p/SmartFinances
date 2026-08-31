@@ -285,41 +285,41 @@ export function GoalDetails() {
           {isActive && <Header.Icon onPress={handleOpenEditGoalModal} />}
         </Header.Root>
 
-          <HeaderCard>
-            <GoalCurrent>
-              {hideAmount ? '•••••' : progress.currentFormatted}
-            </GoalCurrent>
-            <GoalTargetDescription>
-              {`de ${
-                hideAmount
-                  ? '•••••'
-                  : formatCurrency(
-                      goal.currency.code,
-                      Number(goal.target_amount)
-                    )
-              } (${progress.percentage.toFixed(2)}%)`}
-            </GoalTargetDescription>
-            <PercentBarContainer>
-              <GoalPercentBar
-                percentage={progress.percentage}
-                isAmountReached={progress.isAmountReached}
-              />
-            </PercentBarContainer>
-            {goal.deadline && (
-              <GoalDeadline>
-                {`Prazo: ${format(
-                  new Date(goal.deadline),
-                  'dd MMMM, yyyy',
-                  {
-                    locale: ptBR,
-                  }
-                )}`}
-              </GoalDeadline>
-            )}
-            {progress.isAmountReached && (
-              <ReachedBadge>
-                <CheckIcon
-                  size={12}
+        <HeaderCard>
+          <GoalCurrent>
+            {hideAmount ? '•••••' : progress.currentFormatted}
+          </GoalCurrent>
+          <GoalTargetDescription>
+            {`de ${
+              hideAmount
+                ? '•••••'
+                : formatCurrency(
+                    goal.currency.code,
+                    Number(goal.target_amount)
+                  )
+            } (${progress.percentage.toFixed(2)}%)`}
+          </GoalTargetDescription>
+          <PercentBarContainer>
+            <GoalPercentBar
+              percentage={progress.percentage}
+              isAmountReached={progress.isAmountReached}
+            />
+          </PercentBarContainer>
+          {goal.deadline && (
+            <GoalDeadline>
+              {`Prazo: ${format(
+                new Date(goal.deadline),
+                'dd MMMM, yyyy',
+                {
+                  locale: ptBR,
+                }
+              )}`}
+            </GoalDeadline>
+          )}
+          {progress.isAmountReached && (
+            <ReachedBadge>
+              <CheckIcon
+                size={12}
                   weight='bold'
                   color={theme.colors.shape}
                 />
@@ -355,9 +355,7 @@ export function GoalDetails() {
             </View>
           )}
 
-
-
-          <SectionTitle>Histórico</SectionTitle>
+        <SectionTitle>Histórico</SectionTitle>
 
         <FlashList
           style={{ flex: 1 }}

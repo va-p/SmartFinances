@@ -162,7 +162,7 @@ export const ActionButtonText = styled.Text`
 
 export const Footer = styled.View`
   flex-direction: row;
-  padding: 16px 0 16px;
+  padding: 8px 0 16px;
 `;
 
 export const FooterButtonGroup = styled.View`
