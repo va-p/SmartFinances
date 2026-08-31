@@ -23,7 +23,6 @@ import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -137,7 +136,6 @@ export function InstitutionSelect({
   }
 
   return (
-    <Screen>
       <Container>
         <Gradient />
 
@@ -204,6 +202,5 @@ export function InstitutionSelect({
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }
