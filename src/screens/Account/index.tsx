@@ -82,7 +82,6 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
-import { useUser } from '@stores/userStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
@@ -101,7 +100,6 @@ export function Account() {
   const theme  = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-  const { id: userID } = useUser();
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);

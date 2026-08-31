@@ -323,9 +323,8 @@ export function Accounts() {
     ];
   }, [institutionCards, standaloneAccounts, sortingOption]);
 
-  // Credit card carousel: sorted alphabetically by institution name (cards
-  // without an institution sort last), account name as tiebreaker/fallback
-  // (AC15.2) — a flat sort, no sub-grouping or headers (AC15.3).
+  // Credit card carousel: sorted alphabetically by name,
+  // a flat sort, no sub-grouping or headers (AC15.3).
   const creditCardAccounts = useMemo(() => {
     return processedAccounts
       .filter(
@@ -335,16 +334,16 @@ export function Accounts() {
           account.subtype === 'CREDIT_CARD'
       )
       .sort((a, b) => {
-        const institutionA = a.institution?.name;
-        const institutionB = b.institution?.name;
+        const nameA = a.name;
+        const nameB = b.name;
 
-        if (institutionA && institutionB) {
+        if (nameA && nameB) {
           const institutionComparison =
-            institutionA.localeCompare(institutionB);
+            nameA.localeCompare(nameB);
           if (institutionComparison !== 0) return institutionComparison;
-        } else if (institutionA && !institutionB) {
+        } else if (nameA && !nameB) {
           return -1;
-        } else if (!institutionA && institutionB) {
+        } else if (!nameA && nameB) {
           return 1;
         }
 
@@ -395,6 +394,16 @@ export function Accounts() {
     });
   }
 
+  function handleOpenInstitution(institution: InstitutionCardData) {
+    useCurrentInstitutionSelected.setState(() => ({
+      institutionId: institution.id,
+      institutionName: institution.name,
+    }));
+    router.navigate({
+      pathname: '/accounts/institutionDetails',
+    });
+  }
+
   async function handleHideData() {
     try {
       const { status } = await api.patch(`user/${userID}/configs`, {
@@ -434,16 +443,6 @@ export function Accounts() {
       default:
         return <WalletIcon color={theme.colors.primary} />;
     }
-  }
-
-  function handleOpenInstitution(institution: InstitutionCardData) {
-    useCurrentInstitutionSelected.setState(() => ({
-      institutionId: institution.id,
-      institutionName: institution.name,
-    }));
-    router.navigate({
-      pathname: '/accounts/institutionDetails',
-    });
   }
 
   function handleSelectSorting(option: typeof sortingOption) {

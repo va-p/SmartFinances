@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { SectionList, RefreshControl } from 'react-native';
+import { SectionList, RefreshControl, FlatList, useWindowDimensions } from 'react-native';
 import {
   Container,
   SummaryContainer,
@@ -45,6 +45,7 @@ import { useCurrentInstitutionSelected } from '@stores/currentInstitutionSelecte
 // Interfaces
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
 import { ThemeProps } from '@interfaces/theme';
+import { CreditCardListItem } from '@components/CreditCardListItem';
 
 type SectionKey =
   | 'CHECKING'
@@ -99,6 +100,7 @@ function getSectionKey(account: AccountProps): SectionKey {
 }
 
 export function InstitutionDetails() {
+  const SCREEN_WIDTH = useWindowDimensions().width;
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
   const bottomTabHeight = useBottomTabBarHeight();
@@ -132,8 +134,7 @@ export function InstitutionDetails() {
     }
 
     // Filters the already-fetched accounts cache client-side by institution
-    // (AC14.3) — no new network round-trip. Includes credit cards, unlike
-    // the main Accounts screen list.
+    // (AC14.3) — no new network round-trip.
     const institutionAccounts = rawAccounts.filter(
       (account: AccountProps) =>
         !account.hide && account.institution?.id === institutionId
@@ -238,6 +239,34 @@ export function InstitutionDetails() {
 
   const { totalBalanceFormatted, sections } = processedData;
 
+  // Credit card carousel: sorted alphabetically by name,
+  // a flat sort, no sub-grouping or headers.
+  const creditCardAccounts = useMemo(() => {
+    return sections
+      .filter(
+        (section) =>
+          !section.data.isVirtual &&
+          section.data.type === 'CREDIT' &&
+          section.data.subtype === 'CREDIT_CARD'
+      )
+      .sort((a, b) => {
+        const nameA = a.data?.name;
+        const nameB = b.data?.name;
+
+        if (nameA && nameB) {
+          const institutionComparison =
+            nameA.localeCompare(nameB);
+          if (institutionComparison !== 0) return institutionComparison;
+        } else if (nameA && !nameB) {
+          return -1;
+        } else if (!nameA && nameB) {
+          return 1;
+        }
+
+        return a.data.name.localeCompare(b.data.name);
+      });
+  }, [sections]);
+
   function getAccountIcon(type: AccountTypes) {
     switch (type) {
       case 'OTHER':
@@ -278,15 +307,30 @@ export function InstitutionDetails() {
     index: number;
   };
   function _renderItem({ item, index }: _renderItemProps) {
-    return (
-      <AccountListItem
-        data={item}
-        index={index}
-        icon={getAccountIcon(item.type)}
-        hideAmount={hideAmount}
-        onPress={() => handleOpenAccount(item)}
-      />
-    );
+    if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
+      return (
+          <AccountListItem
+            data={item}
+            index={index}
+            icon={getAccountIcon(item.type)}
+            hideAmount={hideAmount}
+            onPress={() => handleOpenAccount(item)}
+          />
+      );
+    }
+
+    if (item.type === 'CREDIT' && item.subtype === 'CREDIT_CARD') {
+      return (
+        <CreditCardListItem
+          data={item}
+          index={index}
+          hideAmount={hideAmount}
+          onPress={() => handleOpenAccount(item)}
+        />
+      );
+    }
+
+    return null;
   }
 
   if (isLoading) {
@@ -326,6 +370,40 @@ export function InstitutionDetails() {
             )}
             refreshControl={
               <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+            }
+            ListFooterComponent={
+              /** CREDIT CARDS */
+              creditCardAccounts.length > 0 ? (
+                <>
+                  <SectionTitle>Cartões de crédito</SectionTitle>
+                  <FlatList
+                    data={creditCardAccounts}
+                    keyExtractor={(item) => String(item.id)}
+                    renderItem={_renderItem}
+                    snapToOffsets={[
+                      ...Array(creditCardAccounts.length),
+                    ].map(
+                      (x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32
+                    )}
+                    // refreshControl={
+                    //   <RefreshControl
+                    //     refreshing={
+                    //       isRefetchingTransactions || isRefetchingAccounts
+                    //     }
+                    //     onRefresh={handleRefresh}
+                    //   />
+                    // }
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{
+                      columnGap: 8,
+                      paddingRight: 16,
+                      paddingBottom: 8,
+                      paddingLeft: 16,
+                    }}
+                  />
+                </>
+              ) : null
             }
             ListEmptyComponent={() => (
               <ListEmptyComponent text='Nenhuma conta encontrada nesta instituição' />

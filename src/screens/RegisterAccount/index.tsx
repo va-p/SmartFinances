@@ -13,10 +13,10 @@ import SelectDropdown from 'react-native-select-dropdown';
 
 // Icons
 import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { StarIcon } from 'phosphor-react-native/src/icons/Star';
 import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
 import { CoinsIcon } from 'phosphor-react-native/src/icons/Coins';
 import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
-import { StarIcon } from 'phosphor-react-native/src/icons/Star';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
@@ -196,6 +196,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       account_id: id,
       name: form.name,
       type: typeSelected,
+      subtype: typeSelected === 'CREDIT' ? 'CREDIT_CARD' : null,
       currency_id: currencySelected.id, // TODO: only if is manual account
       balance: form.balance,
       hide: hideAccount,
@@ -256,6 +257,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         const newAccount = {
           name: form.name,
           type: typeSelected,
+          subtype: typeSelected === 'CREDIT' ? 'CREDIT_CARD' : null,
           currency_id: currencySelected.id,
           balance: form.balance,
           hide: false,
