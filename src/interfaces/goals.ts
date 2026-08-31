@@ -35,7 +35,8 @@ export interface GoalProps {
   deadline: string | null;
   completed_at: string | null;
   currency: GoalCurrencyProps;
-  reserve_account: GoalReserveAccountProps;
+  // Null when the goal is backed by linked accounts only (GOAL-43/44)
+  reserve_account: GoalReserveAccountProps | null;
   linked_accounts: GoalLinkedAccountProps[];
   created_at: string;
   updated_at: string;

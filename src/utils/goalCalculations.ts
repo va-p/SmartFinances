@@ -13,10 +13,12 @@ export type GoalProgress = {
 
 /**
  * Goal progress (GOAL-02/19/29): the current amount is the virtual reserve
- * balance (always held in the goal currency) plus every linked account
- * balance converted into the goal currency with the current quotes.
- * `isAmountReached` drives the "Meta atingida" state at >= 100% of the
- * target. Number arithmetic mirrors budgetCalculations.ts.
+ * balance (when the goal has one — always held in the goal currency) plus
+ * every linked account balance converted into the goal currency with the
+ * current quotes. Linked-only goals have `reserve_account: null` and are
+ * fully covered by the linked sum (GOAL-43/44). `isAmountReached` drives
+ * the "Meta atingida" state at >= 100% of the target. Number arithmetic
+ * mirrors budgetCalculations.ts.
  */
 export function computeGoalProgress(
   goal: GoalProps,
