@@ -78,7 +78,7 @@ export const LinkedAccountRow = styled.View`
   width: 100%;
   flex-direction: row;
   justify-content: space-between;
-  padding: 12px;
+  padding: 8px 16px;
   margin-bottom: 8px;
   background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 25px;
@@ -96,7 +96,7 @@ export const LinkedAccountBalance = styled.Text`
 
 export const HistoryItemContainer = styled.View`
   width: 100%;
-  padding: 12px;
+  padding: 8px 16px;
   background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 25px;
 `;

@@ -356,7 +356,6 @@ export function GoalDetails() {
           )}
 
         <SectionTitle>Histórico</SectionTitle>
-
         <FlashList
           style={{ flex: 1 }}
           data={reserveHistory}
