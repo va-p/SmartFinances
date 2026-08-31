@@ -207,7 +207,7 @@ export function GoalDetails() {
   // GOAL-36/37: zero balance deletes directly; balance > 0 requires a
   // destination account for the reserve transfer-back.
   function handleClickDeleteGoal() {
-    const reserveBalance = Number(goal?.reserve_account.balance ?? 0);
+    const reserveBalance = Number(goal?.reserve_account?.balance ?? 0);
 
     if (reserveBalance <= 0) {
       Alert.alert(

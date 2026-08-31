@@ -98,7 +98,7 @@ export function RegisterGoalMovement({
     }
   }, [selectableAccounts, accountSelected]);
 
-  const reserveBalance = Number(goal.reserve_account.balance);
+  const reserveBalance = Number(goal?.reserve_account?.balance);
 
   /* Validation Form - Start */
   // GOAL-14: withdrawals are bounded by the reserve balance client-side.
