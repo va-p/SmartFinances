@@ -12,7 +12,7 @@
     "platforms": ["ios", "android"],
     "android": {
       "package": "com.vap.smartfinances",
-      "versionCode": 106,
+      "versionCode": 107,
       "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "VIBRATE",
