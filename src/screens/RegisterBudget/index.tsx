@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import {
+  Alert,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import {
   Container,
   AmountContainer,
@@ -28,12 +33,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns';
 
 // Icons
-import {MoneyIcon} from 'phosphor-react-native/src/icons/Money';
-import {RepeatIcon} from 'phosphor-react-native/src/icons/Repeat';
-import {CalendarIcon} from 'phosphor-react-native/src/icons/Calendar';
-import {CaretDownIcon} from 'phosphor-react-native/src/icons/CaretDown';
-import {CirclesFourIcon} from 'phosphor-react-native/src/icons/CirclesFour';
-import {PencilSimpleIcon} from 'phosphor-react-native/src/icons/PencilSimple';
+import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
+import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
+import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
+import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
+import { CirclesFourIcon } from 'phosphor-react-native/src/icons/CirclesFour';
+import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -190,10 +195,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     }
   }, [budgetData, id, setValue, reset]);
 
-  function computeEndDate(
-    start: Date,
-    recurrence: string
-  ): Date {
+  function computeEndDate(start: Date, recurrence: string): Date {
     switch (recurrence) {
       case 'DAILY':
         return addDays(start, 1);
@@ -271,16 +273,12 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
       try {
         await createBudgetAsync(newBudget);
-        Alert.alert(
-          'Cadastro de Orçamento',
-          'Orçamento criado com sucesso!',
-          [
-            {
-              text: 'Voltar para a tela anterior',
-              onPress: closeBudget,
-            },
-          ]
-        );
+        Alert.alert('Cadastro de Orçamento', 'Orçamento criado com sucesso!', [
+          {
+            text: 'Voltar para a tela anterior',
+            onPress: closeBudget,
+          },
+        ]);
       } catch {
         Alert.alert(
           'Erro',
@@ -316,12 +314,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
   }
 
   return (
-    <Screen>
-      <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
-        accessible={false}
-      >
-        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ControlledInputWithIcon
           icon={<PencilSimpleIcon color={theme.colors.primary} />}
           placeholder='Nome do orçamento'
@@ -456,7 +450,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           />
         </ModalViewSelection>
       </Container>
-      </TouchableWithoutFeedback>
-    </Screen>
+    </TouchableWithoutFeedback>
   );
 }

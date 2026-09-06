@@ -37,6 +37,13 @@ import { processTransactions } from '@utils/processTransactions';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
 
 // Dependencies
+import {
+  isFirstDayOfMonth,
+  isToday,
+  isTomorrow,
+  isYesterday,
+  parse,
+} from 'date-fns';
 import Animated, {
   Easing,
   FadeInUp,
@@ -57,7 +64,7 @@ import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-import { isFirstDayOfMonth, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
+
 
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
@@ -109,7 +116,9 @@ import api from '@api/api';
 // Constants
 const isAndroid = Platform.OS === 'android';
 const FLOATING_BUTTONS_RIGHT_POSITION = 16;
-const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid
+  ? 64
+  : 96;
 const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
 
@@ -458,7 +467,10 @@ export function Home() {
                 fontSize: 10,
                 color: theme.colors.textPlaceholder,
               }}
-              xAxisLabelTextStyle={{ fontSize: 10, color: theme.colors.xAxisLabel }}
+              xAxisLabelTextStyle={{
+                fontSize: 10,
+                color: theme.colors.xAxisLabel,
+              }}
               rulesThickness={1}
               rulesColor={theme.colors.chartRule}
             />
@@ -521,13 +533,19 @@ export function Home() {
                 return (
                   <SectionListHeader
                     data={{
-                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+                      title: isToday(
+                        parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                      )
                         ? 'Hoje'
-                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                          ? 'Ontem'
-                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                            ? 'Amanhã'
-                            : item.headerTitle,
+                        : isYesterday(
+                            parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                          )
+                        ? 'Ontem'
+                        : isTomorrow(
+                            parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                          )
+                        ? 'Amanhã'
+                        : item.headerTitle,
                       total: item.headerTotal,
                     }}
                   />
@@ -587,7 +605,10 @@ export function Home() {
                 onPress={handleOpenBulkEditModal}
                 style={dynamicStyles.bulkEditButton}
               >
-                <PencilSimpleLineIcon size={24} color={theme.colors.background} />
+                <PencilSimpleLineIcon
+                  size={24}
+                  color={theme.colors.background}
+                />
               </ButtonAnimated>
             </Animated.View>
           </GestureDetector>

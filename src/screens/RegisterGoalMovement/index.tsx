@@ -207,92 +207,88 @@ export function RegisterGoalMovement({
   }
 
   return (
-    <Screen>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ControlledInputWithIcon
-            icon={<MoneyIcon color={theme.colors.primary} />}
-            placeholder={`Valor em ${goal.currency.code}`}
-            keyboardType='decimal-pad'
-            name='amount'
-            control={control}
-            error={errors.amount}
-          />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ControlledInputWithIcon
+          icon={<MoneyIcon color={theme.colors.primary} />}
+          placeholder={`Valor em ${goal.currency.code}`}
+          keyboardType='decimal-pad'
+          name='amount'
+          control={control}
+          error={errors.amount}
+        />
 
-          <SelectButton
-            title={accountSelected?.name || 'Selecione a conta'}
-            subTitle={
-              type === 'deposit' ? 'Conta de origem' : 'Conta de destino'
-            }
-            icon={<WalletIcon color={theme.colors.primary} />}
-            onPress={handleOpenSelectAccountModal}
-          />
+        <SelectButton
+          title={accountSelected?.name || 'Selecione a conta'}
+          subTitle={type === 'deposit' ? 'Conta de origem' : 'Conta de destino'}
+          icon={<WalletIcon color={theme.colors.primary} />}
+          onPress={handleOpenSelectAccountModal}
+        />
 
-          {isMultiCurrency &&
-            amountInAccountCurrency !== null &&
-            accountSelected && (
-              <ConversionNote>
-                {type === 'deposit'
-                  ? `≈ ${formatCurrency(
-                      accountSelected.currency.code,
-                      amountInAccountCurrency
-                    )} serão debitados de ${
-                      accountSelected.name
-                    } (conversão pela cotação atual).`
-                  : `≈ ${formatCurrency(
-                      accountSelected.currency.code,
-                      amountInAccountCurrency
-                    )} serão creditados em ${
-                      accountSelected.name
-                    } (conversão pela cotação atual).`}
-              </ConversionNote>
-            )}
+        {isMultiCurrency &&
+          amountInAccountCurrency !== null &&
+          accountSelected && (
+            <ConversionNote>
+              {type === 'deposit'
+                ? `≈ ${formatCurrency(
+                    accountSelected.currency.code,
+                    amountInAccountCurrency
+                  )} serão debitados de ${
+                    accountSelected.name
+                  } (conversão pela cotação atual).`
+                : `≈ ${formatCurrency(
+                    accountSelected.currency.code,
+                    amountInAccountCurrency
+                  )} serão creditados em ${
+                    accountSelected.name
+                  } (conversão pela cotação atual).`}
+            </ConversionNote>
+          )}
 
-          <Footer>
-            <Button.Root
-              isLoading={isDepositing || isWithdrawing}
-              onPress={() => handleSubmit(onSubmit)()}
-            >
-              <Button.Text
-                text={
-                  type === 'deposit' ? 'Confirmar depósito' : 'Confirmar saque'
-                }
-              />
-            </Button.Root>
-          </Footer>
-
-          <ModalViewSelection
-            $modal
-            title={
-              type === 'deposit'
-                ? 'Selecione a conta de origem'
-                : 'Selecione a conta de destino'
-            }
-            bottomSheetRef={accountBottomSheetRef}
-            snapPoints={['75%']}
-            onClose={handleCloseSelectAccountModal}
+        <Footer>
+          <Button.Root
+            isLoading={isDepositing || isWithdrawing}
+            onPress={() => handleSubmit(onSubmit)()}
           >
-            <PickerContainer>
-              <FlatList
-                data={selectableAccounts}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => (
-                  <ListItem
-                    data={item}
-                    isActive={accountSelected?.id === item.id}
-                    onPress={() => handleAccountSelect(item)}
-                  />
-                )}
-                ItemSeparatorComponent={() => <ListSeparator />}
-                ListEmptyComponent={() => (
-                  <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
-                )}
-                style={{ flex: 1, width: '100%' }}
-              />
-            </PickerContainer>
-          </ModalViewSelection>
-        </Container>
-      </TouchableWithoutFeedback>
-    </Screen>
+            <Button.Text
+              text={
+                type === 'deposit' ? 'Confirmar depósito' : 'Confirmar saque'
+              }
+            />
+          </Button.Root>
+        </Footer>
+
+        <ModalViewSelection
+          $modal
+          title={
+            type === 'deposit'
+              ? 'Selecione a conta de origem'
+              : 'Selecione a conta de destino'
+          }
+          bottomSheetRef={accountBottomSheetRef}
+          snapPoints={['75%']}
+          onClose={handleCloseSelectAccountModal}
+        >
+          <PickerContainer>
+            <FlatList
+              data={selectableAccounts}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <ListItem
+                  data={item}
+                  isActive={accountSelected?.id === item.id}
+                  onPress={() => handleAccountSelect(item)}
+                />
+              )}
+              ItemSeparatorComponent={() => <ListSeparator />}
+              ListEmptyComponent={() => (
+                <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
+              )}
+              style={{ flex: 1, width: '100%' }}
+            />
+          </PickerContainer>
+        </ModalViewSelection>
+      </Container>
+    </TouchableWithoutFeedback>
   );
 }

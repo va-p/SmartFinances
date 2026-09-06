@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, Platform, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { Container, Form, Footer, ErrorMessage } from './styles';
 
 // Dependencies
@@ -21,7 +27,6 @@ import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ButtonToggle } from '@components/ButtonToggle';
@@ -73,8 +78,7 @@ const schema = Yup.object().shape({
   institution_id: Yup.string()
     .nullable()
     .when('type', {
-      is: (type: string) =>
-        ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(type),
+      is: (type: string) => ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(type),
       then: (currentSchema) =>
         currentSchema.required('Selecione a instituição financeira'),
     }),
@@ -113,12 +117,13 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencies = useCurrenciesStore((state) => state.currencies);
   const [currencySelected, setCurrencySelected] = useState<CurrencyProps>(
-    () => currencies.find((c) => c.code === 'BRL') || ({
-      id: 0,
-      name: 'Real Brasileiro',
-      code: 'BRL' as CurrencyProps['code'],
-      symbol: '',
-    })
+    () =>
+      currencies.find((c) => c.code === 'BRL') || {
+        id: 0,
+        name: 'Real Brasileiro',
+        code: 'BRL' as CurrencyProps['code'],
+        symbol: '',
+      }
   );
   const [hideAccount, setHideAccount] = useState(false);
   const [isDefault, setIsDefault] = useState(false);
@@ -141,15 +146,14 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const accountTypeMap: Record<string, string> = {
     CREDIT: 'Cartão de Crédito',
     WALLET: 'Carteira',
-    'CRYPTOCURRENCY_WALLET': 'Carteira de Criptomoedas',
+    CRYPTOCURRENCY_WALLET: 'Carteira de Criptomoedas',
     BANK: 'Conta Corrente',
     INVESTMENTS: 'Investimentos',
     OTHER: 'Outro',
   };
 
-  const institutionIsOptional = !ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(
-    typeSelected
-  );
+  const institutionIsOptional =
+    !ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(typeSelected);
   const institutionLabel = institutionIsOptional
     ? 'Instituição financeira (opcional)'
     : 'Instituição financeira';
@@ -344,173 +348,174 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   );
 
   return (
-    <Screen>
-      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <TouchableWithoutFeedback
-          onPress={Keyboard.dismiss}
-          accessible={false}
-          style={{ flex: 1 }}
-        >
-          <View style={{ flex: 1 }}>
-        <Form>
-          <ControlledInputWithIcon
-            icon={<PencilSimpleIcon color={theme.colors.primary} />}
-            placeholder='Nome da conta'
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            defaultValue={String(getValues('name'))}
-            name='name'
-            control={control}
-            error={errors.name}
-          />
-
-          <ControlledInputWithIcon
-            icon={<MoneyIcon color={theme.colors.primary} />}
-            placeholder='Saldo da conta'
-            keyboardType='decimal-pad'
-            returnKeyType='go'
-            defaultValue={String(getValues('balance'))}
-            name='balance'
-            control={control}
-            error={errors.balance}
-            onSubmitEditing={handleSubmit(handleRegisterAccount)}
-          />
-
-          <SelectButton
-            title={currencySelected.name}
-            icon={<CoinsIcon color={theme.colors.primary} />}
-            onPress={handleOpenSelectCurrencyModal}
-          />
-
-          <SelectDropdown
-            data={accountTypes}
-            onSelect={(selectedItem) => {
-              switch (selectedItem) {
-                case 'Cartão de Crédito':
-                  handleSetType('CREDIT');
-                  break;
-                case 'Carteira':
-                  handleSetType('WALLET');
-                  break;
-                case 'Carteira de Criptomoedas':
-                  handleSetType('CRYPTOCURRENCY_WALLET');
-                  break;
-                case 'Conta Corrente':
-                  handleSetType('BANK');
-                  break;
-                case 'Investimentos':
-                case 'Poupança':
-                  handleSetType('INVESTMENTS');
-                  break;
-                case 'Outro':
-                  handleSetType('OTHER');
-                  break;
-                default:
-                  handleSetType('WALLET');
-              }
-            }}
-            defaultButtonText={
-              id !== ''
-                ? accountTypeMap[typeSelected]
-                : 'Selecione o tipo da conta'
-            }
-            buttonTextAfterSelection={(selectedItem) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item) => {
-              return item;
-            }}
-            buttonStyle={{
-              width: '100%',
-              minHeight: 40,
-              maxHeight: 40,
-              marginTop: 10,
-              backgroundColor: theme.colors.shape,
-              borderRadius: 10,
-            }}
-            buttonTextStyle={{
-              fontFamily: theme.fonts.regular,
-              fontSize: 15,
-              textAlign: 'left',
-              color: theme.colors.text,
-            }}
-            renderDropdownIcon={() => {
-              return <CaretRightIcon size={20} color={theme.colors.text} />;
-            }}
-            dropdownIconPosition='right'
-            rowStyle={{ backgroundColor: theme.colors.background }}
-            rowTextStyle={{ color: theme.colors.text }}
-            dropdownStyle={{ borderRadius: 10 }}
-          />
-
-          <SelectButton
-            title={institutionLabel}
-            subTitle={institutionSelected?.name ?? 'Selecione a instituição financeira'}
-            icon={<BankIcon color={theme.colors.primary} />}
-            onPress={handleOpenSelectInstitutionModal}
-          />
-          {errors.institution_id && (
-            <ErrorMessage>{errors.institution_id.message}</ErrorMessage>
-          )}
-
-          {id !== '' && (
-            <ButtonToggle
-              icon={<EyeSlashIcon color={theme.colors.primary} />}
-              title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
-              onValueChange={handleHideAccount}
-              value={hideAccount}
-              isEnabled={hideAccount}
+    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+        style={{ flex: 1 }}
+      >
+        <View style={{ flex: 1 }}>
+          <Form>
+            <ControlledInputWithIcon
+              icon={<PencilSimpleIcon color={theme.colors.primary} />}
+              placeholder='Nome da conta'
+              autoCapitalize='sentences'
+              autoCorrect={false}
+              defaultValue={String(getValues('name'))}
+              name='name'
+              control={control}
+              error={errors.name}
             />
-          )}
 
-          <ButtonToggle
-            icon={<StarIcon color={theme.colors.primary} />}
-            title='Definir como conta padrão'
-            subTitle='Esta conta virá pré-selecionada ao adicionar transações'
-            onValueChange={handleToggleDefaultAccount}
-            value={isDefault}
-            isEnabled={isDefault}
-          />
-        </Form>
+            <ControlledInputWithIcon
+              icon={<MoneyIcon color={theme.colors.primary} />}
+              placeholder='Saldo da conta'
+              keyboardType='decimal-pad'
+              returnKeyType='go'
+              defaultValue={String(getValues('balance'))}
+              name='balance'
+              control={control}
+              error={errors.balance}
+              onSubmitEditing={handleSubmit(handleRegisterAccount)}
+            />
 
-        <Footer>
-          <Button.Root
-            type='secondary'
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleRegisterAccount)}
+            <SelectButton
+              title={currencySelected.name}
+              icon={<CoinsIcon color={theme.colors.primary} />}
+              onPress={handleOpenSelectCurrencyModal}
+            />
+
+            <SelectDropdown
+              data={accountTypes}
+              onSelect={(selectedItem) => {
+                switch (selectedItem) {
+                  case 'Cartão de Crédito':
+                    handleSetType('CREDIT');
+                    break;
+                  case 'Carteira':
+                    handleSetType('WALLET');
+                    break;
+                  case 'Carteira de Criptomoedas':
+                    handleSetType('CRYPTOCURRENCY_WALLET');
+                    break;
+                  case 'Conta Corrente':
+                    handleSetType('BANK');
+                    break;
+                  case 'Investimentos':
+                  case 'Poupança':
+                    handleSetType('INVESTMENTS');
+                    break;
+                  case 'Outro':
+                    handleSetType('OTHER');
+                    break;
+                  default:
+                    handleSetType('WALLET');
+                }
+              }}
+              defaultButtonText={
+                id !== ''
+                  ? accountTypeMap[typeSelected]
+                  : 'Selecione o tipo da conta'
+              }
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item) => {
+                return item;
+              }}
+              buttonStyle={{
+                width: '100%',
+                minHeight: 40,
+                maxHeight: 40,
+                marginTop: 10,
+                backgroundColor: theme.colors.shape,
+                borderRadius: 10,
+              }}
+              buttonTextStyle={{
+                fontFamily: theme.fonts.regular,
+                fontSize: 15,
+                textAlign: 'left',
+                color: theme.colors.text,
+              }}
+              renderDropdownIcon={() => {
+                return <CaretRightIcon size={20} color={theme.colors.text} />;
+              }}
+              dropdownIconPosition='right'
+              rowStyle={{ backgroundColor: theme.colors.background }}
+              rowTextStyle={{ color: theme.colors.text }}
+              dropdownStyle={{ borderRadius: 10 }}
+            />
+
+            <SelectButton
+              title={institutionLabel}
+              subTitle={
+                institutionSelected?.name ??
+                'Selecione a instituição financeira'
+              }
+              icon={<BankIcon color={theme.colors.primary} />}
+              onPress={handleOpenSelectInstitutionModal}
+            />
+            {errors.institution_id && (
+              <ErrorMessage>{errors.institution_id.message}</ErrorMessage>
+            )}
+
+            {id !== '' && (
+              <ButtonToggle
+                icon={<EyeSlashIcon color={theme.colors.primary} />}
+                title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
+                onValueChange={handleHideAccount}
+                value={hideAccount}
+                isEnabled={hideAccount}
+              />
+            )}
+
+            <ButtonToggle
+              icon={<StarIcon color={theme.colors.primary} />}
+              title='Definir como conta padrão'
+              subTitle='Esta conta virá pré-selecionada ao adicionar transações'
+              onValueChange={handleToggleDefaultAccount}
+              value={isDefault}
+              isEnabled={isDefault}
+            />
+          </Form>
+
+          <Footer>
+            <Button.Root
+              type='secondary'
+              isLoading={buttonIsLoading}
+              onPress={handleSubmit(handleRegisterAccount)}
+            >
+              <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
+            </Button.Root>
+          </Footer>
+
+          <ModalViewSelection
+            $modal
+            title='Selecione a moeda'
+            bottomSheetRef={currencyBottomSheetRef}
+            snapPoints={['75%']}
           >
-            <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
-          </Button.Root>
-        </Footer>
+            <CurrencySelect
+              currency={currencySelected}
+              setCurrency={setCurrencySelected}
+              closeSelectCurrency={handleCloseSelectCurrencyModal}
+            />
+          </ModalViewSelection>
 
-        <ModalViewSelection
-          $modal
-          title='Selecione a moeda'
-          bottomSheetRef={currencyBottomSheetRef}
-          snapPoints={['75%']}
-        >
-          <CurrencySelect
-            currency={currencySelected}
-            setCurrency={setCurrencySelected}
-            closeSelectCurrency={handleCloseSelectCurrencyModal}
-          />
-        </ModalViewSelection>
-
-        <ModalViewSelection
-          $modal
-          title='Selecione a instituição'
-          bottomSheetRef={institutionBottomSheetRef}
-          snapPoints={['75%']}
-        >
-          <InstitutionSelect
-            institutionSelected={institutionSelected}
-            setInstitution={handleSetInstitution}
-            closeSelectInstitution={handleCloseSelectInstitutionModal}
-          />
-        </ModalViewSelection>
-          </View>
-        </TouchableWithoutFeedback>
-      </Container>
-    </Screen>
+          <ModalViewSelection
+            $modal
+            title='Selecione a instituição'
+            bottomSheetRef={institutionBottomSheetRef}
+            snapPoints={['75%']}
+          >
+            <InstitutionSelect
+              institutionSelected={institutionSelected}
+              setInstitution={handleSetInstitution}
+              closeSelectInstitution={handleCloseSelectInstitutionModal}
+            />
+          </ModalViewSelection>
+        </View>
+      </TouchableWithoutFeedback>
+    </Container>
   );
 }
