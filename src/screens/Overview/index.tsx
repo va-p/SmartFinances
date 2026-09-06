@@ -106,7 +106,8 @@ export function Overview() {
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
-  } = useAccountsQuery();
+    // Total assets must include virtual goal reserves (GOAL-25).
+  } = useAccountsQuery(true);
   const {
     data: categories,
     isLoading: isLoadingCategories,

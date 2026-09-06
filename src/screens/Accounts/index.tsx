@@ -118,7 +118,9 @@ export function Accounts() {
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
-  } = useAccountsQuery();
+    // Net worth must include virtual goal reserves (GOAL-25); list render
+    // paths still filter them out below.
+  } = useAccountsQuery(true);
 
   const processedData = useMemo(() => {
     if (!rawAccounts || !transactions) {
@@ -325,7 +327,7 @@ export function Accounts() {
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers (AC15.3).
-  const creditCardAccounts = useMemo(() => {
+  const creditCardAccounts: AccountProps[] = useMemo(() => {
     return processedAccounts
       .filter(
         (account) =>
