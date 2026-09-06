@@ -3,24 +3,24 @@ import { Alert } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
 // Icons
-import {TagIcon} from 'phosphor-react-native/src/icons/Tag';
-import {BankIcon} from 'phosphor-react-native/src/icons/Bank';
-import {UserIcon} from 'phosphor-react-native/src/icons/User';
-import {BellIcon} from 'phosphor-react-native/src/icons/Bell';
-import {PlugsIcon} from 'phosphor-react-native/src/icons/Plugs';
-import {CookieIcon} from 'phosphor-react-native/src/icons/Cookie';
-import {TrophyIcon} from 'phosphor-react-native/src/icons/Trophy';
-import {WalletIcon} from 'phosphor-react-native/src/icons/Wallet';
-import {SparkleIcon} from 'phosphor-react-native/src/icons/Sparkle';
-import {SignOutIcon} from 'phosphor-react-native/src/icons/SignOut';
-import {ReceiptIcon} from 'phosphor-react-native/src/icons/Receipt';
-import {LifebuoyIcon} from 'phosphor-react-native/src/icons/Lifebuoy';
-import {EyeSlashIcon} from 'phosphor-react-native/src/icons/EyeSlash';
-import {MoonStarsIcon} from 'phosphor-react-native/src/icons/MoonStars';
-import {CertificateIcon} from 'phosphor-react-native/src/icons/Certificate';
-import {CirclesFourIcon} from 'phosphor-react-native/src/icons/CirclesFour';
-import {FingerprintIcon} from 'phosphor-react-native/src/icons/Fingerprint';
-import {ShieldCheckIcon} from 'phosphor-react-native/src/icons/ShieldCheck';
+import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { UserIcon } from 'phosphor-react-native/src/icons/User';
+import { BellIcon } from 'phosphor-react-native/src/icons/Bell';
+import { PlugsIcon } from 'phosphor-react-native/src/icons/Plugs';
+import { CookieIcon } from 'phosphor-react-native/src/icons/Cookie';
+import { TrophyIcon } from 'phosphor-react-native/src/icons/Trophy';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { SparkleIcon } from 'phosphor-react-native/src/icons/Sparkle';
+import { SignOutIcon } from 'phosphor-react-native/src/icons/SignOut';
+import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
+import { LifebuoyIcon } from 'phosphor-react-native/src/icons/Lifebuoy';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { MoonStarsIcon } from 'phosphor-react-native/src/icons/MoonStars';
+import { CertificateIcon } from 'phosphor-react-native/src/icons/Certificate';
+import { CirclesFourIcon } from 'phosphor-react-native/src/icons/CirclesFour';
+import { FingerprintIcon } from 'phosphor-react-native/src/icons/Fingerprint';
+import { ShieldCheckIcon } from 'phosphor-react-native/src/icons/ShieldCheck';
 
 // Dependencies
 import axios from 'axios';
@@ -222,8 +222,7 @@ export function OptionsMenu() {
     try {
       if (!notificationsEnabled) {
         // Turning ON: request OS permission
-        const granted =
-          await OneSignal.Notifications.requestPermission(true);
+        const granted = await OneSignal.Notifications.requestPermission(true);
         if (!granted) {
           Alert.alert(
             'Notificações',
@@ -255,14 +254,14 @@ export function OptionsMenu() {
 
   async function handleLogout() {
     try {
-      Alert.alert(
-        'Sair',
-        'Tem certeza que deseja sair?',
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          { text: 'Sair', style: 'destructive', onPress: async () => await signOut() },
-        ]
-      );
+      Alert.alert('Sair', 'Tem certeza que deseja sair?', [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: async () => await signOut(),
+        },
+      ]);
     } catch (error) {
       console.error('handleLogout error:', error);
     }
@@ -304,12 +303,6 @@ export function OptionsMenu() {
           />
 
           <SelectButton
-            icon={<TrophyIcon color={theme.colors.primary} />}
-            title='Metas & Objetivos'
-            onPress={() => handleOpenGoals()}
-          />
-
-          <SelectButton
             icon={<PlugsIcon color={theme.colors.primary} />}
             title='Integrações Bancárias'
             onPress={() => handleOpenConnectedAccounts()}
@@ -325,6 +318,12 @@ export function OptionsMenu() {
             icon={<TagIcon color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
+          />
+
+          <SelectButton
+            icon={<TrophyIcon color={theme.colors.primary} />}
+            title='Metas & Objetivos'
+            onPress={() => handleOpenGoals()}
           />
 
           <SelectButton
