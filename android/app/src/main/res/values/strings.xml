@@ -1,4 +1,5 @@
 <resources>
   <string name="app_name">Smart Finances</string>
-  <string moduleConfig="true" name="CodePushDeploymentKey">2S47-wY5h-5-wY25R_KLdc1NWkNqE12osk8wMe</string>
+  <string name="CodePushDeploymentKey" translatable="false">2S47-wY5h-5-wY25R_KLdc1NWkNqE12osk8wMe</string>
+  <string name="CodePushServerUrl" translatable="false">https://api.revopush.org</string>
 </resources>

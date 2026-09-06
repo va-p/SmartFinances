@@ -13,7 +13,6 @@
     "android": {
       "package": "com.vap.smartfinances",
       "versionCode": 107,
-      "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "VIBRATE",
         "CAMERA",
@@ -39,6 +38,14 @@
     "ios": {
       "bundleIdentifier": "com.vap.smartfinances",
       "buildNumber": "1",
+      "permissions": [
+        "VIBRATE",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "USE_FINGERPRINT",
+        "USE_BIOMETRIC"
+      ],
       "supportsTablet": true,
       "backgroundColor": "#E6E9F4",
       "icon": "src/assets/icon.png"
@@ -78,6 +85,7 @@
       "expo-secure-store",
       ["expo-splash-screen"],
       "@react-native-firebase/app",
+      "@react-native-firebase/perf",
       "@react-native-firebase/crashlytics"
     ]
   }
