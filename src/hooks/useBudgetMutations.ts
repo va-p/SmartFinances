@@ -13,7 +13,7 @@ const createBudgetFn = async (newBudget: any) => {
   return await api.post('budget', newBudget);
 };
 const updateBudgetFn = async (editedBudget: any) => {
-  return await api.patch(`budget/${editedBudget.budget_id}`, editedBudget);
+  return await api.patch(`budget/${editedBudget.id}`, editedBudget);
 };
 const deleteBudgetFn = async (budgetId: string) => {
   return await api.delete(`budget/${budgetId}`);

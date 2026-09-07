@@ -227,14 +227,14 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
     const endDate = computeEndDate(startDate, budgetPeriodSelected.period);
 
-    if (!!id) {
+    if (id) {
       // --- Update budget ---
       const editedBudget = {
-        budget_id: id,
+        id,
         name: form.name,
         amount: form.amount,
         currency_id: currencySelected?.id || 4,
-        categories: categoriesList,
+        category_ids: categoriesList,
         start_date: startDate,
         end_date: endDate,
         recurrence: budgetPeriodSelected.period,
