@@ -191,7 +191,6 @@ export function RegisterBudget({ id, closeBudget }: Props) {
       setBudgetCategoriesSelected(budgetData.categories);
     } else {
       reset({ name: '', amount: '0' });
-      // TODO: resetar outros estados?!
     }
   }, [budgetData, id, setValue, reset]);
 

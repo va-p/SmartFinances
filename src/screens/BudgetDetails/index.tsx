@@ -22,12 +22,18 @@ import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 
 // Dependencies
+import {
+  formatDistanceToNowStrict,
+  isToday,
+  isTomorrow,
+  isYesterday,
+  parse,
+} from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-import { formatDistanceToNowStrict, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
 
 // Components
 import {
@@ -64,7 +70,8 @@ export function BudgetDetails() {
 
   const { hideAmount } = useUserConfigs();
 
-  const { budget, isLoading, isError, refetchBudget } = useFormattedBudgetDetail(budgetID);
+  const { budget, isLoading, isError, refetchBudget } =
+    useFormattedBudgetDetail(budgetID);
   const { data: transactions } = useTransactionsQuery();
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
 
@@ -105,7 +112,7 @@ export function BudgetDetails() {
   }
 
   function calculateRemainderBudgetPerDay() {
-    const daysToEndDate = formatDistanceToNowStrict(budget.current_end_date, {
+    const daysToEndDate = formatDistanceToNowStrict(budget!.current_end_date, {
       unit: 'day',
       locale: ptBR,
     }).split(' ')[0];
@@ -178,103 +185,109 @@ export function BudgetDetails() {
         </Header.Root>
 
         <ScrollContent>
-        <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
-          {formatCurrency(
-            budget.currency.code,
-            Number(budget.amount_spent),
-            false
-          )}
-        </BudgetTotal>
-        <BudgetTotalDescription>
-          {`Restam ${formatCurrency(
-            budget.currency.code,
-            calculateRemainderBudget(),
-            false
-          )}`}
-        </BudgetTotalDescription>
+          <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
+            {formatCurrency(
+              budget.currency.code,
+              Number(budget.amount_spent),
+              false
+            )}
+          </BudgetTotal>
+          <BudgetTotalDescription>
+            {`Restam ${formatCurrency(
+              budget.currency.code,
+              calculateRemainderBudget(),
+              false
+            )}`}
+          </BudgetTotalDescription>
 
-        <InsightCard.Root>
-          <InsightCard.Description
-            description={
-              !budgetAmountReached
-                ? `Você ainda pode gastar ${formatCurrency(
-                    budget.currency.code,
-                    calculateRemainderBudgetPerDay(),
-                    false
-                  )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
-                : `O seu orçamento foi excedido em ${formatCurrency(
-                    budget.currency.code,
-                    calculateRemainderBudget() * -1,
-                    false
-                  )}. Pare de gastar para não comprometer mais o seu orçamento!`
-            }
+          <InsightCard.Root>
+            <InsightCard.Description
+              description={
+                !budgetAmountReached
+                  ? `Você ainda pode gastar ${formatCurrency(
+                      budget.currency.code,
+                      calculateRemainderBudgetPerDay(),
+                      false
+                    )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
+                  : `O seu orçamento foi excedido em ${formatCurrency(
+                      budget.currency.code,
+                      calculateRemainderBudget() * -1,
+                      false
+                    )}. Pare de gastar para não comprometer mais o seu orçamento!`
+              }
+            />
+          </InsightCard.Root>
+
+          <BudgetPercentBar
+            is_amount_reached={budgetAmountReached}
+            data={budget}
           />
-        </InsightCard.Root>
+          <PeriodContainer>
+            <StartPeriod>{budget.formatted_start_date}</StartPeriod>
+            <EndPeriod>{budget.formatted_end_date}</EndPeriod>
+          </PeriodContainer>
 
-        <BudgetPercentBar
-          is_amount_reached={budgetAmountReached}
-          data={budget}
-        />
-        <PeriodContainer>
-          <StartPeriod>{budget.formatted_start_date}</StartPeriod>
-          <EndPeriod>{budget.formatted_end_date}</EndPeriod>
-        </PeriodContainer>
+          <BudgetHistoryChart
+            budget={budget}
+            transactions={transactions ?? []}
+          />
 
-        <BudgetHistoryChart
-          budget={budget}
-          transactions={transactions ?? []}
-        />
-
-        <TransactionsContainer>
-          <SectionTitle>Transações</SectionTitle>
-          <FlashList
-            data={budgetTransactionsGroupedByDate}
-            keyExtractor={(item: any) =>
-              item.isHeader ? String(item.headerTitle!) : String(item.id)
-            }
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }: any) => {
-              if (item.isHeader) {
-                return (
-                  <SectionListHeader
-                    data={{
-                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                        ? 'Hoje'
-                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
+          <TransactionsContainer>
+            <SectionTitle>Transações</SectionTitle>
+            <FlashList
+              data={budgetTransactionsGroupedByDate}
+              keyExtractor={(item: any) =>
+                item.isHeader ? String(item.headerTitle!) : String(item.id)
+              }
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item, index }: any) => {
+                if (item.isHeader) {
+                  return (
+                    <SectionListHeader
+                      data={{
+                        title: isToday(
+                          parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                        )
+                          ? 'Hoje'
+                          : isYesterday(
+                              parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                            )
                           ? 'Ontem'
-                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                            ? 'Amanhã'
-                            : item.headerTitle,
-                      total: item.headerTotal,
-                    }}
+                          : isTomorrow(
+                              parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                            )
+                          ? 'Amanhã'
+                          : item.headerTitle,
+                        total: item.headerTotal,
+                      }}
+                    />
+                  );
+                }
+                return (
+                  <TransactionListItem
+                    key={item.id}
+                    data={item}
+                    index={index}
+                    hideAmount={hideAmount}
+                    onPress={() => handleOpenTransaction(item.id)}
                   />
                 );
+              }}
+              getItemType={(item) =>
+                (item as FlashListTransactionItem).isHeader
+                  ? 'sectionHeader'
+                  : 'row'
               }
-              return (
-                <TransactionListItem
-                  key={item.id}
-                  data={item}
-                  index={index}
-                  hideAmount={hideAmount}
-                  onPress={() => handleOpenTransaction(item.id)}
-                />
-              );
-            }}
-            getItemType={(item) =>
-              (item as FlashListTransactionItem).isHeader
-                ? 'sectionHeader'
-                : 'row'
-            }
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{ minHeight: 8, maxHeight: 8 }} />
-            )}
-            contentContainerStyle={{
-              paddingBottom: bottomTabBarHeight,
-            }}
-          />
+              ListEmptyComponent={() => (
+                <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+              )}
+              ItemSeparatorComponent={() => (
+                <View style={{ minHeight: 8, maxHeight: 8 }} />
+              )}
+              contentContainerStyle={{
+                paddingBottom: bottomTabBarHeight,
+              }}
+            />
           </TransactionsContainer>
         </ScrollContent>
 
