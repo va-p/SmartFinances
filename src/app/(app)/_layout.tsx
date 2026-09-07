@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, StatusBar, View, Platform } from 'react-native';
 
 // Dependencies
-import { BlurView } from 'expo-blur';
 import { useTheme } from 'styled-components';
 import { Tabs, useSegments } from 'expo-router';
+import { BlurView, BlurTargetView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Icons
-import {BankIcon} from 'phosphor-react-native/src/icons/Bank';
-import {TargetIcon} from 'phosphor-react-native/src/icons/Target';
-import {ListDashesIcon} from 'phosphor-react-native/src/icons/ListDashes';
-import {ChartPieSliceIcon} from 'phosphor-react-native/src/icons/ChartPieSlice';
-import {DotsThreeOutlineIcon} from 'phosphor-react-native/src/icons/DotsThreeOutline';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { TargetIcon } from 'phosphor-react-native/src/icons/Target';
+import { ListDashesIcon } from 'phosphor-react-native/src/icons/ListDashes';
+import { ChartPieSliceIcon } from 'phosphor-react-native/src/icons/ChartPieSlice';
+import { DotsThreeOutlineIcon } from 'phosphor-react-native/src/icons/DotsThreeOutline';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useNotificationPermission } from '@hooks/useNotificationPermission';
@@ -25,6 +25,7 @@ import { ThemeProps } from '@interfaces/theme';
  * iOS overrides this with _layout.ios.tsx (NativeTabs + Liquid Glass).
  */
 export default function AppLayout() {
+  const targetRef = useRef<View | null>(null);
   const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
@@ -36,9 +37,10 @@ export default function AppLayout() {
   // so the bar blends with each screen's top section.
   // segments[1] is undefined on the index route — fallback to 'index'.
   const activeTab = (segments as string[])[1] || 'index';
-  const statusBarColor = (
+  const statusBarColor =
     activeTab === 'index' || activeTab === 'accounts'
-  ) ? theme.colors.backgroundCardHeader : theme.colors.gradientEnd;
+      ? theme.colors.backgroundCardHeader
+      : theme.colors.gradientEnd;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.statusBar }}>
@@ -91,10 +93,12 @@ export default function AppLayout() {
           },
           tabBarBackground: () => (
             <View style={StyleSheet.absoluteFill}>
+              <BlurTargetView ref={targetRef} />
               {/* Layer 1: Blur — samples content behind the tab bar */}
               <BlurView
                 tint={darkMode ? 'dark' : 'light'}
-                intensity={darkMode ? 40 : 85}
+                intensity={85}
+                blurMethod="dimezisBlurView"
                 style={StyleSheet.absoluteFill}
               />
               {/* Layer 2: Frosted glass overlay — the milky tint */}
@@ -128,7 +132,9 @@ export default function AppLayout() {
           name='accounts'
           options={{
             title: 'Contas',
-            tabBarIcon: ({ size, color }) => <BankIcon size={size} color={color} />,
+            tabBarIcon: ({ size, color }) => (
+              <BankIcon size={size} color={color} />
+            ),
             sceneStyle: {
               backgroundColor: 'transparent',
             },
