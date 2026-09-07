@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Keyboard, Platform, Text, TouchableWithoutFeedback } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Keyboard,
+  Platform,
+  Text,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import {
   Container,
   Header,
@@ -150,7 +157,7 @@ export function RegisterCategory({ id, closeCategory }: Props) {
     /* Validation Form - End */
 
     // --- Edit Category ---
-    if (!!id) {
+    if (id) {
       const categoryEdited = {
         category_id: id,
         name: form.name,
@@ -159,6 +166,10 @@ export function RegisterCategory({ id, closeCategory }: Props) {
       };
       updateCategory(categoryEdited, {
         onSuccess: () => {
+          Alert.alert(
+            'Atualização de Categoria',
+            'Categoria atualizada com sucesso!'
+          );
           handleCloseCategory();
         },
       });
@@ -171,7 +182,11 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         color_id: colorSelected.id,
         user_id: userID,
         // Full objects for accurate optimistic UI (CategoryListItem expects data.color.color_code)
-        icon: { id: iconSelected.id, name: iconSelected.name, title: iconSelected.title },
+        icon: {
+          id: iconSelected.id,
+          name: iconSelected.name,
+          title: iconSelected.title,
+        },
         color: { id: colorSelected.id, color_code: colorSelected.color_code },
       };
       createCategory(newCategory, {
@@ -214,11 +229,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
   }
 
   return (
-      <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
-        accessible={false}
-      >
-        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Gradient />
 
         <Header>
@@ -303,6 +315,6 @@ export function RegisterCategory({ id, closeCategory }: Props) {
           </Button.Root>
         </Footer>
       </Container>
-      </TouchableWithoutFeedback>
+    </TouchableWithoutFeedback>
   );
 }

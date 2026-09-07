@@ -96,6 +96,7 @@ export function BudgetCategorySelect() {
           justifyContent: 'center',
           paddingTop: 12,
           paddingHorizontal: 12,
+          paddingBottom: 16,
           rowGap: 8,
         }}
         style={{ flex: 1, width: '100%' }}
