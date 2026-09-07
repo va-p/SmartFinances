@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView } from 'react-native';
 import {
   Advice,
   AdvicesContainer,
@@ -19,9 +18,9 @@ import { Benefit } from './components/Benefit';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
 import { addDays } from 'date-fns';
+import { useFocusEffect } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Gradient } from '@components/Gradient';
-import { useFocusEffect } from 'expo-router';
 import { PurchasesPackage } from 'react-native-purchases';
 
 import { useRevenueCat } from '@providers/RevenueCatProvider';
@@ -81,21 +80,25 @@ export function PremiumBenefits() {
           </Description>
 
           <PremiumBenefitsContainer>
-            <Benefit description={'Dicas personalizadas'} />
+            <Benefit description={'Dicas Personalizadas'} />
 
-            <Benefit description={'Sincronização de contas bancárias'} />
-
-            <Benefit description={'Sincronização de cartões de crédito'} />
-
-            <Benefit
-              description={'Insights gerados com Inteligência Artificial'}
-            />
+            <Benefit description={'Armazenamento Ilimitado de Imagens'} />
 
             <Benefit
               description={
-                'Categorização das transações com Inteligência Artificial'
+                'Insights Inteligentes Gerados com Inteligência Artificial'
               }
             />
+
+            {/*<Benefit description={'Sincronização de Contas Bancárias'} />*/}
+
+            {/*<Benefit description={'Sincronização de Cartões de Crédito'} />*/}
+
+            {/*<Benefit
+              description={
+                'Categorização das Transações com Inteligência Artificial'
+              }
+            />*/}
           </PremiumBenefitsContainer>
 
           <PackagesContainer>
