@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import {
   Container,
   MainContent,
@@ -34,11 +40,25 @@ import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
+import {
+  buildTransferCreatePayload,
+  buildTransferEditPayload,
+  normalizeTags,
+  resolveTransactionTab,
+  resolveTransferDestinationAccount,
+} from '@utils/transactionPayload';
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
-import { buildTransferCreatePayload, buildTransferEditPayload, normalizeTags, resolveTransactionTab, resolveTransferDestinationAccount } from '@utils/transactionPayload';
 
 // Dependencies
+import {
+  addDays,
+  format,
+  subDays,
+  isToday,
+  isTomorrow,
+  isYesterday,
+} from 'date-fns';
 import * as Yup from 'yup';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
@@ -49,17 +69,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { addDays, format, subDays, isToday, isTomorrow, isYesterday } from 'date-fns';
 
 // Icons
-import {XIcon} from 'phosphor-react-native/src/icons/X';
-import {TagIcon} from 'phosphor-react-native/src/icons/Tag';
-import {TrashIcon} from 'phosphor-react-native/src/icons/Trash';
-import {ImageIcon} from 'phosphor-react-native/src/icons/Image';
-import {WalletIcon} from 'phosphor-react-native/src/icons/Wallet';
-import {RepeatIcon} from 'phosphor-react-native/src/icons/Repeat';
-import {CalendarIcon} from 'phosphor-react-native/src/icons/Calendar';
-import {PencilSimpleIcon} from 'phosphor-react-native/src/icons/PencilSimple';
+import { XIcon } from 'phosphor-react-native/src/icons/X';
+import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
+import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
+import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
+import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
+import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -254,7 +273,10 @@ export function RegisterTransaction({
     recurrenceSelectBottomSheetRef.current?.dismiss();
   }
 
-  function handleRecurrenceSave(data: { interval: number; period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' }) {
+  function handleRecurrenceSave(data: {
+    interval: number;
+    period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  }) {
     setRecurrenceInterval(data.interval);
     setRecurrencePeriod(data.period);
     handleCloseRecurrenceModal();
@@ -444,8 +466,7 @@ export function RegisterTransaction({
 
   async function handleTakePhoto() {
     try {
-      const { status } =
-        await ImagePicker.requestCameraPermissionsAsync();
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
       if (status !== 'granted') {
         Alert.alert(
@@ -640,7 +661,9 @@ export function RegisterTransaction({
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
       };
-      const uploadImage = await api.post('transaction/image', { file: newImage.file });
+      const uploadImage = await api.post('transaction/image', {
+        file: newImage.file,
+      });
       if (uploadImage.status === 200) {
         image_url = uploadImage.data.url;
       }
@@ -796,7 +819,9 @@ export function RegisterTransaction({
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
       };
-      const { data, status } = await api.post('transaction/image', { file: newImage.file });
+      const { data, status } = await api.post('transaction/image', {
+        file: newImage.file,
+      });
       if (status === 200) {
         image_url = data.url;
       }
@@ -1189,85 +1214,89 @@ export function RegisterTransaction({
             onPress={Keyboard.dismiss}
             accessible={false}
           >
-          <Header color={categorySelected.color.color_code}>
-            <TitleContainer>
-              <BorderlessButton
-                onPress={closeRegisterTransaction}
-                style={{ position: 'absolute', top: 0, left: 0 }}
-              >
-                <XIcon size={24} color={theme.colors.text} weight='bold' />
-              </BorderlessButton>
-              <Title>
-                {isBulkEdit
-                  ? `Editar ${selectedTransactionIds.length} Transações`
-                  : id !== ''
-                  ? `Editar Transação \n ${getValues('description')}`
-                  : 'Adicionar Transação'}
-              </Title>
-              {id !== '' && !isBulkEdit && (
+            <Header color={categorySelected.color.color_code}>
+              <TitleContainer>
                 <BorderlessButton
-                  onPress={() => handleClickDeleteTransaction(id)}
-                  style={{ position: 'absolute', top: 0, right: 0 }}
+                  onPress={closeRegisterTransaction}
+                  style={{ position: 'absolute', top: 0, left: 0 }}
                 >
-                  <TrashIcon size={24} color={theme.colors.text} weight='bold' />
+                  <XIcon size={24} color={theme.colors.text} weight='bold' />
                 </BorderlessButton>
-              )}
-            </TitleContainer>
+                <Title>
+                  {isBulkEdit
+                    ? `Editar ${selectedTransactionIds.length} Transações`
+                    : id !== ''
+                    ? `Editar Transação \n ${getValues('description')}`
+                    : 'Adicionar Transação'}
+                </Title>
+                {id !== '' && !isBulkEdit && (
+                  <BorderlessButton
+                    onPress={() => handleClickDeleteTransaction(id)}
+                    style={{ position: 'absolute', top: 0, right: 0 }}
+                  >
+                    <TrashIcon
+                      size={24}
+                      color={theme.colors.text}
+                      weight='bold'
+                    />
+                  </BorderlessButton>
+                )}
+              </TitleContainer>
 
-            <HeaderRow>
-              <CategorySelectButton
-                categorySelected={categorySelected}
-                icon={categorySelected.icon?.name}
-                color={categorySelected.color.color_code}
-                onPress={handleOpenSelectCategoryModal}
-              />
+              <HeaderRow>
+                <CategorySelectButton
+                  categorySelected={categorySelected}
+                  icon={categorySelected.icon?.name}
+                  color={categorySelected.color.color_code}
+                  onPress={handleOpenSelectCategoryModal}
+                />
 
-              <InputTransactionValuesContainer>
-                <InputTransactionValueGroup>
-                  <ControlledInputValue
-                    placeholder={String(getValues('amount'))}
-                    keyboardType='decimal-pad'
-                    textAlign='right'
-                    defaultValue={String(getValues('amount'))}
-                    name='amount'
-                    control={control}
-                    error={errors.amount}
-                  />
-
-                  <CurrencySelectButton
-                    title={currencySelected.symbol}
-                    onPress={handleOpenSelectCurrencyModal}
-                  />
-                </InputTransactionValueGroup>
-
-                {getValues('amountInAccountCurrency') && (
+                <InputTransactionValuesContainer>
                   <InputTransactionValueGroup>
                     <ControlledInputValue
+                      placeholder={String(getValues('amount'))}
                       keyboardType='decimal-pad'
                       textAlign='right'
-                      style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
-                      defaultValue={String(
-                        getValues('amountInAccountCurrency')
-                      )}
-                      name='amountInAccountCurrency'
+                      defaultValue={String(getValues('amount'))}
+                      name='amount'
                       control={control}
-                      error={errors.amountInAccountCurrency}
+                      error={errors.amount}
                     />
 
                     <CurrencySelectButton
-                      title={accountCurrency?.symbol || ''}
-                      iconSize={10}
-                      hideArrow
-                      style={{ width: 25, minHeight: 20, maxHeight: 20 }}
+                      title={currencySelected.symbol}
+                      onPress={handleOpenSelectCurrencyModal}
                     />
                   </InputTransactionValueGroup>
-                )}
-              </InputTransactionValuesContainer>
-            </HeaderRow>
-          </Header>
+
+                  {getValues('amountInAccountCurrency') && (
+                    <InputTransactionValueGroup>
+                      <ControlledInputValue
+                        keyboardType='decimal-pad'
+                        textAlign='right'
+                        style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
+                        defaultValue={String(
+                          getValues('amountInAccountCurrency')
+                        )}
+                        name='amountInAccountCurrency'
+                        control={control}
+                        error={errors.amountInAccountCurrency}
+                      />
+
+                      <CurrencySelectButton
+                        title={accountCurrency?.symbol || ''}
+                        iconSize={10}
+                        hideArrow
+                        style={{ width: 25, minHeight: 20, maxHeight: 20 }}
+                      />
+                    </InputTransactionValueGroup>
+                  )}
+                </InputTransactionValuesContainer>
+              </HeaderRow>
+            </Header>
           </TouchableWithoutFeedback>
 
-          <ContentScroll keyboardDismissMode="on-drag">
+          <ContentScroll keyboardDismissMode='on-drag'>
             <SelectButton
               title={accountName || 'Selecione a conta'}
               icon={<WalletIcon color={categorySelected.color.color_code} />}
@@ -1347,9 +1376,7 @@ export function RegisterTransaction({
                 </DatePillsLeft>
               ) : (
                 /* Custom-date mode: show formatted text */
-                <DateSelectorLeft
-                  onPress={() => setShowDatePicker(true)}
-                >
+                <DateSelectorLeft onPress={() => setShowDatePicker(true)}>
                   <DateSelectorLabel>{formattedDate}</DateSelectorLabel>
                 </DateSelectorLeft>
               )}
@@ -1383,7 +1410,9 @@ export function RegisterTransaction({
             />
 
             <ControlledInputWithIcon
-              icon={<PencilSimpleIcon color={categorySelected.color.color_code} />}
+              icon={
+                <PencilSimpleIcon color={categorySelected.color.color_code} />
+              }
               placeholder='Descrição'
               numberOfLines={2}
               autoCapitalize='sentences'

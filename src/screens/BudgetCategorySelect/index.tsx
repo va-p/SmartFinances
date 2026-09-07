@@ -1,29 +1,37 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
 import { FlatList } from 'react-native-gesture-handler';
-import { useFocusEffect } from 'expo-router';
 
-import { Screen } from '@components/Screen';
-import { Gradient } from '@components/Gradient';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItemRegisterTransaction } from '@components/CategoryListItemRegisterTransaction';
 
-import { useUser } from '@stores/userStorage';
 import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
+
+import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 
 import { CategoryProps } from '@interfaces/categories';
 
-import api from '@api/api';
-
 export function BudgetCategorySelect() {
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(true);
-  const userID = useUser((state) => state.id);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const {
+    data: categories,
+    isLoading,
+    refetch,
+    isError,
+  } = useCategoriesQuery();
+
+  async function handleRefresh() {
+    setIsManualRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  }
 
   const currentCategoriesAlreadySelected = useBudgetCategoriesSelected(
     (state) => state.budgetCategoriesSelected
@@ -31,30 +39,6 @@ export function BudgetCategorySelect() {
   const setBudgetCategoriesSelected = useBudgetCategoriesSelected(
     (state) => state.setBudgetCategoriesSelected
   );
-
-  async function fetchCategories() {
-    setLoading(true);
-
-    try {
-      const { data } = await api.get('category', {
-        params: {
-          user_id: userID,
-        },
-      });
-      if (data) {
-        setCategories(data);
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        'Categorias',
-        'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }
 
   function handleSelectCategory(category: CategoryProps) {
     const categoryAlreadySelected =
@@ -73,48 +57,49 @@ export function BudgetCategorySelect() {
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories();
-    }, [])
-  );
-
-  if (loading) {
+  if (isLoading) {
     return <Load />;
   }
 
+  if (isError) {
+    Alert.alert(
+      'Categorias',
+      'Não foi possível buscar as categorias. Verifique sua conexão com a internet e tente novamente.'
+    );
+  }
+
   return (
-      <Container>
-        <FlatList
-          data={categories}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <CategoryListItemRegisterTransaction
-              data={item}
-              isChecked={currentCategoriesAlreadySelected.find(
-                (category) => category.id === item.id
-              )}
-              onPress={() => handleSelectCategory(item)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las aos orçamentos.' />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchCategories}
-            />
-          }
-          numColumns={4}
-          contentContainerStyle={{
-            justifyContent: 'center',
-            paddingTop: 12,
-            paddingHorizontal: 12,
-            rowGap: 8,
-          }}
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+    <Container>
+      <FlatList
+        data={categories}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <CategoryListItemRegisterTransaction
+            data={item}
+            isChecked={currentCategoriesAlreadySelected.find(
+              (category) => category.id === item.id
+            )}
+            onPress={() => handleSelectCategory(item)}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las aos orçamentos.' />
+        )}
+        refreshControl={
+          <RefreshControl
+            refreshing={isManualRefreshing}
+            onRefresh={handleRefresh}
+          />
+        }
+        numColumns={4}
+        contentContainerStyle={{
+          justifyContent: 'center',
+          paddingTop: 12,
+          paddingHorizontal: 12,
+          rowGap: 8,
+        }}
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }
