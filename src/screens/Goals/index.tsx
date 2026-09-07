@@ -12,6 +12,7 @@ import {
   Footer,
 } from './styles';
 
+// Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { computeGoalProgress } from '@utils/goalCalculations';
