@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '@api/api';
 
+import { AccountProps } from '@interfaces/accounts';
 import { CurrencyProps } from '@interfaces/currencies';
 import { GoalProps, GoalStatusAction } from '@interfaces/goals';
 
@@ -72,6 +73,16 @@ export function useCreateGoalMutation() {
         .getQueryData<CurrencyProps[]>(['currencies'])
         ?.find((c) => c.id === newGoal.currency_id);
 
+      // GOAL-43/44: a reserve exists only when no accounts are linked; the
+      // optimistic row mirrors the linked accounts from the accounts cache
+      // so progress is correct before the server responds.
+      const linkedAccountIds = newGoal.linked_account_ids ?? [];
+      const accountsCache =
+        queryClient.getQueryData<AccountProps[]>(['accounts']) ?? [];
+      const linkedAccounts = accountsCache.filter((account) =>
+        linkedAccountIds.includes(account.id)
+      );
+
       const optimisticGoal: GoalProps = {
         id: `temp-${Date.now()}`,
         name: newGoal.name,
@@ -84,14 +95,27 @@ export function useCreateGoalMutation() {
           code: 'BRL',
           symbol: '',
         },
-        reserve_account: {
-          id: 0,
-          name: `Reserva: ${newGoal.name}`,
-          balance: 0,
-          is_virtual: true,
-          currency_id: newGoal.currency_id,
-        },
-        linked_accounts: [],
+        reserve_account:
+          linkedAccountIds.length === 0
+            ? {
+                id: 0,
+                name: `Reserva: ${newGoal.name}`,
+                balance: 0,
+                is_virtual: true,
+                currency_id: newGoal.currency_id,
+              }
+            : null,
+        linked_accounts: linkedAccounts.map((account) => ({
+          id: account.id,
+          name: account.name,
+          balance: Number(account.balance),
+          currency: {
+            id: account.currency.id,
+            code: account.currency.code,
+            symbol: account.currency.symbol,
+          },
+          type: account.type,
+        })),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
