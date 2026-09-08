@@ -616,8 +616,8 @@ T21 → A1 → A2 → A3 → A4 → A5
 **Tools**: NONE
 
 **Done when**:
-- [ ] Evolution solid line + dashed projection + arrowhead render from builder output; null → renders nothing
-- [ ] `npx tsc --noEmit` introduces 0 new errors vs baseline
+- [x] Evolution solid line + dashed projection + arrowhead render from builder output; null → renders nothing
+- [x] `npx tsc --noEmit` introduces 0 new errors vs baseline
 
 **Tests**: none (component layer per Test Coverage Matrix)
 **Gate**: build
