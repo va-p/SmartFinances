@@ -595,8 +595,8 @@ T21 → A1 → A2 → A3 → A4 → A5
 **Tools**: NONE
 
 **Done when**:
-- [ ] `npx jest src/__tests__/utils/buildGoalProjection.spec.ts` green
-- [ ] ≥ 8 tests; every test maps to an amendment AC / edge case
+- [x] `npx jest src/__tests__/utils/buildGoalProjection.spec.ts` green
+- [x] ≥ 8 tests; every test maps to an amendment AC / edge case
 
 **Tests**: unit
 **Gate**: quick (frontend, amendment)
