@@ -637,9 +637,9 @@ T21 → A1 → A2 → A3 → A4 → A5
 **Tools**: NONE
 
 **Done when**:
-- [ ] Chart renders below the HeaderCard for goals with ≥ 2 movement months; nothing otherwise
-- [ ] `hideAmount` masks focused values
-- [ ] `npx tsc --noEmit` introduces 0 new errors vs baseline
+- [x] Chart renders below the HeaderCard for goals with ≥ 2 movement months; nothing otherwise
+- [x] `hideAmount` masks focused values
+- [x] `npx tsc --noEmit` introduces 0 new errors vs baseline
 
 **Tests**: none
 **Gate**: build

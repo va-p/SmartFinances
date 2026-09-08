@@ -67,6 +67,7 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { GoalPercentBar } from '@components/GoalListItem/components/GoalPercentBar';
+import { GoalProjectionChart } from './components/GoalProjectionChart';
 
 // Screens
 import { RegisterGoal } from '@screens/RegisterGoal';
@@ -335,6 +336,10 @@ export function GoalDetails() {
                 : 'Meta arquivada. Somente leitura.'}
             </ReadOnlyNote>
           )}
+
+          {/* Amendment 2026-09-08 (GOAL-51/52/53): evolution + projection
+              chart. Renders nothing under 2 movement months (design D5). */}
+          <GoalProjectionChart goal={goal} hideAmount={hideAmount} />
 
           {goal.linked_accounts.length > 0 && (
             <View style={{ marginBottom: 16 }}>
