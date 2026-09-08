@@ -77,7 +77,7 @@ export function buildGoalProjection({
     if (movementDate > now) continue;
 
     const signedAmount =
-      transaction.type === 'TRANSFER_CREDIT'
+      transaction.type === 'TRANSFER_CREDIT' || transaction.type === 'CREDIT'
         ? Math.abs(Number(transaction.amount))
         : -Math.abs(Number(transaction.amount));
 
@@ -125,9 +125,7 @@ export function buildGoalProjection({
   // elapsed month buckets, so a stall lowers the average.
   const firstCumulative = history[0].cumulative;
   const lastCumulative = history[history.length - 1].cumulative;
-  const average = lastCumulative
-    .minus(firstCumulative)
-    .div(history.length - 1);
+  const average = lastCumulative.minus(firstCumulative).div(history.length - 1);
 
   // ── 5. Projection at the average pace, capped at 60 months (AC-2/4/5) ─
   const projection: Bucket[] = [];
@@ -164,7 +162,7 @@ export function buildGoalProjection({
         value: point.cumulative.toNumber(),
         label:
           isFirstOfYear || isLastOfYear
-            ? format(point.date, "MMM '\n' yyyy", { locale: ptBR })
+            ? format(point.date, "MMM '\n' yy", { locale: ptBR })
             : format(point.date, 'MMM', { locale: ptBR }),
         isProjection: point.isProjection,
       };
