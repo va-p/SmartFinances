@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { ThemeProps } from '@interfaces/theme';
 
 type ColorProps = {
   color: string;
@@ -30,10 +31,10 @@ export const TitleContainer = styled.View`
 export const Title = styled.Text.attrs({
   numberOfLines: 3,
 })`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   text-align: center;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const HeaderRow = styled.View`
@@ -99,10 +100,10 @@ export const DateSelectorLeft = styled.Pressable`
 `;
 
 export const DateSelectorLabel = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   padding-left: 8px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const DatePillsLeft = styled.View`
@@ -123,12 +124,12 @@ export const DatePill = styled.TouchableOpacity<PillProps>`
   padding: 3px 7px;
   border-radius: 10px;
   background-color: ${({ active, accentColor, theme }) =>
-    active ? accentColor : theme.colors.overlayGray};
+    active ? accentColor : (theme as ThemeProps).colors.overlayGray};
 `;
 
 export const DatePillText = styled.Text<PillProps>`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
   color: ${({ active, accentColor, theme }) =>
-    active ? theme.colors.text : theme.colors.textPlaceholder};
+    active ? (theme as ThemeProps).colors.text : (theme as ThemeProps).colors.textPlaceholder};
 `;

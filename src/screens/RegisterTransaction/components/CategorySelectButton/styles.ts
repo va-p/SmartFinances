@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton } from 'react-native-gesture-handler';
 
+import { ThemeProps } from '@interfaces/theme';
+
 type ColorProps = {
   color: string;
 };
@@ -13,7 +15,7 @@ export const Placeholder = styled(TouchableOpacity)`
   height: 60px;
   align-items: center;
   justify-content: center;
-  border: 1px dashed ${({ theme }) => theme.colors.background};
+  border: 1px dashed ${({ theme }) => (theme as ThemeProps).colors.background};
   border-radius: 30px;
 `;
 
@@ -24,7 +26,7 @@ export const Container = styled(RectButton).attrs({
   height: 60px;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme }) => theme.colors.overlay10};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.overlay10};
   border-radius: 30px;
 `;
 
@@ -33,8 +35,8 @@ export const Description = styled.View`
 `;
 
 export const Title = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
 `;
 
 export const Icon = styled(Ionicons)<ColorProps>`
@@ -44,5 +46,5 @@ export const Icon = styled(Ionicons)<ColorProps>`
 
 export const IconChevronDown = styled(Ionicons)`
   font-size: 20px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
