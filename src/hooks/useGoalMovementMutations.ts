@@ -8,7 +8,12 @@ export type GoalDepositInput = {
   goalId: string;
   amount: number;
   source_account_id: number;
+  /** Linked target when the goal has no reserve (GOAL-46/48). */
+  linked_account_id?: number;
   amount_in_account_currency?: number | null;
+  /** Per-leg conversions for reserve-less transfers (GOAL-16). */
+  amount_in_source_currency?: number | null;
+  amount_in_target_currency?: number | null;
   category_id?: string;
   description?: string;
   transaction_date?: string;
@@ -18,7 +23,12 @@ export type GoalWithdrawInput = {
   goalId: string;
   amount: number;
   destination_account_id: number;
+  /** Linked source when the goal has no reserve (GOAL-47/48). */
+  linked_account_id?: number;
   amount_in_account_currency?: number | null;
+  /** Per-leg conversions for reserve-less transfers (GOAL-16). */
+  amount_in_source_currency?: number | null;
+  amount_in_target_currency?: number | null;
   category_id?: string;
   description?: string;
   transaction_date?: string;

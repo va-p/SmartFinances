@@ -47,7 +47,7 @@ import { useQuotes } from '@stores/quotesStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { GoalProps } from '@interfaces/goals';
+import { GoalLinkedAccountProps, GoalProps } from '@interfaces/goals';
 import { AccountProps } from '@interfaces/accounts';
 
 type Props = {
@@ -69,9 +69,12 @@ export function RegisterGoalMovement({
 }: Props) {
   const theme = useTheme() as ThemeProps;
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const linkedAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const [accountSelected, setAccountSelected] = useState<AccountProps | null>(
     null
   );
+  const [linkedAccountSelected, setLinkedAccountSelected] =
+    useState<GoalLinkedAccountProps | null>(null);
 
   const quotes = useQuotes();
 
@@ -98,22 +101,54 @@ export function RegisterGoalMovement({
     }
   }, [selectableAccounts, accountSelected]);
 
-  const reserveBalance = Number(goal?.reserve_account?.balance);
+  // Reserve-less goals move money directly in/out of a linked account
+  // (GOAL-46/47): auto-select it when the goal has exactly one, and drop the
+  // selection if an edit unlinked it while the sheet is mounted.
+  const hasReserve = !!goal?.reserve_account;
+  useEffect(() => {
+    if (hasReserve) {
+      return;
+    }
+    if (
+      linkedAccountSelected &&
+      !goal.linked_accounts.some(
+        (account) => account.id === linkedAccountSelected.id
+      )
+    ) {
+      setLinkedAccountSelected(null);
+      return;
+    }
+    if (!linkedAccountSelected && goal.linked_accounts.length === 1) {
+      setLinkedAccountSelected(goal.linked_accounts[0]);
+    }
+  }, [hasReserve, goal.linked_accounts, linkedAccountSelected]);
+
+  // GOAL-14: withdrawals are bounded by the chosen source — the reserve
+  // balance, or the chosen linked account's balance on reserve-less goals.
+  const withdrawSourceBalance = hasReserve
+    ? Number(goal.reserve_account?.balance ?? 0)
+    : linkedAccountSelected
+      ? Number(linkedAccountSelected.balance)
+      : null;
 
   /* Validation Form - Start */
-  // GOAL-14: withdrawals are bounded by the reserve balance client-side.
   const schema = useMemo(() => {
     let amount = Yup.number()
       .typeError('Digite um valor numérico')
       .positive('O valor deve ser maior que zero')
       .required('Digite o valor');
 
-    if (type === 'withdraw') {
-      amount = amount.max(reserveBalance, 'Saldo da reserva insuficiente');
+    if (type === 'withdraw' && withdrawSourceBalance !== null) {
+      amount = amount.max(
+        withdrawSourceBalance,
+        hasReserve
+          ? 'Saldo da reserva insuficiente'
+          : 'Saldo da conta vinculada insuficiente'
+      );
     }
 
     return Yup.object().shape({ amount });
-  }, [type, reserveBalance]);
+  }, [type, withdrawSourceBalance, hasReserve]);
   /* Validation Form - End */
 
   const {
@@ -130,26 +165,48 @@ export function RegisterGoalMovement({
 
   const amountValue = Number(watch('amount')) || 0;
 
-  // GOAL-16: when the picked account's currency differs from the goal
-  // currency, the transfer runs with a per-leg amount_in_account_currency
-  // (same math as the regular multi-currency transfer flow).
-  const isMultiCurrency =
-    !!accountSelected && accountSelected.currency.code !== goal.currency.code;
-
-  let amountInAccountCurrency: number | null = null;
-  if (isMultiCurrency && amountValue > 0 && accountSelected) {
+  // GOAL-16: per-leg account-currency amounts for multi-currency transfers.
+  const convertToAccountCurrency = (targetCode?: string): number | null => {
+    if (!targetCode || targetCode === goal.currency.code || amountValue <= 0) {
+      return null;
+    }
     try {
-      amountInAccountCurrency = convertCurrency({
+      return convertCurrency({
         amount: amountValue,
         fromCurrency: goal.currency.code,
-        toCurrency: accountSelected.currency.code,
+        toCurrency: targetCode,
         accountCurrency: goal.currency.code,
         quotes,
       });
     } catch {
-      amountInAccountCurrency = null;
+      return null;
     }
-  }
+  };
+
+  // When the picked account's currency differs from the goal currency, the
+  // transfer runs with per-leg account-currency amounts (same math as the
+  // regular multi-currency transfer flow). The reserve shares the goal
+  // currency, so the reserve path only converts the real-account leg; the
+  // reserve-less path converts both legs (GOAL-46/47).
+  const amountInAccountCurrency = hasReserve
+    ? convertToAccountCurrency(accountSelected?.currency.code)
+    : null;
+  const amountInSourceCurrency = !hasReserve
+    ? convertToAccountCurrency(
+        type === 'deposit'
+          ? accountSelected?.currency.code
+          : linkedAccountSelected?.currency.code
+      )
+    : null;
+  const amountInTargetCurrency = !hasReserve
+    ? convertToAccountCurrency(
+        type === 'deposit'
+          ? linkedAccountSelected?.currency.code
+          : accountSelected?.currency.code
+      )
+    : null;
+
+  const isMultiCurrency = amountInAccountCurrency !== null;
 
   function handleOpenSelectAccountModal() {
     accountBottomSheetRef.current?.present();
@@ -164,6 +221,19 @@ export function RegisterGoalMovement({
     handleCloseSelectAccountModal();
   }
 
+  function handleOpenSelectLinkedAccountModal() {
+    linkedAccountBottomSheetRef.current?.present();
+  }
+
+  function handleCloseSelectLinkedAccountModal() {
+    linkedAccountBottomSheetRef.current?.dismiss();
+  }
+
+  function handleLinkedAccountSelect(account: GoalLinkedAccountProps) {
+    setLinkedAccountSelected(account);
+    handleCloseSelectLinkedAccountModal();
+  }
+
   async function onSubmit(form: FormData) {
     if (!accountSelected) {
       Alert.alert(
@@ -175,11 +245,28 @@ export function RegisterGoalMovement({
       return;
     }
 
+    if (!hasReserve && !linkedAccountSelected) {
+      Alert.alert(
+        type === 'deposit' ? 'Depósito na meta' : 'Saque da meta',
+        'Selecione a conta vinculada'
+      );
+      return;
+    }
+
     const amount = Number(form.amount);
     const sharedPayload = {
       goalId,
       amount,
-      amount_in_account_currency: amountInAccountCurrency,
+      // Reserve path: single legacy field covers the real-account leg (the
+      // reserve leg shares the goal currency). Reserve-less path: explicit
+      // per-leg conversions (GOAL-16/46/47).
+      ...(hasReserve
+        ? { amount_in_account_currency: amountInAccountCurrency }
+        : {
+            linked_account_id: linkedAccountSelected?.id,
+            amount_in_source_currency: amountInSourceCurrency,
+            amount_in_target_currency: amountInTargetCurrency,
+          }),
     };
 
     if (type === 'deposit') {
@@ -206,6 +293,21 @@ export function RegisterGoalMovement({
     );
   }
 
+  // Picker order follows the money flow: deposit = origem → vinculada;
+  // withdraw = vinculada → destino.
+  const linkedAccountButton = !hasReserve && (
+    <SelectButton
+      title={linkedAccountSelected?.name || 'Selecione a conta vinculada'}
+      subTitle={
+        type === 'deposit'
+          ? 'Conta vinculada (destino)'
+          : 'Conta vinculada (origem)'
+      }
+      icon={<WalletIcon color={theme.colors.primary} />}
+      onPress={handleOpenSelectLinkedAccountModal}
+    />
+  );
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -218,12 +320,16 @@ export function RegisterGoalMovement({
           error={errors.amount}
         />
 
+        {type === 'withdraw' && linkedAccountButton}
+
         <SelectButton
           title={accountSelected?.name || 'Selecione a conta'}
           subTitle={type === 'deposit' ? 'Conta de origem' : 'Conta de destino'}
           icon={<WalletIcon color={theme.colors.primary} />}
           onPress={handleOpenSelectAccountModal}
         />
+
+        {type === 'deposit' && linkedAccountButton}
 
         {isMultiCurrency &&
           amountInAccountCurrency !== null &&
@@ -242,6 +348,62 @@ export function RegisterGoalMovement({
                   )} serão creditados em ${
                     accountSelected.name
                   } (conversão pela cotação atual).`}
+            </ConversionNote>
+          )}
+
+        {!hasReserve &&
+          type === 'deposit' &&
+          accountSelected &&
+          amountInSourceCurrency !== null && (
+            <ConversionNote>
+              {`≈ ${formatCurrency(
+                accountSelected.currency.code,
+                amountInSourceCurrency
+              )} serão debitados de ${
+                accountSelected.name
+              } (conversão pela cotação atual).`}
+            </ConversionNote>
+          )}
+
+        {!hasReserve &&
+          type === 'deposit' &&
+          linkedAccountSelected &&
+          amountInTargetCurrency !== null && (
+            <ConversionNote>
+              {`≈ ${formatCurrency(
+                linkedAccountSelected.currency.code,
+                amountInTargetCurrency
+              )} serão creditados em ${
+                linkedAccountSelected.name
+              } (conversão pela cotação atual).`}
+            </ConversionNote>
+          )}
+
+        {!hasReserve &&
+          type === 'withdraw' &&
+          linkedAccountSelected &&
+          amountInSourceCurrency !== null && (
+            <ConversionNote>
+              {`≈ ${formatCurrency(
+                linkedAccountSelected.currency.code,
+                amountInSourceCurrency
+              )} serão debitados de ${
+                linkedAccountSelected.name
+              } (conversão pela cotação atual).`}
+            </ConversionNote>
+          )}
+
+        {!hasReserve &&
+          type === 'withdraw' &&
+          accountSelected &&
+          amountInTargetCurrency !== null && (
+            <ConversionNote>
+              {`≈ ${formatCurrency(
+                accountSelected.currency.code,
+                amountInTargetCurrency
+              )} serão creditados em ${
+                accountSelected.name
+              } (conversão pela cotação atual).`}
             </ConversionNote>
           )}
 
@@ -283,6 +445,33 @@ export function RegisterGoalMovement({
               ItemSeparatorComponent={() => <ListSeparator />}
               ListEmptyComponent={() => (
                 <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
+              )}
+              style={{ flex: 1, width: '100%' }}
+            />
+          </PickerContainer>
+        </ModalViewSelection>
+
+        <ModalViewSelection
+          $modal
+          title='Selecione a conta vinculada'
+          bottomSheetRef={linkedAccountBottomSheetRef}
+          snapPoints={['75%']}
+          onClose={handleCloseSelectLinkedAccountModal}
+        >
+          <PickerContainer>
+            <FlatList
+              data={goal.linked_accounts}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <ListItem
+                  data={item}
+                  isActive={linkedAccountSelected?.id === item.id}
+                  onPress={() => handleLinkedAccountSelect(item)}
+                />
+              )}
+              ItemSeparatorComponent={() => <ListSeparator />}
+              ListEmptyComponent={() => (
+                <ListEmptyComponent text='Nenhuma conta vinculada a esta meta.' />
               )}
               style={{ flex: 1, width: '100%' }}
             />
