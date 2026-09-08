@@ -30,7 +30,7 @@ type GoalProjectionChartProps = {
 const Y_AXIS_LABEL_WIDTH = 24;
 const CHART_HEIGHT = 128;
 const MAX_EVENLY_SPREAD_MONTHS = 8;
-const SCROLLABLE_MONTH_SPACING = 24;
+const SCROLLABLE_MONTH_SPACING = 32;
 const INITIAL_SPACING = 16;
 const END_SPACING = 8;
 
@@ -122,6 +122,7 @@ export function GoalProjectionChart({
         showStripOnFocus
         // GOAL-53: no value text renders while amounts are hidden.
         showTextOnFocus={!hideAmount}
+        showValuesAsDataPointsText
         xAxisLabelTexts={projection.points.map((point) => point.label)}
         xAxisTextNumberOfLines={2}
         xAxisColor={theme.colors.xAxisColor}
@@ -150,6 +151,9 @@ export function GoalProjectionChart({
           const k = Math.floor(Math.abs(value) / 1000);
           return k > 0 ? `${k}k` : String(value);
         }}
+        rulesThickness={1}
+        rulesColor={theme.colors.chartRule}
+        animateOnDataChange
       />
 
       <LegendContainer>
