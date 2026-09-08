@@ -157,7 +157,7 @@ Pure, testable functions taking `Prisma.TransactionClient`:
 | Screen | Purpose | Reuses |
 | --- | --- | --- |
 | `Goals/index.tsx` | Active goals: summary card, FlashList of `GoalListItem`, FAB, header icons to Completed/Archived | `Screen`, `Header`, `Gradient`, `ModalView`, skeleton pattern |
-| `GoalDetails/index.tsx` | Progress header, linked accounts list, history (reserve transfer legs), Deposit/Withdraw CTAs, header menu: edit/conclude/archive/delete | `Header.Icon`, `ModalView` |
+| `GoalDetails/index.tsx` | Progress header, evolution/projection chart (amendment 2026-09-08), linked accounts list, history (reserve transfer legs), Deposit/Withdraw CTAs, header menu: edit/conclude/archive/delete | `Header.Icon`, `ModalView`, `GoalProjectionChart` |
 | `RegisterGoal/index.tsx` | Create/edit form in bottom sheet: name, amount (`CurrencyInput` pattern), currency, optional deadline, account multi-select | react-hook-form + yup, `ModalViewSelection`, `goalAccountsSelected` store |
 | `RegisterGoalMovement/index.tsx` | One parameterized sheet (`type: 'deposit' \| 'withdraw'`): amount, source/destination account picker (non-virtual only), validation incl. over-balance | `AccountDestinationSelect` pattern |
 | `CompletedGoals/index.tsx` | Completed list w/ completion date + empty state | list pattern |
@@ -165,6 +165,7 @@ Pure, testable functions taking `Prisma.TransactionClient`:
 
 ### Components
 - `src/components/GoalListItem/index.tsx` (+`styles.ts`) — card: name, current/target formatted, progress bar (modeled on `BudgetPercentBar`), deadline, "Meta atingida" badge.
+- `src/screens/GoalDetails/components/GoalProjectionChart/index.tsx` (+`styles.ts`) — evolution/projection line chart (amendment 2026-09-08), modeled on `BudgetDetails/components/BudgetHistoryChart`.
 
 ### Hooks (`src/hooks/`)
 - `useGoalsQuery.ts` — `queryKey: ['goals']`, `GET goal`.
@@ -177,6 +178,17 @@ Pure, testable functions taking `Prisma.TransactionClient`:
 - `src/interfaces/accounts.ts` — add `isVirtual?: boolean` to `AccountProps`.
 - `src/stores/goalAccountsSelected.ts` — mirror `budgetCategoriesSelected`.
 - `src/utils/goalCalculations.ts` — `computeGoalProgress(goal, quotes)`: `((reserve?.balance ?? 0) + Σ linked balances converted to goal currency) / target`, returns `{ currentAmount, percentage, isAmountReached }`; pure + unit-testable; null-reserve safe.
+- `src/utils/buildGoalProjection.ts` — (amendment 2026-09-08) `buildGoalProjection(goal)`: monthly cumulative buckets from `goal.transactions` + projection points; pure + unit-testable. See "Evolution & projection chart (amendment 2026-09-08, GOAL-51/52/53)" below.
+
+### Evolution & projection chart (amendment 2026-09-08, GOAL-51/52/53)
+
+Decisions (recorded with the spec amendment):
+
+- **D1 — Data source.** History derives from the goal detail's `transactions` (movement legs already returned newest-first in goal currency, reserve + linked accounts per the 2026-08-27 history amendment). Legs on the goal side are signed by type: `TRANSFER_CREDIT` adds, `TRANSFER_DEBIT` subtracts. Each calendar month between the first movement month and the current month (inclusive) gets one cumulative point; months without movements repeat the previous cumulative value.
+- **D2 — Average & projection.** Average monthly progress = (last cumulative − first cumulative) / (elapsed months − 1). The projection extends one point per month at that average until the target amount is reached; it is capped at 60 future months and only exists when the average is > 0.
+- **D3 — Library mechanics (corrected 2026-09-08 after dist verification of `react-native-gifted-charts` 1.4.7).** One `LineChart`. The solid history is `data`; the dashed projection is the native second dataset `data2` — null values over the history indices, the last real cumulative repeated at the connect index, then one projected value per future month — styled with `strokeDashArray2` and the placeholder color. `interpolateMissingValues` must be passed as `false` explicitly (the installed dist defaults it to `true`, unlike earlier docs): with it false, `getLineSegmentsForMissingValues` emits transparent segments for non-numeric values, so `data2` draws only from the connect index onward. The final projection point carries a native arrowhead via `showArrow2` + `arrowConfig2` (present in 1.4.7 — no fallback needed).
+- **D4 — Guards.** The chart renders only with ≥ 2 distinct movement months; the projection only with average > 0. Y-axis top reference is the target amount (the "100%" line of the mockup); labels in compact "k" form (parity with Home/Accounts).
+- **D5 — Placement & masking.** Directly below the progress `HeaderCard`, above "Contas vinculadas"; existing layout untouched. `hideAmount` masks data-point/focus texts ("•••••"), same as every other amount on the screen.
 
 ### Visibility filtering (GOAL-24/26, amended 2026-08-27)
 Server-side default exclusion on `GET /account` is the primary mechanism (GOAL-49/50); the Accounts screen fetches with `include_virtual=true` (net worth must include reserves, GOAL-25) and keeps its client-side `!isVirtual` filters for list/grouping render paths only. `AccountsList`, pickers, and Home filters use the default (already-excluded) response — their client filters remain as harmless defense-in-depth.

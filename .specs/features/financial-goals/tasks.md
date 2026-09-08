@@ -36,6 +36,7 @@ Implement these tasks with the `tlc-spec-driven-v3` skill: **activate it by name
 | Backend controller/routes | unit (mocked req/res + fake tx) | All routes in scope: happy + edge + error paths | `smart-finances-backend/src/__tests__/goal.controller.test.ts` | `yarn test:unit` |
 | Prisma schema / migration | none | Build gate only (`prisma generate` + `tsc`) | - | build gate only |
 | Frontend utils (`goalCalculations.ts`) | unit (jest-expo) | All branches; 1:1 to spec ACs (progress, conversion, `isAmountReached`) | `SmartFinances/src/__tests__/utils/goalCalculations.spec.ts` | `npx jest src/__tests__/utils/goalCalculations.spec.ts` |
+| Frontend utils (`buildGoalProjection.ts`) (amendment 2026-09-08) | unit (jest-expo) | All branches; 1:1 to chart ACs (month buckets, average, projection, guards, 60-month cap, labels) | `SmartFinances/src/__tests__/utils/buildGoalProjection.spec.ts` | `npx jest src/__tests__/utils/buildGoalProjection.spec.ts` |
 | Frontend hooks / screens / components / interfaces | none | No repo pattern beyond 1 screen test; verified by build gate (tsc + eslint) + Verifier spec-check + UAT | - | build gate only |
 
 ## Gate Check Commands
@@ -46,6 +47,7 @@ Implement these tasks with the `tlc-spec-driven-v3` skill: **activate it by name
 | --- | --- | --- |
 | Quick (backend) | After backend tasks with unit tests | `cd /Users/vap/00_code/JS/smart-finances-backend && node --import tsx --test <task's test file(s)>` |
 | Quick (frontend) | After frontend tasks with unit tests | `cd /Users/vap/00_code/JS/SmartFinances && npx jest src/__tests__/utils/goalCalculations.spec.ts` |
+| Quick (frontend, amendment) | After A2 | `cd /Users/vap/00_code/JS/SmartFinances && npx jest src/__tests__/utils/buildGoalProjection.spec.ts` |
 | Full | After tasks touching shared test suites | Backend: `cd /Users/vap/00_code/JS/smart-finances-backend && yarn test:unit && yarn build` — Frontend: `cd /Users/vap/00_code/JS/SmartFinances && npx jest` |
 | Build | After phase completion or config/entity-only tasks | Backend: `yarn build` — Frontend: `npx tsc --noEmit && yarn lint` |
 
@@ -83,6 +85,12 @@ T14 → T15 → T16 → T17 → T18 → T19 → T20
 
 ```
 T20 → T21
+```
+
+### Phase A (amendment 2026-09-08): Frontend — Evolution & Projection Chart (app repo)
+
+```
+T21 → A1 → A2 → A3 → A4 → A5
 ```
 
 ---
@@ -551,19 +559,131 @@ T20 → T21
 
 ---
 
+## Amendment 2026-09-08: Goal Evolution & Projection Chart (A1–A5)
+
+> Spec: "P2: Goal Evolution & Projection Chart" (spec.md). Design: D1–D5 in design.md §"Evolution & projection chart". Frontend-only, app repo. D3 corrected 2026-09-08 after dist verification of `react-native-gifted-charts` 1.4.7: `interpolateMissingValues` defaults to `true` (must be passed as `false` explicitly) and the dashed projection uses the native second dataset (`data2` + `strokeDashArray2` + `showArrow2`/`arrowConfig2`) instead of the single-array undefined trick.
+
+### A1: buildGoalProjection util
+
+**What**: Create `src/utils/buildGoalProjection.ts` — pure `buildGoalProjection({ goal, now? })` → `{ points, averageMonthlyProgress, targetAmount } | null`. History: one cumulative bucket per calendar month from the first movement month to the current month inclusive, from `goal.transactions` (goal-side legs in goal currency; `TRANSFER_CREDIT` adds, anything else subtracts; date = `transaction_date ?? created_at`; movements dated after `now` ignored; months without movements repeat the previous cumulative) (D1, AC-1). Average = (last cumulative − first cumulative) / (elapsed month buckets − 1) (AC-3). Projection: one point per future month at that average from the last cumulative until the target is reached, capped at 60 points, only when the average is > 0 (AC-2/4/5). `null` when fewer than 2 distinct movement months (AC-4). `now` injectable for deterministic tests. Labels: pt-BR abbreviated month, year appended on the first and last bucket of each year (AC-6).
+**Where**: `/Users/vap/00_code/JS/SmartFinances/src/utils/buildGoalProjection.ts`
+**Depends on**: T18 (goal detail shape)
+**Reuses**: month-bucket + Decimal pattern from `src/utils/buildNetWorthEvolution.ts`
+**Requirement**: GOAL-51, GOAL-52
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] Pure function, `now` injectable, Decimal accumulation, null guard for < 2 movement months
+- [ ] `npx tsc --noEmit` introduces 0 new errors vs baseline
+
+**Tests**: none (A2 delivers)
+**Gate**: build
+
+**Commit**: `feat(goals): add goal projection builder util`
+
+---
+
+### A2: buildGoalProjection spec tests
+
+**What**: Create `src/__tests__/utils/buildGoalProjection.spec.ts` — spec-anchored tests derived from the amendment ACs, not the implementation: Independent Test (500/500/500 Sep–Nov, target 2000 → cumulatives 500/1000/1500 + projection reaching 2000 one month later); month-gap repetition; average formula incl. trailing repeat-months denominator; single movement month → null; negative average → history only (no projection); 60-month cap renders the capped projection; debit legs subtract; year-boundary labels (year only on first/last bucket of each year); future-dated movements ignored.
+**Where**: `/Users/vap/00_code/JS/SmartFinances/src/__tests__/utils/buildGoalProjection.spec.ts`
+**Depends on**: A1
+**Reuses**: builder pattern from `goalCalculations.spec.ts`
+**Requirement**: GOAL-51, GOAL-52, GOAL-53 (data aspects)
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] `npx jest src/__tests__/utils/buildGoalProjection.spec.ts` green
+- [ ] ≥ 8 tests; every test maps to an amendment AC / edge case
+
+**Tests**: unit
+**Gate**: quick (frontend, amendment)
+
+**Commit**: `test(goals): add spec-anchored tests for goal projection builder`
+
+---
+
+### A3: GoalProjectionChart component
+
+**What**: Create `GoalProjectionChart` (+ `styles.ts`) modeled on `BudgetDetails/components/BudgetHistoryChart`: one gifted-charts `LineChart`; `data` = history (solid, primary); `data2` = projection overlay (null over history indices, last real value repeated at the connect index, `strokeDashArray2`, textPlaceholder color); `interpolateMissingValues={false}`; `showArrow2` + `arrowConfig2` arrowhead at the final projection point; `maxValue = max(target, highest point)` as the top Y reference with compact-k `formatYLabel` (locale-safe parse per Accounts chart); pt-BR month labels via `xAxisLabelTexts`; `adjustToWidth` for few months, fixed spacing + `scrollToEnd` beyond; legend "Evolução atual" / "Projeção (média atual)"; renders nothing when the builder returns null (D3/D4, AC-1/2/6).
+**Where**: `/Users/vap/00_code/JS/SmartFinances/src/screens/GoalDetails/components/GoalProjectionChart/index.tsx` (+ `styles.ts`)
+**Depends on**: A1
+**Reuses**: `BudgetDetails/components/BudgetHistoryChart` layout + legend, Accounts chart `formatYLabel`, `buildGoalProjection` labels
+**Requirement**: GOAL-51, GOAL-52, GOAL-53 (chart rendering)
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] Evolution solid line + dashed projection + arrowhead render from builder output; null → renders nothing
+- [ ] `npx tsc --noEmit` introduces 0 new errors vs baseline
+
+**Tests**: none (component layer per Test Coverage Matrix)
+**Gate**: build
+
+**Commit**: `feat(goals): add goal evolution and projection chart component`
+
+---
+
+### A4: GoalDetails integration + hideAmount masking
+
+**What**: Render `GoalProjectionChart` in GoalDetails directly below the progress `HeaderCard` (after the read-only note when present), above "Contas vinculadas"; existing layout untouched (D5). Gate every value-revealing text on `!hideAmount` — focused values disabled when hidden (AC-7, GOAL-53).
+**Where**: `/Users/vap/00_code/JS/SmartFinances/src/screens/GoalDetails/index.tsx`
+**Depends on**: A3
+**Reuses**: existing screen layout/flows untouched
+**Requirement**: GOAL-53
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] Chart renders below the HeaderCard for goals with ≥ 2 movement months; nothing otherwise
+- [ ] `hideAmount` masks focused values
+- [ ] `npx tsc --noEmit` introduces 0 new errors vs baseline
+
+**Tests**: none
+**Gate**: build
+
+**Commit**: `feat(goals): render evolution chart on goal details screen`
+
+---
+
+### A5: Amendment gates + docs sync
+
+**What**: Run the full frontend gate (`npx jest` green vs 137-test baseline; `npx tsc --noEmit` 0 new errors vs 615-error baseline); record Batch 5 in the Batch Completion Log; refresh `.specs/project/STATE.md` Active Context (chart amendment shipped, pending Verifier). Requirement statuses stay "Implementing" until the Verifier pass per feature convention.
+**Where**: `/Users/vap/00_code/JS/SmartFinances/.specs/features/financial-goals/tasks.md`, `/Users/vap/00_code/JS/SmartFinances/.specs/project/STATE.md`
+**Depends on**: A4
+**Reuses**: -
+**Requirement**: GOAL-51, GOAL-52, GOAL-53
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] `npx jest` full suite green, count stated (baseline 137 + new)
+- [ ] tsc delta vs baseline = 0 new errors
+- [ ] Batch log + STATE.md updated in the same commit
+
+**Tests**: none (verification task)
+**Gate**: full
+
+**Commit**: `docs(goals): record chart amendment gates and batch log`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase A (amendment)
 
 Phase 1:  T1 → T2 → T3 → T4 → T5
 Phase 2:  T5 → T6 → T7 → T8 → T9 → T10
 Phase 3:  T10 → T11 → T12 → T13 → T14
 Phase 4:  T14 → T15 → T16 → T17 → T18 → T19 → T20
 Phase 5:  T20 → T21
+Phase A:  T21 → A1 → A2 → A3 → A4 → A5
 ```
 
-Execution is strictly sequential - one task at a time, in order. Batch packing for Execute: Phase 1 (5) = batch 1; Phase 2 (5) = batch 2; Phase 3 (4) = batch 3; Phases 4+5 (6+1=7) = batch 4 → 4 sequential workers if sub-agents are accepted.
+Execution is strictly sequential - one task at a time, in order. Batch packing for Execute: Phase 1 (5) = batch 1; Phase 2 (5) = batch 2; Phase 3 (4) = batch 3; Phases 4+5 (6+1=7) = batch 4; amendment Phase A (5) = batch 5 → 5 sequential batches if sub-agents are accepted. Phase A fits a single inline batch (5 ≤ 8).
 
 ---
 
@@ -578,6 +698,9 @@ Execution is strictly sequential - one task at a time, in order. Batch packing f
 | T11, T13, T14 | 1–2 hook/interface files, one concept | ✅ Granular |
 | T12 | 1 util + tests | ✅ Granular |
 | T15–T21 | 1 screen/component deliverable each (with its thin route file) | ✅ Granular |
+| A1, A2 | 1 pure util / 1 spec test file | ✅ Granular (T12 pattern split: impl then tests, sequential) |
+| A3, A4 | 1 component (chart + styles) / 1 integration render site | ✅ Granular |
+| A5 | gates + docs sync only | ✅ Granular |
 
 ## Diagram-Definition Cross-Check
 
@@ -603,6 +726,11 @@ Execution is strictly sequential - one task at a time, in order. Batch packing f
 | T19 | T18 | T18 → T19 | ✅ Match |
 | T20 | T19 | T19 → T20 | ✅ Match |
 | T21 | T20 | T20 → T21 (phase boundary) | ✅ Match |
+| A1 | T21 (goal detail shape) | T21 → A1 (amendment boundary) | ✅ Match |
+| A2 | A1 | A1 → A2 | ✅ Match |
+| A3 | A1 | A1 → A3 | ✅ Match |
+| A4 | A3 | A3 → A4 | ✅ Match |
+| A5 | A4 | A4 → A5 | ✅ Match |
 
 ## Test Co-location Validation
 
@@ -617,3 +745,7 @@ Execution is strictly sequential - one task at a time, in order. Batch packing f
 | T12 | Frontend utils | unit | unit | ✅ OK |
 | T13–T14 | Frontend hooks | none | none | ✅ OK |
 | T15–T21 | Frontend screens/components/routes | none | none | ✅ OK |
+| A1 | Frontend utils | unit (delivered by A2) | none (A2 delivers) | ✅ OK (sequential pair, T12 pattern) |
+| A2 | Frontend utils tests | unit | unit | ✅ OK |
+| A3–A4 | Frontend component/screen | none | none | ✅ OK |
+| A5 | Docs/gates | none | none | ✅ OK |

@@ -218,6 +218,26 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ---
 
+### P2: Goal Evolution & Projection Chart (amendment 2026-09-08)
+
+**User Story**: As a user, I want to see how my goal evolved month by month and a projection of when I will reach the target at my current pace, so that I can judge whether my saving rhythm is enough.
+
+**Why P2**: Insight on top of the existing movement history; the goal works without it, but it turns raw history into a decision aid.
+
+**Acceptance Criteria**:
+
+1. WHEN the user opens a goal's details screen THEN the system SHALL render a line chart directly below the progress header card showing the goal's cumulative amount per calendar month, from the first movement month through the current month, computed from the goal's movement history (reserve and linked-account legs, in goal currency). <!-- event-driven -->
+2. WHILE the goal has a positive average monthly progress, the system SHALL extend the chart with a dashed projection line from the last real month onward, adding the average monthly progress per month until the target amount is reached, and SHALL render an arrowhead at the projection's final point. <!-- state-driven -->
+3. The average monthly progress SHALL be (last cumulative amount − first cumulative amount) / (number of elapsed months − 1), where elapsed months counts the buckets from the first movement month to the current month inclusive. <!-- ubiquitous -->
+4. IF the goal has fewer than 2 distinct movement months, or the average monthly progress is zero or negative, THEN the system SHALL NOT render the projection (fewer than 2 movement months also hides the whole chart — there is nothing meaningful to plot). <!-- unwanted-behavior -->
+5. The projection SHALL be capped at 60 months into the future; a goal that would not reach its target within the cap SHALL render the capped projection anyway. <!-- unwanted-behavior -->
+6. The chart SHALL label the X axis with pt-BR abbreviated month names and the year under the first and last point of each year, and SHALL format Y-axis labels in compact "k" form with the target amount as the top reference. <!-- ubiquitous -->
+7. The chart SHALL respect the `hideAmount` ("Ocultar informações") config: when active, data-point texts and focused values SHALL be masked. <!-- state-driven -->
+
+**Independent Test**: Goal with deposits of R$ 500 in Sep, R$ 500 in Oct, R$ 500 in Nov (target R$ 2.000) → chart shows 3 cumulative points (500/1000/1500) and a dashed projection reaching 2000 one month later; goal with a single movement month → no chart.
+
+---
+
 ## Edge Cases
 
 - IF a deposit or withdrawal amount is less than or equal to zero THEN the system SHALL reject it with field-level validation before any API call.
@@ -283,8 +303,11 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | GOAL-48 | P1: Details — non-linked target account rejected | - | Implementing |
 | GOAL-49 | P1: Visibility — GET /account excludes virtual by default | - | Implementing |
 | GOAL-50 | P1: Visibility — include_virtual param + isVirtual in DTO | - | Implementing |
+| GOAL-51 | P2: Chart — month-by-month cumulative evolution line | - | Implementing |
+| GOAL-52 | P2: Chart — dashed projection at average pace until target | - | Implementing |
+| GOAL-53 | P2: Chart — guards, labels, masking | - | Implementing |
 
-**Coverage:** 50 total, 50 mapped to tasks (T1–T21 + amendment tasks A1–A5), 0 unmapped — all Implemented, pending Verifier pass
+**Coverage:** 53 total, 53 mapped to tasks (T1–T21 + amendment tasks A1–A5), 0 unmapped — all Implemented, pending Verifier pass
 
 ---
 
