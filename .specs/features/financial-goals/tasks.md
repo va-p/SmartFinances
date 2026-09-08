@@ -574,8 +574,8 @@ T21 → A1 → A2 → A3 → A4 → A5
 **Tools**: NONE
 
 **Done when**:
-- [ ] Pure function, `now` injectable, Decimal accumulation, null guard for < 2 movement months
-- [ ] `npx tsc --noEmit` introduces 0 new errors vs baseline
+- [x] Pure function, `now` injectable, Decimal accumulation, null guard for < 2 movement months
+- [x] `npx tsc --noEmit` introduces 0 new errors vs baseline
 
 **Tests**: none (A2 delivers)
 **Gate**: build
