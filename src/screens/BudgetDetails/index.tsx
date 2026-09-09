@@ -184,49 +184,49 @@ export function BudgetDetails() {
           <Header.Icon onPress={handleOpenEditBudgetModal} />
         </Header.Root>
 
-        <ScrollContent>
-          <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
-            {formatCurrency(
-              budget.currency.code,
-              Number(budget.amount_spent),
-              false
-            )}
-          </BudgetTotal>
-          <BudgetTotalDescription>
-            {`Restam ${formatCurrency(
-              budget.currency.code,
-              calculateRemainderBudget(),
-              false
-            )}`}
-          </BudgetTotalDescription>
+        <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
+          {formatCurrency(
+            budget.currency.code,
+            Number(budget.amount_spent),
+            false
+          )}
+        </BudgetTotal>
+        <BudgetTotalDescription>
+          {`Restam ${formatCurrency(
+            budget.currency.code,
+            calculateRemainderBudget(),
+            false
+          )}`}
+        </BudgetTotalDescription>
 
-          <InsightCard.Root>
-            <InsightCard.Description
-              description={
-                !budgetAmountReached
-                  ? `Você ainda pode gastar ${formatCurrency(
-                      budget.currency.code,
-                      calculateRemainderBudgetPerDay(),
-                      false
-                    )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
-                  : `O seu orçamento foi excedido em ${formatCurrency(
-                      budget.currency.code,
-                      calculateRemainderBudget() * -1,
-                      false
-                    )}. Pare de gastar para não comprometer mais o seu orçamento!`
-              }
-            />
-          </InsightCard.Root>
-
-          <BudgetPercentBar
-            is_amount_reached={budgetAmountReached}
-            data={budget}
+        <InsightCard.Root>
+          <InsightCard.Description
+            description={
+              !budgetAmountReached
+                ? `Você ainda pode gastar ${formatCurrency(
+                    budget.currency.code,
+                    calculateRemainderBudgetPerDay(),
+                    false
+                  )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
+                : `O seu orçamento foi excedido em ${formatCurrency(
+                    budget.currency.code,
+                    calculateRemainderBudget() * -1,
+                    false
+                  )}. Pare de gastar para não comprometer mais o seu orçamento!`
+            }
           />
-          <PeriodContainer>
-            <StartPeriod>{budget.formatted_start_date}</StartPeriod>
-            <EndPeriod>{budget.formatted_end_date}</EndPeriod>
-          </PeriodContainer>
+        </InsightCard.Root>
 
+        <BudgetPercentBar
+          is_amount_reached={budgetAmountReached}
+          data={budget}
+        />
+        <PeriodContainer>
+          <StartPeriod>{budget.formatted_start_date}</StartPeriod>
+          <EndPeriod>{budget.formatted_end_date}</EndPeriod>
+        </PeriodContainer>
+
+        <ScrollContent>
           <BudgetHistoryChart
             budget={budget}
             transactions={transactions ?? []}
