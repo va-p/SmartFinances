@@ -6,8 +6,9 @@ import { GoalReserveTransactionProps } from '@interfaces/goals';
 
 /**
  * Spec-anchored tests for buildGoalProjection
- * (spec.md amendment 2026-09-08: AC-1..AC-6 + Independent Test;
- * design.md D1 — movement legs in goal currency, signed by type).
+ * (spec.md amendment 2026-09-08: AC-1..AC-6 + Independent Test, seeded
+ * evolution per amendment 2; design.md D1 — every transaction on the goal's
+ * accounts, signed by type).
  */
 
 type GoalInput = Parameters<typeof buildGoalProjection>[0]['goal'];
@@ -17,7 +18,11 @@ let movementId = 0;
 const movement = (
   amount: number,
   date: string,
-  type: 'TRANSFER_CREDIT' | 'TRANSFER_DEBIT' = 'TRANSFER_CREDIT'
+  type:
+    | 'TRANSFER_CREDIT'
+    | 'TRANSFER_DEBIT'
+    | 'CREDIT'
+    | 'DEBIT' = 'TRANSFER_CREDIT'
 ): GoalReserveTransactionProps => ({
   id: ++movementId,
   description: 'Transferência',
@@ -31,10 +36,19 @@ const movement = (
 
 const buildGoal = (
   transactions: GoalReserveTransactionProps[],
-  target_amount = '2000'
+  target_amount = '2000',
+  currentAmount: number = transactions.reduce(
+    (sum, transaction) =>
+      sum +
+      (transaction.type === 'DEBIT' || transaction.type === 'TRANSFER_DEBIT'
+        ? -Math.abs(transaction.amount)
+        : Math.abs(transaction.amount)),
+    0
+  )
 ): GoalInput => ({ transactions, target_amount });
 
-// Spec Independent Test pace: R$ 500 deposits in Sep, Oct and Nov 2027.
+// Spec Independent Test pace: R$ 500 deposits in Sep, Oct and Nov 2027
+// (reserve balance = current amount = 1500).
 const threeMonthlyDeposits = [
   movement(500, '2027-09-05T10:00:00.000Z'),
   movement(500, '2027-10-05T10:00:00.000Z'),
@@ -44,7 +58,8 @@ const threeMonthlyDeposits = [
 describe('buildGoalProjection', () => {
   it('builds cumulative buckets and a projection reaching the target one month later (Independent Test, AC-1/2)', () => {
     const result = buildGoalProjection({
-      goal: buildGoal(threeMonthlyDeposits),
+      goal: buildGoal(threeMonthlyDeposits, '2000', 1500),
+      currentAmount: 1500,
       now: new Date(2027, 10, 15),
     });
 
@@ -71,7 +86,8 @@ describe('buildGoalProjection', () => {
   it('fills every calendar month to the current one, repeating months without movements, and divides the average by elapsed buckets (AC-1/3)', () => {
     // Same movements, opened two months later: Dec/27 and Jan/28 are empty.
     const result = buildGoalProjection({
-      goal: buildGoal(threeMonthlyDeposits),
+      goal: buildGoal(threeMonthlyDeposits, '2000', 1500),
+      currentAmount: 1500,
       now: new Date(2028, 0, 15),
     });
 
@@ -99,13 +115,15 @@ describe('buildGoalProjection', () => {
 
     expect(
       buildGoalProjection({
-        goal: buildGoal(singleMonth),
+        goal: buildGoal(singleMonth, '2000', 800),
+        currentAmount: 800,
         now: new Date(2027, 10, 15),
       })
     ).toBeNull();
     expect(
       buildGoalProjection({
-        goal: buildGoal([]),
+        goal: buildGoal([], '2000', 0),
+        currentAmount: 0,
         now: new Date(2027, 10, 15),
       })
     ).toBeNull();
@@ -116,6 +134,7 @@ describe('buildGoalProjection', () => {
           movement(500, '2027-12-05T10:00:00.000Z'),
           movement(500, '2028-01-05T10:00:00.000Z'),
         ]),
+        currentAmount: 0,
         now: new Date(2027, 10, 15),
       })
     ).toBeNull();
@@ -127,6 +146,7 @@ describe('buildGoalProjection', () => {
         movement(1000, '2027-09-05T10:00:00.000Z'),
         movement(500, '2027-10-05T10:00:00.000Z', 'TRANSFER_DEBIT'),
       ]),
+      currentAmount: 500,
       now: new Date(2027, 10, 15),
     });
 
@@ -145,6 +165,7 @@ describe('buildGoalProjection', () => {
         ],
         '100000'
       ),
+      currentAmount: 20,
       now: new Date(2027, 9, 15),
     });
 
@@ -160,7 +181,8 @@ describe('buildGoalProjection', () => {
 
   it('labels the year only under the first and last bucket of each year (AC-6)', () => {
     const result = buildGoalProjection({
-      goal: buildGoal(threeMonthlyDeposits),
+      goal: buildGoal(threeMonthlyDeposits, '2000', 1500),
+      currentAmount: 1500,
       now: new Date(2028, 0, 15),
     });
 
@@ -185,6 +207,7 @@ describe('buildGoalProjection', () => {
         ...threeMonthlyDeposits,
         movement(999, '2027-12-01T10:00:00.000Z'),
       ]),
+      currentAmount: 1500,
       now: new Date(2027, 10, 15),
     });
 
@@ -212,10 +235,58 @@ describe('buildGoalProjection', () => {
 
     const result = buildGoalProjection({
       goal: buildGoal([withoutDate, movement(500, '2027-10-05T10:00:00.000Z')]),
+      currentAmount: 1000,
       now: new Date(2027, 10, 15),
     });
 
     expect(result!.points[0].monthKey).toBe('2027-09');
     expect(result!.points[0].value).toBe(500);
+  });
+
+  it('seeds balances that predate the first movement month so the last point equals the current amount (amendment 2, AC-1)', () => {
+    // Linked account created with a pre-existing R$ 5.000 balance, then two
+    // R$ 500 deposits through the goal flow.
+    const result = buildGoalProjection({
+      goal: buildGoal(
+        [
+          movement(500, '2027-09-05T10:00:00.000Z'),
+          movement(500, '2027-10-05T10:00:00.000Z'),
+        ],
+        '10000'
+      ),
+      currentAmount: 6000,
+      now: new Date(2027, 9, 15),
+    });
+
+    const history = result!.points.filter((point) => !point.isProjection);
+    expect(history.map((point) => point.value)).toEqual([5500, 6000]);
+    // The seed does not inflate the pace: (6000 − 5500) / 1 = 500.
+    expect(result!.averageMonthlyProgress).toBe(500);
+    // The projection starts from the real current amount (6000) and reaches
+    // 10000 at the average: 6500 … 10000.
+    const projection = result!.points.filter((point) => point.isProjection);
+    expect(projection[0].value).toBe(6500);
+    expect(projection[projection.length - 1].value).toBe(10000);
+    expect(projection[projection.length - 1].monthKey).toBe('2028-06');
+  });
+
+  it('counts direct receipts and expenses on linked accounts as monthly flows (amendment 2, D1)', () => {
+    const result = buildGoalProjection({
+      goal: buildGoal([
+        movement(500, '2027-09-05T10:00:00.000Z'),
+        movement(1000, '2027-10-05T10:00:00.000Z', 'CREDIT'),
+        movement(200, '2027-10-20T10:00:00.000Z', 'DEBIT'),
+      ]),
+      currentAmount: 1300,
+      now: new Date(2027, 10, 15),
+    });
+
+    // Sep: goal deposit 500. Oct: +1000 salary, −200 expense → 1300.
+    expect(
+      result!.points
+        .filter((point) => !point.isProjection)
+        .map((point) => point.value)
+    ).toEqual([500, 1300, 1300]);
+    expect(result!.averageMonthlyProgress).toBe(400);
   });
 });

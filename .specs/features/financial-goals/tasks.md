@@ -90,8 +90,10 @@ T20 → T21
 ### Phase A (amendment 2026-09-08): Frontend — Evolution & Projection Chart (app repo)
 
 ```
-T21 → A1 → A2 → A3 → A4 → A5
+T21 → A1 → A2 → A3 → A4 → A6 → A7 → A8 → A5
 ```
+
+(A5 — gates + batch log + STATE.md — executes last, after the amendment-2 fix A6–A8.)
 
 ---
 
@@ -648,6 +650,69 @@ T21 → A1 → A2 → A3 → A4 → A5
 
 ---
 
+### A6: Seeded evolution revision (amendment 2 — user-reported bug)
+
+**What**: Revise `buildGoalProjection` so the series reflects the goal's real money, not only the movement legs: (1) seed = `currentAmount` − Σ signed bucketed flows (buildNetWorthEvolution pattern) so the last point equals the goal's current amount — reserve balance plus linked balances in goal currency — and balances predating the first movement month (linked account created with a pre-existing balance) land in the seed; (2) sign every transaction type — DEBIT/TRANSFER_DEBIT subtract, CREDIT/TRANSFER_CREDIT add — because GET /goal/:id returns every transaction on the goal's accounts, so direct receipts/expenses on linked accounts count as monthly flows; (3) accept `currentAmount` (already converted by `computeGoalProgress`) instead of summing raw account balances (multi-currency correctness). Update the spec tests and add seed + direct-flow coverage.
+**Where**: `/Users/vap/00_code/JS/SmartFinances/src/utils/buildGoalProjection.ts`, `/Users/vap/00_code/JS/SmartFinances/src/__tests__/utils/buildGoalProjection.spec.ts`
+**Depends on**: A4 (user bug report against it)
+**Reuses**: seed pattern from `src/utils/buildNetWorthEvolution.ts`
+**Requirement**: GOAL-51 (amendment 2), GOAL-52
+
+**Tools**: NONE
+
+**Done when**:
+- [x] Seed lands at the first bucket; last history point = currentAmount; seed cancels out of the average
+- [x] Direct CREDIT/DEBIT transactions on linked accounts count as monthly flows
+- [x] `npx jest src/__tests__/utils/buildGoalProjection.spec.ts` green (10 tests)
+
+**Tests**: unit
+**Gate**: quick (frontend, amendment)
+
+**Commit**: `fix(goals): seed evolution chart with balances predating the chart`
+
+---
+
+### A7: Chart wiring for the real current amount (amendment 2)
+
+**What**: Pass `progress.currentAmount` from GoalDetails through `GoalProjectionChart` into `buildGoalProjection` so the seed uses the converted, real current amount (reserve + linked balances in goal currency).
+**Where**: `/Users/vap/00_code/JS/SmartFinances/src/screens/GoalDetails/components/GoalProjectionChart/index.tsx`, `/Users/vap/00_code/JS/SmartFinances/src/screens/GoalDetails/index.tsx`
+**Depends on**: A6
+**Reuses**: existing `progress` memo on the screen
+**Requirement**: GOAL-51 (amendment 2)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] Chart's final history point matches the header's current amount
+- [x] `npx tsc --noEmit` introduces 0 new errors vs baseline
+
+**Tests**: none
+**Gate**: build
+
+**Commit**: `fix(goals): feed the goal's real current amount to the evolution chart`
+
+---
+
+### A8: Amendment 2 docs record
+
+**What**: Record amendment 2 in the spec files: spec.md AC-1 reworded (every transaction on the goal's accounts, seeded so the final point equals the goal's current amount) + Independent Test extension (pre-existing linked balance example); design.md D1 revised + new D6 (seeding rationale; foreign-currency direct-transaction DTO limitation with the backend DTO improvement deferred).
+**Where**: `/Users/vap/00_code/JS/SmartFinances/.specs/features/financial-goals/spec.md`, `design.md`, `context.md` (deferred idea)
+**Depends on**: A6
+**Reuses**: -
+**Requirement**: GOAL-51 (amendment 2)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] AC-1 states the seeded semantics; D1/D6 record the data source, seeding, and currency caveat
+
+**Tests**: none
+**Gate**: build (docs)
+
+**Commit**: `docs(goals): record seeded evolution amendment`
+
+---
+
 ### A5: Amendment gates + docs sync
 
 **What**: Run the full frontend gate (`npx jest` green vs 137-test baseline; `npx tsc --noEmit` 0 new errors vs 615-error baseline); record Batch 5 in the Batch Completion Log; refresh `.specs/project/STATE.md` Active Context (chart amendment shipped, pending Verifier). Requirement statuses stay "Implementing" until the Verifier pass per feature convention.
@@ -680,10 +745,10 @@ Phase 2:  T5 → T6 → T7 → T8 → T9 → T10
 Phase 3:  T10 → T11 → T12 → T13 → T14
 Phase 4:  T14 → T15 → T16 → T17 → T18 → T19 → T20
 Phase 5:  T20 → T21
-Phase A:  T21 → A1 → A2 → A3 → A4 → A5
+Phase A:  T21 → A1 → A2 → A3 → A4 → A6 → A7 → A8 → A5 (A5 last: gates + batch log)
 ```
 
-Execution is strictly sequential - one task at a time, in order. Batch packing for Execute: Phase 1 (5) = batch 1; Phase 2 (5) = batch 2; Phase 3 (4) = batch 3; Phases 4+5 (6+1=7) = batch 4; amendment Phase A (5) = batch 5 → 5 sequential batches if sub-agents are accepted. Phase A fits a single inline batch (5 ≤ 8).
+Execution is strictly sequential - one task at a time, in order. Batch packing for Execute: Phase 1 (5) = batch 1; Phase 2 (5) = batch 2; Phase 3 (4) = batch 3; Phases 4+5 (6+1=7) = batch 4; amendment Phases A (8 executing tasks) = batch 5 → 5 sequential batches if sub-agents are accepted. Phase A fits a single inline batch.
 
 ---
 
@@ -731,6 +796,10 @@ Execution is strictly sequential - one task at a time, in order. Batch packing f
 | A3 | A1 | A1 → A3 | ✅ Match |
 | A4 | A3 | A3 → A4 | ✅ Match |
 | A5 | A4 | A4 → A5 | ✅ Match |
+| A6 | A4 (bug report) | A4 → A6 | ✅ Match |
+| A7 | A6 | A6 → A7 | ✅ Match |
+| A8 | A6 | A6 → A8 | ✅ Match |
+| A5 (executes last) | A8 | A8 → A5 | ✅ Match |
 
 ## Test Co-location Validation
 
@@ -749,3 +818,5 @@ Execution is strictly sequential - one task at a time, in order. Batch packing f
 | A2 | Frontend utils tests | unit | unit | ✅ OK |
 | A3–A4 | Frontend component/screen | none | none | ✅ OK |
 | A5 | Docs/gates | none | none | ✅ OK |
+| A6 | Frontend utils + tests | unit | unit (revised + 2 new) | ✅ OK |
+| A7–A8 | Frontend component/docs | none | none | ✅ OK |

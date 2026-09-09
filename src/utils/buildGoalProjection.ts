@@ -31,12 +31,22 @@ export type GoalProjectionData = {
 };
 
 type Props = {
-  // `transactions` are the goal-side movement legs in goal currency (D1);
-  // a plain GoalProps has none, which renders no chart.
+  // Every transaction on the goal's accounts (reserve + linked), as returned
+  // by GET /goal/:id (D1, amendment 2).
   goal: {
     transactions?: GoalReserveTransactionProps[];
     target_amount: string;
   };
+  /**
+   * The goal's current amount in goal currency — reserve balance plus every
+   * linked account balance converted at the current quotes
+   * (computeGoalProgress). The series is seeded so its last point equals
+   * this value (amendment 2): balances that predate the first movement
+   * month (a linked account created with a pre-existing balance, direct
+   * receipts outside the transaction window) land in the seed instead of
+   * being invisible or double-counted.
+   */
+  currentAmount: number;
   /** Injectable for deterministic tests; defaults to now. */
   now?: Date;
 };
@@ -47,12 +57,18 @@ function monthKeyOf(date: Date): string {
 
 /**
  * Month-by-month cumulative evolution of a goal plus a projection at the
- * current average pace (amendment 2026-09-08, GOAL-51/52).
+ * current average pace (amendment 2026-09-08, GOAL-51/52; seeded evolution
+ * per amendment 2).
  *
- * History derives from the goal's movement legs: TRANSFER_CREDIT adds, any
- * other leg subtracts (D1). One bucket per calendar month from the first
- * movement month to the current month inclusive; months without movements
- * repeat the previous cumulative. Movements dated after `now` are ignored.
+ * History derives from the goal accounts' transactions: TRANSFER legs from
+ * the goal flow and direct receipts/expenses alike — DEBIT and
+ * TRANSFER_DEBIT subtract, everything else adds (D1). The series is seeded
+ * with `currentAmount` minus every flow placed in a bucket
+ * (buildNetWorthEvolution pattern), so the final point equals the goal's
+ * real current amount and the average still measures the true monthly pace.
+ * One bucket per calendar month from the first movement month to the
+ * current month inclusive; months without movements repeat the previous
+ * cumulative. Movements dated after `now` are ignored.
  *
  * Returns null when fewer than 2 distinct movement months exist — there is
  * nothing meaningful to plot (AC-4). The projection extends one point per
@@ -61,6 +77,7 @@ function monthKeyOf(date: Date): string {
  */
 export function buildGoalProjection({
   goal,
+  currentAmount,
   now = new Date(),
 }: Props): GoalProjectionData | null {
   const targetAmount = Number(goal.target_amount);
@@ -76,10 +93,12 @@ export function buildGoalProjection({
     if (Number.isNaN(movementDate.getTime())) continue;
     if (movementDate > now) continue;
 
-    const signedAmount =
-      transaction.type === 'TRANSFER_CREDIT' || transaction.type === 'CREDIT'
-        ? Math.abs(Number(transaction.amount))
-        : -Math.abs(Number(transaction.amount));
+    const isDebit =
+      transaction.type === 'DEBIT' ||
+      transaction.type === 'TRANSFER_DEBIT';
+    const signedAmount = isDebit
+      ? -Math.abs(Number(transaction.amount))
+      : Math.abs(Number(transaction.amount));
 
     const key = monthKeyOf(movementDate);
     flowsByMonth.set(
@@ -97,7 +116,17 @@ export function buildGoalProjection({
   const firstMonthDate = parse(sortedMonthKeys[0], 'yyyy-MM', now);
   const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  // ── 3. One cumulative bucket per month, first movement → current (AC-1).
+  // ── 3. Seed: currentAmount minus every bucketed flow leaves the balance
+  // that predates the first movement month (amendment 2). The seed lands at
+  // the first bucket, so the last point equals the goal's current amount and
+  // the seed cancels out of the average.
+  const sumOfFlows = [...flowsByMonth.values()].reduce(
+    (acc, flow) => acc.plus(flow),
+    new Decimal(0)
+  );
+  let cumulative = new Decimal(currentAmount).minus(sumOfFlows);
+
+  // ── 4. One cumulative bucket per month, first movement → current (AC-1).
   // Months without movements repeat the previous cumulative.
   type Bucket = {
     key: string;
@@ -107,7 +136,6 @@ export function buildGoalProjection({
   };
 
   const history: Bucket[] = [];
-  let cumulative = new Decimal(0);
   let cursor = firstMonthDate;
 
   while (cursor <= currentMonthDate) {
@@ -121,13 +149,15 @@ export function buildGoalProjection({
     cursor = addMonths(cursor, 1);
   }
 
-  // ── 4. Average monthly progress (AC-3): the denominator counts the
+  // ── 5. Average monthly progress (AC-3): the denominator counts the
   // elapsed month buckets, so a stall lowers the average.
   const firstCumulative = history[0].cumulative;
   const lastCumulative = history[history.length - 1].cumulative;
-  const average = lastCumulative.minus(firstCumulative).div(history.length - 1);
+  const average = lastCumulative
+    .minus(firstCumulative)
+    .div(history.length - 1);
 
-  // ── 5. Projection at the average pace, capped at 60 months (AC-2/4/5) ─
+  // ── 6. Projection at the average pace, capped at 60 months (AC-2/4/5) ─
   const projection: Bucket[] = [];
   let projected = lastCumulative;
   let projectionMonth = currentMonthDate;
@@ -147,7 +177,7 @@ export function buildGoalProjection({
     }
   }
 
-  // ── 6. Labels (AC-6): the year goes under the first and last bucket of
+  // ── 7. Labels (AC-6): the year goes under the first and last bucket of
   // each year across the whole visible range (history + projection).
   const points = [...history, ...projection];
 
@@ -162,7 +192,7 @@ export function buildGoalProjection({
         value: point.cumulative.toNumber(),
         label:
           isFirstOfYear || isLastOfYear
-            ? format(point.date, "MMM '\n' yy", { locale: ptBR })
+            ? format(point.date, "MMM '\n' yyyy", { locale: ptBR })
             : format(point.date, 'MMM', { locale: ptBR }),
         isProjection: point.isProjection,
       };
