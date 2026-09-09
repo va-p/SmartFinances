@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { ThemeProps } from '@interfaces/theme';
 
 export const ChartContainer = styled.View`
   margin-top: 16px;
@@ -22,7 +23,7 @@ export const LegendSquare = styled.View`
   height: 10px;
   border-radius: 2px;
   margin-right: 6px;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.primary};
 `;
 
 export const LegendDash = styled.View`
@@ -30,11 +31,11 @@ export const LegendDash = styled.View`
   height: 2px;
   border-top-width: 2px;
   border-style: dashed;
-  border-color: ${({ theme }) => theme.colors.textPlaceholder};
+  border-color: ${({ theme }) => (theme as ThemeProps).colors.textPlaceholder};
 `;
 
 export const LegendText = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.textPlaceholder};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.textPlaceholder};
 `;
