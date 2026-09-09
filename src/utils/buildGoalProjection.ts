@@ -192,7 +192,7 @@ export function buildGoalProjection({
         value: point.cumulative.toNumber(),
         label:
           isFirstOfYear || isLastOfYear
-            ? format(point.date, "MMM '\n' yyyy", { locale: ptBR })
+            ? format(point.date, "MMM '\n' yy", { locale: ptBR })
             : format(point.date, 'MMM', { locale: ptBR }),
         isProjection: point.isProjection,
       };
