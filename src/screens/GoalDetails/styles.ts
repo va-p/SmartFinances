@@ -68,6 +68,10 @@ export const ReadOnlyNote = styled.Text`
   color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
+export const ScrollContent = styled.ScrollView.attrs({
+  showsVerticalScrollIndicator: false,
+})``;
+
 export const SectionTitle = styled.Text`
   margin-bottom: 8px;
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
@@ -135,7 +139,6 @@ export const ActionsContainer = styled.View`
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  margin-bottom: 8px;
   background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 32px;
 `;

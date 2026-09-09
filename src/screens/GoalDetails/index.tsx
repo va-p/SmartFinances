@@ -10,6 +10,7 @@ import {
   ReachedBadge,
   ReachedBadgeText,
   ReadOnlyNote,
+  ScrollContent,
   SectionTitle,
   LinkedAccountRow,
   LinkedAccountName,
@@ -335,8 +336,8 @@ export function GoalDetails() {
                 ? 'Meta concluída. Somente leitura.'
                 : 'Meta arquivada. Somente leitura.'}
             </ReadOnlyNote>
-          )}
-
+        )}
+        <ScrollContent>
           {/* Amendment 2026-09-08 (GOAL-51/52/53): evolution + projection
               chart. Renders nothing under 2 movement months (design D5). */}
           <GoalProjectionChart goal={goal} hideAmount={hideAmount} />
@@ -408,7 +409,8 @@ export function GoalDetails() {
             flexGrow: 1,
             paddingBottom: 16,
           }}
-        />
+          />
+        </ScrollContent>
 
         <ActionsContainer>
           {isActive && (
