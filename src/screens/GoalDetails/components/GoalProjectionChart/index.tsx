@@ -100,7 +100,7 @@ export function GoalProjectionChart({
         initialSpacing={INITIAL_SPACING}
         endSpacing={END_SPACING}
         spacing={spacing}
-        scrollToEnd={!fillsWidth}
+        // scrollToEnd={!fillsWidth}
         // v1.4.7 defaults this to true; false is what keeps the overlay's
         // undefined history entries undrawn (design D3).
         interpolateMissingValues={false}
