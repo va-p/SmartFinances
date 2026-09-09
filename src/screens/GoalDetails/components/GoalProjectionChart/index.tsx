@@ -21,6 +21,9 @@ import { GoalDetailsProps } from '@interfaces/goals';
 
 type GoalProjectionChartProps = {
   goal: GoalDetailsProps;
+  /** The goal's current amount in goal currency (computeGoalProgress) — the
+   * series is seeded so its last point equals this value (amendment 2). */
+  currentAmount: number;
   // GOAL-53: focused values are hidden while "Ocultar informações" is on.
   hideAmount: boolean;
 };
@@ -36,13 +39,17 @@ const END_SPACING = 8;
 
 export function GoalProjectionChart({
   goal,
+  currentAmount,
   hideAmount,
 }: GoalProjectionChartProps) {
   const SCREEN_WIDTH = useWindowDimensions().width;
   const CHART_WIDTH = SCREEN_WIDTH - 104;
   const theme = useTheme() as ThemeProps;
 
-  const projection = useMemo(() => buildGoalProjection({ goal }), [goal]);
+  const projection = useMemo(
+    () => buildGoalProjection({ goal, currentAmount }),
+    [goal, currentAmount]
+  );
 
   const history = useMemo(
     () => projection?.points.filter((point) => !point.isProjection) ?? [],

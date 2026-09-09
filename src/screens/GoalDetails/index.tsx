@@ -339,8 +339,14 @@ export function GoalDetails() {
         )}
         <ScrollContent>
           {/* Amendment 2026-09-08 (GOAL-51/52/53): evolution + projection
-              chart. Renders nothing under 2 movement months (design D5). */}
-          <GoalProjectionChart goal={goal} hideAmount={hideAmount} />
+              chart. Renders nothing under 2 movement months (design D5).
+              Amendment 2: seeded with progress.currentAmount so the final
+              point matches the goal's real current amount. */}
+          <GoalProjectionChart
+            goal={goal}
+            currentAmount={progress.currentAmount}
+            hideAmount={hideAmount}
+          />
 
           {goal.linked_accounts.length > 0 && (
             <View style={{ marginBottom: 16 }}>
