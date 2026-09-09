@@ -226,7 +226,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Acceptance Criteria**:
 
-1. WHEN the user opens a goal's details screen THEN the system SHALL render a line chart directly below the progress header card showing the goal's cumulative amount per calendar month, from the first movement month through the current month, computed from the goal's movement history (reserve and linked-account legs, in goal currency). <!-- event-driven -->
+1. WHEN the user opens a goal's details screen THEN the system SHALL render a line chart directly below the progress header card showing the goal's cumulative amount per calendar month, from the first movement month through the current month, computed from every transaction on the goal's accounts (reserve and linked accounts — goal-flow transfer legs and direct receipts/expenses alike, signed by type) and seeded so the final point equals the goal's current amount (reserve balance plus linked balances in goal currency); balances predating the first movement month land in the seed. (amendment 2, 2026-09-08) <!-- event-driven -->
 2. WHILE the goal has a positive average monthly progress, the system SHALL extend the chart with a dashed projection line from the last real month onward, adding the average monthly progress per month until the target amount is reached, and SHALL render an arrowhead at the projection's final point. <!-- state-driven -->
 3. The average monthly progress SHALL be (last cumulative amount − first cumulative amount) / (number of elapsed months − 1), where elapsed months counts the buckets from the first movement month to the current month inclusive. <!-- ubiquitous -->
 4. IF the goal has fewer than 2 distinct movement months, or the average monthly progress is zero or negative, THEN the system SHALL NOT render the projection (fewer than 2 movement months also hides the whole chart — there is nothing meaningful to plot). <!-- unwanted-behavior -->
@@ -234,7 +234,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 6. The chart SHALL label the X axis with pt-BR abbreviated month names and the year under the first and last point of each year, and SHALL format Y-axis labels in compact "k" form with the target amount as the top reference. <!-- ubiquitous -->
 7. The chart SHALL respect the `hideAmount` ("Ocultar informações") config: when active, data-point texts and focused values SHALL be masked. <!-- state-driven -->
 
-**Independent Test**: Goal with deposits of R$ 500 in Sep, R$ 500 in Oct, R$ 500 in Nov (target R$ 2.000) → chart shows 3 cumulative points (500/1000/1500) and a dashed projection reaching 2000 one month later; goal with a single movement month → no chart.
+**Independent Test**: Goal with deposits of R$ 500 in Sep, R$ 500 in Oct, R$ 500 in Nov (target R$ 2.000) → chart shows 3 cumulative points (500/1000/1500) and a dashed projection reaching 2000 one month later; goal with a single movement month → no chart. Amendment 2: a linked account created with a pre-existing R$ 5.000 balance plus two R$ 500 deposits → the chart starts at 5.500, ends at the real 6.000 current amount, and the average stays R$ 500/month (the seed does not inflate the pace).
 
 ---
 

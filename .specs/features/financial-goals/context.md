@@ -69,3 +69,5 @@ Financial Goals let users set savings targets (name, target amount, currency, op
 - Recurring/scheduled auto-deposits into goals (recurring transactions already exist as a separate feature).
 - Goal deadline reminders / notifications (separate roadmap item: "Transaction reminders / notifications").
 - Shared/multi-user goals (roadmap: "Multi-user / shared wallet support").
+- Goal evolution chart: exact per-month conversion of direct transactions on foreign-currency linked accounts — needs the goal transaction DTO to expose the account id/currency (amendment 2, design D6).
+- GoalDetails history list: direct `CREDIT`/`DEBIT` transactions on linked accounts render with the transfer-only sign/color logic (`TRANSFER_CREDIT ? '+' : '-'`), so a salary shows as a red "−" — needs the same all-types signing as the chart (amendment 2).
