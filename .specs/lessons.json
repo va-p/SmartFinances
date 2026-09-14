@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 2,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::put acceptance criteria behavior in pure modules utils form schemas and rely on code inspection plus interactive uat for render only criteria since this repo has no working component render test harness",
+      "text": "Put acceptance-criteria behavior in pure modules (utils, form schemas) and rely on code inspection plus interactive UAT for render-only criteria, since this repo has no working component-render test harness",
+      "signal": "ac_gap",
+      "scope": "frontend-testing",
+      "status": "candidate",
+      "features": [
+        "register-credit-card-fields"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "CC-01/CC-02 render halves - src/screens/RegisterAccount/index.tsx:475-514 (no component-render harness in repo) (frontend-testing)"
+      ],
+      "created": "2026-09-14T23:13:22Z",
+      "last_seen": "2026-09-14T23:13:22Z"
+    }
+  ]
+}
