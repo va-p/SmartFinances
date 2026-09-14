@@ -10,7 +10,6 @@ import { Container, Form, Footer, ErrorMessage } from './styles';
 
 // Dependencies
 import axios from 'axios';
-import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { useFocusEffect } from 'expo-router';
 import { useTheme } from 'styled-components/native';
@@ -22,8 +21,10 @@ import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
 import { StarIcon } from 'phosphor-react-native/src/icons/Star';
 import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
 import { CoinsIcon } from 'phosphor-react-native/src/icons/Coins';
+import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
 import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
@@ -48,42 +49,20 @@ import { AccountTypes } from '@interfaces/accounts';
 import { CurrencyProps } from '@interfaces/currencies';
 import { InstitutionProps } from '@interfaces/institutions';
 
-import api from '@api/api';
+// Utils
+import {
+  buildCreditCardDataPayload,
+  getClosingDayFromDate,
+  CreditCardDataPayload,
+} from '@utils/creditCardData';
 
-type FormData = {
-  name: string;
-  currency: string;
-  balance: number;
-  type?: string;
-  institution_id?: string | null;
-};
+import api from '@api/api';
+import { FormData, schema, ACCOUNT_TYPES_REQUIRING_INSTITUTION } from './schema';
 
 type Props = {
   id: string | null;
   closeAccount: () => void;
 };
-
-// Account types that, in practice, always have a real financial institution
-// behind them (per context.md decision #2 / AC11.3) — the institution field
-// is required for these, optional for the rest (AC11.4).
-const ACCOUNT_TYPES_REQUIRING_INSTITUTION = ['BANK', 'INVESTMENTS', 'CREDIT'];
-
-/* Validation Form - Start */
-const schema = Yup.object().shape({
-  name: Yup.string().required('Digite o nome da conta'),
-  balance: Yup.number()
-    .required('Digite o saldo da conta')
-    .typeError('Digite um valor numérico'),
-  type: Yup.string(),
-  institution_id: Yup.string()
-    .nullable()
-    .when('type', {
-      is: (type: string) => ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(type),
-      then: (currentSchema) =>
-        currentSchema.required('Selecione a instituição financeira'),
-    }),
-});
-/* Validation Form - End */
 
 export function RegisterAccount({ id, closeAccount }: Props) {
   const theme = useTheme() as ThemeProps;
@@ -102,6 +81,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       balance: 0,
       type: '',
       institution_id: null,
+      credit_card_brand: '',
+      credit_card_close_day: undefined,
+      credit_card_credit_limit: undefined,
+      credit_card_available_credit_limit: undefined,
     },
   });
   const accountTypes: AccountTypes[] = [
@@ -152,6 +135,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     OTHER: 'Outro',
   };
 
+  // Manual credit card data (brand, closing day, limits) is captured only
+  // for CREDIT accounts (spec CC-01/CC-02).
+  const isCreditCard = typeSelected === 'CREDIT';
+
   const institutionIsOptional =
     !ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(typeSelected);
   const institutionLabel = institutionIsOptional
@@ -195,7 +182,11 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     setIsDefault((prevState) => !prevState);
   }
 
-  async function handleEditAccount(id: string | null, form: FormData) {
+  async function handleEditAccount(
+    id: string | null,
+    form: FormData,
+    creditData?: CreditCardDataPayload
+  ) {
     const AccountEdited = {
       account_id: id,
       name: form.name,
@@ -206,6 +197,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       hide: hideAccount,
       is_default: isDefault,
       institution_id: institutionSelected?.id ?? null,
+      creditData,
     };
     try {
       const { status } = await api.patch('account/edit', AccountEdited);
@@ -251,9 +243,20 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     }
     /* Validation Form - End */
 
+    // Credit card data is built from the form only for CREDIT accounts;
+    // for any other type the key is omitted entirely (spec CC-07/CC-08).
+    const creditData = isCreditCard
+      ? buildCreditCardDataPayload({
+          brand: form.credit_card_brand,
+          closeDay: form.credit_card_close_day,
+          creditLimit: form.credit_card_credit_limit,
+          availableCreditLimit: form.credit_card_available_credit_limit,
+        }) ?? undefined
+      : undefined;
+
     // Edit account
     if (id !== '') {
-      handleEditAccount(id, form);
+      handleEditAccount(id, form, creditData);
     }
     // Add account
     else {
@@ -268,6 +271,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           is_default: isDefault,
           user_id: userID,
           institution_id: institutionSelected?.id ?? null,
+          creditData,
         };
         const { status } = await api.post('account', newAccount);
         if (status === 200) {
@@ -307,6 +311,27 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       setHideAccount(data.hide);
       setIsDefault(data.isDefault ?? false);
       handleSetInstitution(data.institution ?? null);
+
+      // Pre-fill the credit card fields from the stored card data (spec
+      // CC-06). The API formats null limits as 0 — treat 0 as empty so a
+      // missing limit never pre-fills the inputs.
+      if (data.creditData) {
+        setValue('credit_card_brand', data.creditData.brand || '');
+        setValue(
+          'credit_card_close_day',
+          getClosingDayFromDate(data.creditData.balanceCloseDate) ?? undefined
+        );
+        setValue(
+          'credit_card_credit_limit',
+          data.creditData.creditLimit || undefined
+        );
+        setValue(
+          'credit_card_available_credit_limit',
+          data.creditData.availableCreditLimit > 0
+            ? data.creditData.availableCreditLimit
+            : null
+        );
+      }
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -445,6 +470,49 @@ export function RegisterAccount({ id, closeAccount }: Props) {
               rowTextStyle={{ color: theme.colors.text }}
               dropdownStyle={{ borderRadius: 10 }}
             />
+
+            {/* Manual credit card data — shown only for CREDIT accounts
+                (spec CC-01/CC-02). */}
+            {isCreditCard && (
+              <>
+                <ControlledInputWithIcon
+                  icon={<CreditCardIcon color={theme.colors.primary} />}
+                  placeholder='Bandeira do cartão'
+                  autoCapitalize='words'
+                  autoCorrect={false}
+                  name='credit_card_brand'
+                  control={control}
+                  error={errors.credit_card_brand}
+                />
+
+                <ControlledInputWithIcon
+                  icon={<CalendarIcon color={theme.colors.primary} />}
+                  placeholder='Dia de fechamento da fatura (1-31)'
+                  keyboardType='number-pad'
+                  name='credit_card_close_day'
+                  control={control}
+                  error={errors.credit_card_close_day}
+                />
+
+                <ControlledInputWithIcon
+                  icon={<MoneyIcon color={theme.colors.primary} />}
+                  placeholder='Limite total do cartão'
+                  keyboardType='decimal-pad'
+                  name='credit_card_credit_limit'
+                  control={control}
+                  error={errors.credit_card_credit_limit}
+                />
+
+                <ControlledInputWithIcon
+                  icon={<CoinsIcon color={theme.colors.primary} />}
+                  placeholder='Limite disponível (opcional)'
+                  keyboardType='decimal-pad'
+                  name='credit_card_available_credit_limit'
+                  control={control}
+                  error={errors.credit_card_available_credit_limit}
+                />
+              </>
+            )}
 
             <SelectButton
               title={institutionLabel}
