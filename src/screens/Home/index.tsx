@@ -108,7 +108,6 @@ import {
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { CashFlowChartData } from '@interfaces/transactions';
 
 // APIs
 import api from '@api/api';
@@ -150,8 +149,6 @@ export function Home() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
-  const cashFlows = useRef<CashFlowChartData[]>([]);
-  const cashFlowTotalBySelectedPeriod = useRef('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
 
   // Animated header, chart and insights container
@@ -302,8 +299,9 @@ export function Home() {
     );
   }, [transactions, selectedPeriod.period, selectedDate]);
 
-  cashFlowTotalBySelectedPeriod.current = processedData.currentCashFlow;
-  cashFlows.current = processedData.cashFlowChartData;
+  // Chart data is derived directly from the memoized processedData, so any
+  // change to the transactions query re-renders the chart with fresh values
+  // (a stable reference keeps the memoized children from re-rendering).
   const transactionsFormattedBySelectedPeriod =
     processedData.groupedTransactions;
 
@@ -413,7 +411,7 @@ export function Home() {
           <Header>
             <CashFlowContainer>
               <CashFlowTotal>
-                {!hideAmount ? cashFlowTotalBySelectedPeriod.current : '•••••'}
+                {!hideAmount ? processedData.currentCashFlow : '•••••'}
               </CashFlowTotal>
               <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
             </CashFlowContainer>
@@ -444,7 +442,7 @@ export function Home() {
 
           <Animated.View style={chartStyleAnimationOpacity}>
             <BarChart
-              data={cashFlows.current}
+              data={processedData.cashFlowChartData}
               width={SCREEN_WIDTH - 100}
               height={80}
               barWidth={CHART_BAR_WIDTH}
@@ -478,7 +476,7 @@ export function Home() {
 
           <Animated.View>
             <PeriodRulerList
-              cashFlows={cashFlows.current}
+              cashFlows={processedData.cashFlowChartData}
               selectedPeriod={selectedPeriod}
               selectedDate={selectedDate}
               handleDateChange={handleDateChange}
@@ -492,7 +490,7 @@ export function Home() {
               style={[insightsStyleAnimationOpacity, dynamicStyles.insightCard]}
             >
               <CashFlowInsightCard
-                cashFlows={cashFlows.current}
+                cashFlows={processedData.cashFlowChartData}
                 selectedDate={selectedDate}
                 onClose={handleHideCashFlowInsights}
               />

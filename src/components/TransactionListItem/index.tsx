@@ -86,10 +86,6 @@ const TransactionListItem = memo(function TransactionListItem({
                   <TransferDirectionIcon name='arrow-down-outline' />
                 )}
                 <Amount type={data.type}>
-                  {!hideAmount &&
-                    data.account.type === 'CREDIT' &&
-                    data.type === 'DEBIT' &&
-                    '-'}
                   {!hideAmount
                     ? data.amount_in_account_currency
                       ? data.amount_in_account_currency_formatted
