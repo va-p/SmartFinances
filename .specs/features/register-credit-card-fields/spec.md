@@ -89,17 +89,17 @@ When registering a manual account of type `CREDIT` (credit card), the form only 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------- |
-| CC-01 | P1: Conditional fields | - | Pending |
-| CC-02 | P1: Conditional fields | - | Pending |
-| CC-03 | P1: Conditional fields | - | Pending |
-| CC-04 | P1: Conditional fields | - | Pending |
-| CC-05 | P1: Conditional fields | - | Pending |
-| CC-06 | P1: Conditional fields | - | Pending |
-| CC-07 | P1: Persist card data | - | Pending |
-| CC-08 | P1: Persist card data | - | Pending |
-| CC-09 | P1: Persist card data | - | Pending |
-| CC-10 | P1: Persist card data | - | Pending |
-| CC-11 | P1: Persist card data | - | Pending |
+| CC-01 | P1: Conditional fields | Execute | Verified |
+| CC-02 | P1: Conditional fields | Execute | Verified |
+| CC-03 | P1: Conditional fields | Execute | Verified |
+| CC-04 | P1: Conditional fields | Execute | Verified |
+| CC-05 | P1: Conditional fields | Execute | Verified |
+| CC-06 | P1: Conditional fields | Execute | Verified |
+| CC-07 | P1: Persist card data | Execute | Verified |
+| CC-08 | P1: Persist card data | Execute | Verified |
+| CC-09 | P1: Persist card data | Execute | Verified |
+| CC-10 | P1: Persist card data | Execute | Verified |
+| CC-11 | P1: Persist card data | Execute | Verified |
 
 **ID mapping:** CC-01..06 = Story 1 ACs 1-6; CC-07..11 = Story 2 ACs 1-6 (CC-07 = AC-1, CC-08 = AC-2, CC-09 = AC-3, CC-10 = AC-4+5 contract, CC-11 = AC-6 null-guard).
 
