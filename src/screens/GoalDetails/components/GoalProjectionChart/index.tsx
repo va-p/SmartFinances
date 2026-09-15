@@ -10,6 +10,7 @@ import {
 } from './styles';
 
 import { buildGoalProjection } from '@utils/buildGoalProjection';
+import { buildGoalChartSeries } from '@utils/buildGoalChartSeries';
 
 import { useTheme } from 'styled-components';
 import { LineChart } from 'react-native-gifted-charts';
@@ -65,19 +66,10 @@ export function GoalProjectionChart({
     return null;
   }
 
-  const data = history.map((point) => ({ value: point.value }));
-
-  // GOAL-52: dashed overlay. Undefined values over the history indices are
-  // left undrawn because interpolateMissingValues is false (design D3); the
-  // connect index repeats the last real cumulative so the dashed line
-  // continues exactly from where the solid line ends.
-  const data2 = projected.length
-    ? [
-        ...history.slice(0, -1).map(() => ({ value: undefined })),
-        { value: history[history.length - 1].value },
-        ...projected.map((point) => ({ value: point.value })),
-      ]
-    : undefined;
+  // GOAL-54 (amendment 3): data spans the projected months too — the
+  // library renders x-axis labels per primary dataset item, and the
+  // non-numeric placeholders stay undrawn (design D3).
+  const { data, data2, labels } = buildGoalChartSeries(projection.points);
 
   const totalMonths = history.length + projected.length;
   const fillsWidth = totalMonths <= MAX_EVENLY_SPREAD_MONTHS;
@@ -131,7 +123,7 @@ export function GoalProjectionChart({
         // the focused point's value nor the permanent data-point texts.
         showTextOnFocus={!hideAmount}
         showValuesAsDataPointsText={!hideAmount}
-        xAxisLabelTexts={projection.points.map((point) => point.label)}
+        xAxisLabelTexts={labels}
         xAxisTextNumberOfLines={2}
         xAxisColor={theme.colors.xAxisColor}
         yAxisColor={theme.colors.xAxisColor}
