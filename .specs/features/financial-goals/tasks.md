@@ -12,6 +12,8 @@
 
 - **Batch 4 (Phases 4+5: T15–T21)** — ✅ Complete. App branch `goals-target-savings`: `42a24f0` (T15), `2a28dc7` (T16), `1528379` (T17), `76d50a9` (T18), `5ebfd19` (T19), `d581114` (T20), `edcd8b9` (T21). Tests: 137 passed, 0 failed (`profile.spec.tsx` red but pre-existing phosphor-transform issue, proven on clean baseline). tsc: 0 new errors vs 615 baseline. Notes: new styles files cast `(theme as ThemeProps)` to dodge the repo-wide broken DefaultTheme augmentation; T21 audit table + GOAL-27 net-worth reasoning in commit body; RegisterTransaction needed no edit (pickers filtered at AccountSelect/AccountDestinationSelect). Batch interrupted twice by billing 429s; resumed cleanly.
 
+- **Batch 5 (Phase A: chart amendment A1–A8 + A5)** — ✅ Complete. App branch `goals-target-savings`: `0f0ad4e` (amendment docs/tasks), `3a59f16` (A1), `7bd5cae` (A2, 8 tests), `ba437d7` (A3), `4fea33a` (A4), `bd3b74d` (A6, revised suite to 10 tests), `0075d5b` (A7), `383531e` (A8). User follow-ups on the same branch: `1d05835` (two-digit year on X labels — layout fix; test aligned in `65cfbfd`), `ca9d986` (theme typings, cut the tsc floor), `eb4d031` (chart animation on Overview — outside the feature's ACs). Full gate: 181 tests passed, 0 failed (`profile.spec.tsx` suite red = pre-existing phosphor transform, proven on clean baseline); tsc 548 total, 0 new vs 615 baseline. Backend gate re-run on `goals-target-savings`: 202 passed + build green. Verifier pass pending.
+
 ## Execution Protocol (MANDATORY -- do not skip)
 
 Implement these tasks with the `tlc-spec-driven-v3` skill: **activate it by name and follow its Execute flow and Critical Rules.** Do not search for skill files by filesystem path. The skill is the source of truth for the full flow (per-task cycle, sub-agent delegation, adequacy review, Verifier, discrimination sensor).
@@ -724,9 +726,9 @@ T21 → A1 → A2 → A3 → A4 → A6 → A7 → A8 → A5
 **Tools**: NONE
 
 **Done when**:
-- [ ] `npx jest` full suite green, count stated (baseline 137 + new)
-- [ ] tsc delta vs baseline = 0 new errors
-- [ ] Batch log + STATE.md updated in the same commit
+- [x] `npx jest` full suite green, count stated (baseline 137 + new)
+- [x] tsc delta vs baseline = 0 new errors
+- [x] Batch log + STATE.md updated in the same commit
 
 **Tests**: none (verification task)
 **Gate**: full

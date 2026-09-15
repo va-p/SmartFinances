@@ -74,8 +74,8 @@
 
 ## Active Context
 
-- **Active feature:** `financial-goals` (specs in `.specs/features/financial-goals/`). Backend Phase 1 (T1–T5: schema, zod, goal.service) committed on branch `goals-target-savings`; Phase 2 (API wiring T6–T10) next; frontend phases after.
-- **Frontend version:** 2.24.x (from Revopush scripts target binary version `2.24.0`)
+- **Active feature:** `financial-goals` (specs in `.specs/features/financial-goals/`). All phases complete on branch `goals-target-savings` (both repos): T1–T21 (backend schema/service/API + frontend data/screens/visibility audit), conditional-reserve amendment (GOAL-43..50), chart amendment A1–A8 (GOAL-51..53, incl. seeded-evolution fix). Gates: backend 202 tests + build green; frontend 181 tests passed (`profile.spec.tsx` suite red = pre-existing phosphor transform), tsc 548 total (0 new vs 615 baseline). Pending: Verifier pass (`validation.md`) + final traceability sync; migration `20260825085131_add_financial_goals` still needs `prisma migrate deploy` on cPanel (issue #16).
+- **Frontend version:** 2.30.1 (app versionCode 109)
 - **Backend version:** 1.0.0
 - **API prefix:** `/api/v1`
 - **Package manager:** Yarn 1.22.22 (both repos)
