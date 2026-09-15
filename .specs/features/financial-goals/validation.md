@@ -255,3 +255,118 @@ Proposed spec.md status updates (Verifier proposal — applied by the orchestrat
 **Issues found**: none open. Residual watch item (non-blocking): chart-layer regressions cannot be caught by the suite until the jest ESM transform blocker is fixed (STATE.md #13 class) — add the masking render test then.
 
 **Next steps**: ship. Separately: `prisma migrate deploy` for `20260825085131_add_financial_goals` + `20260827120000_goal_reserve_optional` remains pending on cPanel (STATE.md #16) — deployment blocker, not a code defect.
+
+---
+
+# Amendment 3 Validation (2026-09-15) — Chart X-Axis Labels Across Projected Months (GOAL-54)
+
+**Date**: 2026-09-15
+**Spec**: `.specs/features/financial-goals/spec.md` — story "P2: Goal Evolution & Projection Chart", AC-8 (amendment 3, 2026-09-15) + GOAL-54 traceability row (`spec.md:314`)
+**Design context**: `.specs/features/financial-goals/design.md:190` (D3 amendment 3)
+**Diff range**: `9b83ff0..e4ad92e` (2 commits: `9b83ff0` docs amendment; `e4ad92e` fix)
+**Verifier**: independent sub-agent (author ≠ verifier)
+**Overall verdict**: PASS ✅
+
+---
+
+## Task Completion (amendment 3)
+
+| Task | Status | Notes |
+| ---- | ------ | ----- |
+| `9b83ff0` docs: AC-8 + GOAL-54 row + D3 amendment note | ✅ Done | `spec.md:236`, `spec.md:314`, `design.md:190` |
+| `e4ad92e` fix: `buildGoalChartSeries` util + spec-anchored tests + chart rewiring | ✅ Done | `src/utils/buildGoalChartSeries.ts`, `src/__tests__/utils/buildGoalChartSeries.spec.ts`, `src/screens/GoalDetails/components/GoalProjectionChart/index.tsx:72,126` — no blocked/partial items |
+
+---
+
+## Spec-Anchored Acceptance Criteria (amendment 3, evidence-or-zero)
+
+Paths are repo-relative to `SmartFinances`. Regression surface (AC-2/AC-4) is re-verified per validation mandate; all other P2 ACs (1,3,5,6,7) are untouched by the diff (verified: the diff changes only the chart datasets/labels construction).
+
+| Criterion (WHEN X THEN Y) | Spec-defined outcome | `file:line` + assertion | Result |
+| ------------------------- | -------------------- | ----------------------- | ------ |
+| GOAL-54 / AC-8: WHILE the projection line is rendered, the X axis SHALL carry the date label of every plotted month, real and projected alike | In the spec's Independent Test scenario (3 real months 500/1000/1500 + 1 projected month reaching 2000): the primary dataset spans all 4 plotted months so the library (labels mapped per primary item, design D3) renders all 4 labels; real months carry numeric values; the projected month carries a non-numeric placeholder that stays undrawn (`interpolateMissingValues: false`, D3) | `src/__tests__/utils/buildGoalChartSeries.spec.ts:37` — `expect(series.data).toHaveLength(4)`; `:38` — `expect(series.labels).toEqual(['set','out','nov',"dez\n26"])`; `:44-46` — `expect(series.data.map((item) => item.value)).toEqual([500, 1000, 1500, undefined])` (scenario values match the spec's Independent Test exactly); impl `src/utils/buildGoalChartSeries.ts:38-40`; integration `GoalProjectionChart/index.tsx:72` — `buildGoalChartSeries(projection.points)` — and `:126` `xAxisLabelTexts={labels}`; D3 mechanism preserved at `:98` `interpolateMissingValues={false}` | ✅ PASS |
+| AC-2 (regression surface): WHILE average monthly progress is positive, the chart SHALL extend a dashed projection from the last real month onward until the target, WITH an arrowhead at the final point | `data2`: undefined over the earlier real indices, the last real cumulative (1500) at the connect index, then one value per projected month (2000); arrowhead only when a projection exists | `buildGoalChartSeries.spec.ts:52-57` — `expect(series.data2?.map((item) => item.value)).toEqual([undefined, undefined, 1500, 2000])`; impl `buildGoalChartSeries.ts:42-47` (connect index = `realCount - 1`); wiring unchanged behavior: `GoalProjectionChart/index.tsx:89` `data2={data2}`, `:109` `strokeDashArray2={[6, 4]}`, `:111` `showArrow2={!!data2}` + `:112-119` `arrowConfig2` | ✅ PASS |
+| AC-4 (regression surface): IF no projection (average ≤ 0) THEN the system SHALL NOT render the projection | No overlay: `data2` is `undefined`; no padding artifacts: `data` keeps only real values, `labels` covers only real months | `buildGoalChartSeries.spec.ts:63-65` — `expect(series.data2).toBeUndefined()`, `expect(series.data.map((item) => item.value)).toEqual([500, 1000, 1500])`, `expect(series.labels).toEqual(['set', 'out', 'nov'])`; impl `buildGoalChartSeries.ts:34-36,42-44` (`firstProjectionIndex === -1 → data2 undefined`); component guard untouched `GoalProjectionChart/index.tsx:64-66` | ✅ PASS |
+
+**Status**: ✅ 3/3 in-scope criteria matched the spec-defined outcome with `file:line` evidence; 0 spec-precision gaps (AC-8's label values are pinned by the spec's Independent Test scenario).
+
+---
+
+## Discrimination Sensor (amendment 3)
+
+Lightweight depth (P2 visual layer; the 2 mandated behavior-level mutants). Scratch protocol (documented fallback, same class as the feature report — `git worktree` blocked by the sandbox, `.git` protected): `cp src/utils/buildGoalChartSeries.ts $TMPDIR/...orig` → apply behavior-level fault via edit → run the covering gate → restore from backup → verify isolation → delete temp copies. Isolation verified after both mutants: `git diff HEAD` on the mutated file = 0 lines (byte-identical to HEAD); `git status --porcelain` identical to the pre-sensor baseline (` M android/app/build.gradle`, pre-existing and untouched throughout); diff-range stat unchanged (5 files, 128+/17−); temp copies removed.
+
+| # | Mutation | File:line | Description | Killed? |
+| - | -------- | --------- | ----------- | ------- |
+| A | Revert the padding (the original bug) | `src/utils/buildGoalChartSeries.ts:38-40` | `data` maps only `points.slice(0, realCount)` — projected months get no primary-dataset slot | ✅ Killed — AC-8 test fails (`buildGoalChartSeries.spec.ts:37`: expected length 4, received 3), jest exit 1 |
+| B | Connect index also `undefined` | `src/utils/buildGoalChartSeries.ts:46` | `index < realCount - 1` → `index < realCount` — the dashed overlay drops the last real cumulative (1500) at the connect index | ✅ Killed — AC-2 test fails (`buildGoalChartSeries.spec.ts:52`: expected `[undefined, undefined, 1500, 2000]`, received `[undefined, undefined, undefined, 2000]`), jest exit 1 |
+
+**Sensor depth**: lightweight (2 mutants, the mandated pair)  
+**Result**: 2/2 killed — PASS ✅
+
+Residual (non-blocking, carried from the feature report): the JSX wiring itself (`GoalProjectionChart/index.tsx:72,88-89,126`) sits in the documented no-test component layer (jest cannot render it — pre-existing ESM transform blocker, STATE.md #13 class). Mutation A applied at the JSX call site would survive the suite; the layer is guarded by the util-level tests above + inspection (same mechanism as AC-7 in the feature report). This is the tracked blocker, not a new gap.
+
+---
+
+## Code Quality (amendment 3)
+
+| Principle | Status |
+| --------- | ------ |
+| No features beyond what was asked | ✅ (dataset shaping only; no chart props, styling, or guard behavior changed) |
+| No abstractions for single-use code | ✅ (one pure util shaping chart props; extraction mirrors the existing `buildGoalProjection` pattern and is what makes AC-8 testable) |
+| No unnecessary "flexibility" added | ✅ (single concrete signature; no options/config) |
+| Only touched files required for task | ✅ (util, its spec, the one chart component, spec/design docs) |
+| Didn't "improve" unrelated code | ✅ (component edit is minimal: inline `data`/`data2` construction + label mapping replaced by the util call; all other JSX props untouched) |
+| Matches existing patterns/style | ✅ (same util + colocated spec file layout as `buildGoalProjection`/`buildGoalProjection.spec.ts`) |
+| Would senior engineer approve? | ✅ |
+| Tests map to ACs and are non-shallow | ✅ — exact value equality on datasets and labels (`toEqual` with the spec's Independent Test values), not mere existence checks |
+| Spec-anchored outcome check | ✅ — asserted values are the spec-defined scenario values (table above) |
+| Per-layer Coverage Expectation met | ✅ — domain util 1:1 to ACs; component layer per the documented coverage matrix (inspection) |
+| Every test in scope maps to a spec AC / edge / Done-when | ✅ — 4/4 (AC-8 ×2, AC-2, AC-4); no unclaimed tests |
+| Documented guidelines followed | ✅ none found (no AGENTS.md/CI gates) — strong defaults applied per the coverage matrix |
+
+---
+
+## Edge Cases (amendment 3 scope)
+
+- [x] No projection → no overlay and no orphaned placeholder slots/labels: covered by the AC-4 test (`buildGoalChartSeries.spec.ts:60-66`)
+- [x] Component guard regression surface (< 2 movement months → no chart): untouched (`GoalProjectionChart/index.tsx:64-66`); projection-impossible goals keep AC-4 behavior via the same `firstProjectionIndex === -1` branch (`buildGoalChartSeries.ts:34-36`)
+
+---
+
+## Gate Check (amendment 3)
+
+- **Gate command**: `npx jest src/__tests__/utils/buildGoalChartSeries.spec.ts` (executed with `--watchman=false` — watchman is blocked by the Verifier sandbox; same documented workaround as the feature report's gate)
+- **Result**: 4 passed, 0 failed, 0 skipped
+- **Full suite regression count**: `npx jest --watchman=false` → **185 passed, 185 total across 23 suites** (1 suite fails at the transform stage — `src/__tests__/screens/profile.spec.tsx`, `phosphor-react-native` ESM issue: pre-existing documented baseline, unrelated to this change; the eslint `airbnb` config breakage is likewise pre-existing and repo-wide, not counted against this work)
+- **Test count before amendment**: 0 in `buildGoalChartSeries.spec.ts` (new file); 181 suite-wide (feature report figure, 2026-09-14)
+- **Test count after amendment**: 4 in scope file; 185 suite-wide
+- **Delta**: +4, all additive; no test deleted and no assertion weakened (the diff is additive on test files; `buildGoalProjection.spec.ts` untouched)
+- **Skipped tests**: none
+- **Failures**: only the pre-existing `profile.spec.tsx` transform failure
+
+---
+
+## Requirement Traceability Update (amendment 3)
+
+Verifier proposal (applied by the orchestrator):
+
+| Requirement | Previous Status | New Status |
+| ----------- | --------------- | ---------- |
+| GOAL-54 | 🚧 Implementing | ✅ Verified |
+
+---
+
+## Summary (amendment 3)
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 3/3 in-scope criteria matched the spec-defined outcome with `file:line` evidence (AC-8 primary; AC-2/AC-4 regression surface); 0 spec-precision gaps  
+**Sensor**: 2/2 mutations killed (the mandated pair: reverted padding, connect index undefined)  
+**Gate**: 4 passed in scope; 185 passed suite-wide; pre-existing failures unchanged
+
+**What works**: the GoalDetails chart's primary dataset and label series now span every plotted month, so projected months carry their x-axis date labels (AC-8), while the dashed overlay connect behavior, arrowhead, masking wiring, and the no-projection/guard behavior are preserved untouched (AC-2/AC-4 regression surface re-verified).
+
+**Issues found**: none open. Non-blocking residual carried from the feature report: the component-layer JSX wiring has no automated render test (documented blocker, STATE.md #13 class), guarded by util-level tests + inspection.
+
+**Next steps**: interactive UAT on device for the visual label rendering (user-facing layer, judgment reserved for the user); route GOAL-54 to ✅ Verified.

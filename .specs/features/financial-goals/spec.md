@@ -307,9 +307,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | GOAL-51 | P2: Chart — month-by-month cumulative evolution line | - | ✅ Verified |
 | GOAL-52 | P2: Chart — dashed projection at average pace until target | - | ✅ Verified |
 | GOAL-53 | P2: Chart — guards, labels, masking | - | ✅ Verified |
-| GOAL-54 | P2: Chart — x-axis labels span projected months (amendment 3) | - | 🚧 Implementing |
+| GOAL-54 | P2: Chart — x-axis labels span projected months (amendment 3) | - | ✅ Verified |
 
-**Coverage:** 53 total, 53 mapped (T1–T21 + chart amendment A1–A8 + conditional-reserve amendment), 0 unmapped — all ✅ Verified by the independent Verifier (`validation.md`, 2026-09-14: 63/63 criteria evidenced, gates green)
+**Coverage:** 54 total, 54 mapped (T1–T21 + chart amendment A1–A8 + conditional-reserve amendment), 0 unmapped — all ✅ Verified by the independent Verifier (`validation.md`, 2026-09-14: 63/63 criteria evidenced, gates green; 2026-09-15 amendment 3: 3/3 criteria evidenced, 2/2 mutants killed, gates green)
 
 ---
 
