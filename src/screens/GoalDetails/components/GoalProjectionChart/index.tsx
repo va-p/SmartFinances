@@ -127,9 +127,10 @@ export function GoalProjectionChart({
         }}
         focusEnabled
         showStripOnFocus
-        // GOAL-53: no value text renders while amounts are hidden.
+        // GOAL-53: no value text renders while amounts are hidden — neither
+        // the focused point's value nor the permanent data-point texts.
         showTextOnFocus={!hideAmount}
-        showValuesAsDataPointsText
+        showValuesAsDataPointsText={!hideAmount}
         xAxisLabelTexts={projection.points.map((point) => point.label)}
         xAxisTextNumberOfLines={2}
         xAxisColor={theme.colors.xAxisColor}
