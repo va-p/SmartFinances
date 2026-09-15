@@ -186,8 +186,9 @@ describe('buildGoalProjection', () => {
       now: new Date(2028, 0, 15),
     });
 
+    // Two-digit year per the 2026-09-08 layout fix (label width).
     const withYear = (date: Date) =>
-      format(date, "MMM '\n' yyyy", { locale: ptBR });
+      format(date, "MMM '\n' yy", { locale: ptBR });
     const monthOnly = (date: Date) => format(date, 'MMM', { locale: ptBR });
 
     // 2027: set (first) and dez (last) carry the year; out/nov do not.
