@@ -233,8 +233,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 5. The projection SHALL be capped at 60 months into the future; a goal that would not reach its target within the cap SHALL render the capped projection anyway. <!-- unwanted-behavior -->
 6. The chart SHALL label the X axis with pt-BR abbreviated month names and the year under the first and last point of each year, and SHALL format Y-axis labels in compact "k" form with the target amount as the top reference. <!-- ubiquitous -->
 7. The chart SHALL respect the `hideAmount` ("Ocultar informações") config: when active, data-point texts and focused values SHALL be masked. <!-- state-driven -->
+8. WHILE the projection line is rendered, the X axis SHALL carry the date label of every plotted month, real and projected alike, so the user can read when the goal will be reached at the current pace. (amendment 3, 2026-09-15) <!-- state-driven -->
 
-**Independent Test**: Goal with deposits of R$ 500 in Sep, R$ 500 in Oct, R$ 500 in Nov (target R$ 2.000) → chart shows 3 cumulative points (500/1000/1500) and a dashed projection reaching 2000 one month later; goal with a single movement month → no chart. Amendment 2: a linked account created with a pre-existing R$ 5.000 balance plus two R$ 500 deposits → the chart starts at 5.500, ends at the real 6.000 current amount, and the average stays R$ 500/month (the seed does not inflate the pace).
+**Independent Test**: Goal with deposits of R$ 500 in Sep, R$ 500 in Oct, R$ 500 in Nov (target R$ 2.000) → chart shows 3 cumulative points (500/1000/1500) and a dashed projection reaching 2000 one month later; goal with a single movement month → no chart. Amendment 2: a linked account created with a pre-existing R$ 5.000 balance plus two R$ 500 deposits → the chart starts at 5.500, ends at the real 6.000 current amount, and the average stays R$ 500/month (the seed does not inflate the pace). Amendment 3: every plotted month shows its date label on the X axis, the projected months included (previously only real months were labeled).
 
 ---
 
@@ -306,6 +307,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | GOAL-51 | P2: Chart — month-by-month cumulative evolution line | - | ✅ Verified |
 | GOAL-52 | P2: Chart — dashed projection at average pace until target | - | ✅ Verified |
 | GOAL-53 | P2: Chart — guards, labels, masking | - | ✅ Verified |
+| GOAL-54 | P2: Chart — x-axis labels span projected months (amendment 3) | - | 🚧 Implementing |
 
 **Coverage:** 53 total, 53 mapped (T1–T21 + chart amendment A1–A8 + conditional-reserve amendment), 0 unmapped — all ✅ Verified by the independent Verifier (`validation.md`, 2026-09-14: 63/63 criteria evidenced, gates green)
 
