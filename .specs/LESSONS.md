@@ -20,6 +20,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: CC-01/CC-02 render halves - src/screens/RegisterAccount/index.tsx:475-514 (no component-render harness in repo) (frontend-testing)
 - last seen: 2026-09-14T23:13:22Z
 
+### L-002 - When a masking requirement depends on a third-party component, verify the exact prop combination against the library's render code or a rendered probe — an always-on sibling prop (showValuesAsDataPointsText) can invert a conditional mask (showTextOnFocus)
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend-components` · harmful: 0
+- features: financial-goals
+- evidence: SmartFinances/src/screens/GoalDetails/components/GoalProjectionChart/index.tsx:131-132 (GOAL-53 chart AC-7) (frontend-components)
+- last seen: 2026-09-15T01:29:12Z
+
+### L-003 - react-native-gifted-charts prop regressions in screen components pass the entire jest suite because no chart-layer test can render under the current ESM transform blocker — verify chart prop wiring against the library's dist render code and device UAT, never the suite alone
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-components` · harmful: 0
+- features: financial-goals
+- evidence: SmartFinances/src/screens/GoalDetails/components/GoalProjectionChart/index.tsx:133 (mutation 9, fix-regression probe) (frontend-components)
+- last seen: 2026-09-15T01:38:27Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
