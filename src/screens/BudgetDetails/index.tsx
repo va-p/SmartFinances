@@ -15,6 +15,7 @@ import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 
 // Hooks
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
@@ -22,13 +23,7 @@ import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 
 // Dependencies
-import {
-  formatDistanceToNowStrict,
-  isToday,
-  isTomorrow,
-  isYesterday,
-  parse,
-} from 'date-fns';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
@@ -245,19 +240,7 @@ export function BudgetDetails() {
                   return (
                     <SectionListHeader
                       data={{
-                        title: isToday(
-                          parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                        )
-                          ? 'Hoje'
-                          : isYesterday(
-                              parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                            )
-                          ? 'Ontem'
-                          : isTomorrow(
-                              parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                            )
-                          ? 'Amanhã'
-                          : item.headerTitle,
+                        title: formatSectionHeaderTitle(item.headerTitle),
                         total: item.headerTotal,
                       }}
                     />

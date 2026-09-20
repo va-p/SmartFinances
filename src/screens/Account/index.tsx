@@ -30,6 +30,7 @@ import { useDeleteAccountMutation } from '@hooks/useAccountMutations';
 import formatCurrency from '@utils/formatCurrency';
 import { processTransactions } from '@utils/processTransactions';
 import { formatTransactions } from '@utils/formatTransactions';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 
 // Dependencies
 import Animated, {
@@ -427,6 +428,17 @@ export function Account() {
     );
   }
 
+  function _renderSectionHeader({ section }: any) {
+    return (
+      <SectionListHeader
+        data={{
+          title: formatSectionHeaderTitle(section.title),
+          total: section.total,
+        }}
+      />
+    );
+  }
+
   if (isLoading) {
     return <SkeletonAccountsScreen />;
   }
@@ -502,26 +514,7 @@ export function Account() {
             sections={processedData.transactionsFormattedBySelectedPeriod}
             keyExtractor={(item: any) => item.id}
             renderItem={_renderItem}
-            renderSectionHeader={({ section }: any) => (
-              <SectionListHeader
-                data={{
-                  title: isToday(
-                    parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                  )
-                    ? 'Hoje'
-                    : isYesterday(
-                        parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                      )
-                    ? 'Ontem'
-                    : isTomorrow(
-                        parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                      )
-                    ? 'Amanhã'
-                    : item.headerTitle,
-                  total: item.headerTotal,
-                }}
-              />
-            )}
+            renderSectionHeader={_renderSectionHeader}
             ListEmptyComponent={_renderEmpty}
             initialNumToRender={2000}
             refreshControl={

@@ -34,16 +34,11 @@ import { useTransactionFiltering } from './hooks/useTransactionFiltering';
 // Utils
 import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
 
 // Dependencies
-import {
-  isFirstDayOfMonth,
-  isToday,
-  isTomorrow,
-  isYesterday,
-  parse,
-} from 'date-fns';
+import { isFirstDayOfMonth } from 'date-fns';
 import Animated, {
   Easing,
   FadeInUp,
@@ -531,19 +526,7 @@ export function Home() {
                 return (
                   <SectionListHeader
                     data={{
-                      title: isToday(
-                        parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                      )
-                        ? 'Hoje'
-                        : isYesterday(
-                            parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                          )
-                        ? 'Ontem'
-                        : isTomorrow(
-                            parse(item.headerTitle, 'dd/MM/yyyy', new Date())
-                          )
-                        ? 'Amanhã'
-                        : item.headerTitle,
+                      title: formatSectionHeaderTitle(item.headerTitle),
                       total: item.headerTotal,
                     }}
                   />
