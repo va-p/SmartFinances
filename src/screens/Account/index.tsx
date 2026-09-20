@@ -58,9 +58,9 @@ import {
 import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
 import { useLocalSearchParams } from 'expo-router';
-import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -84,7 +84,6 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 // Storages
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
-import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -107,18 +106,16 @@ export function Account() {
   const [transactionId, setTransactionId] = useState('');
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const { id } = useLocalSearchParams();
-  const accountID: number = Number(id);
+  const accountID = Number(id);
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
-  const headerStyleAnimation = useAnimatedStyle(() => {
-    return {
-      height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolation.CLAMP),
-      opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolation.CLAMP),
-    };
-  });
+  const headerStyleAnimation = useAnimatedStyle(() => ({
+    height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolation.CLAMP),
+    opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolation.CLAMP),
+  }));
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
   // Animated button register transaction
@@ -309,7 +306,7 @@ export function Account() {
     subtype: accountSubType,
     creditData: accountCreditData,
   } = account;
-  const balanceIsPositive = accountBalance >= 0;
+  const balanceIsPositive = Number(accountBalance) >= 0;
   const isCreditCard =
     accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
   const hasCreditCardAvailableLimit =
@@ -364,7 +361,7 @@ export function Account() {
           text: 'Sim, Excluir',
           style: 'destructive',
           onPress: () =>
-            deleteAccount(String(accountID)!, {
+            deleteAccount(String(accountID), {
               onError: (error: any) => {
                 Alert.alert(
                   'Exclusão de Conta',
@@ -506,7 +503,24 @@ export function Account() {
             keyExtractor={(item: any) => item.id}
             renderItem={_renderItem}
             renderSectionHeader={({ section }: any) => (
-              <SectionListHeader data={section} />
+              <SectionListHeader
+                data={{
+                  title: isToday(
+                    parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                  )
+                    ? 'Hoje'
+                    : isYesterday(
+                        parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                      )
+                    ? 'Ontem'
+                    : isTomorrow(
+                        parse(item.headerTitle, 'dd/MM/yyyy', new Date())
+                      )
+                    ? 'Amanhã'
+                    : item.headerTitle,
+                  total: item.headerTotal,
+                }}
+              />
             )}
             ListEmptyComponent={_renderEmpty}
             initialNumToRender={2000}
