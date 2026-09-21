@@ -29,6 +29,7 @@ import {
 } from './styles';
 
 // Hooks
+import { useScreenTrace } from '@hooks/useScreenTrace';
 import {
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
@@ -162,6 +163,8 @@ export function RegisterTransaction({
   isBulkEdit = false,
   selectedTransactionIds = [],
 }: Props) {
+  useScreenTrace('register_transaction_screen');
+
   const theme = useTheme() as ThemeProps;
   const { id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
