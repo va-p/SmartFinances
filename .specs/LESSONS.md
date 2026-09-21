@@ -32,6 +32,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SmartFinances/src/screens/GoalDetails/components/GoalProjectionChart/index.tsx:133 (mutation 9, fix-regression probe) (frontend-components)
 - last seen: 2026-09-15T01:38:27Z
 
+### L-004 - When a spec pins which API must produce a call argument, assert that exact value instead of expect.anything()
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: screen-traces
+- evidence: src/hooks/__tests__/useScreenTrace.test.ts:70 (AC10) (tests)
+- last seen: 2026-09-21T17:20:57Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

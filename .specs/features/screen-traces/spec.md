@@ -66,11 +66,11 @@ The app ships `@react-native-firebase/perf` (installed + native plugin configure
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| PERF-01 | P1: Home screen trace (AC 1–2) | Execute | Pending |
-| PERF-02 | P1: Accounts screen trace (AC 3–4) | Execute | Pending |
-| PERF-03 | P1: RegisterTransaction screen trace (AC 5–6) | Execute | Pending |
-| PERF-04 | P1: Background/foreground handling (AC 7–8) | Execute | Pending |
-| PERF-05 | P1: Platform attribute + cross-platform API (AC 9–10) | Execute | Pending |
+| PERF-01 | P1: Home screen trace (AC 1–2) | Execute | ✅ Verified |
+| PERF-02 | P1: Accounts screen trace (AC 3–4) | Execute | ✅ Verified |
+| PERF-03 | P1: RegisterTransaction screen trace (AC 5–6) | Execute | ✅ Verified |
+| PERF-04 | P1: Background/foreground handling (AC 7–8) | Execute | ✅ Verified |
+| PERF-05 | P1: Platform attribute + cross-platform API (AC 9–10) | Execute | ✅ Verified |
 
 **Coverage:** 5 total, 5 mapped to execution steps, 0 unmapped
 

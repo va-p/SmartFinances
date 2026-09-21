@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 5,
   "lessons": [
     {
       "id": "L-001",
@@ -58,6 +58,24 @@
       ],
       "created": "2026-09-15T01:38:27Z",
       "last_seen": "2026-09-15T01:38:27Z"
+    },
+    {
+      "id": "L-004",
+      "key": "spec_precision_gap::when a spec pins which api must produce a call argument assert that exact value instead of expect anything",
+      "text": "When a spec pins which API must produce a call argument, assert that exact value instead of expect.anything()",
+      "signal": "spec_precision_gap",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "screen-traces"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/hooks/__tests__/useScreenTrace.test.ts:70 (AC10) (tests)"
+      ],
+      "created": "2026-09-21T17:20:57Z",
+      "last_seen": "2026-09-21T17:20:57Z"
     }
   ]
 }
