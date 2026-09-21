@@ -19,6 +19,7 @@ import {
 
 // Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
+import { useScreenTrace } from '@hooks/useScreenTrace';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
@@ -85,6 +86,8 @@ const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
 
 export function Accounts() {
+  useScreenTrace('accounts_screen');
+
   const theme = useTheme() as ThemeProps;
   const bottomTabHeight = useBottomTabBarHeight();
   const router = useRouter();
