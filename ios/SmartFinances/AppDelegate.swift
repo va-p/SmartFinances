@@ -4,6 +4,8 @@ import React
 import CodePush
 // @generated end revopush-updates-header
 import ReactAppDependencyProvider
+// React Native Firebase
+import Firebase
 
 @main
 class AppDelegate: ExpoAppDelegate {
@@ -22,6 +24,8 @@ class AppDelegate: ExpoAppDelegate {
 
     reactNativeDelegate = delegate
     reactNativeFactory = factory
+
+    FirebaseApp.configure()
 
 #if os(iOS) || os(tvOS)
     window = UIWindow(frame: UIScreen.main.bounds)
