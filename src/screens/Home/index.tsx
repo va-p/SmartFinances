@@ -25,6 +25,7 @@ import {
 
 // Hooks
 import { useDateNavigation } from '@hooks/useDateNavigation';
+import { useScreenTrace } from '@hooks/useScreenTrace';
 import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
@@ -120,6 +121,8 @@ const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
 export function Home() {
+  useScreenTrace('home_screen');
+
   const SCREEN_WIDTH = useWindowDimensions().width;
   const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
   const theme = useTheme() as ThemeProps;
