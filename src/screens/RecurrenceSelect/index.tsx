@@ -18,9 +18,9 @@ import { Button } from '@components/Button';
 import { useTheme } from 'styled-components';
 import { ThemeProps } from '@interfaces/theme';
 
-import CaretUp from 'phosphor-react-native/src/icons/CaretUp';
-import Calendar from 'phosphor-react-native/src/icons/Calendar';
-import CaretDown from 'phosphor-react-native/src/icons/CaretDown';
+import { CaretUpIcon } from 'phosphor-react-native/src/icons/CaretUp';
+import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
+import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
 
 export type RecurrencePeriod = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 
@@ -124,7 +124,7 @@ export function RecurrenceSelect({
           <QuantityRow>
             <QuantityButton onPress={handleDecrement}>
               <QuantityButtonText>
-                <CaretDown size={20} color={theme.colors.text} weight="bold" />
+                <CaretDownIcon size={20} color={theme.colors.text} weight="bold" />
               </QuantityButtonText>
             </QuantityButton>
 
@@ -139,7 +139,7 @@ export function RecurrenceSelect({
 
             <QuantityButton onPress={handleIncrement}>
               <QuantityButtonText>
-                <CaretUp size={20} color={theme.colors.text} weight="bold" />
+                <CaretUpIcon size={20} color={theme.colors.text} weight="bold" />
               </QuantityButtonText>
             </QuantityButton>
           </QuantityRow>
@@ -147,7 +147,7 @@ export function RecurrenceSelect({
           {/* ── Period Selector ─────────────────────────────── */}
           <Label secondary>Período</Label>
           <PeriodSelector onPress={handleSelectPeriod}>
-            <Calendar size={20} color={theme.colors.primary} />
+            <CalendarIcon size={20} color={theme.colors.primary} />
             <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
           </PeriodSelector>
 

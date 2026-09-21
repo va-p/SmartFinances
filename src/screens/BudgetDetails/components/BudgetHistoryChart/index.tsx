@@ -135,7 +135,6 @@ export function BudgetHistoryChart({
           fontSize: 10,
           color: theme.colors.xAxisLabel,
         }}
-        rulesType='solid'
         rulesThickness={1}
         rulesColor={theme.colors.chartRule}
       />

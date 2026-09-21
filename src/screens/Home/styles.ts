@@ -3,9 +3,11 @@ import styled from 'styled-components/native';
 import Animated from 'react-native-reanimated';
 import { BorderlessButton } from 'react-native-gesture-handler';
 
+import { ThemeProps } from '@interfaces/theme';
+
 export const Container = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.background};
 `;
 
 export const Header = styled.View`
@@ -16,18 +18,18 @@ export const Header = styled.View`
 export const CashFlowContainer = styled.View``;
 
 export const CashFlowTotal = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.bold};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   text-align: center;
-  color: ${({ theme }) => theme.colors.title};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   text-align: center;
   margin-top: -4px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const SearchButton = styled(BorderlessButton)`
@@ -58,8 +60,8 @@ export const SearchInputContainer = styled.View`
   max-height: 40px;
   align-items: center;
   margin: 8px 16px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: ${({ theme }) => theme.borders.borderRadiusButtonAndInput};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
+  border-radius: ${({ theme }) => (theme as ThemeProps).borders.borderRadiusButtonAndInput};
 `;
 
 export const ClearSearchButton = styled(BorderlessButton)`

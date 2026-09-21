@@ -1,5 +1,10 @@
 import React, { useEffect } from 'react';
-import { Alert, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { Container, Body, Footer } from './styles';
 
 // Hooks
@@ -16,7 +21,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { ControlledInputCategoryName } from '@components/Form/ControlledInputCategoryName';
 
@@ -137,12 +141,8 @@ export function RegisterInstitution({ id, closeInstitution }: Props) {
   }
 
   return (
-    <Screen>
-      <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
-        accessible={false}
-      >
-        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Body>
           <ControlledInputCategoryName
             placeholder='Nome da instituição'
@@ -168,7 +168,6 @@ export function RegisterInstitution({ id, closeInstitution }: Props) {
           </Button.Root>
         </Footer>
       </Container>
-      </TouchableWithoutFeedback>
-    </Screen>
+    </TouchableWithoutFeedback>
   );
 }

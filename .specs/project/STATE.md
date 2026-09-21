@@ -42,6 +42,10 @@
 | 36 | **BRL totals client-side** | Subscription totals (list footer, month view) are BRL-converted on the frontend via `convertCurrency` + quotes store (same pattern as `processAccountsForList`); backend stays currency-agnostic. Unsupported pairs are skipped, never thrown. |
 | 37 | **Hide = in-session undo only** | "Ocultar da lista" hides from both the list (Tela 1) and payments (Tela 5). The details screen toggles to "Exibir na lista" after hiding (undo while on screen). No standalone unhide list in this iteration. |
 | 38 | **Payment row ⋮ opens details** | The wireframe's ⋮ menu is undefined; both row tap and ⋮ navigate to the subscription details screen. |
+| 39 | **Virtual goal reserve accounts are real `Account` rows flagged `is_virtual`** | Financial Goals: reserve balances must count toward Net Worth but never appear in account UIs. Virtual accounts are created/deleted only through the goals flow (`deleteAccount` rejects them). Exposure rules amended by #41. |
+| 40 | **Goal money movement only via internal transfer pairs** | Goal deposits/withdrawals/delete transfer-backs are standard two-leg transfers (`TRANSFER_DEBIT`/`TRANSFER_CREDIT`) via `createTransferPair`, exposed through dedicated `/goal/:id/deposit\|withdraw` endpoints. No direct balance mutation, no side ledgers. Goal progress is always derivable from account balances. |
+| 41 | **`GET /account` excludes virtual accounts by default (supersedes #39's client-filtering note)** | Client-side-only filtering failed in UAT (the `getAccounts` formatter never emitted `isVirtual`, so every client filter was dead code). Server filters `isVirtual: false` by default; `?include_virtual=true` opts in (Accounts screen / net worth only); the DTO always exposes `isVirtual`. |
+| 42 | **Goal reserve created only when no accounts are linked** | User decision (2026-08-27): always-created reserves were redundant for linked goals. `Goal.reserveAccountId` is nullable; linked-only goals route deposits/withdrawals directly to a chosen linked account; emptying a goal's links via edit re-creates an empty reserve (invariant: every goal has ≥1 money target). |
 
 ---
 
@@ -64,12 +68,15 @@
 | 13 | TransactionsByCategory screen coverage | Verifier gap G1 (fix-transactions-by-category): the screen-level composition `formatTransactions → processTransactions` has no automated test (a reverted mapper unwiring survives the full suite). Deferred: utils are unit-tested and `processTransactions` hardening independently covers the empty-list regression; screen-level jest tests are currently blocked by the pre-existing `phosphor-react-native` transform failure (`profile.spec.tsx` fails at base). Add a composition/render test when screen-test infra is fixed. | Open |
 | 14 | TransactionsByCategory modal/ruler wiring coverage | Verifier gap (transactions-by-category-period-ruler-and-edit): PeriodRuler/FilterButton/modal-open/close wiring has no automated test (unwiring the card-tap handler survives the suite). Partially mitigated by `useDateNavigation` hook tests. Same blocker as #13. Also: the shared-hook `all`-mode fix changed Home's `all` behavior (was broken) — worth a manual QA pass on Home in `all` mode. | Open |
 | 15 | Subscription flags DB migration | `add_subscription_flags` migration SQL created (`prisma/migrations/20260822000000_add_subscription_flags/`) but not applied (PostgreSQL not running locally; migrations dir gitignored by convention). Must run `npx prisma migrate deploy` on cPanel when deploying backend `feat/subscription-management`. | Open |
+| 16 | Financial goals DB migration | `add_financial_goals` migration SQL generated via `prisma migrate diff` (`prisma/migrations/20260825085131_add_financial_goals/`) but not applied (dev DB unreachable; migrations dir is gitignored by convention). Must run `npx prisma migrate deploy` on cPanel when deploying backend `goals-target-savings`. | Open |
+| 17 | Goal chart render-test gap | Verifier watch item (financial-goals): the GoalProjectionChart `hideAmount` masking render test is deferred — chart-layer regressions cannot be caught by the suite until the pre-existing jest ESM/phosphor transform blocker is fixed (same class as #13/#14). AC currently guarded by the library render-gate trace in `validation.md` + tsc gate. | Open |
 
 ---
 
 ## Active Context
 
-- **Frontend version:** 2.24.x (from Revopush scripts target binary version `2.24.0`)
+- **Active feature:** `financial-goals` (specs in `.specs/features/financial-goals/`) — ✅ **Complete & Verified** (2026-09-14). All 53 requirements (GOAL-01..53) verified by the independent Verifier on branch `goals-target-savings` (both repos): 63/63 criteria evidenced, gates green (backend 202 tests + build; frontend 181 tests, tsc 548 baseline, 0 in goal files), 8/9 sensor mutants killed (survivor = chart-layer probe, see #17). Verifier fix applied: `620cbec` (GOAL-53 chart masking). Report: `.specs/features/financial-goals/validation.md`. Remaining (deployment, not code): `prisma migrate deploy` for `20260825085131_add_financial_goals` + `20260827120000_goal_reserve_optional` on cPanel (issue #16).
+- **Frontend version:** 2.30.1 (app versionCode 109)
 - **Backend version:** 1.0.0
 - **API prefix:** `/api/v1`
 - **Package manager:** Yarn 1.22.22 (both repos)

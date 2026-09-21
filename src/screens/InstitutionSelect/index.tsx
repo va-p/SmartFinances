@@ -18,12 +18,11 @@ import axios from 'axios';
 import { useTheme } from 'styled-components';
 
 // Icons
-import Plus from 'phosphor-react-native/src/icons/Plus';
-import Check from 'phosphor-react-native/src/icons/Check';
-import X from 'phosphor-react-native/src/icons/X';
+import { XIcon } from 'phosphor-react-native/src/icons/X';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
@@ -137,7 +136,6 @@ export function InstitutionSelect({
   }
 
   return (
-    <Screen>
       <Container>
         <Gradient />
 
@@ -164,7 +162,7 @@ export function InstitutionSelect({
             <QuickAddContainer>
               {!isAddingNew ? (
                 <QuickAddButton onPress={handleOpenQuickAdd}>
-                  <Plus size={16} color={theme.colors.primary} />
+                  <PlusIcon size={16} color={theme.colors.primary} />
                   <QuickAddButtonText>Nova instituição</QuickAddButtonText>
                 </QuickAddButton>
               ) : (
@@ -184,13 +182,13 @@ export function InstitutionSelect({
                     onPress={handleCancelQuickAdd}
                     enabled={!isCreating}
                   >
-                    <X size={20} color={theme.colors.text} />
+                    <XIcon size={20} color={theme.colors.text} />
                   </QuickAddIconButton>
                   <QuickAddConfirmButton
                     onPress={handleConfirmQuickAdd}
                     enabled={!isCreating}
                   >
-                    <Check size={20} color={theme.colors.background} />
+                    <CheckIcon size={20} color={theme.colors.background} />
                   </QuickAddConfirmButton>
                 </QuickAddInputRow>
               )}
@@ -204,6 +202,5 @@ export function InstitutionSelect({
           style={{ flex: 1, width: '100%' }}
         />
       </Container>
-    </Screen>
   );
 }

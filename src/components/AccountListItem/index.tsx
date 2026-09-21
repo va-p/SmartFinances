@@ -13,7 +13,7 @@ import { useTheme } from 'styled-components';
 
 import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import {CaretRightIcon} from 'phosphor-react-native/src/icons/CaretRight';
 
 import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
@@ -32,7 +32,7 @@ export function AccountListItem({
   hideAmount = false,
   ...rest
 }: Props) {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>
@@ -52,7 +52,7 @@ export function AccountListItem({
           </AmountsContainer>
         </NameContainer>
       </DetailsContainer>
-      <CaretRight size={16} color={theme.colors.text} />
+      <CaretRightIcon size={16} color={theme.colors.text} />
     </Container>
   );
 }

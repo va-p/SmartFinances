@@ -34,7 +34,7 @@ import {
 } from '@stores/useTransactionsStore';
 import { useTheme } from 'styled-components/native';
 import { ThemeProps } from '@interfaces/theme';
-import Repeat from 'phosphor-react-native/src/icons/Repeat';
+import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
 
 type Props = {
   data: TransactionProps;
@@ -66,7 +66,7 @@ const TransactionListItem = memo(function TransactionListItem({
           entering={FadeInUp.delay(index * 100)}
           style={{
             backgroundColor: isSelected
-              ? theme.colors.primary_light
+              ? theme.colors.primary_dark
               : theme.colors.shape,
           }}
           {...rest}
@@ -86,10 +86,6 @@ const TransactionListItem = memo(function TransactionListItem({
                   <TransferDirectionIcon name='arrow-down-outline' />
                 )}
                 <Amount type={data.type}>
-                  {!hideAmount &&
-                    data.account.type === 'CREDIT' &&
-                    data.type === 'DEBIT' &&
-                    '-'}
                   {!hideAmount
                     ? data.amount_in_account_currency
                       ? data.amount_in_account_currency_formatted
@@ -109,7 +105,7 @@ const TransactionListItem = memo(function TransactionListItem({
               </CategoryAndAccountContainer>
               {data.is_recurring && (
                 <RecurrenceBadge>
-                  <Repeat size={10} color={theme.colors.primary} weight="bold" />
+                  <RepeatIcon size={10} color={theme.colors.primary} weight="bold" />
                 </RecurrenceBadge>
               )}
               <AmountNotConvertedContainer>

@@ -83,6 +83,7 @@ export function CategorySelect({
             justifyContent: 'center',
             paddingTop: 12,
             paddingHorizontal: 12,
+            paddingBottom: 16,
           }}
           style={{ flex: 1, width: '100%' }}
         />

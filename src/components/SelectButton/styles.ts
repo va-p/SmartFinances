@@ -6,7 +6,14 @@ export const Container = styled(RectButton)`
   min-height: 56px;
   max-height: 56px;
   flex-direction: row;
+  align-items: center;
   padding: 16px;
+`;
+
+export const IconAndTextsContainer = styled.View`
+  flex: 1;
+  flex-direction: row;
+  align-items: flex-start;
 `;
 
 export const IconContainer = styled.View`

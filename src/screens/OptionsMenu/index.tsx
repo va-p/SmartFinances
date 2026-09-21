@@ -3,23 +3,24 @@ import { Alert } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
 // Icons
-import Tag from 'phosphor-react-native/src/icons/Tag';
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import User from 'phosphor-react-native/src/icons/User';
-import Bell from 'phosphor-react-native/src/icons/Bell';
-import Plugs from 'phosphor-react-native/src/icons/Plugs';
-import Cookie from 'phosphor-react-native/src/icons/Cookie';
-import Trophy from 'phosphor-react-native/src/icons/Trophy';
-import Wallet from 'phosphor-react-native/src/icons/Wallet';
-import Sparkle from 'phosphor-react-native/src/icons/Sparkle';
-import SignOut from 'phosphor-react-native/src/icons/SignOut';
-import Lifebuoy from 'phosphor-react-native/src/icons/Lifebuoy';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import MoonStars from 'phosphor-react-native/src/icons/MoonStars';
-import CirclesFour from 'phosphor-react-native/src/icons/CirclesFour';
-import Fingerprint from 'phosphor-react-native/src/icons/Fingerprint';
-import ShieldCheck from 'phosphor-react-native/src/icons/ShieldCheck';
-import Receipt from 'phosphor-react-native/src/icons/Receipt';
+import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { UserIcon } from 'phosphor-react-native/src/icons/User';
+import { BellIcon } from 'phosphor-react-native/src/icons/Bell';
+import { PlugsIcon } from 'phosphor-react-native/src/icons/Plugs';
+import { CookieIcon } from 'phosphor-react-native/src/icons/Cookie';
+import { TrophyIcon } from 'phosphor-react-native/src/icons/Trophy';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { SparkleIcon } from 'phosphor-react-native/src/icons/Sparkle';
+import { SignOutIcon } from 'phosphor-react-native/src/icons/SignOut';
+import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
+import { LifebuoyIcon } from 'phosphor-react-native/src/icons/Lifebuoy';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { MoonStarsIcon } from 'phosphor-react-native/src/icons/MoonStars';
+import { CertificateIcon } from 'phosphor-react-native/src/icons/Certificate';
+import { CirclesFourIcon } from 'phosphor-react-native/src/icons/CirclesFour';
+import { FingerprintIcon } from 'phosphor-react-native/src/icons/Fingerprint';
+import { ShieldCheckIcon } from 'phosphor-react-native/src/icons/ShieldCheck';
 
 // Dependencies
 import axios from 'axios';
@@ -78,8 +79,8 @@ export function OptionsMenu() {
     router.navigate('/options/subscription');
   }
 
-  function handleOpenSubscriptionsList() {
-    router.navigate('/options/subscriptions');
+  function handleOpenInstitutions() {
+    router.navigate('/options/institutions');
   }
 
   function handleOpenAccounts() {
@@ -103,8 +104,12 @@ export function OptionsMenu() {
     router.navigate('/options/tags');
   }
 
-  function handleOpenInstitutions() {
-    router.navigate('/options/institutions');
+  function handleOpenGoals() {
+    router.navigate('/options/goals');
+  }
+
+  function handleOpenSubscriptionsList() {
+    router.navigate('/options/subscriptions');
   }
 
   async function handleOpenkHelpCenter() {
@@ -217,8 +222,7 @@ export function OptionsMenu() {
     try {
       if (!notificationsEnabled) {
         // Turning ON: request OS permission
-        const granted =
-          await OneSignal.Notifications.requestPermission(true);
+        const granted = await OneSignal.Notifications.requestPermission(true);
         if (!granted) {
           Alert.alert(
             'Notificações',
@@ -250,14 +254,14 @@ export function OptionsMenu() {
 
   async function handleLogout() {
     try {
-      Alert.alert(
-        'Sair',
-        'Tem certeza que deseja sair?',
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          { text: 'Sair', style: 'destructive', onPress: async () => await signOut() },
-        ]
-      );
+      Alert.alert('Sair', 'Tem certeza que deseja sair?', [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: async () => await signOut(),
+        },
+      ]);
     } catch (error) {
       console.error('handleLogout error:', error);
     }
@@ -275,56 +279,62 @@ export function OptionsMenu() {
         <ContentScroll>
           <Title>Conta</Title>
           <SelectButton
-            icon={<User color={theme.colors.primary} />}
+            icon={<UserIcon color={theme.colors.primary} />}
             title='Perfil'
             onPress={handleOpenProfile}
           />
 
           <SelectButton
-            icon={<Trophy color={theme.colors.primary} />}
-            title='Assinatura Premium'
+            icon={<CertificateIcon color={theme.colors.primary} />}
+            title='Smart Finances Premium'
             onPress={() => handleOpenSubscription()}
           />
 
           <SelectButton
-            icon={<Bank color={theme.colors.primary} />}
+            icon={<BankIcon color={theme.colors.primary} />}
             title='Instituições Bancárias'
             onPress={() => handleOpenInstitutions()}
           />
 
           <SelectButton
-            icon={<Wallet color={theme.colors.primary} />}
+            icon={<WalletIcon color={theme.colors.primary} />}
             title='Contas Manuais'
             onPress={() => handleOpenAccounts()}
           />
 
           <SelectButton
-            icon={<Plugs color={theme.colors.primary} />}
+            icon={<PlugsIcon color={theme.colors.primary} />}
             title='Integrações Bancárias'
             onPress={() => handleOpenConnectedAccounts()}
           />
 
           <SelectButton
-            icon={<CirclesFour color={theme.colors.primary} />}
+            icon={<CirclesFourIcon color={theme.colors.primary} />}
             title='Categorias'
             onPress={() => handleOpenCategories()}
           />
 
           <SelectButton
-            icon={<Tag color={theme.colors.primary} />}
+            icon={<TagIcon color={theme.colors.primary} />}
             title='Etiquetas'
             onPress={() => handleOpenTags()}
           />
 
           <SelectButton
-            icon={<Receipt color={theme.colors.primary} />}
-            title='Minhas assinaturas'
+            icon={<TrophyIcon color={theme.colors.primary} />}
+            title='Metas & Objetivos'
+            onPress={() => handleOpenGoals()}
+          />
+
+          <SelectButton
+            icon={<ReceiptIcon color={theme.colors.primary} />}
+            title='Minhas Assinaturas'
             onPress={() => handleOpenSubscriptionsList()}
           />
 
           <Title>Configurações</Title>
           <ButtonToggle
-            icon={<EyeSlash color={theme.colors.primary} />}
+            icon={<EyeSlashIcon color={theme.colors.primary} />}
             title='Ocultar informações'
             onValueChange={handleChangeHideAmount}
             value={hideAmount}
@@ -332,7 +342,7 @@ export function OptionsMenu() {
           />
 
           <ButtonToggle
-            icon={<MoonStars color={theme.colors.primary} />}
+            icon={<MoonStarsIcon color={theme.colors.primary} />}
             title='Modo escuro'
             onValueChange={handleChangeDarkMode}
             value={darkMode}
@@ -340,7 +350,7 @@ export function OptionsMenu() {
           />
 
           <ButtonToggle
-            icon={<Sparkle color={theme.colors.primary} />}
+            icon={<SparkleIcon color={theme.colors.primary} />}
             title='Insights Inteligentes'
             onValueChange={handleChangeSmartInsights}
             value={insights}
@@ -348,7 +358,7 @@ export function OptionsMenu() {
           />
 
           <ButtonToggle
-            icon={<Fingerprint color={theme.colors.primary} />}
+            icon={<FingerprintIcon color={theme.colors.primary} />}
             title='Touch / Face ID'
             onValueChange={handleChangeUseLocalAuth}
             value={useLocalAuth}
@@ -356,7 +366,7 @@ export function OptionsMenu() {
           />
 
           <ButtonToggle
-            icon={<Bell color={theme.colors.primary} />}
+            icon={<BellIcon color={theme.colors.primary} />}
             title='Notificações'
             onValueChange={handleChangeNotifications}
             value={notificationsEnabled}
@@ -365,26 +375,26 @@ export function OptionsMenu() {
 
           <Title>Sobre</Title>
           <SelectButton
-            icon={<Lifebuoy color={theme.colors.primary} />}
+            icon={<LifebuoyIcon color={theme.colors.primary} />}
             title='Central de Ajuda'
             onPress={() => handleOpenkHelpCenter()}
           />
 
           <SelectButton
-            icon={<ShieldCheck color={theme.colors.primary} />}
+            icon={<ShieldCheckIcon color={theme.colors.primary} />}
             title='Termos de Uso'
             onPress={() => handleOpenTermsOfUse()}
           />
 
           <SelectButton
-            icon={<Cookie color={theme.colors.primary} />}
+            icon={<CookieIcon color={theme.colors.primary} />}
             title='Política de Privacidade'
             onPress={() => handleOpenPrivacyPolicy()}
             onLongPress={handleOpenDevScreen}
           />
 
           <SelectButton
-            icon={<SignOut color={theme.colors.primary} />}
+            icon={<SignOutIcon color={theme.colors.primary} />}
             title='Sair'
             onPress={() => handleLogout()}
             onLongPress={handleOpenDevScreen}

@@ -106,7 +106,8 @@ export function Overview() {
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
     isRefetching: isRefetchingAccounts,
-  } = useAccountsQuery();
+    // Total assets must include virtual goal reserves (GOAL-25).
+  } = useAccountsQuery(true);
   const {
     data: categories,
     isLoading: isLoadingCategories,
@@ -466,6 +467,7 @@ export function Overview() {
                 rulesColor={theme.colors.chartRule}
                 xAxisColor={theme.colors.xAxisColor}
                 noOfSections={4}
+                isAnimated
                 formatYLabel={(label: string) => {
                   const value = Number(label);
                   const k = Math.floor(value / 1000);

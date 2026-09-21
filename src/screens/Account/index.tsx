@@ -30,6 +30,7 @@ import { useDeleteAccountMutation } from '@hooks/useAccountMutations';
 import formatCurrency from '@utils/formatCurrency';
 import { processTransactions } from '@utils/processTransactions';
 import { formatTransactions } from '@utils/formatTransactions';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 
 // Dependencies
 import Animated, {
@@ -58,9 +59,9 @@ import {
 import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
 import { useLocalSearchParams } from 'expo-router';
-import Plus from 'phosphor-react-native/src/icons/Plus';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -82,10 +83,8 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
-import { useUser } from '@stores/userStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
-import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -101,7 +100,6 @@ export function Account() {
   const theme  = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-  const { id: userID } = useUser();
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const periodSelectBottomSheetRef = useRef<BottomSheetModal>(null);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -109,18 +107,16 @@ export function Account() {
   const [transactionId, setTransactionId] = useState('');
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const { id } = useLocalSearchParams();
-  const accountID: number = Number(id);
+  const accountID = Number(id);
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
-  const headerStyleAnimation = useAnimatedStyle(() => {
-    return {
-      height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolation.CLAMP),
-      opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolation.CLAMP),
-    };
-  });
+  const headerStyleAnimation = useAnimatedStyle(() => ({
+    height: interpolate(scrollY.value, [0, 340], [230, 0], Extrapolation.CLAMP),
+    opacity: interpolate(scrollY.value, [0, 310], [1, 0], Extrapolation.CLAMP),
+  }));
   // Animated section list
   const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
   // Animated button register transaction
@@ -311,7 +307,7 @@ export function Account() {
     subtype: accountSubType,
     creditData: accountCreditData,
   } = account;
-  const balanceIsPositive = accountBalance >= 0;
+  const balanceIsPositive = Number(accountBalance) >= 0;
   const isCreditCard =
     accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
   const hasCreditCardAvailableLimit =
@@ -366,7 +362,7 @@ export function Account() {
           text: 'Sim, Excluir',
           style: 'destructive',
           onPress: () =>
-            deleteAccount(String(accountID)!, {
+            deleteAccount(String(accountID), {
               onError: (error: any) => {
                 Alert.alert(
                   'Exclusão de Conta',
@@ -428,6 +424,17 @@ export function Account() {
         index={index}
         hideAmount={hideAmount}
         onPress={() => handleOpenTransaction(item.id)}
+      />
+    );
+  }
+
+  function _renderSectionHeader({ section }: any) {
+    return (
+      <SectionListHeader
+        data={{
+          title: formatSectionHeaderTitle(section.title),
+          total: section.total,
+        }}
       />
     );
   }
@@ -507,9 +514,7 @@ export function Account() {
             sections={processedData.transactionsFormattedBySelectedPeriod}
             keyExtractor={(item: any) => item.id}
             renderItem={_renderItem}
-            renderSectionHeader={({ section }: any) => (
-              <SectionListHeader data={section} />
-            )}
+            renderSectionHeader={_renderSectionHeader}
             ListEmptyComponent={_renderEmpty}
             initialNumToRender={2000}
             refreshControl={
@@ -543,7 +548,7 @@ export function Account() {
               onPress={handleOpenRegisterTransactionModal}
               style={dynamicStyles.animatedButton}
             >
-              <Plus size={24} color={theme.colors.background} />
+              <PlusIcon size={24} color={theme.colors.background} />
             </ButtonAnimated>
           </Animated.View>
         </GestureDetector>

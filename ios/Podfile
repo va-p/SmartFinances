@@ -26,9 +26,6 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '16.4'
 
 prepare_react_native_project!
 
-# Firebase requires this with New Architecture
-$RNFirebaseAsStaticFramework = true
-
 target 'SmartFinances' do
   use_expo_modules!
 
@@ -48,6 +45,8 @@ target 'SmartFinances' do
     ]
   end
 
+  use_frameworks! :linkage => :static
+  $RNFirebaseAsStaticFramework = true
   config = use_native_modules!(config_command)
 
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
@@ -68,12 +67,5 @@ target 'SmartFinances' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
-
-    # Fix Firebase + use_frameworks! non-modular include errors
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
-      end
-    end
   end
 end

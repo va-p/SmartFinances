@@ -1,10 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, Platform, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { Container, Form, Footer, ErrorMessage } from './styles';
 
 // Dependencies
 import axios from 'axios';
-import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { useFocusEffect } from 'expo-router';
 import { useTheme } from 'styled-components/native';
@@ -12,16 +17,17 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import SelectDropdown from 'react-native-select-dropdown';
 
 // Icons
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import Money from 'phosphor-react-native/src/icons/Money';
-import Coins from 'phosphor-react-native/src/icons/Coins';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import Star from 'phosphor-react-native/src/icons/Star';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
-import PencilSimple from 'phosphor-react-native/src/icons/PencilSimple';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { StarIcon } from 'phosphor-react-native/src/icons/Star';
+import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
+import { CoinsIcon } from 'phosphor-react-native/src/icons/Coins';
+import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
+import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ButtonToggle } from '@components/ButtonToggle';
@@ -43,43 +49,20 @@ import { AccountTypes } from '@interfaces/accounts';
 import { CurrencyProps } from '@interfaces/currencies';
 import { InstitutionProps } from '@interfaces/institutions';
 
-import api from '@api/api';
+// Utils
+import {
+  buildCreditCardDataPayload,
+  getClosingDayFromDate,
+  CreditCardDataPayload,
+} from '@utils/creditCardData';
 
-type FormData = {
-  name: string;
-  currency: string;
-  balance: number;
-  type?: string;
-  institution_id?: string | null;
-};
+import api from '@api/api';
+import { FormData, schema, ACCOUNT_TYPES_REQUIRING_INSTITUTION } from './schema';
 
 type Props = {
   id: string | null;
   closeAccount: () => void;
 };
-
-// Account types that, in practice, always have a real financial institution
-// behind them (per context.md decision #2 / AC11.3) — the institution field
-// is required for these, optional for the rest (AC11.4).
-const ACCOUNT_TYPES_REQUIRING_INSTITUTION = ['BANK', 'INVESTMENTS', 'CREDIT'];
-
-/* Validation Form - Start */
-const schema = Yup.object().shape({
-  name: Yup.string().required('Digite o nome da conta'),
-  balance: Yup.number()
-    .required('Digite o saldo da conta')
-    .typeError('Digite um valor numérico'),
-  type: Yup.string(),
-  institution_id: Yup.string()
-    .nullable()
-    .when('type', {
-      is: (type: string) =>
-        ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(type),
-      then: (currentSchema) =>
-        currentSchema.required('Selecione a instituição financeira'),
-    }),
-});
-/* Validation Form - End */
 
 export function RegisterAccount({ id, closeAccount }: Props) {
   const theme = useTheme() as ThemeProps;
@@ -98,6 +81,10 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       balance: 0,
       type: '',
       institution_id: null,
+      credit_card_brand: '',
+      credit_card_close_day: undefined,
+      credit_card_credit_limit: undefined,
+      credit_card_available_credit_limit: undefined,
     },
   });
   const accountTypes: AccountTypes[] = [
@@ -113,12 +100,13 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencies = useCurrenciesStore((state) => state.currencies);
   const [currencySelected, setCurrencySelected] = useState<CurrencyProps>(
-    () => currencies.find((c) => c.code === 'BRL') || ({
-      id: 0,
-      name: 'Real Brasileiro',
-      code: 'BRL' as CurrencyProps['code'],
-      symbol: '',
-    })
+    () =>
+      currencies.find((c) => c.code === 'BRL') || {
+        id: 0,
+        name: 'Real Brasileiro',
+        code: 'BRL' as CurrencyProps['code'],
+        symbol: '',
+      }
   );
   const [hideAccount, setHideAccount] = useState(false);
   const [isDefault, setIsDefault] = useState(false);
@@ -141,15 +129,18 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   const accountTypeMap: Record<string, string> = {
     CREDIT: 'Cartão de Crédito',
     WALLET: 'Carteira',
-    'CRYPTOCURRENCY_WALLET': 'Carteira de Criptomoedas',
+    CRYPTOCURRENCY_WALLET: 'Carteira de Criptomoedas',
     BANK: 'Conta Corrente',
     INVESTMENTS: 'Investimentos',
     OTHER: 'Outro',
   };
 
-  const institutionIsOptional = !ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(
-    typeSelected
-  );
+  // Manual credit card data (brand, closing day, limits) is captured only
+  // for CREDIT accounts (spec CC-01/CC-02).
+  const isCreditCard = typeSelected === 'CREDIT';
+
+  const institutionIsOptional =
+    !ACCOUNT_TYPES_REQUIRING_INSTITUTION.includes(typeSelected);
   const institutionLabel = institutionIsOptional
     ? 'Instituição financeira (opcional)'
     : 'Instituição financeira';
@@ -191,16 +182,22 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     setIsDefault((prevState) => !prevState);
   }
 
-  async function handleEditAccount(id: string | null, form: FormData) {
+  async function handleEditAccount(
+    id: string | null,
+    form: FormData,
+    creditData?: CreditCardDataPayload
+  ) {
     const AccountEdited = {
       account_id: id,
       name: form.name,
       type: typeSelected,
+      subtype: typeSelected === 'CREDIT' ? 'CREDIT_CARD' : null,
       currency_id: currencySelected.id, // TODO: only if is manual account
       balance: form.balance,
       hide: hideAccount,
       is_default: isDefault,
       institution_id: institutionSelected?.id ?? null,
+      creditData,
     };
     try {
       const { status } = await api.patch('account/edit', AccountEdited);
@@ -246,9 +243,20 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     }
     /* Validation Form - End */
 
+    // Credit card data is built from the form only for CREDIT accounts;
+    // for any other type the key is omitted entirely (spec CC-07/CC-08).
+    const creditData = isCreditCard
+      ? buildCreditCardDataPayload({
+          brand: form.credit_card_brand,
+          closeDay: form.credit_card_close_day,
+          creditLimit: form.credit_card_credit_limit,
+          availableCreditLimit: form.credit_card_available_credit_limit,
+        }) ?? undefined
+      : undefined;
+
     // Edit account
     if (id !== '') {
-      handleEditAccount(id, form);
+      handleEditAccount(id, form, creditData);
     }
     // Add account
     else {
@@ -256,12 +264,14 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         const newAccount = {
           name: form.name,
           type: typeSelected,
+          subtype: typeSelected === 'CREDIT' ? 'CREDIT_CARD' : null,
           currency_id: currencySelected.id,
           balance: form.balance,
           hide: false,
           is_default: isDefault,
           user_id: userID,
           institution_id: institutionSelected?.id ?? null,
+          creditData,
         };
         const { status } = await api.post('account', newAccount);
         if (status === 200) {
@@ -301,6 +311,27 @@ export function RegisterAccount({ id, closeAccount }: Props) {
       setHideAccount(data.hide);
       setIsDefault(data.isDefault ?? false);
       handleSetInstitution(data.institution ?? null);
+
+      // Pre-fill the credit card fields from the stored card data (spec
+      // CC-06). The API formats null limits as 0 — treat 0 as empty so a
+      // missing limit never pre-fills the inputs.
+      if (data.creditData) {
+        setValue('credit_card_brand', data.creditData.brand || '');
+        setValue(
+          'credit_card_close_day',
+          getClosingDayFromDate(data.creditData.balanceCloseDate) ?? undefined
+        );
+        setValue(
+          'credit_card_credit_limit',
+          data.creditData.creditLimit || undefined
+        );
+        setValue(
+          'credit_card_available_credit_limit',
+          data.creditData.availableCreditLimit > 0
+            ? data.creditData.availableCreditLimit
+            : null
+        );
+      }
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -342,173 +373,217 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   );
 
   return (
-    <Screen>
-      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <TouchableWithoutFeedback
-          onPress={Keyboard.dismiss}
-          accessible={false}
-          style={{ flex: 1 }}
-        >
-          <View style={{ flex: 1 }}>
-        <Form>
-          <ControlledInputWithIcon
-            icon={<PencilSimple color={theme.colors.primary} />}
-            placeholder='Nome da conta'
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            defaultValue={String(getValues('name'))}
-            name='name'
-            control={control}
-            error={errors.name}
-          />
-
-          <ControlledInputWithIcon
-            icon={<Money color={theme.colors.primary} />}
-            placeholder='Saldo da conta'
-            keyboardType='decimal-pad'
-            returnKeyType='go'
-            defaultValue={String(getValues('balance'))}
-            name='balance'
-            control={control}
-            error={errors.balance}
-            onSubmitEditing={handleSubmit(handleRegisterAccount)}
-          />
-
-          <SelectButton
-            title={currencySelected.name}
-            icon={<Coins color={theme.colors.primary} />}
-            onPress={handleOpenSelectCurrencyModal}
-          />
-
-          <SelectDropdown
-            data={accountTypes}
-            onSelect={(selectedItem) => {
-              switch (selectedItem) {
-                case 'Cartão de Crédito':
-                  handleSetType('CREDIT');
-                  break;
-                case 'Carteira':
-                  handleSetType('WALLET');
-                  break;
-                case 'Carteira de Criptomoedas':
-                  handleSetType('CRYPTOCURRENCY_WALLET');
-                  break;
-                case 'Conta Corrente':
-                  handleSetType('BANK');
-                  break;
-                case 'Investimentos':
-                case 'Poupança':
-                  handleSetType('INVESTMENTS');
-                  break;
-                case 'Outro':
-                  handleSetType('OTHER');
-                  break;
-                default:
-                  handleSetType('WALLET');
-              }
-            }}
-            defaultButtonText={
-              id !== ''
-                ? accountTypeMap[typeSelected]
-                : 'Selecione o tipo da conta'
-            }
-            buttonTextAfterSelection={(selectedItem) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item) => {
-              return item;
-            }}
-            buttonStyle={{
-              width: '100%',
-              minHeight: 40,
-              maxHeight: 40,
-              marginTop: 10,
-              backgroundColor: theme.colors.shape,
-              borderRadius: 10,
-            }}
-            buttonTextStyle={{
-              fontFamily: theme.fonts.regular,
-              fontSize: 15,
-              textAlign: 'left',
-              color: theme.colors.text,
-            }}
-            renderDropdownIcon={() => {
-              return <CaretRight size={20} color={theme.colors.text} />;
-            }}
-            dropdownIconPosition='right'
-            rowStyle={{ backgroundColor: theme.colors.background }}
-            rowTextStyle={{ color: theme.colors.text }}
-            dropdownStyle={{ borderRadius: 10 }}
-          />
-
-          <SelectButton
-            title={institutionLabel}
-            subTitle={institutionSelected?.name ?? 'Selecione a instituição financeira'}
-            icon={<Bank color={theme.colors.primary} />}
-            onPress={handleOpenSelectInstitutionModal}
-          />
-          {errors.institution_id && (
-            <ErrorMessage>{errors.institution_id.message}</ErrorMessage>
-          )}
-
-          {id !== '' && (
-            <ButtonToggle
-              icon={<EyeSlash color={theme.colors.primary} />}
-              title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
-              onValueChange={handleHideAccount}
-              value={hideAccount}
-              isEnabled={hideAccount}
+    <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        accessible={false}
+        style={{ flex: 1 }}
+      >
+        <View style={{ flex: 1 }}>
+          <Form>
+            <ControlledInputWithIcon
+              icon={<PencilSimpleIcon color={theme.colors.primary} />}
+              placeholder='Nome da conta'
+              autoCapitalize='sentences'
+              autoCorrect={false}
+              defaultValue={String(getValues('name'))}
+              name='name'
+              control={control}
+              error={errors.name}
             />
-          )}
 
-          <ButtonToggle
-            icon={<Star color={theme.colors.primary} />}
-            title='Definir como conta padrão'
-            subTitle='Esta conta virá pré-selecionada ao adicionar transações'
-            onValueChange={handleToggleDefaultAccount}
-            value={isDefault}
-            isEnabled={isDefault}
-          />
-        </Form>
+            <ControlledInputWithIcon
+              icon={<MoneyIcon color={theme.colors.primary} />}
+              placeholder='Saldo da conta'
+              keyboardType='decimal-pad'
+              returnKeyType='go'
+              defaultValue={String(getValues('balance'))}
+              name='balance'
+              control={control}
+              error={errors.balance}
+              onSubmitEditing={handleSubmit(handleRegisterAccount)}
+            />
 
-        <Footer>
-          <Button.Root
-            type='secondary'
-            isLoading={buttonIsLoading}
-            onPress={handleSubmit(handleRegisterAccount)}
+            <SelectButton
+              title={currencySelected.name}
+              icon={<CoinsIcon color={theme.colors.primary} />}
+              onPress={handleOpenSelectCurrencyModal}
+            />
+
+            <SelectDropdown
+              data={accountTypes}
+              onSelect={(selectedItem) => {
+                switch (selectedItem) {
+                  case 'Cartão de Crédito':
+                    handleSetType('CREDIT');
+                    break;
+                  case 'Carteira':
+                    handleSetType('WALLET');
+                    break;
+                  case 'Carteira de Criptomoedas':
+                    handleSetType('CRYPTOCURRENCY_WALLET');
+                    break;
+                  case 'Conta Corrente':
+                    handleSetType('BANK');
+                    break;
+                  case 'Investimentos':
+                  case 'Poupança':
+                    handleSetType('INVESTMENTS');
+                    break;
+                  case 'Outro':
+                    handleSetType('OTHER');
+                    break;
+                  default:
+                    handleSetType('WALLET');
+                }
+              }}
+              defaultButtonText={
+                id !== ''
+                  ? accountTypeMap[typeSelected]
+                  : 'Selecione o tipo da conta'
+              }
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item) => {
+                return item;
+              }}
+              buttonStyle={{
+                width: '100%',
+                minHeight: 40,
+                maxHeight: 40,
+                marginTop: 10,
+                backgroundColor: theme.colors.shape,
+                borderRadius: 10,
+              }}
+              buttonTextStyle={{
+                fontFamily: theme.fonts.regular,
+                fontSize: 15,
+                textAlign: 'left',
+                color: theme.colors.text,
+              }}
+              renderDropdownIcon={() => {
+                return <CaretRightIcon size={20} color={theme.colors.text} />;
+              }}
+              dropdownIconPosition='right'
+              rowStyle={{ backgroundColor: theme.colors.background }}
+              rowTextStyle={{ color: theme.colors.text }}
+              dropdownStyle={{ borderRadius: 10 }}
+            />
+
+            {/* Manual credit card data — shown only for CREDIT accounts
+                (spec CC-01/CC-02). */}
+            {isCreditCard && (
+              <>
+                <ControlledInputWithIcon
+                  icon={<CreditCardIcon color={theme.colors.primary} />}
+                  placeholder='Bandeira do cartão'
+                  autoCapitalize='words'
+                  autoCorrect={false}
+                  name='credit_card_brand'
+                  control={control}
+                  error={errors.credit_card_brand}
+                />
+
+                <ControlledInputWithIcon
+                  icon={<CalendarIcon color={theme.colors.primary} />}
+                  placeholder='Dia de fechamento da fatura (1-31)'
+                  keyboardType='number-pad'
+                  name='credit_card_close_day'
+                  control={control}
+                  error={errors.credit_card_close_day}
+                />
+
+                <ControlledInputWithIcon
+                  icon={<MoneyIcon color={theme.colors.primary} />}
+                  placeholder='Limite total do cartão'
+                  keyboardType='decimal-pad'
+                  name='credit_card_credit_limit'
+                  control={control}
+                  error={errors.credit_card_credit_limit}
+                />
+
+                <ControlledInputWithIcon
+                  icon={<CoinsIcon color={theme.colors.primary} />}
+                  placeholder='Limite disponível (opcional)'
+                  keyboardType='decimal-pad'
+                  name='credit_card_available_credit_limit'
+                  control={control}
+                  error={errors.credit_card_available_credit_limit}
+                />
+              </>
+            )}
+
+            <SelectButton
+              title={institutionLabel}
+              subTitle={
+                institutionSelected?.name ??
+                'Selecione a instituição financeira'
+              }
+              icon={<BankIcon color={theme.colors.primary} />}
+              onPress={handleOpenSelectInstitutionModal}
+            />
+            {errors.institution_id && (
+              <ErrorMessage>{errors.institution_id.message}</ErrorMessage>
+            )}
+
+            {id !== '' && (
+              <ButtonToggle
+                icon={<EyeSlashIcon color={theme.colors.primary} />}
+                title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
+                onValueChange={handleHideAccount}
+                value={hideAccount}
+                isEnabled={hideAccount}
+              />
+            )}
+
+            <ButtonToggle
+              icon={<StarIcon color={theme.colors.primary} />}
+              title='Definir como conta padrão'
+              subTitle='Esta conta virá pré-selecionada ao adicionar transações'
+              onValueChange={handleToggleDefaultAccount}
+              value={isDefault}
+              isEnabled={isDefault}
+            />
+          </Form>
+
+          <Footer>
+            <Button.Root
+              type='secondary'
+              isLoading={buttonIsLoading}
+              onPress={handleSubmit(handleRegisterAccount)}
+            >
+              <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
+            </Button.Root>
+          </Footer>
+
+          <ModalViewSelection
+            $modal
+            title='Selecione a moeda'
+            bottomSheetRef={currencyBottomSheetRef}
+            snapPoints={['75%']}
           >
-            <Button.Text text={id !== '' ? 'Editar Conta' : 'Criar Conta'} />
-          </Button.Root>
-        </Footer>
+            <CurrencySelect
+              currency={currencySelected}
+              setCurrency={setCurrencySelected}
+              closeSelectCurrency={handleCloseSelectCurrencyModal}
+            />
+          </ModalViewSelection>
 
-        <ModalViewSelection
-          $modal
-          title='Selecione a moeda'
-          bottomSheetRef={currencyBottomSheetRef}
-          snapPoints={['75%']}
-        >
-          <CurrencySelect
-            currency={currencySelected}
-            setCurrency={setCurrencySelected}
-            closeSelectCurrency={handleCloseSelectCurrencyModal}
-          />
-        </ModalViewSelection>
-
-        <ModalViewSelection
-          $modal
-          title='Selecione a instituição'
-          bottomSheetRef={institutionBottomSheetRef}
-          snapPoints={['75%']}
-        >
-          <InstitutionSelect
-            institutionSelected={institutionSelected}
-            setInstitution={handleSetInstitution}
-            closeSelectInstitution={handleCloseSelectInstitutionModal}
-          />
-        </ModalViewSelection>
-          </View>
-        </TouchableWithoutFeedback>
-      </Container>
-    </Screen>
+          <ModalViewSelection
+            $modal
+            title='Selecione a instituição'
+            bottomSheetRef={institutionBottomSheetRef}
+            snapPoints={['75%']}
+          >
+            <InstitutionSelect
+              institutionSelected={institutionSelected}
+              setInstitution={handleSetInstitution}
+              closeSelectInstitution={handleCloseSelectInstitutionModal}
+            />
+          </ModalViewSelection>
+        </View>
+      </TouchableWithoutFeedback>
+    </Container>
   );
 }

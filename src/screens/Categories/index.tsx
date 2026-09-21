@@ -16,13 +16,11 @@ import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
-import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CategoryListItem } from '@components/CategoryListItem';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 
 import { RegisterCategory } from '@screens/RegisterCategory';
-
-import { useUser } from '@stores/userStorage';
 
 export function Categories() {
   const bottomTabBarHeight = useBottomTabBarHeight();

@@ -9,10 +9,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from 'expo-router';
 
 // Icons
-import Bank from 'phosphor-react-native/src/icons/Bank';
-import Wallet from 'phosphor-react-native/src/icons/Wallet';
-import CreditCard from 'phosphor-react-native/src/icons/CreditCard';
-import CurrencyBtc from 'phosphor-react-native/src/icons/CurrencyBtc';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
+import { CurrencyBtcIcon } from 'phosphor-react-native/src/icons/CurrencyBtc';
 
 // Screens
 import { Screen } from '@components/Screen';
@@ -48,7 +48,6 @@ export function AccountsList() {
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [loading, setLoading] = useState(false);
-  const { id: userID } = useUser();
   const [refreshing, setRefreshing] = useState(true);
   const [accounts, setAccounts] = useState<AccountProps[]>([]);
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -72,8 +71,13 @@ export function AccountsList() {
 
   // Format balances in each account's currency (and add a BRL-converted
   // secondary line for non-BRL accounts), mirroring the Accounts screen.
+  // Virtual goal reserves never render in the management list (GOAL-24).
   const processedAccounts = useMemo(
-    () => processAccountsForList(accounts, quotes),
+    () =>
+      processAccountsForList(
+        accounts.filter((account) => !account.isVirtual),
+        quotes
+      ),
     [accounts, quotes]
   );
 
@@ -190,14 +194,14 @@ export function AccountsList() {
       switch (item.type) {
         case 'OTHER':
         case 'WALLET':
-          return <Wallet color={theme.colors.primary} />;
+          return <WalletIcon color={theme.colors.primary} />;
         case 'CRYPTOCURRENCY_WALLET':
-          return <CurrencyBtc color={theme.colors.primary} />;
+          return <CurrencyBtcIcon color={theme.colors.primary} />;
         case 'INVESTMENTS':
         case 'BANK':
-          return <Bank color={theme.colors.primary} />;
+          return <BankIcon color={theme.colors.primary} />;
         case 'CREDIT':
-          return <CreditCard color={theme.colors.primary} />;
+          return <CreditCardIcon color={theme.colors.primary} />;
         default:
           'WALLET';
           break;

@@ -15,6 +15,7 @@ import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 
 // Hooks
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
@@ -22,12 +23,12 @@ import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 
 // Dependencies
+import { formatDistanceToNowStrict } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-import { formatDistanceToNowStrict, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
 
 // Components
 import {
@@ -64,7 +65,8 @@ export function BudgetDetails() {
 
   const { hideAmount } = useUserConfigs();
 
-  const { budget, isLoading, isError, refetchBudget } = useFormattedBudgetDetail(budgetID);
+  const { budget, isLoading, isError, refetchBudget } =
+    useFormattedBudgetDetail(budgetID);
   const { data: transactions } = useTransactionsQuery();
   const { mutate: deleteBudget } = useDeleteBudgetMutation();
 
@@ -105,7 +107,7 @@ export function BudgetDetails() {
   }
 
   function calculateRemainderBudgetPerDay() {
-    const daysToEndDate = formatDistanceToNowStrict(budget.current_end_date, {
+    const daysToEndDate = formatDistanceToNowStrict(budget!.current_end_date, {
       unit: 'day',
       locale: ptBR,
     }).split(' ')[0];
@@ -177,7 +179,6 @@ export function BudgetDetails() {
           <Header.Icon onPress={handleOpenEditBudgetModal} />
         </Header.Root>
 
-        <ScrollContent>
         <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
           {formatCurrency(
             budget.currency.code,
@@ -220,61 +221,56 @@ export function BudgetDetails() {
           <EndPeriod>{budget.formatted_end_date}</EndPeriod>
         </PeriodContainer>
 
-        <BudgetHistoryChart
-          budget={budget}
-          transactions={transactions ?? []}
-        />
+        <ScrollContent>
+          <BudgetHistoryChart
+            budget={budget}
+            transactions={transactions ?? []}
+          />
 
-        <TransactionsContainer>
-          <SectionTitle>Transações</SectionTitle>
-          <FlashList
-            data={budgetTransactionsGroupedByDate}
-            keyExtractor={(item: any) =>
-              item.isHeader ? String(item.headerTitle!) : String(item.id)
-            }
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }: any) => {
-              if (item.isHeader) {
+          <TransactionsContainer>
+            <SectionTitle>Transações</SectionTitle>
+            <FlashList
+              data={budgetTransactionsGroupedByDate}
+              keyExtractor={(item: any) =>
+                item.isHeader ? String(item.headerTitle!) : String(item.id)
+              }
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item, index }: any) => {
+                if (item.isHeader) {
+                  return (
+                    <SectionListHeader
+                      data={{
+                        title: formatSectionHeaderTitle(item.headerTitle),
+                        total: item.headerTotal,
+                      }}
+                    />
+                  );
+                }
                 return (
-                  <SectionListHeader
-                    data={{
-                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                        ? 'Hoje'
-                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                          ? 'Ontem'
-                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                            ? 'Amanhã'
-                            : item.headerTitle,
-                      total: item.headerTotal,
-                    }}
+                  <TransactionListItem
+                    key={item.id}
+                    data={item}
+                    index={index}
+                    hideAmount={hideAmount}
+                    onPress={() => handleOpenTransaction(item.id)}
                   />
                 );
+              }}
+              getItemType={(item) =>
+                (item as FlashListTransactionItem).isHeader
+                  ? 'sectionHeader'
+                  : 'row'
               }
-              return (
-                <TransactionListItem
-                  key={item.id}
-                  data={item}
-                  index={index}
-                  hideAmount={hideAmount}
-                  onPress={() => handleOpenTransaction(item.id)}
-                />
-              );
-            }}
-            getItemType={(item) =>
-              (item as FlashListTransactionItem).isHeader
-                ? 'sectionHeader'
-                : 'row'
-            }
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{ minHeight: 8, maxHeight: 8 }} />
-            )}
-            contentContainerStyle={{
-              paddingBottom: bottomTabBarHeight,
-            }}
-          />
+              ListEmptyComponent={() => (
+                <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+              )}
+              ItemSeparatorComponent={() => (
+                <View style={{ minHeight: 8, maxHeight: 8 }} />
+              )}
+              contentContainerStyle={{
+                paddingBottom: bottomTabBarHeight,
+              }}
+            />
           </TransactionsContainer>
         </ScrollContent>
 

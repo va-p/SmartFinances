@@ -1,3 +1,4 @@
+import React from 'react';
 import { StatusBar, View } from 'react-native';
 
 import { Stack } from 'expo-router';

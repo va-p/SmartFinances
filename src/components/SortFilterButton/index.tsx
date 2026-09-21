@@ -4,7 +4,7 @@ import { TouchableOpacity } from 'react-native';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
-import FunnelIcon from 'phosphor-react-native/src/icons/Funnel';
+import {FunnelIcon} from 'phosphor-react-native/src/icons/Funnel';
 
 import { SortingOptions } from '@screens/SortingOptions';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';

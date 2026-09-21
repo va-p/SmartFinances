@@ -19,16 +19,13 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterTag } from '@screens/RegisterTag';
 
-import { useUser } from '@stores/userStorage';
-
 export function Tags() {
   const bottomTabBarHeight = useBottomTabBarHeight();
-  const userID = useUser((state) => state.id);
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const [tagID, setTagID] = useState('');
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
-  const { data: tagsData, isLoading, isError, refetch } = useTagsQuery(userID);
+  const { data: tagsData, isLoading, isError, refetch } = useTagsQuery();
   const { mutate: deleteTag } = useDeleteTagMutation();
 
   async function handleRefresh() {
@@ -159,7 +156,7 @@ export function Tags() {
           type={tagID !== '' ? 'secondary' : 'primary'}
           title={tagID !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
           bottomSheetRef={bottomSheetRef}
-          snapPoints={['30%', '60%', '90%']}
+          snapPoints={['60%', '90%']}
           closeModal={handleCloseRegisterTagModal}
           deleteChildren={handleClickDeleteTag}
         >

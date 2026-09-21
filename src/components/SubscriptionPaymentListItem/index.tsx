@@ -14,7 +14,7 @@ import { useTheme } from 'styled-components';
 
 import { FadeInUp } from 'react-native-reanimated';
 import { RectButtonProps } from 'react-native-gesture-handler';
-import DotsThree from 'phosphor-react-native/src/icons/DotsThree';
+import { DotsThreeIcon } from 'phosphor-react-native/src/icons/DotsThree';
 
 import { SubscriptionAvatar } from '@components/SubscriptionAvatar';
 
@@ -53,7 +53,7 @@ export function SubscriptionPaymentListItem({ data, index, ...rest }: Props) {
 
       <RightContainer>
         <Amount>{formatCurrency(data.currency.code, data.amount)}</Amount>
-        <DotsThree size={20} color={theme.colors.text} />
+        <DotsThreeIcon size={20} color={theme.colors.text} />
       </RightContainer>
     </Container>
   );

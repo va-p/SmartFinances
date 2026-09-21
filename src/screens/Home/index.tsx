@@ -32,11 +32,13 @@ import { useTransactionHandlers } from './hooks/useTransactionHandlers';
 import { useTransactionFiltering } from './hooks/useTransactionFiltering';
 
 // Utils
-import { processTransactions } from '@utils/processTransactions';
 import { formatTransactions } from '@utils/formatTransactions';
+import { processTransactions } from '@utils/processTransactions';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
 
 // Dependencies
+import { isFirstDayOfMonth } from 'date-fns';
 import Animated, {
   Easing,
   FadeInUp,
@@ -57,15 +59,15 @@ import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-import { isFirstDayOfMonth, isToday, isTomorrow, isYesterday, parse } from 'date-fns';
+
 
 // Icons
-import X from 'phosphor-react-native/src/icons/X';
-import Eye from 'phosphor-react-native/src/icons/Eye';
-import Plus from 'phosphor-react-native/src/icons/Plus';
-import EyeSlash from 'phosphor-react-native/src/icons/EyeSlash';
-import MagnifyingGlass from 'phosphor-react-native/src/icons/MagnifyingGlass';
-import PencilSimpleLine from 'phosphor-react-native/src/icons/PencilSimpleLine';
+import { XIcon } from 'phosphor-react-native/src/icons/X';
+import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
+import { PencilSimpleLineIcon } from 'phosphor-react-native/src/icons/PencilSimpleLine';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -101,7 +103,6 @@ import {
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { CashFlowChartData } from '@interfaces/transactions';
 
 // APIs
 import api from '@api/api';
@@ -109,7 +110,9 @@ import api from '@api/api';
 // Constants
 const isAndroid = Platform.OS === 'android';
 const FLOATING_BUTTONS_RIGHT_POSITION = 16;
-const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid
+  ? 64
+  : 96;
 const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 // PeriodRulerList Column
 
@@ -141,8 +144,6 @@ export function Home() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
-  const cashFlows = useRef<CashFlowChartData[]>([]);
-  const cashFlowTotalBySelectedPeriod = useRef('');
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
 
   // Animated header, chart and insights container
@@ -293,8 +294,9 @@ export function Home() {
     );
   }, [transactions, selectedPeriod.period, selectedDate]);
 
-  cashFlowTotalBySelectedPeriod.current = processedData.currentCashFlow;
-  cashFlows.current = processedData.cashFlowChartData;
+  // Chart data is derived directly from the memoized processedData, so any
+  // change to the transactions query re-renders the chart with fresh values
+  // (a stable reference keeps the memoized children from re-rendering).
   const transactionsFormattedBySelectedPeriod =
     processedData.groupedTransactions;
 
@@ -404,7 +406,7 @@ export function Home() {
           <Header>
             <CashFlowContainer>
               <CashFlowTotal>
-                {!hideAmount ? cashFlowTotalBySelectedPeriod.current : '•••••'}
+                {!hideAmount ? processedData.currentCashFlow : '•••••'}
               </CashFlowTotal>
               <CashFlowDescription>Fluxo de Caixa</CashFlowDescription>
             </CashFlowContainer>
@@ -412,14 +414,14 @@ export function Home() {
             <SearchButton
               onPress={() => setShowSearchInput((prevState) => !prevState)}
             >
-              <MagnifyingGlass size={20} color={theme.colors.primary} />
+              <MagnifyingGlassIcon size={20} color={theme.colors.primary} />
             </SearchButton>
 
             <HideDataButton onPress={() => handleHideData()}>
               {!hideAmount ? (
-                <EyeSlash size={20} color={theme.colors.primary} />
+                <EyeSlashIcon size={20} color={theme.colors.primary} />
               ) : (
-                <Eye size={20} color={theme.colors.primary} />
+                <EyeIcon size={20} color={theme.colors.primary} />
               )}
             </HideDataButton>
           </Header>
@@ -435,7 +437,7 @@ export function Home() {
 
           <Animated.View style={chartStyleAnimationOpacity}>
             <BarChart
-              data={cashFlows.current}
+              data={processedData.cashFlowChartData}
               width={SCREEN_WIDTH - 100}
               height={80}
               barWidth={CHART_BAR_WIDTH}
@@ -458,7 +460,10 @@ export function Home() {
                 fontSize: 10,
                 color: theme.colors.textPlaceholder,
               }}
-              xAxisLabelTextStyle={{ fontSize: 10, color: theme.colors.xAxisLabel }}
+              xAxisLabelTextStyle={{
+                fontSize: 10,
+                color: theme.colors.xAxisLabel,
+              }}
               rulesThickness={1}
               rulesColor={theme.colors.chartRule}
             />
@@ -466,7 +471,7 @@ export function Home() {
 
           <Animated.View>
             <PeriodRulerList
-              cashFlows={cashFlows.current}
+              cashFlows={processedData.cashFlowChartData}
               selectedPeriod={selectedPeriod}
               selectedDate={selectedDate}
               handleDateChange={handleDateChange}
@@ -480,7 +485,7 @@ export function Home() {
               style={[insightsStyleAnimationOpacity, dynamicStyles.insightCard]}
             >
               <CashFlowInsightCard
-                cashFlows={cashFlows.current}
+                cashFlows={processedData.cashFlowChartData}
                 selectedDate={selectedDate}
                 onClose={handleHideCashFlowInsights}
               />
@@ -495,14 +500,14 @@ export function Home() {
           >
             <SearchInputContainer>
               <ControlledInputWithIcon
-                icon={<MagnifyingGlass color={theme.colors.primary} />}
+                icon={<MagnifyingGlassIcon color={theme.colors.primary} />}
                 placeholder='Pesquisar...'
                 autoCorrect={false}
                 name='search'
                 control={control}
               />
               <ClearSearchButton onPress={() => reset()}>
-                <X size={20} color={theme.colors.primary} />
+                <XIcon size={20} color={theme.colors.primary} />
               </ClearSearchButton>
             </SearchInputContainer>
           </Animated.View>
@@ -521,13 +526,7 @@ export function Home() {
                 return (
                   <SectionListHeader
                     data={{
-                      title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                        ? 'Hoje'
-                        : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                          ? 'Ontem'
-                          : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                            ? 'Amanhã'
-                            : item.headerTitle,
+                      title: formatSectionHeaderTitle(item.headerTitle),
                       total: item.headerTotal,
                     }}
                   />
@@ -587,7 +586,10 @@ export function Home() {
                 onPress={handleOpenBulkEditModal}
                 style={dynamicStyles.bulkEditButton}
               >
-                <PencilSimpleLine size={24} color={theme.colors.background} />
+                <PencilSimpleLineIcon
+                  size={24}
+                  color={theme.colors.background}
+                />
               </ButtonAnimated>
             </Animated.View>
           </GestureDetector>
@@ -608,7 +610,7 @@ export function Home() {
               onPress={handleOpenRegisterTransactionModal}
               style={dynamicStyles.animatedButton}
             >
-              <Plus size={24} color={theme.colors.background} />
+              <PlusIcon size={24} color={theme.colors.background} />
             </ButtonAnimated>
           </Animated.View>
         </GestureDetector>

@@ -15,13 +15,13 @@ import {
 import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
+import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 
 // Dependencies
 import { useRoute } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { parse, isToday, isYesterday, isTomorrow } from 'date-fns';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -180,13 +180,10 @@ export function TransactionsByCategory({ navigation }: any) {
             if (item.isHeader) {
               return (
                 <SectionListHeader
-                  data={{ title: isToday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                    ? 'Hoje'
-                    : isYesterday(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                      ? 'Ontem'
-                      : isTomorrow(parse(item.headerTitle, 'dd/MM/yyyy', new Date()))
-                        ? 'Amanhã'
-                        : item.headerTitle, total: item.headerTotal }}
+                  data={{
+                    title: formatSectionHeaderTitle(item.headerTitle),
+                    total: item.headerTotal,
+                  }}
                 />
               );
             }

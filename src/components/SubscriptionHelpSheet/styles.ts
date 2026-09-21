@@ -56,7 +56,7 @@ export const CategoryIconCircle = styled.View`
   width: 40px;
   height: 40px;
   border-radius: 20px;
-  background-color: ${({ theme }) => theme.colors.primary_light};
+  background-color: ${({ theme }) => theme.colors.primary_dark};
   align-items: center;
   justify-content: center;
   margin-right: 12px;

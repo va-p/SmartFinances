@@ -2,12 +2,12 @@ import { Button, ButtonShape } from './styles';
 
 import { useTheme } from 'styled-components';
 import { useNavigation } from 'expo-router';
-import ArrowLeft from 'phosphor-react-native/src/icons/ArrowLeft';
+import { ArrowLeftIcon } from 'phosphor-react-native/src/icons/ArrowLeft';
 
 import { ThemeProps } from '@interfaces/theme';
 
 export function HeaderBackButton() {
-  const theme: ThemeProps = useTheme();
+  const theme = useTheme() as ThemeProps;
 
   const navigation = useNavigation();
 
@@ -18,7 +18,7 @@ export function HeaderBackButton() {
   return (
     <Button onPress={handleClickBackButton}>
       <ButtonShape>
-        <ArrowLeft size={20} color={theme.colors.text} />
+        <ArrowLeftIcon size={20} color={theme.colors.text} />
       </ButtonShape>
     </Button>
   );

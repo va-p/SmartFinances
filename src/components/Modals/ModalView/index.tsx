@@ -50,7 +50,7 @@ export function ModalView({
       enablePanDownToClose={true}
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
-      backgroundComponent={() => <Gradient />}
+      backgroundComponent={() => <Gradient roundCorners />}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       topInset={top}
       {...rest}

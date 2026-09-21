@@ -4,7 +4,7 @@ import { Container, Name } from './styles';
 import { useTheme } from 'styled-components';
 import { RectButtonProps } from 'react-native-gesture-handler';
 import { FadeInUp } from 'react-native-reanimated';
-import CaretRight from 'phosphor-react-native/src/icons/CaretRight';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 import { ThemeProps } from '@interfaces/theme';
 import { InstitutionProps } from '@interfaces/institutions';
@@ -20,7 +20,7 @@ export function InstitutionListItem({ data, index, ...rest }: Props) {
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>
       <Name>{data.name}</Name>
-      <CaretRight size={16} color={theme.colors.text} />
+      <CaretRightIcon size={16} color={theme.colors.text} />
     </Container>
   );
 }
