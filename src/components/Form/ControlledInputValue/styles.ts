@@ -1,13 +1,15 @@
-import { TextInput } from 'react-native';
+import { Platform, TextInput } from 'react-native';
 import styled from 'styled-components/native';
+
+import { ThemeProps } from '@interfaces/theme';
 
 export const Container = styled.View`
   flex: 1;
 `;
 
 export const ErrorMessage = styled.Text`
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.shapeDark};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.shapeDark};
   position: absolute;
   top: -20px;
   right: 0;
@@ -15,9 +17,9 @@ export const ErrorMessage = styled.Text`
 `;
 
 export const Input = styled(TextInput).attrs({})`
-  min-height: 40px;
-  max-height: 40px;
-  font-family: ${({ theme }) => theme.fonts.regular};
+  min-height: ${Platform.OS === 'ios' ? '40px' : '48px'};
+  max-height: ${Platform.OS === 'ios' ? '40px' : '48px'};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
   font-size: 18px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
