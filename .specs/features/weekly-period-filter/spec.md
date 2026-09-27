@@ -126,7 +126,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WEEK-04 | P1: Navigate — arrow ±1 week (AC 4–5, 7) | Design | Pending |
 | WEEK-05 | P1: Navigate — ruler weeks of week-year (AC 1–3) | Design | Pending |
 | WEEK-06 | P1: Navigate — ruler tap jumps to week end (AC 6) | Design | Pending |
-| WEEK-07 | P1: Charts — cash flow by week (AC 1–3, 5) | Design | Pending |
+| WEEK-07 | P1: Charts — cash flow by week (AC 1–3, 5) | Execute | Implementing |
 | WEEK-08 | P1: Charts — net worth by week (AC 4) | Design | Pending |
 | WEEK-09 | P1: Filter by week — no regressions (AC 6) + edge cases | Design | Pending |
 

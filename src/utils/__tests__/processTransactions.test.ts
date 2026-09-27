@@ -97,4 +97,66 @@ describe('processTransactions', () => {
 
     expect(groupedTransactions).toHaveLength(0);
   });
+
+  // WEEK-02 — weeks mode filters to the selected ISO week and groups by day
+  it('includes only transactions of the selected ISO week, grouped by day', () => {
+    const { groupedTransactions } = processTransactions(
+      [
+        makeTransaction({ id: 1, created_at: '2026-08-10T12:00:00.000Z' }), // Monday, ISO week 33
+        makeTransaction({ id: 2, created_at: '2026-08-17T12:00:00.000Z' }), // Monday, ISO week 34
+      ],
+      'weeks',
+      selectedDate // Saturday of ISO week 33
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(groupedTransactions[0].title).toBe('10/08/2026');
+    expect(groupedTransactions[0].data).toHaveLength(1);
+    expect(groupedTransactions[0].data[0].id).toBe(1);
+    expect(groupedTransactions[0].data[0].created_at).toBe('10/08/2026');
+  });
+
+  // WEEK-07 — one bar-pair per ISO week with transactions, labeled Sem N \n YYYY, chronological
+  it('emits one chart bar-pair per ISO week with transactions, oldest first', () => {
+    const { cashFlowChartData } = processTransactions(
+      [
+        makeTransaction({ id: 1, amount: -50, created_at: '2026-08-10T12:00:00.000Z' }), // ISO week 33
+        makeTransaction({ id: 2, amount: -30, created_at: '2026-08-17T12:00:00.000Z' }), // ISO week 34
+      ],
+      'weeks',
+      selectedDate
+    );
+
+    expect(cashFlowChartData).toHaveLength(4); // 2 weeks * (revenue + expense) bars
+    expect(cashFlowChartData[0].label).toBe('Sem 33 \n 2026');
+    expect(cashFlowChartData[1].value).toBe(50); // week 33 expense bar
+    expect(cashFlowChartData[2].label).toBe('Sem 34 \n 2026');
+    expect(cashFlowChartData[3].value).toBe(30); // week 34 expense bar
+  });
+
+  // WEEK-07 — currentCashFlow covers the selected ISO week only
+  it('computes currentCashFlow from the selected ISO week only', () => {
+    const { currentCashFlow } = processTransactions(
+      [
+        makeTransaction({ id: 1, amount: -50, created_at: '2026-08-10T12:00:00.000Z' }), // ISO week 33 (selected)
+        makeTransaction({ id: 2, amount: -30, created_at: '2026-08-17T12:00:00.000Z' }), // ISO week 34
+      ],
+      'weeks',
+      selectedDate
+    );
+
+    expect(currentCashFlow).toBe('-R$\u00A050,00');
+  });
+
+  // Edge case — ISO week-year differs from calendar year (2025-12-29 is ISO week 1 of 2026)
+  it('groups a year-boundary transaction under its ISO week-year label', () => {
+    const { cashFlows, groupedTransactions } = processTransactions(
+      [makeTransaction({ created_at: '2025-12-29T12:00:00.000Z' })], // Monday, ISO week 1 of 2026
+      'weeks',
+      new Date(2025, 11, 29)
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(cashFlows.map((cashFlow) => cashFlow.date)).toEqual(['Sem 1 \n 2026']);
+  });
 });
