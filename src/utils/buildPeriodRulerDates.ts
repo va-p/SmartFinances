@@ -1,12 +1,20 @@
 import { ptBR } from 'date-fns/locale';
-import { parse, getYear, getMonth, isValid } from 'date-fns';
+import {
+  parse,
+  getYear,
+  getMonth,
+  isValid,
+  getISOWeek,
+  getISOWeekYear,
+  getISOWeeksInYear,
+} from 'date-fns';
 
 export type PeriodRulerDate = {
   date: string;
   isActive: boolean;
 };
 
-type PeriodType = 'months' | 'years' | 'all';
+type PeriodType = 'weeks' | 'months' | 'years' | 'all';
 
 type BuildPeriodRulerDatesProps = {
   period: PeriodType;
@@ -20,14 +28,29 @@ const MONTH_ABBREVIATIONS = [
   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
 ];
 
-// Builds the items rendered by the PeriodRuler: all 12 months of the selected
-// year (periods 'months' and 'all') or the available years plus the selected
-// year (period 'years'). Newest-first to match the ruler's inverted FlatList.
+// Builds the items rendered by the PeriodRuler: all ISO weeks of the selected
+// ISO week-year (period 'weeks'), all 12 months of the selected year (periods
+// 'months' and 'all') or the available years plus the selected year (period
+// 'years'). Newest-first to match the ruler's inverted FlatList.
 export function buildPeriodRulerDates({
   period,
   selectedDate,
   years,
 }: BuildPeriodRulerDatesProps): PeriodRulerDate[] {
+  if (period === 'weeks') {
+    const weekYear = getISOWeekYear(selectedDate);
+    const weeksInYear = getISOWeeksInYear(selectedDate);
+    const activeWeek = getISOWeek(selectedDate);
+
+    return Array.from({ length: weeksInYear }, (_, index) => {
+      const week = weeksInYear - index; // newest-first: 53 → 1
+      return {
+        date: `Sem ${week} \n ${weekYear}`,
+        isActive: activeWeek === week,
+      };
+    });
+  }
+
   if (period === 'years') {
     const yearsSet = new Set<number>(years);
     yearsSet.add(getYear(selectedDate)); // Ensure the selected year is always included

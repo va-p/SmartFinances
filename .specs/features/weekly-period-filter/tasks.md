@@ -163,6 +163,7 @@ T10
 **Depends on**: T3
 **Reuses**: existing util contract (`PeriodRulerDate[]`); date-fns ISO helpers
 **Requirement**: WEEK-05
+**Status**: ✅ Complete
 
 **Tools**:
 
