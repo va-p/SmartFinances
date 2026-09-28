@@ -15,7 +15,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Design**: `.specs/features/list-search/design.md`
 **Spec**: `.specs/features/list-search/spec.md`
-**Status**: Approved (user directive 2026-09-28; assumptions logged in spec.md)
+**Status**: Approved (user directive 2026-09-28; assumptions logged in spec.md) — **In Progress** (T1 done)
 
 ---
 
@@ -68,7 +68,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ## Task Breakdown
 
-### T1 — Search filter utils (`filterItemsByQuery`, `filterSectionsByQuery`)
+### T1 — Search filter utils (`filterItemsByQuery`, `filterSectionsByQuery`) ✅ DONE (12/12 tests, tsc clean)
 
 **What**: Add the two pure query-filter utils (flat items + grouped sections) with unit tests covering every spec AC/edge they serve.
 **Where**: `src/utils/filterItemsByQuery.ts`, `src/utils/filterSectionsByQuery.ts`, `src/utils/__tests__/filterItemsByQuery.test.ts`, `src/utils/__tests__/filterSectionsByQuery.test.ts` (new)
@@ -78,11 +78,11 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] Empty query (length 0) returns the input items/sections unchanged
-- [ ] Non-empty query keeps only items whose `getSearchText` contains it, case-insensitively; order preserved
-- [ ] Null/undefined search text excluded without throwing
-- [ ] `filterSectionsByQuery` drops sections with 0 surviving items and preserves `title`/`total` of survivors
-- [ ] Quick gate passes; test count ≥ 12 new cases
+- [x] Empty query (length 0) returns the input items/sections unchanged
+- [x] Non-empty query keeps only items whose `getSearchText` contains it, case-insensitively; order preserved
+- [x] Null/undefined search text excluded without throwing
+- [x] `filterSectionsByQuery` drops sections with 0 surviving items and preserves `title`/`total` of survivors
+- [x] Quick gate passes; test count ≥ 12 new cases (12/12)
 
 **Tests**: unit
 **Gate**: quick (`npx jest --watchman=false --ci src/utils/__tests__/filterItemsByQuery.test.ts src/utils/__tests__/filterSectionsByQuery.test.ts`)
