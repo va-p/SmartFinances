@@ -1,14 +1,13 @@
-import {
+import React, {
   createContext,
   ReactNode,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import { Platform, View, Text, Alert } from 'react-native';
+import { Platform, View, Alert } from 'react-native';
 
 import Purchases, {
-  LOG_LEVEL,
   PurchasesPackage,
   CustomerInfo,
 } from 'react-native-purchases';

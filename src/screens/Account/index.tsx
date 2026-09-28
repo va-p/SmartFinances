@@ -130,7 +130,7 @@ export function Account() {
   }));
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
-    .onStart((_) => {
+    .onStart(() => {
       initialX.current = registerTransactionButtonPositionX.value;
       initialY.current = registerTransactionButtonPositionY.value;
     })
@@ -232,7 +232,7 @@ export function Account() {
     [processedData.transactionsFormattedBySelectedPeriod, searchQuery]
   );
 
-  const _renderPeriodRuler = useCallback(() => {
+  const renderPeriodRuler = useCallback(() => {
     // Years source for the 'years' ruler: the user's transaction years.
     // Other period modes ignore the years param.
     const years = new Set<number>();
@@ -323,8 +323,8 @@ export function Account() {
     periodSelectBottomSheetRef.current?.dismiss();
   }
 
-  function handleOpenTransaction(id: string) {
-    setTransactionId(id);
+  function handleOpenTransaction(idAux: string) {
+    setTransactionId(idAux);
     addTransactionBottomSheetRef.current?.present();
   }
 
@@ -371,11 +371,11 @@ export function Account() {
     setTransactionId('');
   }
 
-  function _renderEmpty() {
+  function renderEmpty() {
     return <ListEmptyComponent />;
   }
 
-  function _renderItem({ item, index }: any) {
+  function renderItem({ item, index }: any) {
     return (
       <TransactionListItem
         data={item}
@@ -386,7 +386,7 @@ export function Account() {
     );
   }
 
-  function _renderSectionHeader({ section }: any) {
+  function renderSectionHeader({ section }: any) {
     return (
       <SectionListHeader
         data={{
@@ -433,7 +433,7 @@ export function Account() {
             <AccountBalanceGroup>
               <AccountBalance balanceIsPositive={balanceIsPositive}>
                 {!hideAmount
-                  ? formatCurrency(accountCurrencyCode, accountBalance)
+                  ? formatCurrency(accountCurrencyCode, Number(accountBalance))
                   : '•••••'}
               </AccountBalance>
               <AccountBalanceDescription>
@@ -469,7 +469,7 @@ export function Account() {
               </AccountCashFlowDescription>
             </AccountBalanceGroup>
           </AccountBalanceContainer>
-          <Animated.View>{_renderPeriodRuler()}</Animated.View>
+          <Animated.View>{renderPeriodRuler()}</Animated.View>
         </Animated.View>
 
         {showSearchInput && (
@@ -480,9 +480,9 @@ export function Account() {
           <AnimatedSectionList
             sections={filteredTransactions}
             keyExtractor={(item: any) => item.id}
-            renderItem={({ item, index }: any) => _renderItem({ item, index })}
-            renderSectionHeader={({ section }: any) => _renderSectionHeader({ section })}
-            ListEmptyComponent={() => _renderEmpty()}
+            renderItem={({ item, index }: any) => renderItem({ item, index })}
+            renderSectionHeader={({ section }: any) => renderSectionHeader({ section })}
+            ListEmptyComponent={() => renderEmpty()}
             initialNumToRender={2000}
             refreshControl={
               <RefreshControl

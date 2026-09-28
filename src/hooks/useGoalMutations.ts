@@ -37,15 +37,15 @@ export type GoalStatusInput = {
 };
 
 // --- API functions ---
-const createGoalFn = async (newGoal: CreateGoalInput) => await api.post('goal', newGoal);
-const updateGoalFn = async ({ goalId, ...payload }: UpdateGoalInput) => await api.patch(`goal/${goalId}`, payload);
-const deleteGoalFn = async ({
+const createGoalFn = (newGoal: CreateGoalInput) => api.post('goal', newGoal);
+const updateGoalFn = ({ goalId, ...payload }: UpdateGoalInput) => api.patch(`goal/${goalId}`, payload);
+const deleteGoalFn = ({
   goalId,
   destinationAccountId,
-}: DeleteGoalInput) => await api.delete(`goal/${goalId}`, {
+}: DeleteGoalInput) => api.delete(`goal/${goalId}`, {
   data: { destination_account_id: destinationAccountId },
 });
-const updateGoalStatusFn = async ({ goalId, action }: GoalStatusInput) => await api.patch(`goal/${goalId}/status`, { action });
+const updateGoalStatusFn = ({ goalId, action }: GoalStatusInput) => api.patch(`goal/${goalId}/status`, { action });
 
 // --- Create goal ---
 export function useCreateGoalMutation() {
@@ -140,7 +140,7 @@ export function useUpdateGoalMutation() {
   return useMutation({
     mutationFn: updateGoalFn,
 
-    onError: (_error, _updatedGoal) => {
+    onError: () => {
       Alert.alert(
         'Erro',
         'Não foi possível atualizar a meta. Tente novamente.'
@@ -197,7 +197,7 @@ export function useUpdateGoalStatusMutation() {
   return useMutation({
     mutationFn: updateGoalStatusFn,
 
-    onError: (_error, _input) => {
+    onError: () => {
       Alert.alert(
         'Erro',
         'Não foi possível atualizar o status da meta. Tente novamente.'

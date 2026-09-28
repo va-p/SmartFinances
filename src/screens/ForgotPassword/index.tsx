@@ -54,7 +54,7 @@ export function ForgotPassword() {
       setLoading(true);
 
       // TODO: Call endpoint to handle with reset pass (Xano > Sendgrid)
-      const { status, data } = await axios.get(
+      const { status } = await axios.get(
         'https://xjg3-npzd-66ef.b2.xano.io/api:6hazS0TY/auth/request-magic-link',
         {
           params: {
@@ -73,10 +73,6 @@ export function ForgotPassword() {
         });
       }
     } catch (error) {
-      console.error(
-        'ForgotPassword screen, handleResetPassword error =>',
-        error
-      );
       if (axios.isAxiosError(error)) {
         Alert.alert('Recuperação de senha', `${error.response?.data?.message}`);
       }

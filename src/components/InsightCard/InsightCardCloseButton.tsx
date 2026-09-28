@@ -1,3 +1,4 @@
+import React from 'react';
 import { CloseInsightButton } from './styles';
 
 import { useTheme } from 'styled-components';

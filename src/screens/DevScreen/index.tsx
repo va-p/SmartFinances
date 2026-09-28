@@ -18,7 +18,7 @@ export function DevScreen() {
   const [cpHash, setCpHash] = useState<string | undefined>();
   const appVersion = DeviceInfo.getVersion();
 
-  function copy(text: string, msg: string) {
+  function copy(text: string) {
     Clipboard.setString(text);
   }
 
@@ -34,7 +34,6 @@ export function DevScreen() {
         setFullVersion(`${appVersion}`);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert('Erro', 'Erro ao obter dados de debug');
     }
   }, [appVersion]);
@@ -58,7 +57,6 @@ export function DevScreen() {
         ]);
       }
     } catch (e) {
-      console.log(e);
       Alert.alert('Erro', 'Erro ao checar update');
     }
   };
@@ -80,7 +78,6 @@ export function DevScreen() {
       });
       setTimeout(loadData, 1000);
     } catch (e) {
-      console.log(e);
       Alert.alert('Erro', 'Erro ao sincronizar');
     }
   };
@@ -100,7 +97,7 @@ export function DevScreen() {
           <Label disabled={!fullVersion}>App version</Label>
           <Value disabled={!fullVersion}>
             <RectButton
-              onPress={() => copy(fullVersion, 'Versão do Aplicativo copiada!')}
+              onPress={() => copy(fullVersion)}
             >
               <Label disabled={!fullVersion}>{fullVersion || '—'}</Label>
             </RectButton>
@@ -109,14 +106,14 @@ export function DevScreen() {
           {/* RevoPush extras */}
           <Label disabled={!cpLabel}>RevoPush Label</Label>
           <Value disabled={!cpLabel}>
-            <RectButton onPress={() => copy(cpLabel!, 'Label copiada!')}>
+            <RectButton onPress={() => copy(cpLabel!)}>
               <Label disabled={!cpLabel}>{cpLabel || '—'}</Label>
             </RectButton>
           </Value>
 
           <Label disabled={!cpDesc}>RevoPush Description</Label>
           <Value disabled={!cpDesc}>
-            <RectButton onPress={() => copy(cpDesc!, 'Descrição copiada!')}>
+            <RectButton onPress={() => copy(cpDesc!)}>
               <Label disabled={!cpDesc}>{cpDesc || '—'}</Label>
             </RectButton>
           </Value>

@@ -13,7 +13,7 @@ import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ModalView } from '@components/Modals/ModalView';
-import { TagListItem, TagProps } from '@components/TagListItem';
+import { TagListItem } from '@components/TagListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesAndTagsScreen';
 

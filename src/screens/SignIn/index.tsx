@@ -95,7 +95,6 @@ export function SignIn() {
 
       await signInWithEmail(form);
     } catch (error) {
-      console.error('SignIn screen, handleSignInWithMail error =>', error);
       if (axios.isAxiosError(error)) {
         Alert.alert('Login', `${error.response?.data?.message}`);
       }
@@ -133,7 +132,6 @@ export function SignIn() {
         );
       }
     } catch (error) {
-      console.error('SignIn screen, handleContinueWithGoogle error =>', error);
       Alert.alert(
         'Login',
         'Não foi possível autenticar com o Google. Por favor, tente novamente.'

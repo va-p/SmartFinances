@@ -63,10 +63,10 @@ export function useCreateInstitutionMutation() {
 }
 
 // --- Update institution ---
-const updateInstitutionFn = async (institutionEdited: {
+const updateInstitutionFn = (institutionEdited: {
   institution_id: string;
   name: string;
-}) => await api.patch(`institution/${institutionEdited.institution_id}`, {
+}) => api.patch(`institution/${institutionEdited.institution_id}`, {
   name: institutionEdited.name,
 });
 
@@ -115,7 +115,7 @@ export function useUpdateInstitutionMutation() {
 }
 
 // --- Delete institution ---
-const deleteInstitutionFn = async (institutionId: string) => await api.delete(`institution/${institutionId}`);
+const deleteInstitutionFn = (institutionId: string) => api.delete(`institution/${institutionId}`);
 
 export function useDeleteInstitutionMutation() {
   const queryClient = useQueryClient();

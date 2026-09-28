@@ -139,7 +139,6 @@ export function OptionsMenu() {
         setHideAmount(!hideAmount);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Ocultar informações',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -153,7 +152,6 @@ export function OptionsMenu() {
       setDarkMode(!darkMode);
       await reloadAppAsync();
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Modo escuro',
         'Não foi possível alterar o modo escuro, por favor, tente novamente.'
@@ -172,7 +170,6 @@ export function OptionsMenu() {
         setInsights(!insights);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Insights Inteligentes',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -210,7 +207,6 @@ export function OptionsMenu() {
         }
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Autenticação biométrica',
         'Não foi possível autenticar com a biometria, por favor, tente novamente.'
@@ -244,7 +240,6 @@ export function OptionsMenu() {
         setNotificationsEnabled(!notificationsEnabled);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Notificações',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -259,11 +254,11 @@ export function OptionsMenu() {
         {
           text: 'Sair',
           style: 'destructive',
-          onPress: async () => await signOut(),
+          onPress: () => signOut(),
         },
       ]);
     } catch (error) {
-      console.error('handleLogout error:', error);
+      //
     }
   }
 

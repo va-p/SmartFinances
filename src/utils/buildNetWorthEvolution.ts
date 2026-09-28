@@ -73,7 +73,7 @@ export function buildNetWorthEvolution({
 
   transactions.forEach((transaction) => {
     const transactionDate = new Date(transaction.created_at);
-    if (isNaN(transactionDate.getTime())) return;
+    if (Number.isNaN(transactionDate.getTime())) return;
     if (transactionDate > new Date()) return;
 
     if (

@@ -457,7 +457,7 @@ export function Accounts() {
     }
   }
 
-  function _renderEmpty() {
+  function renderEmpty() {
     return (
       <ListEmptyComponent text='Nenhuma conta possui transação. Adicione uma transação para visualizar a conta aqui' />
     );
@@ -489,7 +489,7 @@ export function Accounts() {
     item: AccountProps;
     index: number;
   };
-  function _renderItem({ item, index }: _renderItemProps) {
+  function renderItem({ item, index }: _renderItemProps) {
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
         <AccountsContent>
@@ -544,7 +544,7 @@ export function Accounts() {
       | { kind: 'account'; data: AccountProps };
     index: number;
   };
-  function _renderAccountsListItem({
+  function renderAccountsListItem({
     item,
     index,
   }: _renderAccountsListItemProps) {
@@ -586,7 +586,7 @@ export function Accounts() {
     );
   }
 
-  function _renderSkeletonTotal() {
+  function renderSkeletonTotal() {
     return (
       <SkeletonPlaceholder
         speed={1000}
@@ -623,7 +623,7 @@ export function Accounts() {
             <CashFlowContainer>
               <CashFlowTotal>
                 {isRefetchingTransactions || isRefetchingAccounts
-                  ? _renderSkeletonTotal()
+                  ? renderSkeletonTotal()
                   : hideAmount
                     ? '•••••'
                     : totalBalanceFormatted}
@@ -695,7 +695,7 @@ export function Accounts() {
                   value = Number(s.replace(/,/g, ''));
                 }
 
-                if (isNaN(value)) return s;
+                if (Number.isNaN(value)) return s;
                 const k = Math.floor(value / 1000);
                 return k > 0 ? `${k}k` : '0';
               }}
@@ -734,7 +734,7 @@ export function Accounts() {
               item,
               index,
             }: _renderAccountsListItemProps) =>
-              _renderAccountsListItem({ item, index })}
+              renderAccountsListItem({ item, index })}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetchingTransactions || isRefetchingAccounts}
@@ -765,7 +765,7 @@ export function Accounts() {
                     data={filteredCreditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={({ item, index }: _renderItemProps) =>
-                      _renderItem({ item, index })}
+                      renderItem({ item, index })}
                     snapToOffsets={[
                       ...Array(creditCardAccounts.length),
                     ].map(
@@ -791,7 +791,7 @@ export function Accounts() {
                 </>
               ) : null
             }
-            ListEmptyComponent={() => _renderEmpty()}
+            ListEmptyComponent={() => renderEmpty()}
           />
 
           {/** SCREEN FOOTER */}

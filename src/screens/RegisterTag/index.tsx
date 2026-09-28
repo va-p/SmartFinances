@@ -50,7 +50,7 @@ export function RegisterTag({ id, closeTag }: Props) {
       name: '',
     },
   });
-  const { data: tagData, isLoading: isLoadingDetails } = useTagDetailQuery(id);
+  const { data: tagData } = useTagDetailQuery(id);
   const { mutate: createTag, isPending: isCreating } = useCreateTagMutation();
   const { mutate: updateTag, isPending: isUpdating } = useUpdateTagMutation();
 

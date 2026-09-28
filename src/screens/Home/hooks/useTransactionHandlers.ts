@@ -4,7 +4,6 @@ import { Alert } from 'react-native';
 import {
   useToggleTransaction,
   useSelectedTransactionsCount,
-  useClearSelection,
 } from '@stores/useTransactionsStore';
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -33,7 +32,7 @@ export function useTransactionHandlers({
       if (selectedCount > 0) {
         // If in selection mode, toggle the transaction selection
         toggleTransaction(Number(id));
-        
+
       } else {
         // If not in selection mode, open transaction detail
         setTransactionId(id);

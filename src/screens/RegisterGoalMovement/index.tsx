@@ -33,7 +33,6 @@ import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
 import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { ListItem } from '@components/ListItem';
 import { ListSeparator } from '@components/ListSeparator';

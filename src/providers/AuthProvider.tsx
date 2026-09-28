@@ -130,7 +130,6 @@ export function AuthProvider({ children }: any) {
 
       return (compatible && enrolled && useLocalAuth) || false;
     } catch (error) {
-      console.error('Erro ao verificar biometria:', error);
       return false;
     }
   }
@@ -175,7 +174,6 @@ export function AuthProvider({ children }: any) {
         }
       }
     } catch (error) {
-      console.error('AuthProvider, signInWithBiometrics error =>', error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         // Refresh token expired — clear it so user must login in again
         await SecureStore.deleteItemAsync(SECURE_REFRESH_TOKEN_KEY);
@@ -225,13 +223,13 @@ export function AuthProvider({ children }: any) {
 
               // Store refresh token from SSO response (3rd array element)
               if (data[2]) {
-                await SecureStore.setItemAsync(
+                SecureStore.setItemAsync(
                   SECURE_REFRESH_TOKEN_KEY,
                   data[2]
                 );
                 const userEmail = data[1]?.email || '';
                 if (userEmail) {
-                  await SecureStore.setItemAsync(
+                  SecureStore.setItemAsync(
                     SECURE_USER_EMAIL_KEY,
                     userEmail
                   );
@@ -252,9 +250,6 @@ export function AuthProvider({ children }: any) {
 
             // If it's a server error (5xx), retry after delay
             if (error?.response?.status >= 500 && attempt < MAX_SSO_RETRIES - 1) {
-              console.log(
-                `SSO fetch attempt ${attempt + 1} failed (server error), retrying in ${SSO_RETRY_DELAY}ms...`
-              );
               await new Promise((r) => setTimeout(r, SSO_RETRY_DELAY));
               continue;
             }
@@ -265,7 +260,6 @@ export function AuthProvider({ children }: any) {
         }
 
         // All attempts failed
-        console.error('All SSO fetch attempts failed:', lastError);
         await clerk.signOut();
         Alert.alert(
           'Erro',
@@ -273,7 +267,6 @@ export function AuthProvider({ children }: any) {
         );
         resolve();
       } catch (error) {
-        console.error('Erro ao buscar dados do usuário =>', error);
         reject(error);
       }
     });
@@ -313,9 +306,7 @@ export function AuthProvider({ children }: any) {
         setUser(loggedInUserDataFormatted); // User data from database
         return loggedInUserDataFormatted;
       }
-      
     } catch (error) {
-      console.error('AuthProvider, signInWithEmail error =>', error);
       Alert.alert('Login', `${error.response?.data?.message}`);
     } finally {
       setLoading(false);
@@ -355,7 +346,6 @@ export function AuthProvider({ children }: any) {
         notificationsEnabled: false,
       }));
     } catch (error) {
-      console.error('AuthProvider, signOut error =>', error);
       Alert.alert(
         'Logout',
         `Não foi possível sair: ${error.response?.data?.message}. Por favor, tente novamente.`
@@ -376,7 +366,6 @@ export function AuthProvider({ children }: any) {
           await fetchClerkUserDataOnDatabase();
         }
       } catch (error) {
-        console.error('Erro durante a inicialização da autenticação:', error);
         if (axios.isAxiosError(error)) {
           Alert.alert('Login', error.response?.data?.message);
         }

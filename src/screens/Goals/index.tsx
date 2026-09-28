@@ -128,7 +128,7 @@ export function Goals() {
     try {
       await refetchGoals();
     } catch (error) {
-      console.error('Erro durante o refresh manual:', error);
+      //
     } finally {
       setIsManualRefreshing(false);
     }

@@ -1,3 +1,4 @@
+import React from 'react';
 import { EditButton } from './styles';
 
 import { useTheme } from 'styled-components';

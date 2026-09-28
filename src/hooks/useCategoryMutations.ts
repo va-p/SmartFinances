@@ -8,9 +8,8 @@ import { CategoryProps } from '@interfaces/categories';
 const QUERY_KEY = ['categories'];
 
 // --- Create category ---
-async function createCategoryFn(newCategory: any) {
-  const { data } = await api.post('category', newCategory);
-  return data;
+function createCategoryFn(newCategory: any) {
+  return api.post('category', newCategory);
 }
 
 export function useCreateCategoryMutation() {
@@ -62,7 +61,7 @@ export function useCreateCategoryMutation() {
 }
 
 // --- Update category ---
-const updateCategoryFn = async (categoryEdited: any) => await api.patch(
+const updateCategoryFn = (categoryEdited: any) => api.patch(
   `category/${categoryEdited.category_id}`,
   categoryEdited
 );
@@ -104,7 +103,7 @@ export function useUpdateCategoryMutation() {
 }
 
 // --- Delete category ---
-const deleteCategoryFn = async (categoryID: string) => await api.delete(`category/${categoryID}`);
+const deleteCategoryFn = (categoryID: string) => api.delete(`category/${categoryID}`);
 
 export function useDeleteCategoryMutation() {
   const queryClient = useQueryClient();

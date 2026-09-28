@@ -424,7 +424,7 @@ export function Overview() {
                     value = Number(s.replace(/,/g, ''));
                   }
 
-                  if (isNaN(value)) return s;
+                  if (Number.isNaN(value)) return s;
                   const k = Math.floor(value / 1000);
                   return k > 0 ? `${k}k` : '0';
                 }}

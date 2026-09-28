@@ -152,12 +152,6 @@ export function InstitutionDetails() {
         !account.hide && account.institution?.id === institutionId
     );
 
-    let totalBalance = new Decimal(0);
-    const accountsBySection = new Map<
-      SectionKey,
-      ReturnType<typeof buildProcessedAccount>[]
-    >();
-
     function buildProcessedAccount(
       account: AccountProps,
       accountBalanceConvertedToBRL: number
@@ -175,6 +169,12 @@ export function InstitutionDetails() {
             : undefined,
       };
     }
+
+    let totalBalance = new Decimal(0);
+    const accountsBySection = new Map<
+      SectionKey,
+      ReturnType<typeof buildProcessedAccount>[]
+    >();
 
     institutionAccounts.forEach((account) => {
       const accountBalanceConvertedToBRL = convertCurrency({
@@ -322,7 +322,7 @@ export function InstitutionDetails() {
     item: AccountProps;
     index: number;
   };
-  function _renderItem({ item, index }: _renderItemProps) {
+  function renderItem({ item, index }: _renderItemProps) {
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
         <AccountListItem
@@ -392,7 +392,7 @@ export function InstitutionDetails() {
             sections={filteredSections}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item, index }: _renderItemProps) =>
-              _renderItem({ item, index })}
+              renderItem({ item, index })}
             renderSectionHeader={({ section }) => (
               <SectionTitle>{section.title}</SectionTitle>
             )}
@@ -408,7 +408,7 @@ export function InstitutionDetails() {
                     data={creditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={({ item, index }: _renderItemProps) =>
-                      _renderItem({ item, index })}
+                      renderItem({ item, index })}
                     snapToOffsets={[
                       ...Array(creditCardAccounts.length),
                     ].map(

@@ -20,9 +20,6 @@ export function useNotificationPermission() {
     async function requestPermission() {
       try {
         if (!notificationsEnabled) {
-          console.log(
-            '[useNotificationPermission] Notifications disabled in config, skipping request'
-          );
           return;
         }
 
@@ -31,10 +28,6 @@ export function useNotificationPermission() {
         // on both platforms is safe (idempotent).
         if (ONESIGNAL_APP_ID) {
           OneSignal.initialize(ONESIGNAL_APP_ID);
-        } else {
-          console.warn(
-            '[useNotificationPermission] EXPO_PUBLIC_ONESIGNAL_APP_ID is not set — OneSignal may not be initialized on Android'
-          );
         }
 
         const granted =
@@ -44,9 +37,6 @@ export function useNotificationPermission() {
         // Do NOT use the deprecated hasPermission() — it returns stale
         // data immediately after a fresh grant on iOS.
         if (!granted) {
-          console.log(
-            '[useNotificationPermission] OS denied permission, syncing config to false'
-          );
           storageConfig.set(
             `${DATABASE_CONFIGS}.notificationsEnabled`,
             false
@@ -54,10 +44,7 @@ export function useNotificationPermission() {
           setNotificationsEnabled(false);
         }
       } catch (error) {
-        console.error(
-          '[useNotificationPermission] Error requesting permission:',
-          error
-        );
+        //
       }
     }
 

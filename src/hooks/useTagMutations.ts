@@ -44,7 +44,7 @@ export function useCreateTagMutation() {
 }
 
 // --- Update tag ---
-const updateTagFn = async (tagEdited: { tag_id: string; name: string }) => await api.put(`tag/${tagEdited.tag_id}`, { name: tagEdited.name });
+const updateTagFn = (tagEdited: { tag_id: string; name: string }) => api.put(`tag/${tagEdited.tag_id}`, { name: tagEdited.name });
 
 export function useUpdateTagMutation() {
   const queryClient = useQueryClient();
@@ -80,7 +80,7 @@ export function useUpdateTagMutation() {
 }
 
 // --- Delete tag ---
-const deleteTagFn = async (tagId: string) => await api.delete(`tag/${tagId}`);
+const deleteTagFn = (tagId: string) => api.delete(`tag/${tagId}`);
 
 export function useDeleteTagMutation() {
   const queryClient = useQueryClient();

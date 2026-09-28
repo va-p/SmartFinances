@@ -38,7 +38,7 @@ export function Institutions() {
     refetch,
     isRefetching,
   } = useInstitutionsQuery();
-  const { mutate: deleteInstitution, isPending: isDeleting } =
+  const { mutate: deleteInstitution } =
     useDeleteInstitutionMutation();
 
   async function handleRefresh() {

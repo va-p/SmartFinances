@@ -183,12 +183,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   }
 
   async function handleEditAccount(
-    id: string | null,
+    accountId: string | null,
     form: FormData,
     creditData?: CreditCardDataPayload
   ) {
     const AccountEdited = {
-      account_id: id,
+      account_id: accountId,
       name: form.name,
       type: typeSelected,
       subtype: typeSelected === 'CREDIT' ? 'CREDIT_CARD' : null,
@@ -298,6 +298,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         setButtonIsLoading(false);
       }
     }
+    return null;
   }
 
   async function fetchAccount() {
@@ -333,7 +334,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         );
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Conta',
         'Não foi possível buscar a conta. Verifique sua conexão com a internet e tente novamente.'
@@ -354,7 +354,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         setHideAccount((prevState) => !prevState);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Edição de Conta',
         'Erro ao editar a conta. Por favor, tente novamente.'

@@ -38,7 +38,7 @@ export function Categories() {
     refetch,
     isRefetching,
   } = useCategoriesQuery();
-  const { mutate: deleteCategory, isPending: isDeleting } =
+  const { mutate: deleteCategory } =
     useDeleteCategoryMutation();
 
   async function handleRefresh() {

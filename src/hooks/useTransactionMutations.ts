@@ -9,8 +9,8 @@ import { TransactionProps } from '@interfaces/transactions';
 const QUERY_KEY = ['transactions'];
 
 // --- API functions ---
-const createTransactionFn = async (newTransaction: any) => await api.post('transaction', newTransaction);
-const updateTransactionFn = async (updatedTransaction: any) => await api.patch('transaction/edit', updatedTransaction);
+const createTransactionFn = (newTransaction: any) => api.post('transaction', newTransaction);
+const updateTransactionFn = (updatedTransaction: any) => api.patch('transaction/edit', updatedTransaction);
 const deleteTransactionFn = async (transactionID: string) => {
   await api.delete('transaction/delete', {
     params: { transaction_id: transactionID },

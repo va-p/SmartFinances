@@ -10,7 +10,7 @@ import { Gradient } from '@components/Gradient';
 
 const LOGO_URL = '@assets/logo.png';
 
-export function Welcome({ navigation }: any) {
+export function Welcome() {
   const router = useRouter();
 
   function handlePressSignIn() {

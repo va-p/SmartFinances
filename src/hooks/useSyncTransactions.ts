@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '@api/api';
 
-async function syncAndFetchTransactions() {
-  return await api.get('/banking-integration/sync');
+function syncAndFetchTransactions() {
+  return api.get('/banking-integration/sync');
 }
 
 export function useSyncTransactions() {
@@ -18,8 +18,7 @@ export function useSyncTransactions() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
 
-    onError: (error) => {
-      console.error('Erro na sincronização:', error);
+    onError: () => {
       Alert.alert(
         'Sincronização Falhou',
         'Não foi possível atualizar suas contas. Por favor, tente novamente mais tarde.'

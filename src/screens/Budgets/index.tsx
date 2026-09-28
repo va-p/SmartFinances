@@ -50,7 +50,7 @@ export function Budgets() {
     try {
       await Promise.all([refetchTransactions(), refetchBudgets()]);
     } catch (error) {
-      console.error('Erro durante o refresh manual:', error);
+      //
     } finally {
       setIsManualRefreshing(false);
     }

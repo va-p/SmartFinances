@@ -13,7 +13,7 @@ import { useBankingIntegrationDetailQuery } from '@hooks/useBankingIntegrationDe
 
 import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
-import { OneSignal } from 'react-native-onesignal';
+// import { OneSignal } from 'react-native-onesignal';
 import { router, useLocalSearchParams } from 'expo-router';
 import { PluggyConnect } from 'react-native-pluggy-connect';
 
@@ -30,8 +30,6 @@ export function BankingIntegrationDetails() {
     connectToken: token,
   }: { bankingIntegrationID: string; connectToken: string } =
     useLocalSearchParams();
-  console.log('bankingIntegrationID ===>', bankingIntegrationID);
-  console.log('connectToken ===>', token);
 
   const { data: bankingIntegration, isLoading } =
     useBankingIntegrationDetailQuery(bankingIntegrationID);
@@ -54,7 +52,6 @@ export function BankingIntegrationDetails() {
     try {
       setShowModal(true);
     } catch (error) {
-      console.error('BankingIntegrationDetails fetchToken error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
@@ -75,8 +72,7 @@ export function BankingIntegrationDetails() {
     );
   }
 
-  function handleOnError(error: any) {
-    console.error('error', error);
+  function handleOnError() {
     Alert.alert(
       'Erro',
       'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
@@ -112,7 +108,7 @@ export function BankingIntegrationDetails() {
               connectorTypes={[]}
               onClose={handleOnClose}
               onSuccess={() => handleOnSuccess()}
-              onError={(error: any) => handleOnError(error)}
+              onError={() => handleOnError()}
               allowFullscreen
               theme='dark'
             />
