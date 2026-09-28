@@ -1,7 +1,7 @@
 import { AccountProps } from '@interfaces/accounts';
 import { TransactionProps } from '@interfaces/transactions';
 
-const ALL_ACCOUNTS_FILTER_LABEL = 'Todas...';
+const ALL_ACCOUNTS_FILTER_LABEL = 'Todas as Contas';
 
 /**
  * Home accounts filter (ACCFLT-04): an empty selection means no filter, so
@@ -29,7 +29,7 @@ export const filterTransactionsByAccounts = (
 };
 
 /**
- * Pill label for the Home accounts filter (ACCFLT-03): "Todas..." when
+ * Pill label for the Home accounts filter (ACCFLT-03): "Todas as Contas" when
  * nothing is selected, the account name for a single selection, "X Contas"
  * for two or more.
  */
