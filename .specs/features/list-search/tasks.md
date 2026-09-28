@@ -90,7 +90,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T2 — `useTransactionFiltering` composes `filterSectionsByQuery`
+### T2 — `useTransactionFiltering` composes `filterSectionsByQuery` ✅ DONE (5/5 tests, tsc clean)
 
 **What**: Replace the hook's inline group-mapping with the shared util (behavior-preserving) and add the hook's first unit tests.
 **Where**: `src/hooks/useTransactionFiltering.ts` (modify), `src/hooks/__tests__/useTransactionFiltering.test.ts` (new)
@@ -100,11 +100,11 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] Empty query → all flattened items (headers + rows) unchanged
-- [ ] Non-empty query → only matching descriptions + their section headers (no orphan headers)
-- [ ] Non-matching query → empty array
-- [ ] Case-insensitive match verified
-- [ ] Quick gate passes; test count ≥ 5 new cases
+- [x] Empty query → all flattened items (headers + rows) unchanged
+- [x] Non-empty query → only matching descriptions + their section headers (no orphan headers)
+- [x] Non-matching query → empty array
+- [x] Case-insensitive match verified
+- [x] Quick gate passes; test count ≥ 5 new cases (5/5)
 
 **Tests**: unit (renderHook)
 **Gate**: quick (`npx jest --watchman=false --ci src/hooks/__tests__/useTransactionFiltering.test.ts`)
