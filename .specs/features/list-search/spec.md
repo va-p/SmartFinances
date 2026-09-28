@@ -153,8 +153,8 @@ Only the Home screen can filter its transaction list by search. Users browsing a
 | SRCH-02 | P1 Account | Design | Implementing (T5 done; logic covered by T1/T2 tests) |
 | SRCH-03 | P1 TransactionsByCategory | Design | Implementing (T6 done) |
 | SRCH-04 | P1 TransactionsByCategory | Design | Implementing (T2 done; screen wiring pending) |
-| SRCH-05 | P1 Accounts | Design | Pending |
-| SRCH-06 | P1 Accounts | Design | Pending |
+| SRCH-05 | P1 Accounts | Design | Implementing (T7 done) |
+| SRCH-06 | P1 Accounts | Design | Implementing (T7 done; logic covered by T1 tests) |
 | SRCH-07 | P1 InstitutionDetails | Design | Pending |
 | SRCH-08 | P1 InstitutionDetails | Design | Pending |
 | SRCH-09 | P2 Shared SearchBar + Home consolidation | Design | Implementing (T3 done) |

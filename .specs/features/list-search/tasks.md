@@ -195,7 +195,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T7 — Accounts screen search
+### T7 — Accounts screen search ✅ DONE (tsc at baseline: index 0 / styles 13, eslint 0)
 
 **What**: Wire account-name search into Accounts: local absolute `SearchButton` (Home positions) + `SearchBar` + `filterItemsByQuery` on the merged list and the credit-card carousel.
 **Where**: `src/screens/Accounts/index.tsx`, `src/screens/Accounts/styles.ts` (modify)
@@ -205,10 +205,10 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] `SearchButton` (absolute `top: 4px; right: 48px`) renders left of `HideDataButton`; toggles the bar between `HeaderContainer` and `AccountsContainer`
-- [ ] Main FlatList data = `filterItemsByQuery(accountsListData, q, i => i.data.name)`; credit-card FlatList data = `filterItemsByQuery(creditCardAccounts, q, a => a.name)`
-- [ ] Credit-card footer hidden when no card matches (existing `length > 0` conditional)
-- [ ] Build gate passes (tsc: `Accounts/index.tsx` ≤ 0, `Accounts/styles.ts` ≤ 13 errors)
+- [x] `SearchButton` (absolute `top: 4px; right: 48px`) renders left of `HideDataButton`; toggles the bar between `HeaderContainer` and `AccountsContainer`
+- [x] Main FlatList data = `filterItemsByQuery(accountsListData, q, i => i.data.name)`; credit-card FlatList data = `filterItemsByQuery(creditCardAccounts, q, a => a.name)`
+- [x] Credit-card footer hidden when no card matches (existing `length > 0` conditional)
+- [x] Build gate passes (tsc: `Accounts/index.tsx` ≤ 0, `Accounts/styles.ts` ≤ 13 errors)
 
 **Tests**: none (screen — render-test blocker; covered by build gate + manual QA)
 **Gate**: build
