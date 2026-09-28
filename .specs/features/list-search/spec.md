@@ -149,18 +149,18 @@ Only the Home screen can filter its transaction list by search. Users browsing a
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| SRCH-01 | P1 Account | Design | Implementing (T5 done) |
-| SRCH-02 | P1 Account | Design | Implementing (T5 done; logic covered by T1/T2 tests) |
-| SRCH-03 | P1 TransactionsByCategory | Design | Implementing (T6 done) |
-| SRCH-04 | P1 TransactionsByCategory | Design | Implementing (T2 done; screen wiring pending) |
-| SRCH-05 | P1 Accounts | Design | Implementing (T7 done) |
-| SRCH-06 | P1 Accounts | Design | Implementing (T7 done; logic covered by T1 tests) |
-| SRCH-07 | P1 InstitutionDetails | Design | Implementing (T8 done) |
-| SRCH-08 | P1 InstitutionDetails | Design | Implementing (T8 done; logic covered by T1 tests) |
-| SRCH-09 | P2 Shared SearchBar + Home consolidation | Design | Implementing (T3 done) |
-| SRCH-10 | P2 Shared Header.SearchButton | Design | Implementing (T4 done) |
-| SRCH-11 | P2 Shared filter utils + hook composition | Design | Implementing (T1 done; T2 pending) |
-| SRCH-12 | P1/P2 Empty/no-match/null-field handling | Design | Implementing (T1 done) |
+| SRCH-01 | P1 Account | Design | ✅ Verified |
+| SRCH-02 | P1 Account | Design | ✅ Verified |
+| SRCH-03 | P1 TransactionsByCategory | Design | ✅ Verified |
+| SRCH-04 | P1 TransactionsByCategory | Design | ✅ Verified |
+| SRCH-05 | P1 Accounts | Design | ✅ Verified |
+| SRCH-06 | P1 Accounts | Design | ✅ Verified |
+| SRCH-07 | P1 InstitutionDetails | Design | ✅ Verified |
+| SRCH-08 | P1 InstitutionDetails | Design | ✅ Verified |
+| SRCH-09 | P2 Shared SearchBar + Home consolidation | Design | ✅ Verified |
+| SRCH-10 | P2 Shared Header.SearchButton | Design | ✅ Verified |
+| SRCH-11 | P2 Shared filter utils + hook composition | Design | ❌ Needs Fix (Home still on the screen-local hook — see validation.md Fix 1) |
+| SRCH-12 | P1/P2 Empty/no-match/null-field handling | Design | ✅ Verified |
 
 **ID format:** `SRCH-[NUMBER]`
 **Coverage:** 12 total, 12 mapped to tasks, 0 unmapped.

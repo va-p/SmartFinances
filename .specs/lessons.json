@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 6,
+  "next_id": 7,
   "lessons": [
     {
       "id": "L-001",
@@ -94,6 +94,24 @@
       ],
       "created": "2026-09-28T00:39:06Z",
       "last_seen": "2026-09-28T00:39:06Z"
+    },
+    {
+      "id": "L-006",
+      "key": "ac_gap::when a task extracts a module to a shared path delete the old copy and re point every importer in the same commit then grep the tree to confirm only the shared path remains",
+      "text": "When a task extracts a module to a shared path, delete the old copy and re-point every importer in the same commit, then grep the tree to confirm only the shared path remains.",
+      "signal": "ac_gap",
+      "scope": "src/hooks",
+      "status": "candidate",
+      "features": [
+        "list-search"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)"
+      ],
+      "created": "2026-09-28T16:31:10Z",
+      "last_seen": "2026-09-28T16:31:10Z"
     }
   ]
 }
