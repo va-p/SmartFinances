@@ -16,7 +16,8 @@ export function FilterButton({ title, ...rest }: Props) {
 
   return (
     <Container {...rest}>
-      <Title>{title}</Title>
+      {/* Single line: account names can exceed the pill's fixed height */}
+      <Title numberOfLines={1}>{title}</Title>
       <CaretDownIcon size={14} color={theme.colors.text} />
     </Container>
   );
