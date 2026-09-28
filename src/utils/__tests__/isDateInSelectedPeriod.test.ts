@@ -22,6 +22,14 @@ describe('isDateInSelectedPeriod', () => {
     ).toBe(false);
   });
 
+  // WEEK-02 — same ISO week number in a different ISO week-year is excluded
+  it('excludes a date with the same ISO week number in a different ISO week-year', () => {
+    // 2025-08-11 is Monday of ISO week 33 of 2025; selectedDate is ISO week 33 of 2026
+    expect(
+      isDateInSelectedPeriod(new Date(2025, 7, 11), selectedDate, 'weeks')
+    ).toBe(false);
+  });
+
   // Spec edge case — ISO week-year differs from calendar year (2025-12-29 is ISO week 1 of 2026)
   it('uses the ISO week-year at year boundaries', () => {
     const boundarySelectedDate = new Date(2025, 11, 29); // Monday - ISO week 1 of 2026

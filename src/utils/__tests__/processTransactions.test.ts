@@ -148,6 +148,17 @@ describe('processTransactions', () => {
     expect(currentCashFlow).toBe('-R$\u00A050,00');
   });
 
+  // WEEK-02 — a transaction with the same ISO week number in a different ISO week-year is excluded
+  it('excludes a transaction with the same ISO week number in a different ISO week-year', () => {
+    const { groupedTransactions } = processTransactions(
+      [makeTransaction({ created_at: '2025-08-11T12:00:00.000Z' })], // ISO week 33 of 2025
+      'weeks',
+      selectedDate // ISO week 33 of 2026
+    );
+
+    expect(groupedTransactions).toHaveLength(0);
+  });
+
   // Edge case — ISO week-year differs from calendar year (2025-12-29 is ISO week 1 of 2026)
   it('groups a year-boundary transaction under its ISO week-year label', () => {
     const { cashFlows, groupedTransactions } = processTransactions(
