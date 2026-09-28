@@ -216,7 +216,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T8 — InstitutionDetails screen search
+### T8 — InstitutionDetails screen search ✅ DONE (tsc at baseline: index 8 / styles 9, eslint 0)
 
 **What**: Wire account-name search into InstitutionDetails: `Header.SearchButton` (3rd header child) + `SearchBar` (marginHorizontal 0) + `filterSectionsByQuery` on sections.
 **Where**: `src/screens/InstitutionDetails/index.tsx` (modify)
@@ -226,10 +226,10 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] `Header.Root` renders [BackButton, Title, SearchButton] → `space-between` (search top right)
-- [ ] `SearchBar` sits between `SummaryContainer` and `AccountsList` with `style={{ marginHorizontal: 0 }}`
-- [ ] SectionList `sections` = `filterSectionsByQuery(sections, searchQuery, a => a.name)`; empty sections dropped
-- [ ] Build gate passes (tsc: `InstitutionDetails/index.tsx` ≤ 8 errors)
+- [x] `Header.Root` renders [BackButton, Title, SearchButton] → `space-between` (search top right)
+- [x] `SearchBar` sits between `SummaryContainer` and `AccountsList` with `style={{ marginHorizontal: 0 }}`
+- [x] SectionList `sections` = `filterSectionsByQuery(sections, searchQuery, a => a.name)`; empty sections dropped
+- [x] Build gate passes (tsc: `InstitutionDetails/index.tsx` ≤ 8 errors)
 
 **Tests**: none (screen — render-test blocker; covered by build gate + manual QA)
 **Gate**: build
