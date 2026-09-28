@@ -46,6 +46,7 @@
 | 40 | **Goal money movement only via internal transfer pairs** | Goal deposits/withdrawals/delete transfer-backs are standard two-leg transfers (`TRANSFER_DEBIT`/`TRANSFER_CREDIT`) via `createTransferPair`, exposed through dedicated `/goal/:id/deposit\|withdraw` endpoints. No direct balance mutation, no side ledgers. Goal progress is always derivable from account balances. |
 | 41 | **`GET /account` excludes virtual accounts by default (supersedes #39's client-filtering note)** | Client-side-only filtering failed in UAT (the `getAccounts` formatter never emitted `isVirtual`, so every client filter was dead code). Server filters `isVirtual: false` by default; `?include_virtual=true` opts in (Accounts screen / net worth only); the DTO always exposes `isVirtual`. |
 | 42 | **Goal reserve created only when no accounts are linked** | User decision (2026-08-27): always-created reserves were redundant for linked goals. `Goal.reserveAccountId` is nullable; linked-only goals route deposits/withdrawals directly to a chosen linked account; emptying a goal's links via edit re-creates an empty reserve (invariant: every goal has ≥1 money target). |
+| 43 | **Shared search primitives for list screens** | `SearchBar` component (`src/components/SearchBar/`) + `Header.SearchButton` (compound Header) + pure utils `filterItemsByQuery`/`filterSectionsByQuery`, composed by the shared `useTransactionFiltering` (`src/hooks/`, sole copy — Home's screen-local copy deleted). Used by Home, Account, TransactionsByCategory (description match) and Accounts, InstitutionDetails (name match). Query state per screen via RHF `useForm` + `watch('search')` (Home pattern). Verified: 22/22 ACs, 4/4 sensor kills, 241 tests (list-search, 2026-09-28). |
 
 ---
 
@@ -76,7 +77,8 @@
 
 ## Active Context
 
-- **Active feature:** `financial-goals` (specs in `.specs/features/financial-goals/`) — ✅ **Complete & Verified** (2026-09-14). All 53 requirements (GOAL-01..53) verified by the independent Verifier on branch `goals-target-savings` (both repos): 63/63 criteria evidenced, gates green (backend 202 tests + build; frontend 181 tests, tsc 548 baseline, 0 in goal files), 8/9 sensor mutants killed (survivor = chart-layer probe, see #17). Verifier fix applied: `620cbec` (GOAL-53 chart masking). Report: `.specs/features/financial-goals/validation.md`. Remaining (deployment, not code): `prisma migrate deploy` for `20260825085131_add_financial_goals` + `20260827120000_goal_reserve_optional` on cPanel (issue #16).
+- **Active feature:** `list-search` (specs in `.specs/features/list-search/`) — ✅ **Complete & Verified** (2026-09-28). Search bar on Account, TransactionsByCategory, Accounts, InstitutionDetails (Home parity: magnifying-glass toggle top-right, animated bar, clear button; description/name case-insensitive substring). Independent Verifier PASS after 1 fix round (Home consolidated on the shared `useTransactionFiltering`). 12 commits on `feat/search-bar` (`bc1728e..HEAD`): 241 tests (+17), tsc at baseline, 4/4 sensor kills. Remaining: optional manual QA pass of the five screens' search flows (UI ACs sit under the render-test blocker, STATE.md #13).
+- **Previous:** `financial-goals` — complete & verified; remaining deployment item: `prisma migrate deploy` for `2026082508531_add_financial_goals` + `20260827120000_goal_reserve_optional` on cPanel (issue #16).
 - **Frontend version:** 2.30.1 (app versionCode 109)
 - **Backend version:** 1.0.0
 - **API prefix:** `/api/v1`

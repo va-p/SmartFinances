@@ -159,7 +159,7 @@ Only the Home screen can filter its transaction list by search. Users browsing a
 | SRCH-08 | P1 InstitutionDetails | Design | ✅ Verified |
 | SRCH-09 | P2 Shared SearchBar + Home consolidation | Design | ✅ Verified |
 | SRCH-10 | P2 Shared Header.SearchButton | Design | ✅ Verified |
-| SRCH-11 | P2 Shared filter utils + hook composition | Design | ❌ Needs Fix (Home still on the screen-local hook — see validation.md Fix 1) |
+| SRCH-11 | P2 Shared filter utils + hook composition | Design | ✅ Verified (post-`4144497`: Home on the shared hook — `src/screens/Home/index.tsx:33`) |
 | SRCH-12 | P1/P2 Empty/no-match/null-field handling | Design | ✅ Verified |
 
 **ID format:** `SRCH-[NUMBER]`
