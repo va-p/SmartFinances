@@ -272,6 +272,17 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
+## Fix Tasks (from Verifier)
+
+### F1 — Consolidate Home on the shared `useTransactionFiltering` hook ✅ DONE
+
+**What** (Verifier gap 1, validation 2026-09-28): T2 created the shared hook at `src/hooks/useTransactionFiltering.ts` but Home kept importing its screen-local copy at `src/screens/Home/hooks/useTransactionFiltering.ts` — the exact duplication the shared hook exists to remove (design: "Home and TransactionsByCategory share this one path").
+**Where**: deleted `src/screens/Home/hooks/useTransactionFiltering.ts`; `src/screens/Home/index.tsx` import re-pointed to `@hooks/useTransactionFiltering`
+**Gate**: tsc Home 0 / hook clean; eslint 0; full jest 241 pass (only pre-existing profile failure)
+**Commit**: `refactor(search): point Home at the shared useTransactionFiltering hook`
+
+---
+
 ## Phase Execution Map
 
 ```

@@ -30,7 +30,7 @@ import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useTransactionHandlers } from './hooks/useTransactionHandlers';
-import { useTransactionFiltering } from './hooks/useTransactionFiltering';
+import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
 import { formatTransactions } from '@utils/formatTransactions';
