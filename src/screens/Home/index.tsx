@@ -17,6 +17,8 @@ import {
   HideDataButton,
   FiltersContainer,
   FilterButtonGroup,
+  AccountFilterButtonContainer,
+  PeriodFilterButtonContainer,
   Transactions,
   SearchButton,
   SearchInputContainer,
@@ -37,6 +39,7 @@ import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
 import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
+import { filterTransactionsByAccounts } from '@utils/accountsFilter';
 
 // Dependencies
 import { isFirstDayOfMonth } from 'date-fns';
@@ -74,6 +77,7 @@ import { PencilSimpleLineIcon } from 'phosphor-react-native/src/icons/PencilSimp
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { FilterButton } from '@components/FilterButton';
+import { AccountFilterButton } from '@components/AccountFilterButton';
 import { PeriodRulerList } from './components/PeriodRulerList';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
@@ -101,6 +105,7 @@ import {
   useClearSelection,
   useSelectedTransactionsCount,
 } from '@stores/useTransactionsStore';
+import { useSelectedAccountsFilter } from '@stores/selectedAccountsFilterStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -147,6 +152,9 @@ export function Home() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
+  const selectedAccountsFilter = useSelectedAccountsFilter(
+    (state) => state.selectedAccountsFilter
+  );
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
 
   // Animated header, chart and insights container
@@ -288,14 +296,21 @@ export function Home() {
       };
     }
 
-    const transactionsFormattedPtbr = formatTransactions(transactions);
+    const transactionsForSelectedAccounts = filterTransactionsByAccounts(
+      transactions,
+      selectedAccountsFilter
+    );
+
+    const transactionsFormattedPtbr = formatTransactions(
+      transactionsForSelectedAccounts
+    );
 
     return processTransactions(
       transactionsFormattedPtbr,
       selectedPeriod.period,
       selectedDate
     );
-  }, [transactions, selectedPeriod.period, selectedDate]);
+  }, [transactions, selectedAccountsFilter, selectedPeriod.period, selectedDate]);
 
   // Chart data is derived directly from the memoized processedData, so any
   // change to the transactions query re-renders the chart with fresh values
@@ -431,10 +446,15 @@ export function Home() {
 
           <FiltersContainer>
             <FilterButtonGroup>
-              <FilterButton
-                title={`Por ${selectedPeriod.name}`}
-                onPress={handleOpenPeriodSelectedModal}
-              />
+              <AccountFilterButtonContainer>
+                <AccountFilterButton />
+              </AccountFilterButtonContainer>
+              <PeriodFilterButtonContainer>
+                <FilterButton
+                  title={`Por ${selectedPeriod.name}`}
+                  onPress={handleOpenPeriodSelectedModal}
+                />
+              </PeriodFilterButtonContainer>
             </FilterButtonGroup>
           </FiltersContainer>
 

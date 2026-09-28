@@ -51,6 +51,17 @@ export const FiltersContainer = styled.View`
 `;
 
 export const FilterButtonGroup = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
+
+export const AccountFilterButtonContainer = styled.View`
+  width: 40%;
+`;
+
+export const PeriodFilterButtonContainer = styled.View`
   width: 24%;
 `;
 
