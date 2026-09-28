@@ -112,7 +112,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T3 — Extract `SearchBar` from Home
+### T3 — Extract `SearchBar` from Home ✅ DONE (tsc 0, eslint 0, jest 241 pass / only pre-existing profile failure)
 
 **What**: Create the shared `SearchBar` component (Home-exact visuals/animation/props) and adopt it in Home, removing the duplicated styles and orphaned imports.
 **Where**: `src/components/SearchBar/index.tsx`, `src/components/SearchBar/styles.ts` (new); `src/screens/Home/index.tsx`, `src/screens/Home/styles.ts` (modify)
@@ -122,10 +122,10 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] `SearchBar` renders Home's exact bar (icon, placeholder, clear button, animations) with `control`/`onClear`/`style` props
-- [ ] Home uses `<SearchBar control={control} onClear={() => reset()} />`; its search behavior is unchanged
-- [ ] `SearchInputContainer`/`ClearSearchButton` removed from `Home/styles.ts`; orphaned imports removed (`XIcon`, `ControlledInputWithIcon`, `Easing`)
-- [ ] Build gate passes (tsc 0 new errors in all 4 files — Home baseline 0; jest full suite unchanged)
+- [x] `SearchBar` renders Home's exact bar (icon, placeholder, clear button, animations) with `control`/`onClear`/`style` props
+- [x] Home uses `<SearchBar control={control} onClear={() => reset()} />`; its search behavior is unchanged
+- [x] `SearchInputContainer`/`ClearSearchButton` removed from `Home/styles.ts`; orphaned imports removed (`XIcon`, `ControlledInputWithIcon`, `Easing`)
+- [x] Build gate passes (tsc 0 new errors in all 4 files — Home baseline 0; jest full suite unchanged)
 
 **Tests**: none (component — render-test blocker; covered by build gate + manual QA)
 **Gate**: build

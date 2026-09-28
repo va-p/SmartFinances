@@ -157,7 +157,7 @@ Only the Home screen can filter its transaction list by search. Users browsing a
 | SRCH-06 | P1 Accounts | Design | Pending |
 | SRCH-07 | P1 InstitutionDetails | Design | Pending |
 | SRCH-08 | P1 InstitutionDetails | Design | Pending |
-| SRCH-09 | P2 Shared SearchBar + Home consolidation | Design | Pending |
+| SRCH-09 | P2 Shared SearchBar + Home consolidation | Design | Implementing (T3 done) |
 | SRCH-10 | P2 Shared Header.SearchButton | Design | Pending |
 | SRCH-11 | P2 Shared filter utils + hook composition | Design | Implementing (T1 done; T2 pending) |
 | SRCH-12 | P1/P2 Empty/no-match/null-field handling | Design | Implementing (T1 done) |
