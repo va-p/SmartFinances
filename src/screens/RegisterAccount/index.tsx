@@ -41,7 +41,7 @@ import { InstitutionSelect } from '@screens/InstitutionSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
-import { useCurrenciesStore } from '@storage/currenciesStore';
+import { useCurrenciesStore } from '@stores/currenciesStore';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';

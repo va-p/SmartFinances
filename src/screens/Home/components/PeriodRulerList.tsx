@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { parse, getYear, isValid } from 'date-fns';
 
 import { PeriodRuler } from '@components/PeriodRuler';
-import { PeriodProps } from '@screens/ChartPeriodSelect';
+import { PeriodProps } from '@interfaces/chartPeriod';
 
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 

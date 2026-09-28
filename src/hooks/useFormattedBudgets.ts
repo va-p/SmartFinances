@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { formatBudgetInfo } from '@utils/budgetCalculations';
 
+import { FormattedBudgetProps } from '@interfaces/budget';
+
 import { useBudgetsQuery } from './useBudgetsQuery';
 import { useTransactionsQuery } from './useTransactionsQuery';
 import { useBudgetDetailQuery } from './useBudgetDetailQuery';
-
-import { FormattedBudgetProps } from '@interfaces/budget';
 
 export function useFormattedBudgets() {
   const {

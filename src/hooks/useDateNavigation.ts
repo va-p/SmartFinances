@@ -15,7 +15,7 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-import { PeriodProps } from '@screens/ChartPeriodSelect';
+import { PeriodProps } from '@interfaces/chartPeriod';
 
 type UseDateNavigationProps = {
   selectedPeriod: PeriodProps;

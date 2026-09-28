@@ -20,7 +20,7 @@ import {
   Poppins_700Bold,
 } from '@expo-google-fonts/poppins';
 
-import { useQuotes } from '@storage/quotesStorage';
+import { useQuotes } from '@stores/quotesStorage';
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrenciesQuery } from '@hooks/useCurrenciesQuery';
@@ -28,7 +28,7 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import darkTheme from '@themes/darkTheme';
 import lightTheme from '@themes/lightTheme';
-import { useCurrenciesStore } from '@storage/currenciesStore';
+import { useCurrenciesStore } from '@stores/currenciesStore';
 
 SplashScreen.preventAutoHideAsync();
 

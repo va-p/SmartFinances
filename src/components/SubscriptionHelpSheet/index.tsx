@@ -1,5 +1,19 @@
 import React from 'react';
 import type { RefObject } from 'react';
+import {
+  ContentScroll,
+  IconsRow,
+  OverlappingIcon,
+  OverlappingIconFirst,
+  Explanation,
+  ExamplesTitle,
+  CategoryRow,
+  CategoryIconCircle,
+  CategoryTextContainer,
+  CategoryTitle,
+  CategoryExamples,
+  Footer,
+} from './styles';
 
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -19,21 +33,6 @@ import {MonitorIcon} from 'phosphor-react-native/src/icons/Monitor';
 // Components
 import { Button } from '@components/Button';
 import { ModalView } from '@components/Modals/ModalView';
-
-import {
-  ContentScroll,
-  IconsRow,
-  OverlappingIcon,
-  OverlappingIconFirst,
-  Explanation,
-  ExamplesTitle,
-  CategoryRow,
-  CategoryIconCircle,
-  CategoryTextContainer,
-  CategoryTitle,
-  CategoryExamples,
-  Footer,
-} from './styles';
 
 import { ThemeProps } from '@interfaces/theme';
 

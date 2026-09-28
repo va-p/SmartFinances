@@ -1,5 +1,22 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList } from 'react-native';
+import {
+  Container,
+  PeriodRow,
+  PeriodRowLeft,
+  PeriodLabel,
+  PeriodValue,
+  PeriodValueContainer,
+  TotalContainer,
+  TotalRow,
+  TotalLabel,
+  TotalValue,
+  SectionHeader,
+  SectionHeaderTitle,
+  HeaderIconButton,
+  LoadingContainer,
+  PeriodSheetContent,
+} from './styles';
 
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -33,24 +50,6 @@ import { computePaymentsTotal } from '@utils/subscriptionPaymentsSummary';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
-
-import {
-  Container,
-  PeriodRow,
-  PeriodRowLeft,
-  PeriodLabel,
-  PeriodValue,
-  PeriodValueContainer,
-  TotalContainer,
-  TotalRow,
-  TotalLabel,
-  TotalValue,
-  SectionHeader,
-  SectionHeaderTitle,
-  HeaderIconButton,
-  LoadingContainer,
-  PeriodSheetContent,
-} from './styles';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionPaymentProps } from '@interfaces/subscriptions';

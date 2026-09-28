@@ -1,5 +1,30 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
+import {
+  Container,
+  ContentScroll,
+  Row,
+  RowLeft,
+  RowIcon,
+  RowLabel,
+  RowLabelDanger,
+  RowValue,
+  SectionHeaderRow,
+  SectionHeaderTitle,
+  EditButton,
+  EditButtonText,
+  SectionBody,
+  DetailLine,
+  DetailLabel,
+  DetailValue,
+  EditSheetContent,
+  InputLabel,
+  EditInput,
+  PeriodPills,
+  PeriodPill,
+  PeriodPillText,
+  SaveButtonContainer,
+} from './styles';
 
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -40,32 +65,6 @@ import formatCurrency from '@utils/formatCurrency';
 import { parseDecimalInput } from '@utils/parseDecimalInput';
 import { formatSubscriptionDate } from '@utils/formatSubscriptionDate';
 import { subscriptionRecurrenceLabel } from '@utils/subscriptionDisplay';
-
-import {
-  Container,
-  ContentScroll,
-  Row,
-  RowLeft,
-  RowIcon,
-  RowLabel,
-  RowLabelDanger,
-  RowValue,
-  SectionHeaderRow,
-  SectionHeaderTitle,
-  EditButton,
-  EditButtonText,
-  SectionBody,
-  DetailLine,
-  DetailLabel,
-  DetailValue,
-  EditSheetContent,
-  InputLabel,
-  EditInput,
-  PeriodPills,
-  PeriodPill,
-  PeriodPillText,
-  SaveButtonContainer,
-} from './styles';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionRecurrencePeriod } from '@interfaces/subscriptions';

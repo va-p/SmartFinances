@@ -1,10 +1,10 @@
+import { SubscriptionPaymentProps, SubscriptionProps } from '@interfaces/subscriptions';
+
 import {
   computePaymentsTotal,
   convertAmountToBRL,
   getUpcomingPaymentsSummary,
 } from '../subscriptionPaymentsSummary';
-
-import { SubscriptionPaymentProps, SubscriptionProps } from '@interfaces/subscriptions';
 
 // Spec-anchored tests (spec.md R10 / AC10.1-10.3). Assert the spec-defined
 // outcomes: BRL totals and month/count aggregation.

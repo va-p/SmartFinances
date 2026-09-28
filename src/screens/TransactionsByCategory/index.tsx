@@ -3,10 +3,10 @@ import { BackHandler, Dimensions, RefreshControl, View } from 'react-native';
 import { Container, FiltersContainer } from './styles';
 
 // Hooks
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useDateNavigation } from '@hooks/useDateNavigation';
-import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
 import {
@@ -28,6 +28,7 @@ import { useForm } from 'react-hook-form';
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
+import { SearchBar } from '@components/SearchBar';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -36,7 +37,6 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
-import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -104,12 +104,12 @@ export function TransactionsByCategory({ navigation }: any) {
 
   const periodRulerDates = useMemo(() => {
     const years = new Set<number>();
-    for (const transaction of transactionsForThisCategory) {
+    transactionsForThisCategory.forEach((transaction) => {
       const transactionDate = new Date(transaction.created_at);
       if (!Number.isNaN(transactionDate.getTime())) {
         years.add(transactionDate.getFullYear());
       }
-    }
+    });
 
     return buildPeriodRulerDates({
       period: selectedPeriod.period,

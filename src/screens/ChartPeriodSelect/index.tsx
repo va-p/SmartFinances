@@ -6,11 +6,7 @@ import { ListItem } from '@components/ListItem';
 
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
-export interface PeriodProps {
-  id: string;
-  name: string;
-  period: 'weeks' | 'months' | 'years' | 'all';
-}
+import { PeriodProps } from '@interfaces/chartPeriod';
 
 type Props = {
   period: PeriodProps;

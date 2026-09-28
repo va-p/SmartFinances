@@ -68,7 +68,6 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { GoalPercentBar } from '@components/GoalListItem/components/GoalPercentBar';
-import { GoalProjectionChart } from './components/GoalProjectionChart';
 
 // Screens
 import { RegisterGoal } from '@screens/RegisterGoal';
@@ -82,6 +81,9 @@ import { useGoalAccountsSelected } from '@stores/goalAccountsSelected';
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
+
+// Local
+import { GoalProjectionChart } from './components/GoalProjectionChart';
 
 export function GoalDetails() {
   const { goalId }: { goalId: string } = useLocalSearchParams();

@@ -1,5 +1,17 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform } from 'react-native';
+import {
+  Container,
+  SectionHeader,
+  SectionHeaderTitle,
+  HelpButton,
+  HeaderIconButton,
+  LoadingContainer,
+  Footer,
+  FooterTextContainer,
+  FooterTitle,
+  FooterSubtitle,
+} from './styles';
 
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -32,19 +44,6 @@ import { getUpcomingPaymentsSummary } from '@utils/subscriptionPaymentsSummary';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
-
-import {
-  Container,
-  SectionHeader,
-  SectionHeaderTitle,
-  HelpButton,
-  HeaderIconButton,
-  LoadingContainer,
-  Footer,
-  FooterTextContainer,
-  FooterTitle,
-  FooterSubtitle,
-} from './styles';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionProps } from '@interfaces/subscriptions';

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { PeriodProps } from '@screens/ChartPeriodSelect';
+import { PeriodProps } from '@interfaces/chartPeriod';
 
 type SelectedPeriod = {
   selectedPeriod: PeriodProps;

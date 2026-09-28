@@ -7,9 +7,10 @@ import { useTheme } from 'styled-components';
 import { CaretLeftIcon } from 'phosphor-react-native/src/icons/CaretLeft';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
-import { PeriodRulerListItem } from './components/PeriodRulerListItem';
-
 import { ThemeProps } from '@interfaces/theme';
+
+// Local
+import { PeriodRulerListItem } from './components/PeriodRulerListItem';
 
 interface PeriodRulerListItem {
   date: string;

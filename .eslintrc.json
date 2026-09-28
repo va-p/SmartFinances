@@ -16,6 +16,27 @@
     "sourceType": "module"
   },
   "plugins": ["react", "react-native", "@typescript-eslint"],
+  "settings": {
+    // teach eslint-plugin-import the path aliases used by the project
+    // (defined in tsconfig.json and babel.config.js - babel-plugin-module-resolver)
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json",
+        // resolve to the runtime files instead of the ".d.ts" declarations:
+        // date-fns and date-fns/locale both resolve to the same "typings.d.ts"
+        // otherwise, which trips "import/no-duplicates" with false positives
+        "mainFields": [
+          "module",
+          "jsnext:main",
+          "main"
+        ]
+      }
+    }
+  },
   "rules": {
     // allow .js files to contain JSX code
     "react/jsx-filename-extension": [
@@ -33,10 +54,54 @@
     "@typescript-eslint/no-explicit-any": "off",
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "semi": ["error", "always"],
-    // ignore errors for non default exports
-    "import/prefer-default-export": [
-        "off",
-        { "target": "single" }
-    ]
+    // project convention: prefer named exports over default exports
+    "import/prefer-default-export": "off",
+    // project convention: imports are written without file extensions
+    // (the extensions are resolved via the tsconfig/babel aliases)
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    // project convention: React, React Native and "./styles" (styled-components)
+    // imports stay at the top of the file, before all other imports
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          ["builtin", "external", "internal"],
+          ["parent", "sibling", "index"]
+        ],
+        "pathGroups": [
+          { "pattern": "react", "group": "external", "position": "before" },
+          {
+            "pattern": "react-native",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "./styles",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "../../styles",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"]
+      }
+    ],
+    // react-native patterns: asset requires with constant paths ("require(LOGO_URL)",
+    // const-folded by metro) and jest's "jest.isolateModules(() => require(...))"
+    // are valid, but these airbnb rules cannot statically evaluate them
+    "global-require": "off",
+    "import/no-dynamic-require": "off"
   }
 }

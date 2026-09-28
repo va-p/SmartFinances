@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { Container } from './styles';
 
-import { useCurrenciesStore } from '@storage/currenciesStore';
+import { useCurrenciesStore } from '@stores/currenciesStore';
 
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';

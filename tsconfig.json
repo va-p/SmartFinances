@@ -12,7 +12,6 @@
       "@slices/*": ["./src/slices/*"],
       "@assets/*": ["./src/assets/*"],
       "@routes/*": ["./src/routes/*"],
-      "@storage/*": ["src/stores/*"],
       "@stores/*": ["./src/stores/*"],
       "@screens/*": ["./src/screens/*"],
       "@database/*": ["./src/database/*"],

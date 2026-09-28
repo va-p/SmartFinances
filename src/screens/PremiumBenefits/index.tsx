@@ -14,7 +14,6 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
-import { Benefit } from './components/Benefit';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
 import { addDays } from 'date-fns';
@@ -28,6 +27,9 @@ import { useRevenueCat } from '@providers/RevenueCatProvider';
 import { PackageProps } from '@interfaces/premiumPackage';
 
 import { eUrl } from '@enums/enumsUrl';
+
+// Local
+import { Benefit } from './components/Benefit';
 
 export function PremiumBenefits() {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState(

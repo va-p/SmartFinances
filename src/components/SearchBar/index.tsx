@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
+import { SearchInputContainer, ClearSearchButton } from './styles';
 
 // Dependencies
 import Animated, {
@@ -19,8 +20,6 @@ import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIco
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-
-import { SearchInputContainer, ClearSearchButton } from './styles';
 
 type SearchBarProps = {
   control: Control<any>;

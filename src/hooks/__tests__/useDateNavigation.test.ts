@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react-native';
 
 import { useDateNavigation } from '../useDateNavigation';
 
-import { PeriodProps } from '../../screens/ChartPeriodSelect';
+import { PeriodProps } from '../../interfaces/chartPeriod';
 
 const makePeriod = (
   period: PeriodProps['period']

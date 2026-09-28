@@ -26,7 +26,6 @@ import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
 import { Gradient } from '@components/Gradient';
 import { Load } from '@components/Button/components/Load';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { InstitutionSelectListItem } from './components/InstitutionSelectListItem';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -35,6 +34,9 @@ import { InstitutionProps } from '@interfaces/institutions';
 // Hooks
 import { useInstitutionsQuery } from '@hooks/useInstitutionsQuery';
 import { useCreateInstitutionMutation } from '@hooks/useInstitutionMutations';
+
+// Local
+import { InstitutionSelectListItem } from './components/InstitutionSelectListItem';
 
 type Props = {
   institutionSelected: InstitutionProps | null;

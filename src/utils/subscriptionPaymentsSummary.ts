@@ -1,10 +1,10 @@
-import { convertCurrency } from './convertCurrency';
-import { monthKey } from './buildSubscriptionPeriodOptions';
-
 import {
   SubscriptionPaymentProps,
   SubscriptionProps,
 } from '@interfaces/subscriptions';
+
+import { convertCurrency } from './convertCurrency';
+import { monthKey } from './buildSubscriptionPeriodOptions';
 
 type Quotes = Parameters<typeof convertCurrency>[0]['quotes'];
 

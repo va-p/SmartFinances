@@ -12,8 +12,6 @@ import {
   SocialLoginButton,
 } from './styles';
 
-import { useAuth } from '../../providers/AuthProvider';
-
 // Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
@@ -37,6 +35,9 @@ import { ScreenDivider } from '@components/ScreenDivider';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
 import { ThemeProps } from '@interfaces/theme';
+
+// Local
+import { useAuth } from '../../providers/AuthProvider';
 
 const LOGO_URL = '@assets/logo.png';
 const GOOGLE_LOGO_URL = '@assets/googleLogo.png';

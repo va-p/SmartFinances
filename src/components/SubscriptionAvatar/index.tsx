@@ -1,7 +1,4 @@
 import React from 'react';
-
-import { useTheme } from 'styled-components';
-
 import {
   AvatarWrapper,
   AvatarCircle,
@@ -9,6 +6,8 @@ import {
   FallbackLetter,
   StatusBadge,
 } from './styles';
+
+import { useTheme } from 'styled-components';
 
 import { ClockIcon } from 'phosphor-react-native/src/icons/Clock';
 import { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';

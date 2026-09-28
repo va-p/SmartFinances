@@ -44,7 +44,6 @@ import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
@@ -55,6 +54,9 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { SectionListHeader } from '@components/SectionListHeader';
+
+// Local
+import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();

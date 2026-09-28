@@ -26,10 +26,8 @@ import {
 // Hooks
 import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useScreenTrace } from '@hooks/useScreenTrace';
-import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
-import { useTransactionHandlers } from './hooks/useTransactionHandlers';
 import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
@@ -74,12 +72,10 @@ import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { FilterButton } from '@components/FilterButton';
 import { AccountFilterButton } from '@components/AccountFilterButton';
-import { PeriodRulerList } from './components/PeriodRulerList';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { SearchBar } from '@components/SearchBar';
@@ -88,19 +84,17 @@ import { SearchBar } from '@components/SearchBar';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
-// Storages
-import { useUser } from '@storage/userStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
-import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
-
 // Stores
 import {
   useSelectedTransactions,
   useClearSelection,
   useSelectedTransactionsCount,
 } from '@stores/useTransactionsStore';
+import { useUser } from '@stores/userStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 import { useSelectedAccountsFilter } from '@stores/selectedAccountsFilterStorage';
 
 // Interfaces
@@ -108,6 +102,12 @@ import { ThemeProps } from '@interfaces/theme';
 
 // APIs
 import api from '@api/api';
+
+// Local
+import { useHomeAnimations } from './hooks/useHomeAnimations';
+import { useTransactionHandlers } from './hooks/useTransactionHandlers';
+import { PeriodRulerList } from './components/PeriodRulerList';
+import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 
 // Constants
 const isAndroid = Platform.OS === 'android';
