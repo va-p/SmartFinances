@@ -21,6 +21,7 @@ import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 
 // Dependencies
 import Decimal from 'decimal.js';
@@ -28,7 +29,7 @@ import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
-import { format, getMonth, getYear } from 'date-fns';
+import { format } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
@@ -156,25 +157,14 @@ export function Overview() {
       totalAssets += convertedBalance;
     }
 
-    // --- calculatePatrimonialEvolution ---
-    const isInSelectedPeriod = (transactionDate: Date) => {
-      switch (selectedPeriod.period) {
-        case 'months':
-          return (
-            getMonth(transactionDate) === getMonth(selectedDate) &&
-            getYear(transactionDate) === getYear(selectedDate)
-          );
-        case 'years':
-          return getYear(transactionDate) === getYear(selectedDate);
-        case 'all':
-          return true;
-      }
-    };
-
     // --- calculateTransactionsByCategories ---
     const transactionsBySelectedPeriod = transactions.filter((t) => {
       const transactionDate = new Date(t.created_at);
-      return isInSelectedPeriod(transactionDate);
+      return isDateInSelectedPeriod(
+        transactionDate,
+        selectedDate,
+        selectedPeriod.period
+      );
     });
 
     const calculateTotals = (type: 'DEBIT' | 'CREDIT'): CategoryData[] => {

@@ -2,6 +2,7 @@ import groupTransactionsByDate, {
   GroupedTransactionProps,
 } from '@utils/groupTransactionsByDate';
 import formatCurrency from '@utils/formatCurrency';
+import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
@@ -15,10 +16,10 @@ import {
 
 import darkTheme from '@themes/darkTheme';
 
-type PeriodType = 'months' | 'years' | 'all';
+type PeriodType = 'weeks' | 'months' | 'years' | 'all';
 
 interface ProcessTransactionsResult {
-  cashFlows: CashFLowData[]; // CashFlows by months, years or all history
+  cashFlows: CashFLowData[]; // CashFlows by weeks, months, years or all history
   cashFlowChartData: CashFlowChartData[];
   currentCashFlow: string; // Current CashFlow (by selected period)
   groupedTransactions: any[]; // Transactions grouped by day with total of the day, to show on SectionList
@@ -45,6 +46,13 @@ export const processTransactions = (
   const cashFlowsMap: Record<string, CashFLowData> = {};
 
   const periodConfig = {
+    weeks: {
+      // ISO week-year + padded ISO week: lexicographically sortable and
+      // parseable back by date-fns (e.g., '2026-33').
+      groupKey: (date: Date) => format(date, 'R-II'),
+      outputFormat: "'Sem' I '\n' R",
+      parseFormat: 'R-II',
+    },
     months: {
       groupKey: (date: Date) => format(date, 'yyyy-MM'),
       outputFormat: "MMM '\n' yyyy",
@@ -169,28 +177,15 @@ export const processTransactions = (
     .reverse()
     .flat();
 
-  const isInSelectedPeriod = (date: Date) => {
-    switch (period) {
-      case 'months':
-        return (
-          date.getMonth() === selectedDate.getMonth() &&
-          date.getFullYear() === selectedDate.getFullYear()
-        );
-      case 'years':
-        return date.getFullYear() === selectedDate.getFullYear();
-      case 'all':
-        return true;
-      default:
-        return false;
-    }
-  };
-
   // Filter transactions by selected date and period, normalizing `created_at`
   // to `dd/MM/yyyy` so grouped day titles stay display-ready for every caller.
   const filteredTransactions = transactions.reduce(
     (acc: TransactionProps[], item) => {
       const transactionDate = toTransactionDate(item.created_at);
-      if (!isValid(transactionDate) || !isInSelectedPeriod(transactionDate)) {
+      if (
+        !isValid(transactionDate) ||
+        !isDateInSelectedPeriod(transactionDate, selectedDate, period)
+      ) {
         return acc;
       }
       acc.push({
@@ -219,7 +214,7 @@ export const processTransactions = (
   }
 
   return {
-    cashFlows, // CashFlows by months, years or all history
+    cashFlows, // CashFlows by weeks, months, years or all history
     cashFlowChartData, // CashFlows by months, years or 'all' to use on cash flow chart
     currentCashFlow: formatCurrency('BRL', currentCashFlowByPeriod), // Current CashFlow (by selected period)
     groupedTransactions, // Transactions grouped by day with total of the day, to show on SectionList

@@ -25,11 +25,13 @@ import {
 // Hooks
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useDeleteAccountMutation } from '@hooks/useAccountMutations';
+import { useDateNavigation } from '@hooks/useDateNavigation';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { processTransactions } from '@utils/processTransactions';
 import { formatTransactions } from '@utils/formatTransactions';
+import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 
 // Dependencies
@@ -41,22 +43,12 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import {
-  addMonths,
-  addYears,
-  getMonth,
-  getYear,
-  isValid,
-  parse,
-  subMonths,
-  subYears,
-} from 'date-fns';
+import { getYear, isValid } from 'date-fns';
 import {
   Gesture,
   GestureDetector,
   RectButton,
 } from 'react-native-gesture-handler';
-import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
 import { useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -164,6 +156,13 @@ export function Account() {
 
   const { mutate: deleteAccount } = useDeleteAccountMutation();
 
+  // Date navigation
+  const { handleDateChange, handlePressDate } = useDateNavigation({
+    selectedPeriod,
+    selectedDate,
+    setSelectedDate,
+  });
+
   const dynamicStyles = useMemo(
     () =>
       StyleSheet.create({
@@ -216,61 +215,23 @@ export function Account() {
   }, [allTransactions, accountID, selectedPeriod, selectedDate]);
 
   const _renderPeriodRuler = useCallback(() => {
-    const MONTH_ABBREVIATIONS = [
-      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
-    ];
-
-    let dates: { date: string; isActive: boolean }[] = [];
-
+    // Years source for the 'years' ruler: the user's transaction years.
+    // Other period modes ignore the years param.
+    const years = new Set<number>();
     if (selectedPeriod.period === 'years') {
-      const yearsSet = new Set<number>();
-
       for (const item of allTransactions || []) {
-        try {
-          const parsed = parse(item.created_at, 'dd/MM/yyyy', new Date());
-          if (isValid(parsed)) {
-            yearsSet.add(getYear(parsed));
-          }
-        } catch {
-          // skip invalid dates
+        const transactionDate = new Date(item.created_at);
+        if (isValid(transactionDate)) {
+          years.add(getYear(transactionDate));
         }
       }
-
-      // Ensure the selected year is always included
-      yearsSet.add(getYear(selectedDate));
-
-      const yearsArray = Array.from(yearsSet).sort((a, b) => b - a);
-
-      dates = yearsArray.map((year) => ({
-        date: String(year),
-        isActive: getYear(selectedDate) === year,
-      }));
-    } else {
-      // 'months' and 'all' — show all 12 months of the selected year
-      const year = getYear(selectedDate);
-
-      dates = MONTH_ABBREVIATIONS.map((month) => {
-        const dateStr = `${month} \n ${year}`;
-        const dateAux = `${month} ${year}`;
-
-        let parsedDate: Date | null = null;
-        try {
-          parsedDate = parse(dateAux, 'MMM yyyy', selectedDate, {
-            locale: ptBR,
-          });
-        } catch {
-          // parsing failure — skip silently
-        }
-
-        const isActive = parsedDate && isValid(parsedDate)
-          ? getYear(selectedDate) === getYear(parsedDate) &&
-            getMonth(selectedDate) === getMonth(parsedDate)
-          : false;
-
-        return { date: dateStr, isActive };
-      }).reverse(); // newest-first: Dez → Jan (matching FlatList inverted order)
     }
+
+    const dates = buildPeriodRulerDates({
+      period: selectedPeriod.period,
+      selectedDate,
+      years: Array.from(years),
+    });
 
     return (
       <PeriodRuler
@@ -281,7 +242,13 @@ export function Account() {
         horizontalPadding={16}
       />
     );
-  }, [selectedDate, allTransactions, selectedPeriod.period]);
+  }, [
+    selectedDate,
+    allTransactions,
+    selectedPeriod.period,
+    handleDateChange,
+    handlePressDate,
+  ]);
 
   if (isLoadingAccountDetails) {
     return <SkeletonAccountsScreen />;
@@ -385,33 +352,6 @@ export function Account() {
   function ClearTransactionId() {
     setTransactionId('');
   }
-
-  function handleDateChange(action: 'prev' | 'next'): void {
-    switch (selectedPeriod.period) {
-      case 'months':
-        switch (action) {
-          case 'prev':
-            setSelectedDate(subMonths(selectedDate, 1));
-            break;
-          case 'next':
-            setSelectedDate(addMonths(selectedDate, 1));
-            break;
-        }
-        break;
-      case 'years':
-        switch (action) {
-          case 'prev':
-            setSelectedDate(subYears(selectedDate, 1));
-            break;
-          case 'next':
-            setSelectedDate(addYears(selectedDate, 1));
-            break;
-        }
-        break;
-    }
-  }
-
-  function handlePressDate(): void {}
 
   function _renderEmpty() {
     return <ListEmptyComponent />;

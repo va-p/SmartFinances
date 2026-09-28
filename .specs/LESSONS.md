@@ -38,6 +38,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: src/hooks/__tests__/useScreenTrace.test.ts:70 (AC10) (tests)
 - last seen: 2026-09-21T17:20:57Z
 
+### L-005 - Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `src/utils` · harmful: 0
+- features: weekly-period-filter
+- evidence: src/utils/isDateInSelectedPeriod.ts:17 (src/utils)
+- last seen: 2026-09-28T00:39:06Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

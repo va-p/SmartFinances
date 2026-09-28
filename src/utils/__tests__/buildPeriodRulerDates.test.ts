@@ -65,4 +65,48 @@ describe('buildPeriodRulerDates', () => {
     expect(dates.map((date) => date.date)).toEqual(['2026']);
     expect(dates[0].isActive).toBe(true);
   });
+
+  // WEEK-05 — weeks mode shows all ISO weeks of the selected ISO week-year, newest-first
+  it('returns all 53 ISO weeks of 2026, newest-first, with only the selected week active', () => {
+    const dates = buildPeriodRulerDates({
+      period: 'weeks',
+      selectedDate, // ISO week 33 of 2026; 2026 has 53 ISO weeks
+      years: [],
+    });
+
+    expect(dates).toHaveLength(53);
+    expect(dates[0].date).toBe('Sem 53 \n 2026');
+    expect(dates[52].date).toBe('Sem 1 \n 2026');
+
+    const active = dates.filter((date) => date.isActive);
+    expect(active).toHaveLength(1);
+    expect(active[0].date).toBe('Sem 33 \n 2026');
+  });
+
+  it('returns 52 ISO weeks for a year with 52 ISO weeks', () => {
+    const dates = buildPeriodRulerDates({
+      period: 'weeks',
+      selectedDate: new Date(2025, 7, 15), // 2025 has 52 ISO weeks
+      years: [],
+    });
+
+    expect(dates).toHaveLength(52);
+    expect(dates[0].date).toBe('Sem 52 \n 2025');
+  });
+
+  // Edge case — ISO week-year differs from calendar year (2025-12-29 is ISO week 1 of 2026)
+  it('labels weeks with the ISO week-year at calendar year boundaries', () => {
+    const dates = buildPeriodRulerDates({
+      period: 'weeks',
+      selectedDate: new Date(2025, 11, 29), // Monday, ISO week 1 of 2026
+      years: [],
+    });
+
+    expect(dates).toHaveLength(53); // ISO week-year 2026 has 53 weeks
+    expect(dates.every((date) => date.date.endsWith('2026'))).toBe(true);
+
+    const active = dates.filter((date) => date.isActive);
+    expect(active).toHaveLength(1);
+    expect(active[0].date).toBe('Sem 1 \n 2026');
+  });
 });

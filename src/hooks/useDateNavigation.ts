@@ -3,10 +3,14 @@ import { useCallback } from 'react';
 import {
   addMonths,
   addYears,
+  addWeeks,
   subMonths,
   subYears,
+  subWeeks,
+  endOfISOWeek,
   lastDayOfMonth,
   lastDayOfYear,
+  startOfDay,
   parse,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -32,6 +36,16 @@ export function useDateNavigation({
   const handleDateChange = useCallback(
     (action: 'prev' | 'next'): void => {
       switch (selectedPeriod.period) {
+        case 'weeks':
+          switch (action) {
+            case 'prev':
+              setSelectedDate(subWeeks(selectedDate, 1));
+              break;
+            case 'next':
+              setSelectedDate(addWeeks(selectedDate, 1));
+              break;
+          }
+          break;
         // 'all' renders the months ruler, so it navigates like 'months'
         case 'months':
         case 'all':
@@ -61,22 +75,38 @@ export function useDateNavigation({
 
   const handlePressDate = useCallback(
     (stringDate: string) => {
-      const dateSplit = stringDate.split('\n');
-      const trimmedDateParts = dateSplit.map((part: string) => part.trim());
-      const dateAux = trimmedDateParts.join(' ');
-      // 'all' shows month labels, so it parses and jumps like 'months'
-      const dateFormat =
-        selectedPeriod.period === 'years' ? 'yyyy' : 'MMM yyyy';
-      const dateParsed = parse(dateAux, dateFormat, new Date(), {
+      const dateAux = stringDate
+        .split('\n')
+        .map((part: string) => part.trim())
+        .join(' ');
+
+      // Ruler taps anchor on the period's last day, mirroring months/years.
+      // 'all' shows month labels, so it parses and jumps like 'months'.
+      const periodConfig = {
+        weeks: {
+          dateFormat: "'Sem' I R",
+          toPeriodEnd: (date: Date) => startOfDay(endOfISOWeek(date)),
+        },
+        months: {
+          dateFormat: 'MMM yyyy',
+          toPeriodEnd: (date: Date) => lastDayOfMonth(date),
+        },
+        years: {
+          dateFormat: 'yyyy',
+          toPeriodEnd: (date: Date) => lastDayOfYear(date),
+        },
+        all: {
+          dateFormat: 'MMM yyyy',
+          toPeriodEnd: (date: Date) => lastDayOfMonth(date),
+        },
+      };
+
+      const config = periodConfig[selectedPeriod.period];
+      const dateParsed = parse(dateAux, config.dateFormat, new Date(), {
         locale: ptBR,
       });
 
-      const selectedDateAux =
-        selectedPeriod.period === 'years'
-          ? lastDayOfYear(dateParsed)
-          : lastDayOfMonth(new Date(dateParsed));
-
-      setSelectedDate(selectedDateAux);
+      setSelectedDate(config.toPeriodEnd(dateParsed));
     },
     [selectedPeriod.period, setSelectedDate]
   );

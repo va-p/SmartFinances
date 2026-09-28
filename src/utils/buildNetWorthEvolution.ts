@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 
-type PeriodType = 'months' | 'years' | 'all';
+type PeriodType = 'weeks' | 'months' | 'years' | 'all';
 
 type NetWorthPoint = {
   date: string;
@@ -48,6 +48,13 @@ export function buildNetWorthEvolution({
   }
 
   const periodConfig = {
+    weeks: {
+      // ISO week-year + padded ISO week: lexicographically sortable and
+      // parseable back by date-fns (e.g., '2026-33').
+      groupKey: (date: Date) => format(date, 'R-II'),
+      outputFormat: "'Sem' I '\n' R",
+      parseFormat: 'R-II',
+    },
     months: {
       groupKey: (date: Date) => format(date, 'yyyy-MM'),
       outputFormat: "MMM '\n' yyyy",
