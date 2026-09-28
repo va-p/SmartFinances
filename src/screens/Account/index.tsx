@@ -20,6 +20,7 @@ import {
   AccountCashFlowDescription,
   Transactions,
   HeaderContainer,
+  HeaderButtonGroup,
 } from './styles';
 
 // Hooks
@@ -33,6 +34,7 @@ import { processTransactions } from '@utils/processTransactions';
 import { formatTransactions } from '@utils/formatTransactions';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
+import { filterSectionsByQuery } from '@utils/filterSectionsByQuery';
 
 // Dependencies
 import Animated, {
@@ -53,6 +55,7 @@ import { useTheme } from 'styled-components';
 import { useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { useForm } from 'react-hook-form';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 
 // Components
@@ -68,6 +71,7 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
+import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -97,6 +101,7 @@ export function Account() {
   const editAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const addTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const { id } = useLocalSearchParams();
   const accountID = Number(id);
@@ -156,6 +161,10 @@ export function Account() {
 
   const { mutate: deleteAccount } = useDeleteAccountMutation();
 
+  // Search form (Home-screen pattern: query via react-hook-form)
+  const { control, watch, reset } = useForm();
+  const searchQuery = watch('search', '');
+
   // Date navigation
   const { handleDateChange, handlePressDate } = useDateNavigation({
     selectedPeriod,
@@ -213,6 +222,17 @@ export function Account() {
       cashFlowIsPositive: isCashFlowPositive,
     };
   }, [allTransactions, accountID, selectedPeriod, selectedDate]);
+
+  // Transaction filtering with search
+  const filteredTransactions = useMemo(
+    () =>
+      filterSectionsByQuery(
+        processedData.transactionsFormattedBySelectedPeriod,
+        searchQuery,
+        (transaction: TransactionProps) => transaction.description
+      ),
+    [processedData.transactionsFormattedBySelectedPeriod, searchQuery]
+  );
 
   const _renderPeriodRuler = useCallback(() => {
     // Years source for the 'years' ruler: the user's transaction years.
@@ -393,7 +413,12 @@ export function Account() {
             <Header.Root>
               <Header.BackButton />
               <Header.Title title={accountName || ''} />
-              <Header.Icon onPress={handleOpenEditAccount} />
+              <HeaderButtonGroup>
+                <Header.SearchButton
+                  onPress={() => setShowSearchInput((prevState) => !prevState)}
+                />
+                <Header.Icon onPress={handleOpenEditAccount} />
+              </HeaderButtonGroup>
             </Header.Root>
           </HeaderContainer>
 
@@ -449,9 +474,13 @@ export function Account() {
           <Animated.View>{_renderPeriodRuler()}</Animated.View>
         </Animated.View>
 
+        {showSearchInput && (
+          <SearchBar control={control} onClear={() => reset()} />
+        )}
+
         <Transactions>
           <AnimatedSectionList
-            sections={processedData.transactionsFormattedBySelectedPeriod}
+            sections={filteredTransactions}
             keyExtractor={(item: any) => item.id}
             renderItem={_renderItem}
             renderSectionHeader={_renderSectionHeader}

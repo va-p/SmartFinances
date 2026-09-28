@@ -13,6 +13,12 @@ export const HeaderContainer = styled.View`
   margin: 8px 16px 0;
 `;
 
+export const HeaderButtonGroup = styled.View`
+  flex-direction: row;
+  align-items: center;
+  column-gap: 16px;
+`;
+
 export const FiltersContainer = styled.View`
   align-items: center;
   justify-content: center;

@@ -153,7 +153,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T5 — Account screen search
+### T5 — Account screen search ✅ DONE (tsc at baseline: index 1 / styles 16, eslint 0)
 
 **What**: Wire search into the Account screen: `HeaderButtonGroup` (search left of edit) + `SearchBar` + `filterSectionsByQuery` on the day-groups.
 **Where**: `src/screens/Account/index.tsx`, `src/screens/Account/styles.ts` (modify)
@@ -163,10 +163,10 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] Header shows `Header.SearchButton` left of `Header.Icon` inside `HeaderButtonGroup` (16px gap); `HeaderRoot` still counts 3 children (back left, title centered, pair right)
-- [ ] `SearchBar` renders below the animated header when toggled
-- [ ] SectionList `sections` = `filterSectionsByQuery(processedData.transactionsFormattedBySelectedPeriod, searchQuery, t => t.description)`
-- [ ] Build gate passes (tsc: `Account/index.tsx` ≤ 1, `Account/styles.ts` ≤ 16 errors)
+- [x] Header shows `Header.SearchButton` left of `Header.Icon` inside `HeaderButtonGroup` (16px gap); `HeaderRoot` still counts 3 children (back left, title centered, pair right)
+- [x] `SearchBar` renders below the animated header when toggled
+- [x] SectionList `sections` = `filterSectionsByQuery(processedData.transactionsFormattedBySelectedPeriod, searchQuery, t => t.description)`
+- [x] Build gate passes (tsc: `Account/index.tsx` ≤ 1, `Account/styles.ts` ≤ 16 errors)
 
 **Tests**: none (screen — render-test blocker; covered by build gate + manual QA)
 **Gate**: build

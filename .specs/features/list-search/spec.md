@@ -149,8 +149,8 @@ Only the Home screen can filter its transaction list by search. Users browsing a
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| SRCH-01 | P1 Account | Design | Pending |
-| SRCH-02 | P1 Account | Design | Pending |
+| SRCH-01 | P1 Account | Design | Implementing (T5 done) |
+| SRCH-02 | P1 Account | Design | Implementing (T5 done; logic covered by T1/T2 tests) |
 | SRCH-03 | P1 TransactionsByCategory | Design | Pending |
 | SRCH-04 | P1 TransactionsByCategory | Design | Implementing (T2 done; screen wiring pending) |
 | SRCH-05 | P1 Accounts | Design | Pending |
