@@ -10,7 +10,7 @@ type SelectedPeriod = {
 };
 
 export const useSelectedPeriod = create<SelectedPeriod>((set) => ({
-  selectedPeriod: { id: '1', name: 'Meses', period: 'months' },
+  selectedPeriod: { id: '2', name: 'Meses', period: 'months' },
   setSelectedPeriod: (selectedPeriod: PeriodProps) =>
     set(() => ({ selectedPeriod: selectedPeriod })),
 

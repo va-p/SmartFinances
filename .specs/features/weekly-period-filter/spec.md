@@ -120,7 +120,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| WEEK-01 | P1: Filter by week — picker option (AC 1–2) | Design | Pending |
+| WEEK-01 | P1: Filter by week — picker option (AC 1–2) | Execute | Implementing |
 | WEEK-02 | P1: Filter by week — list filtering (AC 3–4) | Execute | Implementing |
 | WEEK-03 | P1: Filter by week — Overview totals (AC 5) | Execute | Implementing |
 | WEEK-04 | P1: Navigate — arrow ±1 week (AC 4–5, 7) | Design | Pending |

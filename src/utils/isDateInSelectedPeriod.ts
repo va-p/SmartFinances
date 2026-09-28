@@ -25,5 +25,7 @@ export function isDateInSelectedPeriod(
       return date.getFullYear() === selectedDate.getFullYear();
     case 'all':
       return true;
+    default:
+      return false;
   }
 }

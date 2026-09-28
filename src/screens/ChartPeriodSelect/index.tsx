@@ -9,7 +9,7 @@ import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 export interface PeriodProps {
   id: string;
   name: string;
-  period: 'months' | 'years' | 'all';
+  period: 'weeks' | 'months' | 'years' | 'all';
 }
 
 type Props = {
@@ -23,16 +23,21 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
   const periods = [
     {
       id: '1',
+      name: 'Semanas',
+      period: 'weeks',
+    },
+    {
+      id: '2',
       name: 'Meses',
       period: 'months',
     },
     {
-      id: '2',
+      id: '3',
       name: 'Anos',
       period: 'years',
     },
     {
-      id: '3',
+      id: '4',
       name: 'Tudo',
       period: 'all',
     },

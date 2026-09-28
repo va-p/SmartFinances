@@ -29,9 +29,11 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 | Gate Level | When to Use | Command |
 | ---------- | ----------- | ------- |
-| Quick | After tasks with unit tests only | `npx jest <changed-test-file>` |
-| Full | After tasks touching shared modules | `yarn test` |
-| Build | After phase completion or screen/config tasks | `npx tsc --noEmit && yarn lint && yarn test` |
+| Quick | After tasks with unit tests only | `npx jest --watchman=false <changed-test-file>` |
+| Full | After tasks touching shared modules | `npx jest --watchman=false` |
+| Build | After phase completion or config/entity-only tasks | `yarn lint && npx jest --watchman=false` + tsc diff-check (below) |
+
+**Gate corrections (Execute):** (1) `--watchman=false` added to all jest invocations - watchman crashes in this environment; same runner, same tests. (2) `npx tsc --noEmit` demoted from hard gate to **diff-scoped check**: the repo has 669 lines of pre-existing tsc errors (styled-components `DefaultTheme` typing, etc.) and no typecheck script, so full-tsc was never a project gate. (3) `yarn lint` demoted the same way: `eslint-config-airbnb` was missing from node_modules (restored via `yarn install --frozen-lockfile`), and the repo carries 2835 pre-existing lint errors (mostly `import/no-unresolved` on `@` aliases) - lint is not enforced at baseline. The deterministic check for (2)+(3): zero NEW tsc/eslint errors in files touched by the task (verified per task via before/after comparison). Full jest remains the hard gate.
 
 ---
 
@@ -76,6 +78,7 @@ T10
 **Depends on**: T6
 **Reuses**: existing `ListItem` rendering; zustand store pattern
 **Requirement**: WEEK-01
+**Status**: ✅ Complete
 
 **Tools**:
 
