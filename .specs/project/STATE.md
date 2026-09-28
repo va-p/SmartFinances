@@ -70,6 +70,7 @@
 | 15 | Subscription flags DB migration | `add_subscription_flags` migration SQL created (`prisma/migrations/20260822000000_add_subscription_flags/`) but not applied (PostgreSQL not running locally; migrations dir gitignored by convention). Must run `npx prisma migrate deploy` on cPanel when deploying backend `feat/subscription-management`. | Open |
 | 16 | Financial goals DB migration | `add_financial_goals` migration SQL generated via `prisma migrate diff` (`prisma/migrations/20260825085131_add_financial_goals/`) but not applied (dev DB unreachable; migrations dir is gitignored by convention). Must run `npx prisma migrate deploy` on cPanel when deploying backend `goals-target-savings`. | Open |
 | 17 | Goal chart render-test gap | Verifier watch item (financial-goals): the GoalProjectionChart `hideAmount` masking render test is deferred — chart-layer regressions cannot be caught by the suite until the pre-existing jest ESM/phosphor transform blocker is fixed (same class as #13/#14). AC currently guarded by the library render-gate trace in `validation.md` + tsc gate. | Open |
+| 18 | Home accounts-filter wiring coverage | Verifier gap (home-accounts-filter): the AccountFilterButton pill/modal-open wiring, AccountFilterSelect toggling and Home pill placement have no automated test (inspection-verified in `validation.md`; the label/filter utils ARE unit-tested at `src/utils/__tests__/accountsFilter.test.ts`). Same jest ESM/phosphor render blocker as #13/#14. Add render tests when screen-test infra is fixed. | Open |
 
 ---
 

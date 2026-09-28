@@ -115,10 +115,10 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------- |
-| ACCFLT-01 | P1: Accounts filter pill + multi-select modal (Story 1, AC 1-2, 4-5) | Execute | Implementing |
-| ACCFLT-02 | P1: Multi-select toggle + empty-selection default (Story 1, AC 3 + edge: deselect-all) | Execute | Implementing |
-| ACCFLT-03 | P1: Pill label logic (Story 2, AC 1-4) | Execute | Implementing |
-| ACCFLT-04 | P1: Filtered Home data (Story 3, AC 1-4 + edges) | Execute | Implementing |
+| ACCFLT-01 | P1: Accounts filter pill + multi-select modal (Story 1, AC 1-2, 4-5) | Execute | ✅ Verified |
+| ACCFLT-02 | P1: Multi-select toggle + empty-selection default (Story 1, AC 3 + edge: deselect-all) | Execute | ✅ Verified |
+| ACCFLT-03 | P1: Pill label logic (Story 2, AC 1-4) | Execute | ✅ Verified |
+| ACCFLT-04 | P1: Filtered Home data (Story 3, AC 1-4 + edges) | Execute | ✅ Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 
