@@ -37,7 +37,7 @@ interface RevenueCatProps {
 
 const RevenueCatContext = createContext<RevenueCatProps | null>(null);
 
-export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
+export function RevenueCatProvider({ children }: { children: ReactNode }) {
   const { id: userID } = useUser();
   const [user, setUser] = useState<UserProps>({
     items: [],
@@ -152,8 +152,6 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </RevenueCatContext.Provider>
   );
-};
+}
 
-export const useRevenueCat = () => {
-  return useContext(RevenueCatContext) as RevenueCatProps;
-};
+export const useRevenueCat = () => useContext(RevenueCatContext) as RevenueCatProps;

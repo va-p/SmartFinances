@@ -26,14 +26,14 @@ export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
   return (
     <Container {...rest}>
       <IconAndTextsContainer>
-      <IconContainer>
-        {icon}
-      </IconContainer>
+        <IconContainer>
+          {icon}
+        </IconContainer>
 
-      <TitleContainer>
-        <Title>{title}</Title>
-        {subTitle && <SubTitle>{subTitle}</SubTitle>}
-      </TitleContainer>
+        <TitleContainer>
+          <Title>{title}</Title>
+          {subTitle && <SubTitle>{subTitle}</SubTitle>}
+        </TitleContainer>
       </IconAndTextsContainer>
 
       <CaretRightIcon size={16} color={theme.colors.text} />

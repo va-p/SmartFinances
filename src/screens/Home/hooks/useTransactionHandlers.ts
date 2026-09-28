@@ -33,7 +33,7 @@ export function useTransactionHandlers({
       if (selectedCount > 0) {
         // If in selection mode, toggle the transaction selection
         toggleTransaction(Number(id));
-        return;
+        
       } else {
         // If not in selection mode, open transaction detail
         setTransactionId(id);

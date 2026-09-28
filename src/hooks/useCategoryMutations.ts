@@ -62,12 +62,10 @@ export function useCreateCategoryMutation() {
 }
 
 // --- Update category ---
-const updateCategoryFn = async (categoryEdited: any) => {
-  return await api.patch(
-    `category/${categoryEdited.category_id}`,
-    categoryEdited
-  );
-};
+const updateCategoryFn = async (categoryEdited: any) => await api.patch(
+  `category/${categoryEdited.category_id}`,
+  categoryEdited
+);
 
 export function useUpdateCategoryMutation() {
   const queryClient = useQueryClient();
@@ -106,9 +104,7 @@ export function useUpdateCategoryMutation() {
 }
 
 // --- Delete category ---
-const deleteCategoryFn = async (categoryID: string) => {
-  return await api.delete(`category/${categoryID}`);
-};
+const deleteCategoryFn = async (categoryID: string) => await api.delete(`category/${categoryID}`);
 
 export function useDeleteCategoryMutation() {
   const queryClient = useQueryClient();

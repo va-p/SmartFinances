@@ -89,10 +89,10 @@ export function CompletedGoals() {
               footerText={
                 item.completed_at
                   ? `Concluída em ${format(
-                      new Date(item.completed_at),
-                      'dd MMMM, yyyy',
-                      { locale: ptBR }
-                    )}`
+                    new Date(item.completed_at),
+                    'dd MMMM, yyyy',
+                    { locale: ptBR }
+                  )}`
                   : undefined
               }
               onPress={() => handleOpenGoal(item)}

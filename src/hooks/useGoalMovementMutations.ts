@@ -35,15 +35,11 @@ export type GoalWithdrawInput = {
 };
 
 // --- API functions ---
-const depositToGoalFn = async ({ goalId, ...payload }: GoalDepositInput) => {
-  return await api.post(`goal/${goalId}/deposit`, payload);
-};
+const depositToGoalFn = async ({ goalId, ...payload }: GoalDepositInput) => await api.post(`goal/${goalId}/deposit`, payload);
 const withdrawFromGoalFn = async ({
   goalId,
   ...payload
-}: GoalWithdrawInput) => {
-  return await api.post(`goal/${goalId}/withdraw`, payload);
-};
+}: GoalWithdrawInput) => await api.post(`goal/${goalId}/withdraw`, payload);
 
 // Movements write transfer pairs, so balances and histories everywhere go
 // stale (GOAL-18).

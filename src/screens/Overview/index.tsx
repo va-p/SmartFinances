@@ -330,7 +330,7 @@ export function Overview() {
         <Gradient />
 
         <Header.Root style={{ justifyContent: 'center' }}>
-          <Header.Title title={'Resumo'} />
+          <Header.Title title="Resumo" />
         </Header.Root>
 
         <ScrollContent
@@ -366,13 +366,9 @@ export function Overview() {
             {selectedTabCashFlowSection === 0 && (
               <LineChart
                 key={processedData.patrimonialEvolution.length}
-                data={processedData.patrimonialEvolution.map((item) => {
-                  return { value: item.total };
-                })}
+                data={processedData.patrimonialEvolution.map((item) => ({ value: item.total }))}
                 xAxisLabelTexts={processedData.patrimonialEvolution.map(
-                  (item) => {
-                    return String(item.date);
-                  }
+                  (item) => String(item.date)
                 )}
                 width={GRAPH_WIDTH}
                 height={180}

@@ -30,7 +30,7 @@ type RootParamList = {
   ResetPassSentConfirmation: ResetPassSentConfirmation;
   SignUp: undefined;
   Home: undefined;
-  //App route
+  // App route
   Transações: undefined;
   Contas: undefined;
   'Todas as Contas': undefined;

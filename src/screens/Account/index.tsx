@@ -122,14 +122,12 @@ export function Account() {
   const initialX = useRef(0);
   const initialY = useRef(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
-  const registerTransactionButtonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: registerTransactionButtonPositionX.value },
-        { translateY: registerTransactionButtonPositionY.value },
-      ],
-    };
-  });
+  const registerTransactionButtonStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: registerTransactionButtonPositionX.value },
+      { translateY: registerTransactionButtonPositionY.value },
+    ],
+  }));
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
     .onStart((_) => {
@@ -459,11 +457,11 @@ export function Account() {
                     ? processedData.cashFlowBySelectedPeriod
                     : '•••••'
                   : !hideAmount
-                  ? formatCurrency(
+                    ? formatCurrency(
                       accountCurrencyCode,
                       accountCreditData?.availableCreditLimit!
                     )
-                  : '•••••'}
+                    : '•••••'}
               </AccountCashFlow>
               <AccountCashFlowDescription>
                 {!isCreditCard && 'Fluxo de caixa'}
@@ -535,7 +533,7 @@ export function Account() {
         </ModalViewSelection>
 
         <ModalView
-          type={'secondary'}
+          type="secondary"
           title={`Editar Conta ${accountName}`}
           bottomSheetRef={editAccountBottomSheetRef}
           snapPoints={['75%']}

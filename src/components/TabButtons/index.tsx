@@ -51,11 +51,9 @@ export function TabButtons({ buttons, selectedTab, setSelectedTab }: Props) {
     });
   };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: tabPositionX.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: tabPositionX.value }],
+  }));
 
   return (
     <Container>

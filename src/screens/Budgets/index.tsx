@@ -119,8 +119,8 @@ export function Budgets() {
         </Footer>
 
         <ModalView
-          type={'primary'}
-          title={'Criar Novo Orçamento'}
+          type="primary"
+          title="Criar Novo Orçamento"
           bottomSheetRef={budgetRegisterBottomSheetRef}
           enableContentPanningGesture={false}
           enablePanDownToClose
@@ -129,7 +129,7 @@ export function Budgets() {
           onClose={handleCloseRegisterBudgetModal}
         >
           <RegisterBudget
-            id={''}
+            id=""
             closeBudget={handleCloseRegisterBudgetModal}
           />
         </ModalView>

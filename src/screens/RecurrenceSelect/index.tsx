@@ -115,49 +115,49 @@ export function RecurrenceSelect({
   }
 
   return (
-      <Container>
-        <Content>
-          {/*<Label>Configurar recorrência</Label>*/}
+    <Container>
+      <Content>
+        {/* <Label>Configurar recorrência</Label> */}
 
-          {/* ── Quantity Input ──────────────────────────────── */}
-          <Label secondary>Intervalo</Label>
-          <QuantityRow>
-            <QuantityButton onPress={handleDecrement}>
-              <QuantityButtonText>
-                <CaretDownIcon size={20} color={theme.colors.text} weight="bold" />
-              </QuantityButtonText>
-            </QuantityButton>
+        {/* ── Quantity Input ──────────────────────────────── */}
+        <Label secondary>Intervalo</Label>
+        <QuantityRow>
+          <QuantityButton onPress={handleDecrement}>
+            <QuantityButtonText>
+              <CaretDownIcon size={20} color={theme.colors.text} weight="bold" />
+            </QuantityButtonText>
+          </QuantityButton>
 
-            <QuantityInput
-              value={inputValue}
-              onChangeText={handleInputChange}
-              onBlur={handleInputBlur}
-              keyboardType="numeric"
-              selectTextOnFocus
-              textAlign="center"
-            />
+          <QuantityInput
+            value={inputValue}
+            onChangeText={handleInputChange}
+            onBlur={handleInputBlur}
+            keyboardType="numeric"
+            selectTextOnFocus
+            textAlign="center"
+          />
 
-            <QuantityButton onPress={handleIncrement}>
-              <QuantityButtonText>
-                <CaretUpIcon size={20} color={theme.colors.text} weight="bold" />
-              </QuantityButtonText>
-            </QuantityButton>
-          </QuantityRow>
+          <QuantityButton onPress={handleIncrement}>
+            <QuantityButtonText>
+              <CaretUpIcon size={20} color={theme.colors.text} weight="bold" />
+            </QuantityButtonText>
+          </QuantityButton>
+        </QuantityRow>
 
-          {/* ── Period Selector ─────────────────────────────── */}
-          <Label secondary>Período</Label>
-          <PeriodSelector onPress={handleSelectPeriod}>
-            <CalendarIcon size={20} color={theme.colors.primary} />
-            <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
-          </PeriodSelector>
+        {/* ── Period Selector ─────────────────────────────── */}
+        <Label secondary>Período</Label>
+        <PeriodSelector onPress={handleSelectPeriod}>
+          <CalendarIcon size={20} color={theme.colors.primary} />
+          <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
+        </PeriodSelector>
 
-          {/* ── Actions ─────────────────────────────────────── */}
-          <Footer>
-            <Button.Root onPress={handleSave}>
-              <Button.Text text="Salvar" />
-            </Button.Root>
-          </Footer>
-        </Content>
-      </Container>
+        {/* ── Actions ─────────────────────────────────────── */}
+        <Footer>
+          <Button.Root onPress={handleSave}>
+            <Button.Text text="Salvar" />
+          </Button.Root>
+        </Footer>
+      </Content>
+    </Container>
   );
 }

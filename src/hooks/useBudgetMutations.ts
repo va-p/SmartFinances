@@ -9,15 +9,9 @@ import { BudgetProps } from '@interfaces/budget';
 const QUERY_KEY = ['budgets'];
 
 // --- API functions ---
-const createBudgetFn = async (newBudget: any) => {
-  return await api.post('budget', newBudget);
-};
-const updateBudgetFn = async (editedBudget: any) => {
-  return await api.patch(`budget/${editedBudget.id}`, editedBudget);
-};
-const deleteBudgetFn = async (budgetId: string) => {
-  return await api.delete(`budget/${budgetId}`);
-};
+const createBudgetFn = async (newBudget: any) => await api.post('budget', newBudget);
+const updateBudgetFn = async (editedBudget: any) => await api.patch(`budget/${editedBudget.id}`, editedBudget);
+const deleteBudgetFn = async (budgetId: string) => await api.delete(`budget/${budgetId}`);
 
 // --- Create budget ---
 export function useCreateBudgetMutation() {

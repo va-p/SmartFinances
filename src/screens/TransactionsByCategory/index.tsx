@@ -166,7 +166,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Transações por categoria'} />
+          <Header.Title title="Transações por categoria" />
           <Header.SearchButton
             onPress={() => setShowSearchInput((prevState) => !prevState)}
           />
@@ -197,9 +197,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
         <AnimatedFlashList
           data={filteredTransactions}
-          keyExtractor={(item: any) => {
-            return item.isHeader ? String(item.headerTitle!) : String(item.id);
-          }}
+          keyExtractor={(item: any) => item.isHeader ? String(item.headerTitle!) : String(item.id)}
           renderItem={({ item, index }: any) => {
             if (item.isHeader) {
               return (

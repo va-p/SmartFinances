@@ -18,9 +18,7 @@ export type SubscriptionUpdatePayload = {
   hide_from_subscription_list?: boolean;
 };
 
-const updateSubscriptionFn = async (payload: SubscriptionUpdatePayload) => {
-  return await api.patch('transaction/edit', payload);
-};
+const updateSubscriptionFn = async (payload: SubscriptionUpdatePayload) => await api.patch('transaction/edit', payload);
 
 export function useUpdateSubscriptionMutation() {
   const queryClient = useQueryClient();

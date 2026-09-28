@@ -1,6 +1,6 @@
 import { MMKV } from 'react-native-mmkv';
 
-//mmkv
+// mmkv
 const DATABASE_USERS = 'user';
 const DATABASE_TOKENS = 'token';
 const DATABASE_CONFIGS = 'config';

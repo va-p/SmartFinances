@@ -167,7 +167,7 @@ export function SignIn() {
         <SectionHeader>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title title={'Login'} />
+            <Header.Title title="Login" />
           </Header.Root>
         </SectionHeader>
 
@@ -195,7 +195,7 @@ export function SignIn() {
               placeholder='Senha'
               autoCapitalize='none'
               autoCorrect={false}
-              secureTextEntry={true}
+              secureTextEntry
               textContentType='password'
               name='password'
               control={control}

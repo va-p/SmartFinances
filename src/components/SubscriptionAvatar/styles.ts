@@ -25,7 +25,7 @@ type IconProps = {
 };
 
 export const CategoryIcon = styled(Ionicons)<IconProps>`
-  font-size: ${({ size, theme }) => (size ? size : theme.fonts.sizeTitle)}px;
+  font-size: ${({ size, theme }) => (size || theme.fonts.sizeTitle)}px;
   color: ${({ color }) => color};
 `;
 

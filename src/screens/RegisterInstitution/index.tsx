@@ -91,7 +91,7 @@ export function RegisterInstitution({ id, closeInstitution }: Props) {
 
   function onSubmit(form: FormData) {
     // --- Edit institution ---
-    if (!!id) {
+    if (id) {
       updateInstitution(
         { institution_id: id, name: form.name },
         {

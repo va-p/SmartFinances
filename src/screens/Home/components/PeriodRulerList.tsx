@@ -18,14 +18,14 @@ type PeriodRulerListProps = {
   periodRulerListColumnWidth: number;
 };
 
-export const PeriodRulerList = memo(function PeriodRulerList({
+export const PeriodRulerList = memo(({
   cashFlows,
   selectedPeriod,
   selectedDate,
   handleDateChange,
   handlePressDate,
   periodRulerListColumnWidth,
-}: PeriodRulerListProps) {
+}: PeriodRulerListProps) => {
   // Years source for the 'years' ruler: the cash flow chart labels (in years
   // mode they are plain year strings, e.g. "2024"). Other period modes ignore
   // the years param.

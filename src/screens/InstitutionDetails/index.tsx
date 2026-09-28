@@ -255,31 +255,29 @@ export function InstitutionDetails() {
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers.
-  const creditCardAccounts = useMemo(() => {
-    return sections
-      .filter(
-        (section) =>
-          !section.data.isVirtual &&
+  const creditCardAccounts = useMemo(() => sections
+    .filter(
+      (section) =>
+        !section.data.isVirtual &&
           section.data.type === 'CREDIT' &&
           section.data.subtype === 'CREDIT_CARD'
-      )
-      .sort((a, b) => {
-        const nameA = a.data?.name;
-        const nameB = b.data?.name;
+    )
+    .sort((a, b) => {
+      const nameA = a.data?.name;
+      const nameB = b.data?.name;
 
-        if (nameA && nameB) {
-          const institutionComparison =
+      if (nameA && nameB) {
+        const institutionComparison =
             nameA.localeCompare(nameB);
-          if (institutionComparison !== 0) return institutionComparison;
-        } else if (nameA && !nameB) {
-          return -1;
-        } else if (!nameA && nameB) {
-          return 1;
-        }
+        if (institutionComparison !== 0) return institutionComparison;
+      } else if (nameA && !nameB) {
+        return -1;
+      } else if (!nameA && nameB) {
+        return 1;
+      }
 
-        return a.data.name.localeCompare(b.data.name);
-      });
-  }, [sections]);
+      return a.data.name.localeCompare(b.data.name);
+    }), [sections]);
 
   function getAccountIcon(type: AccountTypes) {
     switch (type) {
@@ -323,13 +321,13 @@ export function InstitutionDetails() {
   function _renderItem({ item, index }: _renderItemProps) {
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
-          <AccountListItem
-            data={item}
-            index={index}
-            icon={getAccountIcon(item.type)}
-            hideAmount={hideAmount}
-            onPress={() => handleOpenAccount(item)}
-          />
+        <AccountListItem
+          data={item}
+          index={index}
+          icon={getAccountIcon(item.type)}
+          hideAmount={hideAmount}
+          onPress={() => handleOpenAccount(item)}
+        />
       );
     }
 

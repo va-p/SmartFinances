@@ -78,13 +78,13 @@ function RootNavigationLayout() {
   );
 
   useEffect(() => {
-    if (!!currenciesData) {
+    if (currenciesData) {
       setCurrencies(currenciesData);
     }
   }, [currenciesData]);
 
   useEffect(() => {
-    if (!!quotesData) {
+    if (quotesData) {
       setBrlQuoteBtc(quotesData.brlToBtc);
       setBrlQuoteEur(quotesData.brlToEur);
       setBrlQuoteUsd(quotesData.brlToUsd);

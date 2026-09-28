@@ -6,7 +6,9 @@ jest.mock('react-native-mmkv', () => ({
     getString() {
       return null;
     }
+
     set() {}
+
     getBoolean() {
       return false;
     }

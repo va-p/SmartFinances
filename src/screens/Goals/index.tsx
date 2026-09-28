@@ -238,8 +238,8 @@ export function Goals() {
         </Footer>
 
         <ModalView
-          type={'primary'}
-          title={'Criar Nova Meta'}
+          type="primary"
+          title="Criar Nova Meta"
           bottomSheetRef={goalRegisterBottomSheetRef}
           enableContentPanningGesture={false}
           enablePanDownToClose
@@ -247,7 +247,7 @@ export function Goals() {
           closeModal={handleCloseRegisterGoalModal}
           onClose={handleCloseRegisterGoalModal}
         >
-          <RegisterGoal id={''} closeGoal={handleCloseRegisterGoalModal} />
+          <RegisterGoal id="" closeGoal={handleCloseRegisterGoalModal} />
         </ModalView>
       </Container>
     </Screen>

@@ -152,7 +152,7 @@ export function BankingIntegrationDetails() {
 
             <Footer>
               <Button.Root onPress={handlePressUpdateAccount}>
-                <Button.Text text={'Atualizar conexão'} />
+                <Button.Text text="Atualizar conexão" />
               </Button.Root>
             </Footer>
           </>

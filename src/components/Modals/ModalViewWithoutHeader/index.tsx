@@ -29,7 +29,7 @@ export function ModalViewWithoutHeader({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
-      enableContentPanningGesture={true}
+      enableContentPanningGesture
       backdropComponent={() => <Overlay />}
       keyboardBehavior='extend'
       topInset={top}

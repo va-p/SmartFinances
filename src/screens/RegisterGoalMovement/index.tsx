@@ -193,17 +193,17 @@ export function RegisterGoalMovement({
     : null;
   const amountInSourceCurrency = !hasReserve
     ? convertToAccountCurrency(
-        type === 'deposit'
-          ? accountSelected?.currency.code
-          : linkedAccountSelected?.currency.code
-      )
+      type === 'deposit'
+        ? accountSelected?.currency.code
+        : linkedAccountSelected?.currency.code
+    )
     : null;
   const amountInTargetCurrency = !hasReserve
     ? convertToAccountCurrency(
-        type === 'deposit'
-          ? linkedAccountSelected?.currency.code
-          : accountSelected?.currency.code
-      )
+      type === 'deposit'
+        ? linkedAccountSelected?.currency.code
+        : accountSelected?.currency.code
+    )
     : null;
 
   const isMultiCurrency = amountInAccountCurrency !== null;
@@ -263,10 +263,10 @@ export function RegisterGoalMovement({
       ...(hasReserve
         ? { amount_in_account_currency: amountInAccountCurrency }
         : {
-            linked_account_id: linkedAccountSelected?.id,
-            amount_in_source_currency: amountInSourceCurrency,
-            amount_in_target_currency: amountInTargetCurrency,
-          }),
+          linked_account_id: linkedAccountSelected?.id,
+          amount_in_source_currency: amountInSourceCurrency,
+          amount_in_target_currency: amountInTargetCurrency,
+        }),
     };
 
     if (type === 'deposit') {
@@ -334,78 +334,78 @@ export function RegisterGoalMovement({
         {isMultiCurrency &&
           amountInAccountCurrency !== null &&
           accountSelected && (
-            <ConversionNote>
-              {type === 'deposit'
-                ? `≈ ${formatCurrency(
-                    accountSelected.currency.code,
-                    amountInAccountCurrency
-                  )} serão debitados de ${
-                    accountSelected.name
-                  } (conversão pela cotação atual).`
-                : `≈ ${formatCurrency(
-                    accountSelected.currency.code,
-                    amountInAccountCurrency
-                  )} serão creditados em ${
-                    accountSelected.name
-                  } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {type === 'deposit'
+              ? `≈ ${formatCurrency(
+                accountSelected.currency.code,
+                amountInAccountCurrency
+              )} serão debitados de ${
+                accountSelected.name
+              } (conversão pela cotação atual).`
+              : `≈ ${formatCurrency(
+                accountSelected.currency.code,
+                amountInAccountCurrency
+              )} serão creditados em ${
+                accountSelected.name
+              } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'deposit' &&
           accountSelected &&
           amountInSourceCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                accountSelected.currency.code,
-                amountInSourceCurrency
-              )} serão debitados de ${
-                accountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              accountSelected.currency.code,
+              amountInSourceCurrency
+            )} serão debitados de ${
+              accountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'deposit' &&
           linkedAccountSelected &&
           amountInTargetCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                linkedAccountSelected.currency.code,
-                amountInTargetCurrency
-              )} serão creditados em ${
-                linkedAccountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              linkedAccountSelected.currency.code,
+              amountInTargetCurrency
+            )} serão creditados em ${
+              linkedAccountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'withdraw' &&
           linkedAccountSelected &&
           amountInSourceCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                linkedAccountSelected.currency.code,
-                amountInSourceCurrency
-              )} serão debitados de ${
-                linkedAccountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              linkedAccountSelected.currency.code,
+              amountInSourceCurrency
+            )} serão debitados de ${
+              linkedAccountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'withdraw' &&
           accountSelected &&
           amountInTargetCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                accountSelected.currency.code,
-                amountInTargetCurrency
-              )} serão creditados em ${
-                accountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              accountSelected.currency.code,
+              amountInTargetCurrency
+            )} serão creditados em ${
+              accountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         <Footer>
           <Button.Root

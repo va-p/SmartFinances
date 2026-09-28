@@ -52,7 +52,7 @@ export function ButtonToggle({
           />
         </TitleContainer>
 
-          <SubTitle>{subTitle}</SubTitle>
+        <SubTitle>{subTitle}</SubTitle>
       </Content>
     </Container>
   );

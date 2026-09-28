@@ -116,7 +116,7 @@ export function InstitutionSelect({
               setNewInstitutionName('');
               closeSelectInstitution();
             }
-            return;
+            
           }
 
           // Any other error: the mutation hook already shows a generic
@@ -138,71 +138,71 @@ export function InstitutionSelect({
   }
 
   return (
-      <Container>
-        <Gradient />
+    <Container>
+      <Gradient />
 
-        <FlatList
-          data={institutions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <InstitutionSelectListItem
-              data={item}
-              isChecked={institutionSelected?.id === item.id}
-              onPress={() => handleInstitutionSelect(item)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma instituição criada ainda. Crie uma instituição para adicioná-la às contas.' />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
-            />
-          }
-          ListFooterComponent={
-            <QuickAddContainer>
-              {!isAddingNew ? (
-                <QuickAddButton onPress={handleOpenQuickAdd}>
-                  <PlusIcon size={16} color={theme.colors.primary} />
-                  <QuickAddButtonText>Nova instituição</QuickAddButtonText>
-                </QuickAddButton>
-              ) : (
-                <QuickAddInputRow>
-                  <QuickAddInput
-                    placeholder='Nome da instituição'
-                    autoCapitalize='sentences'
-                    autoCorrect={false}
-                    autoFocus
-                    value={newInstitutionName}
-                    onChangeText={setNewInstitutionName}
-                    returnKeyType='go'
-                    editable={!isCreating}
-                    onSubmitEditing={handleConfirmQuickAdd}
-                  />
-                  <QuickAddIconButton
-                    onPress={handleCancelQuickAdd}
-                    enabled={!isCreating}
-                  >
-                    <XIcon size={20} color={theme.colors.text} />
-                  </QuickAddIconButton>
-                  <QuickAddConfirmButton
-                    onPress={handleConfirmQuickAdd}
-                    enabled={!isCreating}
-                  >
-                    <CheckIcon size={20} color={theme.colors.background} />
-                  </QuickAddConfirmButton>
-                </QuickAddInputRow>
-              )}
-            </QuickAddContainer>
-          }
-          contentContainerStyle={{
-            paddingTop: 12,
-            paddingHorizontal: 12,
-            paddingBottom: 12,
-          }}
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+      <FlatList
+        data={institutions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <InstitutionSelectListItem
+            data={item}
+            isChecked={institutionSelected?.id === item.id}
+            onPress={() => handleInstitutionSelect(item)}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <ListEmptyComponent text='Nenhuma instituição criada ainda. Crie uma instituição para adicioná-la às contas.' />
+        )}
+        refreshControl={
+          <RefreshControl
+            refreshing={isManualRefreshing}
+            onRefresh={handleRefresh}
+          />
+        }
+        ListFooterComponent={
+          <QuickAddContainer>
+            {!isAddingNew ? (
+              <QuickAddButton onPress={handleOpenQuickAdd}>
+                <PlusIcon size={16} color={theme.colors.primary} />
+                <QuickAddButtonText>Nova instituição</QuickAddButtonText>
+              </QuickAddButton>
+            ) : (
+              <QuickAddInputRow>
+                <QuickAddInput
+                  placeholder='Nome da instituição'
+                  autoCapitalize='sentences'
+                  autoCorrect={false}
+                  autoFocus
+                  value={newInstitutionName}
+                  onChangeText={setNewInstitutionName}
+                  returnKeyType='go'
+                  editable={!isCreating}
+                  onSubmitEditing={handleConfirmQuickAdd}
+                />
+                <QuickAddIconButton
+                  onPress={handleCancelQuickAdd}
+                  enabled={!isCreating}
+                >
+                  <XIcon size={20} color={theme.colors.text} />
+                </QuickAddIconButton>
+                <QuickAddConfirmButton
+                  onPress={handleConfirmQuickAdd}
+                  enabled={!isCreating}
+                >
+                  <CheckIcon size={20} color={theme.colors.background} />
+                </QuickAddConfirmButton>
+              </QuickAddInputRow>
+            )}
+          </QuickAddContainer>
+        }
+        contentContainerStyle={{
+          paddingTop: 12,
+          paddingHorizontal: 12,
+          paddingBottom: 12,
+        }}
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }

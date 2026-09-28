@@ -241,7 +241,7 @@ export function AccountsList() {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Contas Manuais'} />
+          <Header.Title title="Contas Manuais" />
           <SortFilterButton
             selectedOption={sortingOption}
             onSelect={handleSelectSorting}

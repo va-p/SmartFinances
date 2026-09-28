@@ -129,8 +129,8 @@ export function Subscriptions() {
 
   const upcomingCountText = upcomingSummary
     ? `${upcomingSummary.count} cobrança${
-        upcomingSummary.count === 1 ? '' : 's'
-      } prevista${upcomingSummary.count === 1 ? '' : 's'}`
+      upcomingSummary.count === 1 ? '' : 's'
+    } prevista${upcomingSummary.count === 1 ? '' : 's'}`
     : '';
 
   return (

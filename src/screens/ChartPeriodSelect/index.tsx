@@ -45,18 +45,18 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
   }
 
   return (
-      <Container>
-        <FlatList
-          data={periods}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }: any) => (
-            <ListItem
-              data={item}
-              isActive={period.id === item.id}
-              onPress={() => handlePeriodSelect(item)}
-            />
-          )}
-        />
-      </Container>
+    <Container>
+      <FlatList
+        data={periods}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }: any) => (
+          <ListItem
+            data={item}
+            isActive={period.id === item.id}
+            onPress={() => handlePeriodSelect(item)}
+          />
+        )}
+      />
+    </Container>
   );
 }

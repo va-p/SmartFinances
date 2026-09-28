@@ -130,7 +130,7 @@ export function Profile() {
       <Container>
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Perfil'} />
+          <Header.Title title="Perfil" />
         </Header.Root>
 
         <ImageContainer onPress={handleClickSelectImage}>

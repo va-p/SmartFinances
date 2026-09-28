@@ -298,9 +298,9 @@ export function GoalDetails() {
               hideAmount
                 ? '•••••'
                 : formatCurrency(
-                    goal.currency.code,
-                    Number(goal.target_amount)
-                  )
+                  goal.currency.code,
+                  Number(goal.target_amount)
+                )
             } (${progress.percentage.toFixed(2)}%)`}
           </GoalTargetDescription>
           <PercentBarContainer>
@@ -324,20 +324,20 @@ export function GoalDetails() {
             <ReachedBadge>
               <CheckIcon
                 size={12}
-                  weight='bold'
-                  color={theme.colors.shape}
-                />
-                <ReachedBadgeText> Meta atingida</ReachedBadgeText>
-              </ReachedBadge>
-            )}
-          </HeaderCard>
+                weight='bold'
+                color={theme.colors.shape}
+              />
+              <ReachedBadgeText> Meta atingida</ReachedBadgeText>
+            </ReachedBadge>
+          )}
+        </HeaderCard>
 
-          {!isActive && (
-            <ReadOnlyNote>
-              {goal.status === 'COMPLETED'
-                ? 'Meta concluída. Somente leitura.'
-                : 'Meta arquivada. Somente leitura.'}
-            </ReadOnlyNote>
+        {!isActive && (
+          <ReadOnlyNote>
+            {goal.status === 'COMPLETED'
+              ? 'Meta concluída. Somente leitura.'
+              : 'Meta arquivada. Somente leitura.'}
+          </ReadOnlyNote>
         )}
         <ScrollContent>
           {/* Amendment 2026-09-08 (GOAL-51/52/53): evolution + projection
@@ -360,63 +360,63 @@ export function GoalDetails() {
                     {hideAmount
                       ? '•••••'
                       : formatCurrency(
-                          account.currency.code,
-                          Number(account.balance)
-                        )}
+                        account.currency.code,
+                        Number(account.balance)
+                      )}
                   </LinkedAccountBalance>
                 </LinkedAccountRow>
               ))}
             </View>
           )}
 
-        <SectionTitle>Histórico</SectionTitle>
-        <FlashList
-          style={{ flex: 1 }}
-          data={reserveHistory}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <HistoryItemContainer>
-              <HistoryRow>
-                <HistoryDescription numberOfLines={1}>
-                  {item.description || 'Transferência'}
-                </HistoryDescription>
-                <HistoryAmount type={item.type}>
-                  {hideAmount
-                    ? '•••••'
-                    : `${
+          <SectionTitle>Histórico</SectionTitle>
+          <FlashList
+            style={{ flex: 1 }}
+            data={reserveHistory}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <HistoryItemContainer>
+                <HistoryRow>
+                  <HistoryDescription numberOfLines={1}>
+                    {item.description || 'Transferência'}
+                  </HistoryDescription>
+                  <HistoryAmount type={item.type}>
+                    {hideAmount
+                      ? '•••••'
+                      : `${
                         item.type === 'TRANSFER_CREDIT' ? '+' : '-'
                       } ${formatCurrency(
                         goal.currency.code,
                         Math.abs(Number(item.amount))
                       )}`}
-                </HistoryAmount>
-              </HistoryRow>
-              <HistoryDate>
-                {format(
-                  new Date(item.transaction_date ?? item.created_at),
-                  "dd 'de' MMMM 'de' yyyy",
-                  { locale: ptBR }
-                )}
-              </HistoryDate>
-            </HistoryItemContainer>
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma movimentação ainda. Deposite para começar a guardar.' />
-          )}
-          ItemSeparatorComponent={() => (
-            <View style={{ minHeight: 8, maxHeight: 8 }} />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: 16,
-          }}
+                  </HistoryAmount>
+                </HistoryRow>
+                <HistoryDate>
+                  {format(
+                    new Date(item.transaction_date ?? item.created_at),
+                    "dd 'de' MMMM 'de' yyyy",
+                    { locale: ptBR }
+                  )}
+                </HistoryDate>
+              </HistoryItemContainer>
+            )}
+            ListEmptyComponent={() => (
+              <ListEmptyComponent text='Nenhuma movimentação ainda. Deposite para começar a guardar.' />
+            )}
+            ItemSeparatorComponent={() => (
+              <View style={{ minHeight: 8, maxHeight: 8 }} />
+            )}
+            refreshControl={
+              <RefreshControl
+                refreshing={isManualRefreshing}
+                onRefresh={handleRefresh}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 16,
+            }}
           />
         </ScrollContent>
 
@@ -504,8 +504,8 @@ export function GoalDetails() {
         )}
 
         <ModalView
-          type={'primary'}
-          title={'Editar Meta'}
+          type="primary"
+          title="Editar Meta"
           bottomSheetRef={goalEditBottomSheetRef}
           enableContentPanningGesture={false}
           enablePanDownToClose
@@ -517,7 +517,7 @@ export function GoalDetails() {
         </ModalView>
 
         <ModalView
-          type={'primary'}
+          type="primary"
           title={
             movementType === 'deposit' ? 'Depositar na meta' : 'Sacar da meta'
           }

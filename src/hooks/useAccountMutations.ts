@@ -45,9 +45,7 @@ export function useCreateAccountMutation() {
 }
 
 // --- Update account ---
-const updateAccountFn = async (accountData: any) => {
-  return await api.patch(`account/${accountData.account_id}`, accountData);
-};
+const updateAccountFn = async (accountData: any) => await api.patch(`account/${accountData.account_id}`, accountData);
 
 export function useUpdateAccountMutation() {
   const queryClient = useQueryClient();
@@ -89,9 +87,7 @@ export function useUpdateAccountMutation() {
 }
 
 // --- Delete account ---
-const deleteAccountFn = async (accountID: string) => {
-  return await api.delete(`account/${accountID}`);
-};
+const deleteAccountFn = async (accountID: string) => await api.delete(`account/${accountID}`);
 
 export function useDeleteAccountMutation() {
   const queryClient = useQueryClient();

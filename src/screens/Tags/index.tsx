@@ -112,7 +112,7 @@ export function Tags() {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Etiquetas'} />
+          <Header.Title title="Etiquetas" />
         </Header.Root>
 
         <FlatList

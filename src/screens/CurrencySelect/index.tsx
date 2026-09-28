@@ -29,22 +29,22 @@ export function CurrencySelect({
   }
 
   return (
-      <Container>
-        <Gradient />
+    <Container>
+      <Gradient />
 
-        <FlatList
-          data={currencies}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <ListItem
-              data={item}
-              isActive={currency.id === item.id}
-              onPress={() => handleCurrencySelect(item)}
-            />
-          )}
-          ItemSeparatorComponent={() => <ListSeparator />}
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+      <FlatList
+        data={currencies}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <ListItem
+            data={item}
+            isActive={currency.id === item.id}
+            onPress={() => handleCurrencySelect(item)}
+          />
+        )}
+        ItemSeparatorComponent={() => <ListSeparator />}
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }

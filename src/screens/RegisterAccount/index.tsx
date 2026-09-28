@@ -247,11 +247,11 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     // for any other type the key is omitted entirely (spec CC-07/CC-08).
     const creditData = isCreditCard
       ? buildCreditCardDataPayload({
-          brand: form.credit_card_brand,
-          closeDay: form.credit_card_close_day,
-          creditLimit: form.credit_card_credit_limit,
-          availableCreditLimit: form.credit_card_available_credit_limit,
-        }) ?? undefined
+        brand: form.credit_card_brand,
+        closeDay: form.credit_card_close_day,
+        creditLimit: form.credit_card_credit_limit,
+        availableCreditLimit: form.credit_card_available_credit_limit,
+      }) ?? undefined
       : undefined;
 
     // Edit account
@@ -442,12 +442,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                   ? accountTypeMap[typeSelected]
                   : 'Selecione o tipo da conta'
               }
-              buttonTextAfterSelection={(selectedItem) => {
-                return selectedItem;
-              }}
-              rowTextForSelection={(item) => {
-                return item;
-              }}
+              buttonTextAfterSelection={(selectedItem) => selectedItem}
+              rowTextForSelection={(item) => item}
               buttonStyle={{
                 width: '100%',
                 minHeight: 40,
@@ -462,9 +458,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                 textAlign: 'left',
                 color: theme.colors.text,
               }}
-              renderDropdownIcon={() => {
-                return <CaretRightIcon size={20} color={theme.colors.text} />;
-              }}
+              renderDropdownIcon={() => <CaretRightIcon size={20} color={theme.colors.text} />}
               dropdownIconPosition='right'
               rowStyle={{ backgroundColor: theme.colors.background }}
               rowTextStyle={{ color: theme.colors.text }}

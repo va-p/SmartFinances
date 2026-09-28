@@ -47,7 +47,7 @@ export function ModalView({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
-      enablePanDownToClose={true}
+      enablePanDownToClose
       backdropComponent={() => <Overlay />}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
       backgroundComponent={() => <Gradient roundCorners />}

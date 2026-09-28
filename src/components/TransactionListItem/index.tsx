@@ -44,14 +44,14 @@ type Props = {
   onLongPress?: () => void;
 };
 
-const TransactionListItem = memo(function TransactionListItem({
+const TransactionListItem = memo(({
   data,
   index,
   hideAmount,
   onPress,
   onLongPress,
   ...rest
-}: Props) {
+}: Props) => {
   const theme = useTheme() as ThemeProps;
   const isSelected = useIsTransactionSelected(data.id);
 

@@ -56,7 +56,7 @@ export function AuthProvider({ children }: any) {
   } = useClerkUser();
 
   const { user: revenueCatUser } = useRevenueCat();
-  const premium = revenueCatUser.premium;
+  const {premium} = revenueCatUser;
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -313,7 +313,7 @@ export function AuthProvider({ children }: any) {
         setUser(loggedInUserDataFormatted); // User data from database
         return loggedInUserDataFormatted;
       }
-      return;
+      
     } catch (error) {
       console.error('AuthProvider, signInWithEmail error =>', error);
       Alert.alert('Login', `${error.response?.data?.message}`);

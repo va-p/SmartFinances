@@ -31,7 +31,7 @@ export function ResetPasswordSentConfirmation({ navigation }: any) {
         <SectionHeader>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title title={'Recuperar senha'} />
+            <Header.Title title="Recuperar senha" />
           </Header.Root>
         </SectionHeader>
 

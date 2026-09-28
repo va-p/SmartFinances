@@ -29,12 +29,12 @@ export const useUserConfigs = create<UserConfigs>((set) => ({
   darkMode: false,
   sortingOption: 'name-asc',
   setUseLocalAuth: (useLocalAuth) =>
-    set(() => ({ useLocalAuth: useLocalAuth })),
-  setHideAmount: (hideAmount) => set(() => ({ hideAmount: hideAmount })),
-  setInsights: (insights) => set(() => ({ insights: insights })),
+    set(() => ({ useLocalAuth })),
+  setHideAmount: (hideAmount) => set(() => ({ hideAmount })),
+  setInsights: (insights) => set(() => ({ insights })),
   setNotificationsEnabled: (notificationsEnabled) =>
-    set(() => ({ notificationsEnabled: notificationsEnabled })),
-  setDarkMode: (darkMode) => set(() => ({ darkMode: darkMode })),
+    set(() => ({ notificationsEnabled })),
+  setDarkMode: (darkMode) => set(() => ({ darkMode })),
   setSortingOption: (sortingOption) =>
-    set(() => ({ sortingOption: sortingOption })),
+    set(() => ({ sortingOption })),
 }));

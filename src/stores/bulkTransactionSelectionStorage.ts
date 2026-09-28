@@ -17,7 +17,7 @@ export const useBulkTransactionSelection = create<BulkTransactionSelection>(
   (set, get) => ({
     isSelectionMode: false,
     setIsSelectionMode: (isSelectionMode) =>
-      set(() => ({ isSelectionMode: isSelectionMode })),
+      set(() => ({ isSelectionMode })),
     selectedTransactions: [],
     setSelectedTransactions: (transactions) =>
       set(() => ({ selectedTransactions: transactions })),

@@ -209,10 +209,10 @@ export function RegisterTransaction({
   const dateLabelKey = isToday(date)
     ? 'isToday'
     : isYesterday(date)
-    ? 'isYesterday'
-    : isTomorrow(date)
-    ? 'isTomorrow'
-    : null;
+      ? 'isYesterday'
+      : isTomorrow(date)
+        ? 'isTomorrow'
+        : null;
 
   const formattedDate = dateLabelKey
     ? shortDatesMap[dateLabelKey]
@@ -564,7 +564,7 @@ export function RegisterTransaction({
       const updatedAccountId =
         accountID !== null ? accountID : transaction.account.id;
 
-      const updatedDate = date ? date : new Date(transaction.created_at);
+      const updatedDate = date || new Date(transaction.created_at);
 
       let amountConverted = signedAmount;
       const fromCurrency = currencySelected.code || transaction.currency.code;
@@ -574,7 +574,7 @@ export function RegisterTransaction({
       if (fromCurrency !== targetAccountCurrency) {
         amountConverted = convertCurrency({
           amount: signedAmount,
-          fromCurrency: fromCurrency,
+          fromCurrency,
           toCurrency: targetAccountCurrency,
           accountCurrency: fromCurrency,
           quotes: {
@@ -885,7 +885,7 @@ export function RegisterTransaction({
             ]
           );
           reset();
-          return;
+          
         },
       });
       return;
@@ -963,7 +963,7 @@ export function RegisterTransaction({
         reset();
       },
     });
-    return;
+    
   }
 
   async function onSubmit(form: FormData) {
@@ -1229,8 +1229,8 @@ export function RegisterTransaction({
                   {isBulkEdit
                     ? `Editar ${selectedTransactionIds.length} Transações`
                     : id !== ''
-                    ? `Editar Transação \n ${getValues('description')}`
-                    : 'Adicionar Transação'}
+                      ? `Editar Transação \n ${getValues('description')}`
+                      : 'Adicionar Transação'}
                 </Title>
                 {id !== '' && !isBulkEdit && (
                   <BorderlessButton
@@ -1390,7 +1390,7 @@ export function RegisterTransaction({
                 testID='dateTimePicker'
                 value={date}
                 mode='date'
-                is24Hour={true}
+                is24Hour
                 onValueChange={onChangeDate}
                 textColor={theme.colors.text}
               />
@@ -1482,8 +1482,8 @@ export function RegisterTransaction({
                 isBulkEdit
                   ? `Editar ${selectedTransactionIds.length} Transações`
                   : id !== ''
-                  ? 'Editar Transação'
-                  : 'Adicionar Transação'
+                    ? 'Editar Transação'
+                    : 'Adicionar Transação'
               }
             />
           </Button.Root>

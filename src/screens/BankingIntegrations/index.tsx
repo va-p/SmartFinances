@@ -49,10 +49,10 @@ export function BankingIntegrations() {
       const response = await api.get('/banking-integration/');
 
       if (!!response.data && response.data.length > 0) {
-        const data = response.data;
+        const {data} = response;
         setIntegrations(data);
       }
-      return;
+      
     } catch (error) {
       console.error('fetchBankingIntegrations error =>', error);
       Alert.alert(
@@ -72,11 +72,11 @@ export function BankingIntegrations() {
       const response = await api.get('/banking-integration/sync');
 
       if (!!response.data && response.data.length > 0) {
-        const data = response.data;
+        const {data} = response;
         setIntegrations(data);
       }
 
-      return;
+      
     } catch (error) {
       console.error('handleRefresh error =>', error);
       if (axios.isAxiosError(error)) {
@@ -98,7 +98,7 @@ export function BankingIntegrations() {
         setLoading(true);
         const { data } = await api.get('/banking-integration/connect');
 
-        if (!!data) {
+        if (data) {
           setToken(data.accessToken);
         }
       } catch (error) {
@@ -260,44 +260,42 @@ export function BankingIntegrations() {
         )}
 
         {!showModal && (
-          <>
-            <ConnectedAccountsList
-              data={integrations}
-              keyExtractor={(item: any) => item.id}
-              renderItem={_renderItem}
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
-              )}
-              initialNumToRender={10}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={() => handleRefresh()}
+          <ConnectedAccountsList
+            data={integrations}
+            keyExtractor={(item: any) => item.id}
+            renderItem={_renderItem}
+            ListEmptyComponent={() => (
+              <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
+            )}
+            initialNumToRender={10}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => handleRefresh()}
+              />
+            }
+            ListFooterComponent={
+              <Button.Root
+                type='secondary'
+                onPress={handlePressConnectNewAccount}
+              >
+                <Button.Text
+                  text={
+                    !user.premium
+                      ? 'Assine o Premium para novas conexões'
+                      : 'Conectar nova conta'
+                  }
                 />
-              }
-              ListFooterComponent={
-                <Button.Root
-                  type='secondary'
-                  onPress={handlePressConnectNewAccount}
-                >
-                  <Button.Text
-                    text={
-                      !user.premium
-                        ? 'Assine o Premium para novas conexões'
-                        : 'Conectar nova conta'
-                    }
-                  />
-                </Button.Root>
-              }
-              ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingTop: 8,
-                paddingBottom: bottomTabBarHeight + 16,
-              }}
-              showsVerticalScrollIndicator={false}
-            />
-          </>
+              </Button.Root>
+            }
+            ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingTop: 8,
+              paddingBottom: bottomTabBarHeight + 16,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
         )}
       </Container>
     </Screen>

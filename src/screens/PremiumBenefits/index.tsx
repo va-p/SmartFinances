@@ -70,7 +70,7 @@ export function PremiumBenefits() {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Escolha seu plano'} />
+          <Header.Title title="Escolha seu plano" />
         </Header.Root>
 
         <ScrollContent>
@@ -82,25 +82,23 @@ export function PremiumBenefits() {
           </Description>
 
           <PremiumBenefitsContainer>
-            <Benefit description={'Dicas Personalizadas'} />
+            <Benefit description="Dicas Personalizadas" />
 
-            <Benefit description={'Armazenamento Ilimitado de Imagens'} />
+            <Benefit description="Armazenamento Ilimitado de Imagens" />
 
             <Benefit
-              description={
-                'Insights Inteligentes Gerados com Inteligência Artificial'
-              }
+              description="Insights Inteligentes Gerados com Inteligência Artificial"
             />
 
-            {/*<Benefit description={'Sincronização de Contas Bancárias'} />*/}
+            {/* <Benefit description={'Sincronização de Contas Bancárias'} /> */}
 
-            {/*<Benefit description={'Sincronização de Cartões de Crédito'} />*/}
+            {/* <Benefit description={'Sincronização de Cartões de Crédito'} /> */}
 
-            {/*<Benefit
+            {/* <Benefit
               description={
                 'Categorização das Transações com Inteligência Artificial'
               }
-            />*/}
+            /> */}
           </PremiumBenefitsContainer>
 
           <PackagesContainer>

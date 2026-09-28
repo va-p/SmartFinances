@@ -57,8 +57,8 @@ export function GoalListItem({
     footerText ??
     (data.deadline
       ? `Prazo: ${format(new Date(data.deadline), 'dd MMMM, yyyy', {
-          locale: ptBR,
-        })}`
+        locale: ptBR,
+      })}`
       : null);
 
   return (

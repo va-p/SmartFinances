@@ -179,8 +179,8 @@ export function SubscriptionPayments() {
           <SectionHeaderTitle>
             {payments && payments.length > 0
               ? `${payments.length} cobrança${
-                  payments.length === 1 ? '' : 's'
-                } em ${monthLabel(selectedMonth)}`
+                payments.length === 1 ? '' : 's'
+              } em ${monthLabel(selectedMonth)}`
               : `Cobranças em ${monthLabel(selectedMonth)}`}
           </SectionHeaderTitle>
         </SectionHeader>

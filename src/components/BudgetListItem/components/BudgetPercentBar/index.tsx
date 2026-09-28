@@ -54,7 +54,7 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
               : theme.colors.success,
           },
         ]}
-      ></Animated.View>
+      />
       <Percent numberOfLines={1}>{data.percentage.toFixed(2)}%</Percent>
     </Container>
   );

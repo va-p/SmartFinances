@@ -13,11 +13,11 @@ type CashFlowInsightCardProps = {
   onClose: () => void;
 };
 
-export const CashFlowInsightCard = memo(function CashFlowInsightCard({
+export const CashFlowInsightCard = memo(({
   cashFlows,
   selectedDate,
   onClose,
-}: CashFlowInsightCardProps) {
+}: CashFlowInsightCardProps) => {
   if (cashFlows.length < 1) {
     return null;
   }

@@ -37,23 +37,15 @@ export type GoalStatusInput = {
 };
 
 // --- API functions ---
-const createGoalFn = async (newGoal: CreateGoalInput) => {
-  return await api.post('goal', newGoal);
-};
-const updateGoalFn = async ({ goalId, ...payload }: UpdateGoalInput) => {
-  return await api.patch(`goal/${goalId}`, payload);
-};
+const createGoalFn = async (newGoal: CreateGoalInput) => await api.post('goal', newGoal);
+const updateGoalFn = async ({ goalId, ...payload }: UpdateGoalInput) => await api.patch(`goal/${goalId}`, payload);
 const deleteGoalFn = async ({
   goalId,
   destinationAccountId,
-}: DeleteGoalInput) => {
-  return await api.delete(`goal/${goalId}`, {
-    data: { destination_account_id: destinationAccountId },
-  });
-};
-const updateGoalStatusFn = async ({ goalId, action }: GoalStatusInput) => {
-  return await api.patch(`goal/${goalId}/status`, { action });
-};
+}: DeleteGoalInput) => await api.delete(`goal/${goalId}`, {
+  data: { destination_account_id: destinationAccountId },
+});
+const updateGoalStatusFn = async ({ goalId, action }: GoalStatusInput) => await api.patch(`goal/${goalId}/status`, { action });
 
 // --- Create goal ---
 export function useCreateGoalMutation() {
@@ -98,12 +90,12 @@ export function useCreateGoalMutation() {
         reserve_account:
           linkedAccountIds.length === 0
             ? {
-                id: 0,
-                name: `Reserva: ${newGoal.name}`,
-                balance: 0,
-                is_virtual: true,
-                currency_id: newGoal.currency_id,
-              }
+              id: 0,
+              name: `Reserva: ${newGoal.name}`,
+              balance: 0,
+              is_virtual: true,
+              currency_id: newGoal.currency_id,
+            }
             : null,
         linked_accounts: linkedAccounts.map((account) => ({
           id: account.id,

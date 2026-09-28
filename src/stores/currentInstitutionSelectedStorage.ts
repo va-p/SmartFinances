@@ -12,10 +12,10 @@ export const useCurrentInstitutionSelected =
   create<CurrentInstitutionSelected>((set) => ({
     institutionId: null,
     setInstitutionId: (institutionId) =>
-      set(() => ({ institutionId: institutionId })),
+      set(() => ({ institutionId })),
     institutionName: null,
     setInstitutionName: (institutionName) =>
-      set(() => ({ institutionName: institutionName })),
+      set(() => ({ institutionName })),
     clearInstitution: () =>
       set(() => ({ institutionId: null, institutionName: null })),
   }));

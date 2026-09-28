@@ -276,8 +276,8 @@ export function Accounts() {
         totalAccountsBalance.toNumber(),
         false
       ),
-      processedAccounts: processedAccounts,
-      chartData: chartData,
+      processedAccounts,
+      chartData,
       institutionCards,
       standaloneAccounts,
     };
@@ -340,31 +340,29 @@ export function Accounts() {
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers (AC15.3).
-  const creditCardAccounts: AccountProps[] = useMemo(() => {
-    return processedAccounts
-      .filter(
-        (account) =>
-          !account.isVirtual &&
+  const creditCardAccounts: AccountProps[] = useMemo(() => processedAccounts
+    .filter(
+      (account) =>
+        !account.isVirtual &&
           account.type === 'CREDIT' &&
           account.subtype === 'CREDIT_CARD'
-      )
-      .sort((a, b) => {
-        const nameA = a.name;
-        const nameB = b.name;
+    )
+    .sort((a, b) => {
+      const nameA = a.name;
+      const nameB = b.name;
 
-        if (nameA && nameB) {
-          const institutionComparison =
+      if (nameA && nameB) {
+        const institutionComparison =
             nameA.localeCompare(nameB);
-          if (institutionComparison !== 0) return institutionComparison;
-        } else if (nameA && !nameB) {
-          return -1;
-        } else if (!nameA && nameB) {
-          return 1;
-        }
+        if (institutionComparison !== 0) return institutionComparison;
+      } else if (nameA && !nameB) {
+        return -1;
+      } else if (!nameA && nameB) {
+        return 1;
+      }
 
-        return a.name.localeCompare(b.name);
-      });
-  }, [processedAccounts]);
+      return a.name.localeCompare(b.name);
+    }), [processedAccounts]);
 
   // Account filtering with search — applies after the existing sorting, so
   // the sort choice is preserved while the query narrows the rendered list.
@@ -427,7 +425,7 @@ export function Accounts() {
     }));
     router.navigate({
       pathname: '/accounts/[accountId]',
-      params: { id: id },
+      params: { id },
     });
   }
 
@@ -627,8 +625,8 @@ export function Accounts() {
                 {isRefetchingTransactions || isRefetchingAccounts
                   ? _renderSkeletonTotal()
                   : hideAmount
-                  ? '•••••'
-                  : totalBalanceFormatted}
+                    ? '•••••'
+                    : totalBalanceFormatted}
               </CashFlowTotal>
               <CashFlowDescription>Patrimônio Total</CashFlowDescription>
             </CashFlowContainer>
@@ -651,12 +649,8 @@ export function Accounts() {
           <ChartContainer>
             <LineChart
               key={chartData.length}
-              data={chartData.map((item) => {
-                return { value: item.total };
-              })}
-              xAxisLabelTexts={chartData.map((item) => {
-                return item.date;
-              })}
+              data={chartData.map((item) => ({ value: item.total }))}
+              xAxisLabelTexts={chartData.map((item) => item.date)}
               width={GRAPH_WIDTH}
               height={128}
               noOfSections={5}

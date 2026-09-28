@@ -181,7 +181,7 @@ export function SignUp() {
         <SectionHeader>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title title={'Cadastro'} />
+            <Header.Title title="Cadastro" />
           </Header.Root>
         </SectionHeader>
 
@@ -232,7 +232,7 @@ export function SignUp() {
             <ControlledInput
               placeholder='Senha'
               autoCorrect={false}
-              secureTextEntry={true}
+              secureTextEntry
               autoComplete='password-new'
               textContentType='newPassword'
               name='password'
@@ -243,7 +243,7 @@ export function SignUp() {
             <ControlledInput
               placeholder='Repetir senha'
               autoCorrect={false}
-              secureTextEntry={true}
+              secureTextEntry
               autoComplete='password-new'
               textContentType='newPassword'
               name='confirmPassword'
