@@ -111,8 +111,8 @@ export function BankingIntegrationDetails() {
               includeSandbox={false}
               connectorTypes={[]}
               onClose={handleOnClose}
-              onSuccess={handleOnSuccess}
-              onError={handleOnError}
+              onSuccess={() => handleOnSuccess()}
+              onError={(error: any) => handleOnError(error)}
               allowFullscreen
               theme='dark'
             />
@@ -151,7 +151,7 @@ export function BankingIntegrationDetails() {
             </AccountName>
 
             <Footer>
-              <Button.Root onPress={handlePressUpdateAccount}>
+              <Button.Root onPress={() => handlePressUpdateAccount()}>
                 <Button.Text text="Atualizar conexão" />
               </Button.Root>
             </Footer>

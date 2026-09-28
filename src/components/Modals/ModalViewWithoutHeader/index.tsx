@@ -17,6 +17,10 @@ type Props = BottomSheetProps & {
   bottomSheetRef?: any;
 };
 
+function ModalBackdrop() {
+  return <Overlay />;
+}
+
 export function ModalViewWithoutHeader({
   children,
   bottomSheetRef,
@@ -30,7 +34,7 @@ export function ModalViewWithoutHeader({
       ref={bottomSheetRef}
       stackBehavior='push'
       enableContentPanningGesture
-      backdropComponent={() => <Overlay />}
+      backdropComponent={ModalBackdrop}
       keyboardBehavior='extend'
       topInset={top}
       backgroundComponent={null}

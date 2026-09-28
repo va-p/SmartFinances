@@ -42,7 +42,7 @@ export function CurrencySelect({
             onPress={() => handleCurrencySelect(item)}
           />
         )}
-        ItemSeparatorComponent={() => <ListSeparator />}
+        ItemSeparatorComponent={ListSeparator}
         style={{ flex: 1, width: '100%' }}
       />
     </Container>

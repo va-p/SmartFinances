@@ -11,7 +11,7 @@ type Props = RectButtonProps & {
 
 export function CurrencySelectButton({
   title,
-  iconSize,
+  iconSize = 16,
   hideArrow = false,
   ...rest
 }: Props) {

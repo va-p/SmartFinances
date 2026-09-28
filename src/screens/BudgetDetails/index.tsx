@@ -58,6 +58,16 @@ import { SectionListHeader } from '@components/SectionListHeader';
 // Local
 import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 
+function TransactionsEmptyList() {
+  return (
+    <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+  );
+}
+
+function RowSeparator() {
+  return <View style={{ minHeight: 8, maxHeight: 8 }} />;
+}
+
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -178,7 +188,7 @@ export function BudgetDetails() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title={budget.name} />
-          <Header.Icon onPress={handleOpenEditBudgetModal} />
+          <Header.Icon onPress={() => handleOpenEditBudgetModal()} />
         </Header.Root>
 
         <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
@@ -263,12 +273,8 @@ export function BudgetDetails() {
                   ? 'sectionHeader'
                   : 'row'
               }
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
-              )}
-              ItemSeparatorComponent={() => (
-                <View style={{ minHeight: 8, maxHeight: 8 }} />
-              )}
+              ListEmptyComponent={TransactionsEmptyList}
+              ItemSeparatorComponent={RowSeparator}
               contentContainerStyle={{
                 paddingBottom: bottomTabBarHeight,
               }}
@@ -283,13 +289,13 @@ export function BudgetDetails() {
           enableContentPanningGesture={false}
           enablePanDownToClose
           snapPoints={['75%']}
-          closeModal={handleCloseEditBudgetModal}
-          onClose={handleCloseEditBudgetModal}
-          deleteChildren={handleClickDeleteBudget}
+          closeModal={() => handleCloseEditBudgetModal()}
+          onClose={() => handleCloseEditBudgetModal()}
+          deleteChildren={() => handleClickDeleteBudget()}
         >
           <RegisterBudget
             id={budgetID}
-            closeBudget={handleFinishedEditBudget}
+            closeBudget={() => handleFinishedEditBudget()}
           />
         </ModalView>
 
@@ -299,8 +305,8 @@ export function BudgetDetails() {
         >
           <RegisterTransaction
             id={transactionID}
-            resetId={ClearTransactionID}
-            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            resetId={() => ClearTransactionID()}
+            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
           />
         </ModalViewWithoutHeader>
       </Container>

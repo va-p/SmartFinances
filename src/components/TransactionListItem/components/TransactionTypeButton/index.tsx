@@ -100,7 +100,7 @@ export function TransactionTypeButton({
 
           return (
             <Button
-              key={index}
+              key={type}
               isActive={isActive}
               onPress={() => onTabPress(index)}
             >

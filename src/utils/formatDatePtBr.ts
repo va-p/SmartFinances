@@ -4,28 +4,28 @@ import { ptBR } from 'date-fns/locale';
 function formatDatePtBr(date: Date) {
   return {
     extensive() {
-      const formatted_date = format(new Date(date), "dd 'de' MMMM 'de' yyyy", {
+      const formattedDate = format(new Date(date), "dd 'de' MMMM 'de' yyyy", {
         locale: ptBR,
       });
-      return formatted_date;
+      return formattedDate;
     },
     medium() {
-      const formatted_date = format(new Date(date), "dd 'de' MMM 'de' yyyy", {
+      const formattedDate = format(new Date(date), "dd 'de' MMM 'de' yyyy", {
         locale: ptBR,
       });
-      return formatted_date;
+      return formattedDate;
     },
     short() {
-      const formatted_date = format(new Date(date), 'dd/MM/yyyy', {
+      const formattedDate = format(new Date(date), 'dd/MM/yyyy', {
         locale: ptBR,
       });
-      return formatted_date;
+      return formattedDate;
     },
     cashFlowChartMonth() {
-      const formatted_date = format(new Date(date), "MMM '\n' yyyy", {
+      const formattedDate = format(new Date(date), "MMM '\n' yyyy", {
         locale: ptBR,
       });
-      return formatted_date;
+      return formattedDate;
     },
   };
 }

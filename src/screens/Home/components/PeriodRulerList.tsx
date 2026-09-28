@@ -31,14 +31,14 @@ export const PeriodRulerList = memo(({
   // the years param.
   const years = new Set<number>();
   if (selectedPeriod.period === 'years') {
-    for (const item of cashFlows) {
-      if (!item.label) continue;
+    cashFlows.forEach((item) => {
+      if (!item.label) return;
 
       const parsed = parse(String(item.label), 'yyyy', new Date());
       if (isValid(parsed)) {
         years.add(getYear(parsed));
       }
-    }
+    });
   }
 
   const dates = buildPeriodRulerDates({

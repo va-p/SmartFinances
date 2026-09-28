@@ -48,6 +48,10 @@ import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
+function RowSeparator() {
+  return <View style={{ minHeight: 8, maxHeight: 8 }} />;
+}
+
 export function TransactionsByCategory({ navigation }: any) {
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -175,7 +179,7 @@ export function TransactionsByCategory({ navigation }: any) {
         <FiltersContainer>
           <FilterButton
             title={`Por ${selectedPeriod.name}`}
-            onPress={handleOpenPeriodSelectedModal}
+            onPress={() => handleOpenPeriodSelectedModal()}
           />
         </FiltersContainer>
 
@@ -223,18 +227,16 @@ export function TransactionsByCategory({ navigation }: any) {
               ? 'sectionHeader'
               : 'row'
           }
-          ListEmptyComponent={() => <ListEmptyComponent />}
+          ListEmptyComponent={ListEmptyComponent}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
-          ItemSeparatorComponent={() => (
-            <View style={{ minHeight: 8, maxHeight: 8 }} />
-          )}
+          ItemSeparatorComponent={RowSeparator}
           contentContainerStyle={{
             paddingTop: 16,
             paddingBottom: bottomTabBarHeight,
@@ -245,11 +247,11 @@ export function TransactionsByCategory({ navigation }: any) {
           title='Selecione o período'
           bottomSheetRef={chartPeriodSelectedBottomSheetRef}
           snapPoints={['30%', '50%']}
-          onClose={handleClosePeriodSelectedModal}
+          onClose={() => handleClosePeriodSelectedModal()}
         >
           <ChartPeriodSelect
             period={selectedPeriod}
-            closeSelectPeriod={handleClosePeriodSelectedModal}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
           />
         </ModalViewSelection>
 
@@ -260,7 +262,7 @@ export function TransactionsByCategory({ navigation }: any) {
           <RegisterTransaction
             id={transactionId}
             resetId={() => setTransactionId('')}
-            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
           />
         </ModalViewWithoutHeader>
       </Container>

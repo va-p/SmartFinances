@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, StatusBar, View, Platform } from 'react-native';
+import { StyleSheet, StatusBar, View, Platform, ColorValue } from 'react-native';
 
 // Dependencies
 import { useTheme } from 'styled-components';
@@ -20,12 +20,95 @@ import { useNotificationPermission } from '@hooks/useNotificationPermission';
 
 import { ThemeProps } from '@interfaces/theme';
 
+function TabBarBackground() {
+  const targetRef = useRef<View | null>(null);
+  const { darkMode } = useUserConfigs();
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      <BlurTargetView ref={targetRef} />
+      {/* Layer 1: Blur — samples content behind the tab bar */}
+      <BlurView
+        tint={darkMode ? 'dark' : 'light'}
+        intensity={85}
+        blurMethod="dimezisBlurView"
+        style={StyleSheet.absoluteFill}
+      />
+      {/* Layer 2: Frosted glass overlay — the milky tint */}
+      <LinearGradient
+        colors={
+          darkMode
+            ? ['rgba(30, 30, 30, 0.35)', 'rgba(18, 18, 18, 0.55)']
+            : ['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.5)']
+        }
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+    </View>
+  );
+}
+
+function TransactionsTabIcon({
+  size,
+  color,
+}: {
+  focused?: boolean;
+  color: ColorValue;
+  size: number;
+}) {
+  return <ListDashesIcon size={size} color={color as string} />;
+}
+
+function AccountsTabIcon({
+  size,
+  color,
+}: {
+  focused?: boolean;
+  color: ColorValue;
+  size: number;
+}) {
+  return <BankIcon size={size} color={color as string} />;
+}
+
+function BudgetsTabIcon({
+  size,
+  color,
+}: {
+  focused?: boolean;
+  color: ColorValue;
+  size: number;
+}) {
+  return <TargetIcon size={size} color={color as string} />;
+}
+
+function OverviewTabIcon({
+  size,
+  color,
+}: {
+  focused?: boolean;
+  color: ColorValue;
+  size: number;
+}) {
+  return <ChartPieSliceIcon size={size} color={color as string} />;
+}
+
+function OptionsTabIcon({
+  size,
+  color,
+}: {
+  focused?: boolean;
+  color: ColorValue;
+  size: number;
+}) {
+  return <DotsThreeOutlineIcon size={size} color={color as string} />;
+}
+
 /**
  * Generic tab layout — used on Android and as a fallback for other platforms.
  * iOS overrides this with _layout.ios.tsx (NativeTabs + Liquid Glass).
  */
 export default function AppLayout() {
-  const targetRef = useRef<View | null>(null);
   const theme = useTheme() as ThemeProps;
   const { darkMode } = useUserConfigs();
   const insets = useSafeAreaInsets();
@@ -91,38 +174,14 @@ export default function AppLayout() {
           sceneStyle: {
             backgroundColor: 'transparent',
           },
-          tabBarBackground: () => (
-            <View style={StyleSheet.absoluteFill}>
-              <BlurTargetView ref={targetRef} />
-              {/* Layer 1: Blur — samples content behind the tab bar */}
-              <BlurView
-                tint={darkMode ? 'dark' : 'light'}
-                intensity={85}
-                blurMethod="dimezisBlurView"
-                style={StyleSheet.absoluteFill}
-              />
-              {/* Layer 2: Frosted glass overlay — the milky tint */}
-              <LinearGradient
-                colors={
-                  darkMode
-                    ? ['rgba(30, 30, 30, 0.35)', 'rgba(18, 18, 18, 0.55)']
-                    : ['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.5)']
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
-            </View>
-          ),
+          tabBarBackground: TabBarBackground,
         }}
       >
         <Tabs.Screen
           name='index'
           options={{
             title: 'Transações',
-            tabBarIcon: ({ size, color }) => (
-              <ListDashesIcon size={size} color={color} />
-            ),
+            tabBarIcon: TransactionsTabIcon,
             sceneStyle: {
               backgroundColor: 'transparent',
             },
@@ -132,9 +191,7 @@ export default function AppLayout() {
           name='accounts'
           options={{
             title: 'Contas',
-            tabBarIcon: ({ size, color }) => (
-              <BankIcon size={size} color={color} />
-            ),
+            tabBarIcon: AccountsTabIcon,
             sceneStyle: {
               backgroundColor: 'transparent',
             },
@@ -144,9 +201,7 @@ export default function AppLayout() {
           name='budgets'
           options={{
             title: 'Orçamentos',
-            tabBarIcon: ({ size, color }) => (
-              <TargetIcon size={size} color={color} />
-            ),
+            tabBarIcon: BudgetsTabIcon,
             sceneStyle: {
               backgroundColor: 'transparent',
             },
@@ -156,9 +211,7 @@ export default function AppLayout() {
           name='overview'
           options={{
             title: 'Resumo',
-            tabBarIcon: ({ size, color }) => (
-              <ChartPieSliceIcon size={size} color={color} />
-            ),
+            tabBarIcon: OverviewTabIcon,
             sceneStyle: {
               backgroundColor: 'transparent',
             },
@@ -168,9 +221,7 @@ export default function AppLayout() {
           name='options'
           options={{
             title: 'Mais',
-            tabBarIcon: ({ size, color }) => (
-              <DotsThreeOutlineIcon size={size} color={color} />
-            ),
+            tabBarIcon: OptionsTabIcon,
             sceneStyle: {
               backgroundColor: 'transparent',
             },

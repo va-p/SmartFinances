@@ -257,7 +257,7 @@ export function SignUp() {
           <ScreenDivider text='Ou' />
 
           <SocialLoginButton
-            onPress={handleContinueWithGoogle}
+            onPress={() => handleContinueWithGoogle()}
             style={{ marginTop: 8 }}
           >
             <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
@@ -280,14 +280,14 @@ export function SignUp() {
             Ao me cadastrar, eu declaro que li e aceito os{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressTermsOfUse}
+              onPress={() => handlePressTermsOfUse()}
             >
               Termos de Uso
             </Text>{' '}
             e a{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressPolicyPrivacy}
+              onPress={() => handlePressPolicyPrivacy()}
             >
               Política de Privacidade
             </Text>
@@ -306,7 +306,7 @@ export function SignUp() {
             Já possui uma conta?{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressLogin}
+              onPress={() => handlePressLogin()}
             >
               Login
             </Text>

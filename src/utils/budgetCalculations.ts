@@ -126,13 +126,13 @@ export function formatBudgetInfo(
   );
 
   let amountSpent = 0;
-  for (const transaction of filteredTransactions) {
+  filteredTransactions.forEach((transaction) => {
     const isTransfer =
       transaction.type === 'TRANSFER_CREDIT' ||
       transaction.type === 'TRANSFER_DEBIT';
 
     if (isTransfer) {
-      continue;
+      return;
     }
 
     amountSpent += getTransactionSpentAmount(transaction);
@@ -146,7 +146,7 @@ export function formatBudgetInfo(
         transaction.account.currency.code,
         transaction.amount
       ));
-  }
+  });
 
   const percentage = (amountSpent / Number(budget.amount)) * 100;
 

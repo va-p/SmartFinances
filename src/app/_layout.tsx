@@ -15,9 +15,9 @@ import { SkeletonHomeScreen } from '@components/SkeletonOverviewScreen';
 import { AuthProvider, useAuth } from '@providers/AuthProvider';
 import { RevenueCatProvider } from '@providers/RevenueCatProvider';
 import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_700Bold,
+  Poppins_400Regular as Poppins400Regular,
+  Poppins_500Medium as Poppins500Medium,
+  Poppins_700Bold as Poppins700Bold,
 } from '@expo-google-fonts/poppins';
 
 import { useQuotes } from '@stores/quotesStorage';
@@ -163,9 +163,9 @@ export default function RootLayout() {
   setDarkMode(useDarkMode);
 
   const [fontsLoaded, fontError] = Font.useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_700Bold,
+    Poppins_400Regular: Poppins400Regular,
+    Poppins_500Medium: Poppins500Medium,
+    Poppins_700Bold: Poppins700Bold,
   });
 
   useEffect(() => {

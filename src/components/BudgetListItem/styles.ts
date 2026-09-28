@@ -26,8 +26,8 @@ export const AmountContainer = styled.View`
 
 export const AmountSpent = styled.Text<BudgetProps>`
   font-family: ${({ theme }) => theme.fonts.bold};
-  color: ${({ theme, is_amount_reached }) =>
-    is_amount_reached ? theme.colors.attention : theme.colors.success};
+  color: ${({ theme, is_amount_reached: isAmountReached }) =>
+    isAmountReached ? theme.colors.attention : theme.colors.success};
 `;
 
 export const AmountText = styled.Text`

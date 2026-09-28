@@ -22,6 +22,10 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterCategory } from '@screens/RegisterCategory';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma categoria criada. Crie categorias para visualizá-las aqui.' />;
+}
 export function Categories() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [categoryID, setCategoryID] = useState('');
@@ -116,19 +120,17 @@ export function Categories() {
               onPress={() => handleOpenCategory(item.id)}
             />
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma categoria criada. Crie categorias para visualizá-las aqui.' />
-          )}
+          ListEmptyComponent={EmptyList}
           initialNumToRender={50}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           ListFooterComponent={
             <Button.Root
-              onPress={handleOpenRegisterCategoryModal}
+              onPress={() => handleOpenRegisterCategoryModal()}
               style={{ marginTop: 16 }}
             >
               <Button.Text text='Criar Nova Categoria' />
@@ -151,12 +153,12 @@ export function Categories() {
           bottomSheetRef={bottomSheetRef}
           enableContentPanningGesture={false}
           snapPoints={['90%']}
-          closeModal={handleCloseRegisterCategoryModal}
-          deleteChildren={handleClickDeleteCategory}
+          closeModal={() => handleCloseRegisterCategoryModal()}
+          deleteChildren={() => handleClickDeleteCategory()}
         >
           <RegisterCategory
             id={categoryID}
-            closeCategory={handleCloseCategory}
+            closeCategory={() => handleCloseCategory()}
           />
         </ModalView>
       </Container>

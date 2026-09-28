@@ -18,6 +18,10 @@ type Props = {
   closeSelectCategory: () => void;
 };
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações.' />;
+}
 export function CategorySelect({
   categorySelected,
   setCategory,
@@ -69,13 +73,11 @@ export function CategorySelect({
             onPress={() => handleCategorySelect(item)}
           />
         )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações.' />
-        )}
+        ListEmptyComponent={EmptyList}
         refreshControl={
           <RefreshControl
             refreshing={isManualRefreshing}
-            onRefresh={handleRefresh}
+            onRefresh={() => handleRefresh()}
           />
         }
         numColumns={4}

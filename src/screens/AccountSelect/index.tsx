@@ -18,6 +18,10 @@ type Props = {
   closeSelectAccount: () => void;
 };
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />;
+}
 export function AccountSelect({
   account,
   setAccount,
@@ -68,14 +72,12 @@ export function AccountSelect({
             onPress={() => handleAccountSelect(item)}
           />
         )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />
-        )}
-        ItemSeparatorComponent={() => <ListSeparator />}
+        ListEmptyComponent={EmptyList}
+        ItemSeparatorComponent={ListSeparator}
         refreshControl={
           <RefreshControl
             refreshing={isRefetchingAccounts}
-            onRefresh={handleRefresh}
+            onRefresh={() => handleRefresh()}
           />
         }
         style={{ flex: 1, width: '100%' }}

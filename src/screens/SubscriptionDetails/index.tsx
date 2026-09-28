@@ -235,7 +235,7 @@ export function SubscriptionDetails() {
         <Gradient />
 
         <Header.Root>
-          <Header.CloseButton handleClickCloseButton={handleClose} />
+          <Header.CloseButton handleClickCloseButton={() => handleClose()} />
           <Header.Title
             title={subscription ? subscription.description : 'Assinatura'}
           />
@@ -276,7 +276,7 @@ export function SubscriptionDetails() {
             {/* Detalhes sobre pagamento (collapsible, AC15.3) */}
             <SectionHeaderRow>
               <SectionHeaderTitle>Detalhes sobre pagamento</SectionHeaderTitle>
-              <EditButton onPress={handleOpenEdit}>
+              <EditButton onPress={() => handleOpenEdit()}>
                 <PencilSimpleIcon size={16} color={theme.colors.primary} />
                 <EditButtonText>Editar</EditButtonText>
               </EditButton>
@@ -332,7 +332,7 @@ export function SubscriptionDetails() {
                 entering={FadeInUp.duration(COLLAPSE_DURATION)}
                 exiting={FadeOutUp.duration(COLLAPSE_DURATION)}
               >
-                <Row onPress={handleMarkNotSubscription}>
+                <Row onPress={() => handleMarkNotSubscription()}>
                   <RowLeft>
                     <RowIcon>
                       <LockIcon size={20} color={theme.colors.attention} />
@@ -342,7 +342,7 @@ export function SubscriptionDetails() {
                   <CaretRightIcon size={16} color={theme.colors.attention} />
                 </Row>
 
-                <Row onPress={handleToggleHide}>
+                <Row onPress={() => handleToggleHide()}>
                   <RowLeft>
                     <RowIcon>
                       {hideFromList ? (
@@ -414,7 +414,7 @@ export function SubscriptionDetails() {
 
             <SaveButtonContainer>
               <Button.Root
-                onPress={handleSaveEdit}
+                onPress={() => handleSaveEdit()}
                 isLoading={updateMutation.isPending}
               >
                 <Button.Text text='Salvar' />

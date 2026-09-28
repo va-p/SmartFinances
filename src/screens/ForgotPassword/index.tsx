@@ -135,7 +135,7 @@ export function ForgotPassword() {
             </Button.Root>
           </FormWrapper>
 
-          <Text onPress={handlePressGoBack}>Voltar para Login</Text>
+          <Text onPress={() => handlePressGoBack()}>Voltar para Login</Text>
         </MainContent>
       </Container>
     </Screen>

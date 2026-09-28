@@ -40,12 +40,12 @@ import { SubscriptionPaymentListItem } from '@components/SubscriptionPaymentList
 import { useSubscriptionPaymentsQuery } from '@hooks/useSubscriptionPaymentsQuery';
 
 // Utils
-import formatCurrency from '@utils/formatCurrency';
 import {
   buildSubscriptionPeriodOptions,
   monthKey,
   monthLabel,
 } from '@utils/buildSubscriptionPeriodOptions';
+import formatCurrency from '@utils/formatCurrency';
 import { computePaymentsTotal } from '@utils/subscriptionPaymentsSummary';
 
 // Storages
@@ -53,6 +53,11 @@ import { useQuotes } from '@stores/quotesStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionPaymentProps } from '@interfaces/subscriptions';
+
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhum pagamento previsto neste período.' />;
+}
 
 export function SubscriptionPayments() {
   const theme = useTheme() as ThemeProps;
@@ -123,7 +128,7 @@ export function SubscriptionPayments() {
     });
   }
 
-  function _renderItem({
+  function renderItem({
     item,
     index,
   }: {
@@ -147,14 +152,14 @@ export function SubscriptionPayments() {
         <Gradient />
 
         <Header.Root>
-          <Header.CloseButton handleClickCloseButton={handleClose} />
+          <Header.CloseButton handleClickCloseButton={() => handleClose()} />
           <Header.Title title='Próximos pagamentos' />
-          <HeaderIconButton onPress={handleOpenHelp}>
+          <HeaderIconButton onPress={() => handleOpenHelp()}>
             <QuestionIcon size={20} color={theme.colors.primary} />
           </HeaderIconButton>
         </Header.Root>
 
-        <PeriodRow onPress={handleOpenPeriodSheet}>
+        <PeriodRow onPress={() => handleOpenPeriodSheet()}>
           <PeriodRowLeft>
             <PeriodLabel>Período</PeriodLabel>
           </PeriodRowLeft>
@@ -195,10 +200,8 @@ export function SubscriptionPayments() {
             keyExtractor={(item) =>
               `${item.subscription_id}-${item.date}`
             }
-            renderItem={_renderItem}
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhum pagamento previsto neste período.' />
-            )}
+            renderItem={({ item, index }) => renderItem({ item, index })}
+            ListEmptyComponent={() => EmptyList()}
             initialNumToRender={10}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
@@ -212,7 +215,7 @@ export function SubscriptionPayments() {
         <ModalView
           title='Selecione o período'
           bottomSheetRef={periodSheetRef}
-          closeModal={handleClosePeriodSheet}
+          closeModal={() => handleClosePeriodSheet()}
           snapPoints={['70%']}
         >
           <PeriodSheetContent>
@@ -229,7 +232,7 @@ export function SubscriptionPayments() {
 
         <SubscriptionHelpSheet
           bottomSheetRef={helpSheetRef}
-          close={handleCloseHelp}
+          close={() => handleCloseHelp()}
         />
       </Container>
     </Screen>

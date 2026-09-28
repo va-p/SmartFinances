@@ -45,7 +45,7 @@ export function ResetPasswordSentConfirmation({ navigation }: any) {
           </Text>
 
           <Button.Root
-            onPress={handlePressResend}
+            onPress={() => handlePressResend()}
             style={{ width: '50%', alignSelf: 'center' }}
           >
             <Button.Text text='Reenviar e-mail' />

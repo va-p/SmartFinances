@@ -18,6 +18,14 @@ import { ThemeProps } from '@interfaces/theme';
 
 type TypeProps = 'primary' | 'secondary';
 
+function ModalBackdrop() {
+  return <Overlay />;
+}
+
+function ModalBackground() {
+  return <Gradient roundCorners />;
+}
+
 type Props = BottomSheetProps & {
   type?: TypeProps;
   title: string;
@@ -48,9 +56,9 @@ export function ModalView({
       ref={bottomSheetRef}
       stackBehavior='push'
       enablePanDownToClose
-      backdropComponent={() => <Overlay />}
+      backdropComponent={ModalBackdrop}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
-      backgroundComponent={() => <Gradient roundCorners />}
+      backgroundComponent={ModalBackground}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       topInset={top}
       {...rest}

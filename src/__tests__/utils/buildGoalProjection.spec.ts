@@ -36,7 +36,7 @@ const movement = (
 
 const buildGoal = (
   transactions: GoalReserveTransactionProps[],
-  target_amount = '2000',
+  targetAmount = '2000',
   currentAmount: number = transactions.reduce(
     (sum, transaction) =>
       sum +
@@ -45,7 +45,7 @@ const buildGoal = (
         : Math.abs(transaction.amount)),
     0
   )
-): GoalInput => ({ transactions, target_amount });
+): GoalInput => ({ transactions, target_amount: targetAmount });
 
 // Spec Independent Test pace: R$ 500 deposits in Sep, Oct and Nov 2027
 // (reserve balance = current amount = 1500).

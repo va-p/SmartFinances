@@ -215,13 +215,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   async function onSubmit(form: FormData) {
     let categoriesList: any = [];
-    for (const item of budgetCategoriesSelected) {
+    budgetCategoriesSelected.forEach((item) => {
       const categoryId = item.id;
 
       if (!categoriesList[categoryId]) {
         categoriesList.push(categoryId);
       }
-    }
+    });
     categoriesList = Object.values(categoriesList);
 
     const endDate = computeEndDate(startDate, budgetPeriodSelected.period);
@@ -381,7 +381,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
               : 'Selecione as categorias'
           }
           icon={<CirclesFourIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectCategoryModal}
+          onPress={() => handleOpenSelectCategoryModal()}
         />
 
         <SelectButton
@@ -406,7 +406,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           title='Repetir'
           subTitle={budgetPeriodSelected.name}
           icon={<RepeatIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectRecurrencePeriodModal}
+          onPress={() => handleOpenSelectRecurrencePeriodModal()}
         />
 
         <Footer>
@@ -426,7 +426,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           title='Categorias'
           bottomSheetRef={categoryBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectCategoryModal}
+          onClose={() => handleCloseSelectCategoryModal()}
         >
           <BudgetCategorySelect />
         </ModalViewSelection>
@@ -439,7 +439,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           <BudgetPeriodSelect
             period={budgetPeriodSelected}
             setPeriod={setBudgetPeriodSelected}
-            closeSelectPeriod={handleCloseSelectRecurrencePeriodModal}
+            closeSelectPeriod={() => handleCloseSelectRecurrencePeriodModal()}
           />
         </ModalViewSelection>
       </Container>

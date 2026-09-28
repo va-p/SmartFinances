@@ -33,7 +33,6 @@ type Props = {
   initialInterval?: number;
   initialPeriod?: RecurrencePeriod;
   onSave: (data: RecurrenceData) => void;
-  onCancel: () => void;
 };
 
 const PERIOD_OPTIONS: { key: RecurrencePeriod; label: string }[] = [
@@ -54,7 +53,6 @@ export function RecurrenceSelect({
   initialInterval = 1,
   initialPeriod = 'DAILY',
   onSave,
-  onCancel,
 }: Props) {
   const theme = useTheme() as ThemeProps;
   const [interval, setInterval] = useState(initialInterval);
@@ -76,13 +74,13 @@ export function RecurrenceSelect({
   function handleInputChange(text: string) {
     setInputValue(text);
     const parsed = parseInt(text, 10);
-    if (!isNaN(parsed) && parsed >= 1) {
+    if (!Number.isNaN(parsed) && parsed >= 1) {
       setInterval(parsed);
     }
   }
 
   function handleInputBlur() {
-    if (inputValue === '' || isNaN(parseInt(inputValue, 10)) || parseInt(inputValue, 10) < 1) {
+    if (inputValue === '' || Number.isNaN(parseInt(inputValue, 10)) || parseInt(inputValue, 10) < 1) {
       setInputValue('1');
       setInterval(1);
     }
@@ -122,7 +120,7 @@ export function RecurrenceSelect({
         {/* ── Quantity Input ──────────────────────────────── */}
         <Label secondary>Intervalo</Label>
         <QuantityRow>
-          <QuantityButton onPress={handleDecrement}>
+          <QuantityButton onPress={() => handleDecrement()}>
             <QuantityButtonText>
               <CaretDownIcon size={20} color={theme.colors.text} weight="bold" />
             </QuantityButtonText>
@@ -130,14 +128,14 @@ export function RecurrenceSelect({
 
           <QuantityInput
             value={inputValue}
-            onChangeText={handleInputChange}
-            onBlur={handleInputBlur}
+            onChangeText={(text: string) => handleInputChange(text)}
+            onBlur={() => handleInputBlur()}
             keyboardType="numeric"
             selectTextOnFocus
             textAlign="center"
           />
 
-          <QuantityButton onPress={handleIncrement}>
+          <QuantityButton onPress={() => handleIncrement()}>
             <QuantityButtonText>
               <CaretUpIcon size={20} color={theme.colors.text} weight="bold" />
             </QuantityButtonText>
@@ -146,14 +144,14 @@ export function RecurrenceSelect({
 
         {/* ── Period Selector ─────────────────────────────── */}
         <Label secondary>Período</Label>
-        <PeriodSelector onPress={handleSelectPeriod}>
+        <PeriodSelector onPress={() => handleSelectPeriod()}>
           <CalendarIcon size={20} color={theme.colors.primary} />
           <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
         </PeriodSelector>
 
         {/* ── Actions ─────────────────────────────────────── */}
         <Footer>
-          <Button.Root onPress={handleSave}>
+          <Button.Root onPress={() => handleSave()}>
             <Button.Text text="Salvar" />
           </Button.Root>
         </Footer>

@@ -16,7 +16,7 @@ export function HeaderBackButton() {
   }
 
   return (
-    <Button onPress={handleClickBackButton}>
+    <Button onPress={() => handleClickBackButton()}>
       <ButtonShape>
         <ArrowLeftIcon size={20} color={theme.colors.text} />
       </ButtonShape>

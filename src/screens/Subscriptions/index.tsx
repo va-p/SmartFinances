@@ -48,6 +48,10 @@ import { useQuotes } from '@stores/quotesStorage';
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionProps } from '@interfaces/subscriptions';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma assinatura identificada. Crie transações recorrentes (mensais ou anuais) para identificá-las automaticamente aqui.' />;
+}
 export function Subscriptions() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
@@ -141,14 +145,14 @@ export function Subscriptions() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title='Minhas assinaturas' />
-          <HeaderIconButton onPress={handleOpenRegisterTransaction}>
+          <HeaderIconButton onPress={() => handleOpenRegisterTransaction()}>
             <PlusIcon size={22} color={theme.colors.primary} />
           </HeaderIconButton>
         </Header.Root>
 
         <SectionHeader>
           <SectionHeaderTitle>Classificadas como assinaturas</SectionHeaderTitle>
-          <HelpButton onPress={handleOpenHelp}>
+          <HelpButton onPress={() => handleOpenHelp()}>
             <QuestionIcon size={20} color={theme.colors.primary} />
           </HelpButton>
         </SectionHeader>
@@ -161,10 +165,14 @@ export function Subscriptions() {
           <FlatList
             data={subscriptions ?? []}
             keyExtractor={(item) => String(item.id)}
-            renderItem={_renderItem}
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma assinatura identificada. Crie transações recorrentes (mensais ou anuais) para identificá-las automaticamente aqui.' />
-            )}
+            renderItem={({
+              item,
+              index,
+            }: {
+              item: SubscriptionProps;
+              index: number;
+            }) => _renderItem({ item, index })}
+            ListEmptyComponent={EmptyList}
             initialNumToRender={10}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
@@ -177,7 +185,7 @@ export function Subscriptions() {
 
         {upcomingSummary && (
           <Footer
-            onPress={handleOpenPayments}
+            onPress={() => handleOpenPayments()}
             style={{ marginBottom: Platform.OS === 'ios' ? bottomTabBarHeight - 32 : bottomTabBarHeight - 16}}
           >
             <FooterTextContainer>
@@ -193,7 +201,7 @@ export function Subscriptions() {
 
         <SubscriptionHelpSheet
           bottomSheetRef={helpSheetRef}
-          close={handleCloseHelp}
+          close={() => handleCloseHelp()}
         />
 
         <ModalViewWithoutHeader
@@ -202,8 +210,8 @@ export function Subscriptions() {
         >
           <RegisterTransaction
             id={transactionId}
-            resetId={handleResetTransactionId}
-            closeRegisterTransaction={handleCloseRegisterTransaction}
+            resetId={() => handleResetTransactionId()}
+            closeRegisterTransaction={() => handleCloseRegisterTransaction()}
           />
         </ModalViewWithoutHeader>
       </Container>

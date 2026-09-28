@@ -53,9 +53,9 @@ export function PremiumBenefits() {
   useFocusEffect(
     useCallback(() => {
       function getSubscriptionEndDate() {
-        const subscriptionEndDate = addDays(new Date(), 14);
+        const subscriptionEndDateAux = addDays(new Date(), 14);
         const subscriptionEndDateFormatted =
-          formatDatePtBr(subscriptionEndDate).extensive;
+          formatDatePtBr(subscriptionEndDateAux).extensive;
         setSubscriptionEndDate(subscriptionEndDateFormatted);
       }
 
@@ -102,9 +102,9 @@ export function PremiumBenefits() {
           </PremiumBenefitsContainer>
 
           <PackagesContainer>
-            {packages.map((pack, idx) => (
+            {packages.map((pack) => (
               <PremiumPackageListItem
-                key={idx}
+                key={pack.identifier}
                 data={pack as PackageProps}
                 onPress={() => handlePurchase(pack)}
               />
@@ -122,7 +122,7 @@ export function PremiumBenefits() {
               Já assinou o Smart Finances?{' '}
               <Advice
                 style={{ textDecorationLine: 'underline' }}
-                onPress={async () => await restorePurchasesUser()}
+                onPress={async () => restorePurchasesUser()}
               >
                 Restaurar assinatura
               </Advice>
@@ -133,14 +133,14 @@ export function PremiumBenefits() {
               Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
               <Advice
                 style={{ textDecorationLine: 'underline' }}
-                onPress={handleClickPrivacyPolicy}
+                onPress={() => handleClickPrivacyPolicy()}
               >
                 Política de Privacidade
               </Advice>{' '}
               e nossos{' '}
               <Advice
                 style={{ textDecorationLine: 'underline' }}
-                onPress={handleClickTermsOfUse}
+                onPress={() => handleClickTermsOfUse()}
               >
                 Termos de Uso.
               </Advice>

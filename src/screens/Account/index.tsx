@@ -237,12 +237,12 @@ export function Account() {
     // Other period modes ignore the years param.
     const years = new Set<number>();
     if (selectedPeriod.period === 'years') {
-      for (const item of allTransactions || []) {
+      (allTransactions || []).forEach((item) => {
         const transactionDate = new Date(item.created_at);
         if (isValid(transactionDate)) {
           years.add(getYear(transactionDate));
         }
-      }
+      });
     }
 
     const dates = buildPeriodRulerDates({
@@ -415,7 +415,7 @@ export function Account() {
                 <Header.SearchButton
                   onPress={() => setShowSearchInput((prevState) => !prevState)}
                 />
-                <Header.Icon onPress={handleOpenEditAccount} />
+                <Header.Icon onPress={() => handleOpenEditAccount()} />
               </HeaderButtonGroup>
             </Header.Root>
           </HeaderContainer>
@@ -424,7 +424,7 @@ export function Account() {
             <FilterButtonGroup>
               <FilterButton
                 title={`Por ${selectedPeriod.name}`}
-                onPress={handleOpenPeriodSelectedModal}
+                onPress={() => handleOpenPeriodSelectedModal()}
               />
             </FilterButtonGroup>
           </FiltersContainer>
@@ -480,14 +480,14 @@ export function Account() {
           <AnimatedSectionList
             sections={filteredTransactions}
             keyExtractor={(item: any) => item.id}
-            renderItem={_renderItem}
-            renderSectionHeader={_renderSectionHeader}
-            ListEmptyComponent={_renderEmpty}
+            renderItem={({ item, index }: any) => _renderItem({ item, index })}
+            renderSectionHeader={({ section }: any) => _renderSectionHeader({ section })}
+            ListEmptyComponent={() => _renderEmpty()}
             initialNumToRender={2000}
             refreshControl={
               <RefreshControl
                 refreshing={isManualRefreshing}
-                onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh()}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -512,7 +512,7 @@ export function Account() {
             ]}
           >
             <ButtonAnimated
-              onPress={handleOpenRegisterTransactionModal}
+              onPress={() => handleOpenRegisterTransactionModal()}
               style={dynamicStyles.animatedButton}
             >
               <PlusIcon size={24} color={theme.colors.background} />
@@ -524,11 +524,11 @@ export function Account() {
           title='Selecione o período'
           bottomSheetRef={periodSelectBottomSheetRef}
           snapPoints={['30%', '50%']}
-          onClose={handleClosePeriodSelectedModal}
+          onClose={() => handleClosePeriodSelectedModal()}
         >
           <ChartPeriodSelect
             period={selectedPeriod}
-            closeSelectPeriod={handleClosePeriodSelectedModal}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
           />
         </ModalViewSelection>
 
@@ -537,12 +537,12 @@ export function Account() {
           title={`Editar Conta ${accountName}`}
           bottomSheetRef={editAccountBottomSheetRef}
           snapPoints={['75%']}
-          closeModal={handleCloseEditAccount}
-          deleteChildren={handleClickDeleteAccount}
+          closeModal={() => handleCloseEditAccount()}
+          deleteChildren={() => handleClickDeleteAccount()}
         >
           <RegisterAccount
             id={String(accountID)}
-            closeAccount={handleCloseEditAccount}
+            closeAccount={() => handleCloseEditAccount()}
           />
         </ModalView>
 
@@ -552,8 +552,8 @@ export function Account() {
         >
           <RegisterTransaction
             id={transactionId}
-            resetId={ClearTransactionId}
-            closeRegisterTransaction={handleCloseTransaction}
+            resetId={() => ClearTransactionId()}
+            closeRegisterTransaction={() => handleCloseTransaction()}
           />
         </ModalViewWithoutHeader>
       </Container>

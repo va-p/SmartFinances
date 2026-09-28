@@ -61,6 +61,16 @@ type FormData = {
   amount: string;
 };
 
+function MovementsAccountEmptyList() {
+  return (
+    <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
+  );
+}
+
+function LinkedAccountsEmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta vinculada a esta meta.' />;
+}
+
 export function RegisterGoalMovement({
   goalId,
   type,
@@ -304,7 +314,7 @@ export function RegisterGoalMovement({
           : 'Conta vinculada (origem)'
       }
       icon={<WalletIcon color={theme.colors.primary} />}
-      onPress={handleOpenSelectLinkedAccountModal}
+      onPress={() => handleOpenSelectLinkedAccountModal()}
     />
   );
 
@@ -326,7 +336,7 @@ export function RegisterGoalMovement({
           title={accountSelected?.name || 'Selecione a conta'}
           subTitle={type === 'deposit' ? 'Conta de origem' : 'Conta de destino'}
           icon={<WalletIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectAccountModal}
+          onPress={() => handleOpenSelectAccountModal()}
         />
 
         {type === 'deposit' && linkedAccountButton}
@@ -429,7 +439,7 @@ export function RegisterGoalMovement({
           }
           bottomSheetRef={accountBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectAccountModal}
+          onClose={() => handleCloseSelectAccountModal()}
         >
           <PickerContainer>
             <FlatList
@@ -442,10 +452,8 @@ export function RegisterGoalMovement({
                   onPress={() => handleAccountSelect(item)}
                 />
               )}
-              ItemSeparatorComponent={() => <ListSeparator />}
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
-              )}
+              ItemSeparatorComponent={ListSeparator}
+              ListEmptyComponent={MovementsAccountEmptyList}
               style={{ flex: 1, width: '100%' }}
             />
           </PickerContainer>
@@ -456,7 +464,7 @@ export function RegisterGoalMovement({
           title='Selecione a conta vinculada'
           bottomSheetRef={linkedAccountBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectLinkedAccountModal}
+          onClose={() => handleCloseSelectLinkedAccountModal()}
         >
           <PickerContainer>
             <FlatList
@@ -469,10 +477,8 @@ export function RegisterGoalMovement({
                   onPress={() => handleLinkedAccountSelect(item)}
                 />
               )}
-              ItemSeparatorComponent={() => <ListSeparator />}
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma conta vinculada a esta meta.' />
-              )}
+              ItemSeparatorComponent={ListSeparator}
+              ListEmptyComponent={LinkedAccountsEmptyList}
               style={{ flex: 1, width: '100%' }}
             />
           </PickerContainer>

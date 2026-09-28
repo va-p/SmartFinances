@@ -207,7 +207,7 @@ export function SignIn() {
 
             <Text
               style={{ textAlign: 'right', marginTop: -8 }}
-              onPress={handlePressForgotPassword}
+              onPress={() => handlePressForgotPassword()}
             >
               Esqueceu sua senha?
             </Text>
@@ -223,7 +223,7 @@ export function SignIn() {
 
           <ScreenDivider text='Ou' />
 
-          <SocialLoginButton onPress={handleContinueWithGoogle}>
+          <SocialLoginButton onPress={() => handleContinueWithGoogle()}>
             <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
             <Text
               style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}
@@ -236,7 +236,7 @@ export function SignIn() {
             Ainda não tem uma conta?{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressSignUp}
+              onPress={() => handlePressSignUp()}
             >
               Cadastre-se
             </Text>

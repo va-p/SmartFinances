@@ -44,6 +44,10 @@ type Props = {
   closeSelectInstitution: () => void;
 };
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma instituição criada ainda. Crie uma instituição para adicioná-la às contas.' />;
+}
 export function InstitutionSelect({
   institutionSelected,
   setInstitution,
@@ -151,19 +155,17 @@ export function InstitutionSelect({
             onPress={() => handleInstitutionSelect(item)}
           />
         )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma instituição criada ainda. Crie uma instituição para adicioná-la às contas.' />
-        )}
+        ListEmptyComponent={EmptyList}
         refreshControl={
           <RefreshControl
             refreshing={isManualRefreshing}
-            onRefresh={handleRefresh}
+            onRefresh={() => handleRefresh()}
           />
         }
         ListFooterComponent={
           <QuickAddContainer>
             {!isAddingNew ? (
-              <QuickAddButton onPress={handleOpenQuickAdd}>
+              <QuickAddButton onPress={() => handleOpenQuickAdd()}>
                 <PlusIcon size={16} color={theme.colors.primary} />
                 <QuickAddButtonText>Nova instituição</QuickAddButtonText>
               </QuickAddButton>
@@ -178,16 +180,16 @@ export function InstitutionSelect({
                   onChangeText={setNewInstitutionName}
                   returnKeyType='go'
                   editable={!isCreating}
-                  onSubmitEditing={handleConfirmQuickAdd}
+                  onSubmitEditing={() => handleConfirmQuickAdd()}
                 />
                 <QuickAddIconButton
-                  onPress={handleCancelQuickAdd}
+                  onPress={() => handleCancelQuickAdd()}
                   enabled={!isCreating}
                 >
                   <XIcon size={20} color={theme.colors.text} />
                 </QuickAddIconButton>
                 <QuickAddConfirmButton
-                  onPress={handleConfirmQuickAdd}
+                  onPress={() => handleConfirmQuickAdd()}
                   enabled={!isCreating}
                 >
                   <CheckIcon size={20} color={theme.colors.background} />

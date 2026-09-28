@@ -36,13 +36,13 @@ export function Welcome({ navigation }: any) {
         </Title>
 
         <Button.Root
-          onPress={handlePressSignIn}
+          onPress={() => handlePressSignIn()}
           style={{ width: '50%', alignSelf: 'center' }}
         >
           <Button.Text text='Login' />
         </Button.Root>
 
-        <Text onPress={handlePressSignUp}>Criar uma conta</Text>
+        <Text onPress={() => handlePressSignUp()}>Criar uma conta</Text>
       </Container>
     </Screen>
   );

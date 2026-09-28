@@ -102,6 +102,10 @@ function getSectionKey(account: AccountProps): SectionKey {
   return 'WALLET';
 }
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta encontrada nesta instituição' />;
+}
 export function InstitutionDetails() {
   const SCREEN_WIDTH = useWindowDimensions().width;
   const theme = useTheme() as ThemeProps;
@@ -387,7 +391,8 @@ export function InstitutionDetails() {
           <SectionList
             sections={filteredSections}
             keyExtractor={(item) => String(item.id)}
-            renderItem={_renderItem}
+            renderItem={({ item, index }: _renderItemProps) =>
+              _renderItem({ item, index })}
             renderSectionHeader={({ section }) => (
               <SectionTitle>{section.title}</SectionTitle>
             )}
@@ -402,7 +407,8 @@ export function InstitutionDetails() {
                   <FlatList
                     data={creditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
-                    renderItem={_renderItem}
+                    renderItem={({ item, index }: _renderItemProps) =>
+                      _renderItem({ item, index })}
                     snapToOffsets={[
                       ...Array(creditCardAccounts.length),
                     ].map(
@@ -428,9 +434,7 @@ export function InstitutionDetails() {
                 </>
               ) : null
             }
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma conta encontrada nesta instituição' />
-            )}
+            ListEmptyComponent={EmptyList}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               flexGrow: 1,

@@ -730,11 +730,15 @@ export function Accounts() {
                 ? `institution-${item.data.id}`
                 : String(item.data.id)
             }
-            renderItem={_renderAccountsListItem}
+            renderItem={({
+              item,
+              index,
+            }: _renderAccountsListItemProps) =>
+              _renderAccountsListItem({ item, index })}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetchingTransactions || isRefetchingAccounts}
-                onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh()}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -747,7 +751,8 @@ export function Accounts() {
                 <SectionTitle>Contas</SectionTitle>
                 <SortFilterButton
                   selectedOption={sortingOption}
-                  onSelect={handleSelectSorting}
+                  onSelect={(option: typeof sortingOption) =>
+                    handleSelectSorting(option)}
                 />
               </SectionTitleAndFilterContainer>
             }
@@ -759,7 +764,8 @@ export function Accounts() {
                   <FlatList
                     data={filteredCreditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
-                    renderItem={_renderItem}
+                    renderItem={({ item, index }: _renderItemProps) =>
+                      _renderItem({ item, index })}
                     snapToOffsets={[
                       ...Array(creditCardAccounts.length),
                     ].map(
@@ -770,7 +776,7 @@ export function Accounts() {
                         refreshing={
                           isRefetchingTransactions || isRefetchingAccounts
                         }
-                        onRefresh={handleRefresh}
+                        onRefresh={() => handleRefresh()}
                       />
                     }
                     horizontal
@@ -785,7 +791,7 @@ export function Accounts() {
                 </>
               ) : null
             }
-            ListEmptyComponent={_renderEmpty}
+            ListEmptyComponent={() => _renderEmpty()}
           />
 
           {/** SCREEN FOOTER */}
@@ -794,7 +800,7 @@ export function Accounts() {
               <AddAccountButton
                 icon='card'
                 title='Integrações Bancárias'
-                onPress={handleTouchConnectAccount}
+                onPress={() => handleTouchConnectAccount()}
               />
             </ButtonGroup>
 
@@ -802,7 +808,7 @@ export function Accounts() {
               <AddAccountButton
                 icon='wallet'
                 title='Criar Conta Manual'
-                onPress={handleOpenRegisterAccountModal}
+                onPress={() => handleOpenRegisterAccountModal()}
               />
             </ButtonGroup>
           </Footer>
@@ -811,12 +817,12 @@ export function Accounts() {
         <ModalView
           bottomSheetRef={registerAccountBottomSheetRef}
           snapPoints={['75%']}
-          closeModal={handleCloseRegisterAccountModal}
+          closeModal={() => handleCloseRegisterAccountModal()}
           title='Criar Conta Manual'
         >
           <RegisterAccount
             id=''
-            closeAccount={handleCloseRegisterAccountModal}
+            closeAccount={() => handleCloseRegisterAccountModal()}
           />
         </ModalView>
       </Container>

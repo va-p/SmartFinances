@@ -70,6 +70,16 @@ interface CategoryData extends CategoryProps {
   percent: string;
 }
 
+function ExternalLabel({ item }: { item?: { text?: string } }) {
+  const theme = useTheme() as ThemeProps;
+
+  return <SvgText fill={theme.colors.text}>{item?.text}</SvgText>;
+}
+
+function renderExternalLabel(item: { text?: string }) {
+  return <ExternalLabel item={item} />;
+}
+
 export function Overview() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
@@ -132,7 +142,7 @@ export function Overview() {
       (account: AccountProps) => !account.hide
     );
 
-    for (const account of filteredAccounts) {
+    filteredAccounts.forEach((account) => {
       const convertedBalance = convertCurrency({
         amount: Number(account.balance),
         fromCurrency: account.currency.code,
@@ -155,7 +165,7 @@ export function Overview() {
       });
 
       totalAssets += convertedBalance;
-    }
+    });
 
     // --- calculateTransactionsByCategories ---
     const transactionsBySelectedPeriod = transactions.filter((t) => {
@@ -178,7 +188,7 @@ export function Overview() {
           );
         });
 
-      for (const category of categories) {
+      categories.forEach((category) => {
         let categorySum = new Decimal(0);
         transactionsBySelectedPeriod
           .filter((t) => t.category.id === category.id && t.type === type)
@@ -213,7 +223,7 @@ export function Overview() {
             percent,
           });
         }
-      }
+      });
       return totalsByCategory;
     };
 
@@ -341,7 +351,7 @@ export function Overview() {
                 isRefetchingAccounts ||
                 isRefetchingCategories
               }
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
               tintColor={theme.colors.primary}
             />
           }
@@ -350,7 +360,7 @@ export function Overview() {
             <FilterButtonGroup>
               <FilterButton
                 title={`Por ${selectedPeriod.name}`}
-                onPress={handleOpenPeriodSelectedModal}
+                onPress={() => handleOpenPeriodSelectedModal()}
               />
             </FilterButtonGroup>
           </FiltersContainer>
@@ -485,9 +495,7 @@ export function Overview() {
                     innerCircleColor={theme.colors.backgroundNav}
                     focusOnPress
                     showExternalLabels
-                    externalLabelComponent={(item) => (
-                      <SvgText fill={theme.colors.text}>{item?.text}</SvgText>
-                    )}
+                    externalLabelComponent={renderExternalLabel}
                     labelLineConfig={{
                       color: theme.colors.textPlaceholder,
                       thickness: 2,
@@ -523,9 +531,7 @@ export function Overview() {
                     innerCircleColor={theme.colors.backgroundNav}
                     focusOnPress
                     showExternalLabels
-                    externalLabelComponent={(item) => (
-                      <SvgText fill={theme.colors.text}>{item?.text}</SvgText>
-                    )}
+                    externalLabelComponent={renderExternalLabel}
                     labelLineConfig={{
                       color: theme.colors.textPlaceholder,
                       thickness: 2,
@@ -555,7 +561,7 @@ export function Overview() {
           >
             <ChartPeriodSelect
               period={selectedPeriod}
-              closeSelectPeriod={handleClosePeriodSelectedModal}
+              closeSelectPeriod={() => handleClosePeriodSelectedModal()}
             />
           </ModalViewSelection>
         </ScrollContent>

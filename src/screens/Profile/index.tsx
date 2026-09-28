@@ -133,7 +133,7 @@ export function Profile() {
           <Header.Title title="Perfil" />
         </Header.Root>
 
-        <ImageContainer onPress={handleClickSelectImage}>
+        <ImageContainer onPress={() => handleClickSelectImage()}>
           {image === '' ? (
             <DefaultAvatar />
           ) : (

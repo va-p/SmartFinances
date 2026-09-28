@@ -19,6 +19,10 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterTag } from '@screens/RegisterTag';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui.' />;
+}
 export function Tags() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
@@ -125,19 +129,17 @@ export function Tags() {
               onPress={() => handleOpenTag(item.id)}
             />
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma etiqueta criada. Crie etiquetas para visualizá-las aqui.' />
-          )}
+          ListEmptyComponent={EmptyList}
           initialNumToRender={50}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           ListFooterComponent={
             <Button.Root
-              onPress={handleOpenRegisterTagModal}
+              onPress={() => handleOpenRegisterTagModal()}
               style={{ marginTop: 16 }}
             >
               <Button.Text text='Criar Nova Etiqueta' />
@@ -157,10 +159,10 @@ export function Tags() {
           title={tagID !== '' ? 'Editar Etiqueta' : 'Criar Nova Etiqueta'}
           bottomSheetRef={bottomSheetRef}
           snapPoints={['60%', '90%']}
-          closeModal={handleCloseRegisterTagModal}
-          deleteChildren={handleClickDeleteTag}
+          closeModal={() => handleCloseRegisterTagModal()}
+          deleteChildren={() => handleClickDeleteTag()}
         >
-          <RegisterTag id={tagID} closeTag={handleCloseEditTag} />
+          <RegisterTag id={tagID} closeTag={() => handleCloseEditTag()} />
         </ModalView>
       </Container>
     </Screen>

@@ -29,8 +29,10 @@ describe('CC-03: required credit card fields while type is CREDIT', () => {
   });
 
   it('accepts a CREDIT form without the optional available limit', () => {
-    const { credit_card_available_credit_limit, ...withoutAvailable } =
-      validCreditAccount;
+    const {
+      credit_card_available_credit_limit: creditCardAvailableCreditLimit,
+      ...withoutAvailable
+    } = validCreditAccount;
     expect(schema.validateSync(withoutAvailable)).toBeTruthy();
   });
 

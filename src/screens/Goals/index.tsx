@@ -53,6 +53,14 @@ import { useGoalAccountsSelected } from '@stores/goalAccountsSelected';
 import { ThemeProps } from '@interfaces/theme';
 import { GoalProps } from '@interfaces/goals';
 
+function GoalsEmptyList() {
+  return (
+    <EmptyContainer>
+      <ListEmptyComponent text='Nenhuma meta ativa. Crie sua primeira meta para começar a guardar.' />
+    </EmptyContainer>
+  );
+}
+
 export function Goals() {
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -72,9 +80,9 @@ export function Goals() {
 
   const progressByGoal = useMemo(() => {
     const map = new Map<string, ReturnType<typeof computeGoalProgress>>();
-    for (const goal of activeGoals) {
+    activeGoals.forEach((goal) => {
       map.set(goal.id, computeGoalProgress(goal, quotes));
-    }
+    });
     return map;
   }, [activeGoals, quotes]);
 
@@ -167,10 +175,10 @@ export function Goals() {
           <Header.BackButton />
           <Header.Title title='Metas & Objetivos' />
           <HeaderActions>
-            <HeaderActionButton onPress={handleOpenCompletedGoals}>
+            <HeaderActionButton onPress={() => handleOpenCompletedGoals()}>
               <TrophyIcon size={20} color={theme.colors.primary} />
             </HeaderActionButton>
-            <HeaderActionButton onPress={handleOpenArchivedGoals}>
+            <HeaderActionButton onPress={() => handleOpenArchivedGoals()}>
               <ArchiveIcon size={20} color={theme.colors.primary} />
             </HeaderActionButton>
           </HeaderActions>
@@ -207,15 +215,11 @@ export function Goals() {
               onPress={() => handleOpenGoal(item)}
             />
           )}
-          ListEmptyComponent={() => (
-            <EmptyContainer>
-              <ListEmptyComponent text='Nenhuma meta ativa. Crie sua primeira meta para começar a guardar.' />
-            </EmptyContainer>
-          )}
+          ListEmptyComponent={GoalsEmptyList}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           showsVerticalScrollIndicator={false}
@@ -232,7 +236,7 @@ export function Goals() {
                 : bottomTabBarHeight - 16,
           }}
         >
-          <Button.Root onPress={handleOpenRegisterGoalModal}>
+          <Button.Root onPress={() => handleOpenRegisterGoalModal()}>
             <Button.Text text='Criar nova meta' />
           </Button.Root>
         </Footer>
@@ -244,10 +248,10 @@ export function Goals() {
           enableContentPanningGesture={false}
           enablePanDownToClose
           snapPoints={['75%']}
-          closeModal={handleCloseRegisterGoalModal}
-          onClose={handleCloseRegisterGoalModal}
+          closeModal={() => handleCloseRegisterGoalModal()}
+          onClose={() => handleCloseRegisterGoalModal()}
         >
-          <RegisterGoal id="" closeGoal={handleCloseRegisterGoalModal} />
+          <RegisterGoal id="" closeGoal={() => handleCloseRegisterGoalModal()} />
         </ModalView>
       </Container>
     </Screen>

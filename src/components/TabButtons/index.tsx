@@ -77,7 +77,7 @@ export function TabButtons({ buttons, selectedTab, setSelectedTab }: Props) {
 
           return (
             <Button
-              key={index}
+              key={button.description}
               isActive={isActive}
               onPress={() => onTabPress(index)}
             >

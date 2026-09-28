@@ -312,7 +312,7 @@ export function RegisterGoal({ id, closeGoal }: Props) {
               : 'Selecione as contas (opcional)'
           }
           icon={<WalletIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectAccountModal}
+          onPress={() => handleOpenSelectAccountModal()}
         />
 
         <SelectButton

@@ -85,13 +85,13 @@ export function buildGoalProjection({
   // ── 1. Signed net flow per movement month ───────────────────────────────
   const flowsByMonth = new Map<string, Decimal>();
 
-  for (const transaction of goal.transactions ?? []) {
+  (goal.transactions ?? []).forEach((transaction) => {
     const movementDate = new Date(
       transaction.transaction_date ?? transaction.created_at
     );
 
-    if (Number.isNaN(movementDate.getTime())) continue;
-    if (movementDate > now) continue;
+    if (Number.isNaN(movementDate.getTime())) return;
+    if (movementDate > now) return;
 
     const isDebit =
       transaction.type === 'DEBIT' ||
@@ -105,7 +105,7 @@ export function buildGoalProjection({
       key,
       (flowsByMonth.get(key) ?? new Decimal(0)).plus(signedAmount)
     );
-  }
+  });
 
   // ── 2. Guard: the chart needs ≥ 2 distinct movement months (AC-4) ──────
   if (flowsByMonth.size < 2) {
