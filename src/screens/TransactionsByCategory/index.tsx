@@ -5,12 +5,12 @@ import { Container, FiltersContainer } from './styles';
 // Hooks
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useDateNavigation } from '@hooks/useDateNavigation';
+import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Utils
 import {
   FlashListTransactionItem,
-  flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
 import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
@@ -22,6 +22,7 @@ import { useRoute } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useForm } from 'react-hook-form';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -35,6 +36,7 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
+import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -50,6 +52,7 @@ export function TransactionsByCategory({ navigation }: any) {
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const [transactionId, setTransactionId] = useState('');
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -57,6 +60,10 @@ export function TransactionsByCategory({ navigation }: any) {
   const categoryID = route.params?.categoryId;
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
+
+  // Search form (Home-screen pattern: query via react-hook-form)
+  const { control, watch, reset } = useForm();
+  const searchQuery = watch('search', '');
 
   const {
     data: allTransactions,
@@ -79,15 +86,21 @@ export function TransactionsByCategory({ navigation }: any) {
     );
   }, [allTransactions, categoryID]);
 
-  const flattenedTransactions = useMemo(() => {
-    const { groupedTransactions } = processTransactions(
-      formatTransactions(transactionsForThisCategory),
-      selectedPeriod.period,
-      selectedDate
-    );
+  const groupedTransactions = useMemo(
+    () =>
+      processTransactions(
+        formatTransactions(transactionsForThisCategory),
+        selectedPeriod.period,
+        selectedDate
+      ).groupedTransactions,
+    [transactionsForThisCategory, selectedPeriod, selectedDate]
+  );
 
-    return flattenTransactionsForFlashList(groupedTransactions);
-  }, [transactionsForThisCategory, selectedPeriod, selectedDate]);
+  // Transaction filtering with search
+  const { filteredTransactions } = useTransactionFiltering({
+    searchQuery,
+    transactionsGrouped: groupedTransactions,
+  });
 
   const periodRulerDates = useMemo(() => {
     const years = new Set<number>();
@@ -154,6 +167,9 @@ export function TransactionsByCategory({ navigation }: any) {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title={'Transações por categoria'} />
+          <Header.SearchButton
+            onPress={() => setShowSearchInput((prevState) => !prevState)}
+          />
         </Header.Root>
 
         <FiltersContainer>
@@ -171,8 +187,16 @@ export function TransactionsByCategory({ navigation }: any) {
           horizontalPadding={0}
         />
 
+        {showSearchInput && (
+          <SearchBar
+            control={control}
+            onClear={() => reset()}
+            style={{ marginHorizontal: 0 }}
+          />
+        )}
+
         <AnimatedFlashList
-          data={flattenedTransactions}
+          data={filteredTransactions}
           keyExtractor={(item: any) => {
             return item.isHeader ? String(item.headerTitle!) : String(item.id);
           }}

@@ -174,7 +174,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T6 — TransactionsByCategory screen search
+### T6 — TransactionsByCategory screen search ✅ DONE (tsc at baseline: index 1 / styles 1, eslint 0)
 
 **What**: Wire search into TransactionsByCategory: `Header.SearchButton` (3rd header child) + `SearchBar` (marginHorizontal 0) + `useTransactionFiltering`.
 **Where**: `src/screens/TransactionsByCategory/index.tsx` (modify)
@@ -184,10 +184,10 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] `Header.Root` renders [BackButton, Title, SearchButton] → `space-between` (search top right)
-- [ ] Memo split: grouped transactions → `useTransactionFiltering` → FlashList `data={filteredTransactions}`; `flattenTransactionsForFlashList` import dropped (type import kept)
-- [ ] `SearchBar` sits between PeriodRuler and FlashList with `style={{ marginHorizontal: 0 }}`
-- [ ] Build gate passes (tsc: `TransactionsByCategory/index.tsx` ≤ 1 error)
+- [x] `Header.Root` renders [BackButton, Title, SearchButton] → `space-between` (search top right)
+- [x] Memo split: grouped transactions → `useTransactionFiltering` → FlashList `data={filteredTransactions}`; `flattenTransactionsForFlashList` import dropped (type import kept)
+- [x] `SearchBar` sits between PeriodRuler and FlashList with `style={{ marginHorizontal: 0 }}`
+- [x] Build gate passes (tsc: `TransactionsByCategory/index.tsx` ≤ 1 error)
 
 **Tests**: none (screen — render-test blocker; covered by build gate + manual QA)
 **Gate**: build
