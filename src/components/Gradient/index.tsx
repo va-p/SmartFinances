@@ -9,7 +9,7 @@ type Props = {
   roundCorners?: boolean;
 };
 
-export function Gradient({roundCorners}: Props) {
+export function Gradient({ roundCorners = false }: Props) {
   const theme = useTheme() as ThemeProps;
 
   return (

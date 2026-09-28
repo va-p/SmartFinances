@@ -42,7 +42,7 @@ export function GoalListItem({
   progress,
   hideAmount,
   index,
-  footerText,
+  footerText = undefined,
   ...rest
 }: Props) {
   const theme = useTheme() as ThemeProps;

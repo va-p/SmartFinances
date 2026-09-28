@@ -134,11 +134,18 @@ export function RegisterGoalMovement({
 
   // GOAL-14: withdrawals are bounded by the chosen source — the reserve
   // balance, or the chosen linked account's balance on reserve-less goals.
-  const withdrawSourceBalance = hasReserve
-    ? Number(goal.reserve_account?.balance ?? 0)
-    : linkedAccountSelected
-      ? Number(linkedAccountSelected.balance)
-      : null;
+  function getWithdrawSourceBalance() {
+    if (hasReserve) {
+      return Number(goal.reserve_account?.balance ?? 0);
+    }
+
+    if (linkedAccountSelected) {
+      return Number(linkedAccountSelected.balance);
+    }
+
+    return null;
+  }
+  const withdrawSourceBalance = getWithdrawSourceBalance();
 
   /* Validation Form - Start */
   const schema = useMemo(() => {

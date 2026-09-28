@@ -19,7 +19,7 @@ type Props = {
   onPress?: () => void;
 };
 
-export function AccountConnectedListItem({ data, onPress }: Props) {
+export function AccountConnectedListItem({ data, onPress = undefined }: Props) {
   const formattedLastSyncDate = format(
     parseISO(data.lastSyncDate),
     'dd/MM/yyyy',

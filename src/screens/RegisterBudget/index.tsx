@@ -83,6 +83,15 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterBudget({ id, closeBudget }: Props) {
+  function getCategoriesSubtitle() {
+    if (!budgetCategoriesSelected[0]) {
+      return 'Selecione as categorias';
+    }
+
+    return `${budgetCategoriesSelected.length} categor${
+      budgetCategoriesSelected.length > 1 ? 'ias' : 'a'
+    }`;
+  }
   const theme = useTheme() as ThemeProps;
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
@@ -185,6 +194,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             name: 'Anualmente',
             period: 'ANNUALLY',
           };
+          break;
+        default:
           break;
       }
       setBudgetPeriodSelected(totalByDate);
@@ -373,13 +384,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
         <SelectButton
           title='Orçamento para'
-          subTitle={
-            budgetCategoriesSelected[0]
-              ? budgetCategoriesSelected.length > 1
-                ? `${budgetCategoriesSelected.length} categorias`
-                : `${budgetCategoriesSelected.length} categoria`
-              : 'Selecione as categorias'
-          }
+          subTitle={getCategoriesSubtitle()}
           icon={<CirclesFourIcon color={theme.colors.primary} />}
           onPress={() => handleOpenSelectCategoryModal()}
         />

@@ -40,14 +40,14 @@ export const useBulkTransactionSelection = create<BulkTransactionSelection>(
       );
 
       if (isSelected) {
-        set((state) => ({
-          selectedTransactions: state.selectedTransactions.filter(
+        set((prevState) => ({
+          selectedTransactions: prevState.selectedTransactions.filter(
             (t) => t.id !== transaction.id
           ),
         }));
       } else {
-        set((state) => ({
-          selectedTransactions: [...state.selectedTransactions, transaction],
+        set((prevState) => ({
+          selectedTransactions: [...prevState.selectedTransactions, transaction],
         }));
       }
     },

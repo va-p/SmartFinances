@@ -20,7 +20,7 @@ type Props = RectButtonProps & {
   icon: any;
 };
 
-export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
+export function SelectButton({ title, subTitle = undefined, icon, ...rest }: Props) {
   const theme = useTheme() as ThemeProps;
 
   return (

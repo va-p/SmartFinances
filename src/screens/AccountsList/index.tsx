@@ -206,8 +206,7 @@ export function AccountsList() {
         case 'CREDIT':
           return <CreditCardIcon color={theme.colors.primary} />;
         default:
-          'WALLET';
-          break;
+          return undefined;
       }
     };
 

@@ -85,6 +85,15 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterGoal({ id, closeGoal }: Props) {
+  function getAccountsSubtitle() {
+    if (!goalAccountsSelected[0]) {
+      return 'Selecione as contas (opcional)';
+    }
+
+    return `${goalAccountsSelected.length} cont${
+      goalAccountsSelected.length > 1 ? 'as' : 'a'
+    }`;
+  }
   const theme = useTheme() as ThemeProps;
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const goalAccountsSelected = useGoalAccountsSelected(
@@ -304,13 +313,7 @@ export function RegisterGoal({ id, closeGoal }: Props) {
 
         <SelectButton
           title='Contas vinculadas'
-          subTitle={
-            goalAccountsSelected[0]
-              ? goalAccountsSelected.length > 1
-                ? `${goalAccountsSelected.length} contas`
-                : `${goalAccountsSelected.length} conta`
-              : 'Selecione as contas (opcional)'
-          }
+          subTitle={getAccountsSubtitle()}
           icon={<WalletIcon color={theme.colors.primary} />}
           onPress={() => handleOpenSelectAccountModal()}
         />

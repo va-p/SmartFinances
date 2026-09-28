@@ -13,7 +13,7 @@ type Props = TextInputProps & {
 export function ControlledInputCategoryName({
   name,
   control,
-  error,
+  error = undefined,
   ...rest
 }: Props) {
   return (

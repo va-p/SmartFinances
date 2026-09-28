@@ -28,7 +28,7 @@ function GradientComponent({ roundCorners }: { roundCorners: boolean }) {
 
 export function ModalViewSelection({
   title,
-  bottomSheetRef,
+  bottomSheetRef = undefined,
   children,
   ...rest
 }: Props) {

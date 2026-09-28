@@ -401,6 +401,21 @@ export function Account() {
     return <SkeletonAccountsScreen />;
   }
 
+  function getDisplayedCashFlow() {
+    if (!hideAmount) {
+      if (isCreditCard) {
+        return formatCurrency(
+          accountCurrencyCode,
+          accountCreditData?.availableCreditLimit!
+        );
+      }
+
+      return processedData.cashFlowBySelectedPeriod;
+    }
+
+    return '•••••';
+  }
+
   return (
     <Screen>
       <Container>
@@ -452,16 +467,7 @@ export function Account() {
                     : hasCreditCardAvailableLimit
                 }
               >
-                {!isCreditCard
-                  ? !hideAmount
-                    ? processedData.cashFlowBySelectedPeriod
-                    : '•••••'
-                  : !hideAmount
-                    ? formatCurrency(
-                      accountCurrencyCode,
-                      accountCreditData?.availableCreditLimit!
-                    )
-                    : '•••••'}
+                {getDisplayedCashFlow()}
               </AccountCashFlow>
               <AccountCashFlowDescription>
                 {!isCreditCard && 'Fluxo de caixa'}

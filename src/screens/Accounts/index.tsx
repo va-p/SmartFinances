@@ -305,23 +305,47 @@ export function Accounts() {
     const byNameDesc = (a: { name: string }, b: { name: string }) =>
       b.name.localeCompare(a.name);
 
-    const institutionCmp =
-      sortingOption === 'name-asc'
-        ? byNameAsc
-        : sortingOption === 'name-desc'
-          ? byNameDesc
-          : sortingOption === 'balance-asc'
-            ? (a: InstitutionCardData, b: InstitutionCardData) => a.totalRaw - b.totalRaw
-            : (a: InstitutionCardData, b: InstitutionCardData) => b.totalRaw - a.totalRaw;
+    const pickInstitutionCmp = () => {
+      if (sortingOption === 'name-asc') {
+        return byNameAsc;
+      }
 
-    const accountCmp =
-      sortingOption === 'name-asc'
-        ? byNameAsc
-        : sortingOption === 'name-desc'
-          ? byNameDesc
-          : sortingOption === 'balance-asc'
-            ? (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => a.accountBalanceConvertedToBRL - b.accountBalanceConvertedToBRL
-            : (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => b.accountBalanceConvertedToBRL - a.accountBalanceConvertedToBRL;
+      if (sortingOption === 'name-desc') {
+        return byNameDesc;
+      }
+
+      if (sortingOption === 'balance-asc') {
+        return (a: InstitutionCardData, b: InstitutionCardData) =>
+          a.totalRaw - b.totalRaw;
+      }
+
+      return (a: InstitutionCardData, b: InstitutionCardData) =>
+        b.totalRaw - a.totalRaw;
+    };
+    const institutionCmp = pickInstitutionCmp();
+
+    const pickAccountCmp = () => {
+      if (sortingOption === 'name-asc') {
+        return byNameAsc;
+      }
+
+      if (sortingOption === 'name-desc') {
+        return byNameDesc;
+      }
+
+      if (sortingOption === 'balance-asc') {
+        return (
+          a: typeof processedAccounts[number],
+          b: typeof processedAccounts[number]
+        ) => a.accountBalanceConvertedToBRL - b.accountBalanceConvertedToBRL;
+      }
+
+      return (
+        a: typeof processedAccounts[number],
+        b: typeof processedAccounts[number]
+      ) => b.accountBalanceConvertedToBRL - a.accountBalanceConvertedToBRL;
+    };
+    const accountCmp = pickAccountCmp();
 
     const sortedInstitutionCards = [...institutionCards].sort(institutionCmp);
     const sortedStandaloneAccounts = [...standaloneAccounts].sort(accountCmp);
@@ -614,6 +638,18 @@ export function Accounts() {
     );
   }
 
+  function getDisplayedTotalBalance() {
+    if (isRefetchingTransactions || isRefetchingAccounts) {
+      return renderSkeletonTotal();
+    }
+
+    if (hideAmount) {
+      return '•••••';
+    }
+
+    return totalBalanceFormatted;
+  }
+
   return (
     <Screen>
       <Container>
@@ -621,13 +657,7 @@ export function Accounts() {
         <HeaderContainer>
           <Header>
             <CashFlowContainer>
-              <CashFlowTotal>
-                {isRefetchingTransactions || isRefetchingAccounts
-                  ? renderSkeletonTotal()
-                  : hideAmount
-                    ? '•••••'
-                    : totalBalanceFormatted}
-              </CashFlowTotal>
+              <CashFlowTotal>{getDisplayedTotalBalance()}</CashFlowTotal>
               <CashFlowDescription>Patrimônio Total</CashFlowDescription>
             </CashFlowContainer>
 

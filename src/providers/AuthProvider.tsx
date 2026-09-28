@@ -311,6 +311,8 @@ export function AuthProvider({ children }: any) {
     } finally {
       setLoading(false);
     }
+
+    return undefined;
   }
 
   async function signOut() {

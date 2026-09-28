@@ -137,15 +137,17 @@ export function formatBudgetInfo(
 
     amountSpent += getTransactionSpentAmount(transaction);
 
-    transaction.amount_in_account_currency
-      ? (transaction.amount_in_account_currency_formatted = formatCurrency(
+    if (transaction.amount_in_account_currency) {
+      transaction.amount_in_account_currency_formatted = formatCurrency(
         transaction.account.currency.code,
         transaction.amount_in_account_currency
-      ))
-      : (transaction.amount_formatted = formatCurrency(
+      );
+    } else {
+      transaction.amount_formatted = formatCurrency(
         transaction.account.currency.code,
         transaction.amount
-      ));
+      );
+    }
   });
 
   const percentage = (amountSpent / Number(budget.amount)) * 100;

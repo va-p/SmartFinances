@@ -7,7 +7,7 @@ type Props = TextProps & {
   description?: string | null;
 };
 
-export function HeaderTitle({ title, description }: Props) {
+export function HeaderTitle({ title, description = undefined }: Props) {
   return (
     <TitleContainer>
       <Title>{title}</Title>

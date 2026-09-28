@@ -23,7 +23,7 @@ function ModalBackdrop() {
 
 export function ModalViewWithoutHeader({
   children,
-  bottomSheetRef,
+  bottomSheetRef = undefined,
   ...rest
 }: Props) {
   const theme = useTheme() as ThemeProps;

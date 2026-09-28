@@ -206,13 +206,22 @@ export function RegisterTransaction({
     isTomorrow: 'Amanhã',
   };
 
-  const dateLabelKey = isToday(date)
-    ? 'isToday'
-    : isYesterday(date)
-      ? 'isYesterday'
-      : isTomorrow(date)
-        ? 'isTomorrow'
-        : null;
+  function getDateLabelKey(): 'isToday' | 'isYesterday' | 'isTomorrow' | null {
+    if (isToday(date)) {
+      return 'isToday';
+    }
+
+    if (isYesterday(date)) {
+      return 'isYesterday';
+    }
+
+    if (isTomorrow(date)) {
+      return 'isTomorrow';
+    }
+
+    return null;
+  }
+  const dateLabelKey = getDateLabelKey();
 
   const formattedDate = dateLabelKey
     ? shortDatesMap[dateLabelKey]
@@ -1017,11 +1026,13 @@ export function RegisterTransaction({
     else {
       handleRegisterTransaction(form);
     }
+
+    return undefined;
   }
 
-  async function handleDeleteTransaction(id: string) {
+  async function handleDeleteTransaction(transactionId: string) {
     try {
-      deleteTransaction(id, {
+      deleteTransaction(transactionId, {
         onSuccess: () => {
           resetId();
           closeRegisterTransaction();
@@ -1032,7 +1043,7 @@ export function RegisterTransaction({
     }
   }
 
-  async function handleClickDeleteTransaction(id: string) {
+  async function handleClickDeleteTransaction(transactionId: string) {
     Alert.alert(
       'Exclusão de transação',
       'Tem certeza que deseja excluir a transação?',
@@ -1040,7 +1051,7 @@ export function RegisterTransaction({
         { text: 'Não, cancelar a exclusão' },
         {
           text: 'Sim, excluir a transação',
-          onPress: () => handleDeleteTransaction(id),
+          onPress: () => handleDeleteTransaction(transactionId),
         },
       ]
     );
@@ -1207,6 +1218,30 @@ export function RegisterTransaction({
     return false;
   }
 
+  function getFormTitle() {
+    if (isBulkEdit) {
+      return `Editar ${selectedTransactionIds.length} Transações`;
+    }
+
+    if (id !== '') {
+      return `Editar Transação \n ${getValues('description')}`;
+    }
+
+    return 'Adicionar Transação';
+  }
+
+  function getSubmitButtonText() {
+    if (isBulkEdit) {
+      return `Editar ${selectedTransactionIds.length} Transações`;
+    }
+
+    if (id !== '') {
+      return 'Editar Transação';
+    }
+
+    return 'Adicionar Transação';
+  }
+
   return (
     <Screen edges={Platform.OS === 'ios' ? ['left', 'right'] : undefined}>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -1226,11 +1261,7 @@ export function RegisterTransaction({
                   <XIcon size={24} color={theme.colors.text} weight='bold' />
                 </BorderlessButton>
                 <Title>
-                  {isBulkEdit
-                    ? `Editar ${selectedTransactionIds.length} Transações`
-                    : id !== ''
-                      ? `Editar Transação \n ${getValues('description')}`
-                      : 'Adicionar Transação'}
+                  {getFormTitle()}
                 </Title>
                 {id !== '' && !isBulkEdit && (
                   <BorderlessButton
@@ -1479,13 +1510,7 @@ export function RegisterTransaction({
             onPress={() => handleSubmit(onSubmit)()}
           >
             <Button.Text
-              text={
-                isBulkEdit
-                  ? `Editar ${selectedTransactionIds.length} Transações`
-                  : id !== ''
-                    ? 'Editar Transação'
-                    : 'Adicionar Transação'
-              }
+              text={getSubmitButtonText()}
             />
           </Button.Root>
         </Footer>

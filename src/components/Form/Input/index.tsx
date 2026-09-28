@@ -11,7 +11,7 @@ export type InputProps = TextInputProps & {
   label?: string;
 };
 
-export function Input({ icon: Icon, label, ...rest }: InputProps) {
+export function Input({ icon: Icon = undefined, label = undefined, ...rest }: InputProps) {
   const theme = useTheme() as ThemeProps;
 
   return (

@@ -12,7 +12,7 @@ type Props = RectButtonProps & {
   title: string;
 }
 
-export function AddAccountButton({ icon, title, ...rest }: Props) {
+export function AddAccountButton({ icon = undefined, title, ...rest }: Props) {
   return (
     <Container {...rest}>
       <Icon name={icon}/>

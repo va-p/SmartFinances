@@ -30,7 +30,7 @@ type SearchBarProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export function SearchBar({ control, onClear, style }: SearchBarProps) {
+export function SearchBar({ control, onClear, style = undefined }: SearchBarProps) {
   const theme = useTheme() as ThemeProps;
 
   return (

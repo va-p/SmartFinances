@@ -208,6 +208,8 @@ export function RegisterCategory({ id, closeCategory }: Props) {
         },
       });
     }
+
+    return undefined;
   }
 
   if (isLoadingIcons || isLoadingColors) {

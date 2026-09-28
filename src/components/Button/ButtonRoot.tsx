@@ -14,7 +14,7 @@ type ButtonRootProps = RectButtonProps & {
 export function ButtonRoot({
   children,
   type = 'primary',
-  isLoading,
+  isLoading = false,
   ...rest
 }: ButtonRootProps) {
   return (

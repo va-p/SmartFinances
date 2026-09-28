@@ -27,7 +27,7 @@ export function ButtonToggle({
   value,
   isEnabled,
   title,
-  subTitle,
+  subTitle = undefined,
   icon,
 }: Props) {
   const theme = useTheme() as ThemeProps;

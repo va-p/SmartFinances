@@ -115,13 +115,11 @@ export function Subscriptions() {
     }, [refetch])
   );
 
-  function _renderItem({
-    item,
-    index,
-  }: {
+  type RenderItemProps = {
     item: SubscriptionProps;
     index: number;
-  }) {
+  };
+  function _renderItem({ item, index }: RenderItemProps) {
     return (
       <SubscriptionListItem
         data={item}

@@ -41,11 +41,11 @@ export function ModalView({
   type = 'primary',
   title,
   color = darkTheme.colors.background,
-  selectedIdentification,
+  selectedIdentification = undefined,
   children,
-  bottomSheetRef,
+  bottomSheetRef = undefined,
   closeModal,
-  deleteChildren,
+  deleteChildren = undefined,
   ...rest
 }: Props) {
   const theme = useTheme() as ThemeProps;

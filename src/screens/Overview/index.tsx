@@ -70,7 +70,7 @@ interface CategoryData extends CategoryProps {
   percent: string;
 }
 
-function ExternalLabel({ item }: { item?: { text?: string } }) {
+function ExternalLabel({ item = undefined }: { item?: { text?: string } }) {
   const theme = useTheme() as ThemeProps;
 
   return <SvgText fill={theme.colors.text}>{item?.text}</SvgText>;

@@ -39,8 +39,8 @@ export function AccountSelect({
     refetchAccounts();
   }
 
-  function handleAccountSelect(account: AccountProps) {
-    setAccount(account);
+  function handleAccountSelect(selectedAccount: AccountProps) {
+    setAccount(selectedAccount);
     closeSelectAccount();
   }
 
@@ -57,7 +57,7 @@ export function AccountSelect({
 
   // Virtual goal reserves are never offered as selectable accounts (GOAL-26).
   const selectableAccounts = (accounts ?? []).filter(
-    (account) => !account.isVirtual
+    (item) => !item.isVirtual
   );
 
   return (

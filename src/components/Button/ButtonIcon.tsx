@@ -6,6 +6,6 @@ type ButtonIconProps = {
   color?: string;
 };
 
-export function ButtonIcon({ icon: Icon, size, color }: ButtonIconProps) {
+export function ButtonIcon({ icon: Icon, size = undefined, color = undefined }: ButtonIconProps) {
   return <Icon size={size} color={color} />;
 }

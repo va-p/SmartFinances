@@ -14,7 +14,7 @@ type Props = TextInputProps & {
   error?: FieldError;
 };
 
-export function ControlledInputValue({ name, control, error, keyboardType, ...rest }: Props) {
+export function ControlledInputValue({ name, control, error = undefined, keyboardType, ...rest }: Props) {
   const theme = useTheme() as ThemeProps;
 
   return (

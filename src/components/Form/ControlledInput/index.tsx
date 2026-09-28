@@ -14,10 +14,10 @@ type Props = InputProps & {
 
 export function ControlledInput({
   label,
-  icon: Icon,
+  icon: Icon = undefined,
   name,
   control,
-  error,
+  error = undefined,
   ...rest
 }: Props) {
   return (

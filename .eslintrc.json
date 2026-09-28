@@ -17,8 +17,6 @@
   },
   "plugins": ["react", "react-native", "@typescript-eslint"],
   "settings": {
-    // teach eslint-plugin-import the path aliases used by the project
-    // (defined in tsconfig.json and babel.config.js - babel-plugin-module-resolver)
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"]
     },
@@ -26,9 +24,6 @@
       "typescript": {
         "alwaysTryTypes": true,
         "project": "./tsconfig.json",
-        // resolve to the runtime files instead of the ".d.ts" declarations:
-        // date-fns and date-fns/locale both resolve to the same "typings.d.ts"
-        // otherwise, which trips "import/no-duplicates" with false positives
         "mainFields": [
           "module",
           "jsnext:main",
@@ -38,26 +33,51 @@
     }
   },
   "rules": {
-    // allow .js files to contain JSX code
     "react/jsx-filename-extension": [
       1,
       { "extensions": [".js", ".ts", ".jsx", ".tsx"] }
     ],
-    // prevent eslint to complain about the "styles" variable being used before it was defined
     "no-use-before-define": ["error", { "variables": false }],
-    // ignore errors for the react-navigation package
     "react/prop-types": [
       "error",
       { "ignore": ["navigation", "navigation.navigate"] }
     ],
-    // ignore errors for types "any"
     "@typescript-eslint/no-explicit-any": "off",
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "semi": ["error", "always"],
-    // project convention: prefer named exports over default exports
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": [
+          "acc",
+          "accumulator",
+          "e",
+          "ctx",
+          "context",
+          "req",
+          "request",
+          "res",
+          "response",
+          "$scope",
+          "staticContext",
+          "config",
+          "videoPlayer",
+          "transaction"
+        ]
+      }
+    ],
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": "error",
+    "react/require-default-props": [
+      "error",
+      {
+        "functions": "defaultArguments",
+        "forbidDefaultForRequired": true
+      }
+    ],
+    "react/jsx-props-no-spreading": "off",
     "import/prefer-default-export": "off",
-    // project convention: imports are written without file extensions
-    // (the extensions are resolved via the tsconfig/babel aliases)
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -68,8 +88,6 @@
         "tsx": "never"
       }
     ],
-    // project convention: React, React Native and "./styles" (styled-components)
-    // imports stay at the top of the file, before all other imports
     "import/order": [
       "error",
       {
@@ -98,9 +116,6 @@
         "pathGroupsExcludedImportTypes": ["builtin"]
       }
     ],
-    // react-native patterns: asset requires with constant paths ("require(LOGO_URL)",
-    // const-folded by metro) and jest's "jest.isolateModules(() => require(...))"
-    // are valid, but these airbnb rules cannot statically evaluate them
     "global-require": "off",
     "import/no-dynamic-require": "off"
   }

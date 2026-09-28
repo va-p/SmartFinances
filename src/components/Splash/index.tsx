@@ -11,10 +11,10 @@ type Props = {
 };
 
 export function Splash({ onComplete }: Props) {
-  const player = useVideoPlayer(videoSource, (player) => {
-    player.muted = true;
-    player.loop = false;
-    player.play();
+  const player = useVideoPlayer(videoSource, (videoPlayer) => {
+    videoPlayer.muted = true;
+    videoPlayer.loop = false;
+    videoPlayer.play();
   });
 
   useEventListener(player, 'playToEnd', () => {

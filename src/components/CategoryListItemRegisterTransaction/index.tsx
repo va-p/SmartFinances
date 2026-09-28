@@ -12,7 +12,7 @@ type Props = RectButtonProps & {
 
 export function CategoryListItemRegisterTransaction({
   data,
-  isChecked,
+  isChecked = undefined,
   ...rest
 }: Props) {
   return (

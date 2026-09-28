@@ -23,8 +23,8 @@ export function CurrencySelect({
 }: Props) {
   const currencies = useCurrenciesStore((state) => state.currencies);
 
-  function handleCurrencySelect(currency: CurrencyProps) {
-    setCurrency(currency);
+  function handleCurrencySelect(selectedCurrency: CurrencyProps) {
+    setCurrency(selectedCurrency);
     closeSelectCurrency();
   }
 

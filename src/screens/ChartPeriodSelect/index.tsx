@@ -39,8 +39,8 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
     },
   ];
 
-  function handlePeriodSelect(period: PeriodProps) {
-    setSelectedPeriod(period);
+  function handlePeriodSelect(selectedPeriod: PeriodProps) {
+    setSelectedPeriod(selectedPeriod);
     closeSelectPeriod();
   }
 

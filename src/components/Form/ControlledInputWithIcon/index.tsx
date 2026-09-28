@@ -17,7 +17,7 @@ export function ControlledInputWithIcon({
   icon,
   name,
   control,
-  error,
+  error = undefined,
   ...rest
 }: Props) {
   const isNumericKeyboard =

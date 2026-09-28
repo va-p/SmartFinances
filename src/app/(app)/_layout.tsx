@@ -53,7 +53,6 @@ function TransactionsTabIcon({
   size,
   color,
 }: {
-  focused?: boolean;
   color: ColorValue;
   size: number;
 }) {
@@ -64,7 +63,6 @@ function AccountsTabIcon({
   size,
   color,
 }: {
-  focused?: boolean;
   color: ColorValue;
   size: number;
 }) {
@@ -75,7 +73,6 @@ function BudgetsTabIcon({
   size,
   color,
 }: {
-  focused?: boolean;
   color: ColorValue;
   size: number;
 }) {
@@ -86,7 +83,6 @@ function OverviewTabIcon({
   size,
   color,
 }: {
-  focused?: boolean;
   color: ColorValue;
   size: number;
 }) {
@@ -97,7 +93,6 @@ function OptionsTabIcon({
   size,
   color,
 }: {
-  focused?: boolean;
   color: ColorValue;
   size: number;
 }) {

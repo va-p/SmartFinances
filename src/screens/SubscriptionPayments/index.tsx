@@ -128,13 +128,11 @@ export function SubscriptionPayments() {
     });
   }
 
-  function renderItem({
-    item,
-    index,
-  }: {
+  type RenderItemProps = {
     item: SubscriptionPaymentProps;
     index: number;
-  }) {
+  };
+  function renderItem({ item, index }: RenderItemProps) {
     return (
       <SubscriptionPaymentListItem
         data={item}

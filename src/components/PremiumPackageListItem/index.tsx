@@ -58,6 +58,8 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
       const trialPeriod = `${data.product.introPrice.periodNumberOfUnits} ${periodUnit}`;
       return trialPeriod;
     }
+
+    return undefined;
   }
 
   return (

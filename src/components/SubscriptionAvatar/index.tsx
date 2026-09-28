@@ -34,7 +34,7 @@ export function SubscriptionAvatar({
   name,
   category,
   size = 40,
-  isPaid,
+  isPaid = undefined,
 }: Props) {
   const theme = useTheme() as ThemeProps;
 
