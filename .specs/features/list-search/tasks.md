@@ -133,7 +133,7 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 ---
 
-### T4 — `Header.SearchButton` compound subcomponent
+### T4 — `Header.SearchButton` compound subcomponent ✅ DONE (tsc at baseline, eslint 0)
 
 **What**: Add the magnifying-glass button to the compound `Header` component, in the standard Header button shape.
 **Where**: `src/components/Header/HeaderSearchButton.tsx` (new), `src/components/Header/index.tsx` (modify)
@@ -143,9 +143,9 @@ Phase 2:  T5 (Account) → T6 (TransactionsByCategory) → T7 (Accounts) → T8 
 
 **Done when**:
 
-- [ ] `Header.SearchButton` renders a 32px shape circle with `MagnifyingGlassIcon` (20px, primary color), takes `onPress`
-- [ ] Registered in the `Header` compound export
-- [ ] Build gate passes (tsc 0 new errors; `components/Header/styles.ts` stays at its 7-error baseline)
+- [x] `Header.SearchButton` renders a 32px shape circle with `MagnifyingGlassIcon` (20px, primary color), takes `onPress`
+- [x] Registered in the `Header` compound export
+- [x] Build gate passes (tsc 0 new errors; `components/Header/styles.ts` stays at its 7-error baseline)
 
 **Tests**: none (component — render-test blocker; covered by build gate + manual QA)
 **Gate**: build
