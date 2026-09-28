@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SectionList, RefreshControl, FlatList, useWindowDimensions } from 'react-native';
 import {
   Container,
@@ -16,11 +16,13 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
+import { filterSectionsByQuery } from '@utils/filterSectionsByQuery';
 
 // Dependencies
 import Decimal from 'decimal.js';
 import { useTheme } from 'styled-components';
 import { useRouter } from 'expo-router';
+import { useForm } from 'react-hook-form';
 
 // Icons
 import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
@@ -35,6 +37,7 @@ import { Gradient } from '@components/Gradient';
 import { AccountListItem } from '@components/AccountListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
+import { SearchBar } from '@components/SearchBar';
 
 // Stores
 import { useQuotes } from '@stores/quotesStorage';
@@ -106,6 +109,11 @@ export function InstitutionDetails() {
   const bottomTabHeight = useBottomTabBarHeight();
   const { institutionId, institutionName } = useCurrentInstitutionSelected();
   const { hideAmount } = useUserConfigs();
+
+  // Search form (Home-screen pattern: query via react-hook-form)
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const { control, watch, reset } = useForm();
+  const searchQuery = watch('search', '');
   const {
     brlQuoteBtc,
     brlQuoteEur,
@@ -239,6 +247,12 @@ export function InstitutionDetails() {
 
   const { totalBalanceFormatted, sections } = processedData;
 
+  // Account filtering with search
+  const filteredSections = useMemo(
+    () => filterSectionsByQuery(sections, searchQuery, (account) => account.name),
+    [sections, searchQuery]
+  );
+
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers.
   const creditCardAccounts = useMemo(() => {
@@ -349,6 +363,9 @@ export function InstitutionDetails() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title={institutionName || 'Instituição'} />
+          <Header.SearchButton
+            onPress={() => setShowSearchInput((prevState) => !prevState)}
+          />
         </Header.Root>
 
         <SummaryContainer>
@@ -360,9 +377,17 @@ export function InstitutionDetails() {
           </TotalBalanceDescription>
         </SummaryContainer>
 
+        {showSearchInput && (
+          <SearchBar
+            control={control}
+            onClear={() => reset()}
+            style={{ marginHorizontal: 0 }}
+          />
+        )}
+
         <AccountsList>
           <SectionList
-            sections={sections}
+            sections={filteredSections}
             keyExtractor={(item) => String(item.id)}
             renderItem={_renderItem}
             renderSectionHeader={({ section }) => (

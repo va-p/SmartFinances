@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
 import {
   Container,
@@ -7,6 +7,7 @@ import {
   CashFlowTotal,
   CashFlowDescription,
   HideDataButton,
+  SearchButton,
   ChartContainer,
   AccountsContainer,
   AccountsContent,
@@ -27,11 +28,13 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { filterItemsByQuery } from '@utils/filterItemsByQuery';
 
 // Dependencies
 import Decimal from 'decimal.js';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
+import { useForm } from 'react-hook-form';
 import { LineChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
@@ -43,6 +46,7 @@ import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
 import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
 import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
 import { CurrencyBtcIcon } from 'phosphor-react-native/src/icons/CurrencyBtc';
+import { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
 
 // Components
 import {
@@ -58,6 +62,7 @@ import { SortFilterButton } from '@components/SortFilterButton';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CreditCardListItem } from '@components/CreditCardListItem';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
+import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -109,6 +114,11 @@ export function Accounts() {
   const { hideAmount, setHideAmount, sortingOption, setSortingOption } =
     useUserConfigs();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  // Search form (Home-screen pattern: query via react-hook-form)
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const { control, watch, reset } = useForm();
+  const searchQuery = watch('search', '');
 
   const {
     data: transactions,
@@ -356,6 +366,28 @@ export function Accounts() {
       });
   }, [processedAccounts]);
 
+  // Account filtering with search — applies after the existing sorting, so
+  // the sort choice is preserved while the query narrows the rendered list.
+  const filteredAccountsListData = useMemo(
+    () =>
+      filterItemsByQuery(
+        accountsListData,
+        searchQuery,
+        (item) => item.data.name
+      ),
+    [accountsListData, searchQuery]
+  );
+
+  const filteredCreditCardAccounts = useMemo(
+    () =>
+      filterItemsByQuery(
+        creditCardAccounts,
+        searchQuery,
+        (account) => account.name
+      ),
+    [creditCardAccounts, searchQuery]
+  );
+
   function handleRefresh() {
     Promise.all([refetchTransactions(), refetchAccounts()]);
   }
@@ -601,6 +633,12 @@ export function Accounts() {
               <CashFlowDescription>Patrimônio Total</CashFlowDescription>
             </CashFlowContainer>
 
+            <SearchButton
+              onPress={() => setShowSearchInput((prevState) => !prevState)}
+            >
+              <MagnifyingGlassIcon size={20} color={theme.colors.primary} />
+            </SearchButton>
+
             <HideDataButton onPress={() => handleHideData()}>
               {!hideAmount ? (
                 <EyeSlashIcon size={20} color={theme.colors.primary} />
@@ -684,11 +722,15 @@ export function Accounts() {
           </ChartContainer>
         </HeaderContainer>
 
+        {showSearchInput && (
+          <SearchBar control={control} onClear={() => reset()} />
+        )}
+
         <AccountsContainer>
           {/** ACCOUNTS */}
           <FlatList
             style={{ flex: 1 }}
-            data={accountsListData}
+            data={filteredAccountsListData}
             keyExtractor={(item) =>
               item.kind === 'institution'
                 ? `institution-${item.data.id}`
@@ -717,11 +759,11 @@ export function Accounts() {
             }
             ListFooterComponent={
               /** CREDIT CARDS */
-              creditCardAccounts.length > 0 ? (
+              filteredCreditCardAccounts.length > 0 ? (
                 <>
                   <SectionTitle>Cartões de crédito</SectionTitle>
                   <FlatList
-                    data={creditCardAccounts}
+                    data={filteredCreditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={_renderItem}
                     snapToOffsets={[

@@ -21,8 +21,6 @@ import {
   PeriodFilterButtonContainer,
   Transactions,
   SearchButton,
-  SearchInputContainer,
-  ClearSearchButton,
 } from './styles';
 
 // Hooks
@@ -32,7 +30,7 @@ import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useTransactionHandlers } from './hooks/useTransactionHandlers';
-import { useTransactionFiltering } from './hooks/useTransactionFiltering';
+import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
 import { formatTransactions } from '@utils/formatTransactions';
@@ -44,7 +42,6 @@ import { filterTransactionsByAccounts } from '@utils/accountsFilter';
 // Dependencies
 import { isFirstDayOfMonth } from 'date-fns';
 import Animated, {
-  Easing,
   FadeInUp,
   FadeOutUp,
   useAnimatedScrollHandler,
@@ -66,7 +63,6 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 
 // Icons
-import { XIcon } from 'phosphor-react-native/src/icons/X';
 import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
@@ -86,7 +82,7 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
-import { ControlledInputWithIcon } from '@components/Form/ControlledInputWithIcon';
+import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -517,23 +513,7 @@ export function Home() {
         </Animated.View>
 
         {showSearchInput && (
-          <Animated.View
-            entering={FadeInUp.easing(Easing.bounce).duration(500)}
-            exiting={FadeOutUp.easing(Easing.linear)}
-          >
-            <SearchInputContainer>
-              <ControlledInputWithIcon
-                icon={<MagnifyingGlassIcon color={theme.colors.primary} />}
-                placeholder='Pesquisar...'
-                autoCorrect={false}
-                name='search'
-                control={control}
-              />
-              <ClearSearchButton onPress={() => reset()}>
-                <XIcon size={20} color={theme.colors.primary} />
-              </ClearSearchButton>
-            </SearchInputContainer>
-          </Animated.View>
+          <SearchBar control={control} onClear={() => reset()} />
         )}
 
         <Transactions>

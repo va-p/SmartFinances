@@ -39,7 +39,6 @@ export const ButtonShape = styled.View`
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background-color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const TitleContainer = styled.View`

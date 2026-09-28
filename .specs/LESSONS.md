@@ -44,6 +44,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: src/utils/isDateInSelectedPeriod.ts:17 (src/utils)
 - last seen: 2026-09-28T00:39:06Z
 
+### L-006 - When a task extracts a module to a shared path, delete the old copy and re-point every importer in the same commit, then grep the tree to confirm only the shared path remains.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `src/hooks` · harmful: 0
+- features: list-search
+- evidence: SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)
+- last seen: 2026-09-28T16:31:10Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

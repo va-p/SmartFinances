@@ -4,6 +4,7 @@ import {
   FlashListTransactionItem,
   flattenTransactionsForFlashList,
 } from '@utils/flattenTransactionsForFlashList';
+import { filterSectionsByQuery } from '@utils/filterSectionsByQuery';
 
 import { TransactionProps } from '@interfaces/transactions';
 
@@ -34,16 +35,11 @@ export function useTransactionFiltering({
       return flattenedTransactions;
     }
 
-    const filteredGroups = transactionsGrouped
-      .map((group) => ({
-        ...group,
-        data: group.data.filter((transaction: TransactionProps) =>
-          transaction.description
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        ),
-      }))
-      .filter((group) => group.data.length > 0);
+    const filteredGroups = filterSectionsByQuery(
+      transactionsGrouped,
+      searchQuery,
+      (transaction: TransactionProps) => transaction.description
+    );
 
     return flattenTransactionsForFlashList(filteredGroups);
   }, [searchQuery, flattenedTransactions, transactionsGrouped]);

@@ -58,26 +58,12 @@ export const FilterButtonGroup = styled.View`
 `;
 
 export const AccountFilterButtonContainer = styled.View`
-  width: 40%;
+  min-width: 24%;
+  max-width: 40%;
 `;
 
 export const PeriodFilterButtonContainer = styled.View`
   width: 24%;
-`;
-
-export const SearchInputContainer = styled.View`
-  flex-direction: row;
-  min-height: 40px;
-  max-height: 40px;
-  align-items: center;
-  margin: 8px 16px;
-  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
-  border-radius: ${({ theme }) => (theme as ThemeProps).borders.borderRadiusButtonAndInput};
-`;
-
-export const ClearSearchButton = styled(BorderlessButton)`
-  position: absolute;
-  right: 8px;
 `;
 
 export const Transactions = styled(Animated.View)`
