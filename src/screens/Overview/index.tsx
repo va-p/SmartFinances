@@ -15,6 +15,7 @@ import {
 // Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
+import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Utils
@@ -22,14 +23,15 @@ import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
+import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 
 // Dependencies
 import Decimal from 'decimal.js';
+import { format, getYear, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
-import { format } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
@@ -38,6 +40,7 @@ import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { HistoryCard } from '@components/HistoryCard';
+import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { TabButtons, TabButtonType } from '@components/TabButtons';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
@@ -58,6 +61,7 @@ import { CategoryProps } from '@interfaces/categories';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HORIZONTAL_PADDING = 80;
 const GRAPH_WIDTH = SCREEN_WIDTH - SCREEN_HORIZONTAL_PADDING;
+const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
 
 enum CustomTab {
   Tab1,
@@ -103,7 +107,8 @@ export function Overview() {
   const [selectedTabCategoriesSection, setSelectedTabCategoriesSection] =
     useState<CustomTab>(CustomTab.Tab1);
 
-  const { selectedPeriod, selectedDate } = useSelectedPeriod();
+  const { selectedPeriod, selectedDate, setSelectedDate } =
+    useSelectedPeriod();
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
@@ -125,6 +130,13 @@ export function Overview() {
     refetch: refetchCategories,
     isRefetching: isRefetchingCategories,
   } = useCategoriesQuery();
+
+  // Date navigation
+  const { handleDateChange, handlePressDate } = useDateNavigation({
+    selectedPeriod,
+    selectedDate,
+    setSelectedDate,
+  });
 
   const processedData = useMemo(() => {
     if (!transactions || !accounts || !categories) {
@@ -248,6 +260,27 @@ export function Overview() {
     };
   }, [transactions, accounts, categories, selectedPeriod, selectedDate]);
 
+  // Ruler dates for the selected period mode. Years come from the user's
+  // transactions and are consumed only by the 'years' ruler; other modes
+  // ignore the years param.
+  const periodRulerDates = useMemo(() => {
+    const years = new Set<number>();
+    if (selectedPeriod.period === 'years') {
+      (transactions || []).forEach((transaction) => {
+        const transactionDate = new Date(transaction.created_at);
+        if (isValid(transactionDate)) {
+          years.add(getYear(transactionDate));
+        }
+      });
+    }
+
+    return buildPeriodRulerDates({
+      period: selectedPeriod.period,
+      selectedDate,
+      years: Array.from(years),
+    });
+  }, [transactions, selectedPeriod.period, selectedDate]);
+
   function handleRefresh() {
     refetchTransactions();
     refetchAccounts();
@@ -364,6 +397,14 @@ export function Overview() {
               />
             </FilterButtonGroup>
           </FiltersContainer>
+
+          <PeriodRuler
+            dates={periodRulerDates}
+            handleDateChange={handleDateChange}
+            handlePressDate={handlePressDate}
+            periodRulerListColumnWidth={PERIOD_RULER_LIST_COLUMN_WIDTH}
+            horizontalPadding={16}
+          />
 
           <CashFlowSection>
             <TabButtons
