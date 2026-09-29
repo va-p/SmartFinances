@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { Platform, View, Alert } from 'react-native';
@@ -54,12 +55,22 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
         // console.log('Loaded offers =>', offerings.current.availablePackages);
       }
     } catch (error) {
-      console.error('RevenueCatProvider loadOfferings error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível buscar as ofertas. Por favor, tente novamente mais tarde.'
       );
     }
+  }
+
+  async function updateCustomerInfo(customerInfo: CustomerInfo) {
+    const newUser: UserProps = { items: [], premium: false };
+
+    if (customerInfo?.entitlements.active.pro !== undefined) {
+      newUser.items.push(customerInfo?.entitlements.active.pro.identifier);
+      newUser.premium = true;
+    }
+
+    setUser(newUser);
   }
 
   useEffect(() => {
@@ -97,18 +108,6 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
     init();
   }, []);
 
-  async function updateCustomerInfo(customerInfo: CustomerInfo) {
-    const newUser: UserProps = { items: [], premium: false };
-    // console.log('User info =>', customerInfo?.entitlements.active);
-
-    if (customerInfo?.entitlements.active.pro !== undefined) {
-      newUser.items.push(customerInfo?.entitlements.active.pro.identifier);
-      newUser.premium = true;
-    }
-
-    setUser(newUser);
-  }
-
   async function purchasePackage(pack: PurchasesPackage) {
     try {
       await Purchases.purchasePackage(pack);
@@ -119,7 +118,7 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
       }
     } catch (err: any) {
       if (!err.userCancelled) {
-        alert(err);
+        Alert.alert('Erro', `${err}`);
       }
     }
   }
@@ -130,12 +129,15 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
     return customer;
   }
 
-  const value = {
-    user,
-    packages,
-    purchasePackage,
-    restorePurchasesUser,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      packages,
+      purchasePackage,
+      restorePurchasesUser,
+    }),
+    [user, packages, purchasePackage, restorePurchasesUser]
+  );
 
   if (!isReady) {
     return (

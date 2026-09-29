@@ -47,6 +47,7 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
           break;
         case 'MONTH':
           periodUnit = 'meses';
+          break;
         case 'YEAR':
           periodUnit = 'anos';
           break;

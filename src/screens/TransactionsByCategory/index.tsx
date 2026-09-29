@@ -201,7 +201,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
         <AnimatedFlashList
           data={filteredTransactions}
-          keyExtractor={(item: any) => item.isHeader ? String(item.headerTitle!) : String(item.id)}
+          keyExtractor={(item: any) => item.isHeader ? String(item.headerTitle) : String(item.id)}
           renderItem={({ item, index }: any) => {
             if (item.isHeader) {
               return (

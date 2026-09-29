@@ -57,10 +57,20 @@ const linkedAccount = (
   type: 'BANK',
 });
 
+const withReserveBalance = (balance: number) => {
+  const { reserve_account: reserveAccount } = buildGoal();
+
+  if (!reserveAccount) {
+    throw new Error('buildGoal() must define reserve_account');
+  }
+
+  return { ...reserveAccount, balance };
+};
+
 describe('computeGoalProgress', () => {
   it('GOAL-02: sums reserve and same-currency linked balances', () => {
     const goal = buildGoal({
-      reserve_account: { ...buildGoal().reserve_account!, balance: 500 },
+      reserve_account: withReserveBalance(500),
       linked_accounts: [linkedAccount(10, 300, 'BRL')],
     });
 
@@ -75,7 +85,7 @@ describe('computeGoalProgress', () => {
     // 100 USD @ 5 BRL/USD = 500 BRL + 500 reserve = 1000 of 2000 target
     const goal = buildGoal({
       target_amount: '2000',
-      reserve_account: { ...buildGoal().reserve_account!, balance: 500 },
+      reserve_account: withReserveBalance(500),
       linked_accounts: [linkedAccount(10, 100, 'USD')],
     });
 
@@ -110,7 +120,7 @@ describe('computeGoalProgress', () => {
 
   it('GOAL-19: exactly 100% marks the goal as reached', () => {
     const goal = buildGoal({
-      reserve_account: { ...buildGoal().reserve_account!, balance: 1000 },
+      reserve_account: withReserveBalance(1000),
     });
 
     const progress = computeGoalProgress(goal, quotes);
@@ -121,7 +131,7 @@ describe('computeGoalProgress', () => {
 
   it('GOAL-19/29: above 100% keeps the reached flag with the real percentage', () => {
     const goal = buildGoal({
-      reserve_account: { ...buildGoal().reserve_account!, balance: 1500 },
+      reserve_account: withReserveBalance(1500),
     });
 
     const progress = computeGoalProgress(goal, quotes);
@@ -132,7 +142,7 @@ describe('computeGoalProgress', () => {
 
   it('counts only the reserve when the goal has zero linked accounts', () => {
     const goal = buildGoal({
-      reserve_account: { ...buildGoal().reserve_account!, balance: 250 },
+      reserve_account: withReserveBalance(250),
       linked_accounts: [],
     });
 
@@ -144,7 +154,7 @@ describe('computeGoalProgress', () => {
 
   it('currentFormatted formats the current amount in the goal currency', () => {
     const goal = buildGoal({
-      reserve_account: { ...buildGoal().reserve_account!, balance: 800 },
+      reserve_account: withReserveBalance(800),
     });
 
     const progress = computeGoalProgress(goal, quotes);

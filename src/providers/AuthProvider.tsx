@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { Alert } from 'react-native';
 
 import axios from 'axios';
@@ -208,68 +208,56 @@ export function AuthProvider({ children }: any) {
   }, [clerkLoaded, clerkSignedIn]);
 
   async function fetchClerkUserDataOnDatabase() {
-    return new Promise<void>(async (resolve, reject) => {
+    if (!clerkUser || !clerkSignedIn) {
+      return;
+    }
+
+    for (let attempt = 0; attempt < MAX_SSO_RETRIES; attempt += 1) {
       try {
-        let lastError: any = null;
+        // eslint-disable-next-line no-await-in-loop -- sequential retry attempts are the point of the loop
+        const { data, status } = await api.get('/auth/clerk_sso', {
+          params: { clerk_user_id: clerkUser.id },
+        });
 
-        for (let attempt = 0; attempt < MAX_SSO_RETRIES; attempt++) {
-          try {
-            const { data, status } = await api.get('/auth/clerk_sso', {
-              params: { clerk_user_id: clerkUser?.id! },
-            });
+        if (!!data[0] && status === 200) {
+          storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
 
-            if (!!data[0] && status === 200) {
-              storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
-
-              // Store refresh token from SSO response (3rd array element)
-              if (data[2]) {
-                SecureStore.setItemAsync(
-                  SECURE_REFRESH_TOKEN_KEY,
-                  data[2]
-                );
-                const userEmail = data[1]?.email || '';
-                if (userEmail) {
-                  SecureStore.setItemAsync(
-                    SECURE_USER_EMAIL_KEY,
-                    userEmail
-                  );
-                }
-              }
-
-              const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
-              setIsSignedIn(clerkSignedIn!);
-              setUser(loggedInUserDataFormatted);
-              resolve();
-              return;
+          // Store refresh token from SSO response (3rd array element)
+          if (data[2]) {
+            SecureStore.setItemAsync(SECURE_REFRESH_TOKEN_KEY, data[2]);
+            const userEmail = data[1]?.email || '';
+            if (userEmail) {
+              SecureStore.setItemAsync(SECURE_USER_EMAIL_KEY, userEmail);
             }
-
-            // If we got a 200 but no data, that's unexpected — retry
-            lastError = new Error('Empty response from auth/clerk_sso');
-          } catch (error: any) {
-            lastError = error;
-
-            // If it's a server error (5xx), retry after delay
-            if (error?.response?.status >= 500 && attempt < MAX_SSO_RETRIES - 1) {
-              await new Promise((r) => setTimeout(r, SSO_RETRY_DELAY));
-              continue;
-            }
-
-            // For other errors or last attempt, don't retry
-            break;
           }
+
+          const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
+          setIsSignedIn(clerkSignedIn);
+          setUser(loggedInUserDataFormatted);
+          return;
         }
 
-        // All attempts failed
-        await clerk.signOut();
-        Alert.alert(
-          'Erro',
-          'Não foi possível completar a autenticação. Por favor, tente novamente.'
-        );
-        resolve();
-      } catch (error) {
-        reject(error);
+        // If we got a 200 but no data, that's unexpected — retry
+      } catch (error: any) {
+        // If it's a server error (5xx), retry after delay
+        if (error?.response?.status >= 500 && attempt < MAX_SSO_RETRIES - 1) {
+          // eslint-disable-next-line no-await-in-loop -- retry backoff must be sequential
+          await new Promise((resolve) => {
+            setTimeout(resolve, SSO_RETRY_DELAY);
+          });
+        } else {
+          // For other errors or last attempt, don't retry
+          break;
+        }
       }
-    });
+    }
+
+    // All attempts failed
+    await clerk.signOut();
+    Alert.alert(
+      'Erro',
+      'Não foi possível completar a autenticação. Por favor, tente novamente.'
+    );
   }
 
   async function signInWithEmail(formData: FormData) {
@@ -379,16 +367,28 @@ export function AuthProvider({ children }: any) {
     initializeAuth();
   }, [clerkLoaded, clerkSignedIn, clerkUser]);
 
-  const contextValue = {
-    isSignedIn,
-    user,
-    loading,
-    isLoaded: clerkLoaded,
-    signInWithEmail,
-    canSignInWithBiometrics,
-    signInWithBiometrics,
-    signOut,
-  };
+  const contextValue = useMemo(
+    () => ({
+      isSignedIn,
+      user,
+      loading,
+      isLoaded: clerkLoaded,
+      signInWithEmail,
+      canSignInWithBiometrics,
+      signInWithBiometrics,
+      signOut,
+    }),
+    [
+      isSignedIn,
+      user,
+      loading,
+      clerkLoaded,
+      signInWithEmail,
+      canSignInWithBiometrics,
+      signInWithBiometrics,
+      signOut,
+    ]
+  );
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

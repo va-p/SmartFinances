@@ -112,8 +112,8 @@ export function SignIn() {
       });
 
       // Check if the OAuth flow completed
-      if (oAuthFlow.createdSessionId) {
-        await oAuthFlow.setActive!({
+      if (oAuthFlow.createdSessionId && oAuthFlow.setActive) {
+        await oAuthFlow.setActive({
           session: oAuthFlow.createdSessionId,
         });
         return;

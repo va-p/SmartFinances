@@ -119,7 +119,7 @@ export function Subscriptions() {
     item: SubscriptionProps;
     index: number;
   };
-  function _renderItem({ item, index }: RenderItemProps) {
+  function renderItem({ item, index }: RenderItemProps) {
     return (
       <SubscriptionListItem
         data={item}
@@ -169,7 +169,7 @@ export function Subscriptions() {
             }: {
               item: SubscriptionProps;
               index: number;
-            }) => _renderItem({ item, index })}
+            }) => renderItem({ item, index })}
             ListEmptyComponent={EmptyList}
             initialNumToRender={10}
             showsVerticalScrollIndicator={false}

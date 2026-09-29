@@ -4,6 +4,8 @@ import { StyleSheet } from 'react-native';
 import { useEventListener } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
+// expo-video needs a plain require() for the metro asset bundler
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const videoSource = require('@assets/SplashScreen.mp4');
 
 type Props = {

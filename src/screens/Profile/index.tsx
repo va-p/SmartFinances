@@ -99,7 +99,7 @@ export function Profile() {
     ]);
   }
 
-  async function handleSaveProfile(data: FormData) {
+  async function handleSaveProfile() {
     try {
       if (image !== '') {
         // const { status } = await api.patch(`user/${userID}`, {

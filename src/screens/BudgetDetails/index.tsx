@@ -118,8 +118,10 @@ export function BudgetDetails() {
     return Number(budget?.amount) - Number(budget?.amount_spent);
   }
 
+  const budgetCurrentEndDate = budget.current_end_date;
+
   function calculateRemainderBudgetPerDay() {
-    const daysToEndDate = formatDistanceToNowStrict(budget!.current_end_date, {
+    const daysToEndDate = formatDistanceToNowStrict(budgetCurrentEndDate, {
       unit: 'day',
       locale: ptBR,
     }).split(' ')[0];
@@ -244,7 +246,7 @@ export function BudgetDetails() {
             <FlashList
               data={budgetTransactionsGroupedByDate}
               keyExtractor={(item: any) =>
-                item.isHeader ? String(item.headerTitle!) : String(item.id)
+                item.isHeader ? String(item.headerTitle) : String(item.id)
               }
               showsVerticalScrollIndicator={false}
               renderItem={({ item, index }: any) => {

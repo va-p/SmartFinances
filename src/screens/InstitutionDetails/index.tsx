@@ -211,17 +211,19 @@ export function InstitutionDetails() {
       }
 
       const sectionKey = getSectionKey(account);
-      if (!accountsBySection.has(sectionKey)) {
-        accountsBySection.set(sectionKey, []);
+      const sectionAccounts = accountsBySection.get(sectionKey);
+      if (sectionAccounts) {
+        sectionAccounts.push(processedAccount);
+      } else {
+        accountsBySection.set(sectionKey, [processedAccount]);
       }
-      accountsBySection.get(sectionKey)!.push(processedAccount);
     });
 
     const sections = SECTION_ORDER.filter((key) =>
       accountsBySection.has(key)
     ).map((key) => ({
       title: SECTION_TITLES[key],
-      data: accountsBySection.get(key)!,
+      data: accountsBySection.get(key) ?? [],
     }));
 
     return {

@@ -296,7 +296,7 @@ export function Account() {
   const isCreditCard =
     accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
   const hasCreditCardAvailableLimit =
-    accountCreditData?.availableCreditLimit! > 0;
+    (accountCreditData?.availableCreditLimit ?? 0) > 0;
 
   async function handleRefresh() {
     setIsManualRefreshing(true);
@@ -406,7 +406,7 @@ export function Account() {
       if (isCreditCard) {
         return formatCurrency(
           accountCurrencyCode,
-          accountCreditData?.availableCreditLimit!
+          accountCreditData?.availableCreditLimit ?? 0
         );
       }
 

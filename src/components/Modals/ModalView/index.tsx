@@ -12,8 +12,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gradient } from '@components/Gradient';
 import { Header as HeaderComponent } from '@components/Header';
 
-import darkTheme from '@themes/darkTheme';
-
 import { ThemeProps } from '@interfaces/theme';
 
 type TypeProps = 'primary' | 'secondary';
@@ -29,8 +27,6 @@ function ModalBackground() {
 type Props = BottomSheetProps & {
   type?: TypeProps;
   title: string;
-  color?: string;
-  selectedIdentification?: string;
   children: ReactNode;
   bottomSheetRef?: any;
   closeModal: () => void;
@@ -40,8 +36,6 @@ type Props = BottomSheetProps & {
 export function ModalView({
   type = 'primary',
   title,
-  color = darkTheme.colors.background,
-  selectedIdentification = undefined,
   children,
   bottomSheetRef = undefined,
   closeModal,
@@ -68,9 +62,9 @@ export function ModalView({
           <HeaderComponent.Root>
             <HeaderComponent.CloseButton handleClickCloseButton={closeModal} />
             <HeaderComponent.Title title={`${title}`} />
-            {type === 'secondary' && (
+            {type === 'secondary' && deleteChildren && (
               <HeaderComponent.DeleteButton
-                handleClickDeleteButton={deleteChildren!}
+                handleClickDeleteButton={deleteChildren}
               />
             )}
           </HeaderComponent.Root>

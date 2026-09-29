@@ -48,12 +48,12 @@ export function DevScreen() {
       if (update) {
         Alert.alert('Atualização', 'Atualizar agora?', [
           { text: 'Sim', onPress: () => syncNow() },
-          { text: 'Depois', onPress: () => {} },
+          { text: 'Depois', onPress: () => undefined },
         ]);
       } else {
         Alert.alert('Atualização', 'Aplicar agora?', [
           { text: 'Sim', onPress: () => syncNow() },
-          { text: 'Depois', onPress: () => {} },
+          { text: 'Depois', onPress: () => undefined },
         ]);
       }
     } catch (e) {
@@ -106,21 +106,21 @@ export function DevScreen() {
           {/* RevoPush extras */}
           <Label disabled={!cpLabel}>RevoPush Label</Label>
           <Value disabled={!cpLabel}>
-            <RectButton onPress={() => copy(cpLabel!)}>
+            <RectButton onPress={() => copy(cpLabel ?? '')}>
               <Label disabled={!cpLabel}>{cpLabel || '—'}</Label>
             </RectButton>
           </Value>
 
           <Label disabled={!cpDesc}>RevoPush Description</Label>
           <Value disabled={!cpDesc}>
-            <RectButton onPress={() => copy(cpDesc!)}>
+            <RectButton onPress={() => copy(cpDesc ?? '')}>
               <Label disabled={!cpDesc}>{cpDesc || '—'}</Label>
             </RectButton>
           </Value>
 
           <Label disabled={!cpHash}>RevoPush Package Hash</Label>
           <Value disabled={!cpHash}>
-            <RectButton onPress={() => copy(cpHash!, 'Package hash copiado!')}>
+            <RectButton onPress={() => copy(cpHash ?? '')}>
               <Label disabled={!cpHash}>{cpHash || '—'}</Label>
             </RectButton>
           </Value>

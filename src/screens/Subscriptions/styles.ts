@@ -1,6 +1,8 @@
 import { Platform, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
+import { ThemeProps } from '@interfaces/theme';
+
 export const Container = styled.View`
   flex: 1;
   padding: ${Platform.OS === 'ios' ? '0 16px' : '8px 16px'};
@@ -14,9 +16,9 @@ export const SectionHeader = styled.View`
 `;
 
 export const SectionHeaderTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const HelpButton = styled(TouchableOpacity).attrs({
@@ -46,7 +48,7 @@ export const Footer = styled(TouchableOpacity).attrs({
   margin-bottom: 16px;
   padding: 16px;
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.shape};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
 `;
 
 export const FooterTextContainer = styled.View`
@@ -55,14 +57,14 @@ export const FooterTextContainer = styled.View`
 `;
 
 export const FooterTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const FooterSubtitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
   font-size: 12px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
   opacity: 0.9;
 `;

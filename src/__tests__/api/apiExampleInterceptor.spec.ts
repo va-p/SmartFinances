@@ -2,17 +2,11 @@ import api from '@api/api_example';
 import { getDeviceFingerprint } from '@utils/deviceFingerprint';
 
 jest.mock('react-native-mmkv', () => ({
-  MMKV: class {
-    getString() {
-      return null;
-    }
-
-    set() {}
-
-    getBoolean() {
-      return false;
-    }
-  },
+  MMKV: jest.fn().mockImplementation(() => ({
+    getString: () => null,
+    set: () => undefined,
+    getBoolean: () => false,
+  })),
 }));
 
 jest.mock('@utils/deviceFingerprint', () => ({

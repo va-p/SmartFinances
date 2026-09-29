@@ -23,28 +23,24 @@ const movement = (
     | 'TRANSFER_DEBIT'
     | 'CREDIT'
     | 'DEBIT' = 'TRANSFER_CREDIT'
-): GoalReserveTransactionProps => ({
-  id: ++movementId,
-  description: 'Transferência',
-  amount,
-  type,
-  transaction_date: date,
-  created_at: date,
-  category: { id: '1', name: 'Metas' },
-  related_transaction_id: null,
-});
+): GoalReserveTransactionProps => {
+  movementId += 1;
+
+  return {
+    id: movementId,
+    description: 'Transferência',
+    amount,
+    type,
+    transaction_date: date,
+    created_at: date,
+    category: { id: '1', name: 'Metas' },
+    related_transaction_id: null,
+  };
+};
 
 const buildGoal = (
   transactions: GoalReserveTransactionProps[],
-  targetAmount = '2000',
-  currentAmount: number = transactions.reduce(
-    (sum, transaction) =>
-      sum +
-      (transaction.type === 'DEBIT' || transaction.type === 'TRANSFER_DEBIT'
-        ? -Math.abs(transaction.amount)
-        : Math.abs(transaction.amount)),
-    0
-  )
+  targetAmount = '2000'
 ): GoalInput => ({ transactions, target_amount: targetAmount });
 
 // Spec Independent Test pace: R$ 500 deposits in Sep, Oct and Nov 2027
@@ -58,43 +54,51 @@ const threeMonthlyDeposits = [
 describe('buildGoalProjection', () => {
   it('builds cumulative buckets and a projection reaching the target one month later (Independent Test, AC-1/2)', () => {
     const result = buildGoalProjection({
-      goal: buildGoal(threeMonthlyDeposits, '2000', 1500),
+      goal: buildGoal(threeMonthlyDeposits, '2000'),
       currentAmount: 1500,
       now: new Date(2027, 10, 15),
     });
 
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
     expect(result).not.toBeNull();
-    expect(result!.points.map((point) => point.value)).toEqual([
+    expect(result.points.map((point) => point.value)).toEqual([
       500, 1000, 1500, 2000,
     ]);
-    expect(result!.points.map((point) => point.monthKey)).toEqual([
+    expect(result.points.map((point) => point.monthKey)).toEqual([
       '2027-09',
       '2027-10',
       '2027-11',
       '2027-12',
     ]);
-    expect(result!.points.map((point) => point.isProjection)).toEqual([
+    expect(result.points.map((point) => point.isProjection)).toEqual([
       false,
       false,
       false,
       true,
     ]);
-    expect(result!.averageMonthlyProgress).toBe(500);
-    expect(result!.targetAmount).toBe(2000);
+    expect(result.averageMonthlyProgress).toBe(500);
+    expect(result.targetAmount).toBe(2000);
   });
 
   it('fills every calendar month to the current one, repeating months without movements, and divides the average by elapsed buckets (AC-1/3)', () => {
     // Same movements, opened two months later: Dec/27 and Jan/28 are empty.
     const result = buildGoalProjection({
-      goal: buildGoal(threeMonthlyDeposits, '2000', 1500),
+      goal: buildGoal(threeMonthlyDeposits, '2000'),
       currentAmount: 1500,
       now: new Date(2028, 0, 15),
     });
 
-    expect(result!.points.map((point) => point.value)).toEqual([
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
+    expect(result.points.map((point) => point.value)).toEqual([
       500, 1000, 1500, 1500, 1500, 1750, 2000,
     ]);
-    expect(result!.points.map((point) => point.monthKey)).toEqual([
+    expect(result.points.map((point) => point.monthKey)).toEqual([
       '2027-09',
       '2027-10',
       '2027-11',
@@ -104,7 +108,7 @@ describe('buildGoalProjection', () => {
       '2028-03',
     ]);
     // (1500 − 500) / (5 elapsed buckets − 1) = 250
-    expect(result!.averageMonthlyProgress).toBe(250);
+    expect(result.averageMonthlyProgress).toBe(250);
   });
 
   it('returns null with fewer than 2 distinct movement months (AC-4)', () => {
@@ -115,14 +119,14 @@ describe('buildGoalProjection', () => {
 
     expect(
       buildGoalProjection({
-        goal: buildGoal(singleMonth, '2000', 800),
+        goal: buildGoal(singleMonth, '2000'),
         currentAmount: 800,
         now: new Date(2027, 10, 15),
       })
     ).toBeNull();
     expect(
       buildGoalProjection({
-        goal: buildGoal([], '2000', 0),
+        goal: buildGoal([], '2000'),
         currentAmount: 0,
         now: new Date(2027, 10, 15),
       })
@@ -150,10 +154,14 @@ describe('buildGoalProjection', () => {
       now: new Date(2027, 10, 15),
     });
 
-    expect(result!.points.map((point) => point.value)).toEqual([1000, 500, 500]);
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
+    expect(result.points.map((point) => point.value)).toEqual([1000, 500, 500]);
     // (500 − 1000) / (3 elapsed buckets − 1) = −250
-    expect(result!.averageMonthlyProgress).toBe(-250);
-    expect(result!.points.every((point) => !point.isProjection)).toBe(true);
+    expect(result.averageMonthlyProgress).toBe(-250);
+    expect(result.points.every((point) => !point.isProjection)).toBe(true);
   });
 
   it('caps the projection at 60 future months and renders the capped projection anyway (AC-5)', () => {
@@ -169,9 +177,13 @@ describe('buildGoalProjection', () => {
       now: new Date(2027, 9, 15),
     });
 
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
     // 2 real buckets + the 60-month cap of projected buckets.
-    expect(result!.points).toHaveLength(62);
-    const projection = result!.points.filter((point) => point.isProjection);
+    expect(result.points).toHaveLength(62);
+    const projection = result.points.filter((point) => point.isProjection);
     expect(projection).toHaveLength(60);
     expect(projection[0].monthKey).toBe('2027-11');
     expect(projection[59].monthKey).toBe('2032-10');
@@ -181,10 +193,14 @@ describe('buildGoalProjection', () => {
 
   it('labels the year only under the first and last bucket of each year (AC-6)', () => {
     const result = buildGoalProjection({
-      goal: buildGoal(threeMonthlyDeposits, '2000', 1500),
+      goal: buildGoal(threeMonthlyDeposits, '2000'),
       currentAmount: 1500,
       now: new Date(2028, 0, 15),
     });
+
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
 
     // Two-digit year per the 2026-09-08 layout fix (label width).
     const withYear = (date: Date) =>
@@ -192,14 +208,14 @@ describe('buildGoalProjection', () => {
     const monthOnly = (date: Date) => format(date, 'MMM', { locale: ptBR });
 
     // 2027: set (first) and dez (last) carry the year; out/nov do not.
-    expect(result!.points[0].label).toBe(withYear(new Date(2027, 8, 1)));
-    expect(result!.points[1].label).toBe(monthOnly(new Date(2027, 9, 1)));
-    expect(result!.points[2].label).toBe(monthOnly(new Date(2027, 10, 1)));
-    expect(result!.points[3].label).toBe(withYear(new Date(2027, 11, 1)));
+    expect(result.points[0].label).toBe(withYear(new Date(2027, 8, 1)));
+    expect(result.points[1].label).toBe(monthOnly(new Date(2027, 9, 1)));
+    expect(result.points[2].label).toBe(monthOnly(new Date(2027, 10, 1)));
+    expect(result.points[3].label).toBe(withYear(new Date(2027, 11, 1)));
     // 2028: jan (first) and the final projected mar (last) carry the year.
-    expect(result!.points[4].label).toBe(withYear(new Date(2028, 0, 1)));
-    expect(result!.points[5].label).toBe(monthOnly(new Date(2028, 1, 1)));
-    expect(result!.points[6].label).toBe(withYear(new Date(2028, 2, 1)));
+    expect(result.points[4].label).toBe(withYear(new Date(2028, 0, 1)));
+    expect(result.points[5].label).toBe(monthOnly(new Date(2028, 1, 1)));
+    expect(result.points[6].label).toBe(withYear(new Date(2028, 2, 1)));
   });
 
   it('ignores movements dated after the current month (D1)', () => {
@@ -212,9 +228,13 @@ describe('buildGoalProjection', () => {
       now: new Date(2027, 10, 15),
     });
 
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
     // History ends at the current month (Nov) — the future deposit does not
     // appear as a real bucket.
-    const history = result!.points.filter((point) => !point.isProjection);
+    const history = result.points.filter((point) => !point.isProjection);
     expect(history.map((point) => point.monthKey)).toEqual([
       '2027-09',
       '2027-10',
@@ -223,8 +243,8 @@ describe('buildGoalProjection', () => {
     expect(history.map((point) => point.value)).toEqual([500, 1000, 1500]);
     // Dez is a projected bucket at the average (2000); the future R$ 999
     // deposit leaked in would make it a real 2499 bucket.
-    expect(result!.points[3].isProjection).toBe(true);
-    expect(result!.points[3].value).toBe(2000);
+    expect(result.points[3].isProjection).toBe(true);
+    expect(result.points[3].value).toBe(2000);
   });
 
   it('falls back to created_at when transaction_date is missing (D1)', () => {
@@ -240,8 +260,12 @@ describe('buildGoalProjection', () => {
       now: new Date(2027, 10, 15),
     });
 
-    expect(result!.points[0].monthKey).toBe('2027-09');
-    expect(result!.points[0].value).toBe(500);
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
+    expect(result.points[0].monthKey).toBe('2027-09');
+    expect(result.points[0].value).toBe(500);
   });
 
   it('seeds balances that predate the first movement month so the last point equals the current amount (amendment 2, AC-1)', () => {
@@ -259,13 +283,17 @@ describe('buildGoalProjection', () => {
       now: new Date(2027, 9, 15),
     });
 
-    const history = result!.points.filter((point) => !point.isProjection);
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
+    const history = result.points.filter((point) => !point.isProjection);
     expect(history.map((point) => point.value)).toEqual([5500, 6000]);
     // The seed does not inflate the pace: (6000 − 5500) / 1 = 500.
-    expect(result!.averageMonthlyProgress).toBe(500);
+    expect(result.averageMonthlyProgress).toBe(500);
     // The projection starts from the real current amount (6000) and reaches
     // 10000 at the average: 6500 … 10000.
-    const projection = result!.points.filter((point) => point.isProjection);
+    const projection = result.points.filter((point) => point.isProjection);
     expect(projection[0].value).toBe(6500);
     expect(projection[projection.length - 1].value).toBe(10000);
     expect(projection[projection.length - 1].monthKey).toBe('2028-06');
@@ -282,12 +310,16 @@ describe('buildGoalProjection', () => {
       now: new Date(2027, 10, 15),
     });
 
+    if (result === null) {
+      throw new Error('buildGoalProjection returned null');
+    }
+
     // Sep: goal deposit 500. Oct: +1000 salary, −200 expense → 1300.
     expect(
-      result!.points
+      result.points
         .filter((point) => !point.isProjection)
         .map((point) => point.value)
     ).toEqual([500, 1300, 1300]);
-    expect(result!.averageMonthlyProgress).toBe(400);
+    expect(result.averageMonthlyProgress).toBe(400);
   });
 });

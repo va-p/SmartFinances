@@ -537,7 +537,7 @@ export function RegisterTransaction({
     let tagsList: any = [];
     tagsSelected.forEach((tag) => {
       const tagId = tag.id;
-      if (!tagsList.hasOwnProperty(tagId)) {
+      if (!Object.prototype.hasOwnProperty.call(tagsList, tagId)) {
         tagsList[tagId] = {
           tag_id: tag.id,
         };
@@ -648,6 +648,10 @@ export function RegisterTransaction({
   }
 
   async function handleEditTransaction(form: FormData) {
+    if (accountID === null || !accountCurrency || !accountType) {
+      Alert.alert('Edição de Transação', 'Selecione a conta da transação');
+      return;
+    }
     // DEBIT transactions must be saved as negative numbers so that
     // downstream calculations (cash flow, patrimonial evolution) can
     // distinguish expenses from revenues purely by sign.
@@ -657,7 +661,7 @@ export function RegisterTransaction({
     let tagsList: any = [];
     tagsSelected.forEach((tag) => {
       const tagId = tag.id;
-      if (!tagsList.hasOwnProperty(tagId)) {
+      if (!Object.prototype.hasOwnProperty.call(tagsList, tagId)) {
         tagsList[tagId] = {
           tag_id: tag.id,
         };
@@ -681,15 +685,11 @@ export function RegisterTransaction({
       }
     }
 
-    const hasDestinationAccount =
-      accountDestinationSelected !== null &&
-      accountDestinationSelected.id !== 0; // Checks if there is a destination account selected (contrapart)
-
     let amountConverted = amount;
     amountConverted = convertCurrency({
       amount,
       fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency!.code,
+      toCurrency: accountCurrency.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
       quotes: {
         brlQuoteBtc,
@@ -709,7 +709,10 @@ export function RegisterTransaction({
 
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
-      if (!hasDestinationAccount) {
+      if (
+        !accountDestinationSelected ||
+        accountDestinationSelected.id === 0
+      ) {
         Alert.alert(
           'Edição de Transação',
           'Selecione a conta de destino para transferências'
@@ -722,8 +725,8 @@ export function RegisterTransaction({
         description: form.description,
         amount: form.amount,
         selectedCurrency: currencySelected,
-        originAccount: { id: Number(accountID), currency: accountCurrency! },
-        destinationAccount: accountDestinationSelected!,
+        originAccount: { id: Number(accountID), currency: accountCurrency },
+        destinationAccount: accountDestinationSelected,
         categoryId: categorySelected.id,
         tags: tagsList,
         date,
@@ -809,6 +812,10 @@ export function RegisterTransaction({
   }
 
   async function handleRegisterTransaction(form: FormData) {
+    if (accountID === null || !accountCurrency || !accountType) {
+      Alert.alert('Cadastro de Transação', 'Selecione a conta da transação');
+      return;
+    }
     // DEBIT transactions must be saved as negative numbers so that
     // downstream calculations (cash flow, patrimonial evolution) can
     // distinguish expenses from revenues purely by sign.
@@ -818,7 +825,7 @@ export function RegisterTransaction({
     let tagsList: any = [];
     tagsSelected.forEach((tag) => {
       const tagId = tag.id;
-      if (!tagsList.hasOwnProperty(tagId)) {
+      if (!Object.prototype.hasOwnProperty.call(tagsList, tagId)) {
         tagsList[tagId] = {
           tag_id: tag.id,
         };
@@ -855,7 +862,7 @@ export function RegisterTransaction({
         description: form.description,
         amount: form.amount,
         selectedCurrency: currencySelected,
-        originAccount: { id: Number(accountID), currency: accountCurrency! },
+        originAccount: { id: Number(accountID), currency: accountCurrency },
         destinationAccount: accountDestinationSelected,
         categoryId: categorySelected.id,
         tags: tagsList,
@@ -904,7 +911,7 @@ export function RegisterTransaction({
     amountConverted = convertCurrency({
       amount,
       fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency!.code,
+      toCurrency: accountCurrency.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
       quotes: {
         brlQuoteBtc,
@@ -926,8 +933,8 @@ export function RegisterTransaction({
     const accountForOptimistic = {
       id: Number(accountID) || 0,
       name: accountName || '',
-      currency: accountCurrency!,
-      type: accountType!,
+      currency: accountCurrency,
+      type: accountType,
       balance: 0,
       initialAmount: accountInitialAmount,
     };
@@ -938,7 +945,7 @@ export function RegisterTransaction({
       description: form.description,
       amount,
       amount_in_account_currency:
-        currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
+        currencySelected.code !== accountCurrency.code // If transaction currency is different to account currency
           ? amountConverted
           : null,
       currency_id: currencySelected.id,

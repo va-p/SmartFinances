@@ -99,8 +99,8 @@ export function SignUp() {
       });
 
       // Check if the OAuth flow completed
-      if (oAuthFlow.createdSessionId) {
-        await oAuthFlow.setActive!({
+      if (oAuthFlow.createdSessionId && oAuthFlow.setActive) {
+        await oAuthFlow.setActive({
           session: oAuthFlow.createdSessionId,
         });
         return;
@@ -118,8 +118,7 @@ export function SignUp() {
           'Não foi possível autenticar com o Google. Por favor, tente novamente.'
         );
       }
-    } catch (error) {
-      console.error('SignUp screen, handleContinueWithGoogle error =>', error);
+    } catch {
       Alert.alert(
         'Login',
         'Não foi possível autenticar com o Google. Por favor, tente novamente.'
@@ -151,10 +150,6 @@ export function SignUp() {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(
-          'SignUp handleRegisterUser error =>',
-          error.response?.data?.message
-        );
         Alert.alert(
           'Cadastro de usuário',
           `Não foi possível concluir o cadastro: ${error.response?.data?.message}. Por favor, tente novamente.`

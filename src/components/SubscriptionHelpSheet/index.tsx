@@ -105,7 +105,7 @@ export function SubscriptionHelpSheet({ bottomSheetRef, close }: Props) {
         </IconsRow>
 
         <Explanation>
-          Acompanhe aqui seus pagamentos classificados como "Assinaturas"
+          Acompanhe aqui seus pagamentos classificados como &quot;Assinaturas&quot;
         </Explanation>
         <ExamplesTitle>
           Exemplos de serviços nesta categoria no aplicativo:

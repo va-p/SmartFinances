@@ -101,17 +101,6 @@ export function RecurrenceSelect({
     onSave({ interval, period });
   }
 
-  function getRecurrenceDescription(): string {
-    if (period === 'DAILY' && interval === 1) return 'Todo dia';
-    if (period === 'DAILY') return `A cada ${interval} dias`;
-    if (period === 'WEEKLY' && interval === 1) return 'Toda semana';
-    if (period === 'WEEKLY') return `A cada ${interval} semanas`;
-    if (period === 'MONTHLY' && interval === 1) return 'Todo mês';
-    if (period === 'MONTHLY') return `A cada ${interval} meses`;
-    if (period === 'YEARLY' && interval === 1) return 'Todo ano';
-    return `A cada ${interval} anos`;
-  }
-
   return (
     <Container>
       <Content>

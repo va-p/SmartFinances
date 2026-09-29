@@ -49,11 +49,11 @@ const tokenCache = {
 };
 
 function RootNavigationLayout() {
-  const { data: currenciesData, isLoading: isLoadingCurrencies } =
+  const { data: currenciesData } =
     useCurrenciesQuery();
   const setCurrencies = useCurrenciesStore((state) => state.setCurrencies);
 
-  const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
+  const { data: quotesData } = useQuotesQuery();
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,

@@ -221,10 +221,12 @@ export function Accounts() {
           return;
         }
 
-        if (!institutionGroups.has(institutionId)) {
-          institutionGroups.set(institutionId, []);
+        const group = institutionGroups.get(institutionId);
+        if (group) {
+          group.push(account);
+        } else {
+          institutionGroups.set(institutionId, [account]);
         }
-        institutionGroups.get(institutionId)!.push(account);
       });
 
     const institutionCards: {
@@ -241,6 +243,12 @@ export function Accounts() {
         return;
       }
 
+      const { institution } = accounts[0];
+      if (!institution) {
+        standaloneAccounts.push(...accounts);
+        return;
+      }
+
       const totalConverted = accounts.reduce(
         (sum, account) =>
           sum.plus(account.accountBalanceConvertedToBRL ?? 0),
@@ -248,8 +256,8 @@ export function Accounts() {
       );
 
       institutionCards.push({
-        id: accounts[0].institution!.id,
-        name: accounts[0].institution!.name,
+        id: institution.id,
+        name: institution.name,
         totalFormatted: formatCurrency(
           'BRL',
           totalConverted.toNumber(),
@@ -474,7 +482,6 @@ export function Accounts() {
         setHideAmount(!hideAmount);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Não foi possível salvar suas configurações. Por favor, tente novamente.'
       );
@@ -524,7 +531,7 @@ export function Accounts() {
             hideAmount={hideAmount}
             onPress={() =>
               handleOpenAccount(
-                String(item.id)!,
+                String(item.id),
                 item.name,
                 item.type,
                 item.subtype || null,
@@ -546,10 +553,10 @@ export function Accounts() {
           hideAmount={hideAmount}
           onPress={() =>
             handleOpenAccount(
-              String(item.id)!,
+              String(item.id),
               item.name,
               item.type,
-              item.subtype!,
+              item.subtype ?? null,
               item.currency,
               String(item.balance),
               item.creditData || null
@@ -596,7 +603,7 @@ export function Accounts() {
           hideAmount={hideAmount}
           onPress={() =>
             handleOpenAccount(
-              String(account.id)!,
+              String(account.id),
               account.name,
               account.type,
               account.subtype || null,

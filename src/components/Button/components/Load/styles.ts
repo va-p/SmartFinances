@@ -2,6 +2,7 @@ import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 
 import { TypeProps } from '@components/Button/styles';
+import { ThemeProps } from '@interfaces/theme';
 
 type IndicatorProps = {
   type: TypeProps;
@@ -15,6 +16,6 @@ export const Container = styled.View`
 
 export const Indicator = styled(ActivityIndicator).attrs<IndicatorProps>(
   ({ theme, type }) => ({
-    color: type === 'primary' ? theme.colors.textLight : theme.colors.primary,
+    color: type === 'primary' ? (theme as ThemeProps).colors.textLight : (theme as ThemeProps).colors.primary,
   })
 )``;

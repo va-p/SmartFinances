@@ -34,7 +34,7 @@ export function buildSubscriptionPeriodOptions(
   const currentMonth = startOfMonth(today);
   const options: SubscriptionPeriodOption[] = [];
 
-  for (let offset = -12; offset <= 12; offset++) {
+  for (let offset = -12; offset <= 12; offset += 1) {
     const month = startOfMonth(addMonths(currentMonth, offset));
     const key = monthKey(month);
     options.push({

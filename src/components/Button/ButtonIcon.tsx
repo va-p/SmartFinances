@@ -1,4 +1,4 @@
-import { ElementType } from 'react';
+import React, { ElementType } from 'react';
 
 type ButtonIconProps = {
   icon: ElementType;
