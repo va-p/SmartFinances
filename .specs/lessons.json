@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 7,
+  "next_id": 8,
   "lessons": [
     {
       "id": "L-001",
@@ -112,6 +112,24 @@
       ],
       "created": "2026-09-28T16:31:10Z",
       "last_seen": "2026-09-28T16:31:10Z"
+    },
+    {
+      "id": "L-007",
+      "key": "surviving_mutant::screen wiring value faults mode guards optional prop values pass every automated gate because no gate renders screens verify screen wiring value by value against the precedent screen only missing required props are caught tsc",
+      "text": "Screen-wiring value faults (mode guards, optional prop values) pass every automated gate because no gate renders screens - verify screen wiring value-by-value against the precedent screen; only missing required props are caught (tsc)",
+      "signal": "surviving_mutant",
+      "scope": "frontend-screens",
+      "status": "candidate",
+      "features": [
+        "overview-period-ruler"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)"
+      ],
+      "created": "2026-09-29T02:01:35Z",
+      "last_seen": "2026-09-29T02:01:35Z"
     }
   ]
 }
