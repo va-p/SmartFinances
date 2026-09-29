@@ -35,32 +35,32 @@ type CurrentAccountSelected = {
 export const useCurrentAccountSelected = create<CurrentAccountSelected>(
   (set) => ({
     accountId: null,
-    setAccountId: (accountId) => set(() => ({ accountId: accountId })),
+    setAccountId: (accountId) => set(() => ({ accountId })),
     accountName: null,
-    setAccountName: (accountName) => set(() => ({ accountName: accountName })),
+    setAccountName: (accountName) => set(() => ({ accountName })),
     accountType: null,
-    setAccountType: (accountType) => set(() => ({ accountType: accountType })),
+    setAccountType: (accountType) => set(() => ({ accountType })),
     accountSubType: null,
     setAccountSubType: (accountSubType) =>
       set(() => ({ accountType: accountSubType })),
     accountCurrency: null,
     setAccountCurrency: (accountCurrency) =>
-      set(() => ({ accountCurrency: accountCurrency })),
+      set(() => ({ accountCurrency })),
     accountBalance: null,
     setAccountBalance: (accountBalance) =>
-      set(() => ({ accountBalance: accountBalance })),
+      set(() => ({ accountBalance })),
     accountInitialAmount: 0,
     setAccountInitialAmount: (accountInitialAmount) =>
-      set(() => ({ accountInitialAmount: accountInitialAmount })),
+      set(() => ({ accountInitialAmount })),
     accountTotalRevenues: null,
     setAccountTotalRevenues: (accountTotalRevenues) =>
-      set(() => ({ accountTotalRevenues: accountTotalRevenues })),
+      set(() => ({ accountTotalRevenues })),
     accountTotalExpenses: null,
     setAccountTotalExpenses: (accountTotalExpenses) =>
-      set(() => ({ accountTotalExpenses: accountTotalExpenses })),
+      set(() => ({ accountTotalExpenses })),
     accountTotalAmount: 'R$0',
     setAccountTotalAmount: (accountTotalAmount) =>
-      set(() => ({ accountTotalAmount: accountTotalAmount })),
+      set(() => ({ accountTotalAmount })),
     accountCreditData: null,
     setAccountCreditData: (creditData) =>
       set(() => ({ accountCreditData: creditData })),

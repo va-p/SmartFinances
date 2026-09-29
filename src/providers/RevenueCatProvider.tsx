@@ -1,14 +1,14 @@
-import {
+import React, {
   createContext,
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
-import { Platform, View, Text, Alert } from 'react-native';
+import { Platform, View, Alert } from 'react-native';
 
 import Purchases, {
-  LOG_LEVEL,
   PurchasesPackage,
   CustomerInfo,
 } from 'react-native-purchases';
@@ -37,7 +37,7 @@ interface RevenueCatProps {
 
 const RevenueCatContext = createContext<RevenueCatProps | null>(null);
 
-export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
+export function RevenueCatProvider({ children }: { children: ReactNode }) {
   const { id: userID } = useUser();
   const [user, setUser] = useState<UserProps>({
     items: [],
@@ -55,12 +55,22 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
         // console.log('Loaded offers =>', offerings.current.availablePackages);
       }
     } catch (error) {
-      console.error('RevenueCatProvider loadOfferings error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível buscar as ofertas. Por favor, tente novamente mais tarde.'
       );
     }
+  }
+
+  async function updateCustomerInfo(customerInfo: CustomerInfo) {
+    const newUser: UserProps = { items: [], premium: false };
+
+    if (customerInfo?.entitlements.active.pro !== undefined) {
+      newUser.items.push(customerInfo?.entitlements.active.pro.identifier);
+      newUser.premium = true;
+    }
+
+    setUser(newUser);
   }
 
   useEffect(() => {
@@ -98,18 +108,6 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
     init();
   }, []);
 
-  async function updateCustomerInfo(customerInfo: CustomerInfo) {
-    const newUser: UserProps = { items: [], premium: false };
-    // console.log('User info =>', customerInfo?.entitlements.active);
-
-    if (customerInfo?.entitlements.active.pro !== undefined) {
-      newUser.items.push(customerInfo?.entitlements.active.pro.identifier);
-      newUser.premium = true;
-    }
-
-    setUser(newUser);
-  }
-
   async function purchasePackage(pack: PurchasesPackage) {
     try {
       await Purchases.purchasePackage(pack);
@@ -120,7 +118,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (err: any) {
       if (!err.userCancelled) {
-        alert(err);
+        Alert.alert('Erro', `${err}`);
       }
     }
   }
@@ -131,12 +129,15 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
     return customer;
   }
 
-  const value = {
-    user,
-    packages,
-    purchasePackage,
-    restorePurchasesUser,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      packages,
+      purchasePackage,
+      restorePurchasesUser,
+    }),
+    [user, packages, purchasePackage, restorePurchasesUser]
+  );
 
   if (!isReady) {
     return (
@@ -152,8 +153,6 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </RevenueCatContext.Provider>
   );
-};
+}
 
-export const useRevenueCat = () => {
-  return useContext(RevenueCatContext) as RevenueCatProps;
-};
+export const useRevenueCat = () => useContext(RevenueCatContext) as RevenueCatProps;

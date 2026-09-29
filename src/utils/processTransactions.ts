@@ -208,10 +208,10 @@ export const processTransactions = (
 
   // Calculate current Cash Flow (by selected period)
   let currentCashFlowByPeriod = 0;
-  for (const item of groupedTransactions) {
+  groupedTransactions.forEach((item) => {
     const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
     currentCashFlowByPeriod += parseFloat(cleanTotal);
-  }
+  });
 
   return {
     cashFlows, // CashFlows by weeks, months, years or all history

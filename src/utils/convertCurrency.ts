@@ -30,44 +30,46 @@ export const convertCurrency = ({
 }: Props): number => {
   const currencyConversionRates: CurrencyConversionRates = {
     BRL: {
-      BTC: (amount: number) => {
-        const result = (amount * quotes.brlQuoteBtc.price).toFixed(8);
+      BTC: (value: number) => {
+        const result = (value * quotes.brlQuoteBtc.price).toFixed(8);
         return Number(result);
       },
-      EUR: (amount: number) => amount * quotes.brlQuoteEur.price,
-      USD: (amount: number) => amount * quotes.brlQuoteUsd.price,
+      EUR: (value: number) => value * quotes.brlQuoteEur.price,
+      USD: (value: number) => value * quotes.brlQuoteUsd.price,
     },
     BTC: {
-      BRL: (amount: number) => {
-        const result = amount * quotes.btcQuoteBrl.price;
+      BRL: (value: number) => {
+        const result = value * quotes.btcQuoteBrl.price;
         return Number(result.toFixed(2));
       },
-      EUR: (amount: number) => amount * quotes.btcQuoteEur.price,
-      USD: (amount: number) => amount * quotes.btcQuoteUsd.price,
+      EUR: (value: number) => value * quotes.btcQuoteEur.price,
+      USD: (value: number) => value * quotes.btcQuoteUsd.price,
     },
     EUR: {
-      BRL: (amount: number) => {
-        const result = amount * quotes.eurQuoteBrl.price;
+      BRL: (value: number) => {
+        const result = value * quotes.eurQuoteBrl.price;
         return Number(result.toFixed(2));
       },
-      BTC: (amount: number) => amount * quotes.eurQuoteBtc.price,
-      USD: (amount: number) => amount * quotes.eurQuoteUsd.price,
+      BTC: (value: number) => value * quotes.eurQuoteBtc.price,
+      USD: (value: number) => value * quotes.eurQuoteUsd.price,
     },
     USD: {
-      BRL: (amount: number) => {
-        const result = amount * quotes.usdQuoteBrl.price;
+      BRL: (value: number) => {
+        const result = value * quotes.usdQuoteBrl.price;
         return Number(result.toFixed(2));
       },
-      EUR: (amount: number) => amount * quotes.usdQuoteEur.price,
-      BTC: (amount: number) => amount * quotes.usdQuoteBtc.price,
+      EUR: (value: number) => value * quotes.usdQuoteEur.price,
+      BTC: (value: number) => value * quotes.usdQuoteBtc.price,
     },
   };
+
+  let convertedAmount = amount;
 
   // 1. Verificar se a moeda da transação é diferente da moeda da conta de origem
   if (fromCurrency !== accountCurrency) {
     // Converter para a moeda da conta de origem
-    amount = convertCurrency({
-      amount,
+    convertedAmount = convertCurrency({
+      amount: convertedAmount,
       fromCurrency,
       toCurrency: accountCurrency,
       accountCurrency: fromCurrency,
@@ -86,8 +88,8 @@ export const convertCurrency = ({
       );
     }
 
-    return conversionFunction(amount);
+    return conversionFunction(convertedAmount);
   }
 
-  return amount;
+  return convertedAmount;
 };

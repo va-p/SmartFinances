@@ -1,5 +1,30 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert } from 'react-native';
+import {
+  Container,
+  ContentScroll,
+  Row,
+  RowLeft,
+  RowIcon,
+  RowLabel,
+  RowLabelDanger,
+  RowValue,
+  SectionHeaderRow,
+  SectionHeaderTitle,
+  EditButton,
+  EditButtonText,
+  SectionBody,
+  DetailLine,
+  DetailLabel,
+  DetailValue,
+  EditSheetContent,
+  InputLabel,
+  EditInput,
+  PeriodPills,
+  PeriodPill,
+  PeriodPillText,
+  SaveButtonContainer,
+} from './styles';
 
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -40,32 +65,6 @@ import formatCurrency from '@utils/formatCurrency';
 import { parseDecimalInput } from '@utils/parseDecimalInput';
 import { formatSubscriptionDate } from '@utils/formatSubscriptionDate';
 import { subscriptionRecurrenceLabel } from '@utils/subscriptionDisplay';
-
-import {
-  Container,
-  ContentScroll,
-  Row,
-  RowLeft,
-  RowIcon,
-  RowLabel,
-  RowLabelDanger,
-  RowValue,
-  SectionHeaderRow,
-  SectionHeaderTitle,
-  EditButton,
-  EditButtonText,
-  SectionBody,
-  DetailLine,
-  DetailLabel,
-  DetailValue,
-  EditSheetContent,
-  InputLabel,
-  EditInput,
-  PeriodPills,
-  PeriodPill,
-  PeriodPillText,
-  SaveButtonContainer,
-} from './styles';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionRecurrencePeriod } from '@interfaces/subscriptions';
@@ -236,7 +235,7 @@ export function SubscriptionDetails() {
         <Gradient />
 
         <Header.Root>
-          <Header.CloseButton handleClickCloseButton={handleClose} />
+          <Header.CloseButton handleClickCloseButton={() => handleClose()} />
           <Header.Title
             title={subscription ? subscription.description : 'Assinatura'}
           />
@@ -277,7 +276,7 @@ export function SubscriptionDetails() {
             {/* Detalhes sobre pagamento (collapsible, AC15.3) */}
             <SectionHeaderRow>
               <SectionHeaderTitle>Detalhes sobre pagamento</SectionHeaderTitle>
-              <EditButton onPress={handleOpenEdit}>
+              <EditButton onPress={() => handleOpenEdit()}>
                 <PencilSimpleIcon size={16} color={theme.colors.primary} />
                 <EditButtonText>Editar</EditButtonText>
               </EditButton>
@@ -333,7 +332,7 @@ export function SubscriptionDetails() {
                 entering={FadeInUp.duration(COLLAPSE_DURATION)}
                 exiting={FadeOutUp.duration(COLLAPSE_DURATION)}
               >
-                <Row onPress={handleMarkNotSubscription}>
+                <Row onPress={() => handleMarkNotSubscription()}>
                   <RowLeft>
                     <RowIcon>
                       <LockIcon size={20} color={theme.colors.attention} />
@@ -343,7 +342,7 @@ export function SubscriptionDetails() {
                   <CaretRightIcon size={16} color={theme.colors.attention} />
                 </Row>
 
-                <Row onPress={handleToggleHide}>
+                <Row onPress={() => handleToggleHide()}>
                   <RowLeft>
                     <RowIcon>
                       {hideFromList ? (
@@ -415,7 +414,7 @@ export function SubscriptionDetails() {
 
             <SaveButtonContainer>
               <Button.Root
-                onPress={handleSaveEdit}
+                onPress={() => handleSaveEdit()}
                 isLoading={updateMutation.isPending}
               >
                 <Button.Text text='Salvar' />

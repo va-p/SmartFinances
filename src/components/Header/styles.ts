@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components/native';
 
 import { BorderlessButton } from 'react-native-gesture-handler';
+import { ThemeProps } from '@interfaces/theme';
 
 type ContainerProps = {
   childsCount: number;
@@ -49,17 +50,17 @@ export const Title = styled.Text.attrs({
   numberOfLines: 2,
   ellipsizeMode: 'tail',
 })`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitleXl};
   text-align: center;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const Description = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   text-align: center;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const EditButton = styled(BorderlessButton)``;

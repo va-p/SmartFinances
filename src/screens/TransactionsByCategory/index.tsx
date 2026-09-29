@@ -3,10 +3,10 @@ import { BackHandler, Dimensions, RefreshControl, View } from 'react-native';
 import { Container, FiltersContainer } from './styles';
 
 // Hooks
-import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useDateNavigation } from '@hooks/useDateNavigation';
-import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
+import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
 import {
@@ -28,6 +28,7 @@ import { useForm } from 'react-hook-form';
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
+import { SearchBar } from '@components/SearchBar';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
@@ -36,7 +37,6 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
-import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -47,6 +47,10 @@ import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
+
+function RowSeparator() {
+  return <View style={{ minHeight: 8, maxHeight: 8 }} />;
+}
 
 export function TransactionsByCategory({ navigation }: any) {
   const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
@@ -104,12 +108,12 @@ export function TransactionsByCategory({ navigation }: any) {
 
   const periodRulerDates = useMemo(() => {
     const years = new Set<number>();
-    for (const transaction of transactionsForThisCategory) {
+    transactionsForThisCategory.forEach((transaction) => {
       const transactionDate = new Date(transaction.created_at);
       if (!Number.isNaN(transactionDate.getTime())) {
         years.add(transactionDate.getFullYear());
       }
-    }
+    });
 
     return buildPeriodRulerDates({
       period: selectedPeriod.period,
@@ -166,7 +170,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Transações por categoria'} />
+          <Header.Title title="Transações por categoria" />
           <Header.SearchButton
             onPress={() => setShowSearchInput((prevState) => !prevState)}
           />
@@ -175,7 +179,7 @@ export function TransactionsByCategory({ navigation }: any) {
         <FiltersContainer>
           <FilterButton
             title={`Por ${selectedPeriod.name}`}
-            onPress={handleOpenPeriodSelectedModal}
+            onPress={() => handleOpenPeriodSelectedModal()}
           />
         </FiltersContainer>
 
@@ -197,9 +201,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
         <AnimatedFlashList
           data={filteredTransactions}
-          keyExtractor={(item: any) => {
-            return item.isHeader ? String(item.headerTitle!) : String(item.id);
-          }}
+          keyExtractor={(item: any) => item.isHeader ? String(item.headerTitle) : String(item.id)}
           renderItem={({ item, index }: any) => {
             if (item.isHeader) {
               return (
@@ -225,18 +227,16 @@ export function TransactionsByCategory({ navigation }: any) {
               ? 'sectionHeader'
               : 'row'
           }
-          ListEmptyComponent={() => <ListEmptyComponent />}
+          ListEmptyComponent={ListEmptyComponent}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
-          ItemSeparatorComponent={() => (
-            <View style={{ minHeight: 8, maxHeight: 8 }} />
-          )}
+          ItemSeparatorComponent={RowSeparator}
           contentContainerStyle={{
             paddingTop: 16,
             paddingBottom: bottomTabBarHeight,
@@ -247,11 +247,11 @@ export function TransactionsByCategory({ navigation }: any) {
           title='Selecione o período'
           bottomSheetRef={chartPeriodSelectedBottomSheetRef}
           snapPoints={['30%', '50%']}
-          onClose={handleClosePeriodSelectedModal}
+          onClose={() => handleClosePeriodSelectedModal()}
         >
           <ChartPeriodSelect
             period={selectedPeriod}
-            closeSelectPeriod={handleClosePeriodSelectedModal}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
           />
         </ModalViewSelection>
 
@@ -262,7 +262,7 @@ export function TransactionsByCategory({ navigation }: any) {
           <RegisterTransaction
             id={transactionId}
             resetId={() => setTransactionId('')}
-            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
           />
         </ModalViewWithoutHeader>
       </Container>

@@ -14,6 +14,10 @@ import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 
 import { CategoryProps } from '@interfaces/categories';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las aos orçamentos.' />;
+}
 export function BudgetCategorySelect() {
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
@@ -82,13 +86,11 @@ export function BudgetCategorySelect() {
             onPress={() => handleSelectCategory(item)}
           />
         )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las aos orçamentos.' />
-        )}
+        ListEmptyComponent={EmptyList}
         refreshControl={
           <RefreshControl
             refreshing={isManualRefreshing}
-            onRefresh={handleRefresh}
+            onRefresh={() => handleRefresh()}
           />
         }
         numColumns={4}

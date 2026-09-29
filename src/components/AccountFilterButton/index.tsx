@@ -29,7 +29,7 @@ export function AccountFilterButton() {
     <>
       <FilterButton
         title={getAccountsFilterLabel(selectedAccountsFilter)}
-        onPress={handleOpenAccountFilterModal}
+        onPress={() => handleOpenAccountFilterModal()}
       />
 
       <ModalViewSelection

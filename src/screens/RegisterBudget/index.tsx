@@ -83,6 +83,15 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterBudget({ id, closeBudget }: Props) {
+  function getCategoriesSubtitle() {
+    if (!budgetCategoriesSelected[0]) {
+      return 'Selecione as categorias';
+    }
+
+    return `${budgetCategoriesSelected.length} categor${
+      budgetCategoriesSelected.length > 1 ? 'ias' : 'a'
+    }`;
+  }
   const theme = useTheme() as ThemeProps;
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const budgetCategoriesSelected = useBudgetCategoriesSelected(
@@ -136,7 +145,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
     useBudgetDetailQuery(id);
 
   useEffect(() => {
-    if (!!budgetData) {
+    if (budgetData) {
       let totalByDate = { id: '4', name: 'Mensalmente', period: 'MONTHLY' };
 
       setValue('name', budgetData.name);
@@ -186,6 +195,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             period: 'ANNUALLY',
           };
           break;
+        default:
+          break;
       }
       setBudgetPeriodSelected(totalByDate);
       setBudgetCategoriesSelected(budgetData.categories);
@@ -215,13 +226,13 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
   async function onSubmit(form: FormData) {
     let categoriesList: any = [];
-    for (const item of budgetCategoriesSelected) {
+    budgetCategoriesSelected.forEach((item) => {
       const categoryId = item.id;
 
       if (!categoriesList[categoryId]) {
         categoriesList.push(categoryId);
       }
-    }
+    });
     categoriesList = Object.values(categoriesList);
 
     const endDate = computeEndDate(startDate, budgetPeriodSelected.period);
@@ -346,12 +357,8 @@ export function RegisterBudget({ id, closeBudget }: Props) {
                 setCurrencySelected(selectedItem);
               }}
               defaultButtonText='Moeda'
-              buttonTextAfterSelection={(selectedItem) => {
-                return selectedItem.name;
-              }}
-              rowTextForSelection={(item) => {
-                return item.name;
-              }}
+              buttonTextAfterSelection={(selectedItem) => selectedItem.name}
+              rowTextForSelection={(item) => item.name}
               buttonStyle={{
                 width: '90%',
                 minHeight: 40,
@@ -366,9 +373,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
                 textAlign: 'left',
                 color: theme.colors.text,
               }}
-              renderDropdownIcon={() => {
-                return <CaretDownIcon color={theme.colors.text} size={16} />;
-              }}
+              renderDropdownIcon={() => <CaretDownIcon color={theme.colors.text} size={16} />}
               dropdownIconPosition='right'
               rowStyle={{ backgroundColor: theme.colors.background }}
               rowTextStyle={{ color: theme.colors.text }}
@@ -379,15 +384,9 @@ export function RegisterBudget({ id, closeBudget }: Props) {
 
         <SelectButton
           title='Orçamento para'
-          subTitle={
-            budgetCategoriesSelected[0]
-              ? budgetCategoriesSelected.length > 1
-                ? `${budgetCategoriesSelected.length} categorias`
-                : `${budgetCategoriesSelected.length} categoria`
-              : 'Selecione as categorias'
-          }
+          subTitle={getCategoriesSubtitle()}
           icon={<CirclesFourIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectCategoryModal}
+          onPress={() => handleOpenSelectCategoryModal()}
         />
 
         <SelectButton
@@ -401,7 +400,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
             testID='dateTimePicker'
             value={startDate}
             mode='date'
-            is24Hour={true}
+            is24Hour
             onValueChange={onChangeDate}
             dateFormat='day month year'
             textColor={theme.colors.text}
@@ -412,7 +411,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           title='Repetir'
           subTitle={budgetPeriodSelected.name}
           icon={<RepeatIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectRecurrencePeriodModal}
+          onPress={() => handleOpenSelectRecurrencePeriodModal()}
         />
 
         <Footer>
@@ -432,7 +431,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           title='Categorias'
           bottomSheetRef={categoryBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectCategoryModal}
+          onClose={() => handleCloseSelectCategoryModal()}
         >
           <BudgetCategorySelect />
         </ModalViewSelection>
@@ -445,7 +444,7 @@ export function RegisterBudget({ id, closeBudget }: Props) {
           <BudgetPeriodSelect
             period={budgetPeriodSelected}
             setPeriod={setBudgetPeriodSelected}
-            closeSelectPeriod={handleCloseSelectRecurrencePeriodModal}
+            closeSelectPeriod={() => handleCloseSelectRecurrencePeriodModal()}
           />
         </ModalViewSelection>
       </Container>

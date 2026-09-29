@@ -71,16 +71,16 @@ export function buildNetWorthEvolution({
   // ── 1. Net flow per period ───────────────────────────────────────────────
   const totalsByPeriod: Record<string, Decimal> = {};
 
-  for (const transaction of transactions) {
+  transactions.forEach((transaction) => {
     const transactionDate = new Date(transaction.created_at);
-    if (isNaN(transactionDate.getTime())) continue;
-    if (transactionDate > new Date()) continue;
+    if (Number.isNaN(transactionDate.getTime())) return;
+    if (transactionDate > new Date()) return;
 
     if (
       transaction.type === 'TRANSFER_CREDIT' ||
       transaction.type === 'TRANSFER_DEBIT'
     ) {
-      continue;
+      return;
     }
 
     const rawAmount =
@@ -95,13 +95,13 @@ export function buildNetWorthEvolution({
       totalsByPeriod[periodKey] = new Decimal(0);
     }
     totalsByPeriod[periodKey] = totalsByPeriod[periodKey].plus(signedAmount);
-  }
+  });
 
   // ── 2. Initial net worth ──────────────────────────────────────────────────
   let sumOfAllFlows = new Decimal(0);
-  for (const periodTotal of Object.values(totalsByPeriod)) {
+  Object.values(totalsByPeriod).forEach((periodTotal) => {
     sumOfAllFlows = sumOfAllFlows.plus(periodTotal);
-  }
+  });
 
   let accumulatedTotal = new Decimal(totalAssets).minus(sumOfAllFlows);
 

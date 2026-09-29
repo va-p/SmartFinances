@@ -16,27 +16,119 @@
     "sourceType": "module"
   },
   "plugins": ["react", "react-native", "@typescript-eslint"],
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json",
+        "mainFields": [
+          "module",
+          "jsnext:main",
+          "main"
+        ]
+      }
+    }
+  },
   "rules": {
-    // allow .js files to contain JSX code
     "react/jsx-filename-extension": [
       1,
       { "extensions": [".js", ".ts", ".jsx", ".tsx"] }
     ],
-    // prevent eslint to complain about the "styles" variable being used before it was defined
     "no-use-before-define": ["error", { "variables": false }],
-    // ignore errors for the react-navigation package
     "react/prop-types": [
       "error",
       { "ignore": ["navigation", "navigation.navigate"] }
     ],
-    // ignore errors for types "any"
     "@typescript-eslint/no-explicit-any": "off",
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "semi": ["error", "always"],
-    // ignore errors for non default exports
-    "import/prefer-default-export": [
-        "off",
-        { "target": "single" }
-    ]
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": [
+          "acc",
+          "accumulator",
+          "e",
+          "ctx",
+          "context",
+          "req",
+          "request",
+          "res",
+          "response",
+          "$scope",
+          "staticContext",
+          "config",
+          "videoPlayer",
+          "transaction"
+        ]
+      }
+    ],
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": "error",
+    "react/require-default-props": [
+      "error",
+      {
+        "functions": "defaultArguments",
+        "forbidDefaultForRequired": true
+      }
+    ],
+    "react/jsx-props-no-spreading": "off",
+    "@typescript-eslint/no-empty-interface": [
+      "error",
+      {
+        "allowSingleExtends": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "ignoreRestSiblings": true
+      }
+    ],
+    "import/prefer-default-export": "off",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          ["builtin", "external", "internal"],
+          ["parent", "sibling", "index"]
+        ],
+        "pathGroups": [
+          { "pattern": "react", "group": "external", "position": "before" },
+          {
+            "pattern": "react-native",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "./styles",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "../../styles",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"]
+      }
+    ],
+    "global-require": "off",
+    "import/no-dynamic-require": "off"
   }
 }

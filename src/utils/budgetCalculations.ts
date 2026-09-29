@@ -126,27 +126,29 @@ export function formatBudgetInfo(
   );
 
   let amountSpent = 0;
-  for (const transaction of filteredTransactions) {
+  filteredTransactions.forEach((transaction) => {
     const isTransfer =
       transaction.type === 'TRANSFER_CREDIT' ||
       transaction.type === 'TRANSFER_DEBIT';
 
     if (isTransfer) {
-      continue;
+      return;
     }
 
     amountSpent += getTransactionSpentAmount(transaction);
 
-    transaction.amount_in_account_currency
-      ? (transaction.amount_in_account_currency_formatted = formatCurrency(
-          transaction.account.currency.code,
-          transaction.amount_in_account_currency
-        ))
-      : (transaction.amount_formatted = formatCurrency(
-          transaction.account.currency.code,
-          transaction.amount
-        ));
-  }
+    if (transaction.amount_in_account_currency) {
+      transaction.amount_in_account_currency_formatted = formatCurrency(
+        transaction.account.currency.code,
+        transaction.amount_in_account_currency
+      );
+    } else {
+      transaction.amount_formatted = formatCurrency(
+        transaction.account.currency.code,
+        transaction.amount
+      );
+    }
+  });
 
   const percentage = (amountSpent / Number(budget.amount)) * 100;
 

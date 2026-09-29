@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { Container } from './styles';
 
-import { useCurrenciesStore } from '@storage/currenciesStore';
+import { useCurrenciesStore } from '@stores/currenciesStore';
 
 import { ListItem } from '@components/ListItem';
 import { Gradient } from '@components/Gradient';
@@ -23,28 +23,28 @@ export function CurrencySelect({
 }: Props) {
   const currencies = useCurrenciesStore((state) => state.currencies);
 
-  function handleCurrencySelect(currency: CurrencyProps) {
-    setCurrency(currency);
+  function handleCurrencySelect(selectedCurrency: CurrencyProps) {
+    setCurrency(selectedCurrency);
     closeSelectCurrency();
   }
 
   return (
-      <Container>
-        <Gradient />
+    <Container>
+      <Gradient />
 
-        <FlatList
-          data={currencies}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <ListItem
-              data={item}
-              isActive={currency.id === item.id}
-              onPress={() => handleCurrencySelect(item)}
-            />
-          )}
-          ItemSeparatorComponent={() => <ListSeparator />}
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+      <FlatList
+        data={currencies}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <ListItem
+            data={item}
+            isActive={currency.id === item.id}
+            onPress={() => handleCurrencySelect(item)}
+          />
+        )}
+        ItemSeparatorComponent={ListSeparator}
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }

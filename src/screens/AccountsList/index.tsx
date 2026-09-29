@@ -28,7 +28,6 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterAccount } from '@screens/RegisterAccount';
 
-import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
@@ -44,6 +43,10 @@ import { ThemeProps } from '@interfaces/theme';
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
 import type { SortingOption } from '@stores/userConfigsStorage';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta criada. Crie contas para visualizá-la aqui.' />;
+}
 export function AccountsList() {
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -100,7 +103,6 @@ export function AccountsList() {
         setAccounts(data);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert('Contas', error?.response?.data.message, [
         { text: 'Tentar novamente' },
         {
@@ -146,6 +148,7 @@ export function AccountsList() {
       fetchAccounts();
       editAccountBottomSheetRef.current?.dismiss();
     } catch (error) {
+      //
     } finally {
       setLoading(false);
     }
@@ -189,7 +192,7 @@ export function AccountsList() {
     );
   }
 
-  function _renderItem({ item, index }: any) {
+  function renderItem({ item, index }: any) {
     const getAccountIcon = () => {
       switch (item.type) {
         case 'OTHER':
@@ -203,8 +206,7 @@ export function AccountsList() {
         case 'CREDIT':
           return <CreditCardIcon color={theme.colors.primary} />;
         default:
-          'WALLET';
-          break;
+          return undefined;
       }
     };
 
@@ -241,28 +243,26 @@ export function AccountsList() {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Contas Manuais'} />
+          <Header.Title title="Contas Manuais" />
           <SortFilterButton
             selectedOption={sortingOption}
-            onSelect={handleSelectSorting}
+            onSelect={(option: SortingOption) => handleSelectSorting(option)}
           />
         </Header.Root>
 
         <FlatList
           data={sortedAccounts}
           keyExtractor={(_, idx) => String(idx)}
-          renderItem={_renderItem}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma conta criada. Crie contas para visualizá-la aqui.' />
-          )}
+          renderItem={({ item, index }) => renderItem({ item, index })}
+          ListEmptyComponent={EmptyList}
           initialNumToRender={10}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchAccounts} />
+            <RefreshControl refreshing={refreshing} onRefresh={() => fetchAccounts()} />
           }
           ListFooterComponent={
             <Button.Root
               type='secondary'
-              onPress={handleOpenRegisterAccountModal}
+              onPress={() => handleOpenRegisterAccountModal()}
               style={{ marginTop: 16 }}
             >
               <Button.Text text='Criar Nova Conta' />
@@ -282,12 +282,12 @@ export function AccountsList() {
           title={accountID !== '' ? 'Editar Conta' : 'Criar Nova Conta'}
           bottomSheetRef={editAccountBottomSheetRef}
           snapPoints={['50%', '75%']}
-          closeModal={handleCloseRegisterAccountModal}
-          deleteChildren={handleClickDeleteAccount}
+          closeModal={() => handleCloseRegisterAccountModal()}
+          deleteChildren={() => handleClickDeleteAccount()}
         >
           <RegisterAccount
             id={accountID}
-            closeAccount={handleCloseEditAccount}
+            closeAccount={() => handleCloseEditAccount()}
           />
         </ModalView>
       </Container>

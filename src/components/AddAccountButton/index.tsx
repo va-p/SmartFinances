@@ -1,10 +1,10 @@
 import React from 'react';
-import { RectButtonProps } from 'react-native-gesture-handler';
 import {
   Container,
   Icon,
   Title
 } from './styles';
+import { RectButtonProps } from 'react-native-gesture-handler';
 
 type Props = RectButtonProps & {
   icon?: string;
@@ -12,7 +12,7 @@ type Props = RectButtonProps & {
   title: string;
 }
 
-export function AddAccountButton({ icon, title, ...rest }: Props) {
+export function AddAccountButton({ icon = undefined, title, ...rest }: Props) {
   return (
     <Container {...rest}>
       <Icon name={icon}/>

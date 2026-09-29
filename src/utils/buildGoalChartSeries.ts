@@ -43,8 +43,8 @@ export function buildGoalChartSeries(
     firstProjectionIndex === -1
       ? undefined
       : points.map((point, index) => ({
-          value: index < realCount - 1 ? undefined : point.value,
-        }));
+        value: index < realCount - 1 ? undefined : point.value,
+      }));
 
   return { data, data2, labels: points.map((point) => point.label) };
 }

@@ -37,6 +37,10 @@ import { useUserConfigs } from '@stores/userConfigsStorage';
 import { ThemeProps } from '@interfaces/theme';
 import { GoalProps } from '@interfaces/goals';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma meta arquivada. Arquive uma meta para visualizá-la aqui.' />;
+}
 export function ArchivedGoals() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
@@ -122,13 +126,11 @@ export function ArchivedGoals() {
               </UnarchiveButton>
             </ArchivedRow>
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma meta arquivada. Arquive uma meta para visualizá-la aqui.' />
-          )}
+          ListEmptyComponent={EmptyList}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           showsVerticalScrollIndicator={false}

@@ -1,6 +1,7 @@
+import { Platform, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 
-import { Platform, TouchableOpacity } from 'react-native';
+import { ThemeProps } from '@interfaces/theme';
 
 export const Container = styled.View`
   flex: 1;
@@ -16,7 +17,7 @@ export const PeriodRow = styled(TouchableOpacity).attrs({
   min-height: 56px;
   margin-bottom: 16px;
   padding-horizontal: 16px;
-  background-color: ${({ theme }) => theme.colors.shape};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: 10px;
 `;
 
@@ -26,15 +27,15 @@ export const PeriodRowLeft = styled.View`
 `;
 
 export const PeriodLabel = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const PeriodValue = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const PeriodValueContainer = styled.View`
@@ -55,15 +56,15 @@ export const TotalRow = styled.View`
 `;
 
 export const TotalLabel = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const TotalValue = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.title};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.bold};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const SectionHeader = styled.View`
@@ -74,9 +75,9 @@ export const SectionHeader = styled.View`
 `;
 
 export const SectionHeaderTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const HeaderIconButton = styled(TouchableOpacity).attrs({

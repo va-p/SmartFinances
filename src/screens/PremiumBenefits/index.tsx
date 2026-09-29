@@ -14,7 +14,6 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
-import { Benefit } from './components/Benefit';
 import { PremiumPackageListItem } from '@components/PremiumPackageListItem';
 
 import { addDays } from 'date-fns';
@@ -28,6 +27,9 @@ import { useRevenueCat } from '@providers/RevenueCatProvider';
 import { PackageProps } from '@interfaces/premiumPackage';
 
 import { eUrl } from '@enums/enumsUrl';
+
+// Local
+import { Benefit } from './components/Benefit';
 
 export function PremiumBenefits() {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState(
@@ -51,9 +53,9 @@ export function PremiumBenefits() {
   useFocusEffect(
     useCallback(() => {
       function getSubscriptionEndDate() {
-        const subscriptionEndDate = addDays(new Date(), 14);
+        const subscriptionEndDateAux = addDays(new Date(), 14);
         const subscriptionEndDateFormatted =
-          formatDatePtBr(subscriptionEndDate).extensive;
+          formatDatePtBr(subscriptionEndDateAux).extensive;
         setSubscriptionEndDate(subscriptionEndDateFormatted);
       }
 
@@ -68,7 +70,7 @@ export function PremiumBenefits() {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Escolha seu plano'} />
+          <Header.Title title="Escolha seu plano" />
         </Header.Root>
 
         <ScrollContent>
@@ -80,31 +82,29 @@ export function PremiumBenefits() {
           </Description>
 
           <PremiumBenefitsContainer>
-            <Benefit description={'Dicas Personalizadas'} />
+            <Benefit description="Dicas Personalizadas" />
 
-            <Benefit description={'Armazenamento Ilimitado de Imagens'} />
+            <Benefit description="Armazenamento Ilimitado de Imagens" />
 
             <Benefit
-              description={
-                'Insights Inteligentes Gerados com Inteligência Artificial'
-              }
+              description="Insights Inteligentes Gerados com Inteligência Artificial"
             />
 
-            {/*<Benefit description={'Sincronização de Contas Bancárias'} />*/}
+            {/* <Benefit description={'Sincronização de Contas Bancárias'} /> */}
 
-            {/*<Benefit description={'Sincronização de Cartões de Crédito'} />*/}
+            {/* <Benefit description={'Sincronização de Cartões de Crédito'} /> */}
 
-            {/*<Benefit
+            {/* <Benefit
               description={
                 'Categorização das Transações com Inteligência Artificial'
               }
-            />*/}
+            /> */}
           </PremiumBenefitsContainer>
 
           <PackagesContainer>
-            {packages.map((pack, idx) => (
+            {packages.map((pack) => (
               <PremiumPackageListItem
-                key={idx}
+                key={pack.identifier}
                 data={pack as PackageProps}
                 onPress={() => handlePurchase(pack)}
               />
@@ -122,7 +122,7 @@ export function PremiumBenefits() {
               Já assinou o Smart Finances?{' '}
               <Advice
                 style={{ textDecorationLine: 'underline' }}
-                onPress={async () => await restorePurchasesUser()}
+                onPress={async () => restorePurchasesUser()}
               >
                 Restaurar assinatura
               </Advice>
@@ -133,14 +133,14 @@ export function PremiumBenefits() {
               Ao comprar a assinatura do Smart Finances, você aceita a nossa{' '}
               <Advice
                 style={{ textDecorationLine: 'underline' }}
-                onPress={handleClickPrivacyPolicy}
+                onPress={() => handleClickPrivacyPolicy()}
               >
                 Política de Privacidade
               </Advice>{' '}
               e nossos{' '}
               <Advice
                 style={{ textDecorationLine: 'underline' }}
-                onPress={handleClickTermsOfUse}
+                onPress={() => handleClickTermsOfUse()}
               >
                 Termos de Uso.
               </Advice>

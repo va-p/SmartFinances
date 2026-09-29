@@ -31,7 +31,7 @@ export function buildBudgetHistory(
   return periods.map((period) => {
     let amountSpent = 0;
 
-    for (const transaction of budgetTransactions) {
+    budgetTransactions.forEach((transaction) => {
       const transactionDate = new Date(transaction.created_at);
 
       if (
@@ -40,7 +40,7 @@ export function buildBudgetHistory(
       ) {
         amountSpent += getTransactionSpentAmount(transaction);
       }
-    }
+    });
 
     return {
       startDate: period.startDate,

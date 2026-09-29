@@ -28,6 +28,10 @@ import { useUserConfigs } from '@stores/userConfigsStorage';
 // Interfaces
 import { GoalProps } from '@interfaces/goals';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma meta concluída ainda. Conclua uma meta para visualizá-la aqui.' />;
+}
 export function CompletedGoals() {
   const router = useRouter();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
@@ -89,22 +93,20 @@ export function CompletedGoals() {
               footerText={
                 item.completed_at
                   ? `Concluída em ${format(
-                      new Date(item.completed_at),
-                      'dd MMMM, yyyy',
-                      { locale: ptBR }
-                    )}`
+                    new Date(item.completed_at),
+                    'dd MMMM, yyyy',
+                    { locale: ptBR }
+                  )}`
                   : undefined
               }
               onPress={() => handleOpenGoal(item)}
             />
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma meta concluída ainda. Conclua uma meta para visualizá-la aqui.' />
-          )}
+          ListEmptyComponent={EmptyList}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           showsVerticalScrollIndicator={false}

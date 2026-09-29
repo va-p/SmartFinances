@@ -15,7 +15,7 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-import { PeriodProps } from '@screens/ChartPeriodSelect';
+import { PeriodProps } from '@interfaces/chartPeriod';
 
 type UseDateNavigationProps = {
   selectedPeriod: PeriodProps;
@@ -44,6 +44,8 @@ export function useDateNavigation({
             case 'next':
               setSelectedDate(addWeeks(selectedDate, 1));
               break;
+            default:
+              break;
           }
           break;
         // 'all' renders the months ruler, so it navigates like 'months'
@@ -56,6 +58,8 @@ export function useDateNavigation({
             case 'next':
               setSelectedDate(addMonths(selectedDate, 1));
               break;
+            default:
+              break;
           }
           break;
         case 'years':
@@ -66,7 +70,11 @@ export function useDateNavigation({
             case 'next':
               setSelectedDate(addYears(selectedDate, 1));
               break;
+            default:
+              break;
           }
+          break;
+        default:
           break;
       }
     },

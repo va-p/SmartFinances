@@ -1,13 +1,6 @@
 import React from 'react';
 import { TouchableOpacityProps } from 'react-native';
-import {
-  Placeholder,
-  Container,
-  Description,
-  Title,
-  Icon,
-  IconChevronDown,
-} from './styles';
+import { Placeholder, Container, Icon } from './styles';
 
 import { CategoryProps } from '@interfaces/categories';
 

@@ -20,6 +20,10 @@ import { AccountProps } from '@interfaces/accounts';
  * (isVirtual) never show up here — they are managed exclusively by the goals
  * flow (GOAL-26).
  */
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de vinculá-las às suas metas.' />;
+}
 export function GoalAccountSelect() {
   const {
     data: accounts,
@@ -71,10 +75,8 @@ export function GoalAccountSelect() {
             onPress={() => handleToggleAccount(item)}
           />
         )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de vinculá-las às suas metas.' />
-        )}
-        ItemSeparatorComponent={() => <ListSeparator />}
+        ListEmptyComponent={EmptyList}
+        ItemSeparatorComponent={ListSeparator}
         refreshControl={
           <RefreshControl
             refreshing={isRefetchingAccounts}

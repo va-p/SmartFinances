@@ -139,7 +139,6 @@ export function OptionsMenu() {
         setHideAmount(!hideAmount);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Ocultar informações',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -153,7 +152,6 @@ export function OptionsMenu() {
       setDarkMode(!darkMode);
       await reloadAppAsync();
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Modo escuro',
         'Não foi possível alterar o modo escuro, por favor, tente novamente.'
@@ -172,7 +170,6 @@ export function OptionsMenu() {
         setInsights(!insights);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Insights Inteligentes',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -210,7 +207,6 @@ export function OptionsMenu() {
         }
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Autenticação biométrica',
         'Não foi possível autenticar com a biometria, por favor, tente novamente.'
@@ -244,7 +240,6 @@ export function OptionsMenu() {
         setNotificationsEnabled(!notificationsEnabled);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Notificações',
         'Não foi possível alterar a configuração, por favor, tente novamente.'
@@ -259,11 +254,11 @@ export function OptionsMenu() {
         {
           text: 'Sair',
           style: 'destructive',
-          onPress: async () => await signOut(),
+          onPress: () => signOut(),
         },
       ]);
     } catch (error) {
-      console.error('handleLogout error:', error);
+      //
     }
   }
 
@@ -281,7 +276,7 @@ export function OptionsMenu() {
           <SelectButton
             icon={<UserIcon color={theme.colors.primary} />}
             title='Perfil'
-            onPress={handleOpenProfile}
+            onPress={() => handleOpenProfile()}
           />
 
           <SelectButton
@@ -336,7 +331,7 @@ export function OptionsMenu() {
           <ButtonToggle
             icon={<EyeSlashIcon color={theme.colors.primary} />}
             title='Ocultar informações'
-            onValueChange={handleChangeHideAmount}
+            onValueChange={() => handleChangeHideAmount()}
             value={hideAmount}
             isEnabled={hideAmount}
           />
@@ -344,7 +339,7 @@ export function OptionsMenu() {
           <ButtonToggle
             icon={<MoonStarsIcon color={theme.colors.primary} />}
             title='Modo escuro'
-            onValueChange={handleChangeDarkMode}
+            onValueChange={() => handleChangeDarkMode()}
             value={darkMode}
             isEnabled={darkMode}
           />
@@ -352,7 +347,7 @@ export function OptionsMenu() {
           <ButtonToggle
             icon={<SparkleIcon color={theme.colors.primary} />}
             title='Insights Inteligentes'
-            onValueChange={handleChangeSmartInsights}
+            onValueChange={() => handleChangeSmartInsights()}
             value={insights}
             isEnabled={insights}
           />
@@ -360,7 +355,7 @@ export function OptionsMenu() {
           <ButtonToggle
             icon={<FingerprintIcon color={theme.colors.primary} />}
             title='Touch / Face ID'
-            onValueChange={handleChangeUseLocalAuth}
+            onValueChange={() => handleChangeUseLocalAuth()}
             value={useLocalAuth}
             isEnabled={useLocalAuth}
           />
@@ -368,7 +363,7 @@ export function OptionsMenu() {
           <ButtonToggle
             icon={<BellIcon color={theme.colors.primary} />}
             title='Notificações'
-            onValueChange={handleChangeNotifications}
+            onValueChange={() => handleChangeNotifications()}
             value={notificationsEnabled}
             isEnabled={notificationsEnabled}
           />
@@ -390,14 +385,14 @@ export function OptionsMenu() {
             icon={<CookieIcon color={theme.colors.primary} />}
             title='Política de Privacidade'
             onPress={() => handleOpenPrivacyPolicy()}
-            onLongPress={handleOpenDevScreen}
+            onLongPress={() => handleOpenDevScreen()}
           />
 
           <SelectButton
             icon={<SignOutIcon color={theme.colors.primary} />}
             title='Sair'
             onPress={() => handleLogout()}
-            onLongPress={handleOpenDevScreen}
+            onLongPress={() => handleOpenDevScreen()}
           />
         </ContentScroll>
       </Container>

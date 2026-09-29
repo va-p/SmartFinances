@@ -20,20 +20,20 @@ type Props = RectButtonProps & {
   icon: any;
 };
 
-export function SelectButton({ title, subTitle, icon, ...rest }: Props) {
+export function SelectButton({ title, subTitle = undefined, icon, ...rest }: Props) {
   const theme = useTheme() as ThemeProps;
 
   return (
     <Container {...rest}>
       <IconAndTextsContainer>
-      <IconContainer>
-        {icon}
-      </IconContainer>
+        <IconContainer>
+          {icon}
+        </IconContainer>
 
-      <TitleContainer>
-        <Title>{title}</Title>
-        {subTitle && <SubTitle>{subTitle}</SubTitle>}
-      </TitleContainer>
+        <TitleContainer>
+          <Title>{title}</Title>
+          {subTitle && <SubTitle>{subTitle}</SubTitle>}
+        </TitleContainer>
       </IconAndTextsContainer>
 
       <CaretRightIcon size={16} color={theme.colors.text} />

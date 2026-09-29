@@ -28,10 +28,10 @@ export function computeGoalProgress(
 
   let currentAmount = Number(goal?.reserve_account?.balance ?? 0);
 
-  for (const account of goal?.linked_accounts ?? []) {
+  (goal?.linked_accounts ?? []).forEach((account) => {
     if (account.currency.code === goalCurrencyCode) {
       currentAmount += Number(account.balance);
-      continue;
+      return;
     }
 
     currentAmount += convertCurrency({
@@ -43,7 +43,7 @@ export function computeGoalProgress(
       accountCurrency: account.currency.code,
       quotes,
     });
-  }
+  });
 
   const percentage = (currentAmount / Number(goal.target_amount)) * 100;
 

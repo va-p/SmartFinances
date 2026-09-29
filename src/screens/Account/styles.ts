@@ -1,3 +1,4 @@
+import { ThemeProps } from '@interfaces/theme';
 import styled from 'styled-components/native';
 
 type BalanceProps = {
@@ -6,7 +7,7 @@ type BalanceProps = {
 
 export const Container = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.background};
 `;
 
 export const HeaderContainer = styled.View`
@@ -48,37 +49,37 @@ export const AccountBalanceSeparator = styled.View`
   max-width: 2px;
   min-height: 40px;
   max-height: 40px;
-  background-color: ${({ theme }) => theme.colors.text};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const AccountBalance = styled.Text<BalanceProps>`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   color: ${({ theme, balanceIsPositive }) =>
-    balanceIsPositive ? theme.colors.success : theme.colors.attention};
+    balanceIsPositive ? (theme as ThemeProps).colors.success : (theme as ThemeProps).colors.attention};
 `;
 
 export const AccountBalanceDescription = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   text-align: center;
   margin-top: -8px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const AccountCashFlow = styled.Text<BalanceProps>`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   color: ${({ theme, balanceIsPositive }) =>
-    balanceIsPositive ? theme.colors.success : theme.colors.attention};
+    balanceIsPositive ? (theme as ThemeProps).colors.success : (theme as ThemeProps).colors.attention};
 `;
 
 export const AccountCashFlowDescription = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   text-align: center;
   margin-top: -8px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const Transactions = styled.View`

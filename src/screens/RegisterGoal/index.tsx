@@ -85,6 +85,15 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function RegisterGoal({ id, closeGoal }: Props) {
+  function getAccountsSubtitle() {
+    if (!goalAccountsSelected[0]) {
+      return 'Selecione as contas (opcional)';
+    }
+
+    return `${goalAccountsSelected.length} cont${
+      goalAccountsSelected.length > 1 ? 'as' : 'a'
+    }`;
+  }
   const theme = useTheme() as ThemeProps;
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const goalAccountsSelected = useGoalAccountsSelected(
@@ -134,7 +143,7 @@ export function RegisterGoal({ id, closeGoal }: Props) {
     useGoalDetailQuery(id);
 
   useEffect(() => {
-    if (!!goalData) {
+    if (goalData) {
       setValue('name', goalData.name);
       setValue('amount', String(Number(goalData.target_amount)));
       // The goal DTO currency has no `name`; resolve the full CurrencyProps
@@ -170,7 +179,7 @@ export function RegisterGoal({ id, closeGoal }: Props) {
 
     const linkedAccountIds = goalAccountsSelected.map((account) => account.id);
 
-    if (!!id) {
+    if (id) {
       // --- Update goal (currency is immutable after creation) ---
       const editedGoal = {
         goalId: id,
@@ -229,144 +238,132 @@ export function RegisterGoal({ id, closeGoal }: Props) {
 
   if (isLoadingDetails || isLoadingCurrencies) {
     return (
-        <SkeletonAccountsScreen />
+      <SkeletonAccountsScreen />
     );
   }
 
   return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ControlledInputWithIcon
-            icon={<PencilSimpleIcon color={theme.colors.primary} />}
-            placeholder='Nome da meta'
-            autoCapitalize='sentences'
-            autoCorrect={false}
-            defaultValue={getValues('name')}
-            name='name'
-            control={control}
-            error={errors.name}
-          />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ControlledInputWithIcon
+          icon={<PencilSimpleIcon color={theme.colors.primary} />}
+          placeholder='Nome da meta'
+          autoCapitalize='sentences'
+          autoCorrect={false}
+          defaultValue={getValues('name')}
+          name='name'
+          control={control}
+          error={errors.name}
+        />
 
-          <AmountContainer>
-            <AmountGroup>
-              <ControlledInputWithIcon
-                icon={<MoneyIcon color={theme.colors.primary} />}
-                placeholder='Valor da meta'
-                keyboardType='decimal-pad'
-                defaultValue={getValues('amount')}
-                name='amount'
-                control={control}
-                error={errors.amount}
-              />
-            </AmountGroup>
-
-            <CurrencyGroup>
-              {!!id ? (
-                <CurrencyStatic>
-                  <CurrencyStaticText>
-                    {currencySelected?.name}
-                  </CurrencyStaticText>
-                </CurrencyStatic>
-              ) : (
-                <SelectDropdown
-                  data={currencies}
-                  onSelect={(selectedItem) => {
-                    setCurrencySelected(selectedItem);
-                  }}
-                  defaultButtonText='Moeda'
-                  buttonTextAfterSelection={(selectedItem) => {
-                    return selectedItem.name;
-                  }}
-                  rowTextForSelection={(item) => {
-                    return item.name;
-                  }}
-                  buttonStyle={{
-                    width: '90%',
-                    minHeight: 40,
-                    maxHeight: 40,
-                    marginTop: 10,
-                    backgroundColor: theme.colors.shape,
-                    borderRadius: 10,
-                  }}
-                  buttonTextStyle={{
-                    fontFamily: theme.fonts.regular,
-                    fontSize: 15,
-                    textAlign: 'left',
-                    color: theme.colors.text,
-                  }}
-                  renderDropdownIcon={() => {
-                    return (
-                      <CaretDownIcon color={theme.colors.text} size={16} />
-                    );
-                  }}
-                  dropdownIconPosition='right'
-                  rowStyle={{ backgroundColor: theme.colors.background }}
-                  rowTextStyle={{ color: theme.colors.text }}
-                  dropdownStyle={{ borderRadius: 10 }}
-                />
-              )}
-            </CurrencyGroup>
-          </AmountContainer>
-
-          <SelectButton
-            title='Contas vinculadas'
-            subTitle={
-              goalAccountsSelected[0]
-                ? goalAccountsSelected.length > 1
-                  ? `${goalAccountsSelected.length} contas`
-                  : `${goalAccountsSelected.length} conta`
-                : 'Selecione as contas (opcional)'
-            }
-            icon={<WalletIcon color={theme.colors.primary} />}
-            onPress={handleOpenSelectAccountModal}
-          />
-
-          <SelectButton
-            title='Data limite (opcional)'
-            subTitle={
-              deadline
-                ? format(deadline, 'dd MMMM, yyyy', { locale: ptBR })
-                : 'Não definida'
-            }
-            icon={<CalendarIcon color={theme.colors.primary} />}
-            onPress={() => setShowDatePicker(true)}
-          />
-          {deadline && (
-            <ClearDeadlineButton onPress={() => setDeadline(null)}>
-              <ClearDeadlineText>Remover data limite</ClearDeadlineText>
-            </ClearDeadlineButton>
-          )}
-          {showDatePicker && (
-            <DateTimePicker
-              testID='dateTimePicker'
-              value={deadline ?? new Date()}
-              mode='date'
-              is24Hour={true}
-              onValueChange={onChangeDate}
-              dateFormat='day month year'
-              textColor={theme.colors.text}
+        <AmountContainer>
+          <AmountGroup>
+            <ControlledInputWithIcon
+              icon={<MoneyIcon color={theme.colors.primary} />}
+              placeholder='Valor da meta'
+              keyboardType='decimal-pad'
+              defaultValue={getValues('amount')}
+              name='amount'
+              control={control}
+              error={errors.amount}
             />
-          )}
+          </AmountGroup>
 
-          <Footer>
-            <Button.Root
-              type='secondary'
-              isLoading={isCreating || isUpdating}
-              onPress={() => handleSubmit(onSubmit)()}
-            >
-              <Button.Text text={id ? 'Editar Meta' : 'Criar Nova Meta'} />
-            </Button.Root>
-          </Footer>
+          <CurrencyGroup>
+            {id ? (
+              <CurrencyStatic>
+                <CurrencyStaticText>
+                  {currencySelected?.name}
+                </CurrencyStaticText>
+              </CurrencyStatic>
+            ) : (
+              <SelectDropdown
+                data={currencies}
+                onSelect={(selectedItem) => {
+                  setCurrencySelected(selectedItem);
+                }}
+                defaultButtonText='Moeda'
+                buttonTextAfterSelection={(selectedItem) => selectedItem.name}
+                rowTextForSelection={(item) => item.name}
+                buttonStyle={{
+                  width: '90%',
+                  minHeight: 40,
+                  maxHeight: 40,
+                  marginTop: 10,
+                  backgroundColor: theme.colors.shape,
+                  borderRadius: 10,
+                }}
+                buttonTextStyle={{
+                  fontFamily: theme.fonts.regular,
+                  fontSize: 15,
+                  textAlign: 'left',
+                  color: theme.colors.text,
+                }}
+                renderDropdownIcon={() => (
+                  <CaretDownIcon color={theme.colors.text} size={16} />
+                )}
+                dropdownIconPosition='right'
+                rowStyle={{ backgroundColor: theme.colors.background }}
+                rowTextStyle={{ color: theme.colors.text }}
+                dropdownStyle={{ borderRadius: 10 }}
+              />
+            )}
+          </CurrencyGroup>
+        </AmountContainer>
 
-          <ModalViewSelection
-            $modal
-            title='Contas vinculadas'
-            bottomSheetRef={accountBottomSheetRef}
-            snapPoints={['75%']}
+        <SelectButton
+          title='Contas vinculadas'
+          subTitle={getAccountsSubtitle()}
+          icon={<WalletIcon color={theme.colors.primary} />}
+          onPress={() => handleOpenSelectAccountModal()}
+        />
+
+        <SelectButton
+          title='Data limite (opcional)'
+          subTitle={
+            deadline
+              ? format(deadline, 'dd MMMM, yyyy', { locale: ptBR })
+              : 'Não definida'
+          }
+          icon={<CalendarIcon color={theme.colors.primary} />}
+          onPress={() => setShowDatePicker(true)}
+        />
+        {deadline && (
+          <ClearDeadlineButton onPress={() => setDeadline(null)}>
+            <ClearDeadlineText>Remover data limite</ClearDeadlineText>
+          </ClearDeadlineButton>
+        )}
+        {showDatePicker && (
+          <DateTimePicker
+            testID='dateTimePicker'
+            value={deadline ?? new Date()}
+            mode='date'
+            is24Hour
+            onValueChange={onChangeDate}
+            dateFormat='day month year'
+            textColor={theme.colors.text}
+          />
+        )}
+
+        <Footer>
+          <Button.Root
+            type='secondary'
+            isLoading={isCreating || isUpdating}
+            onPress={() => handleSubmit(onSubmit)()}
           >
-            <GoalAccountSelect />
-          </ModalViewSelection>
-        </Container>
-      </TouchableWithoutFeedback>
+            <Button.Text text={id ? 'Editar Meta' : 'Criar Nova Meta'} />
+          </Button.Root>
+        </Footer>
+
+        <ModalViewSelection
+          $modal
+          title='Contas vinculadas'
+          bottomSheetRef={accountBottomSheetRef}
+          snapPoints={['75%']}
+        >
+          <GoalAccountSelect />
+        </ModalViewSelection>
+      </Container>
+    </TouchableWithoutFeedback>
   );
 }

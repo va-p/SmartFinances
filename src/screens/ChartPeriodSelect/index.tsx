@@ -6,11 +6,7 @@ import { ListItem } from '@components/ListItem';
 
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
-export interface PeriodProps {
-  id: string;
-  name: string;
-  period: 'weeks' | 'months' | 'years' | 'all';
-}
+import { PeriodProps } from '@interfaces/chartPeriod';
 
 type Props = {
   period: PeriodProps;
@@ -43,24 +39,24 @@ export function ChartPeriodSelect({ period, closeSelectPeriod }: Props) {
     },
   ];
 
-  function handlePeriodSelect(period: PeriodProps) {
-    setSelectedPeriod(period);
+  function handlePeriodSelect(selectedPeriod: PeriodProps) {
+    setSelectedPeriod(selectedPeriod);
     closeSelectPeriod();
   }
 
   return (
-      <Container>
-        <FlatList
-          data={periods}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }: any) => (
-            <ListItem
-              data={item}
-              isActive={period.id === item.id}
-              onPress={() => handlePeriodSelect(item)}
-            />
-          )}
-        />
-      </Container>
+    <Container>
+      <FlatList
+        data={periods}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }: any) => (
+          <ListItem
+            data={item}
+            isActive={period.id === item.id}
+            onPress={() => handlePeriodSelect(item)}
+          />
+        )}
+      />
+    </Container>
   );
 }

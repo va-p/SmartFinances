@@ -1,19 +1,20 @@
 import styled from 'styled-components/native';
 
 import { BorderlessButton } from 'react-native-gesture-handler';
+import { ThemeProps } from '@interfaces/theme';
 
 export const Container = styled.View`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.background};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.background};
 `;
 
 export const HeaderContainer = styled.View`
   min-height: 32%;
-  background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.backgroundCardHeader};
   border-bottom-right-radius: ${({ theme }) =>
-    theme.borders.borderRadiusScreenSectionContent};
+    (theme as ThemeProps).borders.borderRadiusScreenSectionContent};
   border-bottom-left-radius: ${({ theme }) =>
-    theme.borders.borderRadiusScreenSectionContent};
+    (theme as ThemeProps).borders.borderRadiusScreenSectionContent};
 `;
 
 export const Header = styled.View`
@@ -25,18 +26,18 @@ export const CashFlowContainer = styled.View`
 `;
 
 export const CashFlowTotal = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.bold};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.bold};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   text-align: center;
-  color: ${({ theme }) => theme.colors.title};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const CashFlowDescription = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   text-align: center;
   margin-top: -8px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const SearchButton = styled(BorderlessButton)`
@@ -75,11 +76,11 @@ export const SectionTitleAndFilterContainer = styled.View`
 `;
 
 export const SectionTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitleXl};
   padding-left: 16px;
   margin: 8px 0;
-  color: ${({ theme }) => theme.colors.title};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 type FooterProps = {

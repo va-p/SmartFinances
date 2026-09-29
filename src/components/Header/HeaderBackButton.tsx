@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button, ButtonShape } from './styles';
 
 import { useTheme } from 'styled-components';
@@ -16,7 +17,7 @@ export function HeaderBackButton() {
   }
 
   return (
-    <Button onPress={handleClickBackButton}>
+    <Button onPress={() => handleClickBackButton()}>
       <ButtonShape>
         <ArrowLeftIcon size={20} color={theme.colors.text} />
       </ButtonShape>

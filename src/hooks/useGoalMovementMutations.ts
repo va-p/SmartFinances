@@ -35,15 +35,11 @@ export type GoalWithdrawInput = {
 };
 
 // --- API functions ---
-const depositToGoalFn = async ({ goalId, ...payload }: GoalDepositInput) => {
-  return await api.post(`goal/${goalId}/deposit`, payload);
-};
-const withdrawFromGoalFn = async ({
+const depositToGoalFn = ({ goalId, ...payload }: GoalDepositInput) => api.post(`goal/${goalId}/deposit`, payload);
+const withdrawFromGoalFn = ({
   goalId,
   ...payload
-}: GoalWithdrawInput) => {
-  return await api.post(`goal/${goalId}/withdraw`, payload);
-};
+}: GoalWithdrawInput) => api.post(`goal/${goalId}/withdraw`, payload);
 
 // Movements write transfer pairs, so balances and histories everywhere go
 // stale (GOAL-18).
@@ -64,7 +60,7 @@ export function useGoalDepositMutation() {
   return useMutation({
     mutationFn: depositToGoalFn,
 
-    onError: (_error, _input) => {
+    onError: () => {
       Alert.alert(
         'Erro',
         'Não foi possível depositar na meta. Por favor, tente novamente.'
@@ -84,7 +80,7 @@ export function useGoalWithdrawMutation() {
   return useMutation({
     mutationFn: withdrawFromGoalFn,
 
-    onError: (_error, _input) => {
+    onError: () => {
       Alert.alert(
         'Erro',
         'Não foi possível sacar da meta. Por favor, tente novamente.'

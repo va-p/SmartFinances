@@ -99,8 +99,8 @@ export function SignUp() {
       });
 
       // Check if the OAuth flow completed
-      if (oAuthFlow.createdSessionId) {
-        await oAuthFlow.setActive!({
+      if (oAuthFlow.createdSessionId && oAuthFlow.setActive) {
+        await oAuthFlow.setActive({
           session: oAuthFlow.createdSessionId,
         });
         return;
@@ -118,8 +118,7 @@ export function SignUp() {
           'Não foi possível autenticar com o Google. Por favor, tente novamente.'
         );
       }
-    } catch (error) {
-      console.error('SignUp screen, handleContinueWithGoogle error =>', error);
+    } catch {
       Alert.alert(
         'Login',
         'Não foi possível autenticar com o Google. Por favor, tente novamente.'
@@ -151,10 +150,6 @@ export function SignUp() {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(
-          'SignUp handleRegisterUser error =>',
-          error.response?.data?.message
-        );
         Alert.alert(
           'Cadastro de usuário',
           `Não foi possível concluir o cadastro: ${error.response?.data?.message}. Por favor, tente novamente.`
@@ -181,7 +176,7 @@ export function SignUp() {
         <SectionHeader>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title title={'Cadastro'} />
+            <Header.Title title="Cadastro" />
           </Header.Root>
         </SectionHeader>
 
@@ -232,7 +227,7 @@ export function SignUp() {
             <ControlledInput
               placeholder='Senha'
               autoCorrect={false}
-              secureTextEntry={true}
+              secureTextEntry
               autoComplete='password-new'
               textContentType='newPassword'
               name='password'
@@ -243,7 +238,7 @@ export function SignUp() {
             <ControlledInput
               placeholder='Repetir senha'
               autoCorrect={false}
-              secureTextEntry={true}
+              secureTextEntry
               autoComplete='password-new'
               textContentType='newPassword'
               name='confirmPassword'
@@ -257,7 +252,7 @@ export function SignUp() {
           <ScreenDivider text='Ou' />
 
           <SocialLoginButton
-            onPress={handleContinueWithGoogle}
+            onPress={() => handleContinueWithGoogle()}
             style={{ marginTop: 8 }}
           >
             <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
@@ -280,14 +275,14 @@ export function SignUp() {
             Ao me cadastrar, eu declaro que li e aceito os{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressTermsOfUse}
+              onPress={() => handlePressTermsOfUse()}
             >
               Termos de Uso
             </Text>{' '}
             e a{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressPolicyPrivacy}
+              onPress={() => handlePressPolicyPrivacy()}
             >
               Política de Privacidade
             </Text>
@@ -306,7 +301,7 @@ export function SignUp() {
             Já possui uma conta?{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressLogin}
+              onPress={() => handlePressLogin()}
             >
               Login
             </Text>

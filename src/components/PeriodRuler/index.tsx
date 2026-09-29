@@ -7,9 +7,10 @@ import { useTheme } from 'styled-components';
 import { CaretLeftIcon } from 'phosphor-react-native/src/icons/CaretLeft';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
-import { PeriodRulerListItem } from './components/PeriodRulerListItem';
-
 import { ThemeProps } from '@interfaces/theme';
+
+// Local
+import { PeriodRulerListItem } from './components/PeriodRulerListItem';
 
 interface PeriodRulerListItem {
   date: string;
@@ -35,13 +36,11 @@ export function PeriodRuler({
   const flatListRef = useRef<FlatList>(null);
   const [initialScrollComplete, setInitialScrollComplete] = useState(false);
 
-  const getItemLayout = (_: any, index: number) => {
-    return {
-      length: periodRulerListColumnWidth,
-      offset: periodRulerListColumnWidth * index,
-      index,
-    };
-  };
+  const getItemLayout = (_: any, index: number) => ({
+    length: periodRulerListColumnWidth,
+    offset: periodRulerListColumnWidth * index,
+    index,
+  });
 
   useEffect(() => {
     const findActiveIndex = () => {

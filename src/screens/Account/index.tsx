@@ -122,17 +122,15 @@ export function Account() {
   const initialX = useRef(0);
   const initialY = useRef(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
-  const registerTransactionButtonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: registerTransactionButtonPositionX.value },
-        { translateY: registerTransactionButtonPositionY.value },
-      ],
-    };
-  });
+  const registerTransactionButtonStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: registerTransactionButtonPositionX.value },
+      { translateY: registerTransactionButtonPositionY.value },
+    ],
+  }));
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
-    .onStart((_) => {
+    .onStart(() => {
       initialX.current = registerTransactionButtonPositionX.value;
       initialY.current = registerTransactionButtonPositionY.value;
     })
@@ -234,17 +232,17 @@ export function Account() {
     [processedData.transactionsFormattedBySelectedPeriod, searchQuery]
   );
 
-  const _renderPeriodRuler = useCallback(() => {
+  const renderPeriodRuler = useCallback(() => {
     // Years source for the 'years' ruler: the user's transaction years.
     // Other period modes ignore the years param.
     const years = new Set<number>();
     if (selectedPeriod.period === 'years') {
-      for (const item of allTransactions || []) {
+      (allTransactions || []).forEach((item) => {
         const transactionDate = new Date(item.created_at);
         if (isValid(transactionDate)) {
           years.add(getYear(transactionDate));
         }
-      }
+      });
     }
 
     const dates = buildPeriodRulerDates({
@@ -298,7 +296,7 @@ export function Account() {
   const isCreditCard =
     accountType === 'CREDIT' && accountSubType === 'CREDIT_CARD';
   const hasCreditCardAvailableLimit =
-    accountCreditData?.availableCreditLimit! > 0;
+    (accountCreditData?.availableCreditLimit ?? 0) > 0;
 
   async function handleRefresh() {
     setIsManualRefreshing(true);
@@ -325,8 +323,8 @@ export function Account() {
     periodSelectBottomSheetRef.current?.dismiss();
   }
 
-  function handleOpenTransaction(id: string) {
-    setTransactionId(id);
+  function handleOpenTransaction(idAux: string) {
+    setTransactionId(idAux);
     addTransactionBottomSheetRef.current?.present();
   }
 
@@ -373,11 +371,11 @@ export function Account() {
     setTransactionId('');
   }
 
-  function _renderEmpty() {
+  function renderEmpty() {
     return <ListEmptyComponent />;
   }
 
-  function _renderItem({ item, index }: any) {
+  function renderItem({ item, index }: any) {
     return (
       <TransactionListItem
         data={item}
@@ -388,7 +386,7 @@ export function Account() {
     );
   }
 
-  function _renderSectionHeader({ section }: any) {
+  function renderSectionHeader({ section }: any) {
     return (
       <SectionListHeader
         data={{
@@ -401,6 +399,21 @@ export function Account() {
 
   if (isLoading) {
     return <SkeletonAccountsScreen />;
+  }
+
+  function getDisplayedCashFlow() {
+    if (!hideAmount) {
+      if (isCreditCard) {
+        return formatCurrency(
+          accountCurrencyCode,
+          accountCreditData?.availableCreditLimit ?? 0
+        );
+      }
+
+      return processedData.cashFlowBySelectedPeriod;
+    }
+
+    return '•••••';
   }
 
   return (
@@ -417,7 +430,7 @@ export function Account() {
                 <Header.SearchButton
                   onPress={() => setShowSearchInput((prevState) => !prevState)}
                 />
-                <Header.Icon onPress={handleOpenEditAccount} />
+                <Header.Icon onPress={() => handleOpenEditAccount()} />
               </HeaderButtonGroup>
             </Header.Root>
           </HeaderContainer>
@@ -426,7 +439,7 @@ export function Account() {
             <FilterButtonGroup>
               <FilterButton
                 title={`Por ${selectedPeriod.name}`}
-                onPress={handleOpenPeriodSelectedModal}
+                onPress={() => handleOpenPeriodSelectedModal()}
               />
             </FilterButtonGroup>
           </FiltersContainer>
@@ -435,7 +448,7 @@ export function Account() {
             <AccountBalanceGroup>
               <AccountBalance balanceIsPositive={balanceIsPositive}>
                 {!hideAmount
-                  ? formatCurrency(accountCurrencyCode, accountBalance)
+                  ? formatCurrency(accountCurrencyCode, Number(accountBalance))
                   : '•••••'}
               </AccountBalance>
               <AccountBalanceDescription>
@@ -454,16 +467,7 @@ export function Account() {
                     : hasCreditCardAvailableLimit
                 }
               >
-                {!isCreditCard
-                  ? !hideAmount
-                    ? processedData.cashFlowBySelectedPeriod
-                    : '•••••'
-                  : !hideAmount
-                  ? formatCurrency(
-                      accountCurrencyCode,
-                      accountCreditData?.availableCreditLimit!
-                    )
-                  : '•••••'}
+                {getDisplayedCashFlow()}
               </AccountCashFlow>
               <AccountCashFlowDescription>
                 {!isCreditCard && 'Fluxo de caixa'}
@@ -471,7 +475,7 @@ export function Account() {
               </AccountCashFlowDescription>
             </AccountBalanceGroup>
           </AccountBalanceContainer>
-          <Animated.View>{_renderPeriodRuler()}</Animated.View>
+          <Animated.View>{renderPeriodRuler()}</Animated.View>
         </Animated.View>
 
         {showSearchInput && (
@@ -482,14 +486,14 @@ export function Account() {
           <AnimatedSectionList
             sections={filteredTransactions}
             keyExtractor={(item: any) => item.id}
-            renderItem={_renderItem}
-            renderSectionHeader={_renderSectionHeader}
-            ListEmptyComponent={_renderEmpty}
+            renderItem={({ item, index }: any) => renderItem({ item, index })}
+            renderSectionHeader={({ section }: any) => renderSectionHeader({ section })}
+            ListEmptyComponent={() => renderEmpty()}
             initialNumToRender={2000}
             refreshControl={
               <RefreshControl
                 refreshing={isManualRefreshing}
-                onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh()}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -514,7 +518,7 @@ export function Account() {
             ]}
           >
             <ButtonAnimated
-              onPress={handleOpenRegisterTransactionModal}
+              onPress={() => handleOpenRegisterTransactionModal()}
               style={dynamicStyles.animatedButton}
             >
               <PlusIcon size={24} color={theme.colors.background} />
@@ -526,25 +530,25 @@ export function Account() {
           title='Selecione o período'
           bottomSheetRef={periodSelectBottomSheetRef}
           snapPoints={['30%', '50%']}
-          onClose={handleClosePeriodSelectedModal}
+          onClose={() => handleClosePeriodSelectedModal()}
         >
           <ChartPeriodSelect
             period={selectedPeriod}
-            closeSelectPeriod={handleClosePeriodSelectedModal}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
           />
         </ModalViewSelection>
 
         <ModalView
-          type={'secondary'}
+          type="secondary"
           title={`Editar Conta ${accountName}`}
           bottomSheetRef={editAccountBottomSheetRef}
           snapPoints={['75%']}
-          closeModal={handleCloseEditAccount}
-          deleteChildren={handleClickDeleteAccount}
+          closeModal={() => handleCloseEditAccount()}
+          deleteChildren={() => handleClickDeleteAccount()}
         >
           <RegisterAccount
             id={String(accountID)}
-            closeAccount={handleCloseEditAccount}
+            closeAccount={() => handleCloseEditAccount()}
           />
         </ModalView>
 
@@ -554,8 +558,8 @@ export function Account() {
         >
           <RegisterTransaction
             id={transactionId}
-            resetId={ClearTransactionId}
-            closeRegisterTransaction={handleCloseTransaction}
+            resetId={() => ClearTransactionId()}
+            closeRegisterTransaction={() => handleCloseTransaction()}
           />
         </ModalViewWithoutHeader>
       </Container>

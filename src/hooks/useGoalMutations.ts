@@ -37,23 +37,15 @@ export type GoalStatusInput = {
 };
 
 // --- API functions ---
-const createGoalFn = async (newGoal: CreateGoalInput) => {
-  return await api.post('goal', newGoal);
-};
-const updateGoalFn = async ({ goalId, ...payload }: UpdateGoalInput) => {
-  return await api.patch(`goal/${goalId}`, payload);
-};
-const deleteGoalFn = async ({
+const createGoalFn = (newGoal: CreateGoalInput) => api.post('goal', newGoal);
+const updateGoalFn = ({ goalId, ...payload }: UpdateGoalInput) => api.patch(`goal/${goalId}`, payload);
+const deleteGoalFn = ({
   goalId,
   destinationAccountId,
-}: DeleteGoalInput) => {
-  return await api.delete(`goal/${goalId}`, {
-    data: { destination_account_id: destinationAccountId },
-  });
-};
-const updateGoalStatusFn = async ({ goalId, action }: GoalStatusInput) => {
-  return await api.patch(`goal/${goalId}/status`, { action });
-};
+}: DeleteGoalInput) => api.delete(`goal/${goalId}`, {
+  data: { destination_account_id: destinationAccountId },
+});
+const updateGoalStatusFn = ({ goalId, action }: GoalStatusInput) => api.patch(`goal/${goalId}/status`, { action });
 
 // --- Create goal ---
 export function useCreateGoalMutation() {
@@ -98,12 +90,12 @@ export function useCreateGoalMutation() {
         reserve_account:
           linkedAccountIds.length === 0
             ? {
-                id: 0,
-                name: `Reserva: ${newGoal.name}`,
-                balance: 0,
-                is_virtual: true,
-                currency_id: newGoal.currency_id,
-              }
+              id: 0,
+              name: `Reserva: ${newGoal.name}`,
+              balance: 0,
+              is_virtual: true,
+              currency_id: newGoal.currency_id,
+            }
             : null,
         linked_accounts: linkedAccounts.map((account) => ({
           id: account.id,
@@ -148,7 +140,7 @@ export function useUpdateGoalMutation() {
   return useMutation({
     mutationFn: updateGoalFn,
 
-    onError: (_error, _updatedGoal) => {
+    onError: () => {
       Alert.alert(
         'Erro',
         'Não foi possível atualizar a meta. Tente novamente.'
@@ -205,7 +197,7 @@ export function useUpdateGoalStatusMutation() {
   return useMutation({
     mutationFn: updateGoalStatusFn,
 
-    onError: (_error, _input) => {
+    onError: () => {
       Alert.alert(
         'Erro',
         'Não foi possível atualizar o status da meta. Tente novamente.'

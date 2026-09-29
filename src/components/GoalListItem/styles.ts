@@ -34,8 +34,8 @@ export const AmountContainer = styled.View`
 
 export const AmountCurrent = styled.Text<AmountProps>`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.bold};
-  color: ${({ theme, is_amount_reached }) =>
-    is_amount_reached
+  color: ({ theme, is_amount_reached: isAmountReached }) =>
+    isAmountReached
       ? (theme as ThemeProps).colors.success
       : (theme as ThemeProps).colors.primary};
 `;

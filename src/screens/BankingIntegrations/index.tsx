@@ -14,8 +14,6 @@ import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
-import { useUser } from '@stores/userStorage';
-
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Header } from '@components/Header';
@@ -28,6 +26,10 @@ import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 
 import api from '@api/api';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />;
+}
 export function BankingIntegrations() {
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
@@ -49,12 +51,11 @@ export function BankingIntegrations() {
       const response = await api.get('/banking-integration/');
 
       if (!!response.data && response.data.length > 0) {
-        const data = response.data;
+        const {data} = response;
         setIntegrations(data);
       }
-      return;
+
     } catch (error) {
-      console.error('fetchBankingIntegrations error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível buscar suas integrações bancárias. Por favor, tente novamente.'
@@ -72,13 +73,12 @@ export function BankingIntegrations() {
       const response = await api.get('/banking-integration/sync');
 
       if (!!response.data && response.data.length > 0) {
-        const data = response.data;
+        const {data} = response;
         setIntegrations(data);
       }
 
-      return;
+
     } catch (error) {
-      console.error('handleRefresh error =>', error);
       if (axios.isAxiosError(error)) {
         Alert.alert(
           'Atualização de Integrações',
@@ -98,11 +98,10 @@ export function BankingIntegrations() {
         setLoading(true);
         const { data } = await api.get('/banking-integration/connect');
 
-        if (!!data) {
+        if (data) {
           setToken(data.accessToken);
         }
       } catch (error) {
-        console.error('ConnectedAccounts fetchToken error =>', error);
         Alert.alert(
           'Erro',
           'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
@@ -144,10 +143,6 @@ export function BankingIntegrations() {
         );
       }
     } catch (error) {
-      console.error(
-        'SelectConnectAccount create banking_conection error =>',
-        error
-      );
       Alert.alert(
         'Erro',
         'Não foi possível salvar os dados da sua conta. Por favor, tente novamente.'
@@ -157,8 +152,7 @@ export function BankingIntegrations() {
     }
   }, []);
 
-  const handleOnError = useCallback((error: any) => {
-    console.error('error', error);
+  const handleOnError = useCallback(() => {
     Alert.alert(
       'Erro',
       'Não foi possível conectar à conta. Por favor, tente novamente.'
@@ -180,9 +174,6 @@ export function BankingIntegrations() {
         `banking-integration/connect?itemId=${bankingIntegration.pluggyIntegrationId}`
       );
       const accessToken = data?.accessToken;
-      console.log('data ===>', data);
-      console.log('accessToken ===>', accessToken);
-
       if (status === 200 && data) {
         setLoading(false);
 
@@ -195,7 +186,6 @@ export function BankingIntegrations() {
         });
       }
     } catch (error) {
-      console.error('handleOpenBankingIntegration error =>', error);
       Alert.alert(
         'Erro',
         'Não foi possível acessar sua integração bancária. Por favor, tente novamente.'
@@ -205,7 +195,7 @@ export function BankingIntegrations() {
     }
   }
 
-  function _renderItem({ item }: any) {
+  function renderItem({ item }: any) {
     return (
       <AccountConnectedListItem
         data={item}
@@ -260,44 +250,40 @@ export function BankingIntegrations() {
         )}
 
         {!showModal && (
-          <>
-            <ConnectedAccountsList
-              data={integrations}
-              keyExtractor={(item: any) => item.id}
-              renderItem={_renderItem}
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
-              )}
-              initialNumToRender={10}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={() => handleRefresh()}
+          <ConnectedAccountsList
+            data={integrations}
+            keyExtractor={(item: any) => item.id}
+            renderItem={({ item }: any) => renderItem({ item })}
+            ListEmptyComponent={EmptyList}
+            initialNumToRender={10}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => handleRefresh()}
+              />
+            }
+            ListFooterComponent={
+              <Button.Root
+                type='secondary'
+                onPress={() => handlePressConnectNewAccount()}
+              >
+                <Button.Text
+                  text={
+                    !user.premium
+                      ? 'Assine o Premium para novas conexões'
+                      : 'Conectar nova conta'
+                  }
                 />
-              }
-              ListFooterComponent={
-                <Button.Root
-                  type='secondary'
-                  onPress={handlePressConnectNewAccount}
-                >
-                  <Button.Text
-                    text={
-                      !user.premium
-                        ? 'Assine o Premium para novas conexões'
-                        : 'Conectar nova conta'
-                    }
-                  />
-                </Button.Root>
-              }
-              ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingTop: 8,
-                paddingBottom: bottomTabBarHeight + 16,
-              }}
-              showsVerticalScrollIndicator={false}
-            />
-          </>
+              </Button.Root>
+            }
+            ListFooterComponentStyle={{ flex: 1, justifyContent: 'flex-end' }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingTop: 8,
+              paddingBottom: bottomTabBarHeight + 16,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
         )}
       </Container>
     </Screen>

@@ -18,6 +18,10 @@ type Props = {
   closeSelectAccount: () => void;
 };
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />;
+}
 export function AccountSelect({
   account,
   setAccount,
@@ -35,8 +39,8 @@ export function AccountSelect({
     refetchAccounts();
   }
 
-  function handleAccountSelect(account: AccountProps) {
-    setAccount(account);
+  function handleAccountSelect(selectedAccount: AccountProps) {
+    setAccount(selectedAccount);
     closeSelectAccount();
   }
 
@@ -53,33 +57,31 @@ export function AccountSelect({
 
   // Virtual goal reserves are never offered as selectable accounts (GOAL-26).
   const selectableAccounts = (accounts ?? []).filter(
-    (account) => !account.isVirtual
+    (item) => !item.isVirtual
   );
 
   return (
-      <Container>
-        <FlatList
-          data={selectableAccounts}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <ListItem
-              data={item}
-              isActive={account.id === item.id}
-              onPress={() => handleAccountSelect(item)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />
-          )}
-          ItemSeparatorComponent={() => <ListSeparator />}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetchingAccounts}
-              onRefresh={handleRefresh}
-            />
-          }
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+    <Container>
+      <FlatList
+        data={selectableAccounts}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <ListItem
+            data={item}
+            isActive={account.id === item.id}
+            onPress={() => handleAccountSelect(item)}
+          />
+        )}
+        ListEmptyComponent={EmptyList}
+        ItemSeparatorComponent={ListSeparator}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetchingAccounts}
+            onRefresh={() => handleRefresh()}
+          />
+        }
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }

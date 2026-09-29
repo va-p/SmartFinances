@@ -44,16 +44,26 @@ type Props = {
   onLongPress?: () => void;
 };
 
-const TransactionListItem = memo(function TransactionListItem({
+function TransactionListItem({
   data,
   index,
   hideAmount,
   onPress,
-  onLongPress,
+  onLongPress = undefined,
   ...rest
 }: Props) {
   const theme = useTheme() as ThemeProps;
   const isSelected = useIsTransactionSelected(data.id);
+
+  function getDisplayedAmount() {
+    if (hideAmount) {
+      return '•••••';
+    }
+
+    return data.amount_in_account_currency
+      ? data.amount_in_account_currency_formatted
+      : data.amount_formatted;
+  }
 
   return (
     <TouchableWithoutFeedback
@@ -85,13 +95,7 @@ const TransactionListItem = memo(function TransactionListItem({
                 {data.type === 'TRANSFER_CREDIT' && (
                   <TransferDirectionIcon name='arrow-down-outline' />
                 )}
-                <Amount type={data.type}>
-                  {!hideAmount
-                    ? data.amount_in_account_currency
-                      ? data.amount_in_account_currency_formatted
-                      : data.amount_formatted
-                    : '•••••'}
-                </Amount>
+                <Amount type={data.type}>{getDisplayedAmount()}</Amount>
               </AmountContainer>
             </DescriptionAndAmountContainer>
 
@@ -128,6 +132,6 @@ const TransactionListItem = memo(function TransactionListItem({
       </View>
     </TouchableWithoutFeedback>
   );
-});
+}
 
-export default TransactionListItem;
+export default memo(TransactionListItem);

@@ -49,11 +49,11 @@ export function TransactionTypeButton({
   }, [dimensions, selectedTab, buttons.length, buttonWidth]);
 
   const onTabBarLayout = (e: LayoutChangeEvent) => {
-    const width = e.nativeEvent.layout.width;
-    const height = e.nativeEvent.layout.height;
+    const {width} = e.nativeEvent.layout;
+    const {height} = e.nativeEvent.layout;
     setDimensions({
-      width: width,
-      height: height,
+      width,
+      height,
     });
   };
 
@@ -67,11 +67,9 @@ export function TransactionTypeButton({
     });
   };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: tabPositionX.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: tabPositionX.value }],
+  }));
 
   return (
     <Container>
@@ -102,7 +100,7 @@ export function TransactionTypeButton({
 
           return (
             <Button
-              key={index}
+              key={type}
               isActive={isActive}
               onPress={() => onTabPress(index)}
             >

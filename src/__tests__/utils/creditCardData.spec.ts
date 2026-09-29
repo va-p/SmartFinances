@@ -79,6 +79,11 @@ describe('buildCreditCardDataPayload (CC-07 / CC-08)', () => {
       now
     );
 
+    if (payload === null) {
+      throw new Error('buildCreditCardDataPayload returned null');
+    }
+
+
     expect(payload).toEqual({
       brand: 'Visa',
       balanceCloseDate: '2026-10-08T00:00:00.000Z',
@@ -93,10 +98,15 @@ describe('buildCreditCardDataPayload (CC-07 / CC-08)', () => {
       new Date('2026-09-14T00:00:00.000Z')
     );
 
-    expect(payload!.balanceCloseDate).toMatch(
+    if (payload === null) {
+      throw new Error('buildCreditCardDataPayload returned null');
+    }
+
+
+    expect(payload.balanceCloseDate).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
     );
-    expect(payload!.balanceCloseDate).toBe('2026-10-08T00:00:00.000Z');
+    expect(payload.balanceCloseDate).toBe('2026-10-08T00:00:00.000Z');
   });
 
   it('CC-07: optional available limit is null when empty (persisted as null)', () => {
@@ -105,7 +115,12 @@ describe('buildCreditCardDataPayload (CC-07 / CC-08)', () => {
       new Date('2026-09-14T00:00:00.000Z')
     );
 
-    expect(payload!.availableCreditLimit).toBeNull();
+    if (payload === null) {
+      throw new Error('buildCreditCardDataPayload returned null');
+    }
+
+
+    expect(payload.availableCreditLimit).toBeNull();
   });
 
   it('CC-07: available limit defaults to null when not provided at all', () => {
@@ -114,7 +129,12 @@ describe('buildCreditCardDataPayload (CC-07 / CC-08)', () => {
       new Date('2026-09-14T00:00:00.000Z')
     );
 
-    expect(payload!.availableCreditLimit).toBeNull();
+    if (payload === null) {
+      throw new Error('buildCreditCardDataPayload returned null');
+    }
+
+
+    expect(payload.availableCreditLimit).toBeNull();
   });
 
   it('CC-08: returns null (omit creditData) when required values are missing', () => {

@@ -1,3 +1,5 @@
+// metro is a plain Node config - CommonJS require is the convention
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { getDefaultConfig } = require('expo/metro-config');
 
 module.exports = (() => {

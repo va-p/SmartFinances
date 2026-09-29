@@ -206,13 +206,22 @@ export function RegisterTransaction({
     isTomorrow: 'Amanhã',
   };
 
-  const dateLabelKey = isToday(date)
-    ? 'isToday'
-    : isYesterday(date)
-    ? 'isYesterday'
-    : isTomorrow(date)
-    ? 'isTomorrow'
-    : null;
+  function getDateLabelKey(): 'isToday' | 'isYesterday' | 'isTomorrow' | null {
+    if (isToday(date)) {
+      return 'isToday';
+    }
+
+    if (isYesterday(date)) {
+      return 'isYesterday';
+    }
+
+    if (isTomorrow(date)) {
+      return 'isTomorrow';
+    }
+
+    return null;
+  }
+  const dateLabelKey = getDateLabelKey();
 
   const formattedDate = dateLabelKey
     ? shortDatesMap[dateLabelKey]
@@ -357,19 +366,19 @@ export function RegisterTransaction({
   ];
 
   function handleTransactionsTypeSelect(tabIdx: number) {
-    let transactionType: TransactionTabType;
+    let transactionTypeAux: TransactionTabType;
     switch (tabIdx) {
       case 0:
-        transactionType = 'CREDIT';
+        transactionTypeAux = 'CREDIT';
         break;
       case 1:
-        transactionType = 'TRANSFER';
+        transactionTypeAux = 'TRANSFER';
         break;
       case 2:
-        transactionType = 'DEBIT';
+        transactionTypeAux = 'DEBIT';
         break;
       default:
-        transactionType = 'CREDIT';
+        transactionTypeAux = 'CREDIT';
         break;
     }
 
@@ -391,7 +400,7 @@ export function RegisterTransaction({
     }
 
     setSelectedTransactionTab(tabIdx);
-    setTransactionType(transactionType);
+    setTransactionType(transactionTypeAux);
   }
 
   function handleOpenSelectCategoryModal() {
@@ -463,7 +472,7 @@ export function RegisterTransaction({
         setImageUrl(imageSelected.assets[0].uri);
       }
     } catch (error) {
-      console.error(error);
+      //
     }
   }
 
@@ -491,7 +500,7 @@ export function RegisterTransaction({
         setImageUrl(photoTacked.assets[0].uri);
       }
     } catch (error) {
-      console.error(error);
+      //
     }
   }
 
@@ -526,14 +535,14 @@ export function RegisterTransaction({
     }
 
     let tagsList: any = [];
-    for (const tag of tagsSelected) {
-      const tag_id = tag.id;
-      if (!tagsList.hasOwnProperty(tag_id)) {
-        tagsList[tag_id] = {
+    tagsSelected.forEach((tag) => {
+      const tagId = tag.id;
+      if (!Object.prototype.hasOwnProperty.call(tagsList, tagId)) {
+        tagsList[tagId] = {
           tag_id: tag.id,
         };
       }
-    }
+    });
     tagsList = Object.values(tagsList);
 
     const updatePromises = bulkTransactionsData.map(async (transaction) => {
@@ -564,7 +573,7 @@ export function RegisterTransaction({
       const updatedAccountId =
         accountID !== null ? accountID : transaction.account.id;
 
-      const updatedDate = date ? date : new Date(transaction.created_at);
+      const updatedDate = date || new Date(transaction.created_at);
 
       let amountConverted = signedAmount;
       const fromCurrency = currencySelected.code || transaction.currency.code;
@@ -574,7 +583,7 @@ export function RegisterTransaction({
       if (fromCurrency !== targetAccountCurrency) {
         amountConverted = convertCurrency({
           amount: signedAmount,
-          fromCurrency: fromCurrency,
+          fromCurrency,
           toCurrency: targetAccountCurrency,
           accountCurrency: fromCurrency,
           quotes: {
@@ -639,6 +648,10 @@ export function RegisterTransaction({
   }
 
   async function handleEditTransaction(form: FormData) {
+    if (accountID === null || !accountCurrency || !accountType) {
+      Alert.alert('Edição de Transação', 'Selecione a conta da transação');
+      return;
+    }
     // DEBIT transactions must be saved as negative numbers so that
     // downstream calculations (cash flow, patrimonial evolution) can
     // distinguish expenses from revenues purely by sign.
@@ -646,20 +659,20 @@ export function RegisterTransaction({
       transactionType === 'DEBIT' ? -Math.abs(form.amount) : form.amount;
 
     let tagsList: any = [];
-    for (const tag of tagsSelected) {
-      const tag_id = tag.id;
-      if (!tagsList.hasOwnProperty(tag_id)) {
-        tagsList[tag_id] = {
+    tagsSelected.forEach((tag) => {
+      const tagId = tag.id;
+      if (!Object.prototype.hasOwnProperty.call(tagsList, tagId)) {
+        tagsList[tagId] = {
           tag_id: tag.id,
         };
       }
-    }
+    });
     tagsList = Object.values(tagsList);
 
     // Preserve existing image URL when no new image is selected.
     // If `image` (base64) is empty but `imageUrl` was pre-filled from
     // transaction data, we keep the current image.
-    let image_url: string | null = imageUrl || null;
+    let transactionImageUrl: string | null = imageUrl || null;
     if (image) {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
@@ -668,19 +681,15 @@ export function RegisterTransaction({
         file: newImage.file,
       });
       if (uploadImage.status === 200) {
-        image_url = uploadImage.data.url;
+        transactionImageUrl = uploadImage.data.url;
       }
     }
-
-    const hasDestinationAccount =
-      accountDestinationSelected !== null &&
-      accountDestinationSelected.id !== 0; // Checks if there is a destination account selected (contrapart)
 
     let amountConverted = amount;
     amountConverted = convertCurrency({
       amount,
       fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency!.code,
+      toCurrency: accountCurrency.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
       quotes: {
         brlQuoteBtc,
@@ -700,7 +709,10 @@ export function RegisterTransaction({
 
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
-      if (!hasDestinationAccount) {
+      if (
+        !accountDestinationSelected ||
+        accountDestinationSelected.id === 0
+      ) {
         Alert.alert(
           'Edição de Transação',
           'Selecione a conta de destino para transferências'
@@ -713,12 +725,12 @@ export function RegisterTransaction({
         description: form.description,
         amount: form.amount,
         selectedCurrency: currencySelected,
-        originAccount: { id: Number(accountID), currency: accountCurrency! },
-        destinationAccount: accountDestinationSelected!,
+        originAccount: { id: Number(accountID), currency: accountCurrency },
+        destinationAccount: accountDestinationSelected,
         categoryId: categorySelected.id,
         tags: tagsList,
         date,
-        imageUrl: image_url,
+        imageUrl: transactionImageUrl,
         isRecurring,
         recurrenceInterval,
         recurrencePeriod,
@@ -776,7 +788,7 @@ export function RegisterTransaction({
       account_id: accountID,
       category_id: categorySelected.id,
       tags: normalizeTags(tagsList),
-      image_url,
+      image_url: transactionImageUrl,
       is_recurring: isRecurring,
       recurrence_interval: isRecurring ? recurrenceInterval : null,
       recurrence_period: isRecurring ? recurrencePeriod : null,
@@ -800,6 +812,10 @@ export function RegisterTransaction({
   }
 
   async function handleRegisterTransaction(form: FormData) {
+    if (accountID === null || !accountCurrency || !accountType) {
+      Alert.alert('Cadastro de Transação', 'Selecione a conta da transação');
+      return;
+    }
     // DEBIT transactions must be saved as negative numbers so that
     // downstream calculations (cash flow, patrimonial evolution) can
     // distinguish expenses from revenues purely by sign.
@@ -807,17 +823,17 @@ export function RegisterTransaction({
       transactionType === 'DEBIT' ? -Math.abs(form.amount) : form.amount;
 
     let tagsList: any = [];
-    for (const tag of tagsSelected) {
-      const tag_id = tag.id;
-      if (!tagsList.hasOwnProperty(tag_id)) {
-        tagsList[tag_id] = {
+    tagsSelected.forEach((tag) => {
+      const tagId = tag.id;
+      if (!Object.prototype.hasOwnProperty.call(tagsList, tagId)) {
+        tagsList[tagId] = {
           tag_id: tag.id,
         };
       }
-    }
+    });
     tagsList = Object.values(tagsList);
 
-    let image_url: string | null = imageUrl || null;
+    let transactionImageUrl: string | null = imageUrl || null;
     if (image) {
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
@@ -826,7 +842,7 @@ export function RegisterTransaction({
         file: newImage.file,
       });
       if (status === 200) {
-        image_url = data.url;
+        transactionImageUrl = data.url;
       }
     }
 
@@ -846,12 +862,12 @@ export function RegisterTransaction({
         description: form.description,
         amount: form.amount,
         selectedCurrency: currencySelected,
-        originAccount: { id: Number(accountID), currency: accountCurrency! },
+        originAccount: { id: Number(accountID), currency: accountCurrency },
         destinationAccount: accountDestinationSelected,
         categoryId: categorySelected.id,
         tags: tagsList,
         date,
-        imageUrl: image_url,
+        imageUrl: transactionImageUrl,
         isRecurring,
         recurrenceInterval,
         recurrencePeriod,
@@ -885,7 +901,7 @@ export function RegisterTransaction({
             ]
           );
           reset();
-          return;
+
         },
       });
       return;
@@ -895,7 +911,7 @@ export function RegisterTransaction({
     amountConverted = convertCurrency({
       amount,
       fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency!.code,
+      toCurrency: accountCurrency.code,
       accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
       quotes: {
         brlQuoteBtc,
@@ -917,8 +933,8 @@ export function RegisterTransaction({
     const accountForOptimistic = {
       id: Number(accountID) || 0,
       name: accountName || '',
-      currency: accountCurrency!,
-      type: accountType!,
+      currency: accountCurrency,
+      type: accountType,
       balance: 0,
       initialAmount: accountInitialAmount,
     };
@@ -929,7 +945,7 @@ export function RegisterTransaction({
       description: form.description,
       amount,
       amount_in_account_currency:
-        currencySelected.code !== accountCurrency!.code // If transaction currency is different to account currency
+        currencySelected.code !== accountCurrency.code // If transaction currency is different to account currency
           ? amountConverted
           : null,
       currency_id: currencySelected.id,
@@ -940,7 +956,7 @@ export function RegisterTransaction({
       category_id: categorySelected.id,
       category: categorySelected,
       tags: normalizeTags(tagsList),
-      image_url,
+      image_url: transactionImageUrl,
       is_recurring: isRecurring,
       recurrence_interval: isRecurring ? recurrenceInterval : null,
       recurrence_period: isRecurring ? recurrencePeriod : null,
@@ -963,7 +979,7 @@ export function RegisterTransaction({
         reset();
       },
     });
-    return;
+
   }
 
   async function onSubmit(form: FormData) {
@@ -1017,11 +1033,13 @@ export function RegisterTransaction({
     else {
       handleRegisterTransaction(form);
     }
+
+    return undefined;
   }
 
-  async function handleDeleteTransaction(id: string) {
+  async function handleDeleteTransaction(transactionId: string) {
     try {
-      deleteTransaction(id, {
+      deleteTransaction(transactionId, {
         onSuccess: () => {
           resetId();
           closeRegisterTransaction();
@@ -1032,7 +1050,7 @@ export function RegisterTransaction({
     }
   }
 
-  async function handleClickDeleteTransaction(id: string) {
+  async function handleClickDeleteTransaction(transactionId: string) {
     Alert.alert(
       'Exclusão de transação',
       'Tem certeza que deseja excluir a transação?',
@@ -1040,7 +1058,7 @@ export function RegisterTransaction({
         { text: 'Não, cancelar a exclusão' },
         {
           text: 'Sim, excluir a transação',
-          onPress: () => handleDeleteTransaction(id),
+          onPress: () => handleDeleteTransaction(transactionId),
         },
       ]
     );
@@ -1207,6 +1225,30 @@ export function RegisterTransaction({
     return false;
   }
 
+  function getFormTitle() {
+    if (isBulkEdit) {
+      return `Editar ${selectedTransactionIds.length} Transações`;
+    }
+
+    if (id !== '') {
+      return `Editar Transação \n ${getValues('description')}`;
+    }
+
+    return 'Adicionar Transação';
+  }
+
+  function getSubmitButtonText() {
+    if (isBulkEdit) {
+      return `Editar ${selectedTransactionIds.length} Transações`;
+    }
+
+    if (id !== '') {
+      return 'Editar Transação';
+    }
+
+    return 'Adicionar Transação';
+  }
+
   return (
     <Screen edges={Platform.OS === 'ios' ? ['left', 'right'] : undefined}>
       <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -1226,11 +1268,7 @@ export function RegisterTransaction({
                   <XIcon size={24} color={theme.colors.text} weight='bold' />
                 </BorderlessButton>
                 <Title>
-                  {isBulkEdit
-                    ? `Editar ${selectedTransactionIds.length} Transações`
-                    : id !== ''
-                    ? `Editar Transação \n ${getValues('description')}`
-                    : 'Adicionar Transação'}
+                  {getFormTitle()}
                 </Title>
                 {id !== '' && !isBulkEdit && (
                   <BorderlessButton
@@ -1251,7 +1289,7 @@ export function RegisterTransaction({
                   categorySelected={categorySelected}
                   icon={categorySelected.icon?.name}
                   color={categorySelected.color.color_code}
-                  onPress={handleOpenSelectCategoryModal}
+                  onPress={() => handleOpenSelectCategoryModal()}
                 />
 
                 <InputTransactionValuesContainer>
@@ -1268,7 +1306,7 @@ export function RegisterTransaction({
 
                     <CurrencySelectButton
                       title={currencySelected.symbol}
-                      onPress={handleOpenSelectCurrencyModal}
+                      onPress={() => handleOpenSelectCurrencyModal()}
                     />
                   </InputTransactionValueGroup>
 
@@ -1303,7 +1341,7 @@ export function RegisterTransaction({
             <SelectButton
               title={accountName || 'Selecione a conta'}
               icon={<WalletIcon color={categorySelected.color.color_code} />}
-              onPress={handleOpenSelectAccountModal}
+              onPress={() => handleOpenSelectAccountModal()}
             />
             {transactionType === 'TRANSFER' && (
               <SelectButton
@@ -1312,7 +1350,7 @@ export function RegisterTransaction({
                   'Selecione a conta de destino'
                 }
                 icon={<WalletIcon color={categorySelected.color.color_code} />}
-                onPress={handleOpenSelectAccountDestinationModal}
+                onPress={() => handleOpenSelectAccountDestinationModal()}
               />
             )}
 
@@ -1390,7 +1428,7 @@ export function RegisterTransaction({
                 testID='dateTimePicker'
                 value={date}
                 mode='date'
-                is24Hour={true}
+                is24Hour
                 onValueChange={onChangeDate}
                 textColor={theme.colors.text}
               />
@@ -1454,10 +1492,10 @@ export function RegisterTransaction({
             <SelectButton
               title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
               icon={<ImageIcon color={categorySelected.color.color_code} />}
-              onPress={handleClickSelectImage}
+              onPress={() => handleClickSelectImage()}
             />
             {imageUrl && (
-              <TransactionImageContainer onPress={handleOpenImage}>
+              <TransactionImageContainer onPress={() => handleOpenImage()}>
                 <TransactionImage source={{ uri: imageUrl }} />
               </TransactionImageContainer>
             )}
@@ -1466,7 +1504,8 @@ export function RegisterTransaction({
               <TransactionTypeButton
                 buttons={categoriesSectionButtons}
                 selectedTab={selectedTransactionTab}
-                setSelectedTab={handleTransactionsTypeSelect}
+                setSelectedTab={(tabIdx: number) =>
+                  handleTransactionsTypeSelect(tabIdx)}
               />
             </TransactionsTypes>
           </ContentScroll>
@@ -1478,13 +1517,7 @@ export function RegisterTransaction({
             onPress={() => handleSubmit(onSubmit)()}
           >
             <Button.Text
-              text={
-                isBulkEdit
-                  ? `Editar ${selectedTransactionIds.length} Transações`
-                  : id !== ''
-                  ? 'Editar Transação'
-                  : 'Adicionar Transação'
-              }
+              text={getSubmitButtonText()}
             />
           </Button.Root>
         </Footer>
@@ -1498,7 +1531,7 @@ export function RegisterTransaction({
           <CategorySelect
             categorySelected={categorySelected}
             setCategory={setCategorySelected}
-            closeSelectCategory={handleCloseSelectCategoryModal}
+            closeSelectCategory={() => handleCloseSelectCategoryModal()}
           />
         </ModalViewSelection>
 
@@ -1511,7 +1544,7 @@ export function RegisterTransaction({
           <CurrencySelect
             currency={currencySelected}
             setCurrency={setCurrencySelected}
-            closeSelectCurrency={handleCloseSelectCurrencyModal}
+            closeSelectCurrency={() => handleCloseSelectCurrencyModal()}
           />
         </ModalViewSelection>
 
@@ -1543,7 +1576,7 @@ export function RegisterTransaction({
               setCurrencySelected(account.currency);
               setAccountInitialAmount(account.initialAmount ?? 0);
             }}
-            closeSelectAccount={handleCloseSelectAccountModal}
+            closeSelectAccount={() => handleCloseSelectAccountModal()}
           />
         </ModalViewSelection>
 
@@ -1552,7 +1585,7 @@ export function RegisterTransaction({
           title='Selecione a conta de destino'
           bottomSheetRef={accountDestinationBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectAccountDestinationModal}
+          onClose={() => handleCloseSelectAccountDestinationModal()}
         >
           <AccountDestinationSelect
             accountDestination={
@@ -1571,9 +1604,8 @@ export function RegisterTransaction({
               }
             }
             setAccountDestination={setAccountDestinationSelected}
-            closeSelectAccountDestination={
-              handleCloseSelectAccountDestinationModal
-            }
+            closeSelectAccountDestination={() =>
+              handleCloseSelectAccountDestinationModal()}
           />
         </ModalViewSelection>
 
@@ -1583,13 +1615,15 @@ export function RegisterTransaction({
           title='Recorrência'
           bottomSheetRef={recurrenceSelectBottomSheetRef}
           snapPoints={['65%']}
-          onClose={handleCloseRecurrenceModal}
+          onClose={() => handleCloseRecurrenceModal()}
         >
           <RecurrenceSelect
             initialInterval={recurrenceInterval}
             initialPeriod={recurrencePeriod}
-            onSave={handleRecurrenceSave}
-            onCancel={handleCloseRecurrenceModal}
+            onSave={(data: {
+              interval: number;
+              period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+            }) => handleRecurrenceSave(data)}
           />
         </ModalViewSelection>
 
@@ -1597,7 +1631,7 @@ export function RegisterTransaction({
           images={[{ uri: imageUrl ?? '' }]}
           imageIndex={0}
           visible={openImage}
-          onRequestClose={handleCloseImage}
+          onRequestClose={() => handleCloseImage()}
           swipeToCloseEnabled={false}
         />
       </Container>

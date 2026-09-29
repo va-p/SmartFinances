@@ -53,7 +53,7 @@ export function GoalPercentBar({ percentage, isAmountReached }: Props) {
               : theme.colors.primary,
           },
         ]}
-      ></Animated.View>
+      />
       <Percent numberOfLines={1}>{percentage.toFixed(2)}%</Percent>
     </Container>
   );

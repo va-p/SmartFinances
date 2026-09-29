@@ -37,9 +37,7 @@ export function AccountListItem({
   return (
     <Container entering={FadeInUp.delay(index * 100)} {...rest}>
       <DetailsContainer>
-        <IconContainer>
-          <>{icon}</>
-        </IconContainer>
+        <IconContainer>{icon}</IconContainer>
         <NameContainer>
           <Name>{data.name}</Name>
           <AmountsContainer>

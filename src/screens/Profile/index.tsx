@@ -14,7 +14,7 @@ import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 
-import api from '@api/api';
+// import api from '@api/api';
 
 import DefaultAvatar from '@assets/user_default.svg';
 
@@ -29,8 +29,7 @@ type FormData = {
 };
 
 export function Profile() {
-  const { id: userID, name, lastName, email, phone } = useUser();
-  const profileImage = useUser((state) => state.profileImage);
+  const { name, lastName, email } = useUser();
 
   const [image, setImage] = useState('');
   const [imageUrl, setImageUrl] = useState('@assets/user_default.png');
@@ -71,7 +70,7 @@ export function Profile() {
         setImageUrl(imageSelected.assets[0].uri);
       }
     } catch (error) {
-      console.error(error);
+      //
     }
   }
 
@@ -89,7 +88,7 @@ export function Profile() {
         setImageUrl(photoTacked.assets[0].uri);
       }
     } catch (error) {
-      console.error(error);
+      //
     }
   }
 
@@ -100,27 +99,26 @@ export function Profile() {
     ]);
   }
 
-  async function handleSaveProfile(data: FormData) {
+  async function handleSaveProfile() {
     try {
       if (image !== '') {
-        const { status } = await api.patch(`user/${userID}`, {
-          profile_image: `data:image/jpeg;base64,${image}`,
-        });
+        // const { status } = await api.patch(`user/${userID}`, {
+        //   profile_image: `data:image/jpeg;base64,${image}`,
+        // });
       }
 
-      const profileEdited = {
-        name: data.name,
-        last_name: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        password: data.password,
-      };
+      // const profileEdited = {
+      //   name: data.name,
+      //   last_name: data.lastName,
+      //   email: data.email,
+      //   phone: data.phone,
+      //   password: data.password,
+      // };
 
       // ⚠️ FIXME: handleSaveProfile builds profileEdited but never calls API to persist it.
       // The profileEdited object (lines above) is constructed but not sent to the backend.
       // Profile editing is functionally broken — needs a dedicated fix to call PATCH user/:id.
     } catch (error) {
-      console.error(error);
       // Alert.alert('Perfil', error.response?.data.message);
     }
   }
@@ -130,10 +128,10 @@ export function Profile() {
       <Container>
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title={'Perfil'} />
+          <Header.Title title="Perfil" />
         </Header.Root>
 
-        <ImageContainer onPress={handleClickSelectImage}>
+        <ImageContainer onPress={() => handleClickSelectImage()}>
           {image === '' ? (
             <DefaultAvatar />
           ) : (

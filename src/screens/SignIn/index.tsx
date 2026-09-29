@@ -12,8 +12,6 @@ import {
   SocialLoginButton,
 } from './styles';
 
-import { useAuth } from '../../providers/AuthProvider';
-
 // Dependencies
 import axios from 'axios';
 import * as Yup from 'yup';
@@ -37,6 +35,9 @@ import { ScreenDivider } from '@components/ScreenDivider';
 import { ControlledInput } from '@components/Form/ControlledInput';
 
 import { ThemeProps } from '@interfaces/theme';
+
+// Local
+import { useAuth } from '../../providers/AuthProvider';
 
 const LOGO_URL = '@assets/logo.png';
 const GOOGLE_LOGO_URL = '@assets/googleLogo.png';
@@ -94,7 +95,6 @@ export function SignIn() {
 
       await signInWithEmail(form);
     } catch (error) {
-      console.error('SignIn screen, handleSignInWithMail error =>', error);
       if (axios.isAxiosError(error)) {
         Alert.alert('Login', `${error.response?.data?.message}`);
       }
@@ -112,8 +112,8 @@ export function SignIn() {
       });
 
       // Check if the OAuth flow completed
-      if (oAuthFlow.createdSessionId) {
-        await oAuthFlow.setActive!({
+      if (oAuthFlow.createdSessionId && oAuthFlow.setActive) {
+        await oAuthFlow.setActive({
           session: oAuthFlow.createdSessionId,
         });
         return;
@@ -132,7 +132,6 @@ export function SignIn() {
         );
       }
     } catch (error) {
-      console.error('SignIn screen, handleContinueWithGoogle error =>', error);
       Alert.alert(
         'Login',
         'Não foi possível autenticar com o Google. Por favor, tente novamente.'
@@ -166,7 +165,7 @@ export function SignIn() {
         <SectionHeader>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title title={'Login'} />
+            <Header.Title title="Login" />
           </Header.Root>
         </SectionHeader>
 
@@ -194,7 +193,7 @@ export function SignIn() {
               placeholder='Senha'
               autoCapitalize='none'
               autoCorrect={false}
-              secureTextEntry={true}
+              secureTextEntry
               textContentType='password'
               name='password'
               control={control}
@@ -206,7 +205,7 @@ export function SignIn() {
 
             <Text
               style={{ textAlign: 'right', marginTop: -8 }}
-              onPress={handlePressForgotPassword}
+              onPress={() => handlePressForgotPassword()}
             >
               Esqueceu sua senha?
             </Text>
@@ -222,7 +221,7 @@ export function SignIn() {
 
           <ScreenDivider text='Ou' />
 
-          <SocialLoginButton onPress={handleContinueWithGoogle}>
+          <SocialLoginButton onPress={() => handleContinueWithGoogle()}>
             <Logo source={require(GOOGLE_LOGO_URL)} style={{ width: '15%' }} />
             <Text
               style={{ marginLeft: 8, color: theme.colors.textPlaceholder }}
@@ -235,7 +234,7 @@ export function SignIn() {
             Ainda não tem uma conta?{' '}
             <Text
               style={{ color: theme.colors.primary }}
-              onPress={handlePressSignUp}
+              onPress={() => handlePressSignUp()}
             >
               Cadastre-se
             </Text>

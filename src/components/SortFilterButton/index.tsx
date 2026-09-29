@@ -36,7 +36,7 @@ export function SortFilterButton({ selectedOption, onSelect }: Props) {
 
   return (
     <>
-      <TouchableOpacity onPress={handleSortingPress} style={{ padding: 8 }}>
+      <TouchableOpacity onPress={() => handleSortingPress()} style={{ padding: 8 }}>
         <FunnelIcon size={20} color={theme.colors.primary} />
       </TouchableOpacity>
 
@@ -48,7 +48,7 @@ export function SortFilterButton({ selectedOption, onSelect }: Props) {
         <SortingOptions
           selectedOption={selectedOption}
           onSelect={onSelect}
-          handleClose={handleCloseSortingModal}
+          handleClose={() => handleCloseSortingModal()}
         />
       </ModalViewSelection>
     </>

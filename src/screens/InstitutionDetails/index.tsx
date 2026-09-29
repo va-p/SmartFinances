@@ -102,6 +102,10 @@ function getSectionKey(account: AccountProps): SectionKey {
   return 'WALLET';
 }
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta encontrada nesta instituição' />;
+}
 export function InstitutionDetails() {
   const SCREEN_WIDTH = useWindowDimensions().width;
   const theme = useTheme() as ThemeProps;
@@ -148,12 +152,6 @@ export function InstitutionDetails() {
         !account.hide && account.institution?.id === institutionId
     );
 
-    let totalBalance = new Decimal(0);
-    const accountsBySection = new Map<
-      SectionKey,
-      ReturnType<typeof buildProcessedAccount>[]
-    >();
-
     function buildProcessedAccount(
       account: AccountProps,
       accountBalanceConvertedToBRL: number
@@ -171,6 +169,12 @@ export function InstitutionDetails() {
             : undefined,
       };
     }
+
+    let totalBalance = new Decimal(0);
+    const accountsBySection = new Map<
+      SectionKey,
+      ReturnType<typeof buildProcessedAccount>[]
+    >();
 
     institutionAccounts.forEach((account) => {
       const accountBalanceConvertedToBRL = convertCurrency({
@@ -207,17 +211,19 @@ export function InstitutionDetails() {
       }
 
       const sectionKey = getSectionKey(account);
-      if (!accountsBySection.has(sectionKey)) {
-        accountsBySection.set(sectionKey, []);
+      const sectionAccounts = accountsBySection.get(sectionKey);
+      if (sectionAccounts) {
+        sectionAccounts.push(processedAccount);
+      } else {
+        accountsBySection.set(sectionKey, [processedAccount]);
       }
-      accountsBySection.get(sectionKey)!.push(processedAccount);
     });
 
     const sections = SECTION_ORDER.filter((key) =>
       accountsBySection.has(key)
     ).map((key) => ({
       title: SECTION_TITLES[key],
-      data: accountsBySection.get(key)!,
+      data: accountsBySection.get(key) ?? [],
     }));
 
     return {
@@ -255,31 +261,29 @@ export function InstitutionDetails() {
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers.
-  const creditCardAccounts = useMemo(() => {
-    return sections
-      .filter(
-        (section) =>
-          !section.data.isVirtual &&
+  const creditCardAccounts = useMemo(() => sections
+    .filter(
+      (section) =>
+        !section.data.isVirtual &&
           section.data.type === 'CREDIT' &&
           section.data.subtype === 'CREDIT_CARD'
-      )
-      .sort((a, b) => {
-        const nameA = a.data?.name;
-        const nameB = b.data?.name;
+    )
+    .sort((a, b) => {
+      const nameA = a.data?.name;
+      const nameB = b.data?.name;
 
-        if (nameA && nameB) {
-          const institutionComparison =
+      if (nameA && nameB) {
+        const institutionComparison =
             nameA.localeCompare(nameB);
-          if (institutionComparison !== 0) return institutionComparison;
-        } else if (nameA && !nameB) {
-          return -1;
-        } else if (!nameA && nameB) {
-          return 1;
-        }
+        if (institutionComparison !== 0) return institutionComparison;
+      } else if (nameA && !nameB) {
+        return -1;
+      } else if (!nameA && nameB) {
+        return 1;
+      }
 
-        return a.data.name.localeCompare(b.data.name);
-      });
-  }, [sections]);
+      return a.data.name.localeCompare(b.data.name);
+    }), [sections]);
 
   function getAccountIcon(type: AccountTypes) {
     switch (type) {
@@ -320,16 +324,16 @@ export function InstitutionDetails() {
     item: AccountProps;
     index: number;
   };
-  function _renderItem({ item, index }: _renderItemProps) {
+  function renderItem({ item, index }: _renderItemProps) {
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
-          <AccountListItem
-            data={item}
-            index={index}
-            icon={getAccountIcon(item.type)}
-            hideAmount={hideAmount}
-            onPress={() => handleOpenAccount(item)}
-          />
+        <AccountListItem
+          data={item}
+          index={index}
+          icon={getAccountIcon(item.type)}
+          hideAmount={hideAmount}
+          onPress={() => handleOpenAccount(item)}
+        />
       );
     }
 
@@ -389,7 +393,8 @@ export function InstitutionDetails() {
           <SectionList
             sections={filteredSections}
             keyExtractor={(item) => String(item.id)}
-            renderItem={_renderItem}
+            renderItem={({ item, index }: _renderItemProps) =>
+              renderItem({ item, index })}
             renderSectionHeader={({ section }) => (
               <SectionTitle>{section.title}</SectionTitle>
             )}
@@ -404,7 +409,8 @@ export function InstitutionDetails() {
                   <FlatList
                     data={creditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
-                    renderItem={_renderItem}
+                    renderItem={({ item, index }: _renderItemProps) =>
+                      renderItem({ item, index })}
                     snapToOffsets={[
                       ...Array(creditCardAccounts.length),
                     ].map(
@@ -430,9 +436,7 @@ export function InstitutionDetails() {
                 </>
               ) : null
             }
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma conta encontrada nesta instituição' />
-            )}
+            ListEmptyComponent={EmptyList}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               flexGrow: 1,

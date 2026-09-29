@@ -58,7 +58,7 @@ export const FilterButtonGroup = styled.View`
 `;
 
 export const AccountFilterButtonContainer = styled.View`
-  min-width: 24%;
+  min-width: 20%;
   max-width: 40%;
 `;
 

@@ -9,13 +9,13 @@ import {
   LegendText,
 } from './styles';
 
+import { SectionTitle } from '../../styles';
+
 import { buildGoalProjection } from '@utils/buildGoalProjection';
 import { buildGoalChartSeries } from '@utils/buildGoalChartSeries';
 
 import { useTheme } from 'styled-components';
 import { LineChart } from 'react-native-gifted-charts';
-
-import { SectionTitle } from '../../styles';
 
 import { ThemeProps } from '@interfaces/theme';
 import { GoalDetailsProps } from '@interfaces/goals';

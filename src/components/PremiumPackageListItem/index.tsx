@@ -36,7 +36,7 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
   }
 
   function getTrialPeriod() {
-    if (!!data.product.introPrice) {
+    if (data.product.introPrice) {
       let periodUnit: string;
       switch (data.product.introPrice.periodUnit) {
         case 'DAY':
@@ -47,6 +47,7 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
           break;
         case 'MONTH':
           periodUnit = 'meses';
+          break;
         case 'YEAR':
           periodUnit = 'anos';
           break;
@@ -58,11 +59,13 @@ export function PremiumPackageListItem({ data, onPress }: Props) {
       const trialPeriod = `${data.product.introPrice.periodNumberOfUnits} ${periodUnit}`;
       return trialPeriod;
     }
+
+    return undefined;
   }
 
   return (
     <Container onPress={onPress}>
-      <ImgContainer></ImgContainer>
+      <ImgContainer />
 
       <PriceContainer>
         <DiscountPrice style={{ fontFamily: theme.fonts.medium }}>

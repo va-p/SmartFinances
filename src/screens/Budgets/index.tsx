@@ -29,6 +29,10 @@ import { useBudgetCategoriesSelected } from '@stores/budgetCategoriesSelected';
 // Interfaces
 import { BudgetProps } from '@interfaces/budget';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />;
+}
 export function Budgets() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
@@ -46,7 +50,7 @@ export function Budgets() {
     try {
       await Promise.all([refetchTransactions(), refetchBudgets()]);
     } catch (error) {
-      console.error('Erro durante o refresh manual:', error);
+      //
     } finally {
       setIsManualRefreshing(false);
     }
@@ -96,13 +100,11 @@ export function Budgets() {
               onPress={() => handleOpenBudget(item)}
             />
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhum orçamento criado. Crie orçamentos para visualizá-los aqui.' />
-          )}
+          ListEmptyComponent={EmptyList}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           showsVerticalScrollIndicator={false}
@@ -113,24 +115,24 @@ export function Budgets() {
         />
 
         <Footer style={{ paddingBottom: Platform.OS === 'ios' ? bottomTabBarHeight - 56 : bottomTabBarHeight - 16 }}>
-          <Button.Root onPress={handleOpenRegisterBudgetModal}>
+          <Button.Root onPress={() => handleOpenRegisterBudgetModal()}>
             <Button.Text text='Criar novo orçamento' />
           </Button.Root>
         </Footer>
 
         <ModalView
-          type={'primary'}
-          title={'Criar Novo Orçamento'}
+          type="primary"
+          title="Criar Novo Orçamento"
           bottomSheetRef={budgetRegisterBottomSheetRef}
           enableContentPanningGesture={false}
           enablePanDownToClose
           snapPoints={['75%']}
-          closeModal={handleCloseRegisterBudgetModal}
-          onClose={handleCloseRegisterBudgetModal}
+          closeModal={() => handleCloseRegisterBudgetModal()}
+          onClose={() => handleCloseRegisterBudgetModal()}
         >
           <RegisterBudget
-            id={''}
-            closeBudget={handleCloseRegisterBudgetModal}
+            id=""
+            closeBudget={() => handleCloseRegisterBudgetModal()}
           />
         </ModalView>
       </Container>

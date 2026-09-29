@@ -1,10 +1,10 @@
-import { convertCurrency } from './convertCurrency';
-import { monthKey } from './buildSubscriptionPeriodOptions';
-
 import {
   SubscriptionPaymentProps,
   SubscriptionProps,
 } from '@interfaces/subscriptions';
+
+import { convertCurrency } from './convertCurrency';
+import { monthKey } from './buildSubscriptionPeriodOptions';
 
 type Quotes = Parameters<typeof convertCurrency>[0]['quotes'];
 
@@ -55,10 +55,10 @@ export function getUpcomingPaymentsSummary(
 
   const upcoming: Array<{ month: string; amount: number }> = [];
 
-  for (const subscription of subscriptions) {
-    if (!subscription.next_payment_at) continue;
+  subscriptions.forEach((subscription) => {
+    if (!subscription.next_payment_at) return;
     const nextAt = new Date(subscription.next_payment_at);
-    if (nextAt < startOfToday) continue;
+    if (nextAt < startOfToday) return;
 
     try {
       const brl = convertAmountToBRL(
@@ -70,7 +70,7 @@ export function getUpcomingPaymentsSummary(
     } catch {
       // Unsupported currency pair: skip this subscription.
     }
-  }
+  });
 
   if (upcoming.length === 0) return null;
 
@@ -94,7 +94,7 @@ export function computePaymentsTotal(
 ): number {
   let total = 0;
 
-  for (const payment of payments) {
+  payments.forEach((payment) => {
     try {
       total += convertAmountToBRL(
         payment.amount,
@@ -104,7 +104,7 @@ export function computePaymentsTotal(
     } catch {
       // Unsupported currency pair: skip this payment.
     }
-  }
+  });
 
   return round2(total);
 }

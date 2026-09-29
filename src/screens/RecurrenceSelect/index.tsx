@@ -33,7 +33,6 @@ type Props = {
   initialInterval?: number;
   initialPeriod?: RecurrencePeriod;
   onSave: (data: RecurrenceData) => void;
-  onCancel: () => void;
 };
 
 const PERIOD_OPTIONS: { key: RecurrencePeriod; label: string }[] = [
@@ -54,7 +53,6 @@ export function RecurrenceSelect({
   initialInterval = 1,
   initialPeriod = 'DAILY',
   onSave,
-  onCancel,
 }: Props) {
   const theme = useTheme() as ThemeProps;
   const [interval, setInterval] = useState(initialInterval);
@@ -76,13 +74,13 @@ export function RecurrenceSelect({
   function handleInputChange(text: string) {
     setInputValue(text);
     const parsed = parseInt(text, 10);
-    if (!isNaN(parsed) && parsed >= 1) {
+    if (!Number.isNaN(parsed) && parsed >= 1) {
       setInterval(parsed);
     }
   }
 
   function handleInputBlur() {
-    if (inputValue === '' || isNaN(parseInt(inputValue, 10)) || parseInt(inputValue, 10) < 1) {
+    if (inputValue === '' || Number.isNaN(parseInt(inputValue, 10)) || parseInt(inputValue, 10) < 1) {
       setInputValue('1');
       setInterval(1);
     }
@@ -103,61 +101,50 @@ export function RecurrenceSelect({
     onSave({ interval, period });
   }
 
-  function getRecurrenceDescription(): string {
-    if (period === 'DAILY' && interval === 1) return 'Todo dia';
-    if (period === 'DAILY') return `A cada ${interval} dias`;
-    if (period === 'WEEKLY' && interval === 1) return 'Toda semana';
-    if (period === 'WEEKLY') return `A cada ${interval} semanas`;
-    if (period === 'MONTHLY' && interval === 1) return 'Todo mês';
-    if (period === 'MONTHLY') return `A cada ${interval} meses`;
-    if (period === 'YEARLY' && interval === 1) return 'Todo ano';
-    return `A cada ${interval} anos`;
-  }
-
   return (
-      <Container>
-        <Content>
-          {/*<Label>Configurar recorrência</Label>*/}
+    <Container>
+      <Content>
+        {/* <Label>Configurar recorrência</Label> */}
 
-          {/* ── Quantity Input ──────────────────────────────── */}
-          <Label secondary>Intervalo</Label>
-          <QuantityRow>
-            <QuantityButton onPress={handleDecrement}>
-              <QuantityButtonText>
-                <CaretDownIcon size={20} color={theme.colors.text} weight="bold" />
-              </QuantityButtonText>
-            </QuantityButton>
+        {/* ── Quantity Input ──────────────────────────────── */}
+        <Label secondary>Intervalo</Label>
+        <QuantityRow>
+          <QuantityButton onPress={() => handleDecrement()}>
+            <QuantityButtonText>
+              <CaretDownIcon size={20} color={theme.colors.text} weight="bold" />
+            </QuantityButtonText>
+          </QuantityButton>
 
-            <QuantityInput
-              value={inputValue}
-              onChangeText={handleInputChange}
-              onBlur={handleInputBlur}
-              keyboardType="numeric"
-              selectTextOnFocus
-              textAlign="center"
-            />
+          <QuantityInput
+            value={inputValue}
+            onChangeText={(text: string) => handleInputChange(text)}
+            onBlur={() => handleInputBlur()}
+            keyboardType="numeric"
+            selectTextOnFocus
+            textAlign="center"
+          />
 
-            <QuantityButton onPress={handleIncrement}>
-              <QuantityButtonText>
-                <CaretUpIcon size={20} color={theme.colors.text} weight="bold" />
-              </QuantityButtonText>
-            </QuantityButton>
-          </QuantityRow>
+          <QuantityButton onPress={() => handleIncrement()}>
+            <QuantityButtonText>
+              <CaretUpIcon size={20} color={theme.colors.text} weight="bold" />
+            </QuantityButtonText>
+          </QuantityButton>
+        </QuantityRow>
 
-          {/* ── Period Selector ─────────────────────────────── */}
-          <Label secondary>Período</Label>
-          <PeriodSelector onPress={handleSelectPeriod}>
-            <CalendarIcon size={20} color={theme.colors.primary} />
-            <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
-          </PeriodSelector>
+        {/* ── Period Selector ─────────────────────────────── */}
+        <Label secondary>Período</Label>
+        <PeriodSelector onPress={() => handleSelectPeriod()}>
+          <CalendarIcon size={20} color={theme.colors.primary} />
+          <PeriodText>{PERIOD_LABELS[period]}</PeriodText>
+        </PeriodSelector>
 
-          {/* ── Actions ─────────────────────────────────────── */}
-          <Footer>
-            <Button.Root onPress={handleSave}>
-              <Button.Text text="Salvar" />
-            </Button.Root>
-          </Footer>
-        </Content>
-      </Container>
+        {/* ── Actions ─────────────────────────────────────── */}
+        <Footer>
+          <Button.Root onPress={() => handleSave()}>
+            <Button.Text text="Salvar" />
+          </Button.Root>
+        </Footer>
+      </Content>
+    </Container>
   );
 }

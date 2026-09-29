@@ -19,7 +19,10 @@ interface Props {
   data: FormattedBudgetProps;
 }
 
-export function BudgetPercentBar({ is_amount_reached, data }: Props) {
+export function BudgetPercentBar({
+  is_amount_reached: isAmountReached,
+  data,
+}: Props) {
   const theme = useTheme() as ThemeProps;
   const animatedWidth = useSharedValue(0);
 
@@ -49,12 +52,12 @@ export function BudgetPercentBar({ is_amount_reached, data }: Props) {
           styles.percentage,
           AnimatedContainerStyle,
           {
-            backgroundColor: is_amount_reached
+            backgroundColor: isAmountReached
               ? theme.colors.attention
               : theme.colors.success,
           },
         ]}
-      ></Animated.View>
+      />
       <Percent numberOfLines={1}>{data.percentage.toFixed(2)}%</Percent>
     </Container>
   );

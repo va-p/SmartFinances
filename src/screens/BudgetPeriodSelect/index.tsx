@@ -56,8 +56,8 @@ export function BudgetPeriodSelect({
     },
   ];
 
-  function handlePeriodSelect(period: ChartPeriodProps) {
-    setPeriod(period);
+  function handlePeriodSelect(selectedPeriod: ChartPeriodProps) {
+    setPeriod(selectedPeriod);
     closeSelectPeriod();
   }
 

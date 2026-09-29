@@ -22,6 +22,10 @@ import { SkeletonCategoriesAndTagsScreen } from '@components/SkeletonCategoriesA
 
 import { RegisterInstitution } from '@screens/RegisterInstitution';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma instituição criada. Crie instituições para agrupar suas contas.' />;
+}
 export function Institutions() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [institutionID, setInstitutionID] = useState('');
@@ -34,7 +38,7 @@ export function Institutions() {
     refetch,
     isRefetching,
   } = useInstitutionsQuery();
-  const { mutate: deleteInstitution, isPending: isDeleting } =
+  const { mutate: deleteInstitution } =
     useDeleteInstitutionMutation();
 
   async function handleRefresh() {
@@ -116,19 +120,17 @@ export function Institutions() {
               onPress={() => handleOpenInstitution(item.id)}
             />
           )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma instituição criada. Crie instituições para agrupar suas contas.' />
-          )}
+          ListEmptyComponent={EmptyList}
           initialNumToRender={50}
           refreshControl={
             <RefreshControl
               refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
+              onRefresh={() => handleRefresh()}
             />
           }
           ListFooterComponent={
             <Button.Root
-              onPress={handleOpenRegisterInstitutionModal}
+              onPress={() => handleOpenRegisterInstitutionModal()}
               style={{ marginTop: 16 }}
             >
               <Button.Text text='Criar Nova Instituição' />
@@ -152,12 +154,12 @@ export function Institutions() {
           }
           bottomSheetRef={bottomSheetRef}
           snapPoints={['30%', '60%', '90%']}
-          closeModal={handleCloseRegisterInstitutionModal}
-          deleteChildren={handleClickDeleteInstitution}
+          closeModal={() => handleCloseRegisterInstitutionModal()}
+          deleteChildren={() => handleClickDeleteInstitution()}
         >
           <RegisterInstitution
             id={institutionID}
-            closeInstitution={handleCloseInstitution}
+            closeInstitution={() => handleCloseInstitution()}
           />
         </ModalView>
       </Container>

@@ -18,9 +18,17 @@ type Props = BottomSheetProps & {
   children: ReactNode;
 };
 
+function OverlayComponent() {
+  return <Overlay />;
+}
+
+function GradientComponent({ roundCorners }: { roundCorners: boolean }) {
+  return <Gradient roundCorners={roundCorners} />;
+}
+
 export function ModalViewSelection({
   title,
-  bottomSheetRef,
+  bottomSheetRef = undefined,
   children,
   ...rest
 }: Props) {
@@ -30,11 +38,11 @@ export function ModalViewSelection({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
-      enablePanDownToClose={true}
+      enablePanDownToClose
       enableContentPanningGesture={false}
-      backdropComponent={() => <Overlay />}
+      backdropComponent={() => OverlayComponent()}
       backgroundStyle={{ backgroundColor: theme.colors.background }}
-      backgroundComponent={() => <Gradient roundCorners />}
+      backgroundComponent={() => GradientComponent({roundCorners: true})}
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       {...rest}
     >

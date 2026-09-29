@@ -61,7 +61,7 @@ export interface BankingIntegration {
   id: number;
   createdAt: number;
   userId: number;
-  pluggyIntegrationId: string; //uuid
+  pluggyIntegrationId: string; // uuid
   lastSyncDate: string;
   health: HealthTypes;
   status: StatusTypes;

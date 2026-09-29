@@ -17,7 +17,7 @@ export function ControlledInputWithIcon({
   icon,
   name,
   control,
-  error,
+  error = undefined,
   ...rest
 }: Props) {
   const isNumericKeyboard =
@@ -33,7 +33,7 @@ export function ControlledInputWithIcon({
             {error && <ErrorMessage> {error.message} </ErrorMessage>}
 
             <Content>
-              <>{icon}</>
+              {icon}
               <Input
                 onChangeText={(text: string) => {
                   onChange(isNumericKeyboard ? parseDecimalInput(text) : text);

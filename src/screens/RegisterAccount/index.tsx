@@ -41,7 +41,7 @@ import { InstitutionSelect } from '@screens/InstitutionSelect';
 
 // Storages
 import { useUser } from '@stores/userStorage';
-import { useCurrenciesStore } from '@storage/currenciesStore';
+import { useCurrenciesStore } from '@stores/currenciesStore';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
@@ -183,12 +183,12 @@ export function RegisterAccount({ id, closeAccount }: Props) {
   }
 
   async function handleEditAccount(
-    id: string | null,
+    accountId: string | null,
     form: FormData,
     creditData?: CreditCardDataPayload
   ) {
     const AccountEdited = {
-      account_id: id,
+      account_id: accountId,
       name: form.name,
       type: typeSelected,
       subtype: typeSelected === 'CREDIT' ? 'CREDIT_CARD' : null,
@@ -247,11 +247,11 @@ export function RegisterAccount({ id, closeAccount }: Props) {
     // for any other type the key is omitted entirely (spec CC-07/CC-08).
     const creditData = isCreditCard
       ? buildCreditCardDataPayload({
-          brand: form.credit_card_brand,
-          closeDay: form.credit_card_close_day,
-          creditLimit: form.credit_card_credit_limit,
-          availableCreditLimit: form.credit_card_available_credit_limit,
-        }) ?? undefined
+        brand: form.credit_card_brand,
+        closeDay: form.credit_card_close_day,
+        creditLimit: form.credit_card_credit_limit,
+        availableCreditLimit: form.credit_card_available_credit_limit,
+      }) ?? undefined
       : undefined;
 
     // Edit account
@@ -298,6 +298,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         setButtonIsLoading(false);
       }
     }
+    return null;
   }
 
   async function fetchAccount() {
@@ -333,7 +334,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         );
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Conta',
         'Não foi possível buscar a conta. Verifique sua conexão com a internet e tente novamente.'
@@ -354,7 +354,6 @@ export function RegisterAccount({ id, closeAccount }: Props) {
         setHideAccount((prevState) => !prevState);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Edição de Conta',
         'Erro ao editar a conta. Por favor, tente novamente.'
@@ -407,7 +406,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             <SelectButton
               title={currencySelected.name}
               icon={<CoinsIcon color={theme.colors.primary} />}
-              onPress={handleOpenSelectCurrencyModal}
+              onPress={() => handleOpenSelectCurrencyModal()}
             />
 
             <SelectDropdown
@@ -442,12 +441,8 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                   ? accountTypeMap[typeSelected]
                   : 'Selecione o tipo da conta'
               }
-              buttonTextAfterSelection={(selectedItem) => {
-                return selectedItem;
-              }}
-              rowTextForSelection={(item) => {
-                return item;
-              }}
+              buttonTextAfterSelection={(selectedItem) => selectedItem}
+              rowTextForSelection={(item) => item}
               buttonStyle={{
                 width: '100%',
                 minHeight: 40,
@@ -462,9 +457,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                 textAlign: 'left',
                 color: theme.colors.text,
               }}
-              renderDropdownIcon={() => {
-                return <CaretRightIcon size={20} color={theme.colors.text} />;
-              }}
+              renderDropdownIcon={() => <CaretRightIcon size={20} color={theme.colors.text} />}
               dropdownIconPosition='right'
               rowStyle={{ backgroundColor: theme.colors.background }}
               rowTextStyle={{ color: theme.colors.text }}
@@ -521,7 +514,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
                 'Selecione a instituição financeira'
               }
               icon={<BankIcon color={theme.colors.primary} />}
-              onPress={handleOpenSelectInstitutionModal}
+              onPress={() => handleOpenSelectInstitutionModal()}
             />
             {errors.institution_id && (
               <ErrorMessage>{errors.institution_id.message}</ErrorMessage>
@@ -531,7 +524,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
               <ButtonToggle
                 icon={<EyeSlashIcon color={theme.colors.primary} />}
                 title={!hideAccount ? 'Ocultar conta' : 'Exibir conta'}
-                onValueChange={handleHideAccount}
+                onValueChange={() => handleHideAccount()}
                 value={hideAccount}
                 isEnabled={hideAccount}
               />
@@ -541,7 +534,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
               icon={<StarIcon color={theme.colors.primary} />}
               title='Definir como conta padrão'
               subTitle='Esta conta virá pré-selecionada ao adicionar transações'
-              onValueChange={handleToggleDefaultAccount}
+              onValueChange={() => handleToggleDefaultAccount()}
               value={isDefault}
               isEnabled={isDefault}
             />
@@ -566,7 +559,7 @@ export function RegisterAccount({ id, closeAccount }: Props) {
             <CurrencySelect
               currency={currencySelected}
               setCurrency={setCurrencySelected}
-              closeSelectCurrency={handleCloseSelectCurrencyModal}
+              closeSelectCurrency={() => handleCloseSelectCurrencyModal()}
             />
           </ModalViewSelection>
 
@@ -578,8 +571,9 @@ export function RegisterAccount({ id, closeAccount }: Props) {
           >
             <InstitutionSelect
               institutionSelected={institutionSelected}
-              setInstitution={handleSetInstitution}
-              closeSelectInstitution={handleCloseSelectInstitutionModal}
+              setInstitution={(institution: InstitutionProps | null) =>
+                handleSetInstitution(institution)}
+              closeSelectInstitution={() => handleCloseSelectInstitutionModal()}
             />
           </ModalViewSelection>
         </View>

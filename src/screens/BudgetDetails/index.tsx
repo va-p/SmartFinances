@@ -44,7 +44,6 @@ import { SectionTitle } from '@screens/Overview/styles';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { BudgetHistoryChart } from './components/BudgetHistoryChart';
 import { SkeletonBudgetsScreen } from '@components/SkeletonBudgetsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { BudgetPercentBar } from '@components/BudgetListItem/components/BudgetPercentBar';
@@ -55,6 +54,19 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { SectionListHeader } from '@components/SectionListHeader';
+
+// Local
+import { BudgetHistoryChart } from './components/BudgetHistoryChart';
+
+function TransactionsEmptyList() {
+  return (
+    <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
+  );
+}
+
+function RowSeparator() {
+  return <View style={{ minHeight: 8, maxHeight: 8 }} />;
+}
 
 export function BudgetDetails() {
   const { budgetID }: { budgetID: string } = useLocalSearchParams();
@@ -106,8 +118,10 @@ export function BudgetDetails() {
     return Number(budget?.amount) - Number(budget?.amount_spent);
   }
 
+  const budgetCurrentEndDate = budget.current_end_date;
+
   function calculateRemainderBudgetPerDay() {
-    const daysToEndDate = formatDistanceToNowStrict(budget!.current_end_date, {
+    const daysToEndDate = formatDistanceToNowStrict(budgetCurrentEndDate, {
       unit: 'day',
       locale: ptBR,
     }).split(' ')[0];
@@ -176,7 +190,7 @@ export function BudgetDetails() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title={budget.name} />
-          <Header.Icon onPress={handleOpenEditBudgetModal} />
+          <Header.Icon onPress={() => handleOpenEditBudgetModal()} />
         </Header.Root>
 
         <BudgetTotal type={!budgetAmountReached ? 'positive' : 'negative'}>
@@ -199,15 +213,15 @@ export function BudgetDetails() {
             description={
               !budgetAmountReached
                 ? `Você ainda pode gastar ${formatCurrency(
-                    budget.currency.code,
-                    calculateRemainderBudgetPerDay(),
-                    false
-                  )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
+                  budget.currency.code,
+                  calculateRemainderBudgetPerDay(),
+                  false
+                )} por dia até o final do período do orçamento! Continue assim para manter seu orçamento dentro do planejado!`
                 : `O seu orçamento foi excedido em ${formatCurrency(
-                    budget.currency.code,
-                    calculateRemainderBudget() * -1,
-                    false
-                  )}. Pare de gastar para não comprometer mais o seu orçamento!`
+                  budget.currency.code,
+                  calculateRemainderBudget() * -1,
+                  false
+                )}. Pare de gastar para não comprometer mais o seu orçamento!`
             }
           />
         </InsightCard.Root>
@@ -232,7 +246,7 @@ export function BudgetDetails() {
             <FlashList
               data={budgetTransactionsGroupedByDate}
               keyExtractor={(item: any) =>
-                item.isHeader ? String(item.headerTitle!) : String(item.id)
+                item.isHeader ? String(item.headerTitle) : String(item.id)
               }
               showsVerticalScrollIndicator={false}
               renderItem={({ item, index }: any) => {
@@ -261,12 +275,8 @@ export function BudgetDetails() {
                   ? 'sectionHeader'
                   : 'row'
               }
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma transação deste orçamento. Crie ou importe transações de categorias deste orçamento para visualizá-las aqui.' />
-              )}
-              ItemSeparatorComponent={() => (
-                <View style={{ minHeight: 8, maxHeight: 8 }} />
-              )}
+              ListEmptyComponent={TransactionsEmptyList}
+              ItemSeparatorComponent={RowSeparator}
               contentContainerStyle={{
                 paddingBottom: bottomTabBarHeight,
               }}
@@ -275,19 +285,19 @@ export function BudgetDetails() {
         </ScrollContent>
 
         <ModalView
-          type={'secondary'}
-          title={'Editar Orçamento'}
+          type="secondary"
+          title="Editar Orçamento"
           bottomSheetRef={budgetEditBottomSheetRef}
           enableContentPanningGesture={false}
           enablePanDownToClose
           snapPoints={['75%']}
-          closeModal={handleCloseEditBudgetModal}
-          onClose={handleCloseEditBudgetModal}
-          deleteChildren={handleClickDeleteBudget}
+          closeModal={() => handleCloseEditBudgetModal()}
+          onClose={() => handleCloseEditBudgetModal()}
+          deleteChildren={() => handleClickDeleteBudget()}
         >
           <RegisterBudget
             id={budgetID}
-            closeBudget={handleFinishedEditBudget}
+            closeBudget={() => handleFinishedEditBudget()}
           />
         </ModalView>
 
@@ -297,8 +307,8 @@ export function BudgetDetails() {
         >
           <RegisterTransaction
             id={transactionID}
-            resetId={ClearTransactionID}
-            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            resetId={() => ClearTransactionID()}
+            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
           />
         </ModalViewWithoutHeader>
       </Container>

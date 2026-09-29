@@ -18,9 +18,9 @@ export function formatTransactions(
     amount_in_account_currency: item.amount_in_account_currency,
     amount_in_account_currency_formatted: item.amount_in_account_currency
       ? formatCurrency(
-          item.account.currency.code,
-          item.amount_in_account_currency
-        )
+        item.account.currency.code,
+        item.amount_in_account_currency
+      )
       : undefined,
     currency: item.currency,
     type: item.type,

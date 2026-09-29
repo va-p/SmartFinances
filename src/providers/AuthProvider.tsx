@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { Alert } from 'react-native';
 
 import axios from 'axios';
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: any) {
   } = useClerkUser();
 
   const { user: revenueCatUser } = useRevenueCat();
-  const premium = revenueCatUser.premium;
+  const {premium} = revenueCatUser;
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -130,7 +130,6 @@ export function AuthProvider({ children }: any) {
 
       return (compatible && enrolled && useLocalAuth) || false;
     } catch (error) {
-      console.error('Erro ao verificar biometria:', error);
       return false;
     }
   }
@@ -175,7 +174,6 @@ export function AuthProvider({ children }: any) {
         }
       }
     } catch (error) {
-      console.error('AuthProvider, signInWithBiometrics error =>', error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         // Refresh token expired — clear it so user must login in again
         await SecureStore.deleteItemAsync(SECURE_REFRESH_TOKEN_KEY);
@@ -210,73 +208,56 @@ export function AuthProvider({ children }: any) {
   }, [clerkLoaded, clerkSignedIn]);
 
   async function fetchClerkUserDataOnDatabase() {
-    return new Promise<void>(async (resolve, reject) => {
+    if (!clerkUser || !clerkSignedIn) {
+      return;
+    }
+
+    for (let attempt = 0; attempt < MAX_SSO_RETRIES; attempt += 1) {
       try {
-        let lastError: any = null;
+        // eslint-disable-next-line no-await-in-loop -- sequential retry attempts are the point of the loop
+        const { data, status } = await api.get('/auth/clerk_sso', {
+          params: { clerk_user_id: clerkUser.id },
+        });
 
-        for (let attempt = 0; attempt < MAX_SSO_RETRIES; attempt++) {
-          try {
-            const { data, status } = await api.get('/auth/clerk_sso', {
-              params: { clerk_user_id: clerkUser?.id! },
-            });
+        if (!!data[0] && status === 200) {
+          storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
 
-            if (!!data[0] && status === 200) {
-              storageToken.set(`${DATABASE_TOKENS}`, JSON.stringify(data[0]));
-
-              // Store refresh token from SSO response (3rd array element)
-              if (data[2]) {
-                await SecureStore.setItemAsync(
-                  SECURE_REFRESH_TOKEN_KEY,
-                  data[2]
-                );
-                const userEmail = data[1]?.email || '';
-                if (userEmail) {
-                  await SecureStore.setItemAsync(
-                    SECURE_USER_EMAIL_KEY,
-                    userEmail
-                  );
-                }
-              }
-
-              const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
-              setIsSignedIn(clerkSignedIn!);
-              setUser(loggedInUserDataFormatted);
-              resolve();
-              return;
+          // Store refresh token from SSO response (3rd array element)
+          if (data[2]) {
+            SecureStore.setItemAsync(SECURE_REFRESH_TOKEN_KEY, data[2]);
+            const userEmail = data[1]?.email || '';
+            if (userEmail) {
+              SecureStore.setItemAsync(SECURE_USER_EMAIL_KEY, userEmail);
             }
-
-            // If we got a 200 but no data, that's unexpected — retry
-            lastError = new Error('Empty response from auth/clerk_sso');
-          } catch (error: any) {
-            lastError = error;
-
-            // If it's a server error (5xx), retry after delay
-            if (error?.response?.status >= 500 && attempt < MAX_SSO_RETRIES - 1) {
-              console.log(
-                `SSO fetch attempt ${attempt + 1} failed (server error), retrying in ${SSO_RETRY_DELAY}ms...`
-              );
-              await new Promise((r) => setTimeout(r, SSO_RETRY_DELAY));
-              continue;
-            }
-
-            // For other errors or last attempt, don't retry
-            break;
           }
+
+          const loggedInUserDataFormatted = storageUserDataAndConfig(data[1]);
+          setIsSignedIn(clerkSignedIn);
+          setUser(loggedInUserDataFormatted);
+          return;
         }
 
-        // All attempts failed
-        console.error('All SSO fetch attempts failed:', lastError);
-        await clerk.signOut();
-        Alert.alert(
-          'Erro',
-          'Não foi possível completar a autenticação. Por favor, tente novamente.'
-        );
-        resolve();
-      } catch (error) {
-        console.error('Erro ao buscar dados do usuário =>', error);
-        reject(error);
+        // If we got a 200 but no data, that's unexpected — retry
+      } catch (error: any) {
+        // If it's a server error (5xx), retry after delay
+        if (error?.response?.status >= 500 && attempt < MAX_SSO_RETRIES - 1) {
+          // eslint-disable-next-line no-await-in-loop -- retry backoff must be sequential
+          await new Promise((resolve) => {
+            setTimeout(resolve, SSO_RETRY_DELAY);
+          });
+        } else {
+          // For other errors or last attempt, don't retry
+          break;
+        }
       }
-    });
+    }
+
+    // All attempts failed
+    await clerk.signOut();
+    Alert.alert(
+      'Erro',
+      'Não foi possível completar a autenticação. Por favor, tente novamente.'
+    );
   }
 
   async function signInWithEmail(formData: FormData) {
@@ -313,13 +294,13 @@ export function AuthProvider({ children }: any) {
         setUser(loggedInUserDataFormatted); // User data from database
         return loggedInUserDataFormatted;
       }
-      return;
     } catch (error) {
-      console.error('AuthProvider, signInWithEmail error =>', error);
       Alert.alert('Login', `${error.response?.data?.message}`);
     } finally {
       setLoading(false);
     }
+
+    return undefined;
   }
 
   async function signOut() {
@@ -355,7 +336,6 @@ export function AuthProvider({ children }: any) {
         notificationsEnabled: false,
       }));
     } catch (error) {
-      console.error('AuthProvider, signOut error =>', error);
       Alert.alert(
         'Logout',
         `Não foi possível sair: ${error.response?.data?.message}. Por favor, tente novamente.`
@@ -376,7 +356,6 @@ export function AuthProvider({ children }: any) {
           await fetchClerkUserDataOnDatabase();
         }
       } catch (error) {
-        console.error('Erro durante a inicialização da autenticação:', error);
         if (axios.isAxiosError(error)) {
           Alert.alert('Login', error.response?.data?.message);
         }
@@ -388,16 +367,28 @@ export function AuthProvider({ children }: any) {
     initializeAuth();
   }, [clerkLoaded, clerkSignedIn, clerkUser]);
 
-  const contextValue = {
-    isSignedIn,
-    user,
-    loading,
-    isLoaded: clerkLoaded,
-    signInWithEmail,
-    canSignInWithBiometrics,
-    signInWithBiometrics,
-    signOut,
-  };
+  const contextValue = useMemo(
+    () => ({
+      isSignedIn,
+      user,
+      loading,
+      isLoaded: clerkLoaded,
+      signInWithEmail,
+      canSignInWithBiometrics,
+      signInWithBiometrics,
+      signOut,
+    }),
+    [
+      isSignedIn,
+      user,
+      loading,
+      clerkLoaded,
+      signInWithEmail,
+      canSignInWithBiometrics,
+      signInWithBiometrics,
+      signOut,
+    ]
+  );
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

@@ -19,6 +19,10 @@ type Props = {
   closeSelectAccountDestination: () => void;
 };
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />;
+}
 export function AccountDestinationSelect({
   accountDestination,
   setAccountDestination,
@@ -50,29 +54,27 @@ export function AccountDestinationSelect({
   );
 
   return (
-      <Container>
-        <FlatList
-          data={selectableAccounts}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <ListItem
-              data={item}
-              isActive={accountDestination.id === item.id}
-              onPress={() => handleAccountSelect(item)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma conta criada ainda. Crie suas contas antes de adicionar as transações.' />
-          )}
-          ItemSeparatorComponent={() => <ListSeparator />}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetchingAccounts}
-              onRefresh={handleRefresh}
-            />
-          }
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+    <Container>
+      <FlatList
+        data={selectableAccounts}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <ListItem
+            data={item}
+            isActive={accountDestination.id === item.id}
+            onPress={() => handleAccountSelect(item)}
+          />
+        )}
+        ListEmptyComponent={EmptyList}
+        ItemSeparatorComponent={ListSeparator}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetchingAccounts}
+            onRefresh={() => handleRefresh()}
+          />
+        }
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }

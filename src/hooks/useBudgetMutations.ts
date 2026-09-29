@@ -9,15 +9,9 @@ import { BudgetProps } from '@interfaces/budget';
 const QUERY_KEY = ['budgets'];
 
 // --- API functions ---
-const createBudgetFn = async (newBudget: any) => {
-  return await api.post('budget', newBudget);
-};
-const updateBudgetFn = async (editedBudget: any) => {
-  return await api.patch(`budget/${editedBudget.id}`, editedBudget);
-};
-const deleteBudgetFn = async (budgetId: string) => {
-  return await api.delete(`budget/${budgetId}`);
-};
+const createBudgetFn = (newBudget: any) => api.post('budget', newBudget);
+const updateBudgetFn = (editedBudget: any) => api.patch(`budget/${editedBudget.id}`, editedBudget);
+const deleteBudgetFn = (budgetId: string) => api.delete(`budget/${budgetId}`);
 
 // --- Create budget ---
 export function useCreateBudgetMutation() {
@@ -26,7 +20,7 @@ export function useCreateBudgetMutation() {
   return useMutation({
     mutationFn: createBudgetFn,
 
-    onError: (_error, _newBudget) => {
+    onError: () => {
       Alert.alert('Erro', 'Não foi possível criar o orçamento. Tente novamente.');
     },
 
@@ -43,7 +37,7 @@ export function useUpdateBudgetMutation() {
   return useMutation({
     mutationFn: updateBudgetFn,
 
-    onError: (_error, _updatedBudget) => {
+    onError: () => {
       Alert.alert('Erro', 'Não foi possível atualizar o orçamento. Tente novamente.');
     },
 

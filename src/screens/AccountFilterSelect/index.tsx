@@ -19,6 +19,10 @@ import { AccountProps } from '@interfaces/accounts';
  * the filter immediately; the sheet is dismissed by backdrop/pan, not by
  * selection (GoalAccountSelect pattern).
  */
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta criada ainda.' />;
+}
 export function AccountFilterSelect() {
   const {
     data: accounts,
@@ -79,10 +83,8 @@ export function AccountFilterSelect() {
             onPress={() => handleToggleAccount(item)}
           />
         )}
-        ListEmptyComponent={() => (
-          <ListEmptyComponent text='Nenhuma conta criada ainda.' />
-        )}
-        ItemSeparatorComponent={() => <ListSeparator />}
+        ListEmptyComponent={EmptyList}
+        ItemSeparatorComponent={ListSeparator}
         refreshControl={
           <RefreshControl
             refreshing={isRefetchingAccounts}

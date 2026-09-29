@@ -15,12 +15,12 @@ import { SkeletonHomeScreen } from '@components/SkeletonOverviewScreen';
 import { AuthProvider, useAuth } from '@providers/AuthProvider';
 import { RevenueCatProvider } from '@providers/RevenueCatProvider';
 import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_700Bold,
+  Poppins_400Regular as Poppins400Regular,
+  Poppins_500Medium as Poppins500Medium,
+  Poppins_700Bold as Poppins700Bold,
 } from '@expo-google-fonts/poppins';
 
-import { useQuotes } from '@storage/quotesStorage';
+import { useQuotes } from '@stores/quotesStorage';
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrenciesQuery } from '@hooks/useCurrenciesQuery';
@@ -28,7 +28,7 @@ import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 
 import darkTheme from '@themes/darkTheme';
 import lightTheme from '@themes/lightTheme';
-import { useCurrenciesStore } from '@storage/currenciesStore';
+import { useCurrenciesStore } from '@stores/currenciesStore';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,11 +49,11 @@ const tokenCache = {
 };
 
 function RootNavigationLayout() {
-  const { data: currenciesData, isLoading: isLoadingCurrencies } =
+  const { data: currenciesData } =
     useCurrenciesQuery();
   const setCurrencies = useCurrenciesStore((state) => state.setCurrencies);
 
-  const { data: quotesData, isLoading: isLoadingQuotes } = useQuotesQuery();
+  const { data: quotesData } = useQuotesQuery();
   const {
     setBrlQuoteBtc,
     setBrlQuoteEur,
@@ -78,13 +78,13 @@ function RootNavigationLayout() {
   );
 
   useEffect(() => {
-    if (!!currenciesData) {
+    if (currenciesData) {
       setCurrencies(currenciesData);
     }
   }, [currenciesData]);
 
   useEffect(() => {
-    if (!!quotesData) {
+    if (quotesData) {
       setBrlQuoteBtc(quotesData.brlToBtc);
       setBrlQuoteEur(quotesData.brlToEur);
       setBrlQuoteUsd(quotesData.brlToUsd);
@@ -163,9 +163,9 @@ export default function RootLayout() {
   setDarkMode(useDarkMode);
 
   const [fontsLoaded, fontError] = Font.useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-    Poppins_700Bold,
+    Poppins_400Regular: Poppins400Regular,
+    Poppins_500Medium: Poppins500Medium,
+    Poppins_700Bold: Poppins700Bold,
   });
 
   useEffect(() => {

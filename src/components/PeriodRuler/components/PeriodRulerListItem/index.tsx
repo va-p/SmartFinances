@@ -17,7 +17,7 @@ export function PeriodRulerListItem({ data, width, onPress }: Props) {
     data.date.charAt(0).toUpperCase() + data.date.trim().slice(1);
 
   return (
-    <Container style={{ width: width }} onPress={() => onPress(data.date)}>
+    <Container style={{ width }} onPress={() => onPress(data.date)}>
       <PeriodRulerDate width={width} isActive={data.isActive} numberOfLines={2}>
         {formattedDate}
       </PeriodRulerDate>

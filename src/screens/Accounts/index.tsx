@@ -221,10 +221,12 @@ export function Accounts() {
           return;
         }
 
-        if (!institutionGroups.has(institutionId)) {
-          institutionGroups.set(institutionId, []);
+        const group = institutionGroups.get(institutionId);
+        if (group) {
+          group.push(account);
+        } else {
+          institutionGroups.set(institutionId, [account]);
         }
-        institutionGroups.get(institutionId)!.push(account);
       });
 
     const institutionCards: {
@@ -241,6 +243,12 @@ export function Accounts() {
         return;
       }
 
+      const { institution } = accounts[0];
+      if (!institution) {
+        standaloneAccounts.push(...accounts);
+        return;
+      }
+
       const totalConverted = accounts.reduce(
         (sum, account) =>
           sum.plus(account.accountBalanceConvertedToBRL ?? 0),
@@ -248,8 +256,8 @@ export function Accounts() {
       );
 
       institutionCards.push({
-        id: accounts[0].institution!.id,
-        name: accounts[0].institution!.name,
+        id: institution.id,
+        name: institution.name,
         totalFormatted: formatCurrency(
           'BRL',
           totalConverted.toNumber(),
@@ -276,8 +284,8 @@ export function Accounts() {
         totalAccountsBalance.toNumber(),
         false
       ),
-      processedAccounts: processedAccounts,
-      chartData: chartData,
+      processedAccounts,
+      chartData,
       institutionCards,
       standaloneAccounts,
     };
@@ -305,23 +313,47 @@ export function Accounts() {
     const byNameDesc = (a: { name: string }, b: { name: string }) =>
       b.name.localeCompare(a.name);
 
-    const institutionCmp =
-      sortingOption === 'name-asc'
-        ? byNameAsc
-        : sortingOption === 'name-desc'
-          ? byNameDesc
-          : sortingOption === 'balance-asc'
-            ? (a: InstitutionCardData, b: InstitutionCardData) => a.totalRaw - b.totalRaw
-            : (a: InstitutionCardData, b: InstitutionCardData) => b.totalRaw - a.totalRaw;
+    const pickInstitutionCmp = () => {
+      if (sortingOption === 'name-asc') {
+        return byNameAsc;
+      }
 
-    const accountCmp =
-      sortingOption === 'name-asc'
-        ? byNameAsc
-        : sortingOption === 'name-desc'
-          ? byNameDesc
-          : sortingOption === 'balance-asc'
-            ? (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => a.accountBalanceConvertedToBRL - b.accountBalanceConvertedToBRL
-            : (a: typeof processedAccounts[number], b: typeof processedAccounts[number]) => b.accountBalanceConvertedToBRL - a.accountBalanceConvertedToBRL;
+      if (sortingOption === 'name-desc') {
+        return byNameDesc;
+      }
+
+      if (sortingOption === 'balance-asc') {
+        return (a: InstitutionCardData, b: InstitutionCardData) =>
+          a.totalRaw - b.totalRaw;
+      }
+
+      return (a: InstitutionCardData, b: InstitutionCardData) =>
+        b.totalRaw - a.totalRaw;
+    };
+    const institutionCmp = pickInstitutionCmp();
+
+    const pickAccountCmp = () => {
+      if (sortingOption === 'name-asc') {
+        return byNameAsc;
+      }
+
+      if (sortingOption === 'name-desc') {
+        return byNameDesc;
+      }
+
+      if (sortingOption === 'balance-asc') {
+        return (
+          a: typeof processedAccounts[number],
+          b: typeof processedAccounts[number]
+        ) => a.accountBalanceConvertedToBRL - b.accountBalanceConvertedToBRL;
+      }
+
+      return (
+        a: typeof processedAccounts[number],
+        b: typeof processedAccounts[number]
+      ) => b.accountBalanceConvertedToBRL - a.accountBalanceConvertedToBRL;
+    };
+    const accountCmp = pickAccountCmp();
 
     const sortedInstitutionCards = [...institutionCards].sort(institutionCmp);
     const sortedStandaloneAccounts = [...standaloneAccounts].sort(accountCmp);
@@ -340,31 +372,29 @@ export function Accounts() {
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers (AC15.3).
-  const creditCardAccounts: AccountProps[] = useMemo(() => {
-    return processedAccounts
-      .filter(
-        (account) =>
-          !account.isVirtual &&
+  const creditCardAccounts: AccountProps[] = useMemo(() => processedAccounts
+    .filter(
+      (account) =>
+        !account.isVirtual &&
           account.type === 'CREDIT' &&
           account.subtype === 'CREDIT_CARD'
-      )
-      .sort((a, b) => {
-        const nameA = a.name;
-        const nameB = b.name;
+    )
+    .sort((a, b) => {
+      const nameA = a.name;
+      const nameB = b.name;
 
-        if (nameA && nameB) {
-          const institutionComparison =
+      if (nameA && nameB) {
+        const institutionComparison =
             nameA.localeCompare(nameB);
-          if (institutionComparison !== 0) return institutionComparison;
-        } else if (nameA && !nameB) {
-          return -1;
-        } else if (!nameA && nameB) {
-          return 1;
-        }
+        if (institutionComparison !== 0) return institutionComparison;
+      } else if (nameA && !nameB) {
+        return -1;
+      } else if (!nameA && nameB) {
+        return 1;
+      }
 
-        return a.name.localeCompare(b.name);
-      });
-  }, [processedAccounts]);
+      return a.name.localeCompare(b.name);
+    }), [processedAccounts]);
 
   // Account filtering with search — applies after the existing sorting, so
   // the sort choice is preserved while the query narrows the rendered list.
@@ -427,7 +457,7 @@ export function Accounts() {
     }));
     router.navigate({
       pathname: '/accounts/[accountId]',
-      params: { id: id },
+      params: { id },
     });
   }
 
@@ -452,14 +482,13 @@ export function Accounts() {
         setHideAmount(!hideAmount);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Não foi possível salvar suas configurações. Por favor, tente novamente.'
       );
     }
   }
 
-  function _renderEmpty() {
+  function renderEmpty() {
     return (
       <ListEmptyComponent text='Nenhuma conta possui transação. Adicione uma transação para visualizar a conta aqui' />
     );
@@ -491,7 +520,7 @@ export function Accounts() {
     item: AccountProps;
     index: number;
   };
-  function _renderItem({ item, index }: _renderItemProps) {
+  function renderItem({ item, index }: _renderItemProps) {
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
         <AccountsContent>
@@ -502,7 +531,7 @@ export function Accounts() {
             hideAmount={hideAmount}
             onPress={() =>
               handleOpenAccount(
-                String(item.id)!,
+                String(item.id),
                 item.name,
                 item.type,
                 item.subtype || null,
@@ -524,10 +553,10 @@ export function Accounts() {
           hideAmount={hideAmount}
           onPress={() =>
             handleOpenAccount(
-              String(item.id)!,
+              String(item.id),
               item.name,
               item.type,
-              item.subtype!,
+              item.subtype ?? null,
               item.currency,
               String(item.balance),
               item.creditData || null
@@ -546,7 +575,7 @@ export function Accounts() {
       | { kind: 'account'; data: AccountProps };
     index: number;
   };
-  function _renderAccountsListItem({
+  function renderAccountsListItem({
     item,
     index,
   }: _renderAccountsListItemProps) {
@@ -574,7 +603,7 @@ export function Accounts() {
           hideAmount={hideAmount}
           onPress={() =>
             handleOpenAccount(
-              String(account.id)!,
+              String(account.id),
               account.name,
               account.type,
               account.subtype || null,
@@ -588,7 +617,7 @@ export function Accounts() {
     );
   }
 
-  function _renderSkeletonTotal() {
+  function renderSkeletonTotal() {
     return (
       <SkeletonPlaceholder
         speed={1000}
@@ -616,6 +645,18 @@ export function Accounts() {
     );
   }
 
+  function getDisplayedTotalBalance() {
+    if (isRefetchingTransactions || isRefetchingAccounts) {
+      return renderSkeletonTotal();
+    }
+
+    if (hideAmount) {
+      return '•••••';
+    }
+
+    return totalBalanceFormatted;
+  }
+
   return (
     <Screen>
       <Container>
@@ -623,13 +664,7 @@ export function Accounts() {
         <HeaderContainer>
           <Header>
             <CashFlowContainer>
-              <CashFlowTotal>
-                {isRefetchingTransactions || isRefetchingAccounts
-                  ? _renderSkeletonTotal()
-                  : hideAmount
-                  ? '•••••'
-                  : totalBalanceFormatted}
-              </CashFlowTotal>
+              <CashFlowTotal>{getDisplayedTotalBalance()}</CashFlowTotal>
               <CashFlowDescription>Patrimônio Total</CashFlowDescription>
             </CashFlowContainer>
 
@@ -651,12 +686,8 @@ export function Accounts() {
           <ChartContainer>
             <LineChart
               key={chartData.length}
-              data={chartData.map((item) => {
-                return { value: item.total };
-              })}
-              xAxisLabelTexts={chartData.map((item) => {
-                return item.date;
-              })}
+              data={chartData.map((item) => ({ value: item.total }))}
+              xAxisLabelTexts={chartData.map((item) => item.date)}
               width={GRAPH_WIDTH}
               height={128}
               noOfSections={5}
@@ -701,7 +732,7 @@ export function Accounts() {
                   value = Number(s.replace(/,/g, ''));
                 }
 
-                if (isNaN(value)) return s;
+                if (Number.isNaN(value)) return s;
                 const k = Math.floor(value / 1000);
                 return k > 0 ? `${k}k` : '0';
               }}
@@ -736,11 +767,15 @@ export function Accounts() {
                 ? `institution-${item.data.id}`
                 : String(item.data.id)
             }
-            renderItem={_renderAccountsListItem}
+            renderItem={({
+              item,
+              index,
+            }: _renderAccountsListItemProps) =>
+              renderAccountsListItem({ item, index })}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetchingTransactions || isRefetchingAccounts}
-                onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh()}
               />
             }
             showsVerticalScrollIndicator={false}
@@ -753,7 +788,8 @@ export function Accounts() {
                 <SectionTitle>Contas</SectionTitle>
                 <SortFilterButton
                   selectedOption={sortingOption}
-                  onSelect={handleSelectSorting}
+                  onSelect={(option: typeof sortingOption) =>
+                    handleSelectSorting(option)}
                 />
               </SectionTitleAndFilterContainer>
             }
@@ -765,7 +801,8 @@ export function Accounts() {
                   <FlatList
                     data={filteredCreditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
-                    renderItem={_renderItem}
+                    renderItem={({ item, index }: _renderItemProps) =>
+                      renderItem({ item, index })}
                     snapToOffsets={[
                       ...Array(creditCardAccounts.length),
                     ].map(
@@ -776,7 +813,7 @@ export function Accounts() {
                         refreshing={
                           isRefetchingTransactions || isRefetchingAccounts
                         }
-                        onRefresh={handleRefresh}
+                        onRefresh={() => handleRefresh()}
                       />
                     }
                     horizontal
@@ -791,7 +828,7 @@ export function Accounts() {
                 </>
               ) : null
             }
-            ListEmptyComponent={_renderEmpty}
+            ListEmptyComponent={() => renderEmpty()}
           />
 
           {/** SCREEN FOOTER */}
@@ -800,7 +837,7 @@ export function Accounts() {
               <AddAccountButton
                 icon='card'
                 title='Integrações Bancárias'
-                onPress={handleTouchConnectAccount}
+                onPress={() => handleTouchConnectAccount()}
               />
             </ButtonGroup>
 
@@ -808,7 +845,7 @@ export function Accounts() {
               <AddAccountButton
                 icon='wallet'
                 title='Criar Conta Manual'
-                onPress={handleOpenRegisterAccountModal}
+                onPress={() => handleOpenRegisterAccountModal()}
               />
             </ButtonGroup>
           </Footer>
@@ -817,12 +854,12 @@ export function Accounts() {
         <ModalView
           bottomSheetRef={registerAccountBottomSheetRef}
           snapPoints={['75%']}
-          closeModal={handleCloseRegisterAccountModal}
+          closeModal={() => handleCloseRegisterAccountModal()}
           title='Criar Conta Manual'
         >
           <RegisterAccount
             id=''
-            closeAccount={handleCloseRegisterAccountModal}
+            closeAccount={() => handleCloseRegisterAccountModal()}
           />
         </ModalView>
       </Container>

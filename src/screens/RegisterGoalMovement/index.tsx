@@ -33,7 +33,6 @@ import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
 import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
 
 // Components
-import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { ListItem } from '@components/ListItem';
 import { ListSeparator } from '@components/ListSeparator';
@@ -60,6 +59,16 @@ type Props = {
 type FormData = {
   amount: string;
 };
+
+function MovementsAccountEmptyList() {
+  return (
+    <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
+  );
+}
+
+function LinkedAccountsEmptyList() {
+  return <ListEmptyComponent text='Nenhuma conta vinculada a esta meta.' />;
+}
 
 export function RegisterGoalMovement({
   goalId,
@@ -125,11 +134,18 @@ export function RegisterGoalMovement({
 
   // GOAL-14: withdrawals are bounded by the chosen source — the reserve
   // balance, or the chosen linked account's balance on reserve-less goals.
-  const withdrawSourceBalance = hasReserve
-    ? Number(goal.reserve_account?.balance ?? 0)
-    : linkedAccountSelected
-      ? Number(linkedAccountSelected.balance)
-      : null;
+  function getWithdrawSourceBalance() {
+    if (hasReserve) {
+      return Number(goal.reserve_account?.balance ?? 0);
+    }
+
+    if (linkedAccountSelected) {
+      return Number(linkedAccountSelected.balance);
+    }
+
+    return null;
+  }
+  const withdrawSourceBalance = getWithdrawSourceBalance();
 
   /* Validation Form - Start */
   const schema = useMemo(() => {
@@ -193,17 +209,17 @@ export function RegisterGoalMovement({
     : null;
   const amountInSourceCurrency = !hasReserve
     ? convertToAccountCurrency(
-        type === 'deposit'
-          ? accountSelected?.currency.code
-          : linkedAccountSelected?.currency.code
-      )
+      type === 'deposit'
+        ? accountSelected?.currency.code
+        : linkedAccountSelected?.currency.code
+    )
     : null;
   const amountInTargetCurrency = !hasReserve
     ? convertToAccountCurrency(
-        type === 'deposit'
-          ? linkedAccountSelected?.currency.code
-          : accountSelected?.currency.code
-      )
+      type === 'deposit'
+        ? linkedAccountSelected?.currency.code
+        : accountSelected?.currency.code
+    )
     : null;
 
   const isMultiCurrency = amountInAccountCurrency !== null;
@@ -263,10 +279,10 @@ export function RegisterGoalMovement({
       ...(hasReserve
         ? { amount_in_account_currency: amountInAccountCurrency }
         : {
-            linked_account_id: linkedAccountSelected?.id,
-            amount_in_source_currency: amountInSourceCurrency,
-            amount_in_target_currency: amountInTargetCurrency,
-          }),
+          linked_account_id: linkedAccountSelected?.id,
+          amount_in_source_currency: amountInSourceCurrency,
+          amount_in_target_currency: amountInTargetCurrency,
+        }),
     };
 
     if (type === 'deposit') {
@@ -304,7 +320,7 @@ export function RegisterGoalMovement({
           : 'Conta vinculada (origem)'
       }
       icon={<WalletIcon color={theme.colors.primary} />}
-      onPress={handleOpenSelectLinkedAccountModal}
+      onPress={() => handleOpenSelectLinkedAccountModal()}
     />
   );
 
@@ -326,7 +342,7 @@ export function RegisterGoalMovement({
           title={accountSelected?.name || 'Selecione a conta'}
           subTitle={type === 'deposit' ? 'Conta de origem' : 'Conta de destino'}
           icon={<WalletIcon color={theme.colors.primary} />}
-          onPress={handleOpenSelectAccountModal}
+          onPress={() => handleOpenSelectAccountModal()}
         />
 
         {type === 'deposit' && linkedAccountButton}
@@ -334,78 +350,78 @@ export function RegisterGoalMovement({
         {isMultiCurrency &&
           amountInAccountCurrency !== null &&
           accountSelected && (
-            <ConversionNote>
-              {type === 'deposit'
-                ? `≈ ${formatCurrency(
-                    accountSelected.currency.code,
-                    amountInAccountCurrency
-                  )} serão debitados de ${
-                    accountSelected.name
-                  } (conversão pela cotação atual).`
-                : `≈ ${formatCurrency(
-                    accountSelected.currency.code,
-                    amountInAccountCurrency
-                  )} serão creditados em ${
-                    accountSelected.name
-                  } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {type === 'deposit'
+              ? `≈ ${formatCurrency(
+                accountSelected.currency.code,
+                amountInAccountCurrency
+              )} serão debitados de ${
+                accountSelected.name
+              } (conversão pela cotação atual).`
+              : `≈ ${formatCurrency(
+                accountSelected.currency.code,
+                amountInAccountCurrency
+              )} serão creditados em ${
+                accountSelected.name
+              } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'deposit' &&
           accountSelected &&
           amountInSourceCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                accountSelected.currency.code,
-                amountInSourceCurrency
-              )} serão debitados de ${
-                accountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              accountSelected.currency.code,
+              amountInSourceCurrency
+            )} serão debitados de ${
+              accountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'deposit' &&
           linkedAccountSelected &&
           amountInTargetCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                linkedAccountSelected.currency.code,
-                amountInTargetCurrency
-              )} serão creditados em ${
-                linkedAccountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              linkedAccountSelected.currency.code,
+              amountInTargetCurrency
+            )} serão creditados em ${
+              linkedAccountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'withdraw' &&
           linkedAccountSelected &&
           amountInSourceCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                linkedAccountSelected.currency.code,
-                amountInSourceCurrency
-              )} serão debitados de ${
-                linkedAccountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              linkedAccountSelected.currency.code,
+              amountInSourceCurrency
+            )} serão debitados de ${
+              linkedAccountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         {!hasReserve &&
           type === 'withdraw' &&
           accountSelected &&
           amountInTargetCurrency !== null && (
-            <ConversionNote>
-              {`≈ ${formatCurrency(
-                accountSelected.currency.code,
-                amountInTargetCurrency
-              )} serão creditados em ${
-                accountSelected.name
-              } (conversão pela cotação atual).`}
-            </ConversionNote>
-          )}
+          <ConversionNote>
+            {`≈ ${formatCurrency(
+              accountSelected.currency.code,
+              amountInTargetCurrency
+            )} serão creditados em ${
+              accountSelected.name
+            } (conversão pela cotação atual).`}
+          </ConversionNote>
+        )}
 
         <Footer>
           <Button.Root
@@ -429,7 +445,7 @@ export function RegisterGoalMovement({
           }
           bottomSheetRef={accountBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectAccountModal}
+          onClose={() => handleCloseSelectAccountModal()}
         >
           <PickerContainer>
             <FlatList
@@ -442,10 +458,8 @@ export function RegisterGoalMovement({
                   onPress={() => handleAccountSelect(item)}
                 />
               )}
-              ItemSeparatorComponent={() => <ListSeparator />}
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma conta disponível. Crie contas antes de movimentar a meta.' />
-              )}
+              ItemSeparatorComponent={ListSeparator}
+              ListEmptyComponent={MovementsAccountEmptyList}
               style={{ flex: 1, width: '100%' }}
             />
           </PickerContainer>
@@ -456,7 +470,7 @@ export function RegisterGoalMovement({
           title='Selecione a conta vinculada'
           bottomSheetRef={linkedAccountBottomSheetRef}
           snapPoints={['75%']}
-          onClose={handleCloseSelectLinkedAccountModal}
+          onClose={() => handleCloseSelectLinkedAccountModal()}
         >
           <PickerContainer>
             <FlatList
@@ -469,10 +483,8 @@ export function RegisterGoalMovement({
                   onPress={() => handleLinkedAccountSelect(item)}
                 />
               )}
-              ItemSeparatorComponent={() => <ListSeparator />}
-              ListEmptyComponent={() => (
-                <ListEmptyComponent text='Nenhuma conta vinculada a esta meta.' />
-              )}
+              ItemSeparatorComponent={ListSeparator}
+              ListEmptyComponent={LinkedAccountsEmptyList}
               style={{ flex: 1, width: '100%' }}
             />
           </PickerContainer>

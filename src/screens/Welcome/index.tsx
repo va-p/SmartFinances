@@ -10,7 +10,7 @@ import { Gradient } from '@components/Gradient';
 
 const LOGO_URL = '@assets/logo.png';
 
-export function Welcome({ navigation }: any) {
+export function Welcome() {
   const router = useRouter();
 
   function handlePressSignIn() {
@@ -36,13 +36,13 @@ export function Welcome({ navigation }: any) {
         </Title>
 
         <Button.Root
-          onPress={handlePressSignIn}
+          onPress={() => handlePressSignIn()}
           style={{ width: '50%', alignSelf: 'center' }}
         >
           <Button.Text text='Login' />
         </Button.Root>
 
-        <Text onPress={handlePressSignUp}>Criar uma conta</Text>
+        <Text onPress={() => handlePressSignUp()}>Criar uma conta</Text>
       </Container>
     </Screen>
   );

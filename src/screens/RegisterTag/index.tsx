@@ -50,7 +50,7 @@ export function RegisterTag({ id, closeTag }: Props) {
       name: '',
     },
   });
-  const { data: tagData, isLoading: isLoadingDetails } = useTagDetailQuery(id);
+  const { data: tagData } = useTagDetailQuery(id);
   const { mutate: createTag, isPending: isCreating } = useCreateTagMutation();
   const { mutate: updateTag, isPending: isUpdating } = useUpdateTagMutation();
 
@@ -69,7 +69,7 @@ export function RegisterTag({ id, closeTag }: Props) {
 
   function onSubmit(form: FormData) {
     // --- Edit tag ---
-    if (!!id) {
+    if (id) {
       updateTag(
         { tag_id: id, name: form.name },
         {
@@ -106,11 +106,11 @@ export function RegisterTag({ id, closeTag }: Props) {
   }
 
   return (
-      <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
-        accessible={false}
-      >
-        <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Body>
           <ControlledInputCategoryName
             placeholder='Nome da etiqueta'
@@ -136,6 +136,6 @@ export function RegisterTag({ id, closeTag }: Props) {
           </Button.Root>
         </Footer>
       </Container>
-      </TouchableWithoutFeedback>
+    </TouchableWithoutFeedback>
   );
 }

@@ -23,20 +23,20 @@ type User = {
 
 export const useUser = create<User>((set) => ({
   id: '',
-  setId: (id) => set(() => ({ id: id })),
+  setId: (id) => set(() => ({ id })),
   name: '',
-  setName: (name) => set(() => ({ name: name })),
+  setName: (name) => set(() => ({ name })),
   lastName: '',
-  setLastName: (lastName) => set(() => ({ lastName: lastName })),
+  setLastName: (lastName) => set(() => ({ lastName })),
   email: '',
-  setEmail: (email) => set(() => ({ email: email })),
+  setEmail: (email) => set(() => ({ email })),
   phone: '',
-  setPhone: (phone) => set(() => ({ phone: phone })),
+  setPhone: (phone) => set(() => ({ phone })),
   role: 'user',
-  setRole: (role) => set(() => ({ role: role })),
+  setRole: (role) => set(() => ({ role })),
   profileImage: '',
   setProfileImage: (profileImage) =>
-    set(() => ({ profileImage: profileImage })),
+    set(() => ({ profileImage })),
   premium: false,
-  setPremium: (premium) => set(() => ({ premium: premium })),
+  setPremium: (premium) => set(() => ({ premium })),
 }));

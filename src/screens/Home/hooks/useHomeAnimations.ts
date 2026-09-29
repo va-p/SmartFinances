@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dimensions } from 'react-native';
 import {
   Extrapolation,
@@ -36,44 +35,38 @@ export function useHomeAnimations({
       ? SCREEN_HEIGHT_PERCENT_WITH_INSIGHTS
       : SCREEN_HEIGHT_PERCENT_WITHOUT_INSIGHTS;
 
-  const headerStyleAnimation = useAnimatedStyle(() => {
-    return {
-      height: interpolate(
-        scrollY.value,
-        [0, 400],
-        [AnimatedViewInitialHeight, 0],
-        Extrapolation.CLAMP
-      ),
-      opacity: interpolate(
-        scrollY.value,
-        [0, 370],
-        [1, 0],
-        Extrapolation.CLAMP
-      ),
-    };
-  });
+  const headerStyleAnimation = useAnimatedStyle(() => ({
+    height: interpolate(
+      scrollY.value,
+      [0, 400],
+      [AnimatedViewInitialHeight, 0],
+      Extrapolation.CLAMP
+    ),
+    opacity: interpolate(
+      scrollY.value,
+      [0, 370],
+      [1, 0],
+      Extrapolation.CLAMP
+    ),
+  }));
 
-  const chartStyleAnimationOpacity = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        scrollY.value,
-        [0, 300],
-        [1, 0],
-        Extrapolation.CLAMP
-      ),
-    };
-  });
+  const chartStyleAnimationOpacity = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [0, 300],
+      [1, 0],
+      Extrapolation.CLAMP
+    ),
+  }));
 
-  const insightsStyleAnimationOpacity = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        scrollY.value,
-        [0, 100],
-        [1, 0],
-        Extrapolation.CLAMP
-      ),
-    };
-  });
+  const insightsStyleAnimationOpacity = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [0, 100],
+      [1, 0],
+      Extrapolation.CLAMP
+    ),
+  }));
 
   return {
     headerStyleAnimation,

@@ -35,71 +35,71 @@ export const useQuotes = create<Quotes>((set) => ({
     last_updated: '',
   },
   setBrlQuoteBtc: (brlQuoteBtc: Quote) =>
-    set(() => ({ brlQuoteBtc: brlQuoteBtc })),
+    set(() => ({ brlQuoteBtc })),
   brlQuoteEur: {
     price: 0,
     last_updated: '',
   },
   setBrlQuoteEur: (brlQuoteEur: Quote) =>
-    set(() => ({ brlQuoteEur: brlQuoteEur })),
+    set(() => ({ brlQuoteEur })),
   brlQuoteUsd: {
     price: 0,
     last_updated: '',
   },
   setBrlQuoteUsd: (brlQuoteUsd: Quote) =>
-    set(() => ({ brlQuoteUsd: brlQuoteUsd })),
+    set(() => ({ brlQuoteUsd })),
   btcQuoteBrl: {
     price: 0,
     last_updated: '',
   },
   setBtcQuoteBrl: (btcQuoteBrl: Quote) =>
-    set(() => ({ btcQuoteBrl: btcQuoteBrl })),
+    set(() => ({ btcQuoteBrl })),
   btcQuoteEur: {
     price: 0,
     last_updated: '',
   },
   setBtcQuoteEur: (btcQuoteEur: Quote) =>
-    set(() => ({ btcQuoteEur: btcQuoteEur })),
+    set(() => ({ btcQuoteEur })),
   btcQuoteUsd: {
     price: 0,
     last_updated: '',
   },
   setBtcQuoteUsd: (btcQuoteUsd: Quote) =>
-    set(() => ({ btcQuoteUsd: btcQuoteUsd })),
+    set(() => ({ btcQuoteUsd })),
   eurQuoteBrl: {
     price: 0,
     last_updated: '',
   },
   setEurQuoteBrl: (eurQuoteBrl: Quote) =>
-    set(() => ({ eurQuoteBrl: eurQuoteBrl })),
+    set(() => ({ eurQuoteBrl })),
   eurQuoteBtc: {
     price: 0,
     last_updated: '',
   },
   setEurQuoteBtc: (eurQuoteBtc: Quote) =>
-    set(() => ({ eurQuoteBtc: eurQuoteBtc })),
+    set(() => ({ eurQuoteBtc })),
   eurQuoteUsd: {
     price: 0,
     last_updated: '',
   },
   setEurQuoteUsd: (eurQuoteUsd: Quote) =>
-    set(() => ({ eurQuoteUsd: eurQuoteUsd })),
+    set(() => ({ eurQuoteUsd })),
   usdQuoteBrl: {
     price: 0,
     last_updated: '',
   },
   setUsdQuoteBrl: (usdQuoteBrl: Quote) =>
-    set(() => ({ usdQuoteBrl: usdQuoteBrl })),
+    set(() => ({ usdQuoteBrl })),
   usdQuoteBtc: {
     price: 0,
     last_updated: '',
   },
   setUsdQuoteBtc: (usdQuoteBtc: Quote) =>
-    set(() => ({ usdQuoteBtc: usdQuoteBtc })),
+    set(() => ({ usdQuoteBtc })),
   usdQuoteEur: {
     price: 0,
     last_updated: '',
   },
   setUsdQuoteEur: (usdQuoteEur: Quote) =>
-    set(() => ({ usdQuoteEur: usdQuoteEur })),
+    set(() => ({ usdQuoteEur })),
 }));

@@ -1,5 +1,17 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform } from 'react-native';
+import {
+  Container,
+  SectionHeader,
+  SectionHeaderTitle,
+  HelpButton,
+  HeaderIconButton,
+  LoadingContainer,
+  Footer,
+  FooterTextContainer,
+  FooterTitle,
+  FooterSubtitle,
+} from './styles';
 
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -33,22 +45,13 @@ import { getUpcomingPaymentsSummary } from '@utils/subscriptionPaymentsSummary';
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
 
-import {
-  Container,
-  SectionHeader,
-  SectionHeaderTitle,
-  HelpButton,
-  HeaderIconButton,
-  LoadingContainer,
-  Footer,
-  FooterTextContainer,
-  FooterTitle,
-  FooterSubtitle,
-} from './styles';
-
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionProps } from '@interfaces/subscriptions';
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma assinatura identificada. Crie transações recorrentes (mensais ou anuais) para identificá-las automaticamente aqui.' />;
+}
 export function Subscriptions() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
@@ -112,13 +115,11 @@ export function Subscriptions() {
     }, [refetch])
   );
 
-  function _renderItem({
-    item,
-    index,
-  }: {
+  type RenderItemProps = {
     item: SubscriptionProps;
     index: number;
-  }) {
+  };
+  function renderItem({ item, index }: RenderItemProps) {
     return (
       <SubscriptionListItem
         data={item}
@@ -130,8 +131,8 @@ export function Subscriptions() {
 
   const upcomingCountText = upcomingSummary
     ? `${upcomingSummary.count} cobrança${
-        upcomingSummary.count === 1 ? '' : 's'
-      } prevista${upcomingSummary.count === 1 ? '' : 's'}`
+      upcomingSummary.count === 1 ? '' : 's'
+    } prevista${upcomingSummary.count === 1 ? '' : 's'}`
     : '';
 
   return (
@@ -142,14 +143,14 @@ export function Subscriptions() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title='Minhas assinaturas' />
-          <HeaderIconButton onPress={handleOpenRegisterTransaction}>
+          <HeaderIconButton onPress={() => handleOpenRegisterTransaction()}>
             <PlusIcon size={22} color={theme.colors.primary} />
           </HeaderIconButton>
         </Header.Root>
 
         <SectionHeader>
           <SectionHeaderTitle>Classificadas como assinaturas</SectionHeaderTitle>
-          <HelpButton onPress={handleOpenHelp}>
+          <HelpButton onPress={() => handleOpenHelp()}>
             <QuestionIcon size={20} color={theme.colors.primary} />
           </HelpButton>
         </SectionHeader>
@@ -162,10 +163,14 @@ export function Subscriptions() {
           <FlatList
             data={subscriptions ?? []}
             keyExtractor={(item) => String(item.id)}
-            renderItem={_renderItem}
-            ListEmptyComponent={() => (
-              <ListEmptyComponent text='Nenhuma assinatura identificada. Crie transações recorrentes (mensais ou anuais) para identificá-las automaticamente aqui.' />
-            )}
+            renderItem={({
+              item,
+              index,
+            }: {
+              item: SubscriptionProps;
+              index: number;
+            }) => renderItem({ item, index })}
+            ListEmptyComponent={EmptyList}
             initialNumToRender={10}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
@@ -178,7 +183,7 @@ export function Subscriptions() {
 
         {upcomingSummary && (
           <Footer
-            onPress={handleOpenPayments}
+            onPress={() => handleOpenPayments()}
             style={{ marginBottom: Platform.OS === 'ios' ? bottomTabBarHeight - 32 : bottomTabBarHeight - 16}}
           >
             <FooterTextContainer>
@@ -194,7 +199,7 @@ export function Subscriptions() {
 
         <SubscriptionHelpSheet
           bottomSheetRef={helpSheetRef}
-          close={handleCloseHelp}
+          close={() => handleCloseHelp()}
         />
 
         <ModalViewWithoutHeader
@@ -203,8 +208,8 @@ export function Subscriptions() {
         >
           <RegisterTransaction
             id={transactionId}
-            resetId={handleResetTransactionId}
-            closeRegisterTransaction={handleCloseRegisterTransaction}
+            resetId={() => handleResetTransactionId()}
+            closeRegisterTransaction={() => handleCloseRegisterTransaction()}
           />
         </ModalViewWithoutHeader>
       </Container>

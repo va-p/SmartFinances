@@ -26,10 +26,8 @@ import {
 // Hooks
 import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useScreenTrace } from '@hooks/useScreenTrace';
-import { useHomeAnimations } from './hooks/useHomeAnimations';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
-import { useTransactionHandlers } from './hooks/useTransactionHandlers';
 import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
@@ -74,12 +72,10 @@ import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 import { FilterButton } from '@components/FilterButton';
 import { AccountFilterButton } from '@components/AccountFilterButton';
-import { PeriodRulerList } from './components/PeriodRulerList';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
-import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
 import { SearchBar } from '@components/SearchBar';
@@ -88,19 +84,17 @@ import { SearchBar } from '@components/SearchBar';
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
-// Storages
-import { useUser } from '@storage/userStorage';
-import { useUserConfigs } from '@storage/userConfigsStorage';
-import { useSelectedPeriod } from '@storage/selectedPeriodStorage';
-import { DATABASE_CONFIGS, storageConfig } from '@database/database';
-import { useCurrentAccountSelected } from '@storage/currentAccountSelectedStorage';
-
 // Stores
 import {
   useSelectedTransactions,
   useClearSelection,
-  useSelectedTransactionsCount,
+  // useSelectedTransactionsCount,
 } from '@stores/useTransactionsStore';
+import { useUser } from '@stores/userStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 import { useSelectedAccountsFilter } from '@stores/selectedAccountsFilterStorage';
 
 // Interfaces
@@ -108,6 +102,12 @@ import { ThemeProps } from '@interfaces/theme';
 
 // APIs
 import api from '@api/api';
+
+// Local
+import { useHomeAnimations } from './hooks/useHomeAnimations';
+import { useTransactionHandlers } from './hooks/useTransactionHandlers';
+import { PeriodRulerList } from './components/PeriodRulerList';
+import { CashFlowInsightCard } from './components/CashFlowInsightCard';
 
 // Constants
 const isAndroid = Platform.OS === 'android';
@@ -121,6 +121,10 @@ const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
 const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
+function SeparatorComponent() {
+  return <View style={{ minHeight: 8, maxHeight: 8 }} />;
+}
+
 export function Home() {
   useScreenTrace('home_screen');
 
@@ -131,7 +135,7 @@ export function Home() {
   const { id: userID } = useUser();
   const selectedTransactions = useSelectedTransactions();
   const clearSelection = useClearSelection();
-  const selectedCount = useSelectedTransactionsCount();
+  // const selectedCount = useSelectedTransactionsCount();
 
   const { hideAmount, setHideAmount, insights } = useUserConfigs();
   const { setAccountId: setAccountID, setAccountName } =
@@ -180,25 +184,21 @@ export function Home() {
   const initialX = useRef(0);
   const initialY = useRef(0);
   const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
-  const registerTransactionButtonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: registerTransactionButtonPositionX.value },
-        { translateY: registerTransactionButtonPositionY.value },
-      ],
-    };
-  });
+  const registerTransactionButtonStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: registerTransactionButtonPositionX.value },
+      { translateY: registerTransactionButtonPositionY.value },
+    ],
+  }));
   const bulkEditionButtonPositionX = useSharedValue(0);
   const bulkEditionButtonPositionY = useSharedValue(0);
 
-  const bulkEditionButtonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: bulkEditionButtonPositionX.value },
-        { translateY: bulkEditionButtonPositionY.value },
-      ],
-    };
-  });
+  const bulkEditionButtonStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: bulkEditionButtonPositionX.value },
+      { translateY: bulkEditionButtonPositionY.value },
+    ],
+  }));
 
   const onMoveRegisterTransactionButton = Gesture.Pan()
     .onStart(() => {
@@ -375,7 +375,6 @@ export function Home() {
         setHideAmount(!hideAmount);
       }
     } catch (error) {
-      console.error(error);
       Alert.alert(
         'Não foi possível salvar suas configurações. Por favor, tente novamente.'
       );
@@ -386,14 +385,12 @@ export function Home() {
     setShowInsights(false);
   }
 
-  function _renderEmpty() {
+  function renderEmpty() {
     return <ListEmptyComponent />;
   }
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', () => {
-      return true;
-    });
+    BackHandler.addEventListener('hardwareBackPress', () => true);
   }, []);
 
   if (isLoading && !transactions) {
@@ -448,7 +445,7 @@ export function Home() {
               <PeriodFilterButtonContainer>
                 <FilterButton
                   title={`Por ${selectedPeriod.name}`}
-                  onPress={handleOpenPeriodSelectedModal}
+                  onPress={() => handleOpenPeriodSelectedModal()}
                 />
               </PeriodFilterButtonContainer>
             </FilterButtonGroup>
@@ -506,7 +503,7 @@ export function Home() {
               <CashFlowInsightCard
                 cashFlows={processedData.cashFlowChartData}
                 selectedDate={selectedDate}
-                onClose={handleHideCashFlowInsights}
+                onClose={() => handleHideCashFlowInsights()}
               />
             </Animated.View>
           )}
@@ -519,11 +516,9 @@ export function Home() {
         <Transactions>
           <AnimatedFlashList
             data={filteredTransactions}
-            keyExtractor={(item: any) => {
-              return item.isHeader
-                ? String(item.headerTitle!)
-                : String(item.id);
-            }}
+            keyExtractor={(item: any) => item.isHeader
+              ? String(item.headerTitle)
+              : String(item.id)}
             renderItem={({ item, index }: any) => {
               if (item.isHeader) {
                 return (
@@ -551,19 +546,17 @@ export function Home() {
                 ? 'sectionHeader'
                 : 'row'
             }
-            ListEmptyComponent={_renderEmpty}
+            ListEmptyComponent={() => renderEmpty()}
             refreshControl={
               <RefreshControl
                 refreshing={isSyncing}
-                onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh()}
               />
             }
             showsVerticalScrollIndicator={false}
             onScroll={scrollHandlerToTop}
             scrollEventThrottle={16}
-            ItemSeparatorComponent={() => (
-              <View style={{ minHeight: 8, maxHeight: 8 }} />
-            )}
+            ItemSeparatorComponent={() => SeparatorComponent()}
             contentContainerStyle={{
               paddingTop: 16,
               paddingBottom: bottomTabBarHeight + 8,
@@ -610,7 +603,7 @@ export function Home() {
             ]}
           >
             <ButtonAnimated
-              onPress={handleOpenRegisterTransactionModal}
+              onPress={() => handleOpenRegisterTransactionModal()}
               style={dynamicStyles.animatedButton}
             >
               <PlusIcon size={24} color={theme.colors.background} />
@@ -625,7 +618,7 @@ export function Home() {
         >
           <ChartPeriodSelect
             period={selectedPeriod}
-            closeSelectPeriod={handleClosePeriodSelectedModal}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
           />
         </ModalViewSelection>
 
@@ -636,7 +629,7 @@ export function Home() {
           <RegisterTransaction
             id={transactionId}
             resetId={clearTransactionId}
-            closeRegisterTransaction={handleCloseRegisterTransactionModal}
+            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
             isBulkEdit={transactionId === 'bulk-edit'}
             selectedTransactionIds={selectedTransactions}
           />

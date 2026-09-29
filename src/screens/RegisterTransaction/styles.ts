@@ -130,6 +130,6 @@ export const DatePill = styled.TouchableOpacity<PillProps>`
 export const DatePillText = styled.Text<PillProps>`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
   font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
-  color: ${({ active, accentColor, theme }) =>
+  color: ${({ active, theme }) =>
     active ? (theme as ThemeProps).colors.text : (theme as ThemeProps).colors.textPlaceholder};
 `;

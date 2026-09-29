@@ -18,6 +18,10 @@ type Props = {
   closeSelectCategory: () => void;
 };
 
+
+function EmptyList() {
+  return <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações.' />;
+}
 export function CategorySelect({
   categorySelected,
   setCategory,
@@ -58,35 +62,33 @@ export function CategorySelect({
   }
 
   return (
-      <Container>
-        <FlatList
-          data={categories}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <CategoryListItemRegisterTransaction
-              data={item}
-              isChecked={categorySelected.id === item.id}
-              onPress={() => handleCategorySelect(item)}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <ListEmptyComponent text='Nenhuma categoria criada ainda. Crie categorias para adicioná-las às transações.' />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={isManualRefreshing}
-              onRefresh={handleRefresh}
-            />
-          }
-          numColumns={4}
-          contentContainerStyle={{
-            justifyContent: 'center',
-            paddingTop: 12,
-            paddingHorizontal: 12,
-            paddingBottom: 16,
-          }}
-          style={{ flex: 1, width: '100%' }}
-        />
-      </Container>
+    <Container>
+      <FlatList
+        data={categories}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <CategoryListItemRegisterTransaction
+            data={item}
+            isChecked={categorySelected.id === item.id}
+            onPress={() => handleCategorySelect(item)}
+          />
+        )}
+        ListEmptyComponent={EmptyList}
+        refreshControl={
+          <RefreshControl
+            refreshing={isManualRefreshing}
+            onRefresh={() => handleRefresh()}
+          />
+        }
+        numColumns={4}
+        contentContainerStyle={{
+          justifyContent: 'center',
+          paddingTop: 12,
+          paddingHorizontal: 12,
+          paddingBottom: 16,
+        }}
+        style={{ flex: 1, width: '100%' }}
+      />
+    </Container>
   );
 }

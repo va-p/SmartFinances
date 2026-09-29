@@ -41,8 +41,8 @@ function groupTransactionsByDate(
       });
     }
 
-    const group = acc.get(dateKey)!;
-    group.data.push(transaction);
+    const group = acc.get(dateKey);
+    group?.data.push(transaction);
 
     return acc;
   }, new Map<string, { title: string; data: TransactionProps[]; total: number }>());
