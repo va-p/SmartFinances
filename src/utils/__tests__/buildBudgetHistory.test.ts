@@ -95,7 +95,7 @@ describe('buildBudgetHistory', () => {
       endOfMonth(new Date(2026, 0, 15)).getTime()
     );
     expect(history[3].startDate.getTime()).toBe(
-      new Date(2026, 3, 15, 12).getTime()
+      new Date(2026, 3, 1).getTime()
     );
     expect(history[3].endDate.getTime()).toBe(
       endOfMonth(new Date(2026, 3, 15)).getTime()

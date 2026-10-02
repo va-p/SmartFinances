@@ -1,4 +1,11 @@
-import { addDays, addMonths, addWeeks, addYears, endOfMonth } from 'date-fns';
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  addYears,
+  endOfMonth,
+  startOfMonth,
+} from 'date-fns';
 import formatCurrency from '@utils/formatCurrency';
 import formatDatePtBr from '@utils/formatDatePtBr';
 import { BudgetProps, FormattedBudgetProps } from '@interfaces/budget';
@@ -41,7 +48,12 @@ function stepPeriod(
     case 'biweekly':
       return { startDate: endDate, endDate: addDays(new Date(endDate), 15) };
     case 'monthly': {
-      const nextStartDate = addMonths(new Date(startDate), 1);
+      // Calendar-aligned: the next period starts at 00:00 on the 1st of the
+      // next month, matching the endOfMonth boundary of the first period.
+      // Anchoring on the previous start's day/time (addMonths(startDate, 1))
+      // would open a gap between one month's end and the next month's start,
+      // dropping transactions created in that window.
+      const nextStartDate = addMonths(startOfMonth(startDate), 1);
       return { startDate: nextStartDate, endDate: endOfMonth(nextStartDate) };
     }
     case 'semiannually':
@@ -114,6 +126,7 @@ export function formatBudgetInfo(
   upTo: Date = new Date()
 ): FormattedBudgetProps {
   const periods = getBudgetPeriods(budget, upTo);
+
   const { startDate, endDate } = periods[periods.length - 1];
 
   const filteredTransactions = transactions.filter(
