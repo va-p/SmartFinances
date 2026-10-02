@@ -746,7 +746,7 @@ export function Accounts() {
               startOpacity={0.6}
               endOpacity={0.1}
               isAnimated
-              animationDuration={3000}
+              animationDuration={1000}
               animateOnDataChange
               scrollToEnd
             />

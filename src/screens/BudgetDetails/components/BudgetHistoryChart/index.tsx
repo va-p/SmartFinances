@@ -105,7 +105,7 @@ export function BudgetHistoryChart({
         height={CHART_HEIGHT}
         barWidth={barWidth}
         spacing={spacing}
-        initialSpacing={spacing}
+        initialSpacing={8}
         endSpacing={spacing}
         yAxisLabelWidth={Y_AXIS_LABEL_WIDTH}
         roundedTop
@@ -114,7 +114,7 @@ export function BudgetHistoryChart({
         xAxisColor={theme.colors.xAxisColor}
         noOfSections={4}
         isAnimated
-        animationDuration={2000}
+        animationDuration={1000}
         scrollToEnd={!fillsWidth}
         showLine
         lineData={averageLineData}
