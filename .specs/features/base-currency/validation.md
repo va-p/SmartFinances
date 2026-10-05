@@ -1,0 +1,158 @@
+# base-currency Validation
+
+**Date**: 2026-10-05
+**Spec**: `.specs/features/base-currency/spec.md`
+**Diff range**: `3428aca..149e000` on `feat/change-base-currency` (9 commits: 9957b9d docs, 6ef7378 T1, 9325068 T2, 56d58d5 T3, 5c601ee T4, 05e4c01 T5, e07789f T6, dabeca6 T7, 149e000 T8)
+**Verifier**: independent sub-agent (author ≠ verifier)
+
+---
+
+## Task Completion
+
+| Task | Status | Notes |
+| ---- | ------ | ----- |
+| T1 | ✅ Done | Domain helpers + store state + hydration (`src/utils/baseCurrency.ts`, `src/stores/userConfigsStorage.ts`, `src/app/_layout.tsx:163-170`) |
+| T2 | ✅ Done | WelcomeFlow shell + Welcome refit (`src/screens/WelcomeFlow/`, `(auth)/index.tsx`) |
+| T3 | ✅ Done | CurrencySelect `items` override + shared `BaseCurrencySelectSheet` |
+| T4 | ✅ Done | WelcomeBaseCurrency step + jest infra (`jest.setup.js`, `jest/gestureButtonsMock.js`) |
+| T5 | ✅ Done | OptionsMenu "Moeda base" entry (static wiring, env-blocked layer) |
+| T6 | ✅ Done | Aggregation utils base-currency support with raw totals |
+| T7 | ✅ Done | Transaction-family screens wired (static wiring, env-blocked layer) |
+| T8 | ✅ Done | Accounts/overview/goals/subscriptions wired (static wiring, env-blocked layer) |
+
+---
+
+## Spec-Anchored Acceptance Criteria
+
+Heavy-native screens (`OptionsMenu`, `Home`, `Account`, `Accounts`, `InstitutionDetails`, `AccountsList`, `Overview`, `Goals`, `Subscriptions`, `SubscriptionPayments`, `TransactionsByCategory`, `BudgetDetails`, `RootLayout`) are env-blocked per the tasks.md Test Coverage Matrix; for those ACs the screen-wiring halves cite static diff evidence (`file:line` where the screen reads `baseCurrency` from the store and passes it to the util/conversion).
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --------- | -------------------- | ----------------------- | ------ |
+| BC-01 store holds base currency, default BRL id 1 | `CurrencyProps` in `useUserConfigs`, default `{id: 1, name: 'Brazilian Real', code: 'BRL', symbol: 'R$'}` | `src/utils/__tests__/baseCurrency.test.ts:21-26` - `expect(DEFAULT_BASE_CURRENCY).toEqual({id: 1, name: 'Brazilian Real', code: 'BRL', symbol: 'R$'})`; `src/__tests__/stores/userConfigsStorage.test.ts:41-45` - `expect(...baseCurrency.id).toBe(1)`, `.code).toBe('BRL')`; impl `src/stores/userConfigsStorage.ts:37`, `src/utils/baseCurrency.ts:5-10` | ✅ PASS |
+| BC-02 WHEN user selects THEN store updates + persists full JSON under `config.baseCurrency` | store update + `storageConfig.set('config.baseCurrency', JSON.stringify(currency))` | `src/__tests__/stores/userConfigsStorage.test.ts:52` - `expect(useUserConfigs.getState().baseCurrency).toEqual(usd)`; `:59-62` - `expect(storageConfig.set).toHaveBeenCalledWith(`${DATABASE_CONFIGS}.baseCurrency`, JSON.stringify(usd))` (key + payload conjunction); integration `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:135-139`; impl `src/stores/userConfigsStorage.ts:50-56` | ✅ PASS |
+| BC-03 WHILE valid supported value in MMKV at start THEN restored into store | `parseStoredBaseCurrency` returns stored object as-is; `RootLayout` hydrates before first render | `src/utils/__tests__/baseCurrency.test.ts:58` - `expect(parseStoredBaseCurrency(stored)).toEqual(usd)`; static wiring (env-blocked layout tree): `src/app/_layout.tsx:165-170` - reads `storageConfig.getString(`${DATABASE_CONFIGS}.baseCurrency`)` then `useUserConfigs.setState({baseCurrency: parseStoredBaseCurrency(...)})`, placed with the `sortingOption` restore before theme/render | ✅ PASS |
+| BC-04 IF persisted value missing/unparseable/unsupported THEN fall back to default BRL | `DEFAULT_BASE_CURRENCY` for missing, corrupt JSON, shape-invalid, unsupported code | `src/utils/__tests__/baseCurrency.test.ts:62-63` (undefined/''), `:68` ('not-json{'), `:73-80` (id:'1', missing fields, empty name), `:85-86` (`JSON.stringify(usdt)` → default) - all `toEqual(DEFAULT_BASE_CURRENCY)` | ✅ PASS |
+| BC-05 selection list contains only codes in `CurrencyCodes` ('BRL','BTC','EUR','USD') | exactly those 4 codes as candidates | `src/utils/__tests__/baseCurrency.test.ts:31` - `expect(SUPPORTED_BASE_CURRENCY_CODES).toEqual(['BRL', 'BTC', 'EUR', 'USD'])`; `:47` - `expect(filterBaseCurrencyCandidates([brl, eth, usd, usdt, eur, btc])).toEqual([brl, usd, eur, btc])` (ETH/USDT dropped, order kept); `:51` - `toEqual([])` when none supported; UI `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:116-122` - offered BTC/EUR/USD, `queryByText('Ethereum')).toBeNull()`, `queryByText('Tether')).toBeNull()`; `src/__tests__/screens/currencySelect.spec.tsx:60-66` - `items` override renders only provided candidates | ✅ PASS |
+| BC-06 WHEN picked in shared sheet THEN applied via same store action from both entry points + sheet dismissed | one write path (`setBaseCurrency`) for welcome step + OptionsMenu; select → set + persist + dismiss | `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:135-140` - store `toEqual(usd)` + `storageConfig.set` with exact key/payload + `dismissMock` called 1×; `:200-207` (sheet wiring block, same assertions); `src/__tests__/screens/currencySelect.spec.tsx:117-122` - `setCurrency).toHaveBeenCalledWith(usd)` then `closeSelectCurrency` with call-order check; idempotent reselect edge `src/__tests__/stores/userConfigsStorage.test.ts:70-75`; entry-point parity (OptionsMenu env-blocked): `src/screens/OptionsMenu/index.tsx:417` hosts the same `BaseCurrencySelectSheet` (`src/components/BaseCurrencySelectSheet/index.tsx:20-37` binds `setBaseCurrency` — the single write path) | ✅ PASS |
+| BC-07 WHILE changed from OptionsMenu THEN aggregates re-render in new currency without reload | zustand reactivity re-renders; no app reload | `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:173-178` - `act(() => setBaseCurrency(eur))` → displayed currency re-renders (label count 1→2) without remount; static wiring: memo deps include `baseCurrency.code` — `src/screens/Accounts/index.tsx:298`, `Home/index.tsx:317`, `Overview/index.tsx:270`, `InstitutionDetails/index.tsx:245`, `TransactionsByCategory/index.tsx:104`, `BudgetDetails/index.tsx:100`, `SubscriptionPayments/index.tsx:83`, `Subscriptions/index.tsx:75`, `AccountsList/index.tsx:86`, `Goals/index.tsx:117` | ✅ PASS |
+| BC-08 step shell driven by ordered steps array, last step is existing Welcome | steps array of `{key, Component}`; terminal entry = `Welcome` | `src/__tests__/screens/welcomeFlow.spec.tsx:125-127` - `WELCOME_STEPS[last].key).toBe('welcome')`, `.Component).toBe(Welcome)`; `:99` - last step receives no `onNext` (`'NO_NEXT'`); first entry `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:161-163` - `WELCOME_STEPS[0].Component).toBe(WelcomeBaseCurrency)`; impl `src/screens/WelcomeFlow/index.tsx:26-29`; `(auth)/index.tsx` re-exports `WelcomeFlow` | ✅ PASS |
+| BC-09 one bullet per step, active highlighted | N bullets for N steps, active one highlighted | `src/__tests__/screens/welcomeFlow.spec.tsx:56-61` - bullet-0/bullet-1 present, bullet-2 null, `getBulletSelected(0)).toBe(true)`, `(1)).toBe(false)` (via `accessibilityState.selected`) | ✅ PASS |
+| BC-10 WHEN bullet tapped THEN navigate to that step | tap bullet → step content + active state move | `src/__tests__/screens/welcomeFlow.spec.tsx:72-76` - `fireEvent.press(bullet-1)` → `step-two-marker` present, selected states flip | ✅ PASS |
+| BC-11 WHEN "Continuar" tapped THEN advance without requiring selection | advance with zero selection side effects | `src/__tests__/screens/welcomeFlow.spec.tsx:85-88` - `onNext` press advances + bullet 1 selected; step-level `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:151-156` - Continuar → `onNext` called 1×, store still `brl`, `expect(storageConfig.set).not.toHaveBeenCalled()` | ✅ PASS |
+| BC-12 currency step shows informative message, current base currency, shared sheet trigger | message + current currency name + trigger presenting shared sheet | `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:97-98` - `getByText(/definir uma moeda padrão/i)` + `getAllByText('Brazilian Real')`; `:107` - trigger press → `presentMock` called 1× | ✅ PASS |
+| BC-13 WHEN step added to array THEN bullet + content render, no shell change | third step → 3 bullets + content, shell unchanged | `src/__tests__/screens/welcomeFlow.spec.tsx:115-120` - bullet-2 renders; tap → `step-three-marker` + bullet 2 selected (shell API unchanged — steps prop only) | ✅ PASS |
+| BC-14 OptionsMenu offers "Moeda base" in Configurações showing current base currency | entry in Configurações section with current name as subTitle | static (env-blocked per matrix): `src/screens/OptionsMenu/index.tsx:341-347` - `<Title>Configurações</Title>` immediately followed by `SelectButton title='Moeda base' subTitle={baseCurrency.name}` | ✅ PASS (static wiring) |
+| BC-15 WHEN entry tapped THEN shared CurrencySelect sheet presented with current marked active | shared `BaseCurrencySelectSheet`; current currency row active | static: `src/screens/OptionsMenu/index.tsx:341-347` `onPress → handleOpenSelectCurrencyModal` + `:417` `<BaseCurrencySelectSheet bottomSheetRef={currencyBottomSheetRef} />`; sheet binds `currency={baseCurrency}` (`src/components/BaseCurrencySelectSheet/index.tsx:33`); active-mark behavior tested `src/__tests__/screens/currencySelect.spec.tsx:96-98` - `getByTestId('currency-row-5-active')` present, `queryByTestId('currency-row-1-active')).toBeNull()` | ✅ PASS |
+| BC-16 WHEN aggregate computed THEN converted to base + formatted with base code | day totals, cash flow, converted secondary lines, subscription totals in base code (format-in-base for sum aggregates; quote conversion where conversion exists — spec out-of-scope note keeps sum-mixing unchanged) | `src/utils/__tests__/groupTransactionsByDate.test.ts:41,49` - `'-R$\u00A050,00'` default / `'-US$\u00A050,00'` with `'USD'`; `src/utils/__tests__/processTransactions.test.ts:184-186` - `currentCashFlow` `'-US$\u00A050,00'` + day total in base; `src/utils/__tests__/processAccountsForList.test.ts:128-129` - EUR account → `balanceConvertedToBase` 125 + `'US$\u00A0125,00'`; `src/utils/__tests__/subscriptionPaymentsSummary.test.ts:90` - `convertAmountToBase(10,'USD',quotes,'EUR')).toBe(8)`, `:209` - summary `{total: 63.88}` in USD, `:272` - payments total 13.98 in USD; sort key `src/utils/__tests__/sortAccountsByOption.test.ts:37-39`; screen halves (env-blocked): `Home/index.tsx:289-310`, `Account/index.tsx:196-213`, `TransactionsByCategory/index.tsx:97-104`, `BudgetDetails/index.tsx:90-100`, `Accounts/index.tsx:140-298`, `InstitutionDetails/index.tsx:144-251`, `Overview/index.tsx:160-359`, `Goals/index.tsx:92-117`, `Subscriptions/index.tsx:71-75,193-196`, `SubscriptionPayments/index.tsx:81-84,173-180`; no hardcoded base remains: `grep "formatCurrency('BRL'\|toCurrency: 'BRL'" src/screens src/components src/hooks` → 0 matches (remaining `'BRL'` literals are entity-currency selection defaults in `RegisterAccount`/`RegisterTransaction`, out of scope per spec) | ✅ PASS |
+| BC-17 per-entity amounts displayed in entity's own currency | account's own balance formatted in its own code | `src/utils/__tests__/processAccountsForList.test.ts:52` - BRL balance `'R$\u00A01.234,50'`; `:57` - USD account balance `'US$\u00A0100,00'` (own currency, not base); impl `src/utils/processAccountsForList.ts:61` - `formatCurrency(account.currency.code, rawBalance, false)`; entity-row formats untouched in the screen diffs | ✅ PASS |
+| BC-18 WHEN secondary converted line shown THEN only for accounts whose currency differs from base, formatted in base | conditional secondary line in base code | `src/utils/__tests__/processAccountsForList.test.ts:77` - USD account (base BRL) → `'R$\u00A0500,00'`; `:82` - BRL account → `toBeUndefined()`; `:135-136` - USD account with base USD → undefined + `balanceConvertedToBase` 100; `:144-145` - BRL account with base EUR → converted line present; impl `src/utils/processAccountsForList.ts:34-38`; screens `src/screens/Accounts/index.tsx:186-192`, `InstitutionDetails/index.tsx:166-172` - `account.currency.code !== baseCurrency.code ?` | ✅ PASS |
+| BC-19 processTransactions exposes raw current-cash-flow value; Account screen uses it for sign, no string re-parse | `currentCashFlowValue` = exact raw sum; `isCashFlowPositive` from raw value | `src/utils/__tests__/processTransactions.test.ts:185` - `currentCashFlowValue)).toBe(-50)`; `:202-203` - `toBe(-25.25)` exact cents + formatted `'-US$\u00A025,25'`; `src/utils/__tests__/groupTransactionsByDate.test.ts:64-65` - `rawTotal)).toBe(69.5)`; impl `src/utils/processTransactions.ts:216-228` (sums `rawTotal`, no parse); consumer (env-blocked): `src/screens/Account/index.tsx:215-217` - `const isCashFlowPositive = currentCashFlowValue >= 0;` — no formatted-string parsing in the screen | ✅ PASS |
+| BC-20 IF currency pair unsupported by quotes matrix THEN aggregation skips item, no crash | skip + omit, never throw to caller | `src/utils/__tests__/processAccountsForList.test.ts:118-119` - GBP account → balance defined, converted line `toBeUndefined()`; `src/utils/__tests__/subscriptionPaymentsSummary.test.ts:94` - `convertAmountToBase` throws for GBP (matrix boundary); `:188` - summary skips GBP subscription (`{count: 1, total: 19.9}`); `:253` - payments total skips GBP (`toBe(0)`); impl `src/utils/processAccountsForList.ts:53-56`, `subscriptionPaymentsSummary.ts:76-78,112-114`; Goals screen static `src/screens/Goals/index.tsx:111-113` (catch → return sum) | ✅ PASS |
+
+**Status**: ✅ All 20 ACs covered with evidence; asserted values match the spec-defined outcomes (BC-01 exact BRL id 1; BC-02 key + JSON payload conjunction; BC-04 all four fallback classes; BC-05 exact 4-code list; BC-09 per-step bullets with active highlight; BC-11 advance with zero side effects; BC-19 raw numeric assertion; BC-20 skip-not-crash).
+
+---
+
+## Discrimination Sensor
+
+Scratch: temp git worktree at HEAD (`149e000`) under `$TMPDIR`, `node_modules` symlinked; real worktree never touched. Baseline `git status --porcelain` before sensor: ` M src/screens/RegisterTransaction/index.tsx` (user's concurrent edit) — identical after cleanup; `git worktree list` shows only the main worktree.
+
+| Mutation | File:line | Description | Killed? |
+| -------- | --------- | ----------- | ------- |
+| M1 | `src/utils/baseCurrency.ts:59` (scratch) | Dropped the support check — `parseStoredBaseCurrency` returns parsed object even when `code` is unsupported (`isSupportedBaseCurrencyCode(...)` → `typeof code === 'string'`) | ✅ Killed — `src/utils/__tests__/baseCurrency.test.ts:86` fails ('falls back to the default on an unsupported stored code', `toEqual(DEFAULT_BASE_CURRENCY)`); 1 failed / 13 passed in the M1 run |
+| M2 | `src/utils/processTransactions.ts:216-219, 224-225` (scratch) | Reverted to the pre-feature chain — re-parse of the formatted `item.total` string (`replace(/[R$\s.]/g,'')…parseFloat`) instead of summing `rawTotal`, plus hardcoded `formatCurrency('BRL', …)` | ✅ Killed — `src/utils/__tests__/processTransactions.test.ts:184` (`currentCashFlow` expected `'-US$\u00A050,00'`) and `:202` (`currentCashFlowValue` expected `-25.25`, received `NaN`) both fail; 2 failed / 14 passed |
+| M3 | `src/components/BaseCurrencySelectSheet/index.tsx:24` (scratch) | Dropped `filterBaseCurrencyCandidates` — raw store list passed as `items` | ✅ Killed — `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:121` fails ('offers only the supported currencies in the sheet', `queryByText('Ethereum')).toBeNull()` receives a Text node); 1 failed / 11 passed |
+
+**Sensor depth**: lightweight (3 behavior-level mutations, per tier table — not a P0 payment/auth/data-integrity path)
+**Result**: 3/3 killed — PASS ✅
+
+---
+
+## Interactive UAT Results
+
+Not performed — user-facing UAT is the orchestrator's call; this Verifier run is automated-only (per-env-blocked screens rely on the full-suite regression gate + static wiring evidence above).
+
+---
+
+## Code Quality
+
+| Principle | Status |
+| --------- | ------ |
+| Minimum code / no scope creep | ✅ — diff touches only feature files, jest infra required by the new tests, and spec docs |
+| Surgical changes / only touched files required | ✅ — `RegisterAccount` path untouched (default store list); `Welcome` content unchanged (chrome moved to shell) |
+| No abstractions for single-use code | ✅ — `BaseCurrencySelectSheet` is used by two entry points (justified reuse, not speculative) |
+| Matches existing patterns | ✅ — `sortingOption` restore precedent (`_layout.tsx:150-161`); `RegisterAccount`'s `ModalViewSelection` + `CurrencySelect` pattern; default-param convention on utils |
+| Spec-anchored outcome check (asserted values match spec) | ✅ — see AC table; payload/conjunction rule below |
+| Per-layer Coverage Expectation met | ✅ — domain utils 1:1 to ACs; light UI (RNTL) covers BC-05..BC-13; heavy-native layers covered by full-suite gate + static wiring per the tasks.md matrix |
+| Every test maps to a spec requirement — no unclaimed tests | ✅ — each in-scope test carries an AC comment; baseline suites excluded per spec Out-of-Scope table |
+| Documented guidelines followed: `.specs/codebase/CONVENTIONS.md` (sampled suites set the floor; no AGENTS.md/CI found) | ✅ |
+
+**Payload/conjunction rule check** (persisted/emitted fields asserted on value, not merely "called"):
+
+- `storageConfig.set` asserted WITH exact key + JSON payload: `userConfigsStorage.test.ts:59-62` (`'config.baseCurrency'` via `DATABASE_CONFIGS` mock + `JSON.stringify(usd)`); `welcomeBaseCurrency.spec.tsx:136-139` — ✅
+- `currentCashFlowValue` / `rawTotal` asserted numerically on exact values incl. cents: `processTransactions.test.ts:185,202` (`-50`, `-25.25`), `groupTransactionsByDate.test.ts:64` (`69.5`) — ✅
+- `balanceConvertedToBase` asserted numerically (`125`, `toBeCloseTo(197.52, 2)`): `processAccountsForList.test.ts:128,144` — ✅
+- Subscription summary asserted as full object `{month, count, total}` on value: `subscriptionPaymentsSummary.test.ts:209,272` — ✅
+- Active-state bullets asserted via `accessibilityState.selected` true/false: `welcomeFlow.spec.tsx:60-61` — ✅
+
+---
+
+## Edge Cases
+
+- [x] Corrupt/truncated/unsupported persisted JSON → BRL default: handled — `baseCurrency.test.ts:67-87` (unparseable, wrong shape incl. missing/empty fields, unsupported code)
+- [x] User reselects the already-active base currency → stays active, sheet dismisses, idempotent write: `userConfigsStorage.test.ts:66-76` + `currencySelect.spec.tsx:86-99` + dismiss asserted `welcomeBaseCurrency.spec.tsx:140` — ✅
+- [x] Sign out → base currency persists (client-only, `config.*` namespace like `sortingOption`): structural — write path `userConfigsStorage.ts:50-56` never touches auth storage; no clear-on-signout of `config.baseCurrency` anywhere in the diff — ✅ (static)
+- [x] Currencies query unresolved when sheet opens → empty list, no crash: domain half covered — `baseCurrency.test.ts:50-52` (`filterBaseCurrencyCandidates([eth, usdt]) → []`); `CurrencySelect` renders `data={currencies}` (empty FlatList is inert). ⚠️ Minor observation: no component-level render test with an empty/unresolved currencies store (the empty-data path is exercised only at the domain level where the risk lives). Non-blocking; does not affect any of the 20 AC verdicts.
+
+---
+
+## Gate Check
+
+- **Gate command**: `env CI=true npx jest --watchman=false --silent` (repo root; `--watchman=false` required in this environment)
+- **Result**: 311 passed, 0 new failures; exactly the 2 documented pre-existing failures unchanged:
+  - `src/utils/__tests__/accountsFilter.test.ts` — 1 test fails on label text (`'Todas...'` vs `'Todas as Contas'`) — pre-existing, excluded per spec
+  - `src/__tests__/screens/profile.spec.tsx` — suite fails to run (`NativeEventEmitter` env breakage via `react-native-device-info`) — pre-existing, excluded per spec
+- **Test count before feature**: 267 passing (+ the same 2 pre-existing failures) — baseline from tasks.md/spec success criteria
+- **Test count after feature**: 311 passing
+- **Delta**: +44 tests (all passing)
+- **Skipped tests**: none
+- Jest exit code is non-zero solely due to the two baseline failures; no feature-related failure exists.
+
+---
+
+## Fix Plans
+
+None — no surviving mutants, no uncovered ACs, no spec-precision gaps among BC-01..BC-20.
+
+---
+
+## Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| ----------- | --------------- | ---------- |
+| BC-01..BC-20 | Implementing | ✅ Verified (evidence above; BC-14/BC-15 and screen-wiring halves verified via static evidence per the env-blocked matrix) |
+
+Note: `spec.md`'s status column was not edited by this Verifier (write scope limited to `validation.md`); the orchestrator applies the statuses.
+
+---
+
+## Summary
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 20/20 ACs matched spec outcome | 0 spec-precision gaps
+**Sensor**: 3/3 mutations killed (M1 baseCurrency support-check, M2 processTransactions re-parse revert, M3 sheet filter drop)
+**Gate**: 311 passed, 0 new failures (2 pre-existing failures unchanged)
+
+**What works**:
+
+- Single base-currency state with MMKV persistence (`config.baseCurrency`, full JSON) and BRL id 1 default; corrupt/unsupported fallback verified.
+- One shared selection flow (`BaseCurrencySelectSheet`) serving both entry points; select → set + persist + dismiss with payload-on-value assertions.
+- Welcome flow: step shell with per-step bullets, bullet-tap navigation, Continuar-without-selection, third-step extensibility, `Welcome` as terminal auth step.
+- Aggregates format/convert in the base currency across utils and all wired screens; no hardcoded `'BRL'` remains in aggregate formatting/conversion paths.
+- Raw numeric totals (`rawTotal`, `currentCashFlowValue`) replace formatted-string re-parsing; `Account` sign detection uses the raw value.
+- Unsupported quote pairs skip instead of crashing (existing behavior preserved).
+
+**Issues found**: none blocking. One minor observation (edge case: empty-currencies-store render path asserted only at domain level — `baseCurrency.test.ts:50-52`; a component-level empty-store render test would harden it, optional).
+
+**Next steps**: none required; optional hardening note above is the only candidate follow-up.

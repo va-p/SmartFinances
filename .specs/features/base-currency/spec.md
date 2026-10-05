@@ -135,26 +135,26 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| BC-01 | P1: Select and persist the base currency | Design | Implementing |
-| BC-02 | P1: Select and persist the base currency | Design | Implementing |
-| BC-03 | P1: Select and persist the base currency | Design | Implementing |
-| BC-04 | P1: Select and persist the base currency | Design | Implementing |
-| BC-05 | P1: Select and persist the base currency | Design | Implementing |
-| BC-06 | P1: Select and persist the base currency | Design | Implementing |
-| BC-07 | P1: Select and persist the base currency | Design | Pending |
-| BC-08 | P1: Welcome flow with educational currency step | Design | Implementing |
-| BC-09 | P1: Welcome flow with educational currency step | Design | Implementing |
-| BC-10 | P1: Welcome flow with educational currency step | Design | Implementing |
-| BC-11 | P1: Welcome flow with educational currency step | Design | Implementing |
-| BC-12 | P1: Welcome flow with educational currency step | Design | Implementing |
-| BC-13 | P1: Welcome flow with educational currency step | Design | Implementing |
-| BC-14 | P1: Change the base currency from OptionsMenu | Design | Implementing |
-| BC-15 | P1: Change the base currency from OptionsMenu | Design | Implementing |
-| BC-16 | P1: App-wide totals in the base currency | Design | Implementing |
-| BC-17 | P1: App-wide totals in the base currency | Design | Implementing |
-| BC-18 | P1: App-wide totals in the base currency | Design | Implementing |
-| BC-19 | P1: App-wide totals in the base currency | Design | Implementing |
-| BC-20 | P1: App-wide totals in the base currency | Design | Implementing |
+| BC-01 | P1: Select and persist the base currency | Design | Verified |
+| BC-02 | P1: Select and persist the base currency | Design | Verified |
+| BC-03 | P1: Select and persist the base currency | Design | Verified |
+| BC-04 | P1: Select and persist the base currency | Design | Verified |
+| BC-05 | P1: Select and persist the base currency | Design | Verified |
+| BC-06 | P1: Select and persist the base currency | Design | Verified |
+| BC-07 | P1: Select and persist the base currency | Design | Verified |
+| BC-08 | P1: Welcome flow with educational currency step | Design | Verified |
+| BC-09 | P1: Welcome flow with educational currency step | Design | Verified |
+| BC-10 | P1: Welcome flow with educational currency step | Design | Verified |
+| BC-11 | P1: Welcome flow with educational currency step | Design | Verified |
+| BC-12 | P1: Welcome flow with educational currency step | Design | Verified |
+| BC-13 | P1: Welcome flow with educational currency step | Design | Verified |
+| BC-14 | P1: Change the base currency from OptionsMenu | Design | Verified |
+| BC-15 | P1: Change the base currency from OptionsMenu | Design | Verified |
+| BC-16 | P1: App-wide totals in the base currency | Design | Verified |
+| BC-17 | P1: App-wide totals in the base currency | Design | Verified |
+| BC-18 | P1: App-wide totals in the base currency | Design | Verified |
+| BC-19 | P1: App-wide totals in the base currency | Design | Verified |
+| BC-20 | P1: App-wide totals in the base currency | Design | Verified |
 
 **ID format**: `BC-NN` (Base Currency).
 

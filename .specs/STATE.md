@@ -28,11 +28,12 @@
 
 ## Handoff
 
-- **Feature**: fix-monthly-budget-period-gap (`.specs/features/fix-monthly-budget-period-gap/`)
-- **Phase / Task**: Execute complete (inline, single task); Verifier pending
-- **Completed**: spec, tests (red→green), fix, full-suite gate, atomic commit
+- **Feature**: base-currency (`.specs/features/base-currency/`) — ✅ complete, Verifier PASS (`validation.md`, `validate_state.py` exit 0)
+- **Phase / Task**: All 8 tasks complete (T1 `6ef7378` … T8 `149e000`); spec traceability BC-01..BC-20 Verified
+- **Completed**: base currency state + MMKV persistence + restore (`config.baseCurrency`, default BRL id 1); welcome flow shell with tappable bullet indicators + educational base-currency step (`WELCOME_STEPS`: base-currency → welcome/auth); shared `BaseCurrencySelectSheet` selection flow; OptionsMenu "Moeda base" entry; all app-wide aggregates converted + formatted in the base currency (utils gained `baseCurrencyCode` params + raw totals; `currentCashFlowValue` replaces formatted-string re-parsing)
 - **In-progress**: none
-- **Next step**: dispatch Verifier sub-agent, write `validation.md`, run `validate_state.py`
+- **Next step**: optional — backend persistence of the base currency (needs a Prisma migration + explicit go-ahead per AD-002); UI smoke test on device (sheet present/dismiss is @gorhom-native, covered only by wiring tests in jest)
 - **Blockers**: none
-- **Uncommitted files**: none from this feature (user's unrelated iOS/yarn.lock modifications left untouched)
-- **Branch**: feat/exchange-rate-input
+- **Uncommitted files**: user's concurrent edits in `src/screens/RegisterTransaction/index.tsx` (exchange-rate UI, unrelated — left untouched); base-currency artifacts are all committed
+- **Branch**: `feat/change-base-currency` (9 commits: `9957b9d` docs + 8 task commits) — not pushed
+- **Test-infra notes**: jest now runs with `setupFiles` (gesture-handler jestSetup + `jest.setup.js`), `transformIgnorePatterns` + `phosphor-react-native`, and a `styled-components` → `styled-components/native` moduleNameMapper; full gate = 311 passing + 2 pre-existing failures (`accountsFilter.test.ts` label text; `profile.spec.tsx` env-broken). Watchman is broken in this environment — always run jest with `--watchman=false`.
