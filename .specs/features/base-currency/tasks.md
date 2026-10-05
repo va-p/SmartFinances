@@ -64,7 +64,7 @@ T7 → T8
 
 ## Task Breakdown
 
-### T1: Base currency domain helpers + store state + hydration
+### T1: Base currency domain helpers + store state + hydration — ✅ Complete
 
 **What**: Create `src/utils/baseCurrency.ts` (DEFAULT_BASE_CURRENCY, SUPPORTED_BASE_CURRENCY_CODES, `isSupportedBaseCurrencyCode`, `filterBaseCurrencyCandidates`, `parseStoredBaseCurrency`); add `baseCurrency`/`setBaseCurrency` (MMKV write inside the action, key `config.baseCurrency`) to `useUserConfigs`; restore in `RootLayout` next to the `sortingOption` block.
 **Where**: `src/utils/baseCurrency.ts` (plus `src/stores/userConfigsStorage.ts` and `src/app/_layout.tsx` per design)
@@ -75,11 +75,11 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] `parseStoredBaseCurrency` returns the stored currency for valid/supported JSON, `DEFAULT_BASE_CURRENCY` (BRL, id 1) for missing/corrupt/shape-invalid/unsupported-code input
-- [ ] `setBaseCurrency` updates store state and writes JSON to `storageConfig` key `config.baseCurrency`
-- [ ] `RootLayout` restores the persisted value once at app start
-- [ ] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/baseCurrency.test.ts src/__tests__/stores/userConfigsStorage.test.ts`
-- [ ] Test count: 10+ new tests pass (no silent deletions)
+- [x] `parseStoredBaseCurrency` returns the stored currency for valid/supported JSON, `DEFAULT_BASE_CURRENCY` (BRL, id 1) for missing/corrupt/shape-invalid/unsupported-code input
+- [x] `setBaseCurrency` updates store state and writes JSON to `storageConfig` key `config.baseCurrency`
+- [x] `RootLayout` restores the persisted value once at app start
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/baseCurrency.test.ts src/__tests__/stores/userConfigsStorage.test.ts`
+- [x] Test count: 14 new tests pass (no silent deletions)
 
 **Tests**: unit (new: `src/utils/__tests__/baseCurrency.test.ts`, `src/__tests__/stores/userConfigsStorage.test.ts`)
 **Gate**: quick

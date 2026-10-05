@@ -25,6 +25,7 @@ import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrenciesQuery } from '@hooks/useCurrenciesQuery';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { parseStoredBaseCurrency } from '@utils/baseCurrency';
 
 import darkTheme from '@themes/darkTheme';
 import lightTheme from '@themes/lightTheme';
@@ -158,6 +159,15 @@ export default function RootLayout() {
   ) {
     setSortingOption(savedSorting);
   }
+
+  // Restore persisted base currency (client-only, not from backend; falls
+  // back to BRL when missing, corrupt or unsupported).
+  const storedBaseCurrency = storageConfig.getString(
+    `${DATABASE_CONFIGS}.baseCurrency`
+  );
+  useUserConfigs.setState(() => ({
+    baseCurrency: parseStoredBaseCurrency(storedBaseCurrency),
+  }));
 
   const theme = useDarkMode ? darkTheme : lightTheme;
   setDarkMode(useDarkMode);

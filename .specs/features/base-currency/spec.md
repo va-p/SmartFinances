@@ -135,12 +135,12 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| BC-01 | P1: Select and persist the base currency | Design | Pending |
-| BC-02 | P1: Select and persist the base currency | Design | Pending |
-| BC-03 | P1: Select and persist the base currency | Design | Pending |
-| BC-04 | P1: Select and persist the base currency | Design | Pending |
-| BC-05 | P1: Select and persist the base currency | Design | Pending |
-| BC-06 | P1: Select and persist the base currency | Design | Pending |
+| BC-01 | P1: Select and persist the base currency | Design | Implementing |
+| BC-02 | P1: Select and persist the base currency | Design | Implementing |
+| BC-03 | P1: Select and persist the base currency | Design | Implementing |
+| BC-04 | P1: Select and persist the base currency | Design | Implementing |
+| BC-05 | P1: Select and persist the base currency | Design | Implementing |
+| BC-06 | P1: Select and persist the base currency | Design | Implementing |
 | BC-07 | P1: Select and persist the base currency | Design | Pending |
 | BC-08 | P1: Welcome flow with educational currency step | Design | Pending |
 | BC-09 | P1: Welcome flow with educational currency step | Design | Pending |
