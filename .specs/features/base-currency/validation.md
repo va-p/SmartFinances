@@ -25,6 +25,7 @@
 | A2 | ✅ Done | Net-worth evolution flow conversion (`buildNetWorthEvolution`) — 7867e37 |
 | A3 | ✅ Done | Overview category totals conversion + quotes wiring on six screens — 21721e8 |
 | A4 | ✅ Done | User's flow reorder (AD-004) + test realignment — ce0a333; active-step dash slide animation (BC-26) + reanimated jest mock — 93ad24f, cdeeeb9 |
+| A5 | ✅ Done | Dash layout-anchor fix: the dash was absolutely positioned against the full-width padded container (landed top-left, above the bullets — device-found); anchored to a new shrink-wrapped `StepBulletsRow` + regression test |
 
 ---
 
@@ -79,7 +80,7 @@ The user reordered the flow themselves (AD-004 supersedes AD-003): `[Welcome (in
 | --------- | -------------------- | ----------------------- | ------ |
 | BC-08 (reworded) flow starts with the intro step, ends with the selection+auth step | `WELCOME_STEPS[0]` = welcome/`Welcome`, last = base-currency/`WelcomeBaseCurrency` | `src/__tests__/screens/welcomeFlow.spec.tsx` - `WELCOME_STEPS[0].key).toBe('welcome')` + `.Component).toBe(Welcome)` + last key 'base-currency'; `src/__tests__/screens/welcomeBaseCurrency.spec.tsx` - `WELCOME_STEPS[WELCOME_STEPS.length - 1].Component).toBe(WelcomeBaseCurrency)`; impl `src/screens/WelcomeFlow/index.tsx:26-29` | ✅ PASS |
 | BC-11 (reworded) intro step Continuar advances without requiring selection | Continuar → `onNext`, zero selection side effects | `welcomeFlow.spec.tsx` ('advances from the real Welcome step Continuar through onNext' - `onNext).toHaveBeenCalledTimes(1)` with the real `Welcome` step); terminal auth CTAs: `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:160-165` ('navigates to sign in and sign up without requiring a selection' - `navigateMock()).toHaveBeenCalledWith('/signIn')` + `'/signUp'`, store still `brl`, `storageConfig.set).not.toHaveBeenCalled()`) | ✅ PASS |
-| BC-26 WHEN the active step changes THEN the dash slides into the new active bullet's position | stride 16 (bullet 8 + 2×4 margin): translateX 0 at step 0; 16 at step 1; 32 at step 2 | `src/__tests__/screens/welcomeFlow.spec.tsx:156` ('renders the dash over the active bullet at its position' - `getDashTranslateX(screen)).toBe(0)`); `:181,191` ('slides the dash to the tapped bullet position' - tap bullet 1 + rerender → `toBe(16)`, tap bullet 2 → `toBe(32)`; rerender compensates the mock's non-reactive useAnimatedStyle — the shared value update lands via the effect's `withSpring`, synchronous under the mock); impl `src/screens/WelcomeFlow/index.tsx:53-83` (shared value + `withSpring` effect + `useAnimatedStyle` + `StepDash`), geometry `src/screens/WelcomeFlow/styles.ts:12` (`STEP_DASH_STRIDE`) | ✅ PASS |
+| BC-26 WHEN the active step changes THEN the dash slides into the new active bullet's position | stride 16 (bullet 8 + 2×4 margin): translateX 0 at step 0; 16 at step 1; 32 at step 2; dash anchored to the bullet row (device-verified after the layout fix) | `src/__tests__/screens/welcomeFlow.spec.tsx:156` ('renders the dash over the active bullet at its position' - `getDashTranslateX(screen)).toBe(0)`); `:181,191` ('slides the dash to the tapped bullet position' - tap bullet 1 + rerender → `toBe(16)`, tap bullet 2 → `toBe(32)`); `:164` (regression: 'anchors the dash inside the bullet row with the bullets' - the dash and every bullet live inside `welcome-step-bullets-row`, the shrink-wrapped row — device-found fault guard, see the Fix Plans note); impl `src/screens/WelcomeFlow/index.tsx:54-88` (shared value + `withSpring` effect + `useAnimatedStyle` + `StepBulletsRow`/`StepDash`), geometry `src/screens/WelcomeFlow/styles.ts:12,31-36,47` | ✅ PASS (layout reference device-verified) |
 
 **Status**: ✅ BC-26 covered with evidence; the spring interpolation itself is native-only (jest asserts the wired translateX under the documented reanimated mock — the mock's faithfulness is itself sensor-verified below).
 
@@ -172,7 +173,7 @@ Not performed — user-facing UAT is the orchestrator's call; this Verifier run 
 - **Test count before feature**: 267 passing (+ the same 2 pre-existing failures) — baseline from tasks.md/spec success criteria
 - **Test count after original feature**: 311 passing (+44)
 - **Test count after amendment**: 328 passing (+17: 11 in A1 suites, 5 in buildNetWorthEvolution, 1 added aic coverage test)
-- **Test count after amendment 2**: 331 passing (+3 net: 2 dash tests + 1 real-Welcome Continuar wiring; the obsolete onNext test was replaced 1:1 by the auth-navigation test)
+- **Test count after amendment 2**: 332 passing (+4 net: 2 dash tests + 1 real-Welcome Continuar wiring + 1 dash layout-anchor regression; the obsolete onNext test was replaced 1:1 by the auth-navigation test)
 - **Skipped tests**: none
 - Jest exit code is non-zero solely due to the two baseline failures; no feature-related failure exists.
 
@@ -180,7 +181,7 @@ Not performed — user-facing UAT is the orchestrator's call; this Verifier run 
 
 ## Fix Plans
 
-None — no surviving mutants (7/7 across both sensor runs), no uncovered ACs, no spec-precision gaps among BC-01..BC-25. One coverage test was added during amendment verification (aic in the cash-flow loop, `77913ba`) to close a BC-22 evidence gap found while re-deriving coverage.
+None open. One device-found fault, fixed and closed in amendment 2: the StepDash was absolutely positioned against the full-width padded `StepIndicatorContainer` (landed top-left of the screen, above the container padding where the bullets sit). Fix: shrink-wrapped `StepBulletsRow` anchors the dash to the bullet row (`styles.ts:31-36`, `index.tsx:69-87`); regression test `welcomeFlow.spec.tsx:164` pins the structural anchor. Root cause: jest cannot assert layout positioning (no Yoga layout in the test renderer) — the slide-wiring tests passed while the on-device anchor was wrong; the structural parent assertion is the closest jest-level guard, and the layout itself was verified on device by the user. One coverage test was added during amendment verification (aic in the cash-flow loop, `77913ba`) to close a BC-22 evidence gap found while re-deriving coverage.
 
 ---
 
@@ -203,7 +204,7 @@ Note: `spec.md`'s status column was not edited by this Verifier (write scope lim
 
 **Spec-anchored check**: 26/26 ACs matched spec outcome (20 original + 5 amendment-1 + BC-26 amendment-2; BC-08/BC-11 re-anchored to the user's AD-004 reorder) | 0 spec-precision gaps
 **Sensor**: 8/8 mutations killed (3 original + 4 amendment-1 + 1 amendment-2 — the last after fixing an unfaithful reanimated mock the sensor itself exposed)
-**Gate**: 331 passed, 0 new failures (2 pre-existing failures unchanged)
+**Gate**: 332 passed, 0 new failures (2 pre-existing failures unchanged)
 
 **What works**:
 

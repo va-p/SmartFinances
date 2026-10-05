@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 9,
+  "next_id": 10,
   "lessons": [
     {
       "id": "L-001",
@@ -148,6 +148,24 @@
       ],
       "created": "2026-10-05T22:44:08Z",
       "last_seen": "2026-10-05T22:44:08Z"
+    },
+    {
+      "id": "L-009",
+      "key": "gate_fail::absolute positioned overlays must anchor to a shrink wrapped sibling row testid d never a full width padded container jest wiring tests pass while the on device layout is wrong so pin the structural anchor in a test and verify the reference on device",
+      "text": "Absolute-positioned overlays must anchor to a shrink-wrapped sibling row (testID'd), never a full-width padded container - jest wiring tests pass while the on-device layout is wrong, so pin the structural anchor in a test and verify the reference on device.",
+      "signal": "gate_fail",
+      "scope": "frontend-components/absolute-positioning",
+      "status": "candidate",
+      "features": [
+        "base-currency"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "BC-26 layout (StepDash absolute anchor) (frontend-components/absolute-positioning)"
+      ],
+      "created": "2026-10-05T22:52:45Z",
+      "last_seen": "2026-10-05T22:52:45Z"
     }
   ]
 }

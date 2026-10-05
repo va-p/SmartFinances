@@ -166,6 +166,30 @@ A1 → A2 → A3
 
 ---
 
+### A5: StepDash layout-anchor fix (device-found fault) — ✅ Complete
+
+**What**: The dash was `position: absolute` against the full-width padded `StepIndicatorContainer`, landing top-left of the screen and above the container padding where the bullets sit (device-found). Fix: new shrink-wrapped `StepBulletsRow` (`styles.ts:31-36`) anchors the dash + bullets together — absolute positioning is now relative to the bullet row itself (`left: -4`, `top: 0` align with the bullets); regression test pins the structural anchor.
+**Where**: `src/screens/WelcomeFlow/styles.ts` (plus `index.tsx`, the spec file)
+**Depends on**: A4
+**Reuses**: the stride geometry (unchanged — only the positioning reference was wrong)
+**Requirement**: BC-26 (layout half)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] Dash + bullets live inside the shrink-wrapped `welcome-step-bullets-row`; the row is centered by the full-width container
+- [x] Dash vertical: `top: 0` relative to the row (row height = bullet height, no padding) — aligned with the bullets
+- [x] Regression test: `anchors the dash inside the bullet row with the bullets` (`welcomeFlow.spec.tsx:164`)
+- [x] Gate: full suite 332 passing, zero new failures; eslint clean
+- [x] Layout reference verified on device by the user (jest cannot assert Yoga positioning — the structural anchor assertion is the closest jest-level guard)
+
+**Tests**: unit (structural anchor regression test)
+**Gate**: full
+
+**Commit**: `fix(welcome): anchor the step dash to the bullet row`
+
+---
+
 ### T1: Base currency domain helpers + store state + hydration — ✅ Complete
 
 **What**: Create `src/utils/baseCurrency.ts` (DEFAULT_BASE_CURRENCY, SUPPORTED_BASE_CURRENCY_CODES, `isSupportedBaseCurrencyCode`, `filterBaseCurrencyCandidates`, `parseStoredBaseCurrency`); add `baseCurrency`/`setBaseCurrency` (MMKV write inside the action, key `config.baseCurrency`) to `useUserConfigs`; restore in `RootLayout` next to the `sortingOption` block.

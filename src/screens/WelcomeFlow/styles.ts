@@ -24,6 +24,15 @@ export const StepIndicatorContainer = styled.View`
   width: 100%;
 `;
 
+// Shrink-wrapped row that anchors the dash to the bullets: absolute
+// positioning inside this row is relative to the bullet row itself, not the
+// full-width container (which lands the dash top-left of the screen and
+// above the container padding).
+export const StepBulletsRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
 export const StepBullet = styled.TouchableOpacity`
   width: ${STEP_BULLET_SIZE}px;
   height: ${STEP_BULLET_SIZE}px;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, within } from '@testing-library/react-native';
 import { ThemeProvider } from 'styled-components';
 
 import lightTheme from '@themes/lightTheme';
@@ -154,6 +154,28 @@ describe('WelcomeFlow shell', () => {
     expect(screen.getByTestId('welcome-step-dash')).toBeTruthy();
     // stride = bullet 8 + 2 x margin 4 = 16; active step 0 -> 0
     expect(getDashTranslateX(screen)).toBe(0);
+  });
+
+  // BC-26 — regression (device-found fault): the dash was anchored to the
+  // full-width padded container and landed top-left of the screen, above
+  // the bullets. It must live inside the shrink-wrapped bullet row together
+  // with the bullets - the structural anchor jest can assert (the layout
+  // reference itself is native-only).
+  it('anchors the dash inside the bullet row with the bullets', () => {
+    const screen = renderWithTheme(
+      <WelcomeFlow
+        steps={[
+          { key: 'one', Component: StepOne },
+          { key: 'two', Component: StepTwo },
+        ]}
+      />
+    );
+
+    const row = within(screen.getByTestId('welcome-step-bullets-row'));
+
+    expect(row.getByTestId('welcome-step-bullet-0')).toBeTruthy();
+    expect(row.getByTestId('welcome-step-bullet-1')).toBeTruthy();
+    expect(row.getByTestId('welcome-step-dash')).toBeTruthy();
   });
 
   // BC-26 — the dash slides to the newly active bullet's position

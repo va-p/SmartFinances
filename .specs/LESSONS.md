@@ -62,6 +62,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: AM-M5 (StepIndicator slide effect drop) (jest-infra/react-native-reanimated)
 - last seen: 2026-10-05T22:44:08Z
 
+### L-009 - Absolute-positioned overlays must anchor to a shrink-wrapped sibling row (testID'd), never a full-width padded container - jest wiring tests pass while the on-device layout is wrong, so pin the structural anchor in a test and verify the reference on device.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `frontend-components/absolute-positioning` · harmful: 0
+- features: base-currency
+- evidence: BC-26 layout (StepDash absolute anchor) (frontend-components/absolute-positioning)
+- last seen: 2026-10-05T22:52:45Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

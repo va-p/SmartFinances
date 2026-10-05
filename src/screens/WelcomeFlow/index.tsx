@@ -3,6 +3,7 @@ import React, { ComponentType, useEffect, useState } from 'react';
 import {
   Container,
   StepIndicatorContainer,
+  StepBulletsRow,
   StepBullet,
   StepDash,
   STEP_DASH_STRIDE,
@@ -65,22 +66,24 @@ function StepIndicator({ count, active, onSelect }: StepIndicatorProps) {
 
   return (
     <StepIndicatorContainer>
-      {Array.from({ length: count }, (_, index) => (
-        <StepBullet
-          key={index}
-          testID={`welcome-step-bullet-${index}`}
-          accessibilityRole='button'
-          accessibilityLabel={`Passo ${index + 1}`}
-          accessibilityState={{ selected: index === active }}
-          onPress={() => onSelect(index)}
-        />
-      ))}
+      <StepBulletsRow testID='welcome-step-bullets-row'>
+        {Array.from({ length: count }, (_, index) => (
+          <StepBullet
+            key={index}
+            testID={`welcome-step-bullet-${index}`}
+            accessibilityRole='button'
+            accessibilityLabel={`Passo ${index + 1}`}
+            accessibilityState={{ selected: index === active }}
+            onPress={() => onSelect(index)}
+          />
+        ))}
 
-      <StepDash
-        testID='welcome-step-dash'
-        style={dashAnimatedStyle}
-        pointerEvents='none'
-      />
+        <StepDash
+          testID='welcome-step-dash'
+          style={dashAnimatedStyle}
+          pointerEvents='none'
+        />
+      </StepBulletsRow>
     </StepIndicatorContainer>
   );
 }

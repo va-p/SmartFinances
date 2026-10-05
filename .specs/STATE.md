@@ -37,12 +37,12 @@
 ## Handoff
 
 - **Feature**: base-currency (`.specs/features/base-currency/`) — ✅ complete incl. amendments (converted transaction-flow totals BC-21..25; user's flow reorder AD-004 + dash slide BC-26); Verifier PASS (`validation.md`, `validate_state.py` exit 0)
-- **Phase / Task**: All 8 tasks + A1-A4 complete (A4: reorder `ce0a333`, dash slide `93ad24f`, mock faithfulness `cdeeeb9`); spec traceability BC-01..BC-26 Verified
+- **Phase / Task**: All 8 tasks + A1-A5 complete (A4: reorder `ce0a333`, dash slide `93ad24f`, mock faithfulness `cdeeeb9`; A5: dash layout-anchor fix); spec traceability BC-01..BC-26 Verified
 - **Completed**: base currency state + MMKV persistence + restore (default BRL id 1); welcome flow shell with bullet indicators + sliding active-step dash (reanimated `withSpring`, stride 16) + educational/terminal selection step; shared `BaseCurrencySelectSheet`; OptionsMenu "Moeda base"; all app-wide aggregates formatted in the base currency; transaction-flow aggregations convert per amount to the base before summing (day totals, cash flow, chart bars, category totals, net-worth intermediate points)
 - **In-progress**: none
 - **Next step**: optional — backend persistence of the base currency (Prisma migration + explicit go-ahead per AD-002); device smoke test of the dash slide + sheet present/dismiss (native-only runtime); `origin` is behind — local commits not pushed
 - **Blockers**: none
 - **Uncommitted files**: none (user's Welcome visual fixes committed by the user as `b0d51bf`)
 - **Branch**: `feat/change-base-currency` (local ahead of origin; last feature commits: `ce0a333`, `93ad24f`, `cdeeeb9`)
-- **Lesson L-008 (candidate)**: jest mocks of animation libraries must be behaviorally faithful (stateful `useSharedValue`) or wiring tests silently pass without the wiring — surfaced by the AM-M5 surviving mutant
+- **Lesson L-009 (candidate)**: absolute-positioned overlays must anchor to a shrink-wrapped sibling row, never a full-width padded container — jest wiring tests pass while the on-device layout is wrong (surfaced by the device-found dash fault, fixed in A5); L-008: jest mocks of animation libraries must be behaviorally faithful
 - **Test-infra notes**: jest runs with `setupFiles` (gesture-handler jestSetup + `jest.setup.js` incl. minimal stateful reanimated mock), `transformIgnorePatterns` + `phosphor-react-native`, and a `styled-components` → `styled-components/native` moduleNameMapper; full gate = 331 passing + 2 pre-existing failures (`accountsFilter.test.ts` label text; `profile.spec.tsx` env-broken). Watchman is broken in this environment — always run jest with `--watchman=false`.
