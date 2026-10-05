@@ -160,7 +160,7 @@ T7 → T8
 
 ---
 
-### T5: OptionsMenu base currency entry
+### T5: OptionsMenu base currency entry — ✅ Complete
 
 **What**: Add a "Moeda base" `SelectButton` to the Configurações section of `OptionsMenu` (`CoinsIcon`, `subTitle` = current base currency name) presenting a `BottomSheetModal` hosting the shared `BaseCurrencySelectSheet`.
 **Where**: `src/screens/OptionsMenu/index.tsx`
@@ -171,10 +171,10 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] "Moeda base" row appears in Configurações and shows the current base currency name
-- [ ] Pressing it presents the shared sheet; selecting updates the base currency and dismisses (same store action as T4 - one flow, two entry points)
-- [ ] `npx eslint src/screens/OptionsMenu/index.tsx --ext .ts,.tsx` reports zero issues
-- [ ] Full gate passes: no new jest failures vs baseline
+- [x] "Moeda base" row appears in Configurações and shows the current base currency name
+- [x] Pressing it presents the shared sheet; selecting updates the base currency and dismisses (same store action as T4 - one flow, two entry points)
+- [x] `npx eslint src/screens/OptionsMenu/index.tsx --ext .ts,.tsx` reports zero issues
+- [x] Full gate passes: 299 passing, zero new jest failures vs baseline
 
 **Tests**: none (env-blocked layer per matrix - clerk/onesignal-heavy tree; wiring recorded as file:line evidence in `validation.md`)
 **Gate**: full
