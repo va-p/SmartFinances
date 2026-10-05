@@ -283,6 +283,29 @@ describe('processTransactions', () => {
     expect(cashFlowChartData[1].value).toBe(10);
   });
 
+  // BC-22 — the cash-flow loop prefers amount_in_account_currency (the
+  // account-currency value) over the transaction-currency amount
+  it('uses amount_in_account_currency in the cash flow conversion', () => {
+    const { currentCashFlowValue, currentCashFlow } = processTransactions(
+      [
+        makeTransaction({
+          id: 1,
+          amount: 100,
+          currency: usd,
+          amount_in_account_currency: 50,
+        }),
+      ],
+      'months',
+      selectedDate,
+      quotes,
+      'USD'
+    );
+
+    // 50 BRL (the account-currency value) x 0.2 = 10 USD, not 100 USD
+    expect(currentCashFlowValue).toBe(10);
+    expect(currentCashFlow).toBe('US$\u00A010,00');
+  });
+
   // BC-23 — unsupported account currencies are skipped from every aggregate
   it('skips unsupported account currencies from the cash flow and day total', () => {
     const ethAccountTx = makeTransaction({
