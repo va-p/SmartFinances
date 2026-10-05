@@ -72,27 +72,33 @@ describe('getExchangeRate (FX-08)', () => {
 
 describe('convertWithRate (FX-08 / AC P2-2)', () => {
   it('rounds target-BRL conversions to 2 decimals exactly like convertCurrency', () => {
-    expect(convertWithRate(123.456, 5, 'USD', 'BRL')).toBe(617.28);
-    expect(convertWithRate(123.456, quotes.usdQuoteBrl.price, 'USD', 'BRL')).toBe(
+    // 123.456 × 5.1 = 629.6256 — the 2dp rounding is load-bearing (629.63),
+    // so dropping it must fail this assertion (sensor mutant M5)
+    expect(convertWithRate(123.456, 5.1, 'USD', 'BRL')).toBe(629.63);
+    expect(convertWithRate(123.456, 5.1, 'USD', 'BRL')).toBe(
       convertCurrency({
         amount: 123.456,
         fromCurrency: 'USD',
         toCurrency: 'BRL',
         accountCurrency: 'USD',
-        quotes,
+        quotes: { ...quotes, usdQuoteBrl: { price: 5.1 } },
       })
     );
   });
 
   it('rounds BRL→BTC conversions to 8 decimals exactly like convertCurrency', () => {
-    expect(convertWithRate(500, quotes.brlQuoteBtc.price, 'BRL', 'BTC')).toBe(0.0005);
-    expect(convertWithRate(500, quotes.brlQuoteBtc.price, 'BRL', 'BTC')).toBe(
+    // 123.456789 × 0.000001 = 0.000123456789 — the 8dp rounding is
+    // load-bearing (0.00012346), so dropping it must fail (sensor mutant M5)
+    expect(convertWithRate(123.456789, 0.000001, 'BRL', 'BTC')).toBe(
+      0.00012346
+    );
+    expect(convertWithRate(123.456789, 0.000001, 'BRL', 'BTC')).toBe(
       convertCurrency({
-        amount: 500,
+        amount: 123.456789,
         fromCurrency: 'BRL',
         toCurrency: 'BTC',
         accountCurrency: 'BRL',
-        quotes,
+        quotes: { ...quotes, brlQuoteBtc: { price: 0.000001 } },
       })
     );
   });
@@ -255,6 +261,25 @@ describe('buildTransferCreatePayload (TR-6 / D-02)', () => {
     expect(payload.credit.amount_in_account_currency).toBe(500);
   });
 
+  it('AC P2-7: ignores the user rate when both legs convert (quote-derived per leg)', () => {
+    // Selected EUR: origin BRL (quote 6), destination USD (quote 0.9) — two
+    // converting legs, so the single-leg override (5.5) must NOT apply
+    const payload = buildTransferCreatePayload(
+      baseInput({
+        amount: 100,
+        selectedCurrency: { id: 3, code: 'EUR' },
+        originAccount: { id: 10, currency: { code: 'BRL' } },
+        destinationAccount: { id: 20, currency: { code: 'USD' } },
+        exchangeRate: 5.5,
+      })
+    );
+
+    expect(payload.debit.exchange_rate).toBe(6);
+    expect(payload.debit.amount_in_account_currency).toBe(600);
+    expect(payload.credit.exchange_rate).toBe(0.9);
+    expect(payload.credit.amount_in_account_currency).toBe(90);
+  });
+
   it('AC P2-6: a modified rate recomputes only the converting leg', () => {
     // USD selected, origin USD (no conversion), destination BRL; user rate 6
     const payload = buildTransferCreatePayload(
@@ -317,6 +342,27 @@ describe('buildTransferEditPayload (TR-4 / TR-6)', () => {
 
     expect(payload.exchange_rate).toBeNull(); // origin USD = no conversion
     expect(payload.exchange_rate_related_transaction).toBe(5);
+  });
+
+  it('AC P2-7: ignores the user rate on the edit payload when both legs convert', () => {
+    // Selected EUR: origin BRL (quote 6), destination USD (quote 0.9) — two
+    // converting legs, so the single-leg override (5.5) must NOT apply
+    const payload = buildTransferEditPayload(
+      baseInput({
+        transactionId: '7',
+        primaryType: 'TRANSFER_DEBIT',
+        amount: 100,
+        selectedCurrency: { id: 3, code: 'EUR' },
+        originAccount: { id: 10, currency: { code: 'BRL' } },
+        destinationAccount: { id: 20, currency: { code: 'USD' } },
+        exchangeRate: 5.5,
+      })
+    );
+
+    expect(payload.exchange_rate).toBe(6);
+    expect(payload.amount_in_account_currency).toBe(600);
+    expect(payload.exchange_rate_related_transaction).toBe(0.9);
+    expect(payload.amount_in_account_currency_related_transaction).toBe(90);
   });
 
   it('AC P2-6/P2-10: a modified rate recomputes only the converting counterpart leg', () => {
