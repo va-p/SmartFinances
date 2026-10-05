@@ -1,4 +1,10 @@
 import { CurrencyCodes, CurrencyProps } from '@interfaces/currencies';
+import { convertCurrency } from '@utils/convertCurrency';
+
+type Quotes = Parameters<typeof convertCurrency>[0]['quotes'];
+
+// Quote matrix shape shared by the base-currency conversion helpers.
+export type { Quotes };
 
 // The app's default display currency — Brazilian Real, currency id 1
 // (matches the backend seed and the test fixtures' currency shapes).
@@ -65,4 +71,34 @@ export function parseStoredBaseCurrency(
   }
 
   return DEFAULT_BASE_CURRENCY;
+}
+
+/**
+ * Converts an amount denominated in `accountCurrency` to the base currency
+ * before any aggregation sums it (BC-21). Same-currency amounts pass
+ * through unchanged without touching the quotes, so the default BRL flow
+ * works before the quotes query resolves (BC-24). Returns null for
+ * unsupported pairs so callers skip the amount rather than crash (BC-23).
+ */
+export function convertToBaseCurrency(
+  amount: number,
+  accountCurrency: string,
+  baseCurrencyCode: CurrencyCodes,
+  quotes: Quotes
+): number | null {
+  if (accountCurrency === baseCurrencyCode) {
+    return amount;
+  }
+
+  try {
+    return convertCurrency({
+      amount,
+      fromCurrency: accountCurrency,
+      toCurrency: baseCurrencyCode,
+      accountCurrency,
+      quotes,
+    });
+  } catch {
+    return null;
+  }
 }

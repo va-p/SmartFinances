@@ -20,7 +20,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | --- | --- |
 | Backend persistence of the base currency (`User.base_currency_id`) | Selection happens pre-auth in the welcome flow, where no user exists; the project already has a client-only persisted preference precedent (`sortingOption`, "client-only, not from backend" comment in `src/app/_layout.tsx`). A backend change also requires a Prisma migration on production data — needs an explicit go-ahead, not bundled here. |
 | Per-entity currency displays (account's own balance row, budget, goal, subscription, transaction rows) | Those values belong to their entity's currency; only app-wide aggregates are base-currency formatted (see BC-17). |
-| Currency-mixing arithmetic fixes (net-worth series and day totals sum amounts across account currencies before this feature) | Pre-existing approximation: sums mix account currencies and label the result in the display currency. This feature changes the display currency only; fixing the mixing is a separate data-correctness feature. |
+| Currency-mixing arithmetic outside transaction-flow aggregation | IN SCOPE since the 2026-10-05 amendment: transaction-flow aggregation (day totals, cash flow, category totals, net-worth flows) now converts per amount (BC-21..BC-25). Still out of scope: any other future aggregation path not listed in BC-21..BC-25. |
 | Entity register forms' currency pickers (account/budget/goal/subscription) | They select the entity's own currency — unrelated to base currency. |
 | Fixing the pre-existing failing tests (`accountsFilter.test.ts` label text, `profile.spec.tsx` env breakage) | Unrelated to this feature; baseline failures documented in `validation.md`. |
 | App reload on base-currency change | Not needed: zustand reactivity re-renders totals (unlike `darkMode`, which reloads for native chrome). |
@@ -38,7 +38,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Which currencies are base-currency candidates | Only codes in `CurrencyCodes` ('BRL', 'BTC', 'EUR', 'USD') | `formatCurrency` and the quotes matrix (`convertCurrency`) only support these 4; the seeded list also contains ETH/USDC/USDT, which would throw on conversion and fail typing. | n |
 | How the selection UI is presented | Shared bottom-sheet flow: `ModalViewSelection` + existing `CurrencySelect` component (the `RegisterAccount` pattern), reused by the welcome step and `OptionsMenu` | Task mandates the `CurrencySelect` screen as the selection UI; the bottom-sheet pattern is the app's established way of hosting it. | n |
 | How util pipelines receive the base currency | Explicit `baseCurrencyCode: CurrencyCodes = 'BRL'` parameter on shared utils; `formatCurrency` stays pure (code passed in) | Codebase convention: utils are pure, stores are injected at call sites. Defaults keep existing call sites/tests valid during transition; screens pass the store value explicitly. | n |
-| Old BRL-string re-parsing in totals | Replaced with raw numeric totals (`rawTotal` on grouped days, `currentCashFlowValue` on `processTransactions`) | `processTransactions` re-parses "R$ 1.234,56" strings (drops cents; yields NaN/1.234 for "US$ …"). Changing the display currency makes this parse chain wrong — root-cause fix required for BC-16. | n |
+| Old BRL-string re-parsing in totals | Replaced with raw numeric totals (`rawTotal` on grouped days, `currentCashFlowValue` on `processTransactions`) | `processTransactions` re-parses "R$ 1.234,56" strings (drops cents; yields NaN/1.234 for "US$ …"). Changing the display currency makes this parse chain wrong — root-cause fix required for BC-16. |
+| Conversion input for flow aggregation (amendment 2026-10-05) | `amount_in_account_currency ?? amount`, converted from the ACCOUNT's currency to the base per amount, before any summing | `amount` is denominated in the transaction's own currency; `amount_in_account_currency` is the account-currency value (the same input `buildNetWorthEvolution` and Overview's category totals already use). Day totals/cash flow reflect money movement in accounts, so the account currency is the source. |
+| Cross-currency conversion needs loaded quotes (amendment) | Same exposure as the net-worth paths: before `useQuotesQuery` resolves, quote prices are 0 and cross-currency aggregates convert to 0; same-currency amounts pass through without touching quotes | Mirrors the established `accountBalanceConvertedToBase` behavior on Accounts/Overview; quotes load at root layout before these screens render in practice. | n |
 
 **Open questions:** none - all resolved or logged above (required before the spec is confirmed).
 
@@ -118,6 +120,24 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ---
 
+### P1: Converted transaction-flow totals (amendment 2026-10-05) ⭐ MVP
+
+**User Story**: As a user with a non-BRL base currency, I want day totals, cash flow, category totals and net-worth history computed from amounts actually converted to my base currency, so the displayed numbers represent the real converted totals instead of relabeled account-currency sums.
+
+**Why P1**: The original feature only relabeled the formatting on these paths (sums of raw account-currency amounts displayed with the base symbol) — the displayed values are wrong for any non-BRL base. The net-worth totals already convert via `accountBalanceConvertedToBase`; the transaction-flow paths must match that behavior.
+
+**Acceptance Criteria** (each line is one EARS pattern):
+
+1. WHEN a day total (`SectionListHeader` `data.total`), a cash flow, or a chart-bar aggregate sums transaction amounts THEN the system SHALL convert each amount to the base currency before summing. (BC-21) <!-- event-driven -->
+2. The aggregation SHALL use `amount_in_account_currency` when present, falling back to `amount`, and convert from the account's currency to the base currency. (BC-22) <!-- ubiquitous -->
+3. IF a transaction's account currency has no supported quote to the base currency THEN the aggregation SHALL skip that amount rather than crash. (BC-23) <!-- unwanted-behavior -->
+4. WHEN the account currency equals the base currency THEN the aggregation SHALL pass the amount through unchanged without touching the quotes. (BC-24) <!-- event-driven -->
+5. The net-worth evolution series SHALL convert its period flows to the base currency so every intermediate point is consistent with the base-converted current net worth. (BC-25) <!-- ubiquitous -->
+
+**Independent Test**: Transactions in Reais with base USD (brlQuoteUsd 0.2): a day with +R$ 100 and −R$ 30 shows "US$ 14,00" next to the date (70 × 0.2); Home's current cash flow for that period shows "US$ 14,00"; the net-worth chart's intermediate points move in US$ steps consistent with its US$ endpoint.
+
+---
+
 ## Edge Cases
 
 Edge cases are usually unwanted-behavior (IF/THEN) or boundary (WHEN) criteria:
@@ -155,12 +175,17 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BC-18 | P1: App-wide totals in the base currency | Design | Verified |
 | BC-19 | P1: App-wide totals in the base currency | Design | Verified |
 | BC-20 | P1: App-wide totals in the base currency | Design | Verified |
+| BC-21 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
+| BC-22 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
+| BC-23 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
+| BC-24 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
+| BC-25 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
 
 **ID format**: `BC-NN` (Base Currency).
 
 **Status values**: Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage**: 20 total, 20 mapped to tasks, 0 unmapped
+**Coverage**: 25 total, 25 mapped to tasks, 0 unmapped
 
 ---
 

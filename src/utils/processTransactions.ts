@@ -3,6 +3,7 @@ import groupTransactionsByDate, {
 } from '@utils/groupTransactionsByDate';
 import formatCurrency from '@utils/formatCurrency';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
+import { convertToBaseCurrency, Quotes } from '@utils/baseCurrency';
 
 import { CurrencyCodes } from '@interfaces/currencies';
 
@@ -45,6 +46,7 @@ export const processTransactions = (
   transactions: TransactionProps[],
   period: PeriodType,
   selectedDate: Date,
+  quotes: Quotes,
   baseCurrencyCode: CurrencyCodes = 'BRL'
 ): ProcessTransactionsResult => {
   const cashFlowsMap: Record<string, CashFLowData> = {};
@@ -89,8 +91,22 @@ export const processTransactions = (
     // Skip items without account data (e.g., optimistic updates missing nested objects)
     if (!item.account?.type) return;
 
+    // BC-22 — the account-currency-denominated value, converted to the
+    // base currency BEFORE the chart aggregation sums it (BC-21).
+    const amountInAccountCurrency =
+      item.amount_in_account_currency ?? item.amount;
+    const converted = convertToBaseCurrency(
+      amountInAccountCurrency,
+      item.account.currency.code,
+      baseCurrencyCode,
+      quotes
+    );
+
+    // BC-23 — unsupported account currencies are skipped, never crash.
+    if (converted === null) return;
+
     const isCreditAccount = item.account.type === 'CREDIT';
-    const amount = new Decimal(item.amount);
+    const amount = new Decimal(converted);
 
     if (!cashFlowsMap[groupKey]) {
       cashFlowsMap[groupKey] = {
@@ -204,6 +220,7 @@ export const processTransactions = (
   // Group transactions by day and calc total of day (to use on section list)
   const groupedTransactions = groupTransactionsByDate(
     filteredTransactions,
+    quotes,
     baseCurrencyCode
   ).sort((a: GroupedTransactionProps, b: GroupedTransactionProps) => {
     const firstDateParsed = parse(a.title, 'dd/MM/yyyy', new Date());

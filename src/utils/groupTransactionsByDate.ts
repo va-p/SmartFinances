@@ -1,17 +1,25 @@
 import { TransactionProps } from '@interfaces/transactions';
 import { CurrencyCodes } from '@interfaces/currencies';
 import formatCurrency from '@utils/formatCurrency';
+import {
+  convertToBaseCurrency,
+  Quotes,
+} from '@utils/baseCurrency';
 
 export interface GroupedTransactionProps {
   title: string;
   /** Day total formatted in the base currency. */
   total: string;
-  /** Exact numeric day total - never re-parse `total` to compute with it. */
+  /** Exact numeric day total in the base currency - never re-parse `total`. */
   rawTotal: number;
   data: TransactionProps[];
 }
 
-const calculateGroupTotal = (transactions: TransactionProps[]): number => {
+const calculateGroupTotal = (
+  transactions: TransactionProps[],
+  baseCurrencyCode: CurrencyCodes,
+  quotes: Quotes
+): number => {
   const total = transactions.reduce((acc, transaction) => {
     // Skip items without account data (e.g., optimistic updates missing nested objects)
     if (!transaction.account?.type) return acc;
@@ -21,9 +29,21 @@ const calculateGroupTotal = (transactions: TransactionProps[]): number => {
 
     if (isTransfer) return acc;
 
-    return isCreditAccount
-      ? acc - transaction.amount
-      : acc + transaction.amount;
+    // BC-22 — the account-currency-denominated value, converted to the
+    // base currency BEFORE summing (BC-21).
+    const amountInAccountCurrency =
+      transaction.amount_in_account_currency ?? transaction.amount;
+    const converted = convertToBaseCurrency(
+      amountInAccountCurrency,
+      transaction.account.currency.code,
+      baseCurrencyCode,
+      quotes
+    );
+
+    // BC-23 — unsupported account currencies are skipped, never crash.
+    if (converted === null) return acc;
+
+    return isCreditAccount ? acc - converted : acc + converted;
   }, 0);
 
   return total;
@@ -31,6 +51,7 @@ const calculateGroupTotal = (transactions: TransactionProps[]): number => {
 
 function groupTransactionsByDate(
   transactions: TransactionProps[],
+  quotes: Quotes,
   baseCurrencyCode: CurrencyCodes = 'BRL'
 ): GroupedTransactionProps[] {
   const groupsMap = transactions.reduce(
@@ -57,7 +78,7 @@ function groupTransactionsByDate(
   );
 
   return Array.from(groupsMap.values()).map((group) => {
-    const rawTotal = calculateGroupTotal(group.data);
+    const rawTotal = calculateGroupTotal(group.data, baseCurrencyCode, quotes);
 
     return {
       ...group,

@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/base-currency/design.md`
-**Status**: Done (Verifier PASS — see `validation.md`)
+**Status**: In Progress (Phase A amendment: converted transaction-flow totals)
 
 ---
 
@@ -60,9 +60,86 @@ T6
 T7 → T8
 ```
 
+### Phase A (amendment 2026-10-05): Converted transaction-flow totals
+
+```
+A1 → A2 → A3
+```
+
 ---
 
 ## Task Breakdown
+
+### A1: `convertToBaseCurrency` helper + day-total/cash-flow conversion — ✅ Complete
+
+**What**: Add `convertToBaseCurrency(amount, accountCurrency, baseCurrencyCode, quotes)` to `src/utils/baseCurrency.ts` (converts via `convertCurrency`; identity without touching quotes when account currency = base; returns null for unsupported pairs); rework `groupTransactionsByDate` to `(transactions, quotes, baseCurrencyCode = 'BRL')` converting each amount (`amount_in_account_currency ?? amount`, from the account's currency) before summing, skipping unsupported pairs; rework `processTransactions` to `(transactions, period, selectedDate, quotes, baseCurrencyCode = 'BRL')` converting in the per-period cash-flow loop (chart bars included) and passing quotes down to `groupTransactionsByDate`.
+**Where**: `src/utils/groupTransactionsByDate.ts` (plus `processTransactions.ts`, `baseCurrency.ts`)
+**Depends on**: T6
+**Reuses**: `convertCurrency` identity path (from==to never touches quotes); `processAccountsForList` skip-on-unsupported pattern
+**Requirement**: BC-21, BC-22, BC-23, BC-24 (day totals + cash flow + chart bars)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] Same-currency (account = base) sums are byte-identical to the pre-amendment values, including with all-zero quotes (identity never touches quotes)
+- [x] Cross-currency: BRL amounts with base USD convert per amount before summing (day total, current cash flow and chart-bar values)
+- [x] Unsupported account currencies (e.g. ETH) are skipped from totals, no crash; `amount_in_account_currency` preferred over `amount`
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/baseCurrency.test.ts src/utils/__tests__/groupTransactionsByDate.test.ts src/utils/__tests__/processTransactions.test.ts` (37 passed) + full gate 322 passing, zero new failures
+- [x] Test count: existing assertions preserved on the identity path (fixtures gained quotes); 11 new tests pass (3 helper + 4 day-total + 4 cash-flow)
+
+**Tests**: unit (extend the three suites)
+**Gate**: quick
+
+**Commit**: `feat(base-currency): convert flow totals to the base currency`
+
+---
+
+### A2: Net-worth evolution flow conversion
+
+**What**: Add `quotes` + `baseCurrencyCode` to `buildNetWorthEvolution`; convert each period flow (`amount_in_account_currency ?? amount`, from `transaction.account.currency.code`) to the base before summing, skipping no-account and unsupported-pair items, so intermediate points are consistent with the base-converted seed.
+**Where**: `src/utils/buildNetWorthEvolution.ts`
+**Depends on**: A1
+**Reuses**: A1 `convertToBaseCurrency` helper
+**Requirement**: BC-25 (plus BC-22/BC-23/BC-24 applied to the series)
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] Same-currency series unchanged (existing assertions preserved after fixtures gain account/quotes)
+- [ ] Cross-currency: BRL flows with base USD step the series in converted values consistent with the base-converted `totalAssets`
+- [ ] No-account and unsupported-currency flows are skipped, no crash
+- [ ] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/buildNetWorthEvolution.test.ts`
+- [ ] Test count: existing assertions preserved; 4+ new tests pass
+
+**Tests**: unit (extend the suite)
+**Gate**: quick
+
+**Commit**: `feat(base-currency): convert net worth evolution flows to the base currency`
+
+---
+
+### A3: Overview category totals conversion + screen wiring
+
+**What**: Convert Overview's `calculateTotals` amounts (`amount_in_account_currency ?? amount`, from the account's currency, skip unsupported) so `curRevenues`/`curExpenses`, category `totalFormatted` and pie values are base-converted; pass `quotes` into `processTransactions` from `Home`, `Account`, `TransactionsByCategory`, `BudgetDetails`; pass `quotes` + `baseCurrencyCode` into `buildNetWorthEvolution` from `Accounts` and `Overview` (+ memo deps).
+**Where**: `src/screens/Overview/index.tsx` (plus the six wiring screens)
+**Depends on**: A1, A2
+**Reuses**: A1/A2 util signatures; existing quotes destructuring on each screen
+**Requirement**: BC-21 (category totals + pie), BC-22, BC-23, BC-24 (consumer side)
+
+**Tools**: NONE
+
+**Done when**:
+- [ ] Overview's category totals, Despesas/Receitas/Fluxo buttons and pie chart values sum converted amounts
+- [ ] All six screens pass quotes (Accounts/Overview also the base code) into the reworked utils with memo deps updated
+- [ ] Full gate passes: zero new jest failures; `npx eslint` clean on the touched files
+- [ ] Wiring recorded as file:line evidence (env-blocked layer per matrix)
+
+**Tests**: none (env-blocked layer per matrix)
+**Gate**: full
+
+**Commit**: `feat(overview): convert category totals and wire quotes to the base currency flows`
+
+---
 
 ### T1: Base currency domain helpers + store state + hydration — ✅ Complete
 
@@ -257,7 +334,7 @@ T7 → T8
 Visual representation of task ordering. Phases run in sequence, and tasks within a phase run in order:
 
 ```
-Phase 1 → Phase 2 → Phase 3
+Phase 1 → Phase 2 → Phase 3 → Phase A (amendment)
 
 Phase 1:
   T1 → T3 → T4
@@ -267,9 +344,12 @@ Phase 2:
   T6
 Phase 3:
   T7 → T8
+Phase A:
+  A1 → A2 → A3
 
 T1 → T6 (utils consume the domain helpers)
 T6 → T7 (screens consume the utils params)
+A1 depends on T6; A2 depends on A1; A3 depends on A1 + A2 (backward cross-phase deps)
 ```
 
 Execution is strictly sequential - there is no intra-phase parallelism. A single agent (or batch worker) works one task at a time, in order.

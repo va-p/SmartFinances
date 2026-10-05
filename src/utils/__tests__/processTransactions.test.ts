@@ -3,6 +3,8 @@ import { processTransactions } from '../processTransactions';
 import { TransactionProps } from '../../interfaces/transactions';
 
 const brl = { id: 1, name: 'Brazilian Real', code: 'BRL', symbol: 'R$' } as const;
+const usd = { id: 5, name: 'US Dollar', code: 'USD', symbol: '$' } as const;
+const eth = { id: 4, name: 'Ethereum', code: 'ETH', symbol: 'Ξ' } as const;
 
 const makeTransaction = (
   overrides: Partial<TransactionProps> = {}
@@ -36,13 +38,30 @@ const makeTransaction = (
 
 const selectedDate = new Date(2026, 7, 15); // August 2026
 
+const quotes = {
+  brlQuoteBtc: { price: 0.000003 },
+  brlQuoteEur: { price: 0.16 },
+  brlQuoteUsd: { price: 0.2 },
+  btcQuoteBrl: { price: 300000 },
+  btcQuoteEur: { price: 48000 },
+  btcQuoteUsd: { price: 60000 },
+  eurQuoteBrl: { price: 6.25 },
+  eurQuoteBtc: { price: 0.00002 },
+  eurQuoteUsd: { price: 1.25 },
+  usdQuoteBrl: { price: 5 },
+  usdQuoteBtc: { price: 0.000016 },
+  usdQuoteEur: { price: 0.8 },
+};
+
+
 describe('processTransactions', () => {
   // AC1 — raw API (ISO 8601) created_at must be grouped, day title dd/MM/yyyy
   it('groups an ISO-timestamp transaction of the selected month with a dd/MM/yyyy day title', () => {
     const { groupedTransactions } = processTransactions(
       [makeTransaction()],
       'months',
-      selectedDate
+      selectedDate,
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(1);
@@ -57,7 +76,8 @@ describe('processTransactions', () => {
     const { groupedTransactions } = processTransactions(
       [makeTransaction({ created_at: '18/08/2026' })],
       'months',
-      selectedDate
+      selectedDate,
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(1);
@@ -70,7 +90,8 @@ describe('processTransactions', () => {
     const { groupedTransactions } = processTransactions(
       [makeTransaction({ created_at: '2026-07-31T12:00:00.000Z' })],
       'months',
-      selectedDate
+      selectedDate,
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(0);
@@ -81,7 +102,8 @@ describe('processTransactions', () => {
     const { groupedTransactions } = processTransactions(
       [makeTransaction({ created_at: '2025-01-05T12:00:00.000Z' })],
       'all',
-      selectedDate
+      selectedDate,
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(1);
@@ -92,7 +114,8 @@ describe('processTransactions', () => {
     const { groupedTransactions } = processTransactions(
       [makeTransaction({ created_at: 'not-a-date' })],
       'months',
-      selectedDate
+      selectedDate,
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(0);
@@ -106,7 +129,8 @@ describe('processTransactions', () => {
         makeTransaction({ id: 2, created_at: '2026-08-17T12:00:00.000Z' }), // Monday, ISO week 34
       ],
       'weeks',
-      selectedDate // Saturday of ISO week 33
+      selectedDate, // Saturday of ISO week 33
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(1);
@@ -153,7 +177,8 @@ describe('processTransactions', () => {
     const { groupedTransactions } = processTransactions(
       [makeTransaction({ created_at: '2025-08-11T12:00:00.000Z' })], // ISO week 33 of 2025
       'weeks',
-      selectedDate // ISO week 33 of 2026
+      selectedDate, // ISO week 33 of 2026
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(0);
@@ -164,7 +189,8 @@ describe('processTransactions', () => {
     const { cashFlows, groupedTransactions } = processTransactions(
       [makeTransaction({ created_at: '2025-12-29T12:00:00.000Z' })], // Monday, ISO week 1 of 2026
       'weeks',
-      new Date(2025, 11, 29)
+      new Date(2025, 11, 29),
+      quotes
     );
 
     expect(groupedTransactions).toHaveLength(1);
@@ -178,12 +204,14 @@ describe('processTransactions', () => {
         [makeTransaction()],
         'months',
         selectedDate,
+        quotes,
         'USD'
       );
 
-    expect(currentCashFlow).toBe('-US$\u00A050,00');
-    expect(currentCashFlowValue).toBe(-50);
-    expect(groupedTransactions[0].total).toBe('-US$\u00A050,00');
+    // -50 BRL x 0.2 (brlQuoteUsd) = -10 USD (BC-21)
+    expect(currentCashFlow).toBe('-US$\u00A010,00');
+    expect(currentCashFlowValue).toBe(-10);
+    expect(groupedTransactions[0].total).toBe('-US$\u00A010,00');
   });
 
   // BC-19 — the raw current cash flow is the exact numeric sum (cents
@@ -196,10 +224,95 @@ describe('processTransactions', () => {
       ],
       'months',
       selectedDate,
+      quotes,
       'USD'
     );
 
-    expect(currentCashFlowValue).toBe(-25.25);
-    expect(currentCashFlow).toBe('-US$\u00A025,25');
+    // (-50.5 + 25.25) BRL x 0.2 = -5.05 USD (BC-21)
+    expect(currentCashFlowValue).toBeCloseTo(-5.05, 10);
+    expect(currentCashFlow).toBe('-US$\u00A05,05');
+  });
+
+  // BC-21 — mixed account currencies convert per amount before summing
+  it('converts mixed-currency amounts per amount into the base currency', () => {
+    const usdAccount = {
+      ...makeTransaction({
+        id: 2,
+        amount: 20,
+        type: 'CREDIT' as const,
+        currency: usd,
+        account: {
+          id: 14,
+          name: 'Conta USD',
+          type: 'BANK' as const,
+          currency: usd,
+          balance: 0,
+          initialAmount: null,
+        },
+      }),
+    };
+
+    const { currentCashFlowValue, currentCashFlow } = processTransactions(
+      [makeTransaction({ amount: 100 }), usdAccount],
+      'months',
+      selectedDate,
+      quotes,
+      'USD'
+    );
+
+    // 100 BRL x 0.2 = 20 USD; 20 USD stays 20 USD (BC-24)
+    expect(currentCashFlowValue).toBe(40);
+    expect(currentCashFlow).toBe('US$\u00A040,00');
+  });
+
+  // BC-21 — the cash flow chart bars aggregate converted amounts
+  it('converts the chart bar values to the base currency', () => {
+    const { cashFlowChartData } = processTransactions(
+      [
+        makeTransaction({ id: 1, amount: -50 }), // DEBIT -> expense
+        makeTransaction({ id: 2, amount: 100, type: 'CREDIT' }),
+      ],
+      'months',
+      selectedDate,
+      quotes,
+      'USD'
+    );
+
+    // revenue 100 BRL x 0.2 = 20 USD; expense 50 BRL x 0.2 = 10 USD
+    expect(cashFlowChartData[0].value).toBe(20);
+    expect(cashFlowChartData[1].value).toBe(10);
+  });
+
+  // BC-23 — unsupported account currencies are skipped from every aggregate
+  it('skips unsupported account currencies from the cash flow and day total', () => {
+    const ethAccountTx = makeTransaction({
+      id: 2,
+      amount: 7,
+      currency: eth,
+      account: {
+        id: 15,
+        name: 'Carteira ETH',
+        type: 'WALLET',
+        currency: eth,
+        balance: 0,
+        initialAmount: null,
+      },
+    });
+
+    const { currentCashFlowValue, groupedTransactions, cashFlowChartData } =
+      processTransactions(
+        [makeTransaction({ amount: -50 }), ethAccountTx],
+        'months',
+        selectedDate,
+        quotes,
+        'USD'
+      );
+
+    // only the -50 BRL tx converts: -10 USD; the ETH tx contributes nothing
+    expect(currentCashFlowValue).toBe(-10);
+    expect(groupedTransactions[0].rawTotal).toBe(-10);
+    expect(cashFlowChartData[1].value).toBe(10);
+    // the ETH row still renders in the day group (BC-23 skips the amount)
+    expect(groupedTransactions[0].data).toHaveLength(2);
   });
 });
