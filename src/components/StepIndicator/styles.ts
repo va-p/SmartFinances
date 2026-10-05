@@ -1,12 +1,13 @@
 import styled from 'styled-components/native';
-
 import Animated from 'react-native-reanimated';
+
+import { ThemeProps } from '@interfaces/theme';
 
 // Step indicator dimensions: all bullets are uniform dots so the row never
 // reflows when the active step changes; the active position is highlighted
 // by the StepDash, which slides between the bullet positions.
 export const STEP_BULLET_SIZE = 8;
-export const STEP_BULLET_MARGIN = 6;
+export const STEP_BULLET_MARGIN = 8;
 export const STEP_DASH_WIDTH = 24;
 // Horizontal distance between consecutive bullet centers.
 export const STEP_DASH_STRIDE = STEP_BULLET_SIZE + 2 * STEP_BULLET_MARGIN;
@@ -37,7 +38,7 @@ export const StepBullet = styled.TouchableOpacity`
   height: ${STEP_BULLET_SIZE}px;
   border-radius: ${STEP_BULLET_SIZE / 2}px;
   margin-horizontal: ${STEP_BULLET_MARGIN}px;
-  background-color: ${({ theme }) => theme.colors.text};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 // The active-step dash: absolutely positioned over the bullet row, centered
@@ -50,5 +51,5 @@ export const StepDash = styled(Animated.View)`
   width: ${STEP_DASH_WIDTH}px;
   height: ${STEP_BULLET_SIZE}px;
   border-radius: ${STEP_BULLET_SIZE / 2}px;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.primary};
 `;
