@@ -418,6 +418,14 @@ export function RegisterTransaction({
     return getExchangeRate(selectedCode, originCode, quotes);
   };
 
+  // FX-11: the rate actually applied (parsed); null when empty/invalid — the
+  // payload builders then fall back to the pair quote (D-01).
+  const appliedExchangeRate = () => {
+    const raw = getValues('exchangeRate');
+    const rate = typeof raw === 'number' ? raw : Number(raw);
+    return rate > 0 ? rate : null;
+  };
+
   // D-02/AC P2-2: the rate drives the conversion — the account-currency
   // amount is derived (read-only display) whenever amount, rate or the pair
   // changes. Transfer legs convert inside the payload builders (D-01) and
@@ -737,6 +745,12 @@ export function RegisterTransaction({
         amount: signedAmount,
         amount_in_account_currency:
           fromCurrency !== targetAccountCurrency ? amountConverted : null,
+        // FX-11 / A-04: bulk edit stores the quote-derived rate for converted
+        // transactions (no rate input in bulk mode)
+        exchange_rate:
+          fromCurrency !== targetAccountCurrency
+            ? getExchangeRate(fromCurrency, targetAccountCurrency, quotes)
+            : null,
         currency_id: updatedCurrencyId,
         type: transactionType || transaction.type,
         account_id: updatedAccountId,
@@ -810,27 +824,19 @@ export function RegisterTransaction({
       }
     }
 
-    let amountConverted = amount;
-    amountConverted = convertCurrency({
-      amount,
-      fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency.code,
-      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão,
-      quotes: {
-        brlQuoteBtc,
-        brlQuoteEur,
-        brlQuoteUsd,
-        btcQuoteBrl,
-        btcQuoteEur,
-        btcQuoteUsd,
-        eurQuoteBrl,
-        eurQuoteBtc,
-        eurQuoteUsd,
-        usdQuoteBrl,
-        usdQuoteBtc,
-        usdQuoteEur,
-      },
-    });
+    // FX-11 / D-02: the rate drives the conversion — the account-currency
+    // value is recomputed from the applied rate (same formula as the derived
+    // display), not from live quotes.
+    const appliedRate = appliedExchangeRate();
+    let amountConverted =
+      conversionApplies && appliedRate
+        ? convertWithRate(
+            amount,
+            appliedRate,
+            currencySelected.code,
+            accountCurrency.code,
+          )
+        : null;
 
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
@@ -859,20 +865,10 @@ export function RegisterTransaction({
         isRecurring,
         recurrenceInterval,
         recurrencePeriod,
-        quotes: {
-          brlQuoteBtc,
-          brlQuoteEur,
-          brlQuoteUsd,
-          btcQuoteBrl,
-          btcQuoteEur,
-          btcQuoteUsd,
-          eurQuoteBrl,
-          eurQuoteBtc,
-          eurQuoteUsd,
-          usdQuoteBrl,
-          usdQuoteBtc,
-          usdQuoteEur,
-        },
+        quotes,
+        // FX-11 / D-01: the user-modified rate applies to the single
+        // converting leg (null → each leg keeps its own quote)
+        exchangeRate: appliedRate,
         // The primary leg keeps its stored type; direction is fixed by the
         // account selectors (D-02), never derived from the sign.
         primaryType:
@@ -903,15 +899,15 @@ export function RegisterTransaction({
       date: transactionDate,
       description: form.description,
       amount,
-      amount_in_account_currency:
-        currencySelected.code !== accountCurrency?.code
-          ? amountConverted
-          : null,
+      amount_in_account_currency: amountConverted,
+      // FX-11: the applied rate rides along whenever conversion applies
+      exchange_rate: conversionApplies ? appliedRate : null,
       currency_id: currencySelected.id,
       currency: currencySelected,
       type: transactionType,
       account_id: accountID,
       category_id: categorySelected.id,
+      category: categorySelected,
       tags: normalizeTags(tagsList),
       image_url: transactionImageUrl,
       is_recurring: isRecurring,
@@ -971,7 +967,9 @@ export function RegisterTransaction({
       }
     }
 
-    let amountConverted = amount;
+    // FX-11: the applied rate (null → builders fall back to the pair quotes)
+    const appliedRate = appliedExchangeRate();
+    let amountConverted = null;
 
     // --- Transfer transaction ---
     if (transactionType === 'TRANSFER') {
@@ -996,20 +994,10 @@ export function RegisterTransaction({
         isRecurring,
         recurrenceInterval,
         recurrencePeriod,
-        quotes: {
-          brlQuoteBtc,
-          brlQuoteEur,
-          brlQuoteUsd,
-          btcQuoteBrl,
-          btcQuoteEur,
-          btcQuoteUsd,
-          eurQuoteBrl,
-          eurQuoteBtc,
-          eurQuoteUsd,
-          usdQuoteBrl,
-          usdQuoteBtc,
-          usdQuoteEur,
-        },
+        quotes,
+        // FX-11 / D-01: the user-modified rate applies to the single
+        // converting leg (null → each leg keeps its own quote)
+        exchangeRate: appliedRate,
       });
 
       createTransaction(transferPayload, {
@@ -1033,26 +1021,18 @@ export function RegisterTransaction({
     }
 
     // --- Plain Transaction, NO transfer ---
-    amountConverted = convertCurrency({
-      amount,
-      fromCurrency: currencySelected.code,
-      toCurrency: accountCurrency.code,
-      accountCurrency: currencySelected.code, // A moeda da conta deve ser igual a moeda selecionada para não haver dupla conversão
-      quotes: {
-        brlQuoteBtc,
-        brlQuoteEur,
-        brlQuoteUsd,
-        btcQuoteBrl,
-        btcQuoteEur,
-        btcQuoteUsd,
-        eurQuoteBrl,
-        eurQuoteBtc,
-        eurQuoteUsd,
-        usdQuoteBrl,
-        usdQuoteBtc,
-        usdQuoteEur,
-      },
-    });
+    // FX-11 / D-02: the rate drives the conversion — the account-currency
+    // value is recomputed from the applied rate (same formula as the derived
+    // display), not from live quotes.
+    amountConverted =
+      conversionApplies && appliedRate
+        ? convertWithRate(
+            amount,
+            appliedRate,
+            currencySelected.code,
+            accountCurrency.code,
+          )
+        : null;
 
     // --- Build full account object for optimistic cache update ---
     const accountForOptimistic = {
@@ -1069,10 +1049,9 @@ export function RegisterTransaction({
       created_at: date,
       description: form.description,
       amount,
-      amount_in_account_currency:
-        currencySelected.code !== accountCurrency.code // If transaction currency is different to account currency
-          ? amountConverted
-          : null,
+      amount_in_account_currency: amountConverted,
+      // FX-11: the applied rate rides along whenever conversion applies
+      exchange_rate: conversionApplies ? appliedRate : null,
       currency_id: currencySelected.id,
       currency: currencySelected,
       type: transactionType,
