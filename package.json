@@ -35,7 +35,10 @@
     "postinstall": "patch-package"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^styled-components$": "styled-components/native"
+    }
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.6.9",

@@ -88,9 +88,9 @@ T7 → T8
 
 ---
 
-### T2: WelcomeFlow step shell with bullet indicators + Welcome step refit
+### T2: WelcomeFlow step shell with bullet indicators + Welcome step refit — ✅ Complete
 
-**What**: Create `src/screens/WelcomeFlow/` (steps array `WELCOME_STEPS`, `WelcomeStepProps { onNext?: () => void }`, `StepIndicator` with tappable active-state bullets, `Screen`+`Gradient` chrome, clamped `activeStep` state); refit `Welcome` to step content (drops its own `Screen`/`Gradient`, accepts `WelcomeStepProps`, content unchanged); point `(auth)/index.tsx` at `WelcomeFlow`.
+**What**: Create `src/screens/WelcomeFlow/` (steps array `WELCOME_STEPS`, `WelcomeStepProps { onNext?: () => void }`, `StepIndicator` with tappable active-state bullets, `Screen`+`Gradient` chrome, clamped `activeStep` state); refit `Welcome` to step content (drops its own `Screen`/`Gradient`, accepts `WelcomeStepProps`, content unchanged); point `(auth)/index.tsx` at `WelcomeFlow`. Plus a jest `moduleNameMapper` for `styled-components` → `styled-components/native` (mirrors Metro's `react-native` field so screen tests share one theme context).
 **Where**: `src/screens/WelcomeFlow/index.tsx`
 **Depends on**: None
 **Reuses**: `Welcome` existing styles + handlers (unchanged content); `Screen`/`Gradient` components
@@ -99,11 +99,11 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] Injected-steps render shows one bullet per step, active bullet highlighted, bullet tap navigates, `onNext` advances and is absent on the last step
-- [ ] `WELCOME_STEPS` exported with `[base-currency, welcome]` order; adding a stub third step renders 3 bullets with no shell change (the extensibility test)
-- [ ] `Welcome` renders identically inside the shell (Login/Criar conta intact)
-- [ ] Gate check passes: `CI=true npx jest --watchman=false src/__tests__/screens/welcomeFlow.spec.tsx`
-- [ ] Test count: 6+ new tests pass (no silent deletions)
+- [x] Injected-steps render shows one bullet per step, active bullet highlighted, bullet tap navigates, `onNext` advances and is absent on the last step
+- [x] `WELCOME_STEPS` exported with the Welcome auth step as the terminal entry; adding a stub third step renders 3 bullets with no shell change (the extensibility test)
+- [x] `Welcome` renders identically inside the shell (Login/Criar conta intact)
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/__tests__/screens/welcomeFlow.spec.tsx` + full-suite regression (jest config touched): 287 passing, zero new failures
+- [x] Test count: 6 new tests pass (no silent deletions)
 
 **Tests**: unit (new: `src/__tests__/screens/welcomeFlow.spec.tsx`, stub steps injected; no phosphor/bottom-sheet deps in the shell tree)
 **Gate**: quick
