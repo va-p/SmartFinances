@@ -82,6 +82,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 4. WHEN the user taps "Continuar" on the intro step THEN the flow SHALL advance to the next step without requiring a currency selection. (BC-11) <!-- event-driven -->
 5. The currency step SHALL display an informative message that a default currency can be set, the currently selected base currency, and the shared selection sheet trigger. (BC-12) <!-- ubiquitous -->
 6. WHEN a step is added to the steps array THEN the flow SHALL render its bullet and step content with no shell changes. (BC-13) <!-- event-driven -->
+7. WHEN the active step changes THEN the step indicator's active-step dash SHALL slide (animated translation, `react-native-reanimated`) into the newly active bullet's position. (BC-26) <!-- event-driven -->
 
 **Independent Test**: Fresh install → `(auth)` shows the Welcome intro step with 2 bullets (first active) and Continuar; continue → base-currency step (second bullet active) with the selection and Login/Criar conta actions, default BRL checked.
 
@@ -180,12 +181,13 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BC-23 | P1: Converted transaction-flow totals (amendment) | Design | Verified |
 | BC-24 | P1: Converted transaction-flow totals (amendment) | Design | Verified |
 | BC-25 | P1: Converted transaction-flow totals (amendment) | Design | Verified |
+| BC-26 | P1: Welcome flow with educational currency step | Design | Implementing |
 
 **ID format**: `BC-NN` (Base Currency).
 
 **Status values**: Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage**: 25 total, 25 mapped to tasks, 0 unmapped
+**Coverage**: 26 total, 26 mapped to tasks, 0 unmapped
 
 ---
 

@@ -1,6 +1,18 @@
-import React, { ComponentType, useState } from 'react';
+import React, { ComponentType, useEffect, useState } from 'react';
 
-import { Container, StepIndicatorContainer, StepBullet } from './styles';
+import {
+  Container,
+  StepIndicatorContainer,
+  StepBullet,
+  StepDash,
+  STEP_DASH_STRIDE,
+} from './styles';
+
+import {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
@@ -19,9 +31,9 @@ export type WelcomeStep = {
   Component: ComponentType<WelcomeStepProps>;
 };
 
-// Ordered onboarding steps: educational screens come first and the auth
-// screen (Welcome - Login / Criar conta) is always the terminal step. Future
-// educational screens are new entries before the auth step - the shell needs
+// Ordered onboarding steps: the brand/intro step (Welcome) comes first and
+// the base-currency selection + auth step is always the terminal step (AD-004).
+// Future educational screens are new entries between them - the shell needs
 // no change.
 export const WELCOME_STEPS: WelcomeStep[] = [
   { key: 'welcome', Component: Welcome },
@@ -39,6 +51,18 @@ type StepIndicatorProps = {
 };
 
 function StepIndicator({ count, active, onSelect }: StepIndicatorProps) {
+  // The active-step dash slides between the bullet positions when the
+  // active step changes (BC-26).
+  const dashTranslateX = useSharedValue(active * STEP_DASH_STRIDE);
+
+  useEffect(() => {
+    dashTranslateX.value = withSpring(active * STEP_DASH_STRIDE);
+  }, [active, dashTranslateX]);
+
+  const dashAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: dashTranslateX.value }],
+  }));
+
   return (
     <StepIndicatorContainer>
       {Array.from({ length: count }, (_, index) => (
@@ -48,10 +72,15 @@ function StepIndicator({ count, active, onSelect }: StepIndicatorProps) {
           accessibilityRole='button'
           accessibilityLabel={`Passo ${index + 1}`}
           accessibilityState={{ selected: index === active }}
-          isActive={index === active}
           onPress={() => onSelect(index)}
         />
       ))}
+
+      <StepDash
+        testID='welcome-step-dash'
+        style={dashAnimatedStyle}
+        pointerEvents='none'
+      />
     </StepIndicatorContainer>
   );
 }

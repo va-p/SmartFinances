@@ -118,6 +118,31 @@ A1 → A2 → A3
 
 ---
 
+### A4: Welcome flow reorder + active-step dash slide animation (2026-10-05, user follow-up) — ✅ Complete
+
+**What**: Commit the user's flow reorder (`[Welcome (intro, Continuar), WelcomeBaseCurrency (selection + auth CTAs)]`, auth actions moved to the terminal step; recorded as AD-004 superseding AD-003; BC-08/BC-11 reworded; tests realigned) — ce0a333. Then implement the active-step dash slide: uniform 8px bullets (no reflow) + an absolutely-positioned 24px `StepDash` centered on the active bullet, slid horizontally between bullet positions with `withSpring` on a reanimated shared value (BC-26); minimal reanimated mock in `jest.setup.js` so the shell renders in tests.
+**Where**: `src/screens/WelcomeFlow/index.tsx` (plus `styles.ts`, `jest.setup.js`)
+**Depends on**: A3
+**Reuses**: `STEP_DASH_STRIDE` geometry shared by styles and component; reanimated shared-value + `useAnimatedStyle` pattern
+**Requirement**: BC-26 (plus BC-08/BC-11 re-anchored to the user's reorder)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] All bullets are uniform dots; the active position is highlighted by the dash sliding to it (no width-swap reflow)
+- [x] Dash renders centered over the active bullet at mount (translateX 0 for step 0)
+- [x] On step change (bullet tap / onNext), the dash slides to the new position (stride 16: translateX 16 for step 1, 32 for step 2)
+- [x] Bullet tap navigation (BC-10) and per-step bullets/selected state (BC-09) unchanged
+- [x] Gate: `welcomeFlow.spec` + `welcomeBaseCurrency.spec` 17 passed; full gate 331 passing, zero new failures; eslint clean on touched files
+- [x] Test count: +3 tests (2 dash tests + real-Welcome Continuar wiring) net of the realigned ones
+
+**Tests**: unit (RNTL render + wiring; the spring interpolation itself is native-only — asserted via the wired translateX under the reanimated mock)
+**Gate**: full
+
+**Commit**: `feat(welcome): slide the active step dash between bullets`
+
+---
+
 ### A3: Overview category totals conversion + screen wiring — ✅ Complete
 
 **What**: Convert Overview's `calculateTotals` amounts (`amount_in_account_currency ?? amount`, from the account's currency, skip unsupported) so `curRevenues`/`curExpenses`, category `totalFormatted` and pie values are base-converted; pass `quotes` into `processTransactions` from `Home`, `Account`, `TransactionsByCategory`, `BudgetDetails`; pass `quotes` + `baseCurrencyCode` into `buildNetWorthEvolution` from `Accounts` and `Overview` (+ memo deps).

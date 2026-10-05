@@ -54,3 +54,53 @@ jest.mock('@gorhom/bottom-sheet', () => {
     BottomSheetModalProvider,
   };
 });
+
+// react-native-reanimated is mocked minimally (the real library pulls
+// react-native-worklets, whose native module is absent under jest-expo):
+// animated views render as plain views, shared values are plain { value }
+// holders, animation drivers (withSpring/withTiming) resolve synchronously
+// to their target, and useAnimatedStyle recomputes on every render — wired
+// positions are assertable, while the real animation runs native-only.
+jest.mock('react-native-reanimated', () => {
+  const { View, Text, ScrollView, Image } = require('react-native');
+
+  const core = {
+    __esModule: true,
+    default: {
+      View,
+      Text,
+      ScrollView,
+      Image,
+      createAnimatedComponent: (component) => component,
+    },
+    Animated: {
+      View,
+      Text,
+      ScrollView,
+      Image,
+      createAnimatedComponent: (component) => component,
+    },
+    useSharedValue: (initial) => ({ value: initial }),
+    useAnimatedStyle: (updater) => updater(),
+    useAnimatedReaction: () => {},
+    useAnimatedRef: () => ({ current: null }),
+    useAnimatedScrollHandler: () => () => {},
+    useDerivedValue: (processor) => ({ value: processor() }),
+    withSpring: (toValue) => toValue,
+    withTiming: (toValue) => toValue,
+    withDelay: (_delay, nextAnimation) => nextAnimation,
+    withSequence: (...animations) => animations[0],
+    withRepeat: (animation) => animation,
+  };
+
+  // Unknown exports (entering/exiting animation props, interpolators, ...)
+  // resolve to inert objects so components referencing them still render.
+  return new Proxy(core, {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      }
+      return {};
+    },
+  });
+});

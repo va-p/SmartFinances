@@ -46,6 +46,26 @@ const getBulletSelected = (
   screen.getByTestId(`welcome-step-bullet-${index}`).props.accessibilityState
     .selected;
 
+// styled-components merges the generated style and the incoming animated
+// style into an array; walk it for the animated transform.
+const getDashTranslateX = (
+  screen: ReturnType<typeof renderWithTheme>
+): number => {
+  const { style } = screen.getByTestId('welcome-step-dash').props as {
+    style: unknown;
+  };
+  const entries = Array.isArray(style) ? style : [style];
+  const animated = entries.find(
+    (entry) => Array.isArray((entry as Record<string, unknown>)?.transform)
+  ) as { transform: Array<{ translateX: number }> } | undefined;
+
+  if (!animated) {
+    throw new Error('StepDash animated transform not found in style prop');
+  }
+
+  return animated.transform[0].translateX;
+};
+
 describe('WelcomeFlow shell', () => {
   // BC-09 — one bullet per step, the active step's bullet highlighted
   it('renders one bullet per step with the first bullet active', () => {
@@ -99,7 +119,7 @@ describe('WelcomeFlow shell', () => {
     expect(screen.getByTestId('step-two-marker').props.children).toBe('NO_NEXT');
   });
 
-  // BC-13 — a new steps-array entry renders its bullet and content with no
+  // BC-13 — a new steps-array entry renders its bullet and step content with no
   // shell change (third educational stub)
   it('renders an added third step as a third bullet and navigates to it', () => {
     const screen = renderWithTheme(
@@ -118,6 +138,57 @@ describe('WelcomeFlow shell', () => {
 
     expect(screen.getByTestId('step-three-marker')).toBeTruthy();
     expect(getBulletSelected(screen, 2)).toBe(true);
+  });
+
+  // BC-26 — the active-step dash renders centered over the active bullet
+  it('renders the dash over the active bullet at its position', () => {
+    const screen = renderWithTheme(
+      <WelcomeFlow
+        steps={[
+          { key: 'one', Component: StepOne },
+          { key: 'two', Component: StepTwo },
+        ]}
+      />
+    );
+
+    expect(screen.getByTestId('welcome-step-dash')).toBeTruthy();
+    // stride = bullet 8 + 2 x margin 4 = 16; active step 0 -> 0
+    expect(getDashTranslateX(screen)).toBe(0);
+  });
+
+  // BC-26 — the dash slides to the newly active bullet's position
+  it('slides the dash to the tapped bullet position', () => {
+    const steps = [
+      { key: 'one', Component: StepOne },
+      { key: 'two', Component: StepTwo },
+      { key: 'three', Component: StepThree },
+    ];
+    const screen = renderWithTheme(<WelcomeFlow steps={steps} />);
+
+    fireEvent.press(screen.getByTestId('welcome-step-bullet-1'));
+
+    // The mock's useAnimatedStyle is non-reactive (recomputed on render, not
+    // on shared-value change): rerender so the updated shared value - set
+    // synchronously by the effect's withSpring under the mock - lands in
+    // the dash style.
+    screen.rerender(
+      <ThemeProvider theme={lightTheme}>
+        <WelcomeFlow steps={steps} />
+      </ThemeProvider>
+    );
+
+    // stride 16: active step 1 -> 16
+    expect(getDashTranslateX(screen)).toBe(16);
+
+    fireEvent.press(screen.getByTestId('welcome-step-bullet-2'));
+    screen.rerender(
+      <ThemeProvider theme={lightTheme}>
+        <WelcomeFlow steps={steps} />
+      </ThemeProvider>
+    );
+
+    // active step 2 -> 32
+    expect(getDashTranslateX(screen)).toBe(32);
   });
 
   // BC-08 — the default flow starts with the brand/intro step (Welcome)
