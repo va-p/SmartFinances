@@ -6,6 +6,7 @@ import {
   StepBulletsRow,
   StepBullet,
   StepDash,
+  StepContent,
   STEP_DASH_STRIDE,
 } from './styles';
 
@@ -74,6 +75,7 @@ function StepIndicator({ count, active, onSelect }: StepIndicatorProps) {
             accessibilityRole='button'
             accessibilityLabel={`Passo ${index + 1}`}
             accessibilityState={{ selected: index === active }}
+            hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
             onPress={() => onSelect(index)}
           />
         ))}
@@ -114,9 +116,11 @@ export function WelcomeFlow({ steps = WELCOME_STEPS }: Props) {
           onSelect={(index) => handleSelectStep(index)}
         />
 
-        <ActiveStep
-          onNext={currentStep < lastIndex ? handleNext : undefined}
-        />
+        <StepContent testID='welcome-step-content'>
+          <ActiveStep
+            onNext={currentStep < lastIndex ? handleNext : undefined}
+          />
+        </StepContent>
       </Container>
     </Screen>
   );

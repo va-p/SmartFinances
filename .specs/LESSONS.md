@@ -68,6 +68,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: BC-26 layout (StepDash absolute anchor) (frontend-components/absolute-positioning)
 - last seen: 2026-10-05T22:52:45Z
 
+### L-010 - Centered step content columns that overflow their slot spill transparent full-width children over sibling UI (swallowing taps invisibly) - bound each step in an overflow:hidden slot, z-order the indicator above it, and give small tap targets hitSlop; jest cannot see layout or hit-testing, so verify taps on device.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `frontend-components/layout` · harmful: 0
+- features: base-currency
+- evidence: BC-10 (bullet taps, first screen) (frontend-components/layout)
+- last seen: 2026-10-05T23:10:42Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -190,6 +190,30 @@ A1 → A2 → A3
 
 ---
 
+### A6: Bullet taps on every screen (device-found fault) — ✅ Complete
+
+**What**: Bullet taps failed on the first screen only: the first step's content column (tallest in the flow: 20% logo block + fixed margins), centered with `justify-content: center`, overflowed its slot and spilled transparent full-width children over the indicator row, swallowing taps (invisible in jest — no layout/hit-testing in the test renderer). Fix: the active step renders inside a bounded `StepContent` slot (`flex: 1; overflow: hidden`) so no step content can ever paint over or steal taps from the indicator; the indicator container is z-ordered above the slot (`zIndex`/`elevation` 10); every bullet carries `hitSlop` 12 (8px dots alone are far below a reliable tap target; hitSlop also covers the inter-bullet margin dead zones). Includes the user's bullet-margin tweak (6px, stride 20) — the slide test now asserts the `active × stride` invariant against the shared `STEP_DASH_STRIDE` constant instead of pixel literals.
+**Where**: `src/screens/WelcomeFlow/styles.ts` (plus `index.tsx`)
+**Depends on**: A5
+**Reuses**: the stride geometry constants (shared by styles, component and now the test)
+**Requirement**: BC-10 (device half)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] Active step renders inside the bounded `welcome-step-content` slot; the bullets row stays outside it, above (regression test)
+- [x] Indicator container z-ordered above the step slot (`zIndex`/`elevation`)
+- [x] Every bullet carries `hitSlop` 12 (regression test asserts the tap target on each bullet)
+- [x] Gate: full suite 334 passing, zero new failures; eslint clean
+- [x] Tap behavior verified on device by the user (layout/hit-testing is native-only — structural guards are the jest-level evidence)
+
+**Tests**: unit (2 regression tests: bounded slot containment + enlarged tap targets)
+**Gate**: full
+
+**Commit**: `fix(welcome): make bullet taps work on every screen`
+
+---
+
 ### T1: Base currency domain helpers + store state + hydration — ✅ Complete
 
 **What**: Create `src/utils/baseCurrency.ts` (DEFAULT_BASE_CURRENCY, SUPPORTED_BASE_CURRENCY_CODES, `isSupportedBaseCurrencyCode`, `filterBaseCurrencyCandidates`, `parseStoredBaseCurrency`); add `baseCurrency`/`setBaseCurrency` (MMKV write inside the action, key `config.baseCurrency`) to `useUserConfigs`; restore in `RootLayout` next to the `sortingOption` block.

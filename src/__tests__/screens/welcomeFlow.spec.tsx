@@ -11,6 +11,7 @@ import {
   WelcomeFlow,
   WelcomeStepProps,
 } from '@screens/WelcomeFlow';
+import { STEP_DASH_STRIDE } from '@screens/WelcomeFlow/styles';
 import { Welcome } from '@screens/Welcome';
 
 const renderWithTheme = (ui: React.ReactElement) =>
@@ -156,6 +157,50 @@ describe('WelcomeFlow shell', () => {
     expect(getDashTranslateX(screen)).toBe(0);
   });
 
+  // BC-10 — regression (device-found fault): the first step's content
+  // column (tallest of the flow) painted over the indicator row and
+  // swallowed bullet taps on the first screen only. The step now renders
+  // inside a bounded slot, so no step content can reach the indicator area.
+  it('renders the active step inside the bounded step slot', () => {
+    const screen = renderWithTheme(
+      <WelcomeFlow
+        steps={[
+          { key: 'one', Component: StepOne },
+          { key: 'two', Component: StepTwo },
+        ]}
+      />
+    );
+
+    const contentSlot = within(screen.getByTestId('welcome-step-content'));
+
+    expect(contentSlot.getByTestId('step-one-marker')).toBeTruthy();
+    // the bullets row stays outside the step slot, above it
+    expect(() =>
+      contentSlot.getByTestId('welcome-step-bullets-row')
+    ).toThrow();
+  });
+
+  // BC-10 — every bullet carries an enlarged tap target (8px dots alone are
+  // far below the recommended minimum); hitSlop keeps the whole row
+  // reliably tappable, forward and backward, on every screen
+  it('gives every bullet an enlarged tap target', () => {
+    const screen = renderWithTheme(
+      <WelcomeFlow
+        steps={[
+          { key: 'one', Component: StepOne },
+          { key: 'two', Component: StepTwo },
+        ]}
+      />
+    );
+
+    expect(screen.getByTestId('welcome-step-bullet-0').props.hitSlop).toEqual(
+      { top: 12, right: 12, bottom: 12, left: 12 }
+    );
+    expect(screen.getByTestId('welcome-step-bullet-1').props.hitSlop).toEqual(
+      { top: 12, right: 12, bottom: 12, left: 12 }
+    );
+  });
+
   // BC-26 — regression (device-found fault): the dash was anchored to the
   // full-width padded container and landed top-left of the screen, above
   // the bullets. It must live inside the shrink-wrapped bullet row together
@@ -192,15 +237,15 @@ describe('WelcomeFlow shell', () => {
     // The mock's useAnimatedStyle is non-reactive (recomputed on render, not
     // on shared-value change): rerender so the updated shared value - set
     // synchronously by the effect's withSpring under the mock - lands in
-    // the dash style.
+    // the dash style. The expected position is active x stride (the
+    // bullet-geometry constant shared by styles and component).
     screen.rerender(
       <ThemeProvider theme={lightTheme}>
         <WelcomeFlow steps={steps} />
       </ThemeProvider>
     );
 
-    // stride 16: active step 1 -> 16
-    expect(getDashTranslateX(screen)).toBe(16);
+    expect(getDashTranslateX(screen)).toBe(STEP_DASH_STRIDE);
 
     fireEvent.press(screen.getByTestId('welcome-step-bullet-2'));
     screen.rerender(
@@ -209,8 +254,7 @@ describe('WelcomeFlow shell', () => {
       </ThemeProvider>
     );
 
-    // active step 2 -> 32
-    expect(getDashTranslateX(screen)).toBe(32);
+    expect(getDashTranslateX(screen)).toBe(2 * STEP_DASH_STRIDE);
   });
 
   // BC-08 — the default flow starts with the brand/intro step (Welcome)

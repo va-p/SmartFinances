@@ -6,7 +6,7 @@ import Animated from 'react-native-reanimated';
 // reflows when the active step changes; the active position is highlighted
 // by the StepDash, which the shell slides between bullet positions (BC-26).
 export const STEP_BULLET_SIZE = 8;
-export const STEP_BULLET_MARGIN = 4;
+export const STEP_BULLET_MARGIN = 6;
 export const STEP_DASH_WIDTH = 24;
 // Horizontal distance between consecutive bullet centers.
 export const STEP_DASH_STRIDE = STEP_BULLET_SIZE + 2 * STEP_BULLET_MARGIN;
@@ -22,6 +22,18 @@ export const StepIndicatorContainer = styled.View`
   align-items: center;
   padding: 12px 0 4px 0;
   width: 100%;
+  zIndex: 10;
+  elevation: 10;
+`;
+
+// The step slot: bounds the active step's content to its own area. A
+// step's overflowing children (percentage blocks, tall images, big fixed
+// margins) can then never paint over or steal taps from the step indicator
+// above (device-found fault: bullets untappable on the first screen only,
+// where the step content column is tallest).
+export const StepContent = styled.View`
+  flex: 1;
+  overflow: hidden;
 `;
 
 // Shrink-wrapped row that anchors the dash to the bullets: absolute
