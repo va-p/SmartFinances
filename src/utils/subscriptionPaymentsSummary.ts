@@ -3,6 +3,8 @@ import {
   SubscriptionProps,
 } from '@interfaces/subscriptions';
 
+import { CurrencyCodes } from '@interfaces/currencies';
+
 import { convertCurrency } from './convertCurrency';
 import { monthKey } from './buildSubscriptionPeriodOptions';
 
@@ -12,25 +14,27 @@ export type UpcomingPaymentsSummary = {
   /** Month key (YYYY-MM) of the next month with upcoming payments. */
   month: string;
   count: number;
-  /** BRL-converted total of that month's upcoming payments. */
+  /** Base-currency-converted total of that month's upcoming payments. */
   total: number;
 };
 
 const round2 = (value: number) => Number(value.toFixed(2));
 
 /**
- * AC10.1 — converts an amount to BRL using the app's quote matrix. Throws
- * for unsupported currency pairs; callers skip those items rather than crash.
+ * AC10.1 — converts an amount to the base currency using the app's quote
+ * matrix. Throws for unsupported currency pairs; callers skip those items
+ * rather than crash.
  */
-export function convertAmountToBRL(
+export function convertAmountToBase(
   amount: number,
   currencyCode: string,
   quotes: Quotes,
+  baseCurrencyCode: CurrencyCodes = 'BRL'
 ): number {
   return convertCurrency({
     amount,
     fromCurrency: currencyCode,
-    toCurrency: 'BRL',
+    toCurrency: baseCurrencyCode,
     accountCurrency: currencyCode,
     quotes,
   });
@@ -39,13 +43,14 @@ export function convertAmountToBRL(
 /**
  * AC10.2 — aggregates the next upcoming month's payments: the earliest month
  * (by each subscription's `next_payment_at`) that still has occurrences in
- * the future, with the BRL-converted total and count. Returns null when there
- * are no upcoming payments.
+ * the future, with the base-currency-converted total and count. Returns null
+ * when there are no upcoming payments.
  */
 export function getUpcomingPaymentsSummary(
   subscriptions: SubscriptionProps[],
   quotes: Quotes,
   now: Date = new Date(),
+  baseCurrencyCode: CurrencyCodes = 'BRL'
 ): UpcomingPaymentsSummary | null {
   const startOfToday = new Date(
     now.getFullYear(),
@@ -61,12 +66,13 @@ export function getUpcomingPaymentsSummary(
     if (nextAt < startOfToday) return;
 
     try {
-      const brl = convertAmountToBRL(
+      const converted = convertAmountToBase(
         subscription.amount,
         subscription.currency.code,
         quotes,
+        baseCurrencyCode,
       );
-      upcoming.push({ month: monthKey(nextAt), amount: brl });
+      upcoming.push({ month: monthKey(nextAt), amount: converted });
     } catch {
       // Unsupported currency pair: skip this subscription.
     }
@@ -85,21 +91,23 @@ export function getUpcomingPaymentsSummary(
 }
 
 /**
- * AC10.3 — BRL-converted total of a month's payment occurrences. Unsupported
- * currency pairs are skipped, never thrown.
+ * AC10.3 — base-currency-converted total of a month's payment occurrences.
+ * Unsupported currency pairs are skipped, never thrown.
  */
 export function computePaymentsTotal(
   payments: SubscriptionPaymentProps[],
   quotes: Quotes,
+  baseCurrencyCode: CurrencyCodes = 'BRL'
 ): number {
   let total = 0;
 
   payments.forEach((payment) => {
     try {
-      total += convertAmountToBRL(
+      total += convertAmountToBase(
         payment.amount,
         payment.currency.code,
         quotes,
+        baseCurrencyCode,
       );
     } catch {
       // Unsupported currency pair: skip this payment.

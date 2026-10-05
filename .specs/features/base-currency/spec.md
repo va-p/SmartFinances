@@ -150,11 +150,11 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BC-13 | P1: Welcome flow with educational currency step | Design | Implementing |
 | BC-14 | P1: Change the base currency from OptionsMenu | Design | Implementing |
 | BC-15 | P1: Change the base currency from OptionsMenu | Design | Implementing |
-| BC-16 | P1: App-wide totals in the base currency | Design | Pending |
-| BC-17 | P1: App-wide totals in the base currency | Design | Pending |
-| BC-18 | P1: App-wide totals in the base currency | Design | Pending |
-| BC-19 | P1: App-wide totals in the base currency | Design | Pending |
-| BC-20 | P1: App-wide totals in the base currency | Design | Pending |
+| BC-16 | P1: App-wide totals in the base currency | Design | Implementing |
+| BC-17 | P1: App-wide totals in the base currency | Design | Implementing |
+| BC-18 | P1: App-wide totals in the base currency | Design | Implementing |
+| BC-19 | P1: App-wide totals in the base currency | Design | Implementing |
+| BC-20 | P1: App-wide totals in the base currency | Design | Implementing |
 
 **ID format**: `BC-NN` (Base Currency).
 

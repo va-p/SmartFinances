@@ -183,21 +183,21 @@ T7 → T8
 
 ---
 
-### T6: Aggregation utils base-currency support with raw totals
+### T6: Aggregation utils base-currency support with raw totals — ✅ Complete
 
-**What**: Add `baseCurrencyCode: CurrencyCodes = 'BRL'` to `groupTransactionsByDate` (groups gain `rawTotal`; `total` formatted via `formatCurrency(baseCurrencyCode, rawTotal)`), `processTransactions` (sums `rawTotal`; result gains `currentCashFlowValue`; `currentCashFlow` formatted in base; drops the "R$"-string re-parse), `processAccountsForList` (conversion target + `totalAccountAmountConverted` formatted in base; `balanceConvertedToBRL` renamed `balanceConvertedToBase`), and `subscriptionPaymentsSummary` (`convertAmountToBRL` → `convertAmountToBase(amount, currencyCode, quotes, baseCurrencyCode)`; trailing param on `getUpcomingPaymentsSummary`/`computePaymentsTotal`).
-**Where**: `src/utils/processTransactions.ts` (plus `groupTransactionsByDate.ts`, `processAccountsForList.ts`, `subscriptionPaymentsSummary.ts`)
+**What**: Add `baseCurrencyCode: CurrencyCodes = 'BRL'` to `groupTransactionsByDate` (groups gain `rawTotal`; `total` formatted via `formatCurrency(baseCurrencyCode, rawTotal)`), `processTransactions` (sums `rawTotal`; result gains `currentCashFlowValue`; `currentCashFlow` formatted in base; drops the "R$"-string re-parse), `processAccountsForList` (conversion target + `totalAccountAmountConverted` formatted in base; `balanceConvertedToBRL` renamed `balanceConvertedToBase` — also in `sortAccountsByOption`), and `subscriptionPaymentsSummary` (`convertAmountToBRL` → `convertAmountToBase(amount, currencyCode, quotes, baseCurrencyCode)`; trailing param on `getUpcomingPaymentsSummary`/`computePaymentsTotal`).
+**Where**: `src/utils/processTransactions.ts` (plus `groupTransactionsByDate.ts`, `processAccountsForList.ts`, `subscriptionPaymentsSummary.ts`, `sortAccountsByOption.ts`)
 **Depends on**: T1
-**Reuses**: existing `formatCurrency`/`convertCurrency`; existing test fixtures in the four `__tests__` files
-**Requirement**: BC-16 (utils side), BC-19, BC-20, BC-04 (BRL default paths)
+**Reuses**: existing `formatCurrency`/`convertCurrency`; existing test fixtures in the affected `__tests__` files
+**Requirement**: BC-16 (utils side), BC-19, BC-20, BC-18 (secondary-line condition)
 
 **Tools**: NONE
 
 **Done when**:
-- [ ] Default-param call sites behave exactly as before (all 4 existing suites stay green unmodified)
-- [ ] Base ≠ BRL: day totals + `currentCashFlow` formatted in the base code; `currentCashFlowValue` is the exact raw sum (e.g. -50.5, not a re-parsed string); `totalAccountAmountConverted` converts via the base target; subscription summaries total in base
-- [ ] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/processTransactions.test.ts src/utils/__tests__/groupTransactionsByDate.test.ts src/utils/__tests__/processAccountsForList.test.ts src/utils/__tests__/subscriptionPaymentsSummary.test.ts`
-- [ ] Test count: 12+ new tests pass across the four suites (no silent deletions)
+- [x] Default-param call sites behave exactly as before (existing suites stay green unmodified except the mechanical `convertAmountToBRL`→`convertAmountToBase` import rename + `balanceConvertedToBRL`→`balanceConvertedToBase` field rename)
+- [x] Base ≠ BRL: day totals + `currentCashFlow` formatted in the base code; `currentCashFlowValue` is the exact raw sum; `totalAccountAmountConverted` converts via the base target; subscription summaries total in base
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/` (161 passing + the pre-existing accountsFilter failure only) + full gate 311 passing, zero new failures
+- [x] Test count: 13 new tests pass across the suites (no silent deletions)
 
 **Tests**: unit (extend the four existing suites)
 **Gate**: quick

@@ -4,6 +4,8 @@ import groupTransactionsByDate, {
 import formatCurrency from '@utils/formatCurrency';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 
+import { CurrencyCodes } from '@interfaces/currencies';
+
 import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse, parseISO, isValid } from 'date-fns';
@@ -21,7 +23,8 @@ type PeriodType = 'weeks' | 'months' | 'years' | 'all';
 interface ProcessTransactionsResult {
   cashFlows: CashFLowData[]; // CashFlows by weeks, months, years or all history
   cashFlowChartData: CashFlowChartData[];
-  currentCashFlow: string; // Current CashFlow (by selected period)
+  currentCashFlow: string; // Current CashFlow (by selected period), formatted in the base currency
+  currentCashFlowValue: number; // Exact raw current CashFlow - never re-parse the formatted string
   groupedTransactions: any[]; // Transactions grouped by day with total of the day, to show on SectionList
 }
 
@@ -41,7 +44,8 @@ const toTransactionDate = (createdAt: unknown): Date => {
 export const processTransactions = (
   transactions: TransactionProps[],
   period: PeriodType,
-  selectedDate: Date
+  selectedDate: Date,
+  baseCurrencyCode: CurrencyCodes = 'BRL'
 ): ProcessTransactionsResult => {
   const cashFlowsMap: Record<string, CashFLowData> = {};
 
@@ -199,24 +203,29 @@ export const processTransactions = (
 
   // Group transactions by day and calc total of day (to use on section list)
   const groupedTransactions = groupTransactionsByDate(
-    filteredTransactions
+    filteredTransactions,
+    baseCurrencyCode
   ).sort((a: GroupedTransactionProps, b: GroupedTransactionProps) => {
     const firstDateParsed = parse(a.title, 'dd/MM/yyyy', new Date());
     const secondDateParsed = parse(b.title, 'dd/MM/yyyy', new Date());
     return secondDateParsed.getTime() - firstDateParsed.getTime();
   });
 
-  // Calculate current Cash Flow (by selected period)
+  // Calculate current Cash Flow (by selected period) from the raw day totals
+  // - never re-parse the formatted currency strings.
   let currentCashFlowByPeriod = 0;
   groupedTransactions.forEach((item) => {
-    const cleanTotal = item.total.replace(/[R$\s.]/g, '').replace(',', '.');
-    currentCashFlowByPeriod += parseFloat(cleanTotal);
+    currentCashFlowByPeriod += item.rawTotal;
   });
 
   return {
     cashFlows, // CashFlows by weeks, months, years or all history
     cashFlowChartData, // CashFlows by months, years or 'all' to use on cash flow chart
-    currentCashFlow: formatCurrency('BRL', currentCashFlowByPeriod), // Current CashFlow (by selected period)
+    currentCashFlow: formatCurrency(
+      baseCurrencyCode,
+      currentCashFlowByPeriod
+    ), // Current CashFlow (by selected period)
+    currentCashFlowValue: currentCashFlowByPeriod, // Exact raw current CashFlow
     groupedTransactions, // Transactions grouped by day with total of the day, to show on SectionList
   };
 };

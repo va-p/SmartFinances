@@ -170,4 +170,36 @@ describe('processTransactions', () => {
     expect(groupedTransactions).toHaveLength(1);
     expect(cashFlows.map((cashFlow) => cashFlow.date)).toEqual(['Sem 1 \n 2026']);
   });
+
+  // BC-16 — cash flow and day totals format in the selected base currency
+  it('formats the current cash flow and day totals in the base currency', () => {
+    const { currentCashFlow, currentCashFlowValue, groupedTransactions } =
+      processTransactions(
+        [makeTransaction()],
+        'months',
+        selectedDate,
+        'USD'
+      );
+
+    expect(currentCashFlow).toBe('-US$\u00A050,00');
+    expect(currentCashFlowValue).toBe(-50);
+    expect(groupedTransactions[0].total).toBe('-US$\u00A050,00');
+  });
+
+  // BC-19 — the raw current cash flow is the exact numeric sum (cents
+  // included), never a re-parsed formatted string
+  it('exposes the exact raw current cash flow value', () => {
+    const { currentCashFlowValue, currentCashFlow } = processTransactions(
+      [
+        makeTransaction({ id: 1, amount: -50.5 }),
+        makeTransaction({ id: 2, amount: 25.25 }),
+      ],
+      'months',
+      selectedDate,
+      'USD'
+    );
+
+    expect(currentCashFlowValue).toBe(-25.25);
+    expect(currentCashFlow).toBe('-US$\u00A025,25');
+  });
 });
