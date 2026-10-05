@@ -2,6 +2,9 @@ import Decimal from 'decimal.js';
 import { ptBR } from 'date-fns/locale';
 import { format, parse } from 'date-fns';
 
+import { CurrencyCodes } from '@interfaces/currencies';
+import { convertToBaseCurrency, Quotes } from '@utils/baseCurrency';
+
 type PeriodType = 'weeks' | 'months' | 'years' | 'all';
 
 type NetWorthPoint = {
@@ -15,9 +18,12 @@ type Props = {
     amount: number;
     amount_in_account_currency?: number | null;
     type: string;
+    account?: { currency: { code: string } } | null;
   }[];
   totalAssets: number;
   period: PeriodType;
+  quotes: Quotes;
+  baseCurrencyCode?: CurrencyCodes;
 };
 
 /**
@@ -37,11 +43,19 @@ type Props = {
  * sign is derived from the transaction type — DEBIT always reduces net
  * worth, CREDIT always increases it.  Transfers are excluded because they
  * move money between accounts without changing net worth.
+ *
+ * Base currency (BC-25): each flow is the account-currency-denominated
+ * value (`amount_in_account_currency ?? amount`) converted to the base
+ * currency before summing, so every intermediate point is consistent with
+ * the base-converted `totalAssets`. Unsupported account currencies and
+ * no-account items are skipped (BC-22/BC-23).
  */
 export function buildNetWorthEvolution({
   transactions,
   totalAssets,
   period,
+  quotes,
+  baseCurrencyCode = 'BRL',
 }: Props): NetWorthPoint[] {
   if (period === 'all') {
     return [{ date: 'Todo o \n histórico', total: totalAssets }];
@@ -83,12 +97,25 @@ export function buildNetWorthEvolution({
       return;
     }
 
+    // BC-22 — the account-currency-denominated value; skip no-account items
+    // (e.g., optimistic updates missing nested objects).
+    const accountCurrency = transaction.account?.currency?.code;
+    if (!accountCurrency) return;
+
     const rawAmount =
       transaction.amount_in_account_currency ?? transaction.amount;
+
+    // BC-21/BC-23 — convert to the base currency; unsupported pairs skip.
+    const converted = convertToBaseCurrency(
+      Math.abs(Number(rawAmount)),
+      accountCurrency,
+      baseCurrencyCode,
+      quotes
+    );
+    if (converted === null) return;
+
     const isDebit = transaction.type === 'DEBIT';
-    const signedAmount = isDebit
-      ? -Math.abs(Number(rawAmount))
-      : Math.abs(Number(rawAmount));
+    const signedAmount = isDebit ? -converted : converted;
 
     const periodKey = config.groupKey(transactionDate);
     if (!totalsByPeriod[periodKey]) {

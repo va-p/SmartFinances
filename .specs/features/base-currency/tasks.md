@@ -94,7 +94,7 @@ A1 → A2 → A3
 
 ---
 
-### A2: Net-worth evolution flow conversion
+### A2: Net-worth evolution flow conversion — ✅ Complete
 
 **What**: Add `quotes` + `baseCurrencyCode` to `buildNetWorthEvolution`; convert each period flow (`amount_in_account_currency ?? amount`, from `transaction.account.currency.code`) to the base before summing, skipping no-account and unsupported-pair items, so intermediate points are consistent with the base-converted seed.
 **Where**: `src/utils/buildNetWorthEvolution.ts`
@@ -105,11 +105,11 @@ A1 → A2 → A3
 **Tools**: NONE
 
 **Done when**:
-- [ ] Same-currency series unchanged (existing assertions preserved after fixtures gain account/quotes)
-- [ ] Cross-currency: BRL flows with base USD step the series in converted values consistent with the base-converted `totalAssets`
-- [ ] No-account and unsupported-currency flows are skipped, no crash
-- [ ] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/buildNetWorthEvolution.test.ts`
-- [ ] Test count: existing assertions preserved; 4+ new tests pass
+- [x] Same-currency series unchanged (existing assertions preserved after fixtures gained account/quotes)
+- [x] Cross-currency: BRL flows with base USD step the series in converted values consistent with the base-converted `totalAssets` (180 → 200 for −10/+20 USD flows)
+- [x] No-account and unsupported-currency flows are skipped, no crash; `amount_in_account_currency` preferred
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/utils/__tests__/buildNetWorthEvolution.test.ts` (8 passed) + full gate 327 passing, zero new failures
+- [x] Test count: existing assertions preserved; 5 new tests pass
 
 **Tests**: unit (extend the suite)
 **Gate**: quick
