@@ -19,11 +19,11 @@ import { CurrencyProps } from '@interfaces/currencies';
 jest.mock('expo-router', () => {
   const navigate = jest.fn();
 
-  return { useRouter: () => ({ navigate }), __navigateMock: navigate };
+  return { useRouter: () => ({ navigate }), navigateMock: navigate };
 });
 
 const navigateMock = () =>
-  jest.requireMock('expo-router').__navigateMock as jest.Mock;
+  jest.requireMock('expo-router').navigateMock as jest.Mock;
 
 jest.mock('@database/database', () => {
   const set = jest.fn();

@@ -62,7 +62,19 @@ jest.mock('@gorhom/bottom-sheet', () => {
 // to their target, and useAnimatedStyle recomputes on every render — wired
 // positions are assertable, while the real animation runs native-only.
 jest.mock('react-native-reanimated', () => {
+  const React = require('react');
   const { View, Text, ScrollView, Image } = require('react-native');
+
+  // Stateful like the real hook: the same { value } holder is returned on
+  // every render, initialized once - updates flow through effects/handlers
+  // setting .value, never through re-initialization.
+  const useSharedValue = (initial) => {
+    const ref = React.useRef(null);
+    if (ref.current === null) {
+      ref.current = { value: initial };
+    }
+    return ref.current;
+  };
 
   const core = {
     __esModule: true,
@@ -80,7 +92,7 @@ jest.mock('react-native-reanimated', () => {
       Image,
       createAnimatedComponent: (component) => component,
     },
-    useSharedValue: (initial) => ({ value: initial }),
+    useSharedValue,
     useAnimatedStyle: (updater) => updater(),
     useAnimatedReaction: () => {},
     useAnimatedRef: () => ({ current: null }),
