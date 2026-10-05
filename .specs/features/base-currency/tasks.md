@@ -136,9 +136,9 @@ T7 → T8
 
 ---
 
-### T4: WelcomeBaseCurrency education + selection step
+### T4: WelcomeBaseCurrency education + selection step — ✅ Complete
 
-**What**: Create `src/screens/WelcomeBaseCurrency/` (informative text about the default currency, `SelectButton` trigger showing current base currency via `CoinsIcon`, own `BottomSheetModal` ref hosting `BaseCurrencySelectSheet`, "Continuar" button calling `onNext`); register as the first `WELCOME_STEPS` entry.
+**What**: Create `src/screens/WelcomeBaseCurrency/` (informative text about the default currency, `SelectButton` trigger showing current base currency via `CoinsIcon`, own `BottomSheetModal` ref hosting `BaseCurrencySelectSheet`, "Continuar" button calling `onNext`); register as the first `WELCOME_STEPS` entry. Plus jest infra (`jest.setup.js` + `jest/gestureButtonsMock.js`): children-friendly `RectButton` mock and inert `@gorhom/bottom-sheet` mock so native-bound trees render/complete in tests.
 **Where**: `src/screens/WelcomeBaseCurrency/index.tsx`
 **Depends on**: T2, T3
 **Reuses**: T3 sheet; `SelectButton`; `RegisterAccount` ref/present pattern; `Button`
@@ -147,11 +147,11 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] Step renders the informative message, current base currency name, and the selection trigger
-- [ ] Selecting a currency through the sheet wiring (modal mocked inline for jest) updates the store, persists to MMKV (mocked), calls dismiss, and the displayed current currency re-renders
-- [ ] "Continuar" advances the shell to the next step without requiring a selection
-- [ ] Gate check passes: `CI=true npx jest --watchman=false src/__tests__/screens/welcomeBaseCurrency.spec.tsx src/__tests__/screens/welcomeFlow.spec.tsx`
-- [ ] Test count: 6+ new tests pass (no silent deletions)
+- [x] Step renders the informative message, current base currency name, and the selection trigger
+- [x] Selecting a currency through the sheet wiring updates the store, persists to MMKV, calls dismiss, and the displayed current currency re-renders
+- [x] "Continuar" advances the shell to the next step without requiring a selection
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/__tests__/screens/welcomeBaseCurrency.spec.tsx src/__tests__/screens/welcomeFlow.spec.tsx` (14 passed) + full gate: 299 passing, zero new failures, no hangs
+- [x] Test count: 8 new tests pass (no silent deletions)
 
 **Tests**: unit (new: `src/__tests__/screens/welcomeBaseCurrency.spec.tsx`; `ModalViewSelection` mocked to render children inline, `@database/database` mocked)
 **Gate**: quick

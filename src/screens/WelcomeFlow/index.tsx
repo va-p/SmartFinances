@@ -5,6 +5,7 @@ import { Container, StepIndicatorContainer, StepBullet } from './styles';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 
+import { WelcomeBaseCurrency } from '@screens/WelcomeBaseCurrency';
 import { Welcome } from '@screens/Welcome';
 
 export type WelcomeStepProps = {
@@ -22,7 +23,10 @@ export type WelcomeStep = {
 // screen (Welcome - Login / Criar conta) is always the terminal step. Future
 // educational screens are new entries before the auth step - the shell needs
 // no change.
-export const WELCOME_STEPS: WelcomeStep[] = [{ key: 'welcome', Component: Welcome }];
+export const WELCOME_STEPS: WelcomeStep[] = [
+  { key: 'base-currency', Component: WelcomeBaseCurrency },
+  { key: 'welcome', Component: Welcome },
+];
 
 type Props = {
   steps?: WelcomeStep[];

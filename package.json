@@ -37,7 +37,8 @@
   "jest": {
     "preset": "jest-expo",
     "setupFiles": [
-      "<rootDir>/node_modules/react-native-gesture-handler/jestSetup.js"
+      "<rootDir>/node_modules/react-native-gesture-handler/jestSetup.js",
+      "<rootDir>/jest.setup.js"
     ],
     "moduleNameMapper": {
       "^styled-components$": "styled-components/native"
