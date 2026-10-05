@@ -75,7 +75,7 @@ export function BudgetDetails() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionID, setTransactionID] = useState('');
 
-  const { hideAmount } = useUserConfigs();
+  const { hideAmount, baseCurrency } = useUserConfigs();
 
   const { budget, isLoading, isError, refetchBudget } =
     useFormattedBudgetDetail(budgetID);
@@ -90,11 +90,12 @@ export function BudgetDetails() {
     const { groupedTransactions } = processTransactions(
       formatTransactions(budget.budget_transactions),
       'all',
-      new Date()
+      new Date(),
+      baseCurrency.code
     );
 
     return flattenTransactionsForFlashList(groupedTransactions);
-  }, [budget]);
+  }, [budget, baseCurrency.code]);
 
   if (isLoading) {
     return <SkeletonBudgetsScreen />;

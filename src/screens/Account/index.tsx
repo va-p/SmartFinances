@@ -103,6 +103,7 @@ export function Account() {
   const [transactionId, setTransactionId] = useState('');
   const [showSearchInput, setShowSearchInput] = useState(false);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
+  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
   const { id } = useLocalSearchParams();
   const accountID = Number(id);
   // Animated header
@@ -192,7 +193,7 @@ export function Account() {
     if (!allTransactions || !accountID) {
       return {
         transactionsFormattedBySelectedPeriod: [],
-        cashFlowBySelectedPeriod: formatCurrency('BRL', 0),
+        cashFlowBySelectedPeriod: formatCurrency(baseCurrencyCode, 0),
       };
     }
 
@@ -203,23 +204,30 @@ export function Account() {
     const transactionsFormattedPtbr = formatTransactions(
       transactionsForThisAccount
     );
-    const { currentCashFlow, groupedTransactions } = processTransactions(
-      transactionsFormattedPtbr,
-      selectedPeriod.period,
-      selectedDate
-    );
+    const { currentCashFlow, currentCashFlowValue, groupedTransactions } =
+      processTransactions(
+        transactionsFormattedPtbr,
+        selectedPeriod.period,
+        selectedDate,
+        baseCurrencyCode
+      );
 
-    const cashFlowValue = parseFloat(
-      currentCashFlow.replace(/[^\d,.-]/g, '').replace(',', '.')
-    );
-    const isCashFlowPositive = cashFlowValue >= 0;
+    // Sign detection uses the raw numeric cash flow - never re-parse the
+    // formatted currency string (BC-19).
+    const isCashFlowPositive = currentCashFlowValue >= 0;
 
     return {
       transactionsFormattedBySelectedPeriod: groupedTransactions,
       cashFlowBySelectedPeriod: currentCashFlow,
       cashFlowIsPositive: isCashFlowPositive,
     };
-  }, [allTransactions, accountID, selectedPeriod, selectedDate]);
+  }, [
+    allTransactions,
+    accountID,
+    selectedPeriod,
+    selectedDate,
+    baseCurrencyCode,
+  ]);
 
   // Transaction filtering with search
   const filteredTransactions = useMemo(

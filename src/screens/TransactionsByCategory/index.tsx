@@ -44,6 +44,7 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -64,6 +65,7 @@ export function TransactionsByCategory({ navigation }: any) {
   const categoryID = route.params?.categoryId;
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
+  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
 
   // Search form (Home-screen pattern: query via react-hook-form)
   const { control, watch, reset } = useForm();
@@ -95,9 +97,10 @@ export function TransactionsByCategory({ navigation }: any) {
       processTransactions(
         formatTransactions(transactionsForThisCategory),
         selectedPeriod.period,
-        selectedDate
+        selectedDate,
+        baseCurrencyCode
       ).groupedTransactions,
-    [transactionsForThisCategory, selectedPeriod, selectedDate]
+    [transactionsForThisCategory, selectedPeriod, selectedDate, baseCurrencyCode]
   );
 
   // Transaction filtering with search

@@ -206,7 +206,7 @@ T7 → T8
 
 ---
 
-### T7: Transaction screens display in base currency
+### T7: Transaction screens display in base currency — ✅ Complete
 
 **What**: Wire `Home`, `Account`, `TransactionsByCategory`, `BudgetDetails` to read `baseCurrency.code` from `useUserConfigs` and pass it to `processTransactions` (+ memo deps); `Home` loading fallback formats in base; `Account` derives `isCashFlowPositive` from `currentCashFlowValue` (drops its formatted-string re-parse) and formats its fallback in base.
 **Where**: `src/screens/Home/index.tsx` (plus `Account`, `TransactionsByCategory`, `BudgetDetails`)
@@ -217,10 +217,10 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] All four screens pass the store's base code into `processTransactions` with memo deps including it
-- [ ] `Account` uses the raw value for sign; no formatted-currency string parsing remains in these screens
-- [ ] Full gate passes: no new jest failures vs baseline; `npx eslint` clean on the four touched files
-- [ ] Wiring recorded as file:line evidence (env-blocked layer per matrix)
+- [x] All four screens pass the store's base code into `processTransactions` with memo deps including it
+- [x] `Account` uses the raw value for sign; no formatted-currency string parsing remains in these screens
+- [x] Full gate passes: 311 passing, zero new jest failures vs baseline; `npx eslint` clean on the four touched files
+- [x] Wiring: `Home/index.tsx:286-315` (fallback + param + deps), `Account/index.tsx:191-231` (fallback + param + raw sign + deps), `TransactionsByCategory/index.tsx:93-101` (param + deps), `BudgetDetails/index.tsx:85-97` (param + deps)
 
 **Tests**: none (env-blocked layer per matrix)
 **Gate**: full

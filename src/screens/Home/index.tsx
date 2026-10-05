@@ -137,7 +137,8 @@ export function Home() {
   const clearSelection = useClearSelection();
   // const selectedCount = useSelectedTransactionsCount();
 
-  const { hideAmount, setHideAmount, insights } = useUserConfigs();
+  const { hideAmount, setHideAmount, insights, baseCurrency } =
+    useUserConfigs();
   const { setAccountId: setAccountID, setAccountName } =
     useCurrentAccountSelected();
 
@@ -287,7 +288,7 @@ export function Home() {
     if (!transactions) {
       return {
         cashFlowChartData: [],
-        currentCashFlow: 'R$ 0,00',
+        currentCashFlow: formatCurrency(baseCurrency.code, 0),
         groupedTransactions: [],
       };
     }
@@ -304,9 +305,16 @@ export function Home() {
     return processTransactions(
       transactionsFormattedPtbr,
       selectedPeriod.period,
-      selectedDate
+      selectedDate,
+      baseCurrency.code
     );
-  }, [transactions, selectedAccountsFilter, selectedPeriod.period, selectedDate]);
+  }, [
+    transactions,
+    selectedAccountsFilter,
+    selectedPeriod.period,
+    selectedDate,
+    baseCurrency.code,
+  ]);
 
   // Chart data is derived directly from the memoized processedData, so any
   // change to the transactions query re-renders the chart with fresh values
