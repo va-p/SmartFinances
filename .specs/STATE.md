@@ -24,6 +24,14 @@
 - **Trade-off**: Route-per-step (deeper links per step) was rejected: bullets would need cross-route sync and each new screen adds router boilerplate for no current benefit at 2 steps.
 - **Scope**: `src/screens/WelcomeFlow/`, `src/screens/Welcome/` (step refit), `src/screens/WelcomeBaseCurrency/`, future welcome steps.
 - **Date**: 2026-10-05
+- **Status**: superseded by AD-004 (user reordered the flow: brand intro first, selection + auth last)
+
+### AD-004
+- **Decision**: The welcome flow order is `[Welcome (brand/intro step, Continuar), WelcomeBaseCurrency (selection + auth CTAs: Login / Criar conta)]`: brand/value intro first, base-currency selection with the auth actions as the terminal step.
+- **Reason**: The user reordered the flow themselves for a more cohesive onboarding; the auth actions moved from the intro screen to the terminal selection step.
+- **Trade-off**: Supersedes AD-003's education-first order. The intro step advances via the shell's `onNext`; the terminal step owns the auth CTAs and navigates via the router. Future educational screens are still new array entries between the intro and the terminal step.
+- **Scope**: `src/screens/WelcomeFlow/` (`WELCOME_STEPS` order), `src/screens/Welcome/` (intro step), `src/screens/WelcomeBaseCurrency/` (terminal step).
+- **Date**: 2026-10-05
 - **Status**: active
 
 ## Handoff

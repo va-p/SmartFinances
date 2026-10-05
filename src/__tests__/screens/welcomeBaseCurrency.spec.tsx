@@ -14,6 +14,17 @@ import { storageConfig, DATABASE_CONFIGS } from '@database/database';
 
 import { CurrencyProps } from '@interfaces/currencies';
 
+// The step's auth actions navigate through the router; mock it so the
+// terminal-step behavior stays assertable.
+jest.mock('expo-router', () => {
+  const navigate = jest.fn();
+
+  return { useRouter: () => ({ navigate }), __navigateMock: navigate };
+});
+
+const navigateMock = () =>
+  jest.requireMock('expo-router').__navigateMock as jest.Mock;
+
 jest.mock('@database/database', () => {
   const set = jest.fn();
   return {
@@ -94,7 +105,7 @@ describe('WelcomeBaseCurrency step', () => {
   it('renders the informative message with the default BRL as current', () => {
     const screen = renderWithTheme(<WelcomeBaseCurrency />);
 
-    expect(screen.getByText(/definir uma moeda padrão/i)).toBeTruthy();
+    expect(screen.getByText(/definir qual a moeda padrão/i)).toBeTruthy();
     expect(screen.getAllByText('Brazilian Real').length).toBeGreaterThanOrEqual(1);
   });
 
@@ -143,24 +154,30 @@ describe('WelcomeBaseCurrency step', () => {
     expect(screen.getAllByText('US Dollar').length).toBe(2);
   });
 
-  // BC-11 — Continuar advances without requiring a selection
-  it('calls onNext from the Continuar button without a selection', () => {
-    const onNext = jest.fn();
-    const screen = renderWithTheme(<WelcomeBaseCurrency onNext={onNext} />);
+  // BC-11 — advancing/auth actions never require a currency selection;
+  // the terminal step owns the auth CTAs (Login / Criar conta)
+  it('navigates to sign in and sign up without requiring a selection', () => {
+    const screen = renderWithTheme(<WelcomeBaseCurrency />);
 
-    fireEvent.press(screen.getByText('Continuar'));
+    fireEvent.press(screen.getByText('Login'));
+    expect(navigateMock()).toHaveBeenCalledWith('/signIn');
 
-    expect(onNext).toHaveBeenCalledTimes(1);
-    // no currency was touched by advancing
+    fireEvent.press(screen.getByText('Criar uma conta'));
+    expect(navigateMock()).toHaveBeenCalledWith('/signUp');
+
+    // no currency was touched by navigating
     expect(useUserConfigs.getState().baseCurrency).toEqual(brl);
     expect(storageConfig.set).not.toHaveBeenCalled();
   });
 
-  // BC-08 — the step is registered as the first flow step, auth last
-  it('is the first step of the default welcome flow', () => {
-    expect(WELCOME_STEPS[0].key).toBe('base-currency');
-    expect(WELCOME_STEPS[0].Component).toBe(WelcomeBaseCurrency);
-    expect(WELCOME_STEPS[WELCOME_STEPS.length - 1].key).toBe('welcome');
+  // BC-08 — the flow starts with the brand/intro step and ends with this
+  // selection + auth step (user's 2026-10-05 reorder)
+  it('is the last step of the default welcome flow', () => {
+    expect(WELCOME_STEPS[0].key).toBe('welcome');
+    expect(WELCOME_STEPS[WELCOME_STEPS.length - 1].key).toBe('base-currency');
+    expect(WELCOME_STEPS[WELCOME_STEPS.length - 1].Component).toBe(
+      WelcomeBaseCurrency
+    );
   });
 
   // BC-07 (reactivity) — a store change re-renders the displayed currency

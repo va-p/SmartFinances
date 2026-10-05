@@ -5,8 +5,8 @@ import { Container, StepIndicatorContainer, StepBullet } from './styles';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 
-import { WelcomeBaseCurrency } from '@screens/WelcomeBaseCurrency';
 import { Welcome } from '@screens/Welcome';
+import { WelcomeBaseCurrency } from '@screens/WelcomeBaseCurrency';
 
 export type WelcomeStepProps = {
   // Advance to the next step. Undefined on the last (auth) step, which owns
@@ -24,8 +24,8 @@ export type WelcomeStep = {
 // educational screens are new entries before the auth step - the shell needs
 // no change.
 export const WELCOME_STEPS: WelcomeStep[] = [
-  { key: 'base-currency', Component: WelcomeBaseCurrency },
   { key: 'welcome', Component: Welcome },
+  { key: 'base-currency', Component: WelcomeBaseCurrency },
 ];
 
 type Props = {

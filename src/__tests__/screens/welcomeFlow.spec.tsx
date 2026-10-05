@@ -120,10 +120,22 @@ describe('WelcomeFlow shell', () => {
     expect(getBulletSelected(screen, 2)).toBe(true);
   });
 
-  // BC-08 — the default flow's terminal step is the existing Welcome screen
-  it('ends the default flow with the Welcome auth screen', () => {
-    expect(WELCOME_STEPS.length).toBeGreaterThanOrEqual(1);
-    expect(WELCOME_STEPS[WELCOME_STEPS.length - 1].key).toBe('welcome');
-    expect(WELCOME_STEPS[WELCOME_STEPS.length - 1].Component).toBe(Welcome);
+  // BC-08 — the default flow starts with the brand/intro step (Welcome)
+  // and ends with the base-currency selection + auth step (user's reorder)
+  it('starts the default flow with the Welcome intro step', () => {
+    expect(WELCOME_STEPS[0].key).toBe('welcome');
+    expect(WELCOME_STEPS[0].Component).toBe(Welcome);
+    expect(WELCOME_STEPS[WELCOME_STEPS.length - 1].key).toBe('base-currency');
+  });
+
+  // BC-11 — the intro step's Continuar advances through onNext without
+  // requiring anything else
+  it('advances from the real Welcome step Continuar through onNext', () => {
+    const onNext = jest.fn();
+    const screen = renderWithTheme(<Welcome onNext={onNext} />);
+
+    fireEvent.press(screen.getByText('Continuar'));
+
+    expect(onNext).toHaveBeenCalledTimes(1);
   });
 });

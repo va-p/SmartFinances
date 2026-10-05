@@ -34,7 +34,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
 | Where the base currency persists | Client-only: MMKV key `config.baseCurrency` (full `CurrencyProps` as JSON), restored at app start; no backend field | Welcome flow selects pre-auth; `sortingOption` precedent; backend persistence requires a production-DB migration (explicit go-ahead needed). Can be layered on later without UI changes. | n |
-| Welcome flow step order | `[BaseCurrency education step, Welcome (auth) step]` — education first, auth last | The flow must terminate in auth: `Welcome` owns the Login/Criar conta actions. Onboarding education preceding auth is the "common practice in mobile apps" the task cites. `Welcome` content itself stays unchanged. | n |
+| Welcome flow step order (2026-10-05 reorder) | `[Welcome (brand/intro step, Continuar), WelcomeBaseCurrency (selection + auth CTAs: Login / Criar conta)]` — brand intro first, selection + auth last | The user reordered the flow themselves for a more cohesive onboarding: brand/value intro first, currency selection with the auth actions as the terminal step. Supersedes the original education-first order (AD-003 → AD-004). | y |
 | Which currencies are base-currency candidates | Only codes in `CurrencyCodes` ('BRL', 'BTC', 'EUR', 'USD') | `formatCurrency` and the quotes matrix (`convertCurrency`) only support these 4; the seeded list also contains ETH/USDC/USDT, which would throw on conversion and fail typing. | n |
 | How the selection UI is presented | Shared bottom-sheet flow: `ModalViewSelection` + existing `CurrencySelect` component (the `RegisterAccount` pattern), reused by the welcome step and `OptionsMenu` | Task mandates the `CurrencySelect` screen as the selection UI; the bottom-sheet pattern is the app's established way of hosting it. | n |
 | How util pipelines receive the base currency | Explicit `baseCurrencyCode: CurrencyCodes = 'BRL'` parameter on shared utils; `formatCurrency` stays pure (code passed in) | Codebase convention: utils are pure, stores are injected at call sites. Defaults keep existing call sites/tests valid during transition; screens pass the store value explicitly. | n |
@@ -76,14 +76,14 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Acceptance Criteria** (each line is one EARS pattern):
 
-1. The welcome flow SHALL be a step shell driven by an ordered steps array, where each entry renders a step component and the last step is the existing `Welcome` screen content. (BC-08) <!-- ubiquitous -->
+1. The welcome flow SHALL be a step shell driven by an ordered steps array, where each entry renders a step component; the flow starts with the brand/intro step (`Welcome`) and ends with the base-currency selection step, which owns the auth actions (Login / Criar conta). (BC-08) <!-- ubiquitous -->
 2. The welcome flow SHALL render one bullet indicator per step, highlighting the active step's bullet. (BC-09) <!-- ubiquitous -->
 3. WHEN the user taps a bullet THEN the flow SHALL navigate to that step. (BC-10) <!-- event-driven -->
-4. WHEN the user taps "Continuar" on the currency step THEN the flow SHALL advance to the next step without requiring a currency selection. (BC-11) <!-- event-driven -->
+4. WHEN the user taps "Continuar" on the intro step THEN the flow SHALL advance to the next step without requiring a currency selection. (BC-11) <!-- event-driven -->
 5. The currency step SHALL display an informative message that a default currency can be set, the currently selected base currency, and the shared selection sheet trigger. (BC-12) <!-- ubiquitous -->
 6. WHEN a step is added to the steps array THEN the flow SHALL render its bullet and step content with no shell changes. (BC-13) <!-- event-driven -->
 
-**Independent Test**: Fresh install → `(auth)` shows the currency education step with 2 bullets (first active), default BRL checked; select USD, tap Continuar → `Welcome` screen (second bullet active) with Login/Criar conta untouched.
+**Independent Test**: Fresh install → `(auth)` shows the Welcome intro step with 2 bullets (first active) and Continuar; continue → base-currency step (second bullet active) with the selection and Login/Criar conta actions, default BRL checked.
 
 ---
 
