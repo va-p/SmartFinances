@@ -50,6 +50,7 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
@@ -101,6 +102,7 @@ export function Overview() {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
+  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
 
   const [selectedTabCashFlowSection, setSelectedTabCashFlowSection] =
     useState<CustomTab>(CustomTab.Tab1);
@@ -158,7 +160,7 @@ export function Overview() {
       const convertedBalance = convertCurrency({
         amount: Number(account.balance),
         fromCurrency: account.currency.code,
-        toCurrency: 'BRL',
+        toCurrency: baseCurrencyCode,
         accountCurrency: account.currency.code,
         quotes: {
           brlQuoteBtc,
@@ -221,7 +223,7 @@ export function Overview() {
             100
           ).toFixed(2)}%`;
           const totalFormatted = formatCurrency(
-            'BRL',
+            baseCurrencyCode,
             categorySum.toNumber(),
             false,
             true
@@ -258,7 +260,14 @@ export function Overview() {
       revenuesByCategory,
       expensesByCategory,
     };
-  }, [transactions, accounts, categories, selectedPeriod, selectedDate]);
+  }, [
+    transactions,
+    accounts,
+    categories,
+    selectedPeriod,
+    selectedDate,
+    baseCurrencyCode,
+  ]);
 
   // Ruler dates for the selected period mode. Years come from the user's
   // transactions and are consumed only by the 'years' ruler; other modes
@@ -325,12 +334,12 @@ export function Overview() {
 
   const cashFlowSectionButtons: TabButtonType[] = [
     {
-      title: formatCurrency('BRL', processedData.totalAssets, false),
+      title: formatCurrency(baseCurrencyCode, processedData.totalAssets, false),
       description: 'Patrimônio Total',
     },
     {
       title: formatCurrency(
-        'BRL',
+        baseCurrencyCode,
         Number(curRevenues - curExpenses),
         false,
         true
@@ -341,11 +350,11 @@ export function Overview() {
   ];
   const categoriesSectionButtons: TabButtonType[] = [
     {
-      title: formatCurrency('BRL', curExpenses, false, true),
+      title: formatCurrency(baseCurrencyCode, curExpenses, false, true),
       description: 'Despesas',
     },
     {
-      title: formatCurrency('BRL', curRevenues, false, true),
+      title: formatCurrency(baseCurrencyCode, curRevenues, false, true),
       description: 'Receitas',
     },
   ];

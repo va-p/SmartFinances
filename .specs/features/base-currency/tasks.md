@@ -229,7 +229,7 @@ T7 → T8
 
 ---
 
-### T8: Accounts, overview, goals and subscriptions totals in base currency
+### T8: Accounts, overview, goals and subscriptions totals in base currency — ✅ Complete
 
 **What**: Wire `Accounts`, `InstitutionDetails`, `AccountsList`, `Overview`, `Goals`, `Subscriptions`, `SubscriptionPayments` to the base currency: inline `convertCurrency({ toCurrency: baseCurrency.code })`, `formatCurrency(baseCurrency.code, …)` for all app-wide aggregates, secondary converted lines shown when `account.currency.code !== baseCurrency.code`, `Goals` fast-path/convert in base, subscription summaries passed the base code (+ memo deps everywhere; `…ConvertedToBRL` → `…ConvertedToBase` in touched sites).
 **Where**: `src/screens/Accounts/index.tsx` (plus `InstitutionDetails`, `AccountsList`, `Overview`, `Goals`, `Subscriptions`, `SubscriptionPayments`)
@@ -240,10 +240,10 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] No hardcoded `'BRL'` remains in any aggregate formatting/conversion path in the eight screens (entity-currency displays untouched)
-- [ ] Secondary converted lines appear only for accounts whose currency differs from base
-- [ ] Full gate passes: no new jest failures vs baseline; `npx eslint` clean on the touched files
-- [ ] Wiring recorded as file:line evidence (env-blocked layer per matrix)
+- [x] No hardcoded `'BRL'` remains in any aggregate formatting/conversion path in the eight screens (entity-currency displays untouched)
+- [x] Secondary converted lines appear only for accounts whose currency differs from base
+- [x] Full gate passes: 311 passing, zero new jest failures vs baseline; `npx eslint` clean on the seven touched files
+- [x] Wiring: `Accounts/index.tsx:141-316` (fallback/conversions/secondary line/institution + total formats/deps/sort key), `InstitutionDetails/index.tsx:145-252`, `AccountsList/index.tsx:73-90`, `Overview/index.tsx:158-351`, `Goals/index.tsx:89-118`, `Subscriptions/index.tsx:68-194`, `SubscriptionPayments/index.tsx:79-178`
 
 **Tests**: none (env-blocked layer per matrix)
 **Gate**: full

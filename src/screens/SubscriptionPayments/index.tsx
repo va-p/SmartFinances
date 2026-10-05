@@ -50,6 +50,7 @@ import { computePaymentsTotal } from '@utils/subscriptionPaymentsSummary';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionPaymentProps } from '@interfaces/subscriptions';
@@ -63,6 +64,7 @@ export function SubscriptionPayments() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
   const quotes = useQuotes();
+  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
 
   const { month }: { month?: string } = useLocalSearchParams();
   const [selectedMonth, setSelectedMonth] = useState(
@@ -77,8 +79,8 @@ export function SubscriptionPayments() {
   );
 
   const total = useMemo(
-    () => (payments ? computePaymentsTotal(payments, quotes) : 0),
-    [payments, quotes]
+    () => (payments ? computePaymentsTotal(payments, quotes, baseCurrencyCode) : 0),
+    [payments, quotes, baseCurrencyCode]
   );
 
   // "Tá pago!" for past months, "Previstos" otherwise (spec.md R16/AC16.4)
@@ -170,11 +172,11 @@ export function SubscriptionPayments() {
         <TotalContainer>
           <TotalRow>
             <TotalLabel>Total</TotalLabel>
-            <TotalValue>{formatCurrency('BRL', total)}</TotalValue>
+            <TotalValue>{formatCurrency(baseCurrencyCode, total)}</TotalValue>
           </TotalRow>
           <TotalRow>
             <TotalLabel>{sectionTitle}</TotalLabel>
-            <TotalValue>{formatCurrency('BRL', total)}</TotalValue>
+            <TotalValue>{formatCurrency(baseCurrencyCode, total)}</TotalValue>
           </TotalRow>
         </TotalContainer>
 
