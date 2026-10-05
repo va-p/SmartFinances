@@ -50,6 +50,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)
 - last seen: 2026-09-28T16:31:10Z
 
+### L-007 - Screen-wiring value faults (mode guards, optional prop values) pass every automated gate because no gate renders screens - verify screen wiring value-by-value against the precedent screen; only missing required props are caught (tsc)
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-screens` · harmful: 0
+- features: overview-period-ruler
+- evidence: mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)
+- last seen: 2026-09-29T02:01:35Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
