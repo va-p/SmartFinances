@@ -1,9 +1,10 @@
 # base-currency Validation
 
-**Date**: 2026-10-05
+**Date**: 2026-10-05 (amended 2026-10-05 — BC-21..BC-25 converted transaction-flow totals)
 **Spec**: `.specs/features/base-currency/spec.md`
 **Diff range**: `3428aca..149e000` on `feat/change-base-currency` (9 commits: 9957b9d docs, 6ef7378 T1, 9325068 T2, 56d58d5 T3, 5c601ee T4, 05e4c01 T5, e07789f T6, dabeca6 T7, 149e000 T8)
-**Verifier**: independent sub-agent (author ≠ verifier)
+**Amendment diff range**: `bca668d..77913ba` (5 commits: cb56306 A1, 7867e37 A2, 21721e8 A3, 77913ba coverage test, plus the docs commit)
+**Verifier**: independent sub-agent for BC-01..BC-20 (author ≠ verifier). The amendment re-verification was started by the same sub-agent but it died mid-sensor on a model usage limit after completing the call-site inspection; per the skill's standalone fallback the orchestrator ran the remaining sensor + report (noted as a deviation from author ≠ verifier — the sensor mutations + evidence re-derivation below were re-run from scratch, and the AC evidence is evidence-or-zero, not inherited from the dead run).
 
 ---
 
@@ -19,6 +20,9 @@
 | T6 | ✅ Done | Aggregation utils base-currency support with raw totals |
 | T7 | ✅ Done | Transaction-family screens wired (static wiring, env-blocked layer) |
 | T8 | ✅ Done | Accounts/overview/goals/subscriptions wired (static wiring, env-blocked layer) |
+| A1 | ✅ Done | `convertToBaseCurrency` helper + day-total/cash-flow conversion (`groupTransactionsByDate`, `processTransactions`) — cb56306 |
+| A2 | ✅ Done | Net-worth evolution flow conversion (`buildNetWorthEvolution`) — 7867e37 |
+| A3 | ✅ Done | Overview category totals conversion + quotes wiring on six screens — 21721e8 |
 
 ---
 
@@ -51,6 +55,20 @@ Heavy-native screens (`OptionsMenu`, `Home`, `Account`, `Accounts`, `Institution
 
 **Status**: ✅ All 20 ACs covered with evidence; asserted values match the spec-defined outcomes (BC-01 exact BRL id 1; BC-02 key + JSON payload conjunction; BC-04 all four fallback classes; BC-05 exact 4-code list; BC-09 per-step bullets with active highlight; BC-11 advance with zero side effects; BC-19 raw numeric assertion; BC-20 skip-not-crash).
 
+### Spec-Anchored Acceptance Criteria — Amendment (BC-21..BC-25)
+
+Same env-blocked convention: screen-wiring halves cite static diff evidence; every util-side assertion cites `file:line` + the asserted value.
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --------- | -------------------- | ----------------------- | ------ |
+| BC-21 WHEN a day total / cash flow / chart-bar aggregate sums transaction amounts THEN each amount is converted to the base currency BEFORE summing | converted sums, not relabeled raw sums | `src/utils/__tests__/baseCurrency.test.ts:58-59` - `convertToBaseCurrency(-50,'BRL','USD',quotes)).toBe(-10)`, `(100)).toBe(20)`; `src/utils/__tests__/groupTransactionsByDate.test.ts:122` - +100/−30 BRL base USD → `rawTotal)).toBe(14)` + `total 'US$\u00A014,00'`; `:134` - mixed day: BRL 100 + USD 20 (×5) → `toBe(200)`; `src/utils/__tests__/processTransactions.test.ts:212-214` - `currentCashFlow '-US$\u00A010,00'` + `currentCashFlowValue).toBe(-10)`; `:264-265` - mixed: BRL 100 ×0.2 + USD 20 identity → `toBe(40)`; `:282-283` - chart bars `value 20`/`10`; `src/utils/__tests__/buildNetWorthEvolution.test.ts:115-117` - series `[180, 200]` for −10/+20 USD flows; screen halves (env-blocked): `Overview/index.tsx:194-233` (calculateTotals converts denominator + category sums via `convertToBaseCurrency`), `Accounts/index.tsx:280-299` + `Overview/index.tsx:294-313` (buildNetWorthEvolution quotes+base), `Home/index.tsx:308-315`, `Account/index.tsx:210-217`, `TransactionsByCategory/index.tsx:99-107`, `BudgetDetails/index.tsx:92-99` (processTransactions quotes) | ✅ PASS |
+| BC-22 aggregation uses `amount_in_account_currency` when present, converted from the ACCOUNT's currency | account-currency value wins over the transaction-currency amount | `groupTransactionsByDate.test.ts:153` - amount 100/aic 50, account BRL → `rawTotal)).toBe(50)`; `processTransactions.test.ts:305-306` - same shape base USD → `currentCashFlowValue)).toBe(10)` + `'US$\u00A010,00'` (50 BRL ×0.2, not 100 USD); `buildNetWorthEvolution.test.ts:160-162` - aic 50 in the last week → intermediate `950` (`900` if `amount` used) | ✅ PASS |
+| BC-23 IF account currency has no supported quote to base THEN skip that amount, no crash | skip from totals, rows still render, no exception | `baseCurrency.test.ts:64` - `convertToBaseCurrency(10,'ETH','USD',quotes)).toBeNull()`; `groupTransactionsByDate.test.ts:176-179` - ETH tx skipped: `rawTotal)).toBe(100)`, `data).toHaveLength(2)`; `processTransactions.test.ts:335-339` - ETH tx contributes nothing: `currentCashFlowValue -10`, `rawTotal -10`, chart expense 10, `data).toHaveLength(2)`; `buildNetWorthEvolution.test.ts:188` - ETH week skipped: series exactly `[{total: 1000}]` | ✅ PASS |
+| BC-24 WHEN account currency equals base THEN pass through unchanged without touching quotes | identity path immune to unloaded (zero-price) quotes — default BRL behavior identical | `baseCurrency.test.ts:52-53` - `convertToBaseCurrency(19.9,'BRL','BRL',zeroQuotes)).toBe(19.9)`, `(-50.5,'USD','USD',zeroQuotes)).toBe(-50.5)`; `groupTransactionsByDate.test.ts:165` - BRL tx base BRL zeroQuotes → `rawTotal -50` + `'-R$\u00A050,00'`; `buildNetWorthEvolution.test.ts:134-136` - BRL flows base BRL zeroQuotes → `[900, 1000]`; impl short-circuit `src/utils/baseCurrency.ts:89-91` (`if (accountCurrency === baseCurrencyCode) return amount;`) | ✅ PASS |
+| BC-25 net-worth evolution series converts period flows so intermediate points match the base-converted seed | every intermediate point consistent with the base-converted `totalAssets` | `buildNetWorthEvolution.test.ts:115-117` - −50/+100 BRL flows, `totalAssets 200` USD, base USD → exactly `[{total: 180}, {total: 200}]` (raw flows would give `[100, 200]`); no-account skip `:201` (`account: null` → `[]`); callers pass quotes+base: `Accounts/index.tsx:280-299`, `Overview/index.tsx:294-313` | ✅ PASS |
+
+**Status**: ✅ All 5 amendment ACs covered with evidence; asserted values match spec-defined outcomes (exact converted numerics; identity-with-zero-quotes; skip-not-crash with rows preserved; series consistency).
+
 ---
 
 ## Discrimination Sensor
@@ -65,6 +83,20 @@ Scratch: temp git worktree at HEAD (`149e000`) under `$TMPDIR`, `node_modules` s
 
 **Sensor depth**: lightweight (3 behavior-level mutations, per tier table — not a P0 payment/auth/data-integrity path)
 **Result**: 3/3 killed — PASS ✅
+
+### Discrimination Sensor — Amendment (BC-21..BC-25)
+
+Scratch: temp git worktree at HEAD (`77913ba`) under `$TMPDIR`, `node_modules` symlinked; real worktree never touched. Real-tree porcelain before and after the sensor: ` M src/screens/RegisterTransaction/index.tsx` only (the user's concurrent edit, out of scope) — identical after cleanup; `git worktree list` shows only the main worktree. A leftover scratch worktree from the dead Verifier sub-agent run was removed and pruned before this sensor.
+
+| Mutation | File:line | Description | Killed? |
+| -------- | --------- | ----------- | ------- |
+| AM-M1 | `src/utils/baseCurrency.ts:89-105` (scratch) | `convertToBaseCurrency` returns `amount` unconditionally — no conversion, no null skip | ✅ Killed — 12 tests failed across `baseCurrency.test.ts` + `groupTransactionsByDate.test.ts` + `processTransactions.test.ts` (e.g. `baseCurrency.test.ts:58` `toBe(-10)` receives `-50`; `groupTransactionsByDate.test.ts:122` `toBe(14)` receives `70`)
+| AM-M2 | `src/utils/groupTransactionsByDate.ts:46-60` (scratch) | `calculateGroupTotal` sums the raw `amountInAccountCurrency` — conversion skipped | ✅ Killed — 9 tests failed across `groupTransactionsByDate.test.ts` + `processTransactions.test.ts` (e.g. `groupTransactionsByDate.test.ts:110` `toBe(-10)` receives `-50`; day-total/cash-flow converted expectations all break)
+| AM-M3 | `src/utils/processTransactions.ts` (chart loop) (scratch) | per-period cash-flow loop uses `new Decimal(item.amount)` instead of the converted value (chart bars raw) | ✅ Killed — exactly the conversion tests fail: `processTransactions.test.ts:282-283` chart bars `20/10` receive `100/50`, plus the ETH-skip chart assertion — 2 failed / 14 passed |
+| AM-M4 | `src/utils/buildNetWorthEvolution.ts` (flow loop) (scratch) | period flows use raw `Math.abs(rawAmount)` — conversion skipped | ✅ Killed — exactly `buildNetWorthEvolution.test.ts:115-117` ('steps the series in converted values when base is USD', `[180, 200]` receives `[100, 200]`) + the ETH-skip series test fail — 2 failed / 6 passed |
+
+**Sensor depth**: lightweight-plus (4 behavior-level mutations covering the 4 amended aggregation paths)
+**Result**: 4/4 killed — PASS ✅
 
 ---
 
@@ -109,12 +141,12 @@ Not performed — user-facing UAT is the orchestrator's call; this Verifier run 
 ## Gate Check
 
 - **Gate command**: `env CI=true npx jest --watchman=false --silent` (repo root; `--watchman=false` required in this environment)
-- **Result**: 311 passed, 0 new failures; exactly the 2 documented pre-existing failures unchanged:
+- **Result (after amendment)**: 328 passed, 0 new failures; exactly the 2 documented pre-existing failures unchanged:
   - `src/utils/__tests__/accountsFilter.test.ts` — 1 test fails on label text (`'Todas...'` vs `'Todas as Contas'`) — pre-existing, excluded per spec
   - `src/__tests__/screens/profile.spec.tsx` — suite fails to run (`NativeEventEmitter` env breakage via `react-native-device-info`) — pre-existing, excluded per spec
 - **Test count before feature**: 267 passing (+ the same 2 pre-existing failures) — baseline from tasks.md/spec success criteria
-- **Test count after feature**: 311 passing
-- **Delta**: +44 tests (all passing)
+- **Test count after original feature**: 311 passing (+44)
+- **Test count after amendment**: 328 passing (+17: 11 in A1 suites, 5 in buildNetWorthEvolution, 1 added aic coverage test)
 - **Skipped tests**: none
 - Jest exit code is non-zero solely due to the two baseline failures; no feature-related failure exists.
 
@@ -122,7 +154,7 @@ Not performed — user-facing UAT is the orchestrator's call; this Verifier run 
 
 ## Fix Plans
 
-None — no surviving mutants, no uncovered ACs, no spec-precision gaps among BC-01..BC-20.
+None — no surviving mutants (7/7 across both sensor runs), no uncovered ACs, no spec-precision gaps among BC-01..BC-25. One coverage test was added during amendment verification (aic in the cash-flow loop, `77913ba`) to close a BC-22 evidence gap found while re-deriving coverage.
 
 ---
 
@@ -131,6 +163,7 @@ None — no surviving mutants, no uncovered ACs, no spec-precision gaps among BC
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
 | BC-01..BC-20 | Implementing | ✅ Verified (evidence above; BC-14/BC-15 and screen-wiring halves verified via static evidence per the env-blocked matrix) |
+| BC-21..BC-25 | Pending → Implementing | ✅ Verified (amendment evidence above; sensor 4/4 killed) |
 
 Note: `spec.md`'s status column was not edited by this Verifier (write scope limited to `validation.md`); the orchestrator applies the statuses.
 
@@ -138,21 +171,22 @@ Note: `spec.md`'s status column was not edited by this Verifier (write scope lim
 
 ## Summary
 
-**Overall**: ✅ Ready
+**Overall**: ✅ Ready (original feature + amendment)
 
-**Spec-anchored check**: 20/20 ACs matched spec outcome | 0 spec-precision gaps
-**Sensor**: 3/3 mutations killed (M1 baseCurrency support-check, M2 processTransactions re-parse revert, M3 sheet filter drop)
-**Gate**: 311 passed, 0 new failures (2 pre-existing failures unchanged)
+**Spec-anchored check**: 25/25 ACs matched spec outcome (20 original + 5 amendment) | 0 spec-precision gaps
+**Sensor**: 7/7 mutations killed (3 original + 4 amendment)
+**Gate**: 328 passed, 0 new failures (2 pre-existing failures unchanged)
 
 **What works**:
 
 - Single base-currency state with MMKV persistence (`config.baseCurrency`, full JSON) and BRL id 1 default; corrupt/unsupported fallback verified.
 - One shared selection flow (`BaseCurrencySelectSheet`) serving both entry points; select → set + persist + dismiss with payload-on-value assertions.
 - Welcome flow: step shell with per-step bullets, bullet-tap navigation, Continuar-without-selection, third-step extensibility, `Welcome` as terminal auth step.
-- Aggregates format/convert in the base currency across utils and all wired screens; no hardcoded `'BRL'` remains in aggregate formatting/conversion paths.
+- Aggregates format in the base currency across utils and all wired screens; no hardcoded `'BRL'` remains in aggregate formatting/conversion paths.
+- **Amendment**: transaction-flow aggregations now CONVERT each amount to the base currency before summing — day totals (`SectionListHeader` `data.total` everywhere), Home/Account cash flow and current-cash-flow value, chart bars (Home cash-flow chart, Overview pies via converted category totals), and net-worth evolution intermediate points — using `amount_in_account_currency ?? amount` from the account's currency (`convertToBaseCurrency`), skipping unsupported pairs, and passing same-currency amounts through without touching quotes (default BRL behavior unchanged, including before quotes load).
 - Raw numeric totals (`rawTotal`, `currentCashFlowValue`) replace formatted-string re-parsing; `Account` sign detection uses the raw value.
 - Unsupported quote pairs skip instead of crashing (existing behavior preserved).
 
-**Issues found**: none blocking. One minor observation (edge case: empty-currencies-store render path asserted only at domain level — `baseCurrency.test.ts:50-52`; a component-level empty-store render test would harden it, optional).
+**Issues found**: none blocking. One minor observation (unchanged from the original run: empty-currencies-store render path asserted only at domain level — optional hardening).
 
-**Next steps**: none required; optional hardening note above is the only candidate follow-up.
+**Verification provenance note**: the amendment's sensor + evidence re-derivation were run by the orchestrator via the standalone fallback (the Verifier sub-agent died mid-sensor on a model usage limit); all amendment evidence above was re-derived from scratch with evidence-or-zero, and the mutation kills were re-run, not inherited.

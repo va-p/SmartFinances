@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/base-currency/design.md`
-**Status**: In Progress (Phase A amendment: converted transaction-flow totals)
+**Status**: Done (Verifier PASS incl. amendment — see `validation.md`)
 
 ---
 
