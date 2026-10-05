@@ -112,9 +112,9 @@ T7 → T8
 
 ---
 
-### T3: CurrencySelect items override + shared BaseCurrencySelectSheet
+### T3: CurrencySelect items override + shared BaseCurrencySelectSheet — ✅ Complete
 
-**What**: Add optional `items?: CurrencyProps[]` to `CurrencySelect` (default: store list, `RegisterAccount` untouched); create `src/components/BaseCurrencySelectSheet/` wiring `ModalViewSelection` + `CurrencySelect` to the base-currency store (`currency={baseCurrency}`, `setCurrency={setBaseCurrency}`, dismiss via ref, `items={filterBaseCurrencyCandidates(currencies)}`); extend jest `transformIgnorePatterns` (preset entries + `phosphor-react-native`) so icon-bearing trees render in tests.
+**What**: Add optional `items?: CurrencyProps[]` to `CurrencySelect` (default: store list, `RegisterAccount` untouched); create `src/components/BaseCurrencySelectSheet/` wiring `ModalViewSelection` + `CurrencySelect` to the base-currency store (`currency={baseCurrency}`, `setCurrency={setBaseCurrency}`, dismiss via ref, `items={filterBaseCurrencyCandidates(currencies)}`); extend jest `transformIgnorePatterns` (preset entries + `phosphor-react-native`) and `setupFiles` (gesture-handler `jestSetup.js`) so icon- and gesture-bearing trees render in tests.
 **Where**: `src/components/BaseCurrencySelectSheet/index.tsx` (plus `src/screens/CurrencySelect/index.tsx` optional prop, `package.json` jest config)
 **Depends on**: T1
 **Reuses**: `RegisterAccount`'s `ModalViewSelection` + `CurrencySelect` modal pattern (`src/screens/RegisterAccount/index.tsx:553-563`); `ListItem` rows
@@ -123,11 +123,11 @@ T7 → T8
 **Tools**: NONE
 
 **Done when**:
-- [ ] `CurrencySelect` renders `items` when provided, store list otherwise; tapping a row calls `setCurrency(item)` then `closeSelectCurrency()`
-- [ ] Sheet passes the filtered candidate list and the store setters (verified via wiring in T4's render test)
-- [ ] Jest config change keeps the 29 baseline suites passing (full gate: no new failures)
-- [ ] Gate check passes: `CI=true npx jest --watchman=false src/__tests__/screens/currencySelect.spec.tsx` then full gate
-- [ ] Test count: 4+ new tests pass; 267 baseline tests stay green
+- [x] `CurrencySelect` renders `items` when provided, store list otherwise; tapping a row calls `setCurrency(item)` then `closeSelectCurrency()`
+- [x] Sheet passes the filtered candidate list and the store setters (wiring verified in T4's render test)
+- [x] Jest config change keeps the baseline suites passing (full gate: 291 passing, zero new failures)
+- [x] Gate check passes: `CI=true npx jest --watchman=false src/__tests__/screens/currencySelect.spec.tsx` + full gate
+- [x] Test count: 4 new tests pass; baseline tests stay green
 
 **Tests**: unit (new: `src/__tests__/screens/currencySelect.spec.tsx`)
 **Gate**: full (jest config touched)
