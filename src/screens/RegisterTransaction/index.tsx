@@ -60,7 +60,6 @@ import {
   isTomorrow,
   isYesterday,
 } from 'date-fns';
-import * as Yup from 'yup';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -70,6 +69,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Form
+import { FormData, schema } from './schema';
 
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
@@ -128,12 +130,6 @@ type Props = {
   selectedTransactionIds?: number[];
 };
 
-type FormData = {
-  description: string;
-  amount: number;
-  amountInAccountCurrency?: number | null;
-};
-
 enum CustomTab {
   Credit,
   Transfer,
@@ -145,16 +141,6 @@ type TransactionTypeButton = {
 };
 
 type TransactionTabType = 'CREDIT' | 'DEBIT' | 'TRANSFER' | '';
-
-/* Validation Form - Start */
-const schema = Yup.object().shape({
-  description: Yup.string().required('Digite a descrição'),
-  amount: Yup.number()
-    .typeError('Digite um valor numérico')
-    .required('Digite o valor'),
-  amountInAccountCurrency: Yup.number().nullable(),
-});
-/* Validation Form - End */
 
 export function RegisterTransaction({
   id,
