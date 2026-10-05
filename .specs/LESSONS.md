@@ -56,6 +56,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)
 - last seen: 2026-09-29T02:01:35Z
 
+### L-008 - Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `jest-infra/react-native-reanimated` · harmful: 0
+- features: base-currency
+- evidence: AM-M5 (StepIndicator slide effect drop) (jest-infra/react-native-reanimated)
+- last seen: 2026-10-05T22:44:08Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

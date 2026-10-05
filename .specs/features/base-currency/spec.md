@@ -181,7 +181,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BC-23 | P1: Converted transaction-flow totals (amendment) | Design | Verified |
 | BC-24 | P1: Converted transaction-flow totals (amendment) | Design | Verified |
 | BC-25 | P1: Converted transaction-flow totals (amendment) | Design | Verified |
-| BC-26 | P1: Welcome flow with educational currency step | Design | Implementing |
+| BC-26 | P1: Welcome flow with educational currency step | Design | Verified |
 
 **ID format**: `BC-NN` (Base Currency).
 

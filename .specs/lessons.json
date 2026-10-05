@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 8,
+  "next_id": 9,
   "lessons": [
     {
       "id": "L-001",
@@ -130,6 +130,24 @@
       ],
       "created": "2026-09-29T02:01:35Z",
       "last_seen": "2026-09-29T02:01:35Z"
+    },
+    {
+      "id": "L-008",
+      "key": "surviving_mutant::jest mocks of animation libraries must be behaviorally faithful stateful usesharedvalue via useref not per render re initialization or wiring tests silently pass without the wiring under test",
+      "text": "Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.",
+      "signal": "surviving_mutant",
+      "scope": "jest-infra/react-native-reanimated",
+      "status": "candidate",
+      "features": [
+        "base-currency"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "AM-M5 (StepIndicator slide effect drop) (jest-infra/react-native-reanimated)"
+      ],
+      "created": "2026-10-05T22:44:08Z",
+      "last_seen": "2026-10-05T22:44:08Z"
     }
   ]
 }

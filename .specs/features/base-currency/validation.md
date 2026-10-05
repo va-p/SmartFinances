@@ -1,9 +1,10 @@
 # base-currency Validation
 
-**Date**: 2026-10-05 (amended 2026-10-05 — BC-21..BC-25 converted transaction-flow totals)
+**Date**: 2026-10-05 (amended 2026-10-05 — BC-21..BC-25 converted transaction-flow totals; amended again 2026-10-05 — user's flow reorder (AD-004) + BC-26 dash slide)
 **Spec**: `.specs/features/base-currency/spec.md`
 **Diff range**: `3428aca..149e000` on `feat/change-base-currency` (9 commits: 9957b9d docs, 6ef7378 T1, 9325068 T2, 56d58d5 T3, 5c601ee T4, 05e4c01 T5, e07789f T6, dabeca6 T7, 149e000 T8)
 **Amendment diff range**: `bca668d..77913ba` (5 commits: cb56306 A1, 7867e37 A2, 21721e8 A3, 77913ba coverage test, plus the docs commit)
+**Amendment 2 diff range**: `ce0a333..cdeeeb9` (ce0a333 reorder + realigned tests, 93ad24f dash slide animation, cdeeeb9 faithful reanimated mock + navigate-mock rename; the user's b0d51bf Welcome-visuals fix sits between, out of feature scope)
 **Verifier**: independent sub-agent for BC-01..BC-20 (author ≠ verifier). The amendment re-verification was started by the same sub-agent but it died mid-sensor on a model usage limit after completing the call-site inspection; per the skill's standalone fallback the orchestrator ran the remaining sensor + report (noted as a deviation from author ≠ verifier — the sensor mutations + evidence re-derivation below were re-run from scratch, and the AC evidence is evidence-or-zero, not inherited from the dead run).
 
 ---
@@ -23,6 +24,7 @@
 | A1 | ✅ Done | `convertToBaseCurrency` helper + day-total/cash-flow conversion (`groupTransactionsByDate`, `processTransactions`) — cb56306 |
 | A2 | ✅ Done | Net-worth evolution flow conversion (`buildNetWorthEvolution`) — 7867e37 |
 | A3 | ✅ Done | Overview category totals conversion + quotes wiring on six screens — 21721e8 |
+| A4 | ✅ Done | User's flow reorder (AD-004) + test realignment — ce0a333; active-step dash slide animation (BC-26) + reanimated jest mock — 93ad24f, cdeeeb9 |
 
 ---
 
@@ -69,6 +71,18 @@ Same env-blocked convention: screen-wiring halves cite static diff evidence; eve
 
 **Status**: ✅ All 5 amendment ACs covered with evidence; asserted values match spec-defined outcomes (exact converted numerics; identity-with-zero-quotes; skip-not-crash with rows preserved; series consistency).
 
+### Spec-Anchored Acceptance Criteria — Amendment 2 (user reorder + BC-26 dash slide)
+
+The user reordered the flow themselves (AD-004 supersedes AD-003): `[Welcome (intro, Continuar), WelcomeBaseCurrency (selection + auth CTAs)]`; BC-08/BC-11 were reworded and the realigned tests re-anchor them.
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --------- | -------------------- | ----------------------- | ------ |
+| BC-08 (reworded) flow starts with the intro step, ends with the selection+auth step | `WELCOME_STEPS[0]` = welcome/`Welcome`, last = base-currency/`WelcomeBaseCurrency` | `src/__tests__/screens/welcomeFlow.spec.tsx` - `WELCOME_STEPS[0].key).toBe('welcome')` + `.Component).toBe(Welcome)` + last key 'base-currency'; `src/__tests__/screens/welcomeBaseCurrency.spec.tsx` - `WELCOME_STEPS[WELCOME_STEPS.length - 1].Component).toBe(WelcomeBaseCurrency)`; impl `src/screens/WelcomeFlow/index.tsx:26-29` | ✅ PASS |
+| BC-11 (reworded) intro step Continuar advances without requiring selection | Continuar → `onNext`, zero selection side effects | `welcomeFlow.spec.tsx` ('advances from the real Welcome step Continuar through onNext' - `onNext).toHaveBeenCalledTimes(1)` with the real `Welcome` step); terminal auth CTAs: `src/__tests__/screens/welcomeBaseCurrency.spec.tsx:160-165` ('navigates to sign in and sign up without requiring a selection' - `navigateMock()).toHaveBeenCalledWith('/signIn')` + `'/signUp'`, store still `brl`, `storageConfig.set).not.toHaveBeenCalled()`) | ✅ PASS |
+| BC-26 WHEN the active step changes THEN the dash slides into the new active bullet's position | stride 16 (bullet 8 + 2×4 margin): translateX 0 at step 0; 16 at step 1; 32 at step 2 | `src/__tests__/screens/welcomeFlow.spec.tsx:156` ('renders the dash over the active bullet at its position' - `getDashTranslateX(screen)).toBe(0)`); `:181,191` ('slides the dash to the tapped bullet position' - tap bullet 1 + rerender → `toBe(16)`, tap bullet 2 → `toBe(32)`; rerender compensates the mock's non-reactive useAnimatedStyle — the shared value update lands via the effect's `withSpring`, synchronous under the mock); impl `src/screens/WelcomeFlow/index.tsx:53-83` (shared value + `withSpring` effect + `useAnimatedStyle` + `StepDash`), geometry `src/screens/WelcomeFlow/styles.ts:12` (`STEP_DASH_STRIDE`) | ✅ PASS |
+
+**Status**: ✅ BC-26 covered with evidence; the spring interpolation itself is native-only (jest asserts the wired translateX under the documented reanimated mock — the mock's faithfulness is itself sensor-verified below).
+
 ---
 
 ## Discrimination Sensor
@@ -97,6 +111,17 @@ Scratch: temp git worktree at HEAD (`77913ba`) under `$TMPDIR`, `node_modules` s
 
 **Sensor depth**: lightweight-plus (4 behavior-level mutations covering the 4 amended aggregation paths)
 **Result**: 4/4 killed — PASS ✅
+
+### Discrimination Sensor — Amendment 2 (BC-26 dash slide)
+
+Scratch: temp git worktree at HEAD under `$TMPDIR`, `node_modules` symlinked; removed and pruned after; real-tree porcelain unchanged (user's `Welcome` visual edits committed by the user as `b0d51bf` — out of feature scope).
+
+| Mutation | File:line | Description | Killed? |
+| -------- | --------- | ----------- | ------- |
+| AM-M5 | `src/screens/WelcomeFlow/index.tsx:58-61` (scratch) | Dropped the `useEffect` that drives `withSpring` — the dash never leaves its mount position | ⚠️ Initially **SURVIVED** — the minimal reanimated mock's `useSharedValue` re-initialized per render, so the test's rerender recomputed the translateX from the prop without the effect. Root cause: unfaithful mock, not a weak assertion. Fixed the mock to be stateful (same `{ value }` holder via `useRef`, initialized once — `jest.setup.js`), re-ran the mutant: ✅ **killed** by `welcomeFlow.spec.tsx:181` (`toBe(16)` receives `0`); real tree green afterwards. Recorded as lesson L-008 | ❌→✅ |
+
+**Sensor depth**: 1 behavior-level mutation on the new animation path
+**Result**: killed after mock faithfulness fix — PASS ✅ (the surviving-mutant finding is exactly what the sensor exists to catch; no production code was wrong, the test rig was)
 
 ---
 
@@ -147,6 +172,7 @@ Not performed — user-facing UAT is the orchestrator's call; this Verifier run 
 - **Test count before feature**: 267 passing (+ the same 2 pre-existing failures) — baseline from tasks.md/spec success criteria
 - **Test count after original feature**: 311 passing (+44)
 - **Test count after amendment**: 328 passing (+17: 11 in A1 suites, 5 in buildNetWorthEvolution, 1 added aic coverage test)
+- **Test count after amendment 2**: 331 passing (+3 net: 2 dash tests + 1 real-Welcome Continuar wiring; the obsolete onNext test was replaced 1:1 by the auth-navigation test)
 - **Skipped tests**: none
 - Jest exit code is non-zero solely due to the two baseline failures; no feature-related failure exists.
 
@@ -164,6 +190,8 @@ None — no surviving mutants (7/7 across both sensor runs), no uncovered ACs, n
 | ----------- | --------------- | ---------- |
 | BC-01..BC-20 | Implementing | ✅ Verified (evidence above; BC-14/BC-15 and screen-wiring halves verified via static evidence per the env-blocked matrix) |
 | BC-21..BC-25 | Pending → Implementing | ✅ Verified (amendment evidence above; sensor 4/4 killed) |
+| BC-08/BC-11 (reworded by AD-004) | Verified (old wording) | ✅ Re-verified against the user's reorder (amendment-2 evidence) |
+| BC-26 | Pending → Implementing | ✅ Verified (dash slide wiring + geometry; sensor killed after mock fix) |
 
 Note: `spec.md`'s status column was not edited by this Verifier (write scope limited to `validation.md`); the orchestrator applies the statuses.
 
@@ -171,11 +199,11 @@ Note: `spec.md`'s status column was not edited by this Verifier (write scope lim
 
 ## Summary
 
-**Overall**: ✅ Ready (original feature + amendment)
+**Overall**: ✅ Ready (original feature + amendments)
 
-**Spec-anchored check**: 25/25 ACs matched spec outcome (20 original + 5 amendment) | 0 spec-precision gaps
-**Sensor**: 7/7 mutations killed (3 original + 4 amendment)
-**Gate**: 328 passed, 0 new failures (2 pre-existing failures unchanged)
+**Spec-anchored check**: 26/26 ACs matched spec outcome (20 original + 5 amendment-1 + BC-26 amendment-2; BC-08/BC-11 re-anchored to the user's AD-004 reorder) | 0 spec-precision gaps
+**Sensor**: 8/8 mutations killed (3 original + 4 amendment-1 + 1 amendment-2 — the last after fixing an unfaithful reanimated mock the sensor itself exposed)
+**Gate**: 331 passed, 0 new failures (2 pre-existing failures unchanged)
 
 **What works**:
 
@@ -184,6 +212,7 @@ Note: `spec.md`'s status column was not edited by this Verifier (write scope lim
 - Welcome flow: step shell with per-step bullets, bullet-tap navigation, Continuar-without-selection, third-step extensibility, `Welcome` as terminal auth step.
 - Aggregates format in the base currency across utils and all wired screens; no hardcoded `'BRL'` remains in aggregate formatting/conversion paths.
 - **Amendment**: transaction-flow aggregations now CONVERT each amount to the base currency before summing — day totals (`SectionListHeader` `data.total` everywhere), Home/Account cash flow and current-cash-flow value, chart bars (Home cash-flow chart, Overview pies via converted category totals), and net-worth evolution intermediate points — using `amount_in_account_currency ?? amount` from the account's currency (`convertToBaseCurrency`), skipping unsupported pairs, and passing same-currency amounts through without touching quotes (default BRL behavior unchanged, including before quotes load).
+- **Amendment 2**: the user reordered the flow (brand intro first, selection + auth last — AD-004) and the step indicator's active-step dash now slides between the uniform bullet positions with `withSpring` (reanimated), rendered as an absolutely-positioned 24px dash over the row; bullet-tap navigation and selected-state semantics unchanged.
 - Raw numeric totals (`rawTotal`, `currentCashFlowValue`) replace formatted-string re-parsing; `Account` sign detection uses the raw value.
 - Unsupported quote pairs skip instead of crashing (existing behavior preserved).
 
