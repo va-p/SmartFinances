@@ -1,21 +1,8 @@
-import React, { ComponentType, useEffect, useState } from 'react';
+import React, { ComponentType, useState } from 'react';
 
-import {
-  Container,
-  StepIndicatorContainer,
-  StepBulletsRow,
-  StepBullet,
-  StepDash,
-  StepContent,
-  STEP_DASH_STRIDE,
-} from './styles';
+import { Container, StepContent } from './styles';
 
-import {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
-
+import { StepIndicator } from '@components/StepIndicator';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
 
@@ -46,50 +33,6 @@ type Props = {
   steps?: WelcomeStep[];
 };
 
-type StepIndicatorProps = {
-  count: number;
-  active: number;
-  onSelect: (index: number) => void;
-};
-
-function StepIndicator({ count, active, onSelect }: StepIndicatorProps) {
-  // The active-step dash slides between the bullet positions when the
-  // active step changes (BC-26).
-  const dashTranslateX = useSharedValue(active * STEP_DASH_STRIDE);
-
-  useEffect(() => {
-    dashTranslateX.value = withSpring(active * STEP_DASH_STRIDE);
-  }, [active, dashTranslateX]);
-
-  const dashAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: dashTranslateX.value }],
-  }));
-
-  return (
-    <StepIndicatorContainer>
-      <StepBulletsRow testID='welcome-step-bullets-row'>
-        {Array.from({ length: count }, (_, index) => (
-          <StepBullet
-            key={index}
-            testID={`welcome-step-bullet-${index}`}
-            accessibilityRole='button'
-            accessibilityLabel={`Passo ${index + 1}`}
-            accessibilityState={{ selected: index === active }}
-            hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
-            onPress={() => onSelect(index)}
-          />
-        ))}
-
-        <StepDash
-          testID='welcome-step-dash'
-          style={dashAnimatedStyle}
-          pointerEvents='none'
-        />
-      </StepBulletsRow>
-    </StepIndicatorContainer>
-  );
-}
-
 export function WelcomeFlow({ steps = WELCOME_STEPS }: Props) {
   const [activeStep, setActiveStep] = useState(0);
 
@@ -114,6 +57,7 @@ export function WelcomeFlow({ steps = WELCOME_STEPS }: Props) {
           count={steps.length}
           active={currentStep}
           onSelect={(index) => handleSelectStep(index)}
+          testID='welcome-step'
         />
 
         <StepContent testID='welcome-step-content'>

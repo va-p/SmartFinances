@@ -11,7 +11,7 @@ import {
   WelcomeFlow,
   WelcomeStepProps,
 } from '@screens/WelcomeFlow';
-import { STEP_DASH_STRIDE } from '@screens/WelcomeFlow/styles';
+import { STEP_DASH_STRIDE } from '@components/StepIndicator/styles';
 import { Welcome } from '@screens/Welcome';
 
 const renderWithTheme = (ui: React.ReactElement) =>
@@ -141,22 +141,6 @@ describe('WelcomeFlow shell', () => {
     expect(getBulletSelected(screen, 2)).toBe(true);
   });
 
-  // BC-26 — the active-step dash renders centered over the active bullet
-  it('renders the dash over the active bullet at its position', () => {
-    const screen = renderWithTheme(
-      <WelcomeFlow
-        steps={[
-          { key: 'one', Component: StepOne },
-          { key: 'two', Component: StepTwo },
-        ]}
-      />
-    );
-
-    expect(screen.getByTestId('welcome-step-dash')).toBeTruthy();
-    // stride = bullet 8 + 2 x margin 4 = 16; active step 0 -> 0
-    expect(getDashTranslateX(screen)).toBe(0);
-  });
-
   // BC-10 — regression (device-found fault): the first step's content
   // column (tallest of the flow) painted over the indicator row and
   // swallowed bullet taps on the first screen only. The step now renders
@@ -180,51 +164,11 @@ describe('WelcomeFlow shell', () => {
     ).toThrow();
   });
 
-  // BC-10 — every bullet carries an enlarged tap target (8px dots alone are
-  // far below the recommended minimum); hitSlop keeps the whole row
-  // reliably tappable, forward and backward, on every screen
-  it('gives every bullet an enlarged tap target', () => {
-    const screen = renderWithTheme(
-      <WelcomeFlow
-        steps={[
-          { key: 'one', Component: StepOne },
-          { key: 'two', Component: StepTwo },
-        ]}
-      />
-    );
-
-    expect(screen.getByTestId('welcome-step-bullet-0').props.hitSlop).toEqual(
-      { top: 12, right: 12, bottom: 12, left: 12 }
-    );
-    expect(screen.getByTestId('welcome-step-bullet-1').props.hitSlop).toEqual(
-      { top: 12, right: 12, bottom: 12, left: 12 }
-    );
-  });
-
-  // BC-26 — regression (device-found fault): the dash was anchored to the
-  // full-width padded container and landed top-left of the screen, above
-  // the bullets. It must live inside the shrink-wrapped bullet row together
-  // with the bullets - the structural anchor jest can assert (the layout
-  // reference itself is native-only).
-  it('anchors the dash inside the bullet row with the bullets', () => {
-    const screen = renderWithTheme(
-      <WelcomeFlow
-        steps={[
-          { key: 'one', Component: StepOne },
-          { key: 'two', Component: StepTwo },
-        ]}
-      />
-    );
-
-    const row = within(screen.getByTestId('welcome-step-bullets-row'));
-
-    expect(row.getByTestId('welcome-step-bullet-0')).toBeTruthy();
-    expect(row.getByTestId('welcome-step-bullet-1')).toBeTruthy();
-    expect(row.getByTestId('welcome-step-dash')).toBeTruthy();
-  });
-
-  // BC-26 — the dash slides to the newly active bullet's position
-  it('slides the dash to the tapped bullet position', () => {
+  // BC-26 — shell integration: the flow renders the reusable StepIndicator
+  // and its dash slides when the active step changes; the component's full
+  // contract (testID prefix, hitSlop targets, dash anchor/positions) lives
+  // in stepIndicator.spec.tsx
+  it('slides the flow dash to the tapped bullet position', () => {
     const steps = [
       { key: 'one', Component: StepOne },
       { key: 'two', Component: StepTwo },

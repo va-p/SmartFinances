@@ -214,6 +214,29 @@ A1 → A2 → A3
 
 ---
 
+### A7: Extract StepIndicator into a reusable component — ✅ Complete
+
+**What**: Extract the step indicator from the WelcomeFlow shell into `src/components/StepIndicator/` (index + co-located styles with the geometry constants): props `count`, `active`, `onSelect` + `testID` prefix (default 'step') so reusable instances keep unique testIDs; the z-ordered indicator container, shrink-wrapped bullets row, uniform bullets with hitSlop, and the sliding dash move with it. The WelcomeFlow shell keeps the flow-level pieces (`WELCOME_STEPS`, bounded `StepContent` slot) and passes `testID='welcome-step'` — every existing testID stays identical. Component contract suite added (`stepIndicator.spec.tsx`); the flow spec keeps shell integration (bullets-per-step, tap navigation, bounded slot, dash slide, extensibility, default steps, Continuar) and drops the three component-internal tests now covered by the component suite. No stale references remain (grep: no `StepBullet`/`StepDash`/`STEP_*` imports outside the component and its spec).
+**Where**: `src/components/StepIndicator/index.tsx` (plus `styles.ts`, the slimmed `src/screens/WelcomeFlow/`)
+**Depends on**: A6
+**Reuses**: the extracted component verbatim (no behavior change — pure move + testID-prefix prop)
+**Requirement**: BC-09, BC-10, BC-26 (structure; behavior unchanged)
+
+**Tools**: NONE
+
+**Done when**:
+- [x] `StepIndicator` is importable from `@components/StepIndicator` with a documented props contract
+- [x] WelcomeFlow renders it with `testID='welcome-step'` — all existing testIDs unchanged (zero test churn on IDs)
+- [x] Component contract suite: bullets/selected state, testID prefix, tap → onSelect(index), hitSlop targets, dash anchor + initial position + slide
+- [x] Gate: full suite 338 passing, zero new failures; eslint clean; grep confirms no stale references to the moved styles/constants
+
+**Tests**: unit (new component suite; 3 component-internal flow tests moved into it — no coverage lost)
+**Gate**: full
+
+**Commit**: `refactor(welcome): extract StepIndicator into a reusable component`
+
+---
+
 ### T1: Base currency domain helpers + store state + hydration — ✅ Complete
 
 **What**: Create `src/utils/baseCurrency.ts` (DEFAULT_BASE_CURRENCY, SUPPORTED_BASE_CURRENCY_CODES, `isSupportedBaseCurrencyCode`, `filterBaseCurrencyCandidates`, `parseStoredBaseCurrency`); add `baseCurrency`/`setBaseCurrency` (MMKV write inside the action, key `config.baseCurrency`) to `useUserConfigs`; restore in `RootLayout` next to the `sortingOption` block.
