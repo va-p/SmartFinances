@@ -1,6 +1,13 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { Container, LogoWrapper, Logo, LogoText, Title } from './styles';
+import {
+  Container,
+  LogoWrapper,
+  Logo,
+  LogoText,
+  Title,
+  ButtonContainer,
+} from './styles';
 
 import { Button } from '@components/Button';
 
@@ -9,7 +16,6 @@ import type { WelcomeStepProps } from '@screens/WelcomeFlow';
 const LOGO_URL = '@assets/logo.png';
 
 export function Welcome({ onNext }: WelcomeStepProps) {
-
   return (
     <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <LogoWrapper>
@@ -22,9 +28,11 @@ export function Welcome({ onNext }: WelcomeStepProps) {
         <Title primary>simples</Title> e <Title primary>precisa</Title>
       </Title>
 
-      <Button.Root onPress={() => onNext?.()}>
-        <Button.Text text='Continuar' />
-      </Button.Root>
+      <ButtonContainer>
+        <Button.Root onPress={() => onNext?.()}>
+          <Button.Text text='Continuar' />
+        </Button.Root>
+      </ButtonContainer>
     </Container>
   );
 }
