@@ -21,6 +21,7 @@ import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
+import { convertToBaseCurrency } from '@utils/baseCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
@@ -197,9 +198,30 @@ export function Overview() {
       transactionsBySelectedPeriod
         .filter((t) => t.type === type)
         .forEach((t) => {
-          totalAmountSelectedPeriod = totalAmountSelectedPeriod.plus(
-            new Decimal(t.amount_in_account_currency ?? t.amount).abs()
+          // BC-21/BC-22 — the account-currency value converted to the base
+          // currency before summing; BC-23 — unsupported pairs skip.
+          const converted = convertToBaseCurrency(
+            Math.abs(Number(t.amount_in_account_currency ?? t.amount)),
+            t.account.currency.code,
+            baseCurrencyCode,
+            {
+              brlQuoteBtc,
+              brlQuoteEur,
+              brlQuoteUsd,
+              btcQuoteBrl,
+              btcQuoteEur,
+              btcQuoteUsd,
+              eurQuoteBrl,
+              eurQuoteBtc,
+              eurQuoteUsd,
+              usdQuoteBrl,
+              usdQuoteBtc,
+              usdQuoteEur,
+            }
           );
+          if (converted === null) return;
+
+          totalAmountSelectedPeriod = totalAmountSelectedPeriod.plus(converted);
         });
 
       categories.forEach((category) => {
@@ -207,9 +229,29 @@ export function Overview() {
         transactionsBySelectedPeriod
           .filter((t) => t.category.id === category.id && t.type === type)
           .forEach((t) => {
-            const amount = new Decimal(
-              t.amount_in_account_currency ?? t.amount
+            // BC-21/BC-22/BC-23 — same conversion as the denominator above
+            const converted = convertToBaseCurrency(
+              Number(t.amount_in_account_currency ?? t.amount),
+              t.account.currency.code,
+              baseCurrencyCode,
+              {
+                brlQuoteBtc,
+                brlQuoteEur,
+                brlQuoteUsd,
+                btcQuoteBrl,
+                btcQuoteEur,
+                btcQuoteUsd,
+                eurQuoteBrl,
+                eurQuoteBtc,
+                eurQuoteUsd,
+                usdQuoteBrl,
+                usdQuoteBtc,
+                usdQuoteEur,
+              }
             );
+            if (converted === null) return;
+
+            const amount = new Decimal(converted);
             categorySum =
               t.account.type === 'CREDIT'
                 ? categorySum.minus(amount)
@@ -247,11 +289,27 @@ export function Overview() {
     // --- patrimonial evolution (net worth chart) ---
     // Extracted to a shared utility — same calculation as the Accounts
     // screen.  Seeds the accumulated total with totalAssets so the final
-    // chart point equals the current net worth.
+    // chart point equals the current net worth. Flows convert to the base
+    // currency (BC-25) so intermediate points match the seed's unit.
     const patrimonialEvolution = buildNetWorthEvolution({
       transactions,
       totalAssets,
       period: selectedPeriod.period,
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
+      baseCurrencyCode,
     });
 
     return {

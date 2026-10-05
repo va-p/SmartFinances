@@ -45,6 +45,7 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 // Storages
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useQuotes } from '@stores/quotesStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
@@ -66,6 +67,7 @@ export function TransactionsByCategory({ navigation }: any) {
 
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
+  const quotes = useQuotes();
 
   // Search form (Home-screen pattern: query via react-hook-form)
   const { control, watch, reset } = useForm();
@@ -98,9 +100,16 @@ export function TransactionsByCategory({ navigation }: any) {
         formatTransactions(transactionsForThisCategory),
         selectedPeriod.period,
         selectedDate,
+        quotes,
         baseCurrencyCode
       ).groupedTransactions,
-    [transactionsForThisCategory, selectedPeriod, selectedDate, baseCurrencyCode]
+    [
+      transactionsForThisCategory,
+      selectedPeriod,
+      selectedDate,
+      quotes,
+      baseCurrencyCode,
+    ]
   );
 
   // Transaction filtering with search

@@ -175,11 +175,11 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | BC-18 | P1: App-wide totals in the base currency | Design | Verified |
 | BC-19 | P1: App-wide totals in the base currency | Design | Verified |
 | BC-20 | P1: App-wide totals in the base currency | Design | Verified |
-| BC-21 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
-| BC-22 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
-| BC-23 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
-| BC-24 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
-| BC-25 | P1: Converted transaction-flow totals (amendment) | Design | Pending |
+| BC-21 | P1: Converted transaction-flow totals (amendment) | Design | Implementing |
+| BC-22 | P1: Converted transaction-flow totals (amendment) | Design | Implementing |
+| BC-23 | P1: Converted transaction-flow totals (amendment) | Design | Implementing |
+| BC-24 | P1: Converted transaction-flow totals (amendment) | Design | Implementing |
+| BC-25 | P1: Converted transaction-flow totals (amendment) | Design | Implementing |
 
 **ID format**: `BC-NN` (Base Currency).
 

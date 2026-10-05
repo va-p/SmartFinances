@@ -272,14 +272,30 @@ export function Accounts() {
       });
     });
 
-    // ── Net Worth Chart Data ──────────────────────────────────────────────
+    // ── Net Worth Chart Data ──────────────────────────────────────────
     // Extracted to a shared utility — same calculation as the Overview
     // screen.  Seeds the accumulated total with the current net worth so
-    // the final chart point equals totalBalanceFormatted.
+    // the final chart point equals totalBalanceFormatted. Flows convert
+    // to the base currency (BC-25) so intermediate points match the seed.
     const chartData = buildNetWorthEvolution({
       transactions,
       totalAssets: totalAccountsBalance.toNumber(),
       period: 'months',
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
+      baseCurrencyCode: baseCurrency.code,
     });
 
     return {
@@ -738,7 +754,7 @@ export function Accounts() {
 
                 if (Number.isNaN(value)) return s;
                 const k = Math.floor(value / 1000);
-                return k > 0 ? `${k}k` : '0';
+                return k > 0 ? `${k}k` : String(value);
               }}
               yAxisTextStyle={{ fontSize: 11, color: theme.colors.xAxisLabel }}
               verticalLinesColor={theme.colors.xAxisColor}

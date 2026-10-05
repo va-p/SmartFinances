@@ -118,7 +118,7 @@ A1 → A2 → A3
 
 ---
 
-### A3: Overview category totals conversion + screen wiring
+### A3: Overview category totals conversion + screen wiring — ✅ Complete
 
 **What**: Convert Overview's `calculateTotals` amounts (`amount_in_account_currency ?? amount`, from the account's currency, skip unsupported) so `curRevenues`/`curExpenses`, category `totalFormatted` and pie values are base-converted; pass `quotes` into `processTransactions` from `Home`, `Account`, `TransactionsByCategory`, `BudgetDetails`; pass `quotes` + `baseCurrencyCode` into `buildNetWorthEvolution` from `Accounts` and `Overview` (+ memo deps).
 **Where**: `src/screens/Overview/index.tsx` (plus the six wiring screens)
@@ -129,10 +129,10 @@ A1 → A2 → A3
 **Tools**: NONE
 
 **Done when**:
-- [ ] Overview's category totals, Despesas/Receitas/Fluxo buttons and pie chart values sum converted amounts
-- [ ] All six screens pass quotes (Accounts/Overview also the base code) into the reworked utils with memo deps updated
-- [ ] Full gate passes: zero new jest failures; `npx eslint` clean on the touched files
-- [ ] Wiring recorded as file:line evidence (env-blocked layer per matrix)
+- [x] Overview's category totals, Despesas/Receitas/Fluxo buttons and pie chart values sum converted amounts (both the denominator and category sums)
+- [x] All six screens pass quotes (Accounts/Overview also the base code) into the reworked utils with memo deps updated
+- [x] Full gate passes: 327 passing, zero new jest failures; `npx eslint` clean on the touched files
+- [x] Wiring: `Overview/index.tsx:194-233` (calculateTotals conversion), `Overview/index.tsx:294-313` (buildNetWorthEvolution quotes+base), `Accounts/index.tsx:280-299`, `Home/index.tsx:308-315`, `Account/index.tsx:210-217`, `TransactionsByCategory/index.tsx:99-107`, `BudgetDetails/index.tsx:92-99`
 
 **Tests**: none (env-blocked layer per matrix)
 **Gate**: full

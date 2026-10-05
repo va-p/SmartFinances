@@ -80,6 +80,7 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useQuotes } from '@stores/quotesStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
@@ -104,6 +105,7 @@ export function Account() {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
   const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
+  const quotes = useQuotes();
   const { id } = useLocalSearchParams();
   const accountID = Number(id);
   // Animated header
@@ -209,6 +211,7 @@ export function Account() {
         transactionsFormattedPtbr,
         selectedPeriod.period,
         selectedDate,
+        quotes,
         baseCurrencyCode
       );
 
@@ -226,6 +229,7 @@ export function Account() {
     accountID,
     selectedPeriod,
     selectedDate,
+    quotes,
     baseCurrencyCode,
   ]);
 
