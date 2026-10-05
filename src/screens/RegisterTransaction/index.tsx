@@ -44,7 +44,10 @@ import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 import {
   buildTransferCreatePayload,
   buildTransferEditPayload,
+  convertWithRate,
+  getExchangeRate,
   normalizeTags,
+  resolveSingleLegRate,
   resolveTransactionTab,
   resolveTransferDestinationAccount,
 } from '@utils/transactionPayload';
@@ -313,6 +316,7 @@ export function RegisterTransaction({
     setValue,
     getValues,
     handleSubmit,
+    watch,
     reset,
     formState: { errors },
   } = useForm<FormData>({
@@ -321,6 +325,7 @@ export function RegisterTransaction({
       description: '',
       amount: 0,
       amountInAccountCurrency: null,
+      exchangeRate: null,
     },
   });
   // Currency Quotes
@@ -338,6 +343,140 @@ export function RegisterTransaction({
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
+
+  // Assembled once for the exchange-rate helpers (FX-08) — the handlers keep
+  // their own inline literals.
+  const quotes = {
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteBtc,
+    usdQuoteEur,
+  };
+
+  // ── Exchange-rate field wiring (FX-09/FX-10, feature transaction-exchange-rate) ──
+  const isPlainTab = transactionType !== 'TRANSFER';
+  // AC P2-1: the rate input shows whenever the plain-tab conversion applies
+  const conversionApplies =
+    isPlainTab &&
+    !!accountCurrency &&
+    currencySelected.code !== accountCurrency.code;
+  // D-01/AC P2-6/P2-7: on the Transfer tab the rate input shows only when
+  // exactly one leg converts — no single field is meaningful otherwise.
+  const transferSingleConversion =
+    transactionType === 'TRANSFER' && accountDestinationSelected && accountCurrency
+      ? resolveSingleLegRate(
+          currencySelected.code,
+          accountCurrency.code,
+          accountDestinationSelected.currency?.code ?? '',
+          quotes,
+        )
+      : null;
+  const rateFieldVisible = !isBulkEdit
+    ? isPlainTab
+      ? conversionApplies
+      : transferSingleConversion !== null
+    : false;
+
+  const watchedAmount = watch('amount');
+  const watchedRate = watch('exchangeRate');
+
+  // A-03: a pair change invalidates the current rate — refill with the live
+  // quote for the new pair (null when no conversion applies).
+  const defaultRateForPair = (
+    selectedCode: string,
+    originCode?: string,
+    destinationCode?: string,
+  ) => {
+    if (isBulkEdit) {
+      return null;
+    }
+    if (transactionType === 'TRANSFER') {
+      const destCode =
+        destinationCode ?? accountDestinationSelected?.currency?.code;
+      if (!originCode || !destCode) {
+        return null;
+      }
+      const single = resolveSingleLegRate(
+        selectedCode,
+        originCode,
+        destCode,
+        quotes,
+      );
+      return single ? single.quote : null;
+    }
+    if (!originCode) {
+      return null;
+    }
+    return getExchangeRate(selectedCode, originCode, quotes);
+  };
+
+  // D-02/AC P2-2: the rate drives the conversion — the account-currency
+  // amount is derived (read-only display) whenever amount, rate or the pair
+  // changes. Transfer legs convert inside the payload builders (D-01) and
+  // bulk edit converts per transaction at submit (A-04).
+  const rateInitRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isBulkEdit || transactionType === 'TRANSFER' || !accountCurrency) {
+      return;
+    }
+    if (currencySelected.code === accountCurrency.code) {
+      rateInitRef.current = null;
+      setValue('amountInAccountCurrency', null);
+      return;
+    }
+    const pairKey = `${currencySelected.code}→${accountCurrency.code}`;
+    const rawRate = getValues('exchangeRate');
+    const rate = typeof rawRate === 'number' ? rawRate : Number(rawRate);
+    if (!rate || rate <= 0) {
+      // AC P2-1: a fresh conversion pair shows the live quote pre-filled
+      // (initial render with a hydrated account). Only once per pair — the
+      // user can still clear it afterwards, and submit is then blocked
+      // (AC P2-9).
+      if (rateInitRef.current !== pairKey) {
+        rateInitRef.current = pairKey;
+        const quote = getExchangeRate(
+          currencySelected.code,
+          accountCurrency.code,
+          quotes,
+        );
+        if (quote != null && quote > 0) {
+          setValue('exchangeRate', quote);
+          return;
+        }
+      }
+      setValue('amountInAccountCurrency', null);
+      return;
+    }
+    rateInitRef.current = pairKey;
+    const rawAmount = getValues('amount');
+    const amount = typeof rawAmount === 'number' ? rawAmount : Number(rawAmount);
+    const signedAmount =
+      transactionType === 'DEBIT' ? -Math.abs(amount) : amount;
+    setValue(
+      'amountInAccountCurrency',
+      convertWithRate(
+        signedAmount,
+        rate,
+        currencySelected.code,
+        accountCurrency.code,
+      ),
+    );
+  }, [
+    watchedAmount,
+    watchedRate,
+    currencySelected,
+    accountCurrency,
+    transactionType,
+    isBulkEdit,
+  ]);
 
   const categoriesSectionButtons: TransactionTypeButton[] = [
     {
@@ -1005,6 +1144,20 @@ export function RegisterTransaction({
         ]
       );
     }
+
+    // FX-09 / AC P2-9: a converting transaction requires a positive rate.
+    const rate = getValues('exchangeRate');
+    if (rateFieldVisible && (rate == null || rate <= 0)) {
+      return Alert.alert(
+        'Cadastro de Transação',
+        'Digite a cotação da conversão',
+        [
+          {
+            text: 'OK',
+          },
+        ]
+      );
+    }
     // --- Validation Form - End ---
 
     // --- Bulk Edit Transaction ---
@@ -1130,6 +1283,17 @@ export function RegisterTransaction({
       setValue(
         'amountInAccountCurrency',
         transactionData.amount_in_account_currency
+      );
+      // FX-09 / AC P2-3/P2-4: pre-fill the applied rate — the stored value, or
+      // the implied |aic| / |amount| for legacy rows converted before this
+      // field existed.
+      setValue(
+        'exchangeRate',
+        transactionData.exchange_rate ??
+          (transactionData.amount_in_account_currency && transactionData.amount
+            ? Math.abs(transactionData.amount_in_account_currency) /
+                Math.abs(transactionData.amount)
+            : null),
       );
       setCurrencySelected(transactionData.currency);
       setAccountID(transactionData.account.id);
@@ -1296,12 +1460,37 @@ export function RegisterTransaction({
                     />
                   </InputTransactionValueGroup>
 
-                  {getValues('amountInAccountCurrency') && (
+                  {rateFieldVisible && (
+                    <InputTransactionValueGroup>
+                      <ControlledInputValue
+                        placeholder='Cotação'
+                        keyboardType='decimal-pad'
+                        textAlign='right'
+                        style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
+                        defaultValue={String(getValues('exchangeRate') ?? '')}
+                        name='exchangeRate'
+                        control={control}
+                        error={errors.exchangeRate}
+                      />
+
+                      <CurrencySelectButton
+                        title={`1 ${currencySelected.code} =`}
+                        hideArrow
+                        style={{ minHeight: 20, maxHeight: 20 }}
+                      />
+                    </InputTransactionValueGroup>
+                  )}
+
+                  {/* FX-09 / AC P2-2: derived, read-only conversion result —
+                      recomputed from amount × rate, shown in the account
+                      currency (plain tab only: transfers convert per leg). */}
+                  {!isBulkEdit && isPlainTab && conversionApplies && (
                     <InputTransactionValueGroup>
                       <ControlledInputValue
                         keyboardType='decimal-pad'
                         textAlign='right'
                         style={{ minHeight: 32, maxHeight: 32, fontSize: 14 }}
+                        editable={false}
                         defaultValue={String(
                           getValues('amountInAccountCurrency')
                         )}
@@ -1529,7 +1718,14 @@ export function RegisterTransaction({
         >
           <CurrencySelect
             currency={currencySelected}
-            setCurrency={setCurrencySelected}
+            setCurrency={(currency: CurrencyProps) => {
+              setCurrencySelected(currency);
+              // A-03: changing the pair resets the rate to the new pair's quote
+              setValue(
+                'exchangeRate',
+                defaultRateForPair(currency.code, accountCurrency?.code),
+              );
+            }}
             closeSelectCurrency={() => handleCloseSelectCurrencyModal()}
           />
         </ModalViewSelection>
@@ -1561,6 +1757,15 @@ export function RegisterTransaction({
               setAccountType(account.type);
               setCurrencySelected(account.currency);
               setAccountInitialAmount(account.initialAmount ?? 0);
+              // A-03: the account selector also sets the selected currency to
+              // the account's — the pair collapses to same-currency
+              setValue(
+                'exchangeRate',
+                defaultRateForPair(
+                  account.currency.code,
+                  account.currency.code,
+                ),
+              );
             }}
             closeSelectAccount={() => handleCloseSelectAccountModal()}
           />
@@ -1589,7 +1794,18 @@ export function RegisterTransaction({
                 initialAmount: 0,
               }
             }
-            setAccountDestination={setAccountDestinationSelected}
+            setAccountDestination={(account: AccountProps) => {
+              setAccountDestinationSelected(account);
+              // A-03: a new destination re-resolves the single converting leg
+              setValue(
+                'exchangeRate',
+                defaultRateForPair(
+                  currencySelected.code,
+                  accountCurrency?.code,
+                  account.currency?.code,
+                ),
+              );
+            }}
             closeSelectAccountDestination={() =>
               handleCloseSelectAccountDestinationModal()}
           />

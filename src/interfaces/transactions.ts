@@ -20,6 +20,7 @@ export interface TransactionProps {
   amount_formatted: string | number;
   amount_in_account_currency?: number;
   amount_in_account_currency_formatted?: string | undefined;
+  exchange_rate?: number | null;
   currency: CurrencyProps;
   type: TransactionTypeProps;
   account: AccountProps;
