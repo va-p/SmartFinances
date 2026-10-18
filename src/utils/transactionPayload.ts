@@ -11,7 +11,9 @@ import { convertCurrency } from '@utils/convertCurrency';
  *
  * Currency (D-01): `amount` keeps the value in the selected currency and
  * `amount_in_account_currency` stores the value converted into each leg's
- * account currency (null when equal).
+ * account currency (null when equal). `exchange_rate` stores the rate that
+ * produced each leg's converted value (null when equal): the quote price, or
+ * the user-modified rate when exactly one leg converts (D-02).
  */
 
 export type Quote = { price: number };
@@ -49,6 +51,12 @@ type TransferBaseInput = {
   recurrenceInterval: number | null;
   recurrencePeriod: string | null;
   quotes: Quotes;
+  /**
+   * User-modified rate for the single converting leg (D-01/D-02). Applies only
+   * when exactly one leg converts; ignored otherwise (each leg then uses its
+   * own quote). Null/undefined = use the quote.
+   */
+  exchangeRate?: number | null;
 };
 
 /**
@@ -72,6 +80,129 @@ export function convertToAccountCurrency(
     quotes,
   });
 }
+
+/**
+ * FX-08 / D-04: the quote price for a currency pair — 1 unit of `fromCode` =
+ * X units of `toCode` — so `amount × rate = amount_in_account_currency` holds
+ * by construction. Null when both codes are equal (no conversion stored).
+ */
+export function getExchangeRate(
+  fromCode: string,
+  toCode: string,
+  quotes: Quotes,
+): number | null {
+  if (fromCode === toCode) return null;
+  const key = `${fromCode.toLowerCase()}Quote${toCode[0]}${toCode
+    .slice(1)
+    .toLowerCase()}`;
+  const quote = (quotes as Record<string, Quote | undefined>)[key];
+  return quote ? quote.price : null;
+}
+
+/**
+ * FX-08 / AC P2-2: converts `amount` with an explicit rate, mirroring
+ * @utils/convertCurrency's per-pair rounding exactly (target BRL rounds to 2
+ * decimals; BRL→BTC rounds to 8; every other pair is a raw multiply) so a
+ * user-modified rate produces the same precision as the quote-driven path.
+ */
+export function convertWithRate(
+  amount: number,
+  rate: number,
+  fromCode: string,
+  toCode: string,
+): number {
+  const converted = amount * rate;
+  if (toCode === 'BRL') return Number(converted.toFixed(2));
+  if (fromCode === 'BRL' && toCode === 'BTC') {
+    return Number(converted.toFixed(8));
+  }
+  return converted;
+}
+
+export type SingleLegRate = { leg: 'origin' | 'destination'; quote: number };
+
+/**
+ * FX-08 / D-01: the single converting leg of a transfer, when exactly one leg
+ * converts (the selected currency equals one account currency but not the
+ * other). Null when both legs convert at different rates (no single field is
+ * meaningful — AC P2-7) or when neither converts.
+ */
+export function resolveSingleLegRate(
+  selectedCode: string,
+  originCode: string,
+  destinationCode: string,
+  quotes: Quotes,
+): SingleLegRate | null {
+  const originRate = getExchangeRate(selectedCode, originCode, quotes);
+  const destinationRate = getExchangeRate(
+    selectedCode,
+    destinationCode,
+    quotes,
+  );
+  if (originRate !== null && destinationRate === null) {
+    return { leg: 'origin', quote: originRate };
+  }
+  if (originRate === null && destinationRate !== null) {
+    return { leg: 'destination', quote: destinationRate };
+  }
+  return null;
+}
+
+type LegRateConversion = {
+  amountInAccountCurrency: number | null;
+  exchangeRate: number | null;
+};
+
+/**
+ * FX-11: per-leg conversion for transfer payloads. Each leg converts against
+ * its own account currency at its effective rate — the user-modified rate
+ * when it targets this leg via the single-converting-leg rule (D-01/D-02),
+ * otherwise the pair quote. A null rate means no conversion stored (leg
+ * currency equals the selected currency).
+ */
+const resolveTransferLegRates = (
+  magnitude: number,
+  selectedCode: string,
+  originCode: string,
+  destinationCode: string,
+  quotes: Quotes,
+  exchangeRateOverride?: number | null,
+): { origin: LegRateConversion; destination: LegRateConversion } => {
+  const single = resolveSingleLegRate(
+    selectedCode,
+    originCode,
+    destinationCode,
+    quotes,
+  );
+
+  const convertLeg = (
+    legCode: string,
+    leg: 'origin' | 'destination',
+  ): LegRateConversion => {
+    const quoteRate = getExchangeRate(selectedCode, legCode, quotes);
+    if (quoteRate === null) {
+      return { amountInAccountCurrency: null, exchangeRate: null };
+    }
+    const rate =
+      single !== null && single.leg === leg
+        ? exchangeRateOverride ?? quoteRate
+        : quoteRate;
+    return {
+      amountInAccountCurrency: convertWithRate(
+        magnitude,
+        rate,
+        selectedCode,
+        legCode,
+      ),
+      exchangeRate: rate,
+    };
+  };
+
+  return {
+    origin: convertLeg(originCode, 'origin'),
+    destination: convertLeg(destinationCode, 'destination'),
+  };
+};
 
 const recurrenceFields = (input: TransferBaseInput) => ({
   is_recurring: input.isRecurring,
@@ -97,6 +228,14 @@ export function normalizeTags(tags: unknown[]): string[] {
 export function buildTransferCreatePayload(input: TransferBaseInput) {
   const magnitude = Math.abs(input.amount);
   const selectedCode = input.selectedCurrency.code;
+  const legRates = resolveTransferLegRates(
+    magnitude,
+    selectedCode,
+    input.originAccount.currency.code,
+    input.destinationAccount.currency.code,
+    input.quotes,
+    input.exchangeRate,
+  );
 
   return {
     isTransfer: true,
@@ -109,12 +248,8 @@ export function buildTransferCreatePayload(input: TransferBaseInput) {
     debit: {
       description: input.description,
       amount: magnitude,
-      amount_in_account_currency: convertToAccountCurrency(
-        magnitude,
-        selectedCode,
-        input.originAccount.currency.code,
-        input.quotes,
-      ),
+      amount_in_account_currency: legRates.origin.amountInAccountCurrency,
+      exchange_rate: legRates.origin.exchangeRate,
       currency_id: input.selectedCurrency.id,
       account_id: input.originAccount.id,
       category_id: input.categoryId,
@@ -122,12 +257,8 @@ export function buildTransferCreatePayload(input: TransferBaseInput) {
     credit: {
       description: input.description,
       amount: magnitude,
-      amount_in_account_currency: convertToAccountCurrency(
-        magnitude,
-        selectedCode,
-        input.destinationAccount.currency.code,
-        input.quotes,
-      ),
+      amount_in_account_currency: legRates.destination.amountInAccountCurrency,
+      exchange_rate: legRates.destination.exchangeRate,
       currency_id: input.selectedCurrency.id,
       account_id: input.destinationAccount.id,
       category_id: input.categoryId,
@@ -191,11 +322,20 @@ export function resolveTransactionTab(
 /**
  * TR-4/TR-6 edit contract: `updateRelated: true` plus the counterpart fields.
  * The primary leg keeps its stored type; the counterpart is always the
- * opposite and lives in the destination account.
+ * opposite and lives in the destination account. Per-leg `exchange_rate`
+ * values ride along (FX-11 / AC P2-10).
  */
 export function buildTransferEditPayload(input: TransferEditInput) {
   const magnitude = Math.abs(input.amount);
   const selectedCode = input.selectedCurrency.code;
+  const legRates = resolveTransferLegRates(
+    magnitude,
+    selectedCode,
+    input.originAccount.currency.code,
+    input.destinationAccount.currency.code,
+    input.quotes,
+    input.exchangeRate,
+  );
 
   return {
     transaction_id: input.transactionId,
@@ -203,12 +343,8 @@ export function buildTransferEditPayload(input: TransferEditInput) {
     transaction_date: input.date,
     description: input.description,
     amount: magnitude,
-    amount_in_account_currency: convertToAccountCurrency(
-      magnitude,
-      selectedCode,
-      input.originAccount.currency.code,
-      input.quotes,
-    ),
+    amount_in_account_currency: legRates.origin.amountInAccountCurrency,
+    exchange_rate: legRates.origin.exchangeRate,
     currency_id: input.selectedCurrency.id,
     type: input.primaryType,
     account_id: input.originAccount.id,
@@ -219,11 +355,7 @@ export function buildTransferEditPayload(input: TransferEditInput) {
     updateRelated: true,
     related_transaction_account_id: input.destinationAccount.id,
     amount_in_account_currency_related_transaction:
-      convertToAccountCurrency(
-        magnitude,
-        selectedCode,
-        input.destinationAccount.currency.code,
-        input.quotes,
-      ),
+      legRates.destination.amountInAccountCurrency,
+    exchange_rate_related_transaction: legRates.destination.exchangeRate,
   };
 }

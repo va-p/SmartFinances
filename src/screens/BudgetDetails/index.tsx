@@ -23,8 +23,8 @@ import { useDeleteBudgetMutation } from '@hooks/useBudgetMutations';
 import { useFormattedBudgetDetail } from '@hooks/useFormattedBudgets';
 
 // Dependencies
-import { formatDistanceToNowStrict } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

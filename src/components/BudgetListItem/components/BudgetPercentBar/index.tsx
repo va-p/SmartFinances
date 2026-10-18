@@ -28,7 +28,7 @@ export function BudgetPercentBar({
 
   function updateProgress() {
     animatedWidth.value = withTiming(data.percentage, {
-      duration: 2000,
+      duration: 1000,
       easing: Easing.inOut(Easing.quad),
     });
   }

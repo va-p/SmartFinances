@@ -5,12 +5,6 @@ import { RectButton } from 'react-native-gesture-handler';
 
 import { ThemeProps } from '@interfaces/theme';
 
-// NOTE: the repo-wide styled-components DefaultTheme augmentation is broken
-// (pre-existing tsc errors in every styles.ts). New files cast the theme to
-// ThemeProps per interpolation so they add zero new errors; theme tokens
-// missing from ThemeProps (borders, font sizes) are inlined from the theme
-// files (borderRadiusShape: 25px, sizeText: 12px).
-
 type AmountProps = { is_amount_reached: boolean };
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
@@ -34,7 +28,7 @@ export const AmountContainer = styled.View`
 
 export const AmountCurrent = styled.Text<AmountProps>`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.bold};
-  color: ({ theme, is_amount_reached: isAmountReached }) =>
+  color: ${({ theme, is_amount_reached: isAmountReached }) =>
     isAmountReached
       ? (theme as ThemeProps).colors.success
       : (theme as ThemeProps).colors.primary};

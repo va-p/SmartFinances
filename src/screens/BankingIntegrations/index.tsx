@@ -26,9 +26,10 @@ import { Connector, BankingIntegration } from '@interfaces/bankingIntegration';
 
 import api from '@api/api';
 
-
 function EmptyList() {
-  return <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas trasações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />;
+  return (
+    <ListEmptyComponent text='Nenhuma conta conectada ainda. Conecte suas contas e cartões de crédito para que suas transações sejam importadas automaticamente! Suas contas conectadas serão exibidas aqui.' />
+  );
 }
 export function BankingIntegrations() {
   const theme = useTheme() as ThemeProps;
@@ -51,10 +52,9 @@ export function BankingIntegrations() {
       const response = await api.get('/banking-integration/');
 
       if (!!response.data && response.data.length > 0) {
-        const {data} = response;
+        const { data } = response;
         setIntegrations(data);
       }
-
     } catch (error) {
       Alert.alert(
         'Erro',
@@ -73,11 +73,9 @@ export function BankingIntegrations() {
       const response = await api.get('/banking-integration/sync');
 
       if (!!response.data && response.data.length > 0) {
-        const {data} = response;
+        const { data } = response;
         setIntegrations(data);
       }
-
-
     } catch (error) {
       if (axios.isAxiosError(error)) {
         Alert.alert(

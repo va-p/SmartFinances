@@ -36,7 +36,7 @@ export const CashFlowDescription = styled.Text`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
   font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   text-align: center;
-  margin-top: -8px;
+  margin-top: -4px;
   color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 

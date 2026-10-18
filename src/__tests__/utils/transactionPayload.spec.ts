@@ -2,11 +2,15 @@ import {
   buildTransferCreatePayload,
   buildTransferEditPayload,
   convertToAccountCurrency,
+  convertWithRate,
+  getExchangeRate,
   normalizeTags,
+  resolveSingleLegRate,
   resolveTransactionTab,
   resolveTransferDestinationAccount,
   Quotes,
 } from '@utils/transactionPayload';
+import { convertCurrency } from '@utils/convertCurrency';
 
 /**
  * Spec-anchored tests for the transfer payload builders
@@ -52,6 +56,104 @@ describe('convertToAccountCurrency', () => {
 
   it('converts the amount into the account currency', () => {
     expect(convertToAccountCurrency(100, 'USD', 'BRL', quotes)).toBe(500);
+  });
+});
+
+describe('getExchangeRate (FX-08)', () => {
+  it('AC P2-1: returns null when the codes are equal (no conversion)', () => {
+    expect(getExchangeRate('BRL', 'BRL', quotes)).toBeNull();
+  });
+
+  it('D-04: returns the quote price for the pair (1 EUR = 6 BRL, 1 BRL = 0.2 USD)', () => {
+    expect(getExchangeRate('EUR', 'BRL', quotes)).toBe(6);
+    expect(getExchangeRate('BRL', 'USD', quotes)).toBe(0.2);
+  });
+});
+
+describe('convertWithRate (FX-08 / AC P2-2)', () => {
+  it('rounds target-BRL conversions to 2 decimals exactly like convertCurrency', () => {
+    // 123.456 × 5.1 = 629.6256 — the 2dp rounding is load-bearing (629.63),
+    // so dropping it must fail this assertion (sensor mutant M5)
+    expect(convertWithRate(123.456, 5.1, 'USD', 'BRL')).toBe(629.63);
+    expect(convertWithRate(123.456, 5.1, 'USD', 'BRL')).toBe(
+      convertCurrency({
+        amount: 123.456,
+        fromCurrency: 'USD',
+        toCurrency: 'BRL',
+        accountCurrency: 'USD',
+        quotes: { ...quotes, usdQuoteBrl: { price: 5.1 } },
+      })
+    );
+  });
+
+  it('rounds BRL→BTC conversions to 8 decimals exactly like convertCurrency', () => {
+    // 123.456789 × 0.000001 = 0.000123456789 — the 8dp rounding is
+    // load-bearing (0.00012346), so dropping it must fail (sensor mutant M5)
+    expect(convertWithRate(123.456789, 0.000001, 'BRL', 'BTC')).toBe(
+      0.00012346
+    );
+    expect(convertWithRate(123.456789, 0.000001, 'BRL', 'BTC')).toBe(
+      convertCurrency({
+        amount: 123.456789,
+        fromCurrency: 'BRL',
+        toCurrency: 'BTC',
+        accountCurrency: 'BRL',
+        quotes: { ...quotes, brlQuoteBtc: { price: 0.000001 } },
+      })
+    );
+  });
+
+  it('rounds BTC→BRL conversions to 2 decimals exactly like convertCurrency', () => {
+    expect(convertWithRate(2, quotes.btcQuoteBrl.price, 'BTC', 'BRL')).toBe(1000000);
+    expect(convertWithRate(2, quotes.btcQuoteBrl.price, 'BTC', 'BRL')).toBe(
+      convertCurrency({
+        amount: 2,
+        fromCurrency: 'BTC',
+        toCurrency: 'BRL',
+        accountCurrency: 'BTC',
+        quotes,
+      })
+    );
+  });
+
+  it('keeps raw precision for non-BRL targets exactly like convertCurrency', () => {
+    expect(convertWithRate(100, quotes.eurQuoteUsd.price, 'EUR', 'USD')).toBe(90);
+    expect(convertWithRate(100, quotes.eurQuoteUsd.price, 'EUR', 'USD')).toBe(
+      convertCurrency({
+        amount: 100,
+        fromCurrency: 'EUR',
+        toCurrency: 'USD',
+        accountCurrency: 'EUR',
+        quotes,
+      })
+    );
+  });
+});
+
+describe('resolveSingleLegRate (FX-08 / D-01)', () => {
+  it('returns the destination leg when only the destination converts', () => {
+    // selected BRL, origin BRL, destination USD
+    expect(resolveSingleLegRate('BRL', 'BRL', 'USD', quotes)).toEqual({
+      leg: 'destination',
+      quote: 0.2,
+    });
+  });
+
+  it('returns the origin leg when only the origin converts', () => {
+    // selected USD, origin BRL, destination USD
+    expect(resolveSingleLegRate('USD', 'BRL', 'USD', quotes)).toEqual({
+      leg: 'origin',
+      quote: 5,
+    });
+  });
+
+  it('AC P2-7: returns null when both legs convert at different rates', () => {
+    // selected EUR, origin BRL, destination USD
+    expect(resolveSingleLegRate('EUR', 'BRL', 'USD', quotes)).toBeNull();
+  });
+
+  it('returns null when neither leg converts', () => {
+    expect(resolveSingleLegRate('USD', 'USD', 'USD', quotes)).toBeNull();
   });
 });
 
@@ -128,6 +230,73 @@ describe('buildTransferCreatePayload (TR-6 / D-02)', () => {
 
     expect(payload.tags).toEqual(['uuid-a', 'uuid-b', 'uuid-c']);
   });
+
+  it('FX-11: stores a per-leg exchange_rate alongside each converted value', () => {
+    // Selected EUR: origin BRL (rate 6), destination USD (rate 0.9)
+    const payload = buildTransferCreatePayload(
+      baseInput({
+        amount: 100,
+        selectedCurrency: { id: 3, code: 'EUR' },
+        originAccount: { id: 10, currency: { code: 'BRL' } },
+        destinationAccount: { id: 20, currency: { code: 'USD' } },
+      })
+    );
+
+    expect(payload.debit.exchange_rate).toBe(6);
+    expect(payload.credit.exchange_rate).toBe(0.9);
+  });
+
+  it('FX-11: stores a null rate on the non-converting leg', () => {
+    // USD selected, origin USD (no conversion), destination BRL
+    const payload = buildTransferCreatePayload(
+      baseInput({
+        selectedCurrency: { id: 2, code: 'USD' },
+        originAccount: { id: 10, currency: { code: 'USD' } },
+        destinationAccount: { id: 20, currency: { code: 'BRL' } },
+      })
+    );
+
+    expect(payload.debit.exchange_rate).toBeNull();
+    expect(payload.credit.exchange_rate).toBe(5);
+    expect(payload.credit.amount_in_account_currency).toBe(500);
+  });
+
+  it('AC P2-7: ignores the user rate when both legs convert (quote-derived per leg)', () => {
+    // Selected EUR: origin BRL (quote 6), destination USD (quote 0.9) — two
+    // converting legs, so the single-leg override (5.5) must NOT apply
+    const payload = buildTransferCreatePayload(
+      baseInput({
+        amount: 100,
+        selectedCurrency: { id: 3, code: 'EUR' },
+        originAccount: { id: 10, currency: { code: 'BRL' } },
+        destinationAccount: { id: 20, currency: { code: 'USD' } },
+        exchangeRate: 5.5,
+      })
+    );
+
+    expect(payload.debit.exchange_rate).toBe(6);
+    expect(payload.debit.amount_in_account_currency).toBe(600);
+    expect(payload.credit.exchange_rate).toBe(0.9);
+    expect(payload.credit.amount_in_account_currency).toBe(90);
+  });
+
+  it('AC P2-6: a modified rate recomputes only the converting leg', () => {
+    // USD selected, origin USD (no conversion), destination BRL; user rate 6
+    const payload = buildTransferCreatePayload(
+      baseInput({
+        selectedCurrency: { id: 2, code: 'USD' },
+        originAccount: { id: 10, currency: { code: 'USD' } },
+        destinationAccount: { id: 20, currency: { code: 'BRL' } },
+        exchangeRate: 6,
+      })
+    );
+
+    expect(payload.debit.amount_in_account_currency).toBeNull();
+    expect(payload.debit.exchange_rate).toBeNull();
+    // 100 × 6 (user rate), not the 500 quote-driven value
+    expect(payload.credit.amount_in_account_currency).toBe(600);
+    expect(payload.credit.exchange_rate).toBe(6);
+  });
 });
 
 describe('buildTransferEditPayload (TR-4 / TR-6)', () => {
@@ -157,6 +326,80 @@ describe('buildTransferEditPayload (TR-4 / TR-6)', () => {
 
     expect(payload.amount_in_account_currency).toBeNull(); // origin USD
     expect(payload.amount_in_account_currency_related_transaction).toBe(500);
+  });
+
+  it('AC P2-10: emits per-leg rates including exchange_rate_related_transaction', () => {
+    // USD selected, origin USD (no conversion), destination BRL
+    const payload = buildTransferEditPayload(
+      baseInput({
+        transactionId: '7',
+        primaryType: 'TRANSFER_DEBIT',
+        selectedCurrency: { id: 2, code: 'USD' },
+        originAccount: { id: 10, currency: { code: 'USD' } },
+        destinationAccount: { id: 20, currency: { code: 'BRL' } },
+      })
+    );
+
+    expect(payload.exchange_rate).toBeNull(); // origin USD = no conversion
+    expect(payload.exchange_rate_related_transaction).toBe(5);
+  });
+
+  it('AC P2-7: ignores the user rate on the edit payload when both legs convert', () => {
+    // Selected EUR: origin BRL (quote 6), destination USD (quote 0.9) — two
+    // converting legs, so the single-leg override (5.5) must NOT apply
+    const payload = buildTransferEditPayload(
+      baseInput({
+        transactionId: '7',
+        primaryType: 'TRANSFER_DEBIT',
+        amount: 100,
+        selectedCurrency: { id: 3, code: 'EUR' },
+        originAccount: { id: 10, currency: { code: 'BRL' } },
+        destinationAccount: { id: 20, currency: { code: 'USD' } },
+        exchangeRate: 5.5,
+      })
+    );
+
+    expect(payload.exchange_rate).toBe(6);
+    expect(payload.amount_in_account_currency).toBe(600);
+    expect(payload.exchange_rate_related_transaction).toBe(0.9);
+    expect(payload.amount_in_account_currency_related_transaction).toBe(90);
+  });
+
+  it('AC P2-6/P2-10: a modified rate recomputes only the converting counterpart leg', () => {
+    const payload = buildTransferEditPayload(
+      baseInput({
+        transactionId: '7',
+        primaryType: 'TRANSFER_DEBIT',
+        selectedCurrency: { id: 2, code: 'USD' },
+        originAccount: { id: 10, currency: { code: 'USD' } },
+        destinationAccount: { id: 20, currency: { code: 'BRL' } },
+        exchangeRate: 6,
+      })
+    );
+
+    expect(payload.amount_in_account_currency).toBeNull();
+    expect(payload.exchange_rate).toBeNull();
+    // 100 × 6 (user rate), not the 500 quote-driven value
+    expect(payload.amount_in_account_currency_related_transaction).toBe(600);
+    expect(payload.exchange_rate_related_transaction).toBe(6);
+  });
+
+  it('AC P2-7: stores quote-derived per-leg rates when both legs convert', () => {
+    // Selected EUR: origin BRL (rate 6), destination USD (rate 0.9)
+    const payload = buildTransferEditPayload(
+      baseInput({
+        transactionId: '7',
+        primaryType: 'TRANSFER_DEBIT',
+        selectedCurrency: { id: 3, code: 'EUR' },
+        originAccount: { id: 10, currency: { code: 'BRL' } },
+        destinationAccount: { id: 20, currency: { code: 'USD' } },
+      })
+    );
+
+    expect(payload.amount_in_account_currency).toBe(600);
+    expect(payload.exchange_rate).toBe(6);
+    expect(payload.amount_in_account_currency_related_transaction).toBe(90);
+    expect(payload.exchange_rate_related_transaction).toBe(0.9);
   });
 });
 

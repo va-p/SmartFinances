@@ -91,6 +91,7 @@ describe('getBudgetPeriods', () => {
 
     expect(periods).toHaveLength(4);
 
+    // The first period runs from the budget start to the end of its month.
     expect(periods[0].startDate.getTime()).toBe(
       new Date(2026, 0, 15, 12).getTime()
     );
@@ -98,30 +99,56 @@ describe('getBudgetPeriods', () => {
       endOfMonth(new Date(2026, 0, 15)).getTime()
     );
 
+    // Later periods are full calendar months starting at 00:00 on the 1st,
+    // so no transaction instant falls between two consecutive periods.
     expect(periods[1].startDate.getTime()).toBe(
-      new Date(2026, 1, 15, 12).getTime()
+      new Date(2026, 1, 1).getTime()
     );
     expect(periods[1].endDate.getTime()).toBe(
-      endOfMonth(new Date(2026, 1, 15)).getTime()
+      endOfMonth(new Date(2026, 1, 1)).getTime()
     );
 
     expect(periods[2].startDate.getTime()).toBe(
-      new Date(2026, 2, 15, 12).getTime()
+      new Date(2026, 2, 1).getTime()
     );
     expect(periods[2].endDate.getTime()).toBe(
-      endOfMonth(new Date(2026, 2, 15)).getTime()
+      endOfMonth(new Date(2026, 2, 1)).getTime()
     );
 
     // The in-progress period is included and its end is >= upTo.
     expect(periods[3].startDate.getTime()).toBe(
-      new Date(2026, 3, 15, 12).getTime()
+      new Date(2026, 3, 1).getTime()
     );
     expect(periods[3].endDate.getTime()).toBe(
-      endOfMonth(new Date(2026, 3, 15)).getTime()
+      endOfMonth(new Date(2026, 3, 1)).getTime()
     );
     expect(periods[3].endDate.getTime()).toBeGreaterThanOrEqual(
       new Date(2026, 3, 10).getTime()
     );
+  });
+
+  it('leaves no gap or overlap between consecutive monthly periods', () => {
+    // Budget created at 19:03 on the 1st — mirrors the production case where
+    // the gap covered the 1st until the budget's start time-of-day.
+    const upTo = new Date(2026, 9, 1, 12); // October 1, 2026, noon
+    const periods = getBudgetPeriods(
+      { start_date: '2026-01-01T19:03:00', recurrence: 'MONTHLY' },
+      upTo
+    );
+
+    expect(periods).toHaveLength(10); // January through October
+
+    for (let i = 1; i < periods.length; i += 1) {
+      expect(
+        periods[i].startDate.getTime() - periods[i - 1].endDate.getTime()
+      ).toBe(1); // exactly 1 ms apart: no gap, no overlap
+    }
+
+    // The current period contains upTo even on the 1st, before the budget's
+    // original start time-of-day.
+    const current = periods[periods.length - 1];
+    expect(current.startDate.getTime()).toBeLessThanOrEqual(upTo.getTime());
+    expect(current.endDate.getTime()).toBeGreaterThanOrEqual(upTo.getTime());
   });
 
   it('steps daily periods by one day', () => {
@@ -311,12 +338,12 @@ describe('formatBudgetInfo', () => {
       upTo
     );
 
-    // Current monthly period is [Aug 15, Aug 31].
+    // Current monthly period is [Aug 1, Aug 31] (full calendar month).
     expect(result.current_start_date.getTime()).toBe(
-      new Date(2026, 7, 15, 12).getTime()
+      new Date(2026, 7, 1).getTime()
     );
     expect(result.current_end_date.getTime()).toBe(
-      endOfMonth(new Date(2026, 7, 15)).getTime()
+      endOfMonth(new Date(2026, 7, 1)).getTime()
     );
 
     // 100 + 50 + 55 + 10 = 215 (transfer and out-of-period/out-of-category excluded)
@@ -328,5 +355,31 @@ describe('formatBudgetInfo', () => {
     expect(
       result.budget_transactions.map((transaction) => transaction.id)
     ).toEqual([1, 3, 4, 5, 7]);
+  });
+
+  it('counts transactions created on the 1st of the month before the budget start time-of-day', () => {
+    // Production case: budget created at 19:03 on Aug 1. On Sep 1 morning the
+    // budget showed 0 spent and no transactions because the September period
+    // only started at 19:03 on the 1st.
+    const budget = makeBudget({ start_date: '2026-08-01T19:03:00' });
+    const septemberUpTo = new Date(2026, 8, 2); // September 2, 2026
+
+    const onTheFirst = makeTransaction({
+      id: 21,
+      created_at: '2026-09-01T09:15:00',
+      amount: -80,
+    });
+
+    const result = formatBudgetInfo(budget, [onTheFirst], septemberUpTo);
+
+    expect(result.current_start_date.getTime()).toBe(
+      new Date(2026, 8, 1).getTime()
+    );
+    expect(result.current_end_date.getTime()).toBe(
+      endOfMonth(new Date(2026, 8, 1)).getTime()
+    );
+    expect(result.budget_transactions.map((t) => t.id)).toEqual([21]);
+    expect(result.amount_spent).toBe(80);
+    expect(result.percentage).toBe(8);
   });
 });
