@@ -5,6 +5,7 @@ import {
   Text,
   LogoWrapper,
   Logo,
+  LogoText,
   SubTitle,
   SectionHeader,
   SocialLoginButton,
@@ -181,9 +182,11 @@ export function SignUp() {
         </SectionHeader>
 
         <MainContent>
-          <LogoWrapper style={{ marginBottom: -16 }}>
+          <LogoWrapper style={{ marginBottom: -64 }}>
             <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
           </LogoWrapper>
+
+          <LogoText>Smart Finances</LogoText>
 
           <SubTitle style={{ marginBottom: 8 }}>
             Faça seu cadastro abaixo

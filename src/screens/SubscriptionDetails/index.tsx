@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import {
   Container,
   ContentScroll,
@@ -112,8 +118,11 @@ export function SubscriptionDetails() {
   const router = useRouter();
   const { id }: { id: string } = useLocalSearchParams();
 
-  const { data: subscription, isLoading, refetch } =
-    useSubscriptionDetailQuery(id);
+  const {
+    data: subscription,
+    isLoading,
+    refetch,
+  } = useSubscriptionDetailQuery(id);
   const updateMutation = useUpdateSubscriptionMutation();
 
   const editSheetRef = useRef<BottomSheetModal>(null);
@@ -156,7 +165,7 @@ export function SubscriptionDetails() {
     if (!subscription) return;
 
     const parsedAmount = Number(parseDecimalInput(amountInput));
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    if (!Number.isFinite(parsedAmount)) {
       Alert.alert('Editar assinatura', 'Informe um valor válido.');
       return;
     }
@@ -365,62 +374,69 @@ export function SubscriptionDetails() {
         <ModalViewSelection
           title='Editar assinatura'
           bottomSheetRef={editSheetRef}
-          snapPoints={['70%']}
+          snapPoints={['80%']}
           keyboardBehavior='extend'
         >
-          <EditSheetContent>
-            <InputLabel>Valor</InputLabel>
-            <EditInput
-              value={amountInput}
-              onChangeText={setAmountInput}
-              keyboardType='decimal-pad'
-              placeholder='0,00'
-              placeholderTextColor={theme.colors.textPlaceholder}
-            />
-            {editAmountPreview && (
-              <DetailLabel style={{ marginTop: 6 }}>
-                {editAmountPreview}
-              </DetailLabel>
-            )}
+          <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            accessible={false}
+          >
+            <EditSheetContent
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+              <InputLabel>Valor</InputLabel>
+              <EditInput
+                value={amountInput}
+                onChangeText={setAmountInput}
+                keyboardType='decimal-pad'
+                placeholder='0,00'
+                placeholderTextColor={theme.colors.textPlaceholder}
+              />
+              {editAmountPreview && (
+                <DetailLabel style={{ marginTop: 6 }}>
+                  {editAmountPreview}
+                </DetailLabel>
+              )}
 
-            <InputLabel>Dia de cobrança (1–31)</InputLabel>
-            <EditInput
-              value={dayInput}
-              onChangeText={setDayInput}
-              keyboardType='number-pad'
-              placeholder='6'
-              placeholderTextColor={theme.colors.textPlaceholder}
-            />
+              <InputLabel>Dia de cobrança (1–31)</InputLabel>
+              <EditInput
+                value={dayInput}
+                onChangeText={setDayInput}
+                keyboardType='number-pad'
+                placeholder='6'
+                placeholderTextColor={theme.colors.textPlaceholder}
+              />
 
-            <InputLabel>Recorrência</InputLabel>
-            <PeriodPills>
-              <PeriodPill
-                isActive={period === 'MONTHLY'}
-                onPress={() => setPeriod('MONTHLY')}
-              >
-                <PeriodPillText isActive={period === 'MONTHLY'}>
-                  Mensal
-                </PeriodPillText>
-              </PeriodPill>
-              <PeriodPill
-                isActive={period === 'YEARLY'}
-                onPress={() => setPeriod('YEARLY')}
-              >
-                <PeriodPillText isActive={period === 'YEARLY'}>
-                  Anual
-                </PeriodPillText>
-              </PeriodPill>
-            </PeriodPills>
+              <InputLabel>Recorrência</InputLabel>
+              <PeriodPills>
+                <PeriodPill
+                  isActive={period === 'MONTHLY'}
+                  onPress={() => setPeriod('MONTHLY')}
+                >
+                  <PeriodPillText isActive={period === 'MONTHLY'}>
+                    Mensal
+                  </PeriodPillText>
+                </PeriodPill>
+                <PeriodPill
+                  isActive={period === 'YEARLY'}
+                  onPress={() => setPeriod('YEARLY')}
+                >
+                  <PeriodPillText isActive={period === 'YEARLY'}>
+                    Anual
+                  </PeriodPillText>
+                </PeriodPill>
+              </PeriodPills>
 
-            <SaveButtonContainer>
-              <Button.Root
-                onPress={() => handleSaveEdit()}
-                isLoading={updateMutation.isPending}
-              >
-                <Button.Text text='Salvar' />
-              </Button.Root>
-            </SaveButtonContainer>
-          </EditSheetContent>
+              <SaveButtonContainer>
+                <Button.Root
+                  onPress={() => handleSaveEdit()}
+                  isLoading={updateMutation.isPending}
+                >
+                  <Button.Text text='Salvar' />
+                </Button.Root>
+              </SaveButtonContainer>
+            </EditSheetContent>
+          </TouchableWithoutFeedback>
         </ModalViewSelection>
       </Container>
     </Screen>

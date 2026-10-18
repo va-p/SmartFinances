@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { ThemeProps } from '@interfaces/theme';
 
 export const Container = styled.View`
   flex: 1;
@@ -23,7 +24,7 @@ export const FilterButtonGroup = styled.View`
 `;
 
 export const CashFlowSection = styled.View`
-  padding: 0 16px;
+  padding: 16px 16px 0;
 `;
 
 export const CategoriesSection = styled.View`
@@ -31,10 +32,10 @@ export const CategoriesSection = styled.View`
 `;
 
 export const SectionTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeTitleXl};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitleXl};
   margin-bottom: 8px;
-  color: ${({ theme }) => theme.colors.title};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
 `;
 
 export const CategoriesContainer = styled.View`

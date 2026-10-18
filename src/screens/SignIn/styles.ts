@@ -1,6 +1,7 @@
 import styled from 'styled-components/native';
-
 import { RectButton } from 'react-native-gesture-handler';
+
+import { ThemeProps } from '@interfaces/theme';
 
 export const Container = styled.KeyboardAvoidingView`
   flex: 1;
@@ -16,13 +17,13 @@ export const SectionHeader = styled.View`
 export const MainContent = styled.View`
   flex: 1;
   border-top-left-radius: ${({ theme }) =>
-    theme.borders.borderRadiusScreenSectionContent};
+    (theme as ThemeProps).borders.borderRadiusScreenSectionContent};
   border-top-right-radius: ${({ theme }) =>
-    theme.borders.borderRadiusScreenSectionContent};
+    (theme as ThemeProps).borders.borderRadiusScreenSectionContent};
   align-items: center;
   row-gap: 8px;
   padding: 64px 8px 8px;
-  background-color: ${({ theme }) => theme.colors.backgroundCardHeader};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.backgroundCardHeader};
 `;
 
 export const LogoWrapper = styled.View`
@@ -30,18 +31,25 @@ export const LogoWrapper = styled.View`
   height: 20%;
   align-items: center;
   justify-content: center;
-  margin-bottom: 32px;
 `;
 
 export const Logo = styled.Image.attrs({
   resizeMode: 'contain',
 })``;
 
+export const LogoText = styled.Text`
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 32px;
+  color: ${({ theme }) => (theme as ThemeProps).colors.primary};
+`;
+
 export const SubTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeTitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   text-align: left;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const FormWrapper = styled.View`
@@ -51,9 +59,9 @@ export const FormWrapper = styled.View`
 `;
 
 export const Text = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const SocialLoginButton = styled(RectButton)`
@@ -64,7 +72,7 @@ export const SocialLoginButton = styled(RectButton)`
   align-items: center;
   justify-content: center;
   padding: 8px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border: ${({ theme }) => theme.borders.default};
-  border-radius: ${({ theme }) => theme.borders.borderRadiusButtonAndInput};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
+  border: ${({ theme }) => (theme as ThemeProps).borders.default};
+  border-radius: ${({ theme }) => (theme as ThemeProps).borders.borderRadiusButtonAndInput};
 `;

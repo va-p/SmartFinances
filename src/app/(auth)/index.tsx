@@ -1,3 +1,3 @@
-import { Welcome } from '@screens/Welcome';
+import { WelcomeFlow } from '@screens/WelcomeFlow';
 
-export default Welcome;
+export default WelcomeFlow;

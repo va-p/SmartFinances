@@ -24,21 +24,21 @@ import {
 } from './styles';
 
 // Hooks
-import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useScreenTrace } from '@hooks/useScreenTrace';
+import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
 
 // Utils
+import formatCurrency from '@utils/formatCurrency';
 import { formatTransactions } from '@utils/formatTransactions';
 import { processTransactions } from '@utils/processTransactions';
+import { filterTransactionsByAccounts } from '@utils/accountsFilter';
 import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
-import { filterTransactionsByAccounts } from '@utils/accountsFilter';
 
 // Dependencies
-import { isFirstDayOfMonth } from 'date-fns';
 import Animated, {
   FadeInUp,
   FadeOutUp,
@@ -54,11 +54,11 @@ import {
 } from 'react-native-gesture-handler';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
+import { isFirstDayOfMonth } from 'date-fns';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-
 
 // Icons
 import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
@@ -70,15 +70,15 @@ import { PencilSimpleLineIcon } from 'phosphor-react-native/src/icons/PencilSimp
 // Components
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
+import { SearchBar } from '@components/SearchBar';
 import { FilterButton } from '@components/FilterButton';
-import { AccountFilterButton } from '@components/AccountFilterButton';
 import { SectionListHeader } from '@components/SectionListHeader';
 import TransactionListItem from '@components/TransactionListItem';
 import { SkeletonHomeScreen } from '@components/SkeletonHomeScreen';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
+import { AccountFilterButton } from '@components/AccountFilterButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
-import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
@@ -88,9 +88,10 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 import {
   useSelectedTransactions,
   useClearSelection,
-  // useSelectedTransactionsCount,
+  useSelectedTransactionsCount,
 } from '@stores/useTransactionsStore';
 import { useUser } from '@stores/userStorage';
+import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
@@ -105,9 +106,9 @@ import api from '@api/api';
 
 // Local
 import { useHomeAnimations } from './hooks/useHomeAnimations';
-import { useTransactionHandlers } from './hooks/useTransactionHandlers';
 import { PeriodRulerList } from './components/PeriodRulerList';
 import { CashFlowInsightCard } from './components/CashFlowInsightCard';
+import { useTransactionHandlers } from './hooks/useTransactionHandlers';
 
 // Constants
 const isAndroid = Platform.OS === 'android';
@@ -115,9 +116,7 @@ const FLOATING_BUTTONS_RIGHT_POSITION = 16;
 const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid
   ? 64
   : 96;
-const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
-// PeriodRulerList Column
-
+const BULK_EDIT_BUTTON_BOTTOM_POSITION = 144;
 const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
@@ -135,9 +134,10 @@ export function Home() {
   const { id: userID } = useUser();
   const selectedTransactions = useSelectedTransactions();
   const clearSelection = useClearSelection();
-  // const selectedCount = useSelectedTransactionsCount();
-
-  const { hideAmount, setHideAmount, insights } = useUserConfigs();
+  const selectedCount = useSelectedTransactionsCount();
+  const { hideAmount, setHideAmount, insights, baseCurrency } =
+    useUserConfigs();
+  const quotes = useQuotes();
   const { setAccountId: setAccountID, setAccountName } =
     useCurrentAccountSelected();
 
@@ -287,7 +287,7 @@ export function Home() {
     if (!transactions) {
       return {
         cashFlowChartData: [],
-        currentCashFlow: 'R$ 0,00',
+        currentCashFlow: formatCurrency(baseCurrency.code, 0),
         groupedTransactions: [],
       };
     }
@@ -304,9 +304,18 @@ export function Home() {
     return processTransactions(
       transactionsFormattedPtbr,
       selectedPeriod.period,
-      selectedDate
+      selectedDate,
+      quotes,
+      baseCurrency.code
     );
-  }, [transactions, selectedAccountsFilter, selectedPeriod.period, selectedDate]);
+  }, [
+    transactions,
+    selectedAccountsFilter,
+    selectedPeriod.period,
+    selectedDate,
+    quotes,
+    baseCurrency.code,
+  ]);
 
   // Chart data is derived directly from the memoized processedData, so any
   // change to the transactions query re-renders the chart with fresh values
@@ -516,9 +525,9 @@ export function Home() {
         <Transactions>
           <AnimatedFlashList
             data={filteredTransactions}
-            keyExtractor={(item: any) => item.isHeader
-              ? String(item.headerTitle)
-              : String(item.id)}
+            keyExtractor={(item: any) =>
+              item.isHeader ? String(item.headerTitle) : String(item.id)
+            }
             renderItem={({ item, index }: any) => {
               if (item.isHeader) {
                 return (
@@ -629,7 +638,9 @@ export function Home() {
           <RegisterTransaction
             id={transactionId}
             resetId={clearTransactionId}
-            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
+            closeRegisterTransaction={() =>
+              handleCloseRegisterTransactionModal()
+            }
             isBulkEdit={transactionId === 'bulk-edit'}
             selectedTransactionIds={selectedTransactions}
           />

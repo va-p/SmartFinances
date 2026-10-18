@@ -10,11 +10,11 @@ import {
 } from './styles';
 
 import {
-  runOnJS,
   withTiming,
   useSharedValue,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 export type TabButtonType = {
   title: string;
@@ -47,7 +47,7 @@ export function TabButtons({ buttons, selectedTab, setSelectedTab }: Props) {
 
   const onTabPress = (index: number) => {
     tabPositionX.value = withTiming(buttonWidth * index, {}, () => {
-      runOnJS(handlePress)(index);
+      scheduleOnRN(handlePress, index);
     });
   };
 

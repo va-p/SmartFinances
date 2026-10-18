@@ -69,7 +69,7 @@ export function Goals() {
   const goalRegisterBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const quotes = useQuotes();
-  const { hideAmount } = useUserConfigs();
+  const { hideAmount, baseCurrency } = useUserConfigs();
 
   const { data: goals, isLoading, refetch: refetchGoals } = useGoalsQuery();
 
@@ -86,15 +86,15 @@ export function Goals() {
     return map;
   }, [activeGoals, quotes]);
 
-  // Summary: total saved across active goals, normalized to BRL like the
-  // Accounts screen total.
+  // Summary: total saved across active goals, normalized to the base
+  // currency like the Accounts screen total.
   const totalSavedFormatted = useMemo(() => {
     const total = activeGoals.reduce((sum, goal) => {
       const progress = progressByGoal.get(goal.id);
       if (!progress) {
         return sum;
       }
-      if (goal.currency.code === 'BRL') {
+      if (goal.currency.code === baseCurrency.code) {
         return sum + progress.currentAmount;
       }
       try {
@@ -103,7 +103,7 @@ export function Goals() {
           convertCurrency({
             amount: progress.currentAmount,
             fromCurrency: goal.currency.code,
-            toCurrency: 'BRL',
+            toCurrency: baseCurrency.code,
             accountCurrency: goal.currency.code,
             quotes,
           })
@@ -113,8 +113,8 @@ export function Goals() {
       }
     }, 0);
 
-    return formatCurrency('BRL', total, false);
-  }, [activeGoals, progressByGoal, quotes]);
+    return formatCurrency(baseCurrency.code, total, false);
+  }, [activeGoals, progressByGoal, quotes, baseCurrency.code]);
 
   const reachedCount = useMemo(
     () =>

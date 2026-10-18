@@ -88,7 +88,7 @@
 
 - [x] Recurring transactions
 - [x] Subscription management (Netflix, Spotify, etc.) with automatic identification based on transactions.
-- [ ] Financial goals / savings targets
+- [x] Financial goals / savings targets
 - [ ] Widgets (iOS / Android home screen)
 - [ ] Export data (CSV / PDF)
 - [ ] Multi-user / shared wallet support

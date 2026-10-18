@@ -112,7 +112,7 @@ export function InstitutionDetails() {
   const router = useRouter();
   const bottomTabHeight = useBottomTabBarHeight();
   const { institutionId, institutionName } = useCurrentInstitutionSelected();
-  const { hideAmount } = useUserConfigs();
+  const { hideAmount, baseCurrency } = useUserConfigs();
 
   // Search form (Home-screen pattern: query via react-hook-form)
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -142,7 +142,7 @@ export function InstitutionDetails() {
 
   const processedData = useMemo(() => {
     if (!rawAccounts) {
-      return { totalBalanceFormatted: formatCurrency('BRL', 0, false), sections: [] };
+      return { totalBalanceFormatted: formatCurrency(baseCurrency.code, 0, false), sections: [] };
     }
 
     // Filters the already-fetched accounts cache client-side by institution
@@ -154,7 +154,7 @@ export function InstitutionDetails() {
 
     function buildProcessedAccount(
       account: AccountProps,
-      accountBalanceConvertedToBRL: number
+      accountBalanceConvertedToBase: number
     ) {
       return {
         ...account,
@@ -164,8 +164,12 @@ export function InstitutionDetails() {
           false
         ),
         totalAccountAmountConverted:
-          account.currency.code !== 'BRL'
-            ? formatCurrency('BRL', accountBalanceConvertedToBRL, false)
+          account.currency.code !== baseCurrency.code
+            ? formatCurrency(
+              baseCurrency.code,
+              accountBalanceConvertedToBase,
+              false
+            )
             : undefined,
       };
     }
@@ -177,10 +181,10 @@ export function InstitutionDetails() {
     >();
 
     institutionAccounts.forEach((account) => {
-      const accountBalanceConvertedToBRL = convertCurrency({
+      const accountBalanceConvertedToBase = convertCurrency({
         amount: Number(account.balance),
         fromCurrency: account.currency.code,
-        toCurrency: 'BRL',
+        toCurrency: baseCurrency.code,
         accountCurrency: account.currency.code,
         quotes: {
           brlQuoteBtc,
@@ -200,14 +204,14 @@ export function InstitutionDetails() {
 
       const processedAccount = buildProcessedAccount(
         account,
-        accountBalanceConvertedToBRL
+        accountBalanceConvertedToBase
       );
 
       // Non-credit-card total, matching T20's institution card aggregation
       // (AC13.3) — recomputed here from the filtered list to avoid staleness
       // (design.md §7 "InstitutionDetails staleness").
       if (account.type !== 'CREDIT' && account.subtype !== 'CREDIT_CARD') {
-        totalBalance = totalBalance.plus(accountBalanceConvertedToBRL);
+        totalBalance = totalBalance.plus(accountBalanceConvertedToBase);
       }
 
       const sectionKey = getSectionKey(account);
@@ -228,7 +232,7 @@ export function InstitutionDetails() {
 
     return {
       totalBalanceFormatted: formatCurrency(
-        'BRL',
+        baseCurrency.code,
         totalBalance.toNumber(),
         false
       ),
@@ -237,6 +241,7 @@ export function InstitutionDetails() {
   }, [
     rawAccounts,
     institutionId,
+    baseCurrency.code,
     brlQuoteBtc,
     brlQuoteEur,
     brlQuoteUsd,

@@ -53,6 +53,7 @@ import { RegisterBudget } from '@screens/RegisterBudget';
 import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useQuotes } from '@stores/quotesStorage';
 import { SectionListHeader } from '@components/SectionListHeader';
 
 // Local
@@ -75,7 +76,8 @@ export function BudgetDetails() {
   const registerTransactionBottomSheetRef = useRef<BottomSheetModal>(null);
   const [transactionID, setTransactionID] = useState('');
 
-  const { hideAmount } = useUserConfigs();
+  const { hideAmount, baseCurrency } = useUserConfigs();
+  const quotes = useQuotes();
 
   const { budget, isLoading, isError, refetchBudget } =
     useFormattedBudgetDetail(budgetID);
@@ -90,11 +92,13 @@ export function BudgetDetails() {
     const { groupedTransactions } = processTransactions(
       formatTransactions(budget.budget_transactions),
       'all',
-      new Date()
+      new Date(),
+      quotes,
+      baseCurrency.code
     );
 
     return flattenTransactionsForFlashList(groupedTransactions);
-  }, [budget]);
+  }, [budget, quotes, baseCurrency.code]);
 
   if (isLoading) {
     return <SkeletonBudgetsScreen />;
