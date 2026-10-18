@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
+import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
 import {
   Container,
   Header,
@@ -852,7 +852,7 @@ export function Accounts() {
           />
 
           {/** SCREEN FOOTER */}
-          <Footer bottomTabHeight={Platform.OS === 'ios' ? bottomTabHeight - 32 : bottomTabHeight - 32}>
+          <Footer bottomTabHeight={bottomTabHeight - 48}>
             <ButtonGroup>
               <AddAccountButton
                 icon='card'
