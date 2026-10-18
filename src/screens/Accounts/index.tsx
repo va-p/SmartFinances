@@ -111,7 +111,7 @@ export function Accounts() {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const { hideAmount, setHideAmount, sortingOption, setSortingOption } =
+  const { hideAmount, setHideAmount, sortingOption, setSortingOption, baseCurrency } =
     useUserConfigs();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -138,7 +138,7 @@ export function Accounts() {
   const processedData = useMemo(() => {
     if (!rawAccounts || !transactions) {
       return {
-        totalBalanceFormatted: formatCurrency('BRL', 0, false),
+        totalBalanceFormatted: formatCurrency(baseCurrency.code, 0, false),
         processedAccounts: [],
         chartData: [],
         institutionCards: [],
@@ -152,10 +152,10 @@ export function Accounts() {
     );
 
     const processedAccounts = filteredAccounts.map((account) => {
-      const accountBalanceConvertedToBRL = convertCurrency({
+      const accountBalanceConvertedToBase = convertCurrency({
         amount: Number(account.balance),
         fromCurrency: account.currency.code,
-        toCurrency: 'BRL',
+        toCurrency: baseCurrency.code,
         accountCurrency: account.currency.code,
         quotes: {
           brlQuoteBtc,
@@ -173,7 +173,7 @@ export function Accounts() {
         },
       });
       totalAccountsBalance = totalAccountsBalance.plus(
-        accountBalanceConvertedToBRL
+        accountBalanceConvertedToBase
       );
 
       return {
@@ -184,15 +184,19 @@ export function Accounts() {
           false
         ),
         totalAccountAmountConverted:
-          account.currency.code !== 'BRL'
-            ? formatCurrency('BRL', accountBalanceConvertedToBRL, false)
+          account.currency.code !== baseCurrency.code
+            ? formatCurrency(
+              baseCurrency.code,
+              accountBalanceConvertedToBase,
+              false
+            )
             : undefined,
         // Raw numeric balance preserved for sorting by balance value.
         rawBalance: Number(account.balance),
-        // Raw BRL-converted balance (not formatted) reused below to build
-        // per-institution aggregated totals without re-implementing currency
-        // conversion (AC13.1 / design.md §6 "Accounts screen changes")
-        accountBalanceConvertedToBRL,
+        // Raw base-currency-converted balance (not formatted) reused below to
+        // build per-institution aggregated totals without re-implementing
+        // currency conversion (AC13.1 / design.md §6 "Accounts screen changes")
+        accountBalanceConvertedToBase,
       };
     });
 
@@ -251,7 +255,7 @@ export function Accounts() {
 
       const totalConverted = accounts.reduce(
         (sum, account) =>
-          sum.plus(account.accountBalanceConvertedToBRL ?? 0),
+          sum.plus(account.accountBalanceConvertedToBase ?? 0),
         new Decimal(0)
       );
 
@@ -259,7 +263,7 @@ export function Accounts() {
         id: institution.id,
         name: institution.name,
         totalFormatted: formatCurrency(
-          'BRL',
+          baseCurrency.code,
           totalConverted.toNumber(),
           false
         ),
@@ -268,19 +272,35 @@ export function Accounts() {
       });
     });
 
-    // ── Net Worth Chart Data ──────────────────────────────────────────────
+    // ── Net Worth Chart Data ──────────────────────────────────────────
     // Extracted to a shared utility — same calculation as the Overview
     // screen.  Seeds the accumulated total with the current net worth so
-    // the final chart point equals totalBalanceFormatted.
+    // the final chart point equals totalBalanceFormatted. Flows convert
+    // to the base currency (BC-25) so intermediate points match the seed.
     const chartData = buildNetWorthEvolution({
       transactions,
       totalAssets: totalAccountsBalance.toNumber(),
       period: 'months',
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
+      baseCurrencyCode: baseCurrency.code,
     });
 
     return {
       totalBalanceFormatted: formatCurrency(
-        'BRL',
+        baseCurrency.code,
         totalAccountsBalance.toNumber(),
         false
       ),
@@ -289,7 +309,7 @@ export function Accounts() {
       institutionCards,
       standaloneAccounts,
     };
-  }, [rawAccounts, transactions]);
+  }, [rawAccounts, transactions, baseCurrency.code]);
 
   const {
     totalBalanceFormatted,
@@ -345,13 +365,13 @@ export function Accounts() {
         return (
           a: typeof processedAccounts[number],
           b: typeof processedAccounts[number]
-        ) => a.accountBalanceConvertedToBRL - b.accountBalanceConvertedToBRL;
+        ) => a.accountBalanceConvertedToBase - b.accountBalanceConvertedToBase;
       }
 
       return (
         a: typeof processedAccounts[number],
         b: typeof processedAccounts[number]
-      ) => b.accountBalanceConvertedToBRL - a.accountBalanceConvertedToBRL;
+      ) => b.accountBalanceConvertedToBase - a.accountBalanceConvertedToBase;
     };
     const accountCmp = pickAccountCmp();
 
@@ -734,7 +754,7 @@ export function Accounts() {
 
                 if (Number.isNaN(value)) return s;
                 const k = Math.floor(value / 1000);
-                return k > 0 ? `${k}k` : '0';
+                return k > 0 ? `${k}k` : String(value);
               }}
               yAxisTextStyle={{ fontSize: 11, color: theme.colors.xAxisLabel }}
               verticalLinesColor={theme.colors.xAxisColor}

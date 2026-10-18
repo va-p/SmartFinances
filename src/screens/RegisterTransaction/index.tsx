@@ -1453,7 +1453,7 @@ export function RegisterTransaction({
                       />
 
                       <CurrencySelectButton
-                        title={`1 ${currencySelected.code} =`}
+                        title={`= 1 ${currencySelected.code}`}
                         hideArrow
                         style={{ minHeight: 20, maxHeight: 20 }}
                       />
@@ -1463,7 +1463,7 @@ export function RegisterTransaction({
                   {/* FX-09 / AC P2-2: derived, read-only conversion result —
                       recomputed from amount × rate, shown in the account
                       currency (plain tab only: transfers convert per leg). */}
-                  {!isBulkEdit && isPlainTab && conversionApplies && (
+                  {!isBulkEdit && isPlainTab && conversionApplies && getValues('amountInAccountCurrency') && (
                     <InputTransactionValueGroup>
                       <ControlledInputValue
                         keyboardType='decimal-pad'

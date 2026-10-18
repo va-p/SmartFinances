@@ -44,6 +44,7 @@ import { getUpcomingPaymentsSummary } from '@utils/subscriptionPaymentsSummary';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionProps } from '@interfaces/subscriptions';
@@ -63,13 +64,14 @@ export function Subscriptions() {
   const [transactionId, setTransactionId] = useState('');
 
   const { data: subscriptions, isLoading, refetch } = useSubscriptionsQuery();
+  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
 
   const upcomingSummary = useMemo(
     () =>
       subscriptions
-        ? getUpcomingPaymentsSummary(subscriptions, quotes)
+        ? getUpcomingPaymentsSummary(subscriptions, quotes, new Date(), baseCurrencyCode)
         : null,
-    [subscriptions, quotes]
+    [subscriptions, quotes, baseCurrencyCode]
   );
 
   function handleOpenDetails(id: number) {
@@ -189,7 +191,7 @@ export function Subscriptions() {
             <FooterTextContainer>
               <FooterTitle>Próximos pagamentos</FooterTitle>
               <FooterSubtitle>
-                {formatCurrency('BRL', upcomingSummary.total)} em{' '}
+                {formatCurrency(baseCurrencyCode, upcomingSummary.total)} em{' '}
                 {upcomingCountText}
               </FooterSubtitle>
             </FooterTextContainer>

@@ -1,5 +1,9 @@
 import { create } from 'zustand';
 
+import { CurrencyProps } from '@interfaces/currencies';
+import { DATABASE_CONFIGS, storageConfig } from '@database/database';
+import { DEFAULT_BASE_CURRENCY } from '@utils/baseCurrency';
+
 export type SortingOption =
   | 'name-asc'
   | 'name-desc'
@@ -19,6 +23,8 @@ type UserConfigs = {
   setDarkMode: (darkMode: boolean) => void;
   sortingOption: SortingOption;
   setSortingOption: (sortingOption: SortingOption) => void;
+  baseCurrency: CurrencyProps;
+  setBaseCurrency: (baseCurrency: CurrencyProps) => void;
 };
 
 export const useUserConfigs = create<UserConfigs>((set) => ({
@@ -28,6 +34,7 @@ export const useUserConfigs = create<UserConfigs>((set) => ({
   notificationsEnabled: true,
   darkMode: false,
   sortingOption: 'name-asc',
+  baseCurrency: DEFAULT_BASE_CURRENCY,
   setUseLocalAuth: (useLocalAuth) =>
     set(() => ({ useLocalAuth })),
   setHideAmount: (hideAmount) => set(() => ({ hideAmount })),
@@ -37,4 +44,14 @@ export const useUserConfigs = create<UserConfigs>((set) => ({
   setDarkMode: (darkMode) => set(() => ({ darkMode })),
   setSortingOption: (sortingOption) =>
     set(() => ({ sortingOption })),
+  // Single write path for every base-currency entry point (welcome flow,
+  // options menu): updating the store also persists to MMKV so callers
+  // cannot drift.
+  setBaseCurrency: (baseCurrency) => {
+    set(() => ({ baseCurrency }));
+    storageConfig.set(
+      `${DATABASE_CONFIGS}.baseCurrency`,
+      JSON.stringify(baseCurrency)
+    );
+  },
 }));

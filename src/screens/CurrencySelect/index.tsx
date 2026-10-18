@@ -5,7 +5,6 @@ import { Container } from './styles';
 import { useCurrenciesStore } from '@stores/currenciesStore';
 
 import { ListItem } from '@components/ListItem';
-import { Gradient } from '@components/Gradient';
 import { ListSeparator } from '@components/ListSeparator';
 
 import { CurrencyProps } from '@interfaces/currencies';
@@ -14,14 +13,19 @@ type Props = {
   currency: CurrencyProps;
   setCurrency: (currency: CurrencyProps) => void;
   closeSelectCurrency: () => void;
+  // Optional list override: the base-currency sheet passes the
+  // quote-supported candidates; defaults to the currencies store list.
+  items?: CurrencyProps[];
 };
 
 export function CurrencySelect({
   currency,
   setCurrency,
   closeSelectCurrency,
+  items = undefined,
 }: Props) {
-  const currencies = useCurrenciesStore((state) => state.currencies);
+  const storeCurrencies = useCurrenciesStore((state) => state.currencies);
+  const currencies = items ?? storeCurrencies;
 
   function handleCurrencySelect(selectedCurrency: CurrencyProps) {
     setCurrency(selectedCurrency);
@@ -30,8 +34,6 @@ export function CurrencySelect({
 
   return (
     <Container>
-      <Gradient />
-
       <FlatList
         data={currencies}
         keyExtractor={(item) => String(item.id)}
