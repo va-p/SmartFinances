@@ -21,7 +21,6 @@ import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
-import { convertToBaseCurrency } from '@utils/baseCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
@@ -51,7 +50,6 @@ import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Storages
 import { useQuotes } from '@stores/quotesStorage';
-import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
@@ -103,14 +101,14 @@ export function Overview() {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
 
   const [selectedTabCashFlowSection, setSelectedTabCashFlowSection] =
     useState<CustomTab>(CustomTab.Tab1);
   const [selectedTabCategoriesSection, setSelectedTabCategoriesSection] =
     useState<CustomTab>(CustomTab.Tab1);
 
-  const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
+  const { selectedPeriod, selectedDate, setSelectedDate } =
+    useSelectedPeriod();
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
@@ -160,7 +158,7 @@ export function Overview() {
       const convertedBalance = convertCurrency({
         amount: Number(account.balance),
         fromCurrency: account.currency.code,
-        toCurrency: baseCurrencyCode,
+        toCurrency: 'BRL',
         accountCurrency: account.currency.code,
         quotes: {
           brlQuoteBtc,
@@ -197,30 +195,9 @@ export function Overview() {
       transactionsBySelectedPeriod
         .filter((t) => t.type === type)
         .forEach((t) => {
-          // BC-21/BC-22 — the account-currency value converted to the base
-          // currency before summing; BC-23 — unsupported pairs skip.
-          const converted = convertToBaseCurrency(
-            Math.abs(Number(t.amount_in_account_currency ?? t.amount)),
-            t.account.currency.code,
-            baseCurrencyCode,
-            {
-              brlQuoteBtc,
-              brlQuoteEur,
-              brlQuoteUsd,
-              btcQuoteBrl,
-              btcQuoteEur,
-              btcQuoteUsd,
-              eurQuoteBrl,
-              eurQuoteBtc,
-              eurQuoteUsd,
-              usdQuoteBrl,
-              usdQuoteBtc,
-              usdQuoteEur,
-            }
+          totalAmountSelectedPeriod = totalAmountSelectedPeriod.plus(
+            new Decimal(t.amount_in_account_currency ?? t.amount).abs()
           );
-          if (converted === null) return;
-
-          totalAmountSelectedPeriod = totalAmountSelectedPeriod.plus(converted);
         });
 
       categories.forEach((category) => {
@@ -228,31 +205,11 @@ export function Overview() {
         transactionsBySelectedPeriod
           .filter((t) => t.category.id === category.id && t.type === type)
           .forEach((t) => {
-            // BC-21/BC-22/BC-23 — same conversion as the denominator above
-            const converted = convertToBaseCurrency(
-              Number(t.amount_in_account_currency ?? t.amount),
-              t.account.currency.code,
-              baseCurrencyCode,
-              {
-                brlQuoteBtc,
-                brlQuoteEur,
-                brlQuoteUsd,
-                btcQuoteBrl,
-                btcQuoteEur,
-                btcQuoteUsd,
-                eurQuoteBrl,
-                eurQuoteBtc,
-                eurQuoteUsd,
-                usdQuoteBrl,
-                usdQuoteBtc,
-                usdQuoteEur,
-              }
+            const amount = new Decimal(
+              t.amount_in_account_currency ?? t.amount
             );
-            if (converted === null) return;
-
-            const amount = new Decimal(converted);
             categorySum =
-              t.account.type === 'CREDIT' && t.account.bankingIntegrationId // Credit card from banking integration (inverted logic)
+              t.account.type === 'CREDIT'
                 ? categorySum.minus(amount)
                 : categorySum.plus(amount);
           });
@@ -264,7 +221,7 @@ export function Overview() {
             100
           ).toFixed(2)}%`;
           const totalFormatted = formatCurrency(
-            baseCurrencyCode,
+            'BRL',
             categorySum.toNumber(),
             false,
             true
@@ -288,27 +245,11 @@ export function Overview() {
     // --- patrimonial evolution (net worth chart) ---
     // Extracted to a shared utility — same calculation as the Accounts
     // screen.  Seeds the accumulated total with totalAssets so the final
-    // chart point equals the current net worth. Flows convert to the base
-    // currency (BC-25) so intermediate points match the seed's unit.
+    // chart point equals the current net worth.
     const patrimonialEvolution = buildNetWorthEvolution({
       transactions,
       totalAssets,
       period: selectedPeriod.period,
-      quotes: {
-        brlQuoteBtc,
-        brlQuoteEur,
-        brlQuoteUsd,
-        btcQuoteBrl,
-        btcQuoteEur,
-        btcQuoteUsd,
-        eurQuoteBrl,
-        eurQuoteBtc,
-        eurQuoteUsd,
-        usdQuoteBrl,
-        usdQuoteBtc,
-        usdQuoteEur,
-      },
-      baseCurrencyCode,
     });
 
     return {
@@ -317,14 +258,7 @@ export function Overview() {
       revenuesByCategory,
       expensesByCategory,
     };
-  }, [
-    transactions,
-    accounts,
-    categories,
-    selectedPeriod,
-    selectedDate,
-    baseCurrencyCode,
-  ]);
+  }, [transactions, accounts, categories, selectedPeriod, selectedDate]);
 
   // Ruler dates for the selected period mode. Years come from the user's
   // transactions and are consumed only by the 'years' ruler; other modes
@@ -364,7 +298,7 @@ export function Overview() {
   function handleOpenCategory(id: string) {
     router.navigate({
       pathname: '/overview/[categoryId]',
-      params: { categoryId: id },
+      params: { categoryId: id, },
     });
   }
 
@@ -391,12 +325,12 @@ export function Overview() {
 
   const cashFlowSectionButtons: TabButtonType[] = [
     {
-      title: formatCurrency(baseCurrencyCode, processedData.totalAssets, false),
+      title: formatCurrency('BRL', processedData.totalAssets, false),
       description: 'Patrimônio Total',
     },
     {
       title: formatCurrency(
-        baseCurrencyCode,
+        'BRL',
         Number(curRevenues - curExpenses),
         false,
         true
@@ -407,11 +341,11 @@ export function Overview() {
   ];
   const categoriesSectionButtons: TabButtonType[] = [
     {
-      title: formatCurrency(baseCurrencyCode, curExpenses, false, true),
+      title: formatCurrency('BRL', curExpenses, false, true),
       description: 'Despesas',
     },
     {
-      title: formatCurrency(baseCurrencyCode, curRevenues, false, true),
+      title: formatCurrency('BRL', curRevenues, false, true),
       description: 'Receitas',
     },
   ];
@@ -439,7 +373,7 @@ export function Overview() {
         <Gradient />
 
         <Header.Root style={{ justifyContent: 'center' }}>
-          <Header.Title title='Resumo' />
+          <Header.Title title="Resumo" />
         </Header.Root>
 
         <ScrollContent
@@ -483,9 +417,7 @@ export function Overview() {
             {selectedTabCashFlowSection === 0 && (
               <LineChart
                 key={processedData.patrimonialEvolution.length}
-                data={processedData.patrimonialEvolution.map((item) => ({
-                  value: item.total,
-                }))}
+                data={processedData.patrimonialEvolution.map((item) => ({ value: item.total }))}
                 xAxisLabelTexts={processedData.patrimonialEvolution.map(
                   (item) => String(item.date)
                 )}
@@ -537,10 +469,7 @@ export function Overview() {
                   const k = Math.floor(value / 1000);
                   return k > 0 ? `${k}k` : '0';
                 }}
-                yAxisTextStyle={{
-                  fontSize: 11,
-                  color: theme.colors.xAxisLabel,
-                }}
+                yAxisTextStyle={{ fontSize: 11, color: theme.colors.xAxisLabel }}
                 verticalLinesColor={theme.colors.xAxisColor}
                 rulesThickness={1}
                 rulesColor={theme.colors.chartRule}
@@ -550,7 +479,7 @@ export function Overview() {
                 startOpacity={0.6}
                 endOpacity={0.1}
                 isAnimated
-                animationDuration={1000}
+                animationDuration={3000}
                 animateOnDataChange
                 scrollToEnd
               />
@@ -566,10 +495,7 @@ export function Overview() {
                 roundedBottom
                 xAxisThickness={1}
                 yAxisThickness={0}
-                yAxisTextStyle={{
-                  fontSize: 10,
-                  color: theme.colors.textPlaceholder,
-                }}
+                yAxisTextStyle={{ fontSize: 10, color: theme.colors.textPlaceholder }}
                 xAxisLabelTextStyle={{
                   fontSize: 10,
                   color: theme.colors.xAxisLabel,

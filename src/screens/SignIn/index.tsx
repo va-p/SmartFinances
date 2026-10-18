@@ -5,7 +5,6 @@ import {
   SectionHeader,
   MainContent,
   Logo,
-  LogoText,
   SubTitle,
   LogoWrapper,
   FormWrapper,
@@ -174,8 +173,6 @@ export function SignIn() {
           <LogoWrapper>
             <Logo source={require(LOGO_URL)} style={{ width: '30%' }} />
           </LogoWrapper>
-
-          <LogoText>Smart Finances</LogoText>
 
           <SubTitle>Faça Login abaixo</SubTitle>
 

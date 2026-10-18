@@ -32,16 +32,7 @@ const usdAccount = {
   type: 'BANK',
   balance: 100,
   initialAmount: null,
-  currency: { id: 5, name: 'US Dollar', code: 'USD', symbol: '$' },
-} as AccountProps;
-
-const eurAccount = {
-  id: 3,
-  name: 'Conta EUR',
-  type: 'BANK',
-  balance: 100,
-  initialAmount: null,
-  currency: { id: 3, name: 'Euro', code: 'EUR', symbol: '€' },
+  currency: { id: 2, name: 'US Dollar', code: 'USD', symbol: '$' },
 } as AccountProps;
 
 describe('processAccountsForList', () => {
@@ -117,31 +108,5 @@ describe('processAccountsForList', () => {
     const [processed] = processAccountsForList([gbpAccount], quotes);
     expect(processed.balance).toBeDefined();
     expect(processed.totalAccountAmountConverted).toBeUndefined();
-  });
-
-  // BC-16 / BC-18 — with USD as base: converted secondary line and sort key
-  // are computed in the base currency
-  it('converts the secondary line to the base currency when base is USD', () => {
-    const [processed] = processAccountsForList([eurAccount], quotes, 'USD');
-
-    // 100 EUR × 1.25 (eurQuoteUsd) = 125 USD
-    expect(processed.balanceConvertedToBase).toBe(125);
-    expect(processed.totalAccountAmountConverted).toBe('US$\u00A0125,00');
-  });
-
-  it('omits the secondary line for accounts already in the base currency', () => {
-    const [processed] = processAccountsForList([usdAccount], quotes, 'USD');
-
-    expect(processed.totalAccountAmountConverted).toBeUndefined();
-    expect(processed.balanceConvertedToBase).toBe(100);
-  });
-
-  // BC-18 — the BRL account gets the base-converted line when base is USD
-  it('shows the converted line for BRL accounts when base is not BRL', () => {
-    const [processed] = processAccountsForList([brlAccount], quotes, 'EUR');
-
-    // 1234.50 BRL × 0.16 (brlQuoteEur) = 197.52 EUR
-    expect(processed.balanceConvertedToBase).toBeCloseTo(197.52, 2);
-    expect(processed.totalAccountAmountConverted).toContain('€');
   });
 });

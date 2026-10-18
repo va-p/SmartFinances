@@ -117,7 +117,7 @@ export const DetailValue = styled.Text`
 
 // ── Edit bottom sheet ──────────────────────────────────────────────────────
 
-export const EditSheetContent = styled.KeyboardAvoidingView`
+export const EditSheetContent = styled.View`
   padding-horizontal: 16px;
   padding-bottom: 24px;
 `;

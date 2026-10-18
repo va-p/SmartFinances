@@ -56,24 +56,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)
 - last seen: 2026-09-29T02:01:35Z
 
-### L-008 - Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `jest-infra/react-native-reanimated` · harmful: 0
-- features: base-currency
-- evidence: AM-M5 (StepIndicator slide effect drop) (jest-infra/react-native-reanimated)
-- last seen: 2026-10-05T22:44:08Z
-
-### L-009 - Absolute-positioned overlays must anchor to a shrink-wrapped sibling row (testID'd), never a full-width padded container - jest wiring tests pass while the on-device layout is wrong, so pin the structural anchor in a test and verify the reference on device.
-- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `frontend-components/absolute-positioning` · harmful: 0
-- features: base-currency
-- evidence: BC-26 layout (StepDash absolute anchor) (frontend-components/absolute-positioning)
-- last seen: 2026-10-05T22:52:45Z
-
-### L-010 - Centered step content columns that overflow their slot spill transparent full-width children over sibling UI (swallowing taps invisibly) - bound each step in an overflow:hidden slot, z-order the indicator above it, and give small tap targets hitSlop; jest cannot see layout or hit-testing, so verify taps on device.
-- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `frontend-components/layout` · harmful: 0
-- features: base-currency
-- evidence: BC-10 (bullet taps, first screen) (frontend-components/layout)
-- last seen: 2026-10-05T23:10:42Z
-
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

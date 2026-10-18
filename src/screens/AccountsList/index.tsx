@@ -70,20 +70,18 @@ export function AccountsList() {
   );
   const navigation = useNavigation();
   const quotes = useQuotes();
-  const { sortingOption, setSortingOption, baseCurrency } = useUserConfigs();
+  const { sortingOption, setSortingOption } = useUserConfigs();
 
-  // Format balances in each account's currency (and add a base-converted
-  // secondary line for accounts not in the base currency), mirroring the
-  // Accounts screen. Virtual goal reserves never render in the management
-  // list (GOAL-24).
+  // Format balances in each account's currency (and add a BRL-converted
+  // secondary line for non-BRL accounts), mirroring the Accounts screen.
+  // Virtual goal reserves never render in the management list (GOAL-24).
   const processedAccounts = useMemo(
     () =>
       processAccountsForList(
         accounts.filter((account) => !account.isVirtual),
-        quotes,
-        baseCurrency.code
+        quotes
       ),
-    [accounts, quotes, baseCurrency.code]
+    [accounts, quotes]
   );
 
   const sortedAccounts = useMemo(

@@ -80,7 +80,6 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 
 // Storages
 import { useUserConfigs } from '@stores/userConfigsStorage';
-import { useQuotes } from '@stores/quotesStorage';
 import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
@@ -104,8 +103,6 @@ export function Account() {
   const [transactionId, setTransactionId] = useState('');
   const [showSearchInput, setShowSearchInput] = useState(false);
   const hideAmount = useUserConfigs((state) => state.hideAmount);
-  const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
-  const quotes = useQuotes();
   const { id } = useLocalSearchParams();
   const accountID = Number(id);
   // Animated header
@@ -195,7 +192,7 @@ export function Account() {
     if (!allTransactions || !accountID) {
       return {
         transactionsFormattedBySelectedPeriod: [],
-        cashFlowBySelectedPeriod: formatCurrency(baseCurrencyCode, 0),
+        cashFlowBySelectedPeriod: formatCurrency('BRL', 0),
       };
     }
 
@@ -206,32 +203,23 @@ export function Account() {
     const transactionsFormattedPtbr = formatTransactions(
       transactionsForThisAccount
     );
-    const { currentCashFlow, currentCashFlowValue, groupedTransactions } =
-      processTransactions(
-        transactionsFormattedPtbr,
-        selectedPeriod.period,
-        selectedDate,
-        quotes,
-        baseCurrencyCode
-      );
+    const { currentCashFlow, groupedTransactions } = processTransactions(
+      transactionsFormattedPtbr,
+      selectedPeriod.period,
+      selectedDate
+    );
 
-    // Sign detection uses the raw numeric cash flow - never re-parse the
-    // formatted currency string (BC-19).
-    const isCashFlowPositive = currentCashFlowValue >= 0;
+    const cashFlowValue = parseFloat(
+      currentCashFlow.replace(/[^\d,.-]/g, '').replace(',', '.')
+    );
+    const isCashFlowPositive = cashFlowValue >= 0;
 
     return {
       transactionsFormattedBySelectedPeriod: groupedTransactions,
       cashFlowBySelectedPeriod: currentCashFlow,
       cashFlowIsPositive: isCashFlowPositive,
     };
-  }, [
-    allTransactions,
-    accountID,
-    selectedPeriod,
-    selectedDate,
-    quotes,
-    baseCurrencyCode,
-  ]);
+  }, [allTransactions, accountID, selectedPeriod, selectedDate]);
 
   // Transaction filtering with search
   const filteredTransactions = useMemo(

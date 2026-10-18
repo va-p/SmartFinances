@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Alert } from 'react-native';
 import { Container, ContentScroll, Title } from './styles';
 
@@ -7,7 +7,6 @@ import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
 import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
 import { UserIcon } from 'phosphor-react-native/src/icons/User';
 import { BellIcon } from 'phosphor-react-native/src/icons/Bell';
-import { CoinsIcon } from 'phosphor-react-native/src/icons/Coins';
 import { PlugsIcon } from 'phosphor-react-native/src/icons/Plugs';
 import { CookieIcon } from 'phosphor-react-native/src/icons/Cookie';
 import { TrophyIcon } from 'phosphor-react-native/src/icons/Trophy';
@@ -31,7 +30,6 @@ import { useTheme } from 'styled-components';
 import * as WebBrowser from 'expo-web-browser';
 import { OneSignal } from 'react-native-onesignal';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 // Screens
 import { Screen } from '@components/Screen';
@@ -39,7 +37,6 @@ import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
-import { BaseCurrencySelectSheet } from '@components/BaseCurrencySelectSheet';
 
 // Storages, providers
 import { useUser } from '@stores/userStorage';
@@ -70,17 +67,9 @@ export function OptionsMenu() {
     setUseLocalAuth,
     notificationsEnabled,
     setNotificationsEnabled,
-    baseCurrency,
   } = useUserConfigs();
 
   const { signOut } = useAuth();
-
-  // Base currency selection (same shared sheet the welcome flow uses)
-  const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
-
-  function handleOpenSelectCurrencyModal() {
-    currencyBottomSheetRef.current?.present();
-  }
 
   function handleOpenProfile() {
     router.navigate('/options/profile');
@@ -339,13 +328,6 @@ export function OptionsMenu() {
           />
 
           <Title>Configurações</Title>
-          <SelectButton
-            icon={<CoinsIcon color={theme.colors.primary} />}
-            title='Moeda base'
-            subTitle={baseCurrency.name}
-            onPress={() => handleOpenSelectCurrencyModal()}
-          />
-
           <ButtonToggle
             icon={<EyeSlashIcon color={theme.colors.primary} />}
             title='Ocultar informações'
@@ -413,8 +395,6 @@ export function OptionsMenu() {
             onLongPress={() => handleOpenDevScreen()}
           />
         </ContentScroll>
-
-        <BaseCurrencySelectSheet bottomSheetRef={currencyBottomSheetRef} />
       </Container>
     </Screen>
   );

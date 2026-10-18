@@ -2,8 +2,8 @@ import { SortingOption } from '@stores/userConfigsStorage';
 
 type SortableAccount = {
   name: string;
-  /** Base-currency-normalized numeric balance (computed by processAccountsForList). */
-  balanceConvertedToBase: number;
+  /** BRL-normalized numeric balance (computed by processAccountsForList). */
+  balanceConvertedToBRL: number;
 };
 
 const byNameAsc = (a: SortableAccount, b: SortableAccount) =>
@@ -11,9 +11,9 @@ const byNameAsc = (a: SortableAccount, b: SortableAccount) =>
 const byNameDesc = (a: SortableAccount, b: SortableAccount) =>
   b.name.localeCompare(a.name);
 const byBalanceAsc = (a: SortableAccount, b: SortableAccount) =>
-  a.balanceConvertedToBase - b.balanceConvertedToBase;
+  a.balanceConvertedToBRL - b.balanceConvertedToBRL;
 const byBalanceDesc = (a: SortableAccount, b: SortableAccount) =>
-  b.balanceConvertedToBase - a.balanceConvertedToBase;
+  b.balanceConvertedToBRL - a.balanceConvertedToBRL;
 
 const COMPARATORS: Record<SortingOption, (a: SortableAccount, b: SortableAccount) => number> = {
   'name-asc': byNameAsc,
@@ -25,7 +25,7 @@ const COMPARATORS: Record<SortingOption, (a: SortableAccount, b: SortableAccount
 /**
  * Returns a sorted copy of the given accounts using the same comparators as
  * the Accounts screen: name via localeCompare, balance via the
- * base-currency-normalized numeric value (never the formatted string).
+ * BRL-normalized numeric value (never the formatted string).
  */
 export function sortAccountsByOption<T extends SortableAccount>(
   accounts: T[],

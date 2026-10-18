@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 11,
+  "next_id": 8,
   "lessons": [
     {
       "id": "L-001",
@@ -130,60 +130,6 @@
       ],
       "created": "2026-09-29T02:01:35Z",
       "last_seen": "2026-09-29T02:01:35Z"
-    },
-    {
-      "id": "L-008",
-      "key": "surviving_mutant::jest mocks of animation libraries must be behaviorally faithful stateful usesharedvalue via useref not per render re initialization or wiring tests silently pass without the wiring under test",
-      "text": "Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.",
-      "signal": "surviving_mutant",
-      "scope": "jest-infra/react-native-reanimated",
-      "status": "candidate",
-      "features": [
-        "base-currency"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "AM-M5 (StepIndicator slide effect drop) (jest-infra/react-native-reanimated)"
-      ],
-      "created": "2026-10-05T22:44:08Z",
-      "last_seen": "2026-10-05T22:44:08Z"
-    },
-    {
-      "id": "L-009",
-      "key": "gate_fail::absolute positioned overlays must anchor to a shrink wrapped sibling row testid d never a full width padded container jest wiring tests pass while the on device layout is wrong so pin the structural anchor in a test and verify the reference on device",
-      "text": "Absolute-positioned overlays must anchor to a shrink-wrapped sibling row (testID'd), never a full-width padded container - jest wiring tests pass while the on-device layout is wrong, so pin the structural anchor in a test and verify the reference on device.",
-      "signal": "gate_fail",
-      "scope": "frontend-components/absolute-positioning",
-      "status": "candidate",
-      "features": [
-        "base-currency"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "BC-26 layout (StepDash absolute anchor) (frontend-components/absolute-positioning)"
-      ],
-      "created": "2026-10-05T22:52:45Z",
-      "last_seen": "2026-10-05T22:52:45Z"
-    },
-    {
-      "id": "L-010",
-      "key": "gate_fail::centered step content columns that overflow their slot spill transparent full width children over sibling ui swallowing taps invisibly bound each step in an overflow hidden slot z order the indicator above it and give small tap targets hitslop jest cannot see layout or hit testing so verify taps on device",
-      "text": "Centered step content columns that overflow their slot spill transparent full-width children over sibling UI (swallowing taps invisibly) - bound each step in an overflow:hidden slot, z-order the indicator above it, and give small tap targets hitSlop; jest cannot see layout or hit-testing, so verify taps on device.",
-      "signal": "gate_fail",
-      "scope": "frontend-components/layout",
-      "status": "candidate",
-      "features": [
-        "base-currency"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "BC-10 (bullet taps, first screen) (frontend-components/layout)"
-      ],
-      "created": "2026-10-05T23:10:42Z",
-      "last_seen": "2026-10-05T23:10:42Z"
     }
   ]
 }

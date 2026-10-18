@@ -52,5 +52,4 @@ export interface AccountProps {
   isVirtual?: boolean;
   creditData?: CreditDataProps;
   institution?: { id: string; name: string } | null;
-  bankingIntegrationId?: string;
 }

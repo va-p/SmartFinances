@@ -73,7 +73,7 @@ function TransactionListItem({
     >
       <View>
         <Container
-          entering={FadeInUp.delay(index * 10)}
+          entering={FadeInUp.delay(index * 20)}
           style={{
             backgroundColor: isSelected
               ? theme.colors.primary_dark

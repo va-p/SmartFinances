@@ -2,7 +2,7 @@ import { SubscriptionPaymentProps, SubscriptionProps } from '@interfaces/subscri
 
 import {
   computePaymentsTotal,
-  convertAmountToBase,
+  convertAmountToBRL,
   getUpcomingPaymentsSummary,
 } from '../subscriptionPaymentsSummary';
 
@@ -72,26 +72,18 @@ const makePayment = (
   ...overrides,
 });
 
-const brlCurrency = { id: 1, name: 'Real', code: 'BRL' as const, symbol: 'R$' };
-const usdCurrency = { id: 2, name: 'Dólar', code: 'USD' as const, symbol: '$' };
-
-describe('convertAmountToBase', () => {
+describe('convertAmountToBRL', () => {
   // AC10.1
   it('passes BRL amounts through unchanged', () => {
-    expect(convertAmountToBase(19.9, 'BRL', quotes)).toBe(19.9);
+    expect(convertAmountToBRL(19.9, 'BRL', quotes)).toBe(19.9);
   });
 
   it('converts USD to BRL through the quote matrix', () => {
-    expect(convertAmountToBase(10, 'USD', quotes)).toBe(50);
-  });
-
-  // BC-16 — conversion targets the selected base currency
-  it('converts USD to EUR through the quote matrix when base is EUR', () => {
-    expect(convertAmountToBase(10, 'USD', quotes, 'EUR')).toBe(8);
+    expect(convertAmountToBRL(10, 'USD', quotes)).toBe(50);
   });
 
   it('throws for unsupported currency pairs', () => {
-    expect(() => convertAmountToBase(10, 'GBP' as any, quotes)).toThrow();
+    expect(() => convertAmountToBRL(10, 'GBP' as any, quotes)).toThrow();
   });
 });
 
@@ -187,27 +179,6 @@ describe('getUpcomingPaymentsSummary', () => {
 
     expect(summary).toEqual({ month: '2026-08', count: 1, total: 19.9 });
   });
-
-  // BC-16 — the upcoming-month total aggregates in the base currency
-  it('aggregates the upcoming month total in the base currency', () => {
-    const summary = getUpcomingPaymentsSummary(
-      [
-        makeSubscription({ id: 1, amount: 19.9, currency: brlCurrency }),
-        makeSubscription({
-          id: 2,
-          amount: 59.9,
-          next_payment_at: localISO(2026, 8, 7),
-          currency: usdCurrency,
-        }),
-      ],
-      quotes,
-      new Date(2026, 6, 30),
-      'USD',
-    );
-
-    // 19.90 BRL × 0.2 (brlQuoteUsd) = 3.98 USD; 59.90 USD stays 59.90 USD
-    expect(summary).toEqual({ month: '2026-08', count: 2, total: 63.88 });
-  });
 });
 
 describe('computePaymentsTotal', () => {
@@ -251,24 +222,5 @@ describe('computePaymentsTotal', () => {
       quotes,
     );
     expect(total).toBe(0);
-  });
-
-  // BC-16 — the payments total aggregates in the base currency
-  it('sums payments in the base currency', () => {
-    const total = computePaymentsTotal(
-      [
-        makePayment({ amount: 19.9, currency: brlCurrency }),
-        makePayment({
-          subscription_id: 2,
-          amount: 10,
-          currency: usdCurrency,
-        }),
-      ],
-      quotes,
-      'USD',
-    );
-
-    // 19.90 BRL × 0.2 (brlQuoteUsd) = 3.98 USD; 10 USD stays 10 USD
-    expect(total).toBe(13.98);
   });
 });
