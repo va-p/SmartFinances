@@ -110,8 +110,7 @@ export function Overview() {
   const [selectedTabCategoriesSection, setSelectedTabCategoriesSection] =
     useState<CustomTab>(CustomTab.Tab1);
 
-  const { selectedPeriod, selectedDate, setSelectedDate } =
-    useSelectedPeriod();
+  const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
@@ -253,7 +252,7 @@ export function Overview() {
 
             const amount = new Decimal(converted);
             categorySum =
-              t.account.type === 'CREDIT'
+              t.account.type === 'CREDIT' && t.account.bankingIntegrationId // Credit card from banking integration (inverted logic)
                 ? categorySum.minus(amount)
                 : categorySum.plus(amount);
           });
@@ -365,7 +364,7 @@ export function Overview() {
   function handleOpenCategory(id: string) {
     router.navigate({
       pathname: '/overview/[categoryId]',
-      params: { categoryId: id, },
+      params: { categoryId: id },
     });
   }
 
@@ -440,7 +439,7 @@ export function Overview() {
         <Gradient />
 
         <Header.Root style={{ justifyContent: 'center' }}>
-          <Header.Title title="Resumo" />
+          <Header.Title title='Resumo' />
         </Header.Root>
 
         <ScrollContent
@@ -484,7 +483,9 @@ export function Overview() {
             {selectedTabCashFlowSection === 0 && (
               <LineChart
                 key={processedData.patrimonialEvolution.length}
-                data={processedData.patrimonialEvolution.map((item) => ({ value: item.total }))}
+                data={processedData.patrimonialEvolution.map((item) => ({
+                  value: item.total,
+                }))}
                 xAxisLabelTexts={processedData.patrimonialEvolution.map(
                   (item) => String(item.date)
                 )}
@@ -536,7 +537,10 @@ export function Overview() {
                   const k = Math.floor(value / 1000);
                   return k > 0 ? `${k}k` : '0';
                 }}
-                yAxisTextStyle={{ fontSize: 11, color: theme.colors.xAxisLabel }}
+                yAxisTextStyle={{
+                  fontSize: 11,
+                  color: theme.colors.xAxisLabel,
+                }}
                 verticalLinesColor={theme.colors.xAxisColor}
                 rulesThickness={1}
                 rulesColor={theme.colors.chartRule}
@@ -546,7 +550,7 @@ export function Overview() {
                 startOpacity={0.6}
                 endOpacity={0.1}
                 isAnimated
-                animationDuration={3000}
+                animationDuration={1000}
                 animateOnDataChange
                 scrollToEnd
               />
@@ -562,7 +566,10 @@ export function Overview() {
                 roundedBottom
                 xAxisThickness={1}
                 yAxisThickness={0}
-                yAxisTextStyle={{ fontSize: 10, color: theme.colors.textPlaceholder }}
+                yAxisTextStyle={{
+                  fontSize: 10,
+                  color: theme.colors.textPlaceholder,
+                }}
                 xAxisLabelTextStyle={{
                   fontSize: 10,
                   color: theme.colors.xAxisLabel,
