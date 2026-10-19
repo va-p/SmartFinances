@@ -93,7 +93,7 @@ T1 → T2 → T3 → T4 → T5
 
 ### T3: Verify Play Billing Library Dependency Version
 
-**What**: Verify `com.android.billingclient:billing` is at version 9.x.x
+**What**: Add explicit dependency for `com.android.billingclient:billing:9.1.0` and verify it overrides `8.3.0`
 **Where**: `android/app/build.gradle`
 **Depends on**: T2
 **Reuses**: None
@@ -104,7 +104,8 @@ T1 → T2 → T3 → T4 → T5
 - Skill: NONE
 
 **Done when**:
-- [ ] `./gradlew :app:dependencies` shows PBL v9
+- [x] Explicit `com.android.billingclient:billing:9.1.0` added to `android/app/build.gradle`
+- [x] `./gradlew :app:dependencies` shows PBL 9.1.0 (overriding 8.3.0)
 
 **Tests**: build
 **Gate**: full
