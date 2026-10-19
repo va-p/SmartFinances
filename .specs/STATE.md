@@ -34,6 +34,14 @@
 - **Date**: 2026-10-05
 - **Status**: active
 
+### AD-005
+- **Decision**: Upgrade Play Billing Library to v9 by bumping `react-native-purchases` to `^10.14.0` (RevenueCat) and setting Android `compileSdk` to 35.
+- **Reason**: Google Play requires PBL v8+ by Aug 2026. PBL v9 is the latest major release. Since the app uses RevenueCat to wrap Play Billing, the upgrade is achieved by updating the wrapper and satisfying its underlying native SDK requirements.
+- **Trade-off**: Native billing APIs are not accessed directly; we rely on RevenueCat to bridge PBL v9 features and lifecycle.
+- **Scope**: `package.json`, `android/app/build.gradle`, `src/providers/RevenueCatProvider.tsx`.
+- **Date**: 2026-10-18
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: base-currency (`.specs/features/base-currency/`) — ✅ complete incl. amendments (converted transaction-flow totals BC-21..25; user's flow reorder AD-004 + dash slide BC-26); Verifier PASS (`validation.md`, `validate_state.py` exit 0)
