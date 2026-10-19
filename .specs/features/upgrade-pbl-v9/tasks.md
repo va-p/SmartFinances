@@ -72,7 +72,7 @@ T1 → T2 → T3 → T4 → T5
 
 ### T2: Update Android SDK Configuration
 
-**What**: Set `compileSdk` to 35 in `android/app/build.gradle`
+**What**: Verify `compileSdk` is at least 35 in `android/app/build.gradle` (currently evaluated to 36)
 **Where**: `android/app/build.gradle`
 **Depends on**: T1
 **Reuses**: None
@@ -83,8 +83,8 @@ T1 → T2 → T3 → T4 → T5
 - Skill: NONE
 
 **Done when**:
-- [ ] `compileSdk` is set to 35
-- [ ] `targetSdk` is set to 35 (if explicitly declared, otherwise rootProject)
+- [x] `compileSdk` is evaluated to >= 35 (evaluated to 36 via rootProject)
+- [x] `targetSdk` is evaluated to >= 35 (evaluated to 36 via rootProject)
 
 **Tests**: build
 **Gate**: build
