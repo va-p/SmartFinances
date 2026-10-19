@@ -125,7 +125,7 @@ T1 → T2 → T3 → T4 → T5
 - Skill: NONE
 
 **Done when**:
-- [ ] `yarn lint` or TypeScript checks pass for `RevenueCatProvider.tsx`
+- [x] `yarn lint` or TypeScript checks pass for `RevenueCatProvider.tsx`
 
 **Tests**: unit
 **Gate**: quick
@@ -145,7 +145,7 @@ T1 → T2 → T3 → T4 → T5
 - Skill: NONE
 
 **Done when**:
-- [ ] `./gradlew clean assembleDebug` finishes with success
+- [x] `./gradlew clean assembleDebug` finishes with success
 
 **Tests**: build
 **Gate**: build
