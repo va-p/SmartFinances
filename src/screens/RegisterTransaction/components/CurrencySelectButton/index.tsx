@@ -19,7 +19,7 @@ export function CurrencySelectButton({
 }: Props) {
   return (
     <Container {...rest}>
-      <Title size={iconSize} color={color}>
+      <Title color={color}>
         {title}
       </Title>
       {!hideArrow && (

@@ -23,7 +23,7 @@ type TitleProps = {
 };
 export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
-  font-size: ${({ theme, size }) => (size || (theme as ThemeProps).fonts.sizeTitle)};
+  font-size: ${({ theme }) => ((theme as ThemeProps).fonts.sizeTitle)};
   color: ${({ color }) => color};
 `;
 
