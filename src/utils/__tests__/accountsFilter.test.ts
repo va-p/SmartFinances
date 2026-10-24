@@ -58,8 +58,8 @@ const makeTransactions = (): TransactionProps[] => [
 
 describe('getAccountsFilterLabel', () => {
   // ACCFLT-03 / Story 2 AC1 — default state: no filter, all accounts
-  it('WHILE no account is selected THEN the label is "Todas..."', () => {
-    expect(getAccountsFilterLabel([])).toBe('Todas...');
+  it('WHILE no account is selected THEN the label is "Todas as Contas"', () => {
+    expect(getAccountsFilterLabel([])).toBe('Todas as Contas');
   });
 
   // ACCFLT-03 / Story 2 AC2 — single selection shows the account name
