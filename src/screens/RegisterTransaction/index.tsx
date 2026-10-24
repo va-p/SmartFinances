@@ -73,9 +73,6 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-// Form
-import { FormData, schema } from './schema';
-
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
 import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
@@ -91,6 +88,7 @@ import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { TagProps } from '@components/TagListItem';
+import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
@@ -110,6 +108,7 @@ import { AccountDestinationSelect } from '@screens/AccountDestinationSelect';
 // Storages
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
+import { useUserConfigs } from '@stores/userConfigsStorage';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 // Stores
@@ -123,7 +122,9 @@ import { ThemeProps } from '@interfaces/theme';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
-import { ButtonToggle } from '@components/ButtonToggle';
+
+// Form
+import { FormData, schema } from './schema';
 
 type Props = {
   id: string;
@@ -155,6 +156,7 @@ export function RegisterTransaction({
   useScreenTrace('register_transaction_screen');
 
   const theme = useTheme() as ThemeProps;
+  const isDarkMode = useUserConfigs((state) => state.darkMode);
   const { id: userID } = useUser();
   const categoryBottomSheetRef = useRef<BottomSheetModal>(null);
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -167,6 +169,10 @@ export function RegisterTransaction({
       color_code: theme.colors.primary,
     },
   } as CategoryProps);
+  const headerTextColor =
+    isDarkMode && categorySelected.id === ''
+      ? theme.colors.textLight
+      : theme.colors.text;
   const [currencySelected, setCurrencySelected] = useState({
     id: 1,
     name: 'Real Brasileiro',
@@ -323,11 +329,17 @@ export function RegisterTransaction({
     resolver: yupResolver(schema),
     defaultValues: {
       description: '',
-      amount: 0,
       amountInAccountCurrency: null,
       exchangeRate: null,
     },
   });
+  const amountValue = getValues('amount');
+  const hasAmount = amountValue !== undefined && amountValue !== null && amountValue !== 0;
+  const defaultAmountValue =
+    categorySelected.id !== '' && hasAmount
+      ? String(amountValue)
+      : undefined;
+
   // Currency Quotes
   const {
     brlQuoteBtc,
@@ -371,12 +383,14 @@ export function RegisterTransaction({
   // D-01/AC P2-6/P2-7: on the Transfer tab the rate input shows only when
   // exactly one leg converts — no single field is meaningful otherwise.
   const transferSingleConversion =
-    transactionType === 'TRANSFER' && accountDestinationSelected && accountCurrency
+    transactionType === 'TRANSFER' &&
+    accountDestinationSelected &&
+    accountCurrency
       ? resolveSingleLegRate(
           currencySelected.code,
           accountCurrency.code,
           accountDestinationSelected.currency?.code ?? '',
-          quotes,
+          quotes
         )
       : null;
   const rateFieldVisible = !isBulkEdit
@@ -393,7 +407,7 @@ export function RegisterTransaction({
   const defaultRateForPair = (
     selectedCode: string,
     originCode?: string,
-    destinationCode?: string,
+    destinationCode?: string
   ) => {
     if (isBulkEdit) {
       return null;
@@ -408,7 +422,7 @@ export function RegisterTransaction({
         selectedCode,
         originCode,
         destCode,
-        quotes,
+        quotes
       );
       return single ? single.quote : null;
     }
@@ -453,7 +467,7 @@ export function RegisterTransaction({
         const quote = getExchangeRate(
           currencySelected.code,
           accountCurrency.code,
-          quotes,
+          quotes
         );
         if (quote != null && quote > 0) {
           setValue('exchangeRate', quote);
@@ -465,7 +479,8 @@ export function RegisterTransaction({
     }
     rateInitRef.current = pairKey;
     const rawAmount = getValues('amount');
-    const amount = typeof rawAmount === 'number' ? rawAmount : Number(rawAmount);
+    const amount =
+      typeof rawAmount === 'number' ? rawAmount : Number(rawAmount);
     const signedAmount =
       transactionType === 'DEBIT' ? -Math.abs(amount) : amount;
     setValue(
@@ -474,8 +489,8 @@ export function RegisterTransaction({
         signedAmount,
         rate,
         currencySelected.code,
-        accountCurrency.code,
-      ),
+        accountCurrency.code
+      )
     );
   }, [
     watchedAmount,
@@ -834,16 +849,13 @@ export function RegisterTransaction({
             amount,
             appliedRate,
             currencySelected.code,
-            accountCurrency.code,
+            accountCurrency.code
           )
         : null;
 
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
-      if (
-        !accountDestinationSelected ||
-        accountDestinationSelected.id === 0
-      ) {
+      if (!accountDestinationSelected || accountDestinationSelected.id === 0) {
         Alert.alert(
           'Edição de Transação',
           'Selecione a conta de destino para transferências'
@@ -1014,7 +1026,6 @@ export function RegisterTransaction({
             ]
           );
           reset();
-
         },
       });
       return;
@@ -1030,7 +1041,7 @@ export function RegisterTransaction({
             amount,
             appliedRate,
             currencySelected.code,
-            accountCurrency.code,
+            accountCurrency.code
           )
         : null;
 
@@ -1083,7 +1094,6 @@ export function RegisterTransaction({
         reset();
       },
     });
-
   }
 
   async function onSubmit(form: FormData) {
@@ -1271,8 +1281,8 @@ export function RegisterTransaction({
         transactionData.exchange_rate ??
           (transactionData.amount_in_account_currency && transactionData.amount
             ? Math.abs(transactionData.amount_in_account_currency) /
-                Math.abs(transactionData.amount)
-            : null),
+              Math.abs(transactionData.amount)
+            : null)
       );
       setCurrencySelected(transactionData.currency);
       setAccountID(transactionData.account.id);
@@ -1394,11 +1404,9 @@ export function RegisterTransaction({
                   onPress={closeRegisterTransaction}
                   style={{ position: 'absolute', top: 0, left: 0 }}
                 >
-                  <XIcon size={24} color={theme.colors.text} weight='bold' />
+                  <XIcon size={24} color={headerTextColor} weight='bold' />
                 </BorderlessButton>
-                <Title>
-                  {getFormTitle()}
-                </Title>
+                <Title color={headerTextColor}>{getFormTitle()}</Title>
                 {id !== '' && !isBulkEdit && (
                   <BorderlessButton
                     onPress={() => handleClickDeleteTransaction(id)}
@@ -1406,7 +1414,7 @@ export function RegisterTransaction({
                   >
                     <TrashIcon
                       size={24}
-                      color={theme.colors.text}
+                      color={headerTextColor}
                       weight='bold'
                     />
                   </BorderlessButton>
@@ -1418,16 +1426,17 @@ export function RegisterTransaction({
                   categorySelected={categorySelected}
                   icon={categorySelected.icon?.name}
                   color={categorySelected.color.color_code}
+                  placeholderColor={headerTextColor}
                   onPress={() => handleOpenSelectCategoryModal()}
                 />
 
                 <InputTransactionValuesContainer>
                   <InputTransactionValueGroup>
                     <ControlledInputValue
-                      placeholder={String(getValues('amount'))}
+                      placeholder='0,00'
                       keyboardType='decimal-pad'
                       textAlign='right'
-                      defaultValue={String(getValues('amount'))}
+                      defaultValue={defaultAmountValue}
                       name='amount'
                       control={control}
                       error={errors.amount}
@@ -1435,6 +1444,7 @@ export function RegisterTransaction({
 
                     <CurrencySelectButton
                       title={currencySelected.symbol}
+                      color={headerTextColor}
                       onPress={() => handleOpenSelectCurrencyModal()}
                     />
                   </InputTransactionValueGroup>
@@ -1454,6 +1464,7 @@ export function RegisterTransaction({
 
                       <CurrencySelectButton
                         title={`= 1 ${currencySelected.code}`}
+                        color={headerTextColor}
                         hideArrow
                         style={{ minHeight: 20, maxHeight: 20 }}
                       />
@@ -1481,6 +1492,7 @@ export function RegisterTransaction({
                       <CurrencySelectButton
                         title={accountCurrency?.symbol || ''}
                         iconSize={10}
+                        color={headerTextColor}
                         hideArrow
                         style={{ width: 25, minHeight: 20, maxHeight: 20 }}
                       />
@@ -1659,7 +1671,8 @@ export function RegisterTransaction({
                 buttons={categoriesSectionButtons}
                 selectedTab={selectedTransactionTab}
                 setSelectedTab={(tabIdx: number) =>
-                  handleTransactionsTypeSelect(tabIdx)}
+                  handleTransactionsTypeSelect(tabIdx)
+                }
               />
             </TransactionsTypes>
           </ContentScroll>
@@ -1670,9 +1683,7 @@ export function RegisterTransaction({
             isLoading={isCreating || isUpdating || isDeleting}
             onPress={() => handleSubmit(onSubmit)()}
           >
-            <Button.Text
-              text={getSubmitButtonText()}
-            />
+            <Button.Text text={getSubmitButtonText()} />
           </Button.Root>
         </Footer>
 
@@ -1702,7 +1713,7 @@ export function RegisterTransaction({
               // A-03: changing the pair resets the rate to the new pair's quote
               setValue(
                 'exchangeRate',
-                defaultRateForPair(currency.code, accountCurrency?.code),
+                defaultRateForPair(currency.code, accountCurrency?.code)
               );
             }}
             closeSelectCurrency={() => handleCloseSelectCurrencyModal()}
@@ -1740,10 +1751,7 @@ export function RegisterTransaction({
               // the account's — the pair collapses to same-currency
               setValue(
                 'exchangeRate',
-                defaultRateForPair(
-                  account.currency.code,
-                  account.currency.code,
-                ),
+                defaultRateForPair(account.currency.code, account.currency.code)
               );
             }}
             closeSelectAccount={() => handleCloseSelectAccountModal()}
@@ -1781,12 +1789,13 @@ export function RegisterTransaction({
                 defaultRateForPair(
                   currencySelected.code,
                   accountCurrency?.code,
-                  account.currency?.code,
-                ),
+                  account.currency?.code
+                )
               );
             }}
             closeSelectAccountDestination={() =>
-              handleCloseSelectAccountDestinationModal()}
+              handleCloseSelectAccountDestinationModal()
+            }
           />
         </ModalViewSelection>
 

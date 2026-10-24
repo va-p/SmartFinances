@@ -8,16 +8,18 @@ type Props = TouchableOpacityProps & {
   categorySelected: CategoryProps;
   icon: string;
   color: string;
+  placeholderColor: string;
 };
 
 export function CategorySelectButton({
   categorySelected,
   icon,
   color,
+  placeholderColor,
   ...rest
 }: Props) {
   if (categorySelected.id === '') {
-    return <Placeholder activeOpacity={0.7} {...rest} />;
+    return <Placeholder activeOpacity={0.7} color={placeholderColor} {...rest} />;
   }
   return (
     <Container {...rest}>

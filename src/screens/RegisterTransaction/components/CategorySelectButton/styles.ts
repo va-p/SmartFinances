@@ -10,12 +10,12 @@ type ColorProps = {
   color: string;
 };
 
-export const Placeholder = styled(TouchableOpacity)`
+export const Placeholder = styled(TouchableOpacity)<ColorProps>`
   width: 60px;
   height: 60px;
   align-items: center;
   justify-content: center;
-  border: 1px dashed ${({ theme }) => (theme as ThemeProps).colors.background};
+  border: 1px dashed ${({ color }) => color};
   border-radius: 30px;
 `;
 
