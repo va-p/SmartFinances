@@ -86,7 +86,7 @@ import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
 import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
 import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
-import { CrownIcon } from 'phosphor-react-native/src/icons/Crown';
+import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
 import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
@@ -95,8 +95,8 @@ import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { TagProps } from '@components/TagListItem';
-import { ButtonToggle } from '@components/ButtonToggle';
 import { Accordion } from '@components/Accordion';
+import { ButtonToggle } from '@components/ButtonToggle';
 import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
@@ -1653,6 +1653,22 @@ export function RegisterTransaction({
               />
             )}
 
+            <ControlledInputWithIcon
+              icon={
+                <PencilSimpleIcon color={categorySelected.color.color_code} />
+              }
+              placeholder='Descrição'
+              numberOfLines={2}
+              autoCapitalize='sentences'
+              autoCorrect={false}
+              returnKeyType='go'
+              defaultValue={String(getValues('description'))}
+              name='description'
+              control={control}
+              error={errors.description}
+              onSubmitEditing={handleSubmit(onSubmit)}
+            />
+
             {/* ── Recurrence Toggle ─────────────────────────────── */}
             <ButtonToggle
               icon={<RepeatIcon color={categorySelected.color.color_code} />}
@@ -1673,43 +1689,6 @@ export function RegisterTransaction({
               }}
               value={isRecurring}
               isEnabled={isRecurring}
-            />
-
-            {/* ── Advanced selectors (subscription designation) ──── */}
-            {!isBulkEdit && transactionType !== 'TRANSFER' && (
-              <Accordion
-                expanded={advancedSelectorsExpanded}
-                onToggle={() =>
-                  setAdvancedSelectorsExpanded((expanded) => !expanded)
-                }
-              >
-                <ButtonToggle
-                  icon={
-                    <CrownIcon color={categorySelected.color.color_code} />
-                  }
-                  title='Assinatura'
-                  subTitle={getSubscriptionSubtitle()}
-                  onValueChange={() => handleSubscriptionToggle()}
-                  value={isSubscription}
-                  isEnabled={isSubscription}
-                />
-              </Accordion>
-            )}
-
-            <ControlledInputWithIcon
-              icon={
-                <PencilSimpleIcon color={categorySelected.color.color_code} />
-              }
-              placeholder='Descrição'
-              numberOfLines={2}
-              autoCapitalize='sentences'
-              autoCorrect={false}
-              returnKeyType='go'
-              defaultValue={String(getValues('description'))}
-              name='description'
-              control={control}
-              error={errors.description}
-              onSubmitEditing={handleSubmit(onSubmit)}
             />
 
             <SelectButton
@@ -1734,6 +1713,27 @@ export function RegisterTransaction({
                 paddingBottom: 12,
               }}
             />
+
+            {/* ── Advanced selectors (under accordion) ──── */}
+            {!isBulkEdit && transactionType !== 'TRANSFER' && (
+              <Accordion
+                expanded={advancedSelectorsExpanded}
+                onToggle={() =>
+                  setAdvancedSelectorsExpanded((expanded) => !expanded)
+                }
+              >
+                <ButtonToggle
+                  icon={
+                    <ReceiptIcon color={categorySelected.color.color_code} />
+                  }
+                  title='Assinatura'
+                  subTitle={getSubscriptionSubtitle()}
+                  onValueChange={() => handleSubscriptionToggle()}
+                  value={isSubscription}
+                  isEnabled={isSubscription}
+                />
+              </Accordion>
+            )}
 
             <SelectButton
               title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}

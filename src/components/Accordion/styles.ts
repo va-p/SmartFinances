@@ -3,9 +3,7 @@ import styled from 'styled-components/native';
 
 import { ThemeProps } from '@interfaces/theme';
 
-export const Container = styled.View`
-  padding: 0 16px;
-`;
+export const Container = styled.View``;
 
 export const Header = styled(TouchableOpacity).attrs({
   activeOpacity: 0.7,
