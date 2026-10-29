@@ -200,4 +200,57 @@ describe('buildNetWorthEvolution', () => {
 
     expect(result).toEqual([]);
   });
+
+  // ACCOUNTS-PERIOD — months mode groups net flows by month, oldest to
+  // newest, ending at totalAssets (Accounts screen FilterButton granularity)
+  it('groups net flows by month and ends exactly at totalAssets', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }), // Aug: -50
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }), // Sep: +100
+      ],
+      totalAssets: 1000,
+      period: 'months',
+      quotes,
+    });
+
+    // Initial = 1000 - (-50 + 100) = 950; Aug: 900; Sep: 1000
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 900 },
+      { date: 'set \n 2026', total: 1000 },
+    ]);
+  });
+
+  // ACCOUNTS-PERIOD — years mode groups net flows by year
+  it('groups net flows by year and ends exactly at totalAssets', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2025-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }), // 2025: -50
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }), // 2026: +100
+      ],
+      totalAssets: 1000,
+      period: 'years',
+      quotes,
+    });
+
+    // Initial = 1000 - (-50 + 100) = 950; 2025: 900; 2026: 1000
+    expect(result).toEqual([
+      { date: '2025', total: 900 },
+      { date: '2026', total: 1000 },
+    ]);
+  });
+
+  // ACCOUNTS-PERIOD — all mode returns a single point at totalAssets
+  it('returns a single history point for the all period', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }),
+      ],
+      totalAssets: 1000,
+      period: 'all',
+      quotes,
+    });
+
+    expect(result).toEqual([{ date: 'Todo o \n hist\u00f3rico', total: 1000 }]);
+  });
 });
