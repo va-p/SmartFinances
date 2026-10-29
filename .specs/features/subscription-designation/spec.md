@@ -168,32 +168,32 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------- |
-| SD-01 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
-| SD-02 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
-| SD-03 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
-| SD-04 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
-| SD-05 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
-| SD-06 | P1: Transaction picker | Design | Implementing (filter + screen done) |
-| SD-07 | P1: Transaction picker | Design | Implementing (screen flow wired) |
-| SD-08 | P1: Transaction picker | Design | Implementing (screen done) |
-| SD-09 | P1: Transaction picker | Design | Implementing (screen done) |
-| SD-10 | P1: Transaction picker | Design | Implementing (screen done) |
-| SD-11 | P1: Transaction picker | Design | Implementing (screen done) |
-| SD-12 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-13 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-14 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-15 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-16 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-17 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-18 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-19 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-20 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-21 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
-| SD-22 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
-| SD-23 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
-| SD-24 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
-| SD-25 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
-| SD-26 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
+| SD-01 | P1: Subscription entry choice | Design | ✅ Verified |
+| SD-02 | P1: Subscription entry choice | Design | ✅ Verified |
+| SD-03 | P1: Subscription entry choice | Design | ✅ Verified |
+| SD-04 | P1: Subscription entry choice | Design | ✅ Verified |
+| SD-05 | P1: Subscription entry choice | Design | ✅ Verified |
+| SD-06 | P1: Transaction picker | Design | ✅ Verified |
+| SD-07 | P1: Transaction picker | Design | ✅ Verified |
+| SD-08 | P1: Transaction picker | Design | ✅ Verified |
+| SD-09 | P1: Transaction picker | Design | ✅ Verified |
+| SD-10 | P1: Transaction picker | Design | ✅ Verified |
+| SD-11 | P1: Transaction picker | Design | ✅ Verified |
+| SD-12 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-13 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-14 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-15 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-16 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-17 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-18 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-19 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-20 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-21 | P1: Designation selector in accordion | Design | ✅ Verified |
+| SD-22 | P1: Designation payload wiring | Design | ✅ Verified |
+| SD-23 | P1: Designation payload wiring | Design | ✅ Verified |
+| SD-24 | P1: Designation payload wiring | Design | ✅ Verified |
+| SD-25 | P1: Designation payload wiring | Design | ✅ Verified |
+| SD-26 | P1: Designation payload wiring | Design | ✅ Verified |
 
 **ID format:** `SD-NN` (subscription designation)
 
