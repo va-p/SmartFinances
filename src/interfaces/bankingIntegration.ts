@@ -14,6 +14,9 @@ export interface Connector {
 
 type HealthTypes = 'ONLINE' | 'UNSTABLE' | 'OFFLINE';
 
+// Benefits-tiers: restriction state of the linked integration (BEN-47)
+export type AccessStatus = 'ACTIVE' | 'RESTRICTED';
+
 export type StatusTypes =
   | 'UPDATING'
   | 'LOGIN_ERROR'
@@ -68,4 +71,5 @@ export interface BankingIntegration {
   executionStatus: ExecutionStatusTypes;
   connectorId: string;
   bankName: string;
+  access_status: AccessStatus;
 }
