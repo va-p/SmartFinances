@@ -11,6 +11,12 @@ import {
   FooterTextContainer,
   FooterTitle,
   FooterSubtitle,
+  OptionsContainer,
+  OptionRow,
+  OptionIconContainer,
+  OptionTextsContainer,
+  OptionTitle,
+  OptionSubtitle,
 } from './styles';
 
 import { useTheme } from 'styled-components';
@@ -21,6 +27,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { QuestionIcon } from 'phosphor-react-native/src/icons/Question';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { ListBulletsIcon } from 'phosphor-react-native/src/icons/ListBullets';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -30,9 +37,11 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SubscriptionListItem } from '@components/SubscriptionListItem';
 import { SubscriptionHelpSheet } from '@components/SubscriptionHelpSheet';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 
 // Screens
 import { RegisterTransaction } from '@screens/RegisterTransaction';
+import { TransactionSelect } from '@screens/TransactionSelect';
 
 // Hooks
 import { useSubscriptionsQuery } from '@hooks/useSubscriptionsQuery';
@@ -48,6 +57,7 @@ import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionProps } from '@interfaces/subscriptions';
+import { TransactionProps } from '@interfaces/transactions';
 
 
 function EmptyList() {
@@ -61,7 +71,10 @@ export function Subscriptions() {
 
   const helpSheetRef = useRef<BottomSheetModal>(null);
   const registerTransactionSheetRef = useRef<BottomSheetModal>(null);
+  const addSubscriptionSheetRef = useRef<BottomSheetModal>(null);
+  const transactionSelectSheetRef = useRef<BottomSheetModal>(null);
   const [transactionId, setTransactionId] = useState('');
+  const [openAdvancedSelectors, setOpenAdvancedSelectors] = useState(false);
 
   const { data: subscriptions, isLoading, refetch } = useSubscriptionsQuery();
   const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
@@ -99,6 +112,28 @@ export function Subscriptions() {
 
   function handleOpenRegisterTransaction() {
     setTransactionId('');
+    setOpenAdvancedSelectors(false);
+    registerTransactionSheetRef.current?.present();
+  }
+
+  function handleOpenAddSubscription() {
+    addSubscriptionSheetRef.current?.present();
+  }
+
+  function handleChooseNewTransaction() {
+    addSubscriptionSheetRef.current?.dismiss();
+    handleOpenRegisterTransaction();
+  }
+
+  function handleChooseExistingTransaction() {
+    transactionSelectSheetRef.current?.present();
+  }
+
+  function handleSelectTransaction(transaction: TransactionProps) {
+    setTransactionId(String(transaction.id));
+    setOpenAdvancedSelectors(true);
+    transactionSelectSheetRef.current?.dismiss();
+    addSubscriptionSheetRef.current?.dismiss();
     registerTransactionSheetRef.current?.present();
   }
 
@@ -145,7 +180,7 @@ export function Subscriptions() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title title='Minhas assinaturas' />
-          <HeaderIconButton onPress={() => handleOpenRegisterTransaction()}>
+          <HeaderIconButton onPress={() => handleOpenAddSubscription()}>
             <PlusIcon size={22} color={theme.colors.primary} />
           </HeaderIconButton>
         </Header.Root>
@@ -210,10 +245,62 @@ export function Subscriptions() {
         >
           <RegisterTransaction
             id={transactionId}
+            initiallyOpenAdvancedSelectors={openAdvancedSelectors}
             resetId={() => handleResetTransactionId()}
             closeRegisterTransaction={() => handleCloseRegisterTransaction()}
           />
         </ModalViewWithoutHeader>
+
+        {/* ── Add subscription: choice modal ──────────────────── */}
+        <ModalViewSelection
+          $modal
+          title='Adicionar assinatura'
+          bottomSheetRef={addSubscriptionSheetRef}
+          snapPoints={['30%']}
+        >
+          <OptionsContainer>
+            <OptionRow onPress={() => handleChooseExistingTransaction()}>
+              <OptionIconContainer>
+                <ListBulletsIcon size={22} color={theme.colors.primary} />
+              </OptionIconContainer>
+              <OptionTextsContainer>
+                <OptionTitle>Selecionar transação existente</OptionTitle>
+                <OptionSubtitle>
+                  Inclui transações importadas de contas sincronizadas
+                </OptionSubtitle>
+              </OptionTextsContainer>
+            </OptionRow>
+
+            <OptionRow onPress={() => handleChooseNewTransaction()}>
+              <OptionIconContainer>
+                <PlusIcon size={22} color={theme.colors.primary} />
+              </OptionIconContainer>
+              <OptionTextsContainer>
+                <OptionTitle>Criar nova transação</OptionTitle>
+                <OptionSubtitle>
+                  Cadastre uma nova transação recorrente
+                </OptionSubtitle>
+              </OptionTextsContainer>
+            </OptionRow>
+          </OptionsContainer>
+        </ModalViewSelection>
+
+        {/* ── Add subscription: transaction picker ───────────── */}
+        <ModalViewSelection
+          $modal
+          title='Selecione a transação'
+          bottomSheetRef={transactionSelectSheetRef}
+          snapPoints={['85%']}
+        >
+          <TransactionSelect
+            setTransaction={(transaction: TransactionProps) =>
+              handleSelectTransaction(transaction)
+            }
+            closeSelectTransaction={() =>
+              transactionSelectSheetRef.current?.dismiss()
+            }
+          />
+        </ModalViewSelection>
       </Container>
     </Screen>
   );

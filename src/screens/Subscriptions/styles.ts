@@ -68,3 +68,42 @@ export const FooterSubtitle = styled.Text`
   color: ${({ theme }) => (theme as ThemeProps).colors.text};
   opacity: 0.9;
 `;
+
+// ── Add subscription: choice modal options ───────────
+
+export const OptionsContainer = styled.View`
+  padding: 16px;
+  gap: 12px;
+`;
+
+export const OptionRow = styled(TouchableOpacity).attrs({
+  activeOpacity: 0.85,
+})`
+  flex-direction: row;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
+`;
+
+export const OptionIconContainer = styled.View`
+  width: 32px;
+  align-items: center;
+`;
+
+export const OptionTextsContainer = styled.View`
+  flex: 1;
+  padding-left: 12px;
+`;
+
+export const OptionTitle = styled.Text`
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.title};
+`;
+
+export const OptionSubtitle = styled.Text`
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
+`;

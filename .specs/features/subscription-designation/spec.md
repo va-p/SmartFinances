@@ -168,13 +168,13 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------- |
-| SD-01 | P1: Subscription entry choice | Design | Pending |
-| SD-02 | P1: Subscription entry choice | Design | Pending |
-| SD-03 | P1: Subscription entry choice | Design | Pending |
-| SD-04 | P1: Subscription entry choice | Design | Pending |
-| SD-05 | P1: Subscription entry choice | Design | Pending |
+| SD-01 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
+| SD-02 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
+| SD-03 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
+| SD-04 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
+| SD-05 | P1: Subscription entry choice | Design | Implementing (wired in Subscriptions) |
 | SD-06 | P1: Transaction picker | Design | Implementing (filter + screen done) |
-| SD-07 | P1: Transaction picker | Design | Implementing (picker half done, screen flow T5) |
+| SD-07 | P1: Transaction picker | Design | Implementing (screen flow wired) |
 | SD-08 | P1: Transaction picker | Design | Implementing (screen done) |
 | SD-09 | P1: Transaction picker | Design | Implementing (screen done) |
 | SD-10 | P1: Transaction picker | Design | Implementing (screen done) |
@@ -194,13 +194,12 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | SD-24 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
 | SD-25 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
 | SD-26 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
-| SD-27 | P1: Designation payload wiring | Design | Pending (screen flow T5) |
 
 **ID format:** `SD-NN` (subscription designation)
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 27 total, 27 mapped to tasks (see tasks.md), 0 unmapped
+**Coverage:** 26 total, 26 mapped to tasks (see tasks.md), 0 unmapped
 
 ---
 

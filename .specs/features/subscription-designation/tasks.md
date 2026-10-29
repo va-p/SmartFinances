@@ -191,7 +191,7 @@ T4 → T5
 
 ---
 
-### T5: Subscriptions entry flow
+### T5: Subscriptions entry flow — ✅ Complete (inspection + build gate)
 
 **What**: Rewire "+" to present the "Adicionar assinatura" choice modal (`ModalViewSelection`, two option rows with the exact SD-02 copy); "Criar nova transação" dismisses it and opens the editor (create mode); "Selecionar transação existente" presents the "Selecione a transação" picker modal stacked over the choice modal; picking a transaction dismisses picker + choice, sets the edit id, and presents RegisterTransaction with `initiallyOpenAdvancedSelectors`.
 **Where**: `src/screens/Subscriptions/index.tsx`, `src/screens/Subscriptions/styles.ts`
@@ -206,12 +206,12 @@ T4 → T5
 
 **Done when**:
 
-- [ ] "+" presents the choice modal, not the editor sheet directly (SD-01)
-- [ ] The two options render with the exact SD-02 copy (titles + subtitles) (SD-02)
-- [ ] "Criar nova transação": choice dismissed, editor presented with empty id (SD-03)
-- [ ] "Selecionar transação existente": picker presented over the still-presented choice modal (SD-04)
-- [ ] Picking a transaction: picker + choice dismissed, editor presented in edit mode with the accordion pre-expanded (SD-07 screen half)
-- [ ] Build gate passes (full jest at baseline; eslint on the 2 touched files adds no new errors)
+- [x] "+" presents the choice modal, not the editor sheet directly (SD-01) - `handleOpenAddSubscription` + `HeaderIconButton` onPress
+- [x] The two options render with the exact SD-02 copy (titles + subtitles) (SD-02) - OptionsContainer/OptionRow in index.tsx
+- [x] "Criar nova transação": choice dismissed, editor presented with empty id (SD-03) - `handleChooseNewTransaction`
+- [x] "Selecionar transação existente": picker presented over the still-presented choice modal (SD-04) - `handleChooseExistingTransaction` (ModalViewSelection stackBehavior push)
+- [x] Picking a transaction: picker + choice dismissed, editor presented in edit mode with the accordion pre-expanded (SD-07 screen half) - `handleSelectTransaction` + `initiallyOpenAdvancedSelectors`
+- [x] Build gate passes (365/365 tests, 41 suites: 40 + 1 pre-existing profile env-broken; eslint 0 errors on both files, before and after)
 
 **Tests**: none (per coverage matrix - heavy screen layer: sheet presentation has no component harness; verified by build gate + inspection at validation + interactive UAT)
 **Gate**: build
