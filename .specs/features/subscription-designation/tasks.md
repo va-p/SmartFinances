@@ -160,7 +160,7 @@ T4 → T5
 
 ---
 
-### T4: RegisterTransaction designation wiring
+### T4: RegisterTransaction designation wiring — ✅ Complete (inspection + build gate)
 
 **What**: Wire the designation into RegisterTransaction: `isSubscription` state + `advancedSelectorsExpanded` state (collapsed default, `initiallyOpenAdvancedSelectors` prop), the Accordion placed below the "Recorrente" toggle wrapping the "Assinatura" `ButtonToggle` (subtitle per SD-21), transition handlers via the T1 utils, `is_subscription` in create/edit payloads via `buildSubscriptionDesignationPayload`, hydration from `transactionData.is_subscription`, accordion hidden on Transfer tab and bulk edit.
 **Where**: `src/screens/RegisterTransaction/index.tsx`
@@ -175,14 +175,14 @@ T4 → T5
 
 **Done when**:
 
-- [ ] Accordion renders right below the "Recorrente" toggle, collapsed by default, only when `!isBulkEdit && transactionType !== 'TRANSFER'` (SD-12, SD-14)
-- [ ] `initiallyOpenAdvancedSelectors` prop starts the accordion expanded (SD-15)
-- [ ] "Assinatura" toggle on: designation on, recurrence on, DAILY/WEEKLY period normalized to MONTHLY, RecurrenceSelect modal opens only when the prior state did not qualify (SD-16, SD-17)
-- [ ] "Recorrente" toggle off also un-designates; RecurrenceSelect saving DAILY/WEEKLY while designated un-designates (SD-18, SD-19)
-- [ ] Edit hydration sets the toggle from `transactionData.is_subscription` (SD-20)
-- [ ] Subtitle 'Aparece em "Minhas assinaturas"' while on, none while off (SD-21)
-- [ ] Create payload: `is_subscription: true` only when on (omitted when off); edit payload: always the toggle value; transfer payloads unchanged (SD-22, SD-23, SD-24, SD-25, SD-26)
-- [ ] Build gate passes (full jest at baseline; eslint on the file adds no new errors vs its 17 pre-existing)
+- [x] Accordion renders right below the "Recorrente" toggle, collapsed by default, only when `!isBulkEdit && transactionType !== 'TRANSFER'` (SD-12, SD-14) - `index.tsx` L1678-1697
+- [x] `initiallyOpenAdvancedSelectors` prop starts the accordion expanded (SD-15) - L144/L165/L289-290
+- [x] "Assinatura" toggle on: designation on, recurrence on, DAILY/WEEKLY period normalized to MONTHLY, RecurrenceSelect modal opens only when the prior state did not qualify (SD-16, SD-17) - `handleSubscriptionToggle` via `resolveSubscriptionSwitch` L319-330
+- [x] "Recorrente" toggle off also un-designates; RecurrenceSelect saving DAILY/WEEKLY while designated un-designates (SD-18, SD-19) - `resolveRecurringSwitch` L1661-1673 / `resolveRecurrenceSaved` L307-313
+- [x] Edit hydration sets the toggle from `transactionData.is_subscription` (SD-20) - L1391
+- [x] Subtitle 'Aparece em "Minhas assinaturas"' while on, none while off (SD-21) - `getSubscriptionSubtitle` L332-334
+- [x] Create payload: `is_subscription: true` only when on (omitted when off); edit payload: always the toggle value; transfer payloads unchanged (SD-22, SD-23, SD-24, SD-25, SD-26) - spreads at L1127 (create) / L974 (edit); transfer builders untouched
+- [x] Build gate passes (365/365 tests, 41 suites: 40 + 1 pre-existing profile env-broken; eslint 19 pre-existing errors at L434-440/890-897/1088-1092 unchanged, none in the new hunks)
 
 **Tests**: none (per coverage matrix - heavy screen layer: logic already unit-tested in T1; wiring verified by build gate + inspection at validation + interactive UAT)
 **Gate**: build

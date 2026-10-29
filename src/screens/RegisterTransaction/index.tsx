@@ -51,6 +51,12 @@ import {
   resolveTransactionTab,
   resolveTransferDestinationAccount,
 } from '@utils/transactionPayload';
+import {
+  buildSubscriptionDesignationPayload,
+  resolveRecurringSwitch,
+  resolveRecurrenceSaved,
+  resolveSubscriptionSwitch,
+} from '@utils/subscriptionDesignation';
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 
@@ -80,6 +86,7 @@ import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
 import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
 import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
+import { CrownIcon } from 'phosphor-react-native/src/icons/Crown';
 import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 
@@ -89,6 +96,7 @@ import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { TagProps } from '@components/TagListItem';
 import { ButtonToggle } from '@components/ButtonToggle';
+import { Accordion } from '@components/Accordion';
 import { SelectButton } from '@components/SelectButton';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { ControlledInputValue } from '@components/Form/ControlledInputValue';
@@ -132,6 +140,8 @@ type Props = {
   closeRegisterTransaction: () => void;
   isBulkEdit?: boolean;
   selectedTransactionIds?: number[];
+  /** Opens the advanced-selectors accordion expanded (subscription designation flows). */
+  initiallyOpenAdvancedSelectors?: boolean;
 };
 
 enum CustomTab {
@@ -152,6 +162,7 @@ export function RegisterTransaction({
   closeRegisterTransaction,
   isBulkEdit = false,
   selectedTransactionIds = [],
+  initiallyOpenAdvancedSelectors = false,
 }: Props) {
   useScreenTrace('register_transaction_screen');
 
@@ -272,6 +283,12 @@ export function RegisterTransaction({
   >('DAILY');
   const recurrenceSelectBottomSheetRef = useRef<BottomSheetModal>(null);
 
+  // Subscription designation state (advanced selectors, hidden behind the
+  // accordion right below the recurrence toggle)
+  const [isSubscription, setIsSubscription] = useState(false);
+  const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] =
+    useState(initiallyOpenAdvancedSelectors);
+
   function handleOpenRecurrenceModal() {
     recurrenceSelectBottomSheetRef.current?.present();
   }
@@ -285,8 +302,35 @@ export function RegisterTransaction({
     period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   }) {
     setRecurrenceInterval(data.interval);
-    setRecurrencePeriod(data.period);
+    // A subscription only exists with MONTHLY/YEARLY recurrence: saving a
+    // DAILY/WEEKLY recurrence un-designates together (SD-19).
+    const next = resolveRecurrenceSaved(
+      { isSubscription, isRecurring, recurrencePeriod },
+      { period: data.period }
+    );
+    setRecurrencePeriod(next.recurrencePeriod);
+    setIsSubscription(next.isSubscription);
     handleCloseRecurrenceModal();
+  }
+
+  function handleSubscriptionToggle() {
+    // SD-16/SD-17: designating forces a qualifying recurrence (a DAILY/WEEKLY
+    // period normalizes to MONTHLY), confirming in the recurrence modal
+    // when the prior state did not qualify; un-designating changes nothing else.
+    const next = resolveSubscriptionSwitch(
+      { isSubscription, isRecurring, recurrencePeriod },
+      !isSubscription
+    );
+    setIsSubscription(next.isSubscription);
+    setIsRecurring(next.isRecurring);
+    setRecurrencePeriod(next.recurrencePeriod);
+    if (next.needsRecurrenceModal) {
+      handleOpenRecurrenceModal();
+    }
+  }
+
+  function getSubscriptionSubtitle(): string {
+    return isSubscription ? 'Aparece em "Minhas assinaturas"' : '';
   }
 
   function getRecurrenceSubtitle(): string {
@@ -925,6 +969,9 @@ export function RegisterTransaction({
       is_recurring: isRecurring,
       recurrence_interval: isRecurring ? recurrenceInterval : null,
       recurrence_period: isRecurring ? recurrencePeriod : null,
+      // SD-24: the explicit toggle value - false un-designates an existing
+      // subscription.
+      ...buildSubscriptionDesignationPayload(isSubscription, 'edit'),
       // Editing a transaction that is (or was) a transfer with a plain type
       // un-transfers it: the backend severs the link and removes the
       // counterpart leg (TR-4.5).
@@ -1075,6 +1122,9 @@ export function RegisterTransaction({
       is_recurring: isRecurring,
       recurrence_interval: isRecurring ? recurrenceInterval : null,
       recurrence_period: isRecurring ? recurrencePeriod : null,
+      // SD-22/SD-23: explicit designation when on; omitted when off so the
+      // backend auto-classifies recurring monthly/yearly creates.
+      ...buildSubscriptionDesignationPayload(isSubscription, 'create'),
       user_id: userID,
     };
 
@@ -1336,6 +1386,9 @@ export function RegisterTransaction({
       } else {
         setIsRecurring(false);
       }
+
+      // SD-20: hydrate the subscription designation from the stored flag
+      setIsSubscription(Boolean(transactionData.is_subscription));
     }
   }, [transactionData, bulkTransactionsData, isBulkEdit]);
 
@@ -1600,21 +1653,48 @@ export function RegisterTransaction({
               />
             )}
 
-            {/* ── Recurrence Toggle ─────────────────────────────────── */}
+            {/* ── Recurrence Toggle ─────────────────────────────── */}
             <ButtonToggle
               icon={<RepeatIcon color={categorySelected.color.color_code} />}
               title='Recorrente'
               subTitle={getRecurrenceSubtitle()}
               onValueChange={() => {
-                const next = !isRecurring;
-                setIsRecurring(next);
-                if (next) {
+                // Un-designate together: a subscription cannot stay without
+                // recurrence (SD-18).
+                const next = resolveRecurringSwitch(
+                  { isSubscription, isRecurring, recurrencePeriod },
+                  !isRecurring
+                );
+                setIsRecurring(next.isRecurring);
+                setIsSubscription(next.isSubscription);
+                if (!isRecurring) {
                   handleOpenRecurrenceModal();
                 }
               }}
               value={isRecurring}
               isEnabled={isRecurring}
             />
+
+            {/* ── Advanced selectors (subscription designation) ──── */}
+            {!isBulkEdit && transactionType !== 'TRANSFER' && (
+              <Accordion
+                expanded={advancedSelectorsExpanded}
+                onToggle={() =>
+                  setAdvancedSelectorsExpanded((expanded) => !expanded)
+                }
+              >
+                <ButtonToggle
+                  icon={
+                    <CrownIcon color={categorySelected.color.color_code} />
+                  }
+                  title='Assinatura'
+                  subTitle={getSubscriptionSubtitle()}
+                  onValueChange={() => handleSubscriptionToggle()}
+                  value={isSubscription}
+                  isEnabled={isSubscription}
+                />
+              </Accordion>
+            )}
 
             <ControlledInputWithIcon
               icon={

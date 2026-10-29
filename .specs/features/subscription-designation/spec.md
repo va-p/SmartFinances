@@ -179,22 +179,22 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | SD-09 | P1: Transaction picker | Design | Implementing (screen done) |
 | SD-10 | P1: Transaction picker | Design | Implementing (screen done) |
 | SD-11 | P1: Transaction picker | Design | Implementing (screen done) |
-| SD-12 | P1: Designation selector in accordion | Design | Implementing (accordion done, placement T4) |
-| SD-13 | P1: Designation selector in accordion | Design | Implementing (accordion done, wiring T4) |
-| SD-14 | P1: Designation selector in accordion | Design | Pending |
-| SD-15 | P1: Designation selector in accordion | Design | Pending |
-| SD-16 | P1: Designation selector in accordion | Design | Implementing (rules util done, wiring T4) |
-| SD-17 | P1: Designation selector in accordion | Design | Implementing (rules util done, wiring T4) |
-| SD-18 | P1: Designation selector in accordion | Design | Implementing (rules util done, wiring T4) |
-| SD-19 | P1: Designation selector in accordion | Design | Implementing (rules util done, wiring T4) |
-| SD-20 | P1: Designation selector in accordion | Design | Pending |
-| SD-21 | P1: Designation selector in accordion | Design | Pending |
-| SD-22 | P1: Designation payload wiring | Design | Implementing (payload rule done, wiring T4) |
-| SD-23 | P1: Designation payload wiring | Design | Implementing (payload rule done, wiring T4) |
-| SD-24 | P1: Designation payload wiring | Design | Implementing (payload rule done, wiring T4) |
-| SD-25 | P1: Designation payload wiring | Design | Pending |
-| SD-26 | P1: Designation payload wiring | Design | Pending |
-| SD-27 | P1: Designation payload wiring | Design | Pending |
+| SD-12 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-13 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-14 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-15 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-16 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-17 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-18 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-19 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-20 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-21 | P1: Designation selector in accordion | Design | Implementing (wired in RegisterTransaction) |
+| SD-22 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
+| SD-23 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
+| SD-24 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
+| SD-25 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
+| SD-26 | P1: Designation payload wiring | Design | Implementing (wired in RegisterTransaction) |
+| SD-27 | P1: Designation payload wiring | Design | Pending (screen flow T5) |
 
 **ID format:** `SD-NN` (subscription designation)
 
