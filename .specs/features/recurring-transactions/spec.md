@@ -149,6 +149,14 @@ When editing an existing transaction, pre-fill the recurrence UI from the fetche
 
 **Rationale:** For YEARLY, the month is implicit from the transaction date itself. If the user creates a transaction on January 15 and marks it YEARLY with date=15, it recurs every January 15. The recurrence engine uses the parent transaction's `created_at` date as the anchor, which is the canonical transaction date field across the application.
 
+### AD-032 — Generated Recurring Children Do Not Inherit the Parent's Image (2026-10-29)
+
+**Decision:** System-generated recurring child transactions are created with `image_url = null`; the image stays on the parent transaction only. Amends the Phase 2 recurrence engine, which previously copied `parent.imageUrl` onto every generated child.
+
+**Rationale:** Image storage is quota-billed by physical decoded bytes per row (benefits-tiers BEN-15 / backend STATE.md AD-004): copying an image onto every generated child multiplies one receipt's bytes unboundedly — a 2 MB receipt on a monthly recurring silently becomes 24 MB/year and consumes any finite storage quota. The receipt remains visible on the parent, the transaction the user actually attached it to.
+
+**Scope:** `smart-finances-backend` `generateRecurringTransactions` (the only generator); applies to all tiers. Children generated before this decision keep their stored images (they count toward the user's usage).
+
 ---
 
 ## Affected Files
