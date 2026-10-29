@@ -28,11 +28,10 @@ export const Title = styled.Text<TitleProps>`
 `;
 
 type IconProps = {
-  size?: number;
   color: string;
 };
 export const Icon = styled(Ionicons)<IconProps>`
-  font-size: ${({ size, theme }) => (size || (theme as ThemeProps).fonts.sizeTitle)};
+  font-size: ${({ theme }) => ((theme as ThemeProps).fonts.sizeTitle)};
   padding-left: 5px;
   color: ${({ color }) => color};
 `;
