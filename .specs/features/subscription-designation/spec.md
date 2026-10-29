@@ -179,8 +179,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | SD-09 | P1: Transaction picker | Design | Pending |
 | SD-10 | P1: Transaction picker | Design | Pending |
 | SD-11 | P1: Transaction picker | Design | Pending |
-| SD-12 | P1: Designation selector in accordion | Design | Pending |
-| SD-13 | P1: Designation selector in accordion | Design | Pending |
+| SD-12 | P1: Designation selector in accordion | Design | Implementing (accordion done, placement T4) |
+| SD-13 | P1: Designation selector in accordion | Design | Implementing (accordion done, wiring T4) |
 | SD-14 | P1: Designation selector in accordion | Design | Pending |
 | SD-15 | P1: Designation selector in accordion | Design | Pending |
 | SD-16 | P1: Designation selector in accordion | Design | Implementing (rules util done, wiring T4) |

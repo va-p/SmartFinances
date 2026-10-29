@@ -100,7 +100,7 @@ T4 → T5
 
 ---
 
-### T2: Accordion component + component test
+### T2: Accordion component + component test — ✅ Complete (4 tests)
 
 **What**: Reusable `Accordion` (controlled `expanded`/`onToggle`, children) with the minimalist header: rule line + chevron + rule line (———v———); the chevron rotates 180 degrees (reanimated, collapsed v to expanded ^) and the content mounts/unmounts with fade transitions.
 **Where**: `src/components/Accordion/index.tsx`, `src/components/Accordion/styles.ts`, `src/__tests__/components/accordion.spec.tsx`
@@ -115,13 +115,13 @@ T4 → T5
 
 **Done when**:
 
-- [ ] Collapsed by default via controlled props: children absent when `expanded: false`, present when `expanded: true` (SD-12, SD-13)
-- [ ] Tapping the header calls `onToggle` exactly once (SD-13)
-- [ ] Collapsed chevron transform rotate 0 deg; expanded rotate 180 deg (SD-12)
-- [ ] Header renders as line + chevron + line (testIDs `accordion-header`, `accordion-caret`, `accordion-content`)
-- [ ] Quick gate passes: `yarn jest src/__tests__/components/accordion.spec.tsx --watchman=false`
-- [ ] Test count: 4 tests pass (no silent deletions)
-- [ ] Build gate passes (full jest at baseline + eslint on the touched files adds no new errors)
+- [x] Collapsed by default via controlled props: children absent when `expanded: false`, present when `expanded: true` (SD-12, SD-13)
+- [x] Tapping the header calls `onToggle` exactly once (SD-13)
+- [x] Collapsed chevron transform rotate 0 deg; expanded rotate 180 deg (SD-12)
+- [x] Header renders as line + chevron + line (testIDs `accordion-header`, `accordion-caret`, `accordion-content`; line structure inspection-verified in styles.ts)
+- [x] Quick gate passes: `yarn jest src/__tests__/components/accordion.spec.tsx --watchman=false` (4/4)
+- [x] Test count: 4 tests pass (no silent deletions)
+- [x] Build gate passes (40 suites: 39 passed + 1 pre-existing profile env-broken; 360/360 tests; the flaky pre-existing accountsFilter failure passed this run; eslint clean on the 3 files after fixing 4 new-file errors)
 
 **Tests**: unit (per coverage matrix - reusable components, RTL render)
 **Gate**: quick, then build
