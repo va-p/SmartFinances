@@ -59,6 +59,7 @@ import {
 } from '@utils/subscriptionDesignation';
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
+import { formatQuotaMessage } from '@utils/quotaMessage';
 
 // Dependencies
 import {
@@ -875,11 +876,24 @@ export function RegisterTransaction({
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
       };
-      const uploadImage = await api.post('transaction/image', {
-        file: newImage.file,
-      });
-      if (uploadImage.status === 200) {
-        transactionImageUrl = uploadImage.data.url;
+      try {
+        const uploadImage = await api.post('transaction/image', {
+          file: newImage.file,
+        });
+        if (uploadImage.status === 200) {
+          transactionImageUrl = uploadImage.data.url;
+        }
+      } catch (error) {
+        // BEN-45: quota rejections show the usage/limit message and abort
+        // the save (the chosen image cannot be stored).
+        const quotaMessage = formatQuotaMessage(
+          axios.isAxiosError(error) ? error.response?.data : null
+        );
+        if (quotaMessage) {
+          Alert.alert('Armazenamento de imagens', quotaMessage);
+          return;
+        }
+        throw error;
       }
     }
 
@@ -1018,11 +1032,24 @@ export function RegisterTransaction({
       const newImage = {
         file: `data:image/jpeg;base64,${image}`,
       };
-      const { data, status } = await api.post('transaction/image', {
-        file: newImage.file,
-      });
-      if (status === 200) {
-        transactionImageUrl = data.url;
+      try {
+        const { data, status } = await api.post('transaction/image', {
+          file: newImage.file,
+        });
+        if (status === 200) {
+          transactionImageUrl = data.url;
+        }
+      } catch (error) {
+        // BEN-45: quota rejections show the usage/limit message and abort
+        // the save (the chosen image cannot be stored).
+        const quotaMessage = formatQuotaMessage(
+          axios.isAxiosError(error) ? error.response?.data : null
+        );
+        if (quotaMessage) {
+          Alert.alert('Armazenamento de imagens', quotaMessage);
+          return;
+        }
+        throw error;
       }
     }
 
