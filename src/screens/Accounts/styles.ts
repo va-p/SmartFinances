@@ -52,6 +52,16 @@ export const HideDataButton = styled(BorderlessButton)`
   right: 16px;
 `;
 
+export const FiltersContainer = styled.View`
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+`;
+
+export const FilterButtonGroup = styled.View`
+  width: 24%;
+`;
+
 export const ChartContainer = styled.View`
   min-height: 200px;
   max-height: 200px;

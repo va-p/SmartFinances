@@ -8,6 +8,8 @@ import {
   CashFlowDescription,
   HideDataButton,
   SearchButton,
+  FiltersContainer,
+  FilterButtonGroup,
   ChartContainer,
   AccountsContainer,
   AccountsContent,
@@ -55,7 +57,9 @@ import {
 } from '@components/InstitutionCard';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
+import { FilterButton } from '@components/FilterButton';
 import { ModalView } from '@components/Modals/ModalView';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { SortFilterButton } from '@components/SortFilterButton';
@@ -66,10 +70,12 @@ import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Stores
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
@@ -113,7 +119,9 @@ export function Accounts() {
   } = useQuotes();
   const { hideAmount, setHideAmount, sortingOption, setSortingOption, baseCurrency } =
     useUserConfigs();
+  const { selectedPeriod } = useSelectedPeriod();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   // Search form (Home-screen pattern: query via react-hook-form)
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -280,7 +288,7 @@ export function Accounts() {
     const chartData = buildNetWorthEvolution({
       transactions,
       totalAssets: totalAccountsBalance.toNumber(),
-      period: 'months',
+      period: selectedPeriod.period,
       quotes: {
         brlQuoteBtc,
         brlQuoteEur,
@@ -309,7 +317,7 @@ export function Accounts() {
       institutionCards,
       standaloneAccounts,
     };
-  }, [rawAccounts, transactions, baseCurrency.code]);
+  }, [rawAccounts, transactions, baseCurrency.code, selectedPeriod.period]);
 
   const {
     totalBalanceFormatted,
@@ -455,6 +463,14 @@ export function Accounts() {
   function handleCloseRegisterAccountModal() {
     registerAccountBottomSheetRef.current?.dismiss();
     refetchAccounts();
+  }
+
+  function handleOpenPeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.present();
+  }
+
+  function handleClosePeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.dismiss();
   }
 
   function handleOpenAccount(
@@ -703,6 +719,15 @@ export function Accounts() {
             </HideDataButton>
           </Header>
 
+          <FiltersContainer>
+            <FilterButtonGroup>
+              <FilterButton
+                title={`Por ${selectedPeriod.name}`}
+                onPress={() => handleOpenPeriodSelectedModal()}
+              />
+            </FilterButtonGroup>
+          </FiltersContainer>
+
           <ChartContainer>
             <LineChart
               key={chartData.length}
@@ -882,6 +907,17 @@ export function Accounts() {
             closeAccount={() => handleCloseRegisterAccountModal()}
           />
         </ModalView>
+
+        <ModalViewSelection
+          title='Selecione o período'
+          bottomSheetRef={chartPeriodSelectedBottomSheetRef}
+          snapPoints={['30%', '50%']}
+        >
+          <ChartPeriodSelect
+            period={selectedPeriod}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
+          />
+        </ModalViewSelection>
       </Container>
     </Screen>
   );
