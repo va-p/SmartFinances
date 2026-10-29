@@ -17,6 +17,7 @@ import { Gradient } from '@components/Gradient';
 
 import { resolveTierFromEntitlements } from '@utils/entitlementTier';
 import { useUser } from '@stores/userStorage';
+import { useBenefits } from '@stores/benefitsStorage';
 import { Load } from '@components/Button/components/Load';
 
 const API_KEYS = {
@@ -77,6 +78,10 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
     };
 
     setUser(newUser);
+
+    // Benefits-tiers: customer-info changes (purchase/restore/expiry) alter
+    // entitlements — refresh the backend view so limits follow the plan.
+    await useBenefits.getState().fetchBenefits();
   }
 
   useEffect(() => {
