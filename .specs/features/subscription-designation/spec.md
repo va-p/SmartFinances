@@ -173,12 +173,12 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | SD-03 | P1: Subscription entry choice | Design | Pending |
 | SD-04 | P1: Subscription entry choice | Design | Pending |
 | SD-05 | P1: Subscription entry choice | Design | Pending |
-| SD-06 | P1: Transaction picker | Design | Implementing (rules util done, picker wiring T3) |
-| SD-07 | P1: Transaction picker | Design | Pending |
-| SD-08 | P1: Transaction picker | Design | Pending |
-| SD-09 | P1: Transaction picker | Design | Pending |
-| SD-10 | P1: Transaction picker | Design | Pending |
-| SD-11 | P1: Transaction picker | Design | Pending |
+| SD-06 | P1: Transaction picker | Design | Implementing (filter + screen done) |
+| SD-07 | P1: Transaction picker | Design | Implementing (picker half done, screen flow T5) |
+| SD-08 | P1: Transaction picker | Design | Implementing (screen done) |
+| SD-09 | P1: Transaction picker | Design | Implementing (screen done) |
+| SD-10 | P1: Transaction picker | Design | Implementing (screen done) |
+| SD-11 | P1: Transaction picker | Design | Implementing (screen done) |
 | SD-12 | P1: Designation selector in accordion | Design | Implementing (accordion done, placement T4) |
 | SD-13 | P1: Designation selector in accordion | Design | Implementing (accordion done, wiring T4) |
 | SD-14 | P1: Designation selector in accordion | Design | Pending |

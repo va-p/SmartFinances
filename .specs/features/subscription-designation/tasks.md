@@ -130,7 +130,7 @@ T4 → T5
 
 ---
 
-### T3: TransactionSelect screen + screen test
+### T3: TransactionSelect screen + screen test — ✅ Complete (5 tests)
 
 **What**: Picker screen listing `selectSubscriptionCandidates(transactions)` via `useTransactionsQuery`, rows rendered with `TransactionListItem` (hideAmount from user configs), `Load` while loading, error `Alert`, `ListEmptyComponent` empty state, `RefreshControl`; selection contract `setTransaction` + `closeSelectTransaction` (AccountSelect pattern).
 **Where**: `src/screens/TransactionSelect/index.tsx`, `src/screens/TransactionSelect/styles.ts`, `src/__tests__/screens/transactionSelect.spec.tsx`
@@ -145,13 +145,13 @@ T4 → T5
 
 **Done when**:
 
-- [ ] Renders only candidates from a mixed list (CREDIT/DEBIT kept; TRANSFER_CREDIT/TRANSFER_DEBIT and `is_subscription: true` excluded) (SD-06)
-- [ ] Tapping a candidate calls `setTransaction` with that transaction then `closeSelectTransaction` (SD-07)
-- [ ] No candidates: renders the exact empty-state copy from SD-08 spec text
-- [ ] Loading state renders the `Load` indicator (SD-09)
-- [ ] Quick gate passes: `yarn jest src/__tests__/screens/transactionSelect.spec.tsx --watchman=false`
-- [ ] Test count: 4 tests pass (no silent deletions)
-- [ ] Build gate passes (full jest at baseline + eslint on the touched files adds no new errors)
+- [x] Renders only candidates from a mixed list (CREDIT/DEBIT kept; TRANSFER_CREDIT/TRANSFER_DEBIT and `is_subscription: true` excluded) (SD-06)
+- [x] Tapping a candidate calls `setTransaction` with that transaction then `closeSelectTransaction` (SD-07)
+- [x] No candidates: renders the exact empty-state copy from SD-08 spec text
+- [x] Loading state renders the `Load` indicator (SD-09)
+- [x] Quick gate passes: `yarn jest src/__tests__/screens/transactionSelect.spec.tsx --watchman=false` (5/5)
+- [x] Test count: 5 tests pass (no silent deletions; 4 planned + error-alert path SD-10)
+- [x] Build gate passes (41 suites: 40 passed + 1 pre-existing profile env-broken; 365/365 tests; eslint clean on the 3 files after fixing 2 new-file errors)
 
 **Tests**: unit (per coverage matrix - select screens, RTL render with mocked `useTransactionsQuery` + mocked `TransactionListItem`)
 **Gate**: quick, then build
