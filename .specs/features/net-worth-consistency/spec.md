@@ -73,17 +73,17 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| NW-01 | P1: shared seed helper | Implementing | Pending |
-| NW-02 | P1: identical monthly totals | Implementing | Pending |
-| NW-03 | P1: fiat 2-decimal rounding | Implementing | Pending |
-| NW-04 | P1: noise rounded on display | Implementing | Pending |
-| NW-05 | P1: recompute on quotes load | Implementing | Pending |
+| NW-01 | P1: shared seed helper | Implementing | Verified |
+| NW-02 | P1: identical monthly totals | Implementing | Verified |
+| NW-03 | P1: fiat 2-decimal rounding | Implementing | Verified |
+| NW-04 | P1: noise rounded on display | Implementing | Verified |
+| NW-05 | P1: recompute on quotes load | Implementing | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 5 total, 0 mapped to tasks, 5 unmapped ⚠️
+**Coverage:** 5 total, 5 mapped to tests, 0 unmapped
 
 ---
 

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 11,
+  "next_id": 12,
   "lessons": [
     {
       "id": "L-001",
@@ -184,6 +184,24 @@
       ],
       "created": "2026-10-05T23:10:42Z",
       "last_seen": "2026-10-05T23:10:42Z"
+    },
+    {
+      "id": "L-011",
+      "key": "surviving_mutant::when asserting fraction digit rounding use fixtures with more decimals than either candidate precision so 2dp and 8dp assertions cannot both pass",
+      "text": "When asserting fraction-digit rounding, use fixtures with more decimals than either candidate precision so 2dp and 8dp assertions cannot both pass.",
+      "signal": "surviving_mutant",
+      "scope": "src/utils/buildNetWorthEvolution.ts",
+      "status": "candidate",
+      "features": [
+        "net-worth-consistency"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/utils/buildNetWorthEvolution.test.ts:305 (src/utils/buildNetWorthEvolution.ts)"
+      ],
+      "created": "2026-10-30T14:28:40Z",
+      "last_seen": "2026-10-30T14:28:40Z"
     }
   ]
 }

@@ -74,6 +74,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: BC-10 (bullet taps, first screen) (frontend-components/layout)
 - last seen: 2026-10-05T23:10:42Z
 
+### L-011 - When asserting fraction-digit rounding, use fixtures with more decimals than either candidate precision so 2dp and 8dp assertions cannot both pass.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `src/utils/buildNetWorthEvolution.ts` · harmful: 0
+- features: net-worth-consistency
+- evidence: src/utils/buildNetWorthEvolution.test.ts:305 (src/utils/buildNetWorthEvolution.ts)
+- last seen: 2026-10-30T14:28:40Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

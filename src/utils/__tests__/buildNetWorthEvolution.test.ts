@@ -307,4 +307,45 @@ describe('buildNetWorthEvolution', () => {
       { date: 'set \n 2026', total: 1 },
     ]);
   });
+
+  // Hardening 1 — fiat digit lock: 10.075 BRL -> 2.015 USD lands on a 3rd
+  // decimal, so 2dp (102.02) differs from 8dp (102.015)
+  it('locks fiat points to 2 fraction digits, not 8', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 10.075, type: 'CREDIT' }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 10.075, type: 'DEBIT' }),
+      ],
+      totalAssets: 100,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'USD',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 102.02 },
+      { date: 'set \n 2026', total: 100 },
+    ]);
+  });
+
+  // Hardening 1 — BTC digit lock: the August point needs 8 decimals
+  // (0.97654322), so 8dp differs from 2dp (0.98)
+  it('locks BTC points to 8 fraction digits, not 2', () => {
+    const btcAccount = { currency: { code: 'BTC' } };
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 0.1, type: 'CREDIT', account: btcAccount }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 0.02345678, type: 'CREDIT', account: btcAccount }),
+      ],
+      totalAssets: 1,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'BTC',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 0.97654322 },
+      { date: 'set \n 2026', total: 1 },
+    ]);
+  });
 });
