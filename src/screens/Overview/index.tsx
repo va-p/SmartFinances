@@ -14,25 +14,25 @@ import {
 
 // Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
-import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 import { useDateNavigation } from '@hooks/useDateNavigation';
+import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertToBaseCurrency } from '@utils/baseCurrency';
-import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 import { calculateTotalAssets } from '@utils/calculateTotalAssets';
-import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
+import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 
 // Dependencies
 import Decimal from 'decimal.js';
-import { format, getYear, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
+import { format, getYear, isValid } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
