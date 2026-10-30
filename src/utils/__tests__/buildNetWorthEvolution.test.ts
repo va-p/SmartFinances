@@ -251,6 +251,60 @@ describe('buildNetWorthEvolution', () => {
       quotes,
     });
 
-    expect(result).toEqual([{ date: 'Todo o \n hist\u00f3rico', total: 1000 }]);
+    expect(result).toEqual([{ date: 'Todo o \n histórico', total: 1000 }]);
+  });
+
+  // NW-03/NW-04 — fiat chart points round to 2 fraction digits, killing
+  // float noise from quote multiplications (10.05 * 0.2 = 2.0100000000000002)
+  it('rounds fiat chart points to 2 fraction digits', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 10.05, type: 'CREDIT' }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 10.05, type: 'DEBIT' }),
+      ],
+      totalAssets: 100,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'USD',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 102.01 },
+      { date: 'set \n 2026', total: 100 },
+    ]);
+  });
+
+  // NW-04 — the reported Overview noise (36955.469999999994) charts as 36955.47
+  it('rounds a noisy net worth seed to the currency standard', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }),
+      ],
+      totalAssets: 36955.469999999994,
+      period: 'months',
+      quotes,
+    });
+
+    expect(result).toEqual([{ date: 'ago \n 2026', total: 36955.47 }]);
+  });
+
+  // NW-03 (BTC) — BTC chart points round to 8 fraction digits
+  it('rounds BTC chart points to 8 fraction digits', () => {
+    const btcAccount = { currency: { code: 'BTC' } };
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 0.100000005, type: 'CREDIT', account: btcAccount }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 0.100000005, type: 'CREDIT', account: btcAccount }),
+      ],
+      totalAssets: 1,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'BTC',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 0.9 },
+      { date: 'set \n 2026', total: 1 },
+    ]);
   });
 });
