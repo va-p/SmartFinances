@@ -20,9 +20,9 @@ import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
-import { convertCurrency } from '@utils/convertCurrency';
 import { convertToBaseCurrency } from '@utils/baseCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { calculateTotalAssets } from '@utils/calculateTotalAssets';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 
@@ -56,7 +56,6 @@ import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 
 // Constants
@@ -150,35 +149,25 @@ export function Overview() {
       };
     }
 
-    // --- calculateTotalAssets ---
-    let totalAssets = 0;
-    const filteredAccounts = accounts.filter(
-      (account: AccountProps) => !account.hide
-    );
-
-    filteredAccounts.forEach((account) => {
-      const convertedBalance = convertCurrency({
-        amount: Number(account.balance),
-        fromCurrency: account.currency.code,
-        toCurrency: baseCurrencyCode,
-        accountCurrency: account.currency.code,
-        quotes: {
-          brlQuoteBtc,
-          brlQuoteEur,
-          brlQuoteUsd,
-          btcQuoteBrl,
-          btcQuoteEur,
-          btcQuoteUsd,
-          eurQuoteBrl,
-          eurQuoteBtc,
-          eurQuoteUsd,
-          usdQuoteBrl,
-          usdQuoteBtc,
-          usdQuoteEur,
-        },
-      });
-
-      totalAssets += convertedBalance;
+    // --- calculateTotalAssets (NW-01): same shared helper as the Accounts
+    // screen, so both charts seed from the identical net worth total.
+    const totalAssets = calculateTotalAssets({
+      accounts,
+      baseCurrencyCode,
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
     });
 
     // --- calculateTransactionsByCategories ---
@@ -324,6 +313,18 @@ export function Overview() {
     selectedPeriod,
     selectedDate,
     baseCurrencyCode,
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteBtc,
+    usdQuoteEur,
   ]);
 
   // Ruler dates for the selected period mode. Years come from the user's
