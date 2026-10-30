@@ -30,6 +30,7 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { calculateTotalAssets } from '@utils/calculateTotalAssets';
 import { filterItemsByQuery } from '@utils/filterItemsByQuery';
 
 // Dependencies
@@ -154,7 +155,28 @@ export function Accounts() {
       };
     }
 
-    let totalAccountsBalance = new Decimal(0);
+    // Single source of truth for the net worth seed (NW-01): the same
+    // helper the Overview screen uses, so both charts end at the total.
+    const totalAccountsBalance = new Decimal(
+      calculateTotalAssets({
+        accounts: rawAccounts,
+        baseCurrencyCode: baseCurrency.code,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      })
+    );
     const filteredAccounts = rawAccounts.filter(
       (account: AccountProps) => !account.hide
     );
@@ -180,9 +202,6 @@ export function Accounts() {
           usdQuoteEur,
         },
       });
-      totalAccountsBalance = totalAccountsBalance.plus(
-        accountBalanceConvertedToBase
-      );
 
       return {
         ...account,
@@ -317,7 +336,24 @@ export function Accounts() {
       institutionCards,
       standaloneAccounts,
     };
-  }, [rawAccounts, transactions, baseCurrency.code, selectedPeriod.period]);
+  }, [
+    rawAccounts,
+    transactions,
+    baseCurrency.code,
+    selectedPeriod.period,
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteBtc,
+    usdQuoteEur,
+  ]);
 
   const {
     totalBalanceFormatted,
