@@ -290,9 +290,11 @@ export function RegisterTransaction({
   const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] =
     useState(initiallyOpenAdvancedSelectors);
 
-  // Both selectors stay active while the transaction is recurring or a
-  // subscription — initial occurrence and generated children alike.
-  const selectorsEnabled = isRecurring || isSubscription;
+  // Each selector mirrors its own flag so the toggles accurately represent
+  // the transaction: a recurring non-subscription enables only Recorrente;
+  // a subscription (which implies recurring) enables both. Generated
+  // children inherit the series flags from the backend, so subsequent
+  // occurrences hydrate the same as the original.
 
   function handleOpenRecurrenceModal() {
     recurrenceSelectBottomSheetRef.current?.present();
@@ -1725,7 +1727,7 @@ export function RegisterTransaction({
                 }
               }}
               value={isRecurring}
-              isEnabled={selectorsEnabled}
+              isEnabled={isRecurring}
             />
 
             <SelectButton
@@ -1767,7 +1769,7 @@ export function RegisterTransaction({
                   subTitle={getSubscriptionSubtitle()}
                   onValueChange={() => handleSubscriptionToggle()}
                   value={isSubscription}
-                  isEnabled={selectorsEnabled}
+                  isEnabled={isSubscription}
                 />
               </Accordion>
             )}
