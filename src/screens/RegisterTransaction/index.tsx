@@ -290,6 +290,10 @@ export function RegisterTransaction({
   const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] =
     useState(initiallyOpenAdvancedSelectors);
 
+  // Both selectors stay active while the transaction is recurring or a
+  // subscription — initial occurrence and generated children alike.
+  const selectorsEnabled = isRecurring || isSubscription;
+
   function handleOpenRecurrenceModal() {
     recurrenceSelectBottomSheetRef.current?.present();
   }
@@ -1390,8 +1394,12 @@ export function RegisterTransaction({
         )
       );
 
-      // Pre-fill recurrence fields when editing
-      if (transactionData.is_recurring) {
+      // Pre-fill recurrence fields when editing. A designated subscription
+      // implies recurrence, so it hydrates recurring even when the stored
+      // row is inconsistent — selectors stay active for both cases.
+      const designated = Boolean(transactionData.is_subscription);
+      const recurring = Boolean(transactionData.is_recurring) || designated;
+      if (recurring) {
         setIsRecurring(true);
         if (transactionData.recurrence_interval) {
           setRecurrenceInterval(transactionData.recurrence_interval);
@@ -1409,13 +1417,15 @@ export function RegisterTransaction({
               | 'MONTHLY'
               | 'YEARLY'
           );
+        } else if (designated) {
+          setRecurrencePeriod('MONTHLY');
         }
       } else {
         setIsRecurring(false);
       }
 
       // SD-20: hydrate the subscription designation from the stored flag
-      setIsSubscription(Boolean(transactionData.is_subscription));
+      setIsSubscription(designated);
     }
   }, [transactionData, bulkTransactionsData, isBulkEdit]);
 
@@ -1715,7 +1725,7 @@ export function RegisterTransaction({
                 }
               }}
               value={isRecurring}
-              isEnabled={isRecurring}
+              isEnabled={selectorsEnabled}
             />
 
             <SelectButton
@@ -1757,7 +1767,7 @@ export function RegisterTransaction({
                   subTitle={getSubscriptionSubtitle()}
                   onValueChange={() => handleSubscriptionToggle()}
                   value={isSubscription}
-                  isEnabled={isSubscription}
+                  isEnabled={selectorsEnabled}
                 />
               </Accordion>
             )}
