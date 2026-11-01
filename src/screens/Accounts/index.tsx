@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, RefreshControl, Dimensions, Platform } from 'react-native';
+import { Alert, FlatList, RefreshControl, Dimensions } from 'react-native';
 import {
   Container,
   Header,
@@ -8,6 +8,8 @@ import {
   CashFlowDescription,
   HideDataButton,
   SearchButton,
+  FiltersContainer,
+  FilterButtonGroup,
   ChartContainer,
   AccountsContainer,
   AccountsContent,
@@ -28,6 +30,7 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { calculateTotalAssets } from '@utils/calculateTotalAssets';
 import { filterItemsByQuery } from '@utils/filterItemsByQuery';
 
 // Dependencies
@@ -55,7 +58,9 @@ import {
 } from '@components/InstitutionCard';
 import { Screen } from '@components/Screen';
 import { Gradient } from '@components/Gradient';
+import { FilterButton } from '@components/FilterButton';
 import { ModalView } from '@components/Modals/ModalView';
+import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { AccountListItem } from '@components/AccountListItem';
 import { AddAccountButton } from '@components/AddAccountButton';
 import { SortFilterButton } from '@components/SortFilterButton';
@@ -66,10 +71,12 @@ import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { RegisterAccount } from '@screens/RegisterAccount';
+import { ChartPeriodSelect } from '@screens/ChartPeriodSelect';
 
 // Stores
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
+import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 import { DATABASE_CONFIGS, storageConfig } from '@database/database';
 import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
@@ -113,7 +120,9 @@ export function Accounts() {
   } = useQuotes();
   const { hideAmount, setHideAmount, sortingOption, setSortingOption, baseCurrency } =
     useUserConfigs();
+  const { selectedPeriod } = useSelectedPeriod();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   // Search form (Home-screen pattern: query via react-hook-form)
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -146,7 +155,28 @@ export function Accounts() {
       };
     }
 
-    let totalAccountsBalance = new Decimal(0);
+    // Single source of truth for the net worth seed (NW-01): the same
+    // helper the Overview screen uses, so both charts end at the total.
+    const totalAccountsBalance = new Decimal(
+      calculateTotalAssets({
+        accounts: rawAccounts,
+        baseCurrencyCode: baseCurrency.code,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      })
+    );
     const filteredAccounts = rawAccounts.filter(
       (account: AccountProps) => !account.hide
     );
@@ -172,9 +202,6 @@ export function Accounts() {
           usdQuoteEur,
         },
       });
-      totalAccountsBalance = totalAccountsBalance.plus(
-        accountBalanceConvertedToBase
-      );
 
       return {
         ...account,
@@ -280,7 +307,7 @@ export function Accounts() {
     const chartData = buildNetWorthEvolution({
       transactions,
       totalAssets: totalAccountsBalance.toNumber(),
-      period: 'months',
+      period: selectedPeriod.period,
       quotes: {
         brlQuoteBtc,
         brlQuoteEur,
@@ -309,7 +336,24 @@ export function Accounts() {
       institutionCards,
       standaloneAccounts,
     };
-  }, [rawAccounts, transactions, baseCurrency.code]);
+  }, [
+    rawAccounts,
+    transactions,
+    baseCurrency.code,
+    selectedPeriod.period,
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteBtc,
+    usdQuoteEur,
+  ]);
 
   const {
     totalBalanceFormatted,
@@ -455,6 +499,14 @@ export function Accounts() {
   function handleCloseRegisterAccountModal() {
     registerAccountBottomSheetRef.current?.dismiss();
     refetchAccounts();
+  }
+
+  function handleOpenPeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.present();
+  }
+
+  function handleClosePeriodSelectedModal() {
+    chartPeriodSelectedBottomSheetRef.current?.dismiss();
   }
 
   function handleOpenAccount(
@@ -703,6 +755,15 @@ export function Accounts() {
             </HideDataButton>
           </Header>
 
+          <FiltersContainer>
+            <FilterButtonGroup>
+              <FilterButton
+                title={`Por ${selectedPeriod.name}`}
+                onPress={() => handleOpenPeriodSelectedModal()}
+              />
+            </FilterButtonGroup>
+          </FiltersContainer>
+
           <ChartContainer>
             <LineChart
               key={chartData.length}
@@ -852,7 +913,7 @@ export function Accounts() {
           />
 
           {/** SCREEN FOOTER */}
-          <Footer bottomTabHeight={Platform.OS === 'ios' ? bottomTabHeight - 32 : bottomTabHeight - 32}>
+          <Footer bottomTabHeight={bottomTabHeight - 48}>
             <ButtonGroup>
               <AddAccountButton
                 icon='card'
@@ -882,6 +943,17 @@ export function Accounts() {
             closeAccount={() => handleCloseRegisterAccountModal()}
           />
         </ModalView>
+
+        <ModalViewSelection
+          title='Selecione o período'
+          bottomSheetRef={chartPeriodSelectedBottomSheetRef}
+          snapPoints={['30%', '50%']}
+        >
+          <ChartPeriodSelect
+            period={selectedPeriod}
+            closeSelectPeriod={() => handleClosePeriodSelectedModal()}
+          />
+        </ModalViewSelection>
       </Container>
     </Screen>
   );

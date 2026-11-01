@@ -15,7 +15,9 @@ import Purchases, {
 
 import { Gradient } from '@components/Gradient';
 
+import { resolveTierFromEntitlements } from '@utils/entitlementTier';
 import { useUser } from '@stores/userStorage';
+import { useBenefits } from '@stores/benefitsStorage';
 import { Load } from '@components/Button/components/Load';
 
 const API_KEYS = {
@@ -63,14 +65,23 @@ export function RevenueCatProvider({ children }: { children: ReactNode }) {
   }
 
   async function updateCustomerInfo(customerInfo: CustomerInfo) {
-    const newUser: UserProps = { items: [], premium: false };
+    // BEN-46: active entitlements map to tiers (plus/pro/max, highest wins);
+    // `premium` stays a derived compatibility flag (tier > STARTER).
+    const activeEntitlementIds = Object.keys(
+      customerInfo?.entitlements.active ?? {}
+    );
+    const tier = resolveTierFromEntitlements(activeEntitlementIds);
 
-    if (customerInfo?.entitlements.active.pro !== undefined) {
-      newUser.items.push(customerInfo?.entitlements.active.pro.identifier);
-      newUser.premium = true;
-    }
+    const newUser: UserProps = {
+      items: activeEntitlementIds,
+      premium: tier !== 'STARTER',
+    };
 
     setUser(newUser);
+
+    // Benefits-tiers: customer-info changes (purchase/restore/expiry) alter
+    // entitlements — refresh the backend view so limits follow the plan.
+    await useBenefits.getState().fetchBenefits();
   }
 
   useEffect(() => {

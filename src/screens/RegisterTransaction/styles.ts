@@ -30,11 +30,11 @@ export const TitleContainer = styled.View`
 
 export const Title = styled.Text.attrs({
   numberOfLines: 3,
-})`
+})<ColorProps>`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
   font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   text-align: center;
-  color: ${({ theme }) => (theme as ThemeProps).colors.text};
+  color: ${({ color }) => color};
 `;
 
 export const HeaderRow = styled.View`

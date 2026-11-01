@@ -6,13 +6,14 @@ import {
   PluggyConnectContainer,
 } from './styles';
 
-import { useRevenueCat } from '@providers/RevenueCatProvider';
-
 import axios from 'axios';
 import { useTheme } from 'styled-components';
 import { PluggyConnect } from 'react-native-pluggy-connect';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+
+import { canCreateConnection } from '@utils/benefitsLimits';
+import { useBenefits } from '@stores/benefitsStorage';
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';
@@ -36,7 +37,10 @@ export function BankingIntegrations() {
   const bottomTabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
   const { showHeader } = useLocalSearchParams();
-  const { user } = useRevenueCat();
+  const usage = useBenefits((state) => state.usage);
+  const limits = useBenefits((state) => state.limits);
+  // BEN-44: connection gating is plan-limit based (not the legacy premium flag)
+  const canConnect = canCreateConnection(usage, limits);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -78,6 +82,16 @@ export function BankingIntegrations() {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        // BEN-47: sync is refused while an integration is RESTRICTED —
+        // surface the restriction instead of a generic failure.
+        if (error?.response?.data?.code === 'INTEGRATION_RESTRICTED') {
+          Alert.alert(
+            'Integração restrita',
+            'Uma ou mais contas conectadas estão restritas (somente leitura) porque seu plano não cobre seu uso atual. Renove seu plano para reativar a sincronização.',
+            [{ text: 'OK' }]
+          );
+          return;
+        }
         Alert.alert(
           'Atualização de Integrações',
           `${error?.response?.data?.message}. Por favor, tente novamente`,
@@ -112,7 +126,7 @@ export function BankingIntegrations() {
   }, []);
 
   function handlePressConnectNewAccount() {
-    if (!user.premium) {
+    if (!canConnect) {
       router.navigate('/options/subscription');
       return;
     }
@@ -195,10 +209,24 @@ export function BankingIntegrations() {
 
   function renderItem({ item }: any) {
     return (
-      <AccountConnectedListItem
-        data={item}
-        onPress={() => handleOpenBankingIntegration(item)}
-      />
+      <>
+        <AccountConnectedListItem
+          data={item}
+          onPress={() => handleOpenBankingIntegration(item)}
+        />
+        {item.access_status === 'RESTRICTED' && (
+          <Text
+            style={{
+              color: theme.colors.attention,
+              fontFamily: theme.fonts.medium,
+              fontSize: 12,
+              marginBottom: 8,
+            }}
+          >
+            Conta conectada restrita (somente leitura) — renove para reativar
+          </Text>
+        )}
+      </>
     );
   }
 
@@ -232,7 +260,7 @@ export function BankingIntegrations() {
           </Header.Root>
         )}
 
-        {user.premium && token && showModal && (
+        {canConnect && token && showModal && (
           <PluggyConnectContainer>
             <PluggyConnect
               connectToken={token}
@@ -267,7 +295,7 @@ export function BankingIntegrations() {
               >
                 <Button.Text
                   text={
-                    !user.premium
+                    !canConnect
                       ? 'Assine o Premium para novas conexões'
                       : 'Conectar nova conta'
                   }

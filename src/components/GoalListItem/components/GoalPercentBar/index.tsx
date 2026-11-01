@@ -24,7 +24,7 @@ export function GoalPercentBar({ percentage, isAmountReached }: Props) {
 
   function updateProgress() {
     animatedWidth.value = withTiming(percentage, {
-      duration: 2000,
+      duration: 1000,
       easing: Easing.inOut(Easing.quad),
     });
   }

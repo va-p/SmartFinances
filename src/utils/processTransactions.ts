@@ -105,7 +105,8 @@ export const processTransactions = (
     // BC-23 — unsupported account currencies are skipped, never crash.
     if (converted === null) return;
 
-    const isCreditAccount = item.account.type === 'CREDIT';
+    const isConectedCreditCardAccount =
+      item.account.bankingIntegrationId && item.account.type === 'CREDIT';
     const amount = new Decimal(converted);
 
     if (!cashFlowsMap[groupKey]) {
@@ -116,8 +117,8 @@ export const processTransactions = (
       };
     }
 
-    // Credit card
-    if (isCreditAccount) {
+    // Credit card from banking integration (inverted logic)
+    if (isConectedCreditCardAccount) {
       if (item.type === 'CREDIT') {
         cashFlowsMap[groupKey].totalRevenuesByPeriod =
           cashFlowsMap[groupKey].totalRevenuesByPeriod.minus(amount); // Lógica invertida para Cartão de Crédito
@@ -129,7 +130,7 @@ export const processTransactions = (
     }
 
     // Other account types
-    if (!isCreditAccount) {
+    if (!isConectedCreditCardAccount) {
       if (item.type === 'CREDIT') {
         cashFlowsMap[groupKey].totalRevenuesByPeriod =
           cashFlowsMap[groupKey].totalRevenuesByPeriod.plus(amount);
@@ -238,10 +239,7 @@ export const processTransactions = (
   return {
     cashFlows, // CashFlows by weeks, months, years or all history
     cashFlowChartData, // CashFlows by months, years or 'all' to use on cash flow chart
-    currentCashFlow: formatCurrency(
-      baseCurrencyCode,
-      currentCashFlowByPeriod
-    ), // Current CashFlow (by selected period)
+    currentCashFlow: formatCurrency(baseCurrencyCode, currentCashFlowByPeriod), // Current CashFlow (by selected period)
     currentCashFlowValue: currentCashFlowByPeriod, // Exact raw current CashFlow
     groupedTransactions, // Transactions grouped by day with total of the day, to show on SectionList
   };

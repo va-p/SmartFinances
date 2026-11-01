@@ -18,6 +18,7 @@ import {
 
 import { useUser } from '@stores/userStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
+import { useBenefits } from '@stores/benefitsStorage';
 
 import api from '@api/api';
 
@@ -116,6 +117,12 @@ export function AuthProvider({ children }: any) {
       insights: userData.insights,
       notificationsEnabled: userData.notifications_enabled,
     }));
+
+    // Benefits-tiers (BEN-40): fetch the effective plan, limits, usage and
+    // notice right after the login data lands. Covers email, biometric and
+    // SSO paths — they all funnel through here. Fire-and-forget: the store
+    // fails closed to STARTER defaults and never rejects.
+    useBenefits.getState().fetchBenefits();
 
     return loggedInUserDataFormatted;
   }

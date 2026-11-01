@@ -4,7 +4,7 @@ import { TouchableOpacity } from 'react-native';
 import { useTheme } from 'styled-components';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
-import {FunnelIcon} from 'phosphor-react-native/src/icons/Funnel';
+import {SortAscendingIcon} from 'phosphor-react-native/src/icons/SortAscending';
 
 import { SortingOptions } from '@screens/SortingOptions';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
@@ -37,7 +37,7 @@ export function SortFilterButton({ selectedOption, onSelect }: Props) {
   return (
     <>
       <TouchableOpacity onPress={() => handleSortingPress()} style={{ padding: 8 }}>
-        <FunnelIcon size={20} color={theme.colors.primary} />
+        <SortAscendingIcon size={20} color={theme.colors.primary} />
       </TouchableOpacity>
 
       <ModalViewSelection

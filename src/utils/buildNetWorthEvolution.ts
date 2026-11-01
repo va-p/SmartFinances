@@ -82,6 +82,11 @@ export function buildNetWorthEvolution({
   };
   const config = periodConfig[period] || periodConfig.months;
 
+  // formatCurrency renders fiat with 2 fraction digits and converted BTC
+  // with 8 — round every chart point the same way so focused values never
+  // show float noise (e.g. 36955.469999999994 instead of 36955.47).
+  const fractionDigits = baseCurrencyCode === 'BTC' ? 8 : 2;
+
   // ── 1. Net flow per period ───────────────────────────────────────────────
   const totalsByPeriod: Record<string, Decimal> = {};
 
@@ -146,7 +151,7 @@ export function buildNetWorthEvolution({
         config.outputFormat,
         { locale: ptBR }
       ),
-      total: accumulatedTotal.toNumber(),
+      total: accumulatedTotal.toDecimalPlaces(fractionDigits).toNumber(),
     };
   });
 }

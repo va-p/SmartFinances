@@ -14,25 +14,25 @@ import {
 
 // Hooks
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
-import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 import { useDateNavigation } from '@hooks/useDateNavigation';
+import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
-import { convertCurrency } from '@utils/convertCurrency';
 import { convertToBaseCurrency } from '@utils/baseCurrency';
+import { calculateTotalAssets } from '@utils/calculateTotalAssets';
+import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
-import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 
 // Dependencies
 import Decimal from 'decimal.js';
-import { format, getYear, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'styled-components';
 import { Text as SvgText } from 'react-native-svg';
+import { format, getYear, isValid } from 'date-fns';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 
@@ -56,7 +56,6 @@ import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
-import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 
 // Constants
@@ -110,8 +109,7 @@ export function Overview() {
   const [selectedTabCategoriesSection, setSelectedTabCategoriesSection] =
     useState<CustomTab>(CustomTab.Tab1);
 
-  const { selectedPeriod, selectedDate, setSelectedDate } =
-    useSelectedPeriod();
+  const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const {
@@ -151,35 +149,25 @@ export function Overview() {
       };
     }
 
-    // --- calculateTotalAssets ---
-    let totalAssets = 0;
-    const filteredAccounts = accounts.filter(
-      (account: AccountProps) => !account.hide
-    );
-
-    filteredAccounts.forEach((account) => {
-      const convertedBalance = convertCurrency({
-        amount: Number(account.balance),
-        fromCurrency: account.currency.code,
-        toCurrency: baseCurrencyCode,
-        accountCurrency: account.currency.code,
-        quotes: {
-          brlQuoteBtc,
-          brlQuoteEur,
-          brlQuoteUsd,
-          btcQuoteBrl,
-          btcQuoteEur,
-          btcQuoteUsd,
-          eurQuoteBrl,
-          eurQuoteBtc,
-          eurQuoteUsd,
-          usdQuoteBrl,
-          usdQuoteBtc,
-          usdQuoteEur,
-        },
-      });
-
-      totalAssets += convertedBalance;
+    // --- calculateTotalAssets (NW-01): same shared helper as the Accounts
+    // screen, so both charts seed from the identical net worth total.
+    const totalAssets = calculateTotalAssets({
+      accounts,
+      baseCurrencyCode,
+      quotes: {
+        brlQuoteBtc,
+        brlQuoteEur,
+        brlQuoteUsd,
+        btcQuoteBrl,
+        btcQuoteEur,
+        btcQuoteUsd,
+        eurQuoteBrl,
+        eurQuoteBtc,
+        eurQuoteUsd,
+        usdQuoteBrl,
+        usdQuoteBtc,
+        usdQuoteEur,
+      },
     });
 
     // --- calculateTransactionsByCategories ---
@@ -253,7 +241,7 @@ export function Overview() {
 
             const amount = new Decimal(converted);
             categorySum =
-              t.account.type === 'CREDIT'
+              t.account.type === 'CREDIT' && t.account.bankingIntegrationId // Credit card from banking integration (inverted logic)
                 ? categorySum.minus(amount)
                 : categorySum.plus(amount);
           });
@@ -325,6 +313,18 @@ export function Overview() {
     selectedPeriod,
     selectedDate,
     baseCurrencyCode,
+    brlQuoteBtc,
+    brlQuoteEur,
+    brlQuoteUsd,
+    btcQuoteBrl,
+    btcQuoteEur,
+    btcQuoteUsd,
+    eurQuoteBrl,
+    eurQuoteBtc,
+    eurQuoteUsd,
+    usdQuoteBrl,
+    usdQuoteBtc,
+    usdQuoteEur,
   ]);
 
   // Ruler dates for the selected period mode. Years come from the user's
@@ -365,7 +365,7 @@ export function Overview() {
   function handleOpenCategory(id: string) {
     router.navigate({
       pathname: '/overview/[categoryId]',
-      params: { categoryId: id, },
+      params: { categoryId: id },
     });
   }
 
@@ -440,7 +440,7 @@ export function Overview() {
         <Gradient />
 
         <Header.Root style={{ justifyContent: 'center' }}>
-          <Header.Title title="Resumo" />
+          <Header.Title title='Resumo' />
         </Header.Root>
 
         <ScrollContent
@@ -484,7 +484,9 @@ export function Overview() {
             {selectedTabCashFlowSection === 0 && (
               <LineChart
                 key={processedData.patrimonialEvolution.length}
-                data={processedData.patrimonialEvolution.map((item) => ({ value: item.total }))}
+                data={processedData.patrimonialEvolution.map((item) => ({
+                  value: item.total,
+                }))}
                 xAxisLabelTexts={processedData.patrimonialEvolution.map(
                   (item) => String(item.date)
                 )}
@@ -536,7 +538,10 @@ export function Overview() {
                   const k = Math.floor(value / 1000);
                   return k > 0 ? `${k}k` : '0';
                 }}
-                yAxisTextStyle={{ fontSize: 11, color: theme.colors.xAxisLabel }}
+                yAxisTextStyle={{
+                  fontSize: 11,
+                  color: theme.colors.xAxisLabel,
+                }}
                 verticalLinesColor={theme.colors.xAxisColor}
                 rulesThickness={1}
                 rulesColor={theme.colors.chartRule}
@@ -546,7 +551,7 @@ export function Overview() {
                 startOpacity={0.6}
                 endOpacity={0.1}
                 isAnimated
-                animationDuration={3000}
+                animationDuration={1000}
                 animateOnDataChange
                 scrollToEnd
               />
@@ -562,7 +567,10 @@ export function Overview() {
                 roundedBottom
                 xAxisThickness={1}
                 yAxisThickness={0}
-                yAxisTextStyle={{ fontSize: 10, color: theme.colors.textPlaceholder }}
+                yAxisTextStyle={{
+                  fontSize: 10,
+                  color: theme.colors.textPlaceholder,
+                }}
                 xAxisLabelTextStyle={{
                   fontSize: 10,
                   color: theme.colors.xAxisLabel,

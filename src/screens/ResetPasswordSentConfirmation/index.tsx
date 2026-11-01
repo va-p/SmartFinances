@@ -7,7 +7,7 @@ import {
   Text,
 } from './styles';
 
-import { useRoute } from 'expo-router';
+import { useRoute, useNavigation } from 'expo-router';
 import {EnvelopeIcon} from 'phosphor-react-native/src/icons/Envelope';
 
 import { Screen } from '@components/Screen';
@@ -15,7 +15,8 @@ import { Button } from '@components/Button';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
 
-export function ResetPasswordSentConfirmation({ navigation }: any) {
+export function ResetPasswordSentConfirmation() {
+  const navigation = useNavigation();
   const route = useRoute();
   const email: string = route.params?.email;
 

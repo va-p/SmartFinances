@@ -19,18 +19,19 @@ export const Container = styled(RectButton)`
 
 type TitleProps = {
   size?: number;
+  color: string;
 };
 export const Title = styled.Text<TitleProps>`
   font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
-  font-size: ${({ theme, size }) => (size || (theme as ThemeProps).fonts.sizeTitle)};
-  color: ${({ theme }) => (theme as ThemeProps).colors.text};
+  font-size: ${({ theme }) => ((theme as ThemeProps).fonts.sizeTitle)};
+  color: ${({ color }) => color};
 `;
 
 type IconProps = {
-  size?: number;
+  color: string;
 };
 export const Icon = styled(Ionicons)<IconProps>`
-  font-size: ${({ size, theme }) => (size || (theme as ThemeProps).fonts.sizeTitle)};
+  font-size: ${({ theme }) => ((theme as ThemeProps).fonts.sizeTitle)};
   padding-left: 5px;
-  color: ${({ theme }) => (theme as ThemeProps).colors.text};
+  color: ${({ color }) => color};
 `;

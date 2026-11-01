@@ -14,16 +14,16 @@ import {
 import axios from 'axios';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
-
+import { router, useNavigation } from 'expo-router';
 import { yupResolver } from '@hookform/resolvers/yup';
+
+import { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
 import { ControlledInput } from '@components/Form/ControlledInput';
-import { router } from 'expo-router';
 
 const LOGO_URL = '@assets/logo.png';
 
@@ -40,6 +40,7 @@ const schema = Yup.object().shape({
 /* Validation Form - End */
 
 export function ForgotPassword() {
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const {
     control,
@@ -64,7 +65,6 @@ export function ForgotPassword() {
       );
 
       if (status === 200) {
-
         router.navigate({
           pathname: '/resetPassSentConfirmation',
           params: {
@@ -82,7 +82,7 @@ export function ForgotPassword() {
   }
 
   function handlePressGoBack() {
-    navigation.back();
+    navigation.goBack();
   }
 
   return (
@@ -93,7 +93,7 @@ export function ForgotPassword() {
         <SectionHeader>
           <Header.Root>
             <Header.BackButton />
-            <Header.Title title="Recuperar senha" />
+            <Header.Title title='Recuperar senha' />
           </Header.Root>
         </SectionHeader>
 

@@ -14,6 +14,7 @@ import { SkeletonHomeScreen } from '@components/SkeletonOverviewScreen';
 
 import { AuthProvider, useAuth } from '@providers/AuthProvider';
 import { RevenueCatProvider } from '@providers/RevenueCatProvider';
+import { ExpiryNoticeModal } from '@components/ExpiryNoticeModal';
 import {
   Poppins_400Regular as Poppins400Regular,
   Poppins_500Medium as Poppins500Medium,
@@ -128,7 +129,14 @@ function RootNavigationLayout() {
     return null;
   }
 
-  return <Slot />;
+  return (
+    <>
+      <Slot />
+      {/* Benefits-tiers (BEN-41): blocking expiry notice, rendered only for a
+          signed-in user so a stale store never blocks the login screens. */}
+      {isSignedIn && <ExpiryNoticeModal />}
+    </>
+  );
 }
 
 export default function RootLayout() {

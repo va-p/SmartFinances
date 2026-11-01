@@ -200,4 +200,152 @@ describe('buildNetWorthEvolution', () => {
 
     expect(result).toEqual([]);
   });
+
+  // ACCOUNTS-PERIOD — months mode groups net flows by month, oldest to
+  // newest, ending at totalAssets (Accounts screen FilterButton granularity)
+  it('groups net flows by month and ends exactly at totalAssets', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }), // Aug: -50
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }), // Sep: +100
+      ],
+      totalAssets: 1000,
+      period: 'months',
+      quotes,
+    });
+
+    // Initial = 1000 - (-50 + 100) = 950; Aug: 900; Sep: 1000
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 900 },
+      { date: 'set \n 2026', total: 1000 },
+    ]);
+  });
+
+  // ACCOUNTS-PERIOD — years mode groups net flows by year
+  it('groups net flows by year and ends exactly at totalAssets', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2025-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }), // 2025: -50
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }), // 2026: +100
+      ],
+      totalAssets: 1000,
+      period: 'years',
+      quotes,
+    });
+
+    // Initial = 1000 - (-50 + 100) = 950; 2025: 900; 2026: 1000
+    expect(result).toEqual([
+      { date: '2025', total: 900 },
+      { date: '2026', total: 1000 },
+    ]);
+  });
+
+  // ACCOUNTS-PERIOD — all mode returns a single point at totalAssets
+  it('returns a single history point for the all period', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }),
+      ],
+      totalAssets: 1000,
+      period: 'all',
+      quotes,
+    });
+
+    expect(result).toEqual([{ date: 'Todo o \n histórico', total: 1000 }]);
+  });
+
+  // NW-03/NW-04 — fiat chart points round to 2 fraction digits, killing
+  // float noise from quote multiplications (10.05 * 0.2 = 2.0100000000000002)
+  it('rounds fiat chart points to 2 fraction digits', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 10.05, type: 'CREDIT' }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 10.05, type: 'DEBIT' }),
+      ],
+      totalAssets: 100,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'USD',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 102.01 },
+      { date: 'set \n 2026', total: 100 },
+    ]);
+  });
+
+  // NW-04 — the reported Overview noise (36955.469999999994) charts as 36955.47
+  it('rounds a noisy net worth seed to the currency standard', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }),
+      ],
+      totalAssets: 36955.469999999994,
+      period: 'months',
+      quotes,
+    });
+
+    expect(result).toEqual([{ date: 'ago \n 2026', total: 36955.47 }]);
+  });
+
+  // NW-03 (BTC) — BTC chart points round to 8 fraction digits
+  it('rounds BTC chart points to 8 fraction digits', () => {
+    const btcAccount = { currency: { code: 'BTC' } };
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 0.100000005, type: 'CREDIT', account: btcAccount }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 0.100000005, type: 'CREDIT', account: btcAccount }),
+      ],
+      totalAssets: 1,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'BTC',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 0.9 },
+      { date: 'set \n 2026', total: 1 },
+    ]);
+  });
+
+  // Hardening 1 — fiat digit lock: 10.075 BRL -> 2.015 USD lands on a 3rd
+  // decimal, so 2dp (102.02) differs from 8dp (102.015)
+  it('locks fiat points to 2 fraction digits, not 8', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 10.075, type: 'CREDIT' }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 10.075, type: 'DEBIT' }),
+      ],
+      totalAssets: 100,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'USD',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 102.02 },
+      { date: 'set \n 2026', total: 100 },
+    ]);
+  });
+
+  // Hardening 1 — BTC digit lock: the August point needs 8 decimals
+  // (0.97654322), so 8dp differs from 2dp (0.98)
+  it('locks BTC points to 8 fraction digits, not 2', () => {
+    const btcAccount = { currency: { code: 'BTC' } };
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 0.1, type: 'CREDIT', account: btcAccount }),
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 0.02345678, type: 'CREDIT', account: btcAccount }),
+      ],
+      totalAssets: 1,
+      period: 'months',
+      quotes,
+      baseCurrencyCode: 'BTC',
+    });
+
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 0.97654322 },
+      { date: 'set \n 2026', total: 1 },
+    ]);
+  });
 });

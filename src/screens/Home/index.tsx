@@ -24,8 +24,8 @@ import {
 } from './styles';
 
 // Hooks
-import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useScreenTrace } from '@hooks/useScreenTrace';
+import { useDateNavigation } from '@hooks/useDateNavigation';
 import { useSyncTransactions } from '@hooks/useSyncTransactions';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 import { useTransactionFiltering } from '@hooks/useTransactionFiltering';
@@ -39,7 +39,6 @@ import { formatSectionHeaderTitle } from '@utils/formatSectionHeaderTitle';
 import { FlashListTransactionItem } from '@utils/flattenTransactionsForFlashList';
 
 // Dependencies
-import { isFirstDayOfMonth } from 'date-fns';
 import Animated, {
   FadeInUp,
   FadeOutUp,
@@ -55,11 +54,11 @@ import {
 } from 'react-native-gesture-handler';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
+import { isFirstDayOfMonth } from 'date-fns';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-
 
 // Icons
 import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
@@ -89,7 +88,7 @@ import { RegisterTransaction } from '@screens/RegisterTransaction';
 import {
   useSelectedTransactions,
   useClearSelection,
-  // useSelectedTransactionsCount,
+  useSelectedTransactionsCount,
 } from '@stores/useTransactionsStore';
 import { useUser } from '@stores/userStorage';
 import { useQuotes } from '@stores/quotesStorage';
@@ -117,9 +116,7 @@ const FLOATING_BUTTONS_RIGHT_POSITION = 16;
 const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid
   ? 64
   : 96;
-const BULK_EDIT_BUTTON_BOTTOM_POSITION = 117;
-// PeriodRulerList Column
-
+const BULK_EDIT_BUTTON_BOTTOM_POSITION = 144;
 const CHART_BAR_SPACING = 40;
 const CHART_BAR_WIDTH = 8;
 
@@ -137,8 +134,7 @@ export function Home() {
   const { id: userID } = useUser();
   const selectedTransactions = useSelectedTransactions();
   const clearSelection = useClearSelection();
-  // const selectedCount = useSelectedTransactionsCount();
-
+  const selectedCount = useSelectedTransactionsCount();
   const { hideAmount, setHideAmount, insights, baseCurrency } =
     useUserConfigs();
   const quotes = useQuotes();
@@ -529,9 +525,9 @@ export function Home() {
         <Transactions>
           <AnimatedFlashList
             data={filteredTransactions}
-            keyExtractor={(item: any) => item.isHeader
-              ? String(item.headerTitle)
-              : String(item.id)}
+            keyExtractor={(item: any) =>
+              item.isHeader ? String(item.headerTitle) : String(item.id)
+            }
             renderItem={({ item, index }: any) => {
               if (item.isHeader) {
                 return (
@@ -642,7 +638,9 @@ export function Home() {
           <RegisterTransaction
             id={transactionId}
             resetId={clearTransactionId}
-            closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
+            closeRegisterTransaction={() =>
+              handleCloseRegisterTransactionModal()
+            }
             isBulkEdit={transactionId === 'bulk-edit'}
             selectedTransactionIds={selectedTransactions}
           />

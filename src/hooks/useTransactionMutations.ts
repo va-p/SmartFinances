@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '@api/api';
 
+import { formatQuotaMessage } from '@utils/quotaMessage';
+
 import { TransactionProps } from '@interfaces/transactions';
 
 const QUERY_KEY = ['transactions'];
@@ -56,7 +58,11 @@ export function useCreateTransactionMutation() {
       }
       Alert.alert(
         'Erro',
-        error.response?.data?.message ||
+        // BEN-45: a quota rejection shows usage/limit instead of the
+        // generic failure (react-query v5 fires hook- and call-level error
+        // callbacks in addition, so the replacement must happen here).
+        formatQuotaMessage((error as any)?.response?.data) ||
+          (error as any)?.response?.data?.message ||
           'Não foi possível registrar a transação. Por favor, tente novamente.'
       );
     },
@@ -99,7 +105,10 @@ export function useUpdateTransactionMutation() {
       }
       Alert.alert(
         'Erro',
-        error.response?.data?.message ||
+        // BEN-45: a quota rejection shows usage/limit instead of the
+        // generic failure.
+        formatQuotaMessage((error as any)?.response?.data) ||
+          (error as any)?.response?.data?.message ||
           'Não foi possível atualizar a transação. Por favor, tente novamente.'
       );
     },

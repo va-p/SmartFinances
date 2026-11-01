@@ -47,7 +47,7 @@ export function WelcomeBaseCurrency() {
 
   return (
     <Container>
-      <CoinsIcon size={40} color={theme.colors.primary} />
+      <CoinsIcon size={40} color={theme.colors.primary} style={{ marginBottom: -16 }} />
 
       <Title>
         Escolha sua {'\n'}

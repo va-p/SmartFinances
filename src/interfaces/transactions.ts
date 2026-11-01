@@ -31,6 +31,9 @@ export interface TransactionProps {
   is_recurring?: boolean;
   recurrence_interval?: number | null;
   recurrence_period?: string | null;
+  /** Backend subscription classification flags (snake_case DTO). */
+  is_subscription?: boolean;
+  hide_from_subscription_list?: boolean;
 }
 
 export type CashFLowData = {
