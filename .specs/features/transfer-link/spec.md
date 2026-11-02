@@ -91,11 +91,11 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| TLINK-01 | P1: link renders above Accordion for transfers only | Implementing | Implementing |
-| TLINK-02 | P1: hidden in bulk-edit mode | Implementing | Implementing |
-| TLINK-03 | P1: tap opens counterpart in editor | Implementing | Implementing |
-| TLINK-04 | P1: hidden when counterpart missing, no new request | Implementing | Implementing |
-| TLINK-05 | P2: shows counterpart account name with fallback | Implementing | Implementing |
+| TLINK-01 | P1: link renders above Accordion for transfers only | Implementing | Verified |
+| TLINK-02 | P1: hidden in bulk-edit mode | Implementing | Verified |
+| TLINK-03 | P1: tap opens counterpart in editor | Implementing | Verified |
+| TLINK-04 | P1: hidden when counterpart missing, no new request | Implementing | Verified |
+| TLINK-05 | P2: shows counterpart account name with fallback | Implementing | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 
