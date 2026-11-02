@@ -171,7 +171,7 @@ export function RegisterTransaction({
   isBulkEdit = false,
   selectedTransactionIds = [],
   initiallyOpenAdvancedSelectors = false,
-  onOpenTransaction,
+  onOpenTransaction = undefined,
 }: Props) {
   useScreenTrace('register_transaction_screen');
 
