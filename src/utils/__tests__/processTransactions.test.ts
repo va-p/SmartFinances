@@ -306,6 +306,60 @@ describe('processTransactions', () => {
     expect(currentCashFlow).toBe('US$\u00A010,00');
   });
 
+  // FUT-01/FUT-02/FUT-03 — future rows stay listed but never count
+  it('excludes future transactions from chart flows and current cash flow while still listing them', () => {
+    const dayMs = 24 * 60 * 60 * 1000;
+    const pastIso = new Date(Date.now() - dayMs).toISOString();
+    const futureIso = new Date(Date.now() + dayMs * 2).toISOString();
+
+    const { currentCashFlowValue, groupedTransactions, cashFlowChartData } =
+      processTransactions(
+        [
+          makeTransaction({ id: 1, amount: -50, created_at: pastIso }),
+          makeTransaction({ id: 2, amount: -30, created_at: futureIso }),
+        ],
+        'all',
+        new Date(),
+        quotes
+      );
+
+    expect(groupedTransactions).toHaveLength(2);
+    expect(currentCashFlowValue).toBe(-50);
+    expect(cashFlowChartData).toHaveLength(2);
+    expect(cashFlowChartData[1].value).toBe(50);
+  });
+
+  // FUT-02 — a period with only future transactions reports zero
+  it('reports a zero current cash flow when every transaction in the period is future', () => {
+    const dayMs = 24 * 60 * 60 * 1000;
+    const futureIso = new Date(Date.now() + dayMs * 2).toISOString();
+
+    const { currentCashFlowValue, groupedTransactions, cashFlowChartData } =
+      processTransactions(
+        [makeTransaction({ amount: -30, created_at: futureIso })],
+        'all',
+        new Date(),
+        quotes
+      );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(currentCashFlowValue).toBe(0);
+    expect(cashFlowChartData).toHaveLength(0);
+  });
+
+  // FUT-04 — transfers stay excluded from every aggregate
+  it('keeps excluding transfers from the realized cash flow', () => {
+    const { currentCashFlowValue, groupedTransactions } = processTransactions(
+      [makeTransaction({ type: 'TRANSFER_DEBIT' })],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(currentCashFlowValue).toBe(0);
+  });
+
   // BC-23 — unsupported account currencies are skipped from every aggregate
   it('skips unsupported account currencies from the cash flow and day total', () => {
     const ethAccountTx = makeTransaction({

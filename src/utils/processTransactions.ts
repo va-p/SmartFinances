@@ -51,6 +51,11 @@ export const processTransactions = (
 ): ProcessTransactionsResult => {
   const cashFlowsMap: Record<string, CashFLowData> = {};
 
+  // FUT-01/FUT-02: only realized transactions (created_at <= now) count
+  // toward chart flows and the current cash flow total. Future rows stay in
+  // groupedTransactions for planning visibility (FUT-03, BC-23 precedent).
+  const now = new Date();
+
   const periodConfig = {
     weeks: {
       // ISO week-year + padded ISO week: lexicographically sortable and
@@ -85,6 +90,7 @@ export const processTransactions = (
 
     const transactionDate = toTransactionDate(item.created_at);
     if (!isValid(transactionDate)) return;
+    if (transactionDate > now) return;
 
     const groupKey = config.groupKey(transactionDate);
 
@@ -200,6 +206,10 @@ export const processTransactions = (
 
   // Filter transactions by selected date and period, normalizing `created_at`
   // to `dd/MM/yyyy` so grouped day titles stay display-ready for every caller.
+  // FUT-03: the display list keeps future rows; `realizedForCashFlow` feeds
+  // the current cash flow total with past-only rows (instant check on the
+  // original timestamp, matching the chart aggregation above).
+  const realizedForCashFlow: TransactionProps[] = [];
   const filteredTransactions = transactions.reduce(
     (acc: TransactionProps[], item) => {
       const transactionDate = toTransactionDate(item.created_at);
@@ -209,10 +219,14 @@ export const processTransactions = (
       ) {
         return acc;
       }
-      acc.push({
+      const normalized = {
         ...item,
         created_at: format(transactionDate, 'dd/MM/yyyy'),
-      });
+      };
+      acc.push(normalized);
+      if (transactionDate <= now) {
+        realizedForCashFlow.push(normalized);
+      }
       return acc;
     },
     []
@@ -229,10 +243,17 @@ export const processTransactions = (
     return secondDateParsed.getTime() - firstDateParsed.getTime();
   });
 
-  // Calculate current Cash Flow (by selected period) from the raw day totals
-  // - never re-parse the formatted currency strings.
+  // Calculate the realized current Cash Flow (by selected period) from the
+  // past-only day totals - never re-parse the formatted currency strings.
+  // Future rows stay listed in groupedTransactions (FUT-03) but contribute
+  // nothing here, mirroring the BC-23 unsupported-currency precedent.
+  const realizedGrouped = groupTransactionsByDate(
+    realizedForCashFlow,
+    quotes,
+    baseCurrencyCode
+  );
   let currentCashFlowByPeriod = 0;
-  groupedTransactions.forEach((item) => {
+  realizedGrouped.forEach((item) => {
     currentCashFlowByPeriod += item.rawTotal;
   });
 
