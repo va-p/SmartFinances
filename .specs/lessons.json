@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 13,
+  "next_id": 14,
   "lessons": [
     {
       "id": "L-004",
@@ -166,6 +166,24 @@
       ],
       "created": "2026-11-01T20:32:40Z",
       "last_seen": "2026-11-01T20:32:40Z"
+    },
+    {
+      "id": "L-013",
+      "key": "surviving_mutant::keep period filtering logic in testable utils instead of inline screen code so the jest gate can kill guard removal mutants",
+      "text": "Keep period-filtering logic in testable utils instead of inline screen code so the jest gate can kill guard-removal mutants",
+      "signal": "surviving_mutant",
+      "scope": "screens",
+      "status": "candidate",
+      "features": [
+        "exclude-future-transactions"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M3 src/screens/Overview/index.tsx:183 (screens)"
+      ],
+      "created": "2026-11-02T20:51:41Z",
+      "last_seen": "2026-11-02T20:51:41Z"
     }
   ]
 }

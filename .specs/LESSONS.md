@@ -68,6 +68,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation (backend-tests)
 - last seen: 2026-11-01T20:32:40Z
 
+### L-013 - Keep period-filtering logic in testable utils instead of inline screen code so the jest gate can kill guard-removal mutants
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `screens` · harmful: 0
+- features: exclude-future-transactions
+- evidence: M3 src/screens/Overview/index.tsx:183 (screens)
+- last seen: 2026-11-02T20:51:41Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
