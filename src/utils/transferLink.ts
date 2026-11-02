@@ -40,7 +40,5 @@ export function shouldShowTransferLink(input: TransferLinkInput): boolean {
 export function resolveTransferLinkTitle(
   counterpartAccountName: string | null | undefined
 ): string {
-  return counterpartAccountName
-    ? counterpartAccountName
-    : 'Transferência vinculada';
+  return counterpartAccountName || 'Transferência vinculada';
 }

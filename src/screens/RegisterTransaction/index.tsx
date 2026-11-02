@@ -60,6 +60,10 @@ import {
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { formatQuotaMessage } from '@utils/quotaMessage';
+import {
+  resolveTransferLinkTitle,
+  shouldShowTransferLink,
+} from '@utils/transferLink';
 
 // Dependencies
 import {
@@ -82,6 +86,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
+import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
 import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
@@ -143,6 +148,8 @@ type Props = {
   selectedTransactionIds?: number[];
   /** Opens the advanced-selectors accordion expanded (subscription designation flows). */
   initiallyOpenAdvancedSelectors?: boolean;
+  /** Opens another transaction in this editor (transfer counterpart link). */
+  onOpenTransaction?: (id: string) => void;
 };
 
 enum CustomTab {
@@ -164,6 +171,7 @@ export function RegisterTransaction({
   isBulkEdit = false,
   selectedTransactionIds = [],
   initiallyOpenAdvancedSelectors = false,
+  onOpenTransaction,
 }: Props) {
   useScreenTrace('register_transaction_screen');
 
@@ -1752,6 +1760,31 @@ export function RegisterTransaction({
                 paddingBottom: 12,
               }}
             />
+
+            {/* ── Transfer counterpart link (TLINK-01..05) ──── */}
+            {shouldShowTransferLink({
+              transactionType,
+              isBulkEdit,
+              transactionId: id,
+              relatedTransactionId: relatedTransactionID,
+            }) && (
+              <SelectButton
+                title={resolveTransferLinkTitle(
+                  transactionData?.related_transaction?.account?.name
+                )}
+                subTitle='Toque para ver a outra ponta'
+                icon={
+                  <ArrowsLeftRightIcon
+                    color={categorySelected.color.color_code}
+                  />
+                }
+                onPress={
+                  onOpenTransaction
+                    ? () => onOpenTransaction(String(relatedTransactionID))
+                    : undefined
+                }
+              />
+            )}
 
             {/* ── Advanced selectors (under accordion) ──── */}
             {!isBulkEdit && transactionType !== 'TRANSFER' && (
