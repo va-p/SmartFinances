@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 14,
+  "next_id": 16,
   "lessons": [
     {
       "id": "L-004",
@@ -184,6 +184,42 @@
       ],
       "created": "2026-11-02T20:51:41Z",
       "last_seen": "2026-11-02T20:51:41Z"
+    },
+    {
+      "id": "L-014",
+      "key": "gate_fail::give every optional component prop an explicit default so react require default props stays green",
+      "text": "Give every optional component prop an explicit default so react/require-default-props stays green",
+      "signal": "gate_fail",
+      "scope": "lint",
+      "status": "candidate",
+      "features": [
+        "transfer-link"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/screens/RegisterTransaction/index.tsx:174 (lint)"
+      ],
+      "created": "2026-11-02T21:52:39Z",
+      "last_seen": "2026-11-02T21:52:39Z"
+    },
+    {
+      "id": "L-015",
+      "key": "spec_precision_gap::screen wiring acceptance criteria with no render harness get explicit manual qa items in the validation report instead of unit test claims",
+      "text": "Screen-wiring acceptance criteria with no render harness get explicit manual-QA items in the validation report instead of unit-test claims",
+      "signal": "spec_precision_gap",
+      "scope": "screens",
+      "status": "candidate",
+      "features": [
+        "transfer-link"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "TLINK-03 (screens)"
+      ],
+      "created": "2026-11-02T21:52:39Z",
+      "last_seen": "2026-11-02T21:52:39Z"
     }
   ]
 }

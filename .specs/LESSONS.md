@@ -74,6 +74,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M3 src/screens/Overview/index.tsx:183 (screens)
 - last seen: 2026-11-02T20:51:41Z
 
+### L-014 - Give every optional component prop an explicit default so react/require-default-props stays green
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `lint` · harmful: 0
+- features: transfer-link
+- evidence: src/screens/RegisterTransaction/index.tsx:174 (lint)
+- last seen: 2026-11-02T21:52:39Z
+
+### L-015 - Screen-wiring acceptance criteria with no render harness get explicit manual-QA items in the validation report instead of unit-test claims
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `screens` · harmful: 0
+- features: transfer-link
+- evidence: TLINK-03 (screens)
+- last seen: 2026-11-02T21:52:39Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
