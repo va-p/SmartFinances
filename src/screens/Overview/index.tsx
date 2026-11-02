@@ -171,8 +171,13 @@ export function Overview() {
     });
 
     // --- calculateTransactionsByCategories ---
+    // FUT-08: only realized transactions (created_at <= now) feed the
+    // period revenue/expense totals; future rows never count.
+    const now = new Date();
     const transactionsBySelectedPeriod = transactions.filter((t) => {
       const transactionDate = new Date(t.created_at);
+      if (Number.isNaN(transactionDate.getTime())) return false;
+      if (transactionDate > now) return false;
       return isDateInSelectedPeriod(
         transactionDate,
         selectedDate,
