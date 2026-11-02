@@ -30,7 +30,7 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
-import { calculateTotalAssets } from '@utils/calculateTotalAssets';
+import { calculateRealizedTotalAssets } from '@utils/calculateRealizedTotalAssets';
 import { filterItemsByQuery } from '@utils/filterItemsByQuery';
 
 // Dependencies
@@ -156,10 +156,13 @@ export function Accounts() {
     }
 
     // Single source of truth for the net worth seed (NW-01): the same
-    // helper the Overview screen uses, so both charts end at the total.
+    // helper the Overview screen uses, so both charts seed from the total.
+    // FUT-05: future transactions already moved the balances, so the seed
+    // backs those effects out and the displayed total is realized only.
     const totalAccountsBalance = new Decimal(
-      calculateTotalAssets({
+      calculateRealizedTotalAssets({
         accounts: rawAccounts,
+        transactions,
         baseCurrencyCode: baseCurrency.code,
         quotes: {
           brlQuoteBtc,
