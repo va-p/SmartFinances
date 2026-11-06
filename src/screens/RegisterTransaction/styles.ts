@@ -57,7 +57,7 @@ export const InputTransactionValueGroup = styled.View`
 
 export const ContentScroll = styled.ScrollView.attrs({
   shownsVerticalScrollIndicator: false,
-  contentContainerStyle: { marginBottom: 64 },
+  contentContainerStyle: { paddingBottom: 16 },
 })``;
 
 export const TransactionImageContainer = styled.Pressable`
@@ -76,11 +76,7 @@ export const TransactionsTypes = styled.View`
 `;
 
 export const Footer = styled.View`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 8px 16px 16px;
+  padding: 8px 16px;
 `;
 
 // ── Date Quick-Select Pills ───────────────────────────
