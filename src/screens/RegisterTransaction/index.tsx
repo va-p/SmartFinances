@@ -29,18 +29,22 @@ import {
 } from './styles';
 
 // Hooks
-import { useScreenTrace } from '@hooks/useScreenTrace';
 import {
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
   useDeleteTransactionMutation,
 } from '@hooks/useTransactionMutations';
 import { useTagsQuery } from '@hooks/useTagsQuery';
+import { useScreenTrace } from '@hooks/useScreenTrace';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
+import {
+  resolveTransferLinkTitle,
+  shouldShowTransferLink,
+} from '@utils/transferLink';
 import {
   buildTransferCreatePayload,
   buildTransferEditPayload,
@@ -60,10 +64,6 @@ import {
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { formatQuotaMessage } from '@utils/quotaMessage';
-import {
-  resolveTransferLinkTitle,
-  shouldShowTransferLink,
-} from '@utils/transferLink';
 
 // Dependencies
 import {
@@ -86,7 +86,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
-import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
 import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
@@ -95,6 +94,7 @@ import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
 import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
 import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
+import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -295,8 +295,9 @@ export function RegisterTransaction({
   // Subscription designation state (advanced selectors, hidden behind the
   // accordion right below the recurrence toggle)
   const [isSubscription, setIsSubscription] = useState(false);
-  const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] =
-    useState(initiallyOpenAdvancedSelectors);
+  const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] = useState(
+    initiallyOpenAdvancedSelectors
+  );
 
   // Each selector mirrors its own flag so the toggles accurately represent
   // the transaction: a recurring non-subscription enables only Recorrente;
@@ -393,11 +394,10 @@ export function RegisterTransaction({
     },
   });
   const amountValue = getValues('amount');
-  const hasAmount = amountValue !== undefined && amountValue !== null && amountValue !== 0;
+  const hasAmount =
+    amountValue !== undefined && amountValue !== null && amountValue !== 0;
   const defaultAmountValue =
-    categorySelected.id !== '' && hasAmount
-      ? String(amountValue)
-      : undefined;
+    categorySelected.id !== '' && hasAmount ? String(amountValue) : undefined;
 
   // Currency Quotes
   const {
@@ -1772,7 +1772,7 @@ export function RegisterTransaction({
                 title={resolveTransferLinkTitle(
                   transactionData?.related_transaction?.account?.name
                 )}
-                subTitle='Toque para ver a outra ponta'
+                subTitle='Toque para ver a contraparte desta transferência'
                 icon={
                   <ArrowsLeftRightIcon
                     color={categorySelected.color.color_code}
@@ -1787,7 +1787,7 @@ export function RegisterTransaction({
             )}
 
             {/* ── Advanced selectors (under accordion) ──── */}
-            {!isBulkEdit && transactionType !== 'TRANSFER' && (
+            {!isBulkEdit && (
               <Accordion
                 expanded={advancedSelectorsExpanded}
                 onToggle={() =>
@@ -1804,18 +1804,18 @@ export function RegisterTransaction({
                   value={isSubscription}
                   isEnabled={isSubscription}
                 />
-              </Accordion>
-            )}
 
-            <SelectButton
-              title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
-              icon={<ImageIcon color={categorySelected.color.color_code} />}
-              onPress={() => handleClickSelectImage()}
-            />
-            {imageUrl && (
-              <TransactionImageContainer onPress={() => handleOpenImage()}>
-                <TransactionImage source={{ uri: imageUrl }} />
-              </TransactionImageContainer>
+                <SelectButton
+                  title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
+                  icon={<ImageIcon color={categorySelected.color.color_code} />}
+                  onPress={() => handleClickSelectImage()}
+                />
+                {imageUrl && (
+                  <TransactionImageContainer onPress={() => handleOpenImage()}>
+                    <TransactionImage source={{ uri: imageUrl }} />
+                  </TransactionImageContainer>
+                )}
+              </Accordion>
             )}
 
             <TransactionsTypes>
@@ -1827,17 +1827,19 @@ export function RegisterTransaction({
                 }
               />
             </TransactionsTypes>
+
+            <Footer>
+              <Button.Root
+                isLoading={isCreating || isUpdating || isDeleting}
+                onPress={() => handleSubmit(onSubmit)()}
+              >
+                <Button.Text text={getSubmitButtonText()} />
+              </Button.Root>
+            </Footer>
           </ContentScroll>
         </MainContent>
 
-        <Footer>
-          <Button.Root
-            isLoading={isCreating || isUpdating || isDeleting}
-            onPress={() => handleSubmit(onSubmit)()}
-          >
-            <Button.Text text={getSubmitButtonText()} />
-          </Button.Root>
-        </Footer>
+
 
         <ModalViewSelection
           $modal
