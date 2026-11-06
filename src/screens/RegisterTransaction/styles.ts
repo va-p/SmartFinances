@@ -1,4 +1,6 @@
 import styled from 'styled-components/native';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+
 import { ThemeProps } from '@interfaces/theme';
 
 type ColorProps = {
@@ -55,10 +57,12 @@ export const InputTransactionValueGroup = styled.View`
   justify-content: flex-end;
 `;
 
-export const ContentScroll = styled.ScrollView.attrs({
-  shownsVerticalScrollIndicator: false,
-  contentContainerStyle: { paddingBottom: 16 },
-})``;
+export const ContentScroll = styled(BottomSheetScrollView).attrs({
+  showsVerticalScrollIndicator: false,
+  contentContainerStyle: { paddingBottom: 16, flexGrow: 1 },
+})`
+  flex: 1;
+`;
 
 export const TransactionImageContainer = styled.Pressable`
   padding: 0 16px 16px;

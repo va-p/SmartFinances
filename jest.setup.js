@@ -26,7 +26,7 @@ jest.mock(
 
 jest.mock('@gorhom/bottom-sheet', () => {
   const React = require('react');
-  const { View } = require('react-native');
+  const { View, ScrollView, FlatList } = require('react-native');
 
   // Inert BottomSheetModal: renders its content inline (native sheets cannot
   // present under jest-expo) with working present/dismiss methods so host
@@ -43,14 +43,20 @@ jest.mock('@gorhom/bottom-sheet', () => {
     }
   }
 
-  const BottomSheetView = ({ children }: any) => <View>{children}</View>;
-  const BottomSheetModalProvider = ({ children }: any) => (
+  const BottomSheetView = ({ children }) => <View>{children}</View>;
+  const BottomSheetScrollView = ({ children, ...rest }) => (
+    <ScrollView {...rest}>{children}</ScrollView>
+  );
+  const BottomSheetFlatList = (props) => <FlatList {...props} />;
+  const BottomSheetModalProvider = ({ children }) => (
     <View>{children}</View>
   );
 
   return {
     BottomSheetModal,
     BottomSheetView,
+    BottomSheetScrollView,
+    BottomSheetFlatList,
     BottomSheetModalProvider,
   };
 });
