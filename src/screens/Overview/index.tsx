@@ -411,7 +411,7 @@ export function Overview() {
         true
       ),
 
-      description: 'Fluxo de Caixa atual',
+      description: 'Fluxo de Caixa',
     },
   ];
   const categoriesSectionButtons: TabButtonType[] = [
