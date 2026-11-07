@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   FlatList,
   Keyboard,
   Platform,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import {
   Container,
@@ -62,6 +64,7 @@ import {
   resolveSubscriptionSwitch,
 } from '@utils/subscriptionDesignation';
 import { convertCurrency } from '@utils/convertCurrency';
+import { computeKeyboardOverlap } from '@utils/keyboardScroll';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { formatQuotaMessage } from '@utils/quotaMessage';
 
@@ -298,6 +301,56 @@ export function RegisterTransaction({
   const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] = useState(
     initiallyOpenAdvancedSelectors
   );
+
+  // Keyboard-aware scroll: when the keyboard covers the description input,
+  // shift the content up so it stays visible. The sheet itself holds its
+  // size (keyboardBehavior extend), so only the scroll offset moves.
+  const contentScrollRef = useRef<any>(null);
+  const scrollOffsetY = useRef(0);
+  const keyboardHeight = useRef(0);
+  const descriptionFocused = useRef(false);
+  const descriptionWrapperRef = useRef<View>(null);
+
+  const scrollDescriptionIntoView = useCallback(() => {
+    const wrapper = descriptionWrapperRef.current;
+    const scrollable = contentScrollRef.current;
+    if (!wrapper || !scrollable || keyboardHeight.current <= 0) {
+      return;
+    }
+
+    wrapper.measureInWindow((x, y, width, height) => {
+      const overlap = computeKeyboardOverlap({
+        inputBottomY: y + height,
+        windowHeight: Dimensions.get('window').height,
+        keyboardHeight: keyboardHeight.current,
+      });
+      if (overlap > 0) {
+        scrollable.scrollTo({
+          y: scrollOffsetY.current + overlap,
+          animated: true,
+        });
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      'keyboardDidShow',
+      (event) => {
+        keyboardHeight.current = event.endCoordinates.height;
+        if (descriptionFocused.current) {
+          scrollDescriptionIntoView();
+        }
+      }
+    );
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardHeight.current = 0;
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [scrollDescriptionIntoView]);
 
   // Each selector mirrors its own flag so the toggles accurately represent
   // the transaction: a recurring non-subscription enables only Recorrente;
@@ -1604,8 +1657,11 @@ export function RegisterTransaction({
           </TouchableWithoutFeedback>
 
           <ContentScroll
+            ref={contentScrollRef}
             keyboardDismissMode='on-drag'
-            scrollToOverflowEnabled
+            onScroll={(event) => {
+              scrollOffsetY.current = event.nativeEvent.contentOffset.y;
+            }}
           >
             <SelectButton
               title={accountName || 'Selecione a conta'}
@@ -1703,21 +1759,32 @@ export function RegisterTransaction({
               />
             )}
 
-            <ControlledInputWithIcon
-              icon={
-                <PencilSimpleIcon color={categorySelected.color.color_code} />
-              }
-              placeholder='Descrição'
-              numberOfLines={2}
-              autoCapitalize='sentences'
-              autoCorrect={false}
-              returnKeyType='go'
-              defaultValue={String(getValues('description'))}
-              name='description'
-              control={control}
-              error={errors.description}
-              onSubmitEditing={handleSubmit(onSubmit)}
-            />
+            <View ref={descriptionWrapperRef} collapsable={false}>
+              <ControlledInputWithIcon
+                icon={
+                  <PencilSimpleIcon color={categorySelected.color.color_code} />
+                }
+                placeholder='Descrição'
+                numberOfLines={2}
+                autoCapitalize='sentences'
+                autoCorrect={false}
+                returnKeyType='go'
+                defaultValue={String(getValues('description'))}
+                name='description'
+                control={control}
+                error={errors.description}
+                onSubmitEditing={handleSubmit(onSubmit)}
+                onFocus={() => {
+                  descriptionFocused.current = true;
+                  if (keyboardHeight.current > 0) {
+                    scrollDescriptionIntoView();
+                  }
+                }}
+                onBlur={() => {
+                  descriptionFocused.current = false;
+                }}
+              />
+            </View>
 
             {/* ── Recurrence Toggle ─────────────────────────────── */}
             <ButtonToggle
