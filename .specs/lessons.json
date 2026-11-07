@@ -6,24 +6,6 @@
   "next_id": 16,
   "lessons": [
     {
-      "id": "L-004",
-      "key": "spec_precision_gap::when a spec pins which api must produce a call argument assert that exact value instead of expect anything",
-      "text": "When a spec pins which API must produce a call argument, assert that exact value instead of expect.anything()",
-      "signal": "spec_precision_gap",
-      "scope": "tests",
-      "status": "candidate",
-      "features": [
-        "screen-traces"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "src/hooks/__tests__/useScreenTrace.test.ts:70 (AC10) (tests)"
-      ],
-      "created": "2026-09-21T17:20:57Z",
-      "last_seen": "2026-09-21T17:20:57Z"
-    },
-    {
       "id": "L-005",
       "key": "surviving_mutant::boundary date tests alone do not discriminate period equality predicates pair an equal period key e g iso week 33 from a different period year 2025 vs 2026 and assert exclusion or dropping the year comparison survives the full suite",
       "text": "Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.",
