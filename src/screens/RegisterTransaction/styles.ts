@@ -7,7 +7,7 @@ type ColorProps = {
   color: string;
 };
 
-export const Container = styled.KeyboardAvoidingView`
+export const Container = styled.View`
   flex: 1;
 `;
 

@@ -1490,7 +1490,7 @@ export function RegisterTransaction({
 
   return (
     <Screen edges={Platform.OS === 'ios' ? ['left', 'right'] : undefined}>
-      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Container>
         <Gradient roundCorners />
 
         <MainContent>
@@ -1603,7 +1603,10 @@ export function RegisterTransaction({
             </Header>
           </TouchableWithoutFeedback>
 
-          <ContentScroll keyboardDismissMode='on-drag'>
+          <ContentScroll
+            keyboardDismissMode='on-drag'
+            scrollToOverflowEnabled
+          >
             <SelectButton
               title={accountName || 'Selecione a conta'}
               icon={<WalletIcon color={categorySelected.color.color_code} />}
