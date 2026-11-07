@@ -32,8 +32,7 @@ export function ModalViewWithoutHeader({
     <BottomSheetModal
       ref={bottomSheetRef}
       stackBehavior='push'
-      enableContentPanningGesture={false}
-      enableDynamicSizing={false}
+      enableContentPanningGesture
       backdropComponent={ModalBackdrop}
       keyboardBehavior='extend'
       topInset={top}
@@ -48,8 +47,7 @@ export function ModalViewWithoutHeader({
           runs after — and clobbers — the nested BottomSheetScrollView's
           registration, so content drags pan the sheet and snap back.
           A plain View registers nothing, letting the scroll view own
-          scrolling. Dynamic sizing is off, so its height measurement
-          is not needed. */}
+          scrolling. */}
       <View
         style={{
           flex: 1,
