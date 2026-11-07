@@ -1755,6 +1755,9 @@ export function RegisterTransaction({
               )}
               horizontal
               showsHorizontalScrollIndicator={false}
+              // flexGrow: 0 — RN ScrollView frames default to flexGrow: 1,
+              // which would soak up free space in the content container.
+              style={{ flexGrow: 0 }}
               contentContainerStyle={{
                 paddingHorizontal: 12,
                 paddingBottom: 12,
