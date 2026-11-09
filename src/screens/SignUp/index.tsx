@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Platform } from 'react-native';
-import { Container, MainContent } from './styles';
+import { Container, MainContent, PasswordHint } from './styles';
 import {
   Text,
   LogoWrapper,
@@ -69,6 +69,9 @@ export function SignUp() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [hasTouchedPassword, setHasTouchedPassword] = useState(false);
+  const showPasswordHint = hasTouchedPassword && isPasswordFocused;
   const {
     control,
     handleSubmit,
@@ -236,7 +239,18 @@ export function SignUp() {
               name='password'
               control={control}
               error={errors.password}
+              onFocus={() => {
+                setHasTouchedPassword(true);
+                setIsPasswordFocused(true);
+              }}
+              onBlur={() => setIsPasswordFocused(false)}
             />
+
+            {showPasswordHint && (
+              <PasswordHint>
+                Mínimo de 8 caracteres, com letra maiúscula, minúscula e número.
+              </PasswordHint>
+            )}
 
             <ControlledInput
               placeholder='Repetir senha'
