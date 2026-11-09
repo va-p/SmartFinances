@@ -89,10 +89,10 @@
 - [x] Recurring transactions
 - [x] Subscription management (Netflix, Spotify, etc.) with automatic identification based on transactions.
 - [x] Financial goals / savings targets
+- [x] Transaction reminders / notifications
 - [ ] Widgets (iOS / Android home screen)
 - [ ] Export data (CSV / PDF)
 - [ ] Multi-user / shared wallet support
-- [ ] Transaction reminders / notifications
 - [ ] Automated insights via AI
 - [ ] Investment portfolio tracking
 - [ ] Web companion app
