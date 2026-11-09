@@ -273,6 +273,7 @@ export function TransactionsByCategory({ navigation }: any) {
         >
           <RegisterTransaction
             id={transactionId}
+            onOpenTransaction={(nextId) => setTransactionId(nextId)}
             resetId={() => setTransactionId('')}
             closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
           />

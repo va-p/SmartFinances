@@ -311,6 +311,7 @@ export function BudgetDetails() {
         >
           <RegisterTransaction
             id={transactionID}
+            onOpenTransaction={(nextId) => setTransactionID(nextId)}
             resetId={() => ClearTransactionID()}
             closeRegisterTransaction={() => handleCloseRegisterTransactionModal()}
           />

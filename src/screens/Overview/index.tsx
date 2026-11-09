@@ -21,7 +21,7 @@ import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertToBaseCurrency } from '@utils/baseCurrency';
-import { calculateTotalAssets } from '@utils/calculateTotalAssets';
+import { calculateRealizedTotalAssets } from '@utils/calculateRealizedTotalAssets';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
@@ -151,8 +151,11 @@ export function Overview() {
 
     // --- calculateTotalAssets (NW-01): same shared helper as the Accounts
     // screen, so both charts seed from the identical net worth total.
-    const totalAssets = calculateTotalAssets({
+    // FUT-05: future transactions already moved the balances, so the seed
+    // backs those effects out and the displayed total is realized only.
+    const totalAssets = calculateRealizedTotalAssets({
       accounts,
+      transactions,
       baseCurrencyCode,
       quotes: {
         brlQuoteBtc,
@@ -171,8 +174,13 @@ export function Overview() {
     });
 
     // --- calculateTransactionsByCategories ---
+    // FUT-08: only realized transactions (created_at <= now) feed the
+    // period revenue/expense totals; future rows never count.
+    const now = new Date();
     const transactionsBySelectedPeriod = transactions.filter((t) => {
       const transactionDate = new Date(t.created_at);
+      if (Number.isNaN(transactionDate.getTime())) return false;
+      if (transactionDate > now) return false;
       return isDateInSelectedPeriod(
         transactionDate,
         selectedDate,

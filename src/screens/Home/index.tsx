@@ -637,6 +637,7 @@ export function Home() {
         >
           <RegisterTransaction
             id={transactionId}
+            onOpenTransaction={(nextId) => setTransactionId(nextId)}
             resetId={clearTransactionId}
             closeRegisterTransaction={() =>
               handleCloseRegisterTransactionModal()

@@ -245,6 +245,7 @@ export function Subscriptions() {
         >
           <RegisterTransaction
             id={transactionId}
+            onOpenTransaction={(nextId) => setTransactionId(nextId)}
             initiallyOpenAdvancedSelectors={openAdvancedSelectors}
             resetId={() => handleResetTransactionId()}
             closeRegisterTransaction={() => handleCloseRegisterTransaction()}

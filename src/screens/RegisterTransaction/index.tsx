@@ -60,6 +60,10 @@ import {
 import { convertCurrency } from '@utils/convertCurrency';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { formatQuotaMessage } from '@utils/quotaMessage';
+import {
+  resolveTransferLinkTitle,
+  shouldShowTransferLink,
+} from '@utils/transferLink';
 
 // Dependencies
 import {
@@ -82,6 +86,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
+import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
 import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
@@ -143,6 +148,8 @@ type Props = {
   selectedTransactionIds?: number[];
   /** Opens the advanced-selectors accordion expanded (subscription designation flows). */
   initiallyOpenAdvancedSelectors?: boolean;
+  /** Opens another transaction in this editor (transfer counterpart link). */
+  onOpenTransaction?: (id: string) => void;
 };
 
 enum CustomTab {
@@ -164,6 +171,7 @@ export function RegisterTransaction({
   isBulkEdit = false,
   selectedTransactionIds = [],
   initiallyOpenAdvancedSelectors = false,
+  onOpenTransaction = undefined,
 }: Props) {
   useScreenTrace('register_transaction_screen');
 
@@ -290,9 +298,11 @@ export function RegisterTransaction({
   const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] =
     useState(initiallyOpenAdvancedSelectors);
 
-  // Both selectors stay active while the transaction is recurring or a
-  // subscription — initial occurrence and generated children alike.
-  const selectorsEnabled = isRecurring || isSubscription;
+  // Each selector mirrors its own flag so the toggles accurately represent
+  // the transaction: a recurring non-subscription enables only Recorrente;
+  // a subscription (which implies recurring) enables both. Generated
+  // children inherit the series flags from the backend, so subsequent
+  // occurrences hydrate the same as the original.
 
   function handleOpenRecurrenceModal() {
     recurrenceSelectBottomSheetRef.current?.present();
@@ -1725,7 +1735,7 @@ export function RegisterTransaction({
                 }
               }}
               value={isRecurring}
-              isEnabled={selectorsEnabled}
+              isEnabled={isRecurring}
             />
 
             <SelectButton
@@ -1751,6 +1761,31 @@ export function RegisterTransaction({
               }}
             />
 
+            {/* ── Transfer counterpart link (TLINK-01..05) ──── */}
+            {shouldShowTransferLink({
+              transactionType,
+              isBulkEdit,
+              transactionId: id,
+              relatedTransactionId: relatedTransactionID,
+            }) && (
+              <SelectButton
+                title={resolveTransferLinkTitle(
+                  transactionData?.related_transaction?.account?.name
+                )}
+                subTitle='Toque para ver a outra ponta'
+                icon={
+                  <ArrowsLeftRightIcon
+                    color={categorySelected.color.color_code}
+                  />
+                }
+                onPress={
+                  onOpenTransaction
+                    ? () => onOpenTransaction(String(relatedTransactionID))
+                    : undefined
+                }
+              />
+            )}
+
             {/* ── Advanced selectors (under accordion) ──── */}
             {!isBulkEdit && transactionType !== 'TRANSFER' && (
               <Accordion
@@ -1767,7 +1802,7 @@ export function RegisterTransaction({
                   subTitle={getSubscriptionSubtitle()}
                   onValueChange={() => handleSubscriptionToggle()}
                   value={isSubscription}
-                  isEnabled={selectorsEnabled}
+                  isEnabled={isSubscription}
                 />
               </Accordion>
             )}

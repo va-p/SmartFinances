@@ -570,6 +570,7 @@ export function Account() {
         >
           <RegisterTransaction
             id={transactionId}
+            onOpenTransaction={(nextId) => setTransactionId(nextId)}
             resetId={() => ClearTransactionId()}
             closeRegisterTransaction={() => handleCloseTransaction()}
           />
