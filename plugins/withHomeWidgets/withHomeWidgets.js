@@ -182,6 +182,7 @@ function withWidgetExtensionTarget(config) {
       targetUuid = project.addTarget(EXTENSION_TARGET_NAME, 'app_extension', EXTENSION_TARGET_NAME, bundleId).uuid;
     }
     setExtensionBuildSetting(project, targetUuid, 'CODE_SIGN_ENTITLEMENTS', `"${EXTENSION_TARGET_NAME}/${EXTENSION_TARGET_NAME}.entitlements"`);
+    setExtensionBuildSetting(project, targetUuid, 'PRODUCT_BUNDLE_IDENTIFIER', `${config.ios.bundleIdentifier}${EXTENSION_BUNDLE_SUFFIX}`);
     setExtensionBuildSetting(project, targetUuid, 'SWIFT_VERSION', '5.0');
     setExtensionBuildSetting(project, targetUuid, 'IPHONEOS_DEPLOYMENT_TARGET', '17.0');
     setExtensionBuildSetting(project, targetUuid, 'TARGETED_DEVICE_FAMILY', '"1,2"');
