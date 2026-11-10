@@ -204,13 +204,13 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | WDG-01 | P1: Budgets header + target icon | Design | Pending |
-| WDG-02 | P1: Budgets in-limit green row | Design | Pending |
-| WDG-03 | P1: Budgets over-limit red row | Design | Pending |
+| WDG-02 | P1: Budgets in-limit green row | Implementing | T2 |
+| WDG-03 | P1: Budgets over-limit red row | Implementing | T2 |
 | WDG-04 | P1: Budgets iOS chevron | Design | Pending |
-| WDG-05 | P1: Budgets Medium 3 rows | Design | Pending |
-| WDG-06 | P1: Budgets Large 6 rows | Design | Pending |
-| WDG-07 | P1: Budgets short-list no fillers | Design | Pending |
-| WDG-08 | P1: Budgets empty state | Design | Pending |
+| WDG-05 | P1: Budgets Medium 3 rows | Implementing | T2 |
+| WDG-06 | P1: Budgets Large 6 rows | Implementing | T2 |
+| WDG-07 | P1: Budgets short-list no fillers | Implementing | T2 |
+| WDG-08 | P1: Budgets empty state | Implementing | T2 |
 | WDG-09 | P1: Budgets stale-while-revalidate | Design | Pending |
 | WDG-10 | P1: Budgets iOS/Android parity | Design | Pending |
 | WDG-11 | P1: Cash-flow header + totals | Design | Pending |

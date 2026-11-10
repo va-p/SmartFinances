@@ -91,7 +91,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T2: Budgets snapshot slice
+### T2: Budgets snapshot slice — ✅ Complete
 
 **What**: Pure builder for the budgets array: current-period % via `formatBudgetInfo`, sort desc by percentage, `over` flag + `Estourado!`/`restantes` strings via `formatCurrency`.
 **Where**: `SmartFinances/src/widgets/buildBudgetsSnapshot.ts`
