@@ -275,6 +275,57 @@ function ensureBuildFileInPhase(project, phase, fileRefUuid, comment) {
   phase.files.push({ value: uuid, comment });
 }
 
+// Remove build files, memberships, refs, and group entries for
+// Widgets/*.swift files that no longer exist on disk (e.g. after a rename).
+// Stale refs break the build with missing-file errors.
+function pruneMissingSwiftSources(project, targetUuid, sourcesDir) {
+  if (!fs.existsSync(sourcesDir)) return;
+  const { objects } = project.hash.project;
+  const onDisk = new Set(
+    fs.readdirSync(sourcesDir).filter((file) => file.endsWith('.swift'))
+  );
+  const refPath = (refUuid) => {
+    const ref = refUuid && objects.PBXFileReference[refUuid];
+    const filePath = ref && ref.path;
+    return typeof filePath === 'string' ? filePath.replace(/"/g, '') : '';
+  };
+  const isStaleWidgetRef = (comment, candidateRefUuid) =>
+    typeof comment === 'string' &&
+    comment.endsWith('.swift in Sources') &&
+    refPath(candidateRefUuid).startsWith('Widgets/') &&
+    !onDisk.has(comment.replace(' in Sources', ''));
+  Object.keys(objects.PBXBuildFile || {}).forEach((key) => {
+    if (/_comment$/.test(key)) return;
+    const entry = objects.PBXBuildFile[key];
+    const comment = objects.PBXBuildFile[`${key}_comment`];
+    const ref = entry && entry.fileRef;
+    const refUuid = ref && (ref.value || ref);
+    if (!isStaleWidgetRef(comment, refUuid)) return;
+    Object.keys(objects.PBXSourcesBuildPhase || {}).forEach((phaseKey) => {
+      if (/_comment$/.test(phaseKey)) return;
+      const phase = objects.PBXSourcesBuildPhase[phaseKey];
+      if (!phase || !Array.isArray(phase.files)) return;
+      // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+      phase.files = phase.files.filter((item) => (item.value || item) !== key);
+    });
+    delete objects.PBXBuildFile[key];
+    delete objects.PBXBuildFile[`${key}_comment`];
+    if (refUuid && objects.PBXFileReference && objects.PBXFileReference[refUuid]) {
+      delete objects.PBXFileReference[refUuid];
+      delete objects.PBXFileReference[`${refUuid}_comment`];
+    }
+    Object.keys(objects.PBXGroup || {}).forEach((groupKey) => {
+      if (/_comment$/.test(groupKey)) return;
+      const group = objects.PBXGroup[groupKey];
+      if (!group || !Array.isArray(group.children)) return;
+      // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+      group.children = group.children.filter(
+        (child) => (child.value || child) !== refUuid
+      );
+    });
+  });
+}
+
 function addSwiftSourcesToExtension(project, targetUuid, sourcesDir) {
   const holder = targetSourcesPhase(project, targetUuid);
   if (!holder) return 0;
@@ -307,6 +358,7 @@ function withWidgetExtensionSources(config) {
     if (!targetUuid) {
       return mod;
     }
+    pruneMissingSwiftSources(project, targetUuid, path.join(projectRoot(), 'targets', 'widgets'));
     addSwiftSourcesToExtension(project, targetUuid, path.join(projectRoot(), 'targets', 'widgets'));
     return mod;
   });
@@ -445,5 +497,6 @@ module.exports.internals = {
   targetSourcesPhase,
   ensureBuildFileInPhase,
   addSwiftSourcesToExtension,
+  pruneMissingSwiftSources,
   ensureEmbedPhase,
 };

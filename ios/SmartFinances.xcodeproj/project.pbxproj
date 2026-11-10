@@ -15,6 +15,7 @@
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4CEBDD0721B14EF8B408FF53 /* WidgetTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19625C1DD59F49C585CDDCEC /* WidgetTheme.swift */; };
 		50E58A9B276549DABABBE313 /* SnapshotTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B160981EA24BA0A83641FA /* SnapshotTimelineProvider.swift */; };
+		C304BE72D2038CA3786063A4 /* OverviewPanelWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1E758A286C41C488A7B4FE /* OverviewPanelWidgets.swift */; };
 		7D45BC7D23D94A0FB00C8550 /* WidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D8D7CB4B364721A10832E3 /* WidgetsBundle.swift */; };
 		8F7C66E1D134484DBBC317CA /* OverviewWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F779BA4A9D83430C89FF14A1 /* OverviewWidget.swift */; };
 		A620B6A8F85D4CCEB8E53910 /* CashFlowWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9279A870FED482E8C8F819F /* CashFlowWidget.swift */; };
@@ -23,7 +24,6 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BF60AD93ADFDEE08AB73DF55 /* Pods_SmartFinances.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ABC45A9EF070AE339335B15 /* Pods_SmartFinances.framework */; };
 		C19AAB8448CB48BFAEFE708A /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F205C4FEA26D4400BB69878F /* WidgetSnapshot.swift */; };
-		DB676DE8B78B43F993BF5DD5 /* ControlPanelWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E7595C9344989B9A522FA /* ControlPanelWidget.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -54,8 +54,8 @@
 		37B160981EA24BA0A83641FA /* SnapshotTimelineProvider.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = SnapshotTimelineProvider.swift; path = Widgets/SnapshotTimelineProvider.swift; sourceTree = "<group>"; };
 		4ABC45A9EF070AE339335B15 /* Pods_SmartFinances.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SmartFinances.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F7FE121DE4698964AC6A523 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = SmartFinances/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FE1E758A286C41C488A7B4FE /* OverviewPanelWidgets.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = OverviewPanelWidgets.swift; path = Widgets/OverviewPanelWidgets.swift; sourceTree = "<group>"; };
 		60D8D7CB4B364721A10832E3 /* WidgetsBundle.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = WidgetsBundle.swift; path = Widgets/WidgetsBundle.swift; sourceTree = "<group>"; };
-		6E3E7595C9344989B9A522FA /* ControlPanelWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = ControlPanelWidget.swift; path = Widgets/ControlPanelWidget.swift; sourceTree = "<group>"; };
 		797670BF4EB94D6081418DBC /* BudgetsWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = BudgetsWidget.swift; path = Widgets/BudgetsWidget.swift; sourceTree = "<group>"; };
 		80CAD872B880C62429F3EDBE /* Pods-SmartFinances.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SmartFinances.debug.xcconfig"; path = "Target Support Files/Pods-SmartFinances/Pods-SmartFinances.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = SmartFinances/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -93,13 +93,13 @@
 				29CCA265303E38CE005302A7 /* GoogleService-Info.plist */,
 				797670BF4EB94D6081418DBC /* BudgetsWidget.swift */,
 				E9279A870FED482E8C8F819F /* CashFlowWidget.swift */,
-				6E3E7595C9344989B9A522FA /* ControlPanelWidget.swift */,
 				F779BA4A9D83430C89FF14A1 /* OverviewWidget.swift */,
 				1E7BD8302B284022B0FEA8B9 /* PatrimonyWidget.swift */,
 				37B160981EA24BA0A83641FA /* SnapshotTimelineProvider.swift */,
 				F205C4FEA26D4400BB69878F /* WidgetSnapshot.swift */,
 				19625C1DD59F49C585CDDCEC /* WidgetTheme.swift */,
 				60D8D7CB4B364721A10832E3 /* WidgetsBundle.swift */,
+				FE1E758A286C41C488A7B4FE /* OverviewPanelWidgets.swift */,
 			);
 			name = SmartFinances;
 			sourceTree = "<group>";
@@ -518,13 +518,13 @@
 			files = (
 				34D41AB913494B8298FCF637 /* BudgetsWidget.swift in Sources */,
 				A620B6A8F85D4CCEB8E53910 /* CashFlowWidget.swift in Sources */,
-				DB676DE8B78B43F993BF5DD5 /* ControlPanelWidget.swift in Sources */,
 				8F7C66E1D134484DBBC317CA /* OverviewWidget.swift in Sources */,
 				35FB0495515042038941A886 /* PatrimonyWidget.swift in Sources */,
 				50E58A9B276549DABABBE313 /* SnapshotTimelineProvider.swift in Sources */,
 				C19AAB8448CB48BFAEFE708A /* WidgetSnapshot.swift in Sources */,
 				4CEBDD0721B14EF8B408FF53 /* WidgetTheme.swift in Sources */,
 				7D45BC7D23D94A0FB00C8550 /* WidgetsBundle.swift in Sources */,
+				C304BE72D2038CA3786063A4 /* OverviewPanelWidgets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,7 +602,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "SmartFinances/SmartFinances-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -640,7 +640,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "SmartFinances/SmartFinances-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
