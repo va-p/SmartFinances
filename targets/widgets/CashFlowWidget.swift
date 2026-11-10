@@ -72,6 +72,7 @@ struct CashFlowHeaderView: View {
         .font(.caption)
         .foregroundStyle(WidgetTheme.secondaryText)
         .lineLimit(1)
+        .minimumScaleFactor(0.8)
     }
   }
 }

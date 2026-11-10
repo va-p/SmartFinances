@@ -16,6 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
+            android:ellipsize="end"
             android:text="—"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -27,6 +28,7 @@
             android:layout_marginStart="6dp"
             android:text="Fluxo de Caixa"
             android:singleLine="true"
+            android:ellipsize="end"
             android:textColor="#A6A6A6"
             android:textSize="11sp" />
     </LinearLayout>

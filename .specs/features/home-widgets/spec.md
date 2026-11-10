@@ -272,6 +272,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-45 | P1: Cash-flow Medium alignment per to-be mock | Implementing | T15 ✅ (QA T12) |
 | WDG-46 | P1: Patrimony Small fits 2x2 (scaled columns, tighter cards) | Implementing | T17 ✅ (QA T12) |
 | WDG-47 | P1: Patrimony Medium chart positioning and presentation | Implementing | T17 ✅ (QA T12) |
+| WDG-48 | P1: Institution name capped at 40% width, balance never truncates | Implementing | T18 ✅ (QA T12) |
+| WDG-49 | P1: Cash-flow Small fits like Overview Small (scaled header, no edge clipping) | Implementing | T18 ✅ (QA T12) |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 

@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15 -> T16 -> T17
+T13 -> T14 -> T15 -> T16 -> T17 -> T18
 ```
 
 Cross-phase dependencies (backward only):
@@ -80,6 +80,7 @@ T13 -> T14
 T14 -> T15
 T15 -> T16
 T16 -> T17
+T17 -> T18
 ```
 
 ---
@@ -514,6 +515,31 @@ T16 -> T17
 - [ ] iOS Small: total scales to one line; name/balance columns share width with minimum scale (no `N…`/`R…` stubs); tighter card padding/spacing
 - [ ] iOS Medium: sparkline centered in a dedicated right area, clipped to bounds, not touching edges
 - [ ] Android Small rows tightened; Android Medium sparkline enlarged
+- [ ] `swiftc -typecheck` clean + workspace Release build green
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
+
+---
+
+### T18: Institution 40% cap + Cash-flow Small fit — ✅ Complete
+
+**What**: Cap institution names at 40% width (balance priority) and make Cash-flow Small fit like Overview Small (iOS + Android).
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T17
+**Reuses**: Existing row/header views with width constraints
+**Requirement**: WDG-48, WDG-49
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS Small: name column capped at 40% via GeometryReader; balance never truncates; Small total uses smaller base font
+- [ ] iOS Cash-flow Small: label also scales; content fits without edge clipping
+- [ ] Android: name truncates via weight (balance `wrap_content` priority) + header ellipsize
 - [ ] `swiftc -typecheck` clean + workspace Release build green
 
 **Tests**: none (matrix: native UI - build gate + device QA)

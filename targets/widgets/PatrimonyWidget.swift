@@ -5,32 +5,36 @@ import WidgetKit
 struct InstitutionRowView: View {
   var row: WidgetInstitutionRow
 
-  // Compact columns: name and balance share the narrow Small width via
-  // minimum scale instead of one side collapsing to stubs (WDG-46).
+  // Balance wins: the name column is capped at 40% of the row width and
+  // truncates, while the balance keeps every point it needs (WDG-48).
   var body: some View {
-    HStack(spacing: 6) {
-      Image(systemName: "building.columns")
-        .font(.caption)
-        .foregroundStyle(WidgetTheme.accentOrange)
-      VStack(alignment: .leading, spacing: 0) {
-        Text(row.name)
+    GeometryReader { geometry in
+      HStack(spacing: 2) {
+        Image(systemName: "building.columns")
+          .font(.caption)
+          .foregroundStyle(WidgetTheme.accentOrange)
+        VStack(alignment: .leading, spacing: 0) {
+          Text(row.name)
+            .font(.caption)
+            .foregroundStyle(WidgetTheme.primaryText)
+            .lineLimit(1)
+            .truncationMode(.tail)
+          Text("\(row.accountCount) contas")
+            .font(.caption2)
+            .foregroundStyle(WidgetTheme.secondaryText)
+            .lineLimit(1)
+        }
+        .frame(width: geometry.size.width * 0.4, alignment: .leading)
+        Spacer(minLength: 2)
+        Text(row.balance)
           .font(.caption)
           .foregroundStyle(WidgetTheme.primaryText)
           .lineLimit(1)
-          .minimumScaleFactor(0.8)
-        Text("\(row.accountCount) contas")
-          .font(.caption2)
-          .foregroundStyle(WidgetTheme.secondaryText)
-          .lineLimit(1)
+          .minimumScaleFactor(0.7)
       }
-      Spacer(minLength: 2)
-      Text(row.balance)
-        .font(.caption)
-        .foregroundStyle(WidgetTheme.primaryText)
-        .lineLimit(1)
-        .minimumScaleFactor(0.8)
     }
-    .padding(6)
+    .frame(height: 42)
+    .padding(4)
     .background(WidgetTheme.innerCardBackground)
     .clipShape(RoundedRectangle(cornerRadius: 10))
   }
@@ -50,7 +54,7 @@ struct PatrimonyWidgetView: View {
             .foregroundStyle(WidgetTheme.secondaryText)
             .lineLimit(1)
           Text(entry.snapshot?.netWorth.total ?? "—")
-            .font(.title2)
+            .font(family == .systemSmall ? .headline : .title2)
             .fontWeight(.bold)
             .foregroundStyle(WidgetTheme.primaryText)
             .lineLimit(1)
