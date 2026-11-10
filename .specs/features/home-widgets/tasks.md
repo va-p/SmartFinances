@@ -64,6 +64,22 @@ iOS views, Android providers, tap wiring, device QA + docs.
 T8 -> T9 -> T10 -> T11 -> T12
 ```
 
+### Phase 4: Layout polish + Overview merge (user QA round 2026-11-10)
+
+iOS + Android in each task; device QA by user after.
+
+```
+T13 -> T14 -> T15
+```
+
+Cross-phase dependencies (backward only):
+
+```
+T12 -> T13
+T13 -> T14
+T14 -> T15
+```
+
 ---
 
 ## Task Breakdown
@@ -375,6 +391,81 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 **Tests**: none (matrix: QA/docs - full gate only)
 **Gate**: full
+
+---
+
+### T13: Overview merge + consistent IDs
+
+**What**: Rename Control Panel widgets into the Overview group with consistent IDs on both platforms.
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T12
+**Reuses**: Existing views unchanged (title/ID-only change)
+**Requirement**: WDG-42
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS: three widgets titled "Overview" with kinds `OverviewSmallWidget`, `OverviewMediumWidget`, `OverviewLargeWidget`; Medium/Large render ex-Control Panel content unchanged
+- [ ] Android: providers renamed to match (`OverviewMediumWidgetProvider`, `OverviewLargeWidgetProvider`), labels "Overview", manifest + res + strings updated
+- [ ] Gallery shows one Overview entry with 3 size variations
+- [ ] `swiftc -typecheck` clean; `:widget-bridge` untouched; jest suite still green
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
+
+---
+
+### T14: Budgets Medium compaction
+
+**What**: Compact Budgets Medium rows so header + 3 rows fit 169pt on iOS (+ tighten Android).
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T13
+**Reuses**: Existing row views, reduced metrics only
+**Requirement**: WDG-43
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS Medium: smaller header font, bar height ≤20pt, row spacing ≤6pt, smaller name/status fonts — header, icon, and all 3 rows fully visible at 169pt
+- [ ] Android Medium rows tightened to match
+- [ ] Large unchanged (correctly shows up to 6; short lists leave empty space)
+- [ ] `swiftc -typecheck` clean
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
+
+---
+
+### T15: Cash-flow Small + Medium layout fixes
+
+**What**: Fix Small clipping and Medium alignment per the to-be mock (iOS + Android).
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T14
+**Reuses**: Existing chart views with flexible sizing
+**Requirement**: WDG-44, WDG-45
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS Small: header fits one line (scaled), values auto-shrink, chart flexible height, + button 40pt — nothing clipped in 2x2
+- [ ] iOS Medium: chart fills right-side full height, + overlaid bottom-right, left totals vertically centered
+- [ ] Android Small/Medium match the same fixes
+- [ ] `swiftc -typecheck` clean
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
 
 ---
 

@@ -15,8 +15,8 @@ const WIDGET_PROVIDERS = [
   { name: 'cashflow_small', title: 'Fluxo de Caixa', size: 'small', family: 'cashflow' },
   { name: 'cashflow_medium', title: 'Fluxo de Caixa', size: 'medium', family: 'cashflow' },
   { name: 'overview_small', title: 'Overview', size: 'small', family: 'overview' },
-  { name: 'control_medium', title: 'Overview', size: 'medium', family: 'control' },
-  { name: 'control_large', title: 'Painel de Controle', size: 'large', family: 'control' },
+  { name: 'overview_medium', title: 'Overview', size: 'medium', family: 'overview' },
+  { name: 'overview_large', title: 'Overview', size: 'large', family: 'overview' },
   { name: 'patrimony_small', title: 'Patrimônio', size: 'small', family: 'patrimony' },
   { name: 'patrimony_medium', title: 'Patrimônio', size: 'medium', family: 'patrimony' },
 ];

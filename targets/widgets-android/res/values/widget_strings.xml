@@ -5,8 +5,8 @@
     <string name="widget_desc_cashflow_small">Fluxo de caixa (pequeno)</string>
     <string name="widget_desc_cashflow_medium">Fluxo de caixa (médio)</string>
     <string name="widget_desc_overview_small">Overview (pequeno)</string>
-    <string name="widget_desc_control_medium">Overview (médio)</string>
-    <string name="widget_desc_control_large">Painel de controle (grande)</string>
+    <string name="widget_desc_overview_medium">Overview (médio)</string>
+    <string name="widget_desc_overview_large">Overview (grande)</string>
     <string name="widget_desc_patrimony_small">Patrimônio (pequeno)</string>
     <string name="widget_desc_patrimony_medium">Patrimônio (médio)</string>
 </resources>

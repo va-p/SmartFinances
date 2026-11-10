@@ -101,6 +101,22 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ---
 
+### P1: Overview widget group (Small + Medium + Large, single gallery group) ⭐ MVP
+
+**User Story**: As a user, I want all overview widgets under one "Overview" group so that I pick the size, not the family.
+
+**Why P1**: User decision 2026-11-10: the Control Panel group is removed; its content moves unchanged into Overview with the title "Overview" in all cases and consistent internal IDs (nothing deployed yet; test widgets may orphan).
+
+**Acceptance Criteria**:
+
+1. WHEN the Overview group renders THEN the system SHALL show exactly three variations titled "Overview": Small (2x2, Variant A/B), Medium (4x2), Large (4x4).
+2. The system SHALL use consistent internal IDs `OverviewSmallWidget`, `OverviewMediumWidget`, `OverviewLargeWidget` (iOS kinds) and matching Android providers.
+3. WHEN the Medium or Large variation renders THEN the system SHALL show the former Control Panel content unchanged (critical card, sparkline, donut, labeled actions).
+
+**Independent Test**: Gallery shows one "Overview" entry with 3 sizes; Medium/Large render the ex-Control Panel content under the Overview title.
+
+---
+
 ### P1: Overview Small widget with two visualization options ⭐ MVP
 
 **User Story**: As a user, I want a compact net-worth widget with a critical-budget alert so that I see wealth plus risk in 2x2.
@@ -120,11 +136,11 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ---
 
-### P1: Overview / Control Panel Medium and Large ⭐ MVP
+### P1: Overview Medium and Large (ex-Control Panel, same content) ⭐ MVP
 
-**User Story**: As a user, I want medium and large control-panel widgets so that I get critical-budget context and shortcuts without opening the app.
+**User Story**: As a user, I want medium and large overview widgets so that I get critical-budget context and shortcuts without opening the app.
 
-**Why P1**: Completes the Overview family shown in the layouts.
+**Why P1**: Completes the Overview family shown in the layouts. Content identical to the former Control Panel widgets; only the group/title/IDs change per the merge story above.
 
 **Acceptance Criteria**:
 
@@ -250,6 +266,10 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-39 | P2: Missing/corrupt snapshot placeholder | Implementing | T8 ✅ (nil decode → Locked) |
 | WDG-40 | P3: Dark-theme fidelity | Implementing | T8 ✅, T9 pending |
 | WDG-41 | P3: Long-name truncation | Implementing | T8 ✅, T9 pending |
+| WDG-42 | P1: Overview single group, 3 variations, consistent IDs | Implementing | T13 |
+| WDG-43 | P1: Budgets Medium fits 169pt (compact rows, smaller fonts) | Implementing | T14 |
+| WDG-44 | P1: Cash-flow Small fits 2x2 (scaled text, flexible chart, 40pt button) | Implementing | T15 |
+| WDG-45 | P1: Cash-flow Medium alignment per to-be mock | Implementing | T15 |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 

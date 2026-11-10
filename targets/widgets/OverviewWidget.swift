@@ -145,10 +145,10 @@ struct OverviewSmallProvider: AppIntentTimelineProvider {
 }
 
 @available(iOS 17.0, *)
-struct OverviewWidget: Widget {
+struct OverviewSmallWidget: Widget {
   var body: some WidgetConfiguration {
     AppIntentConfiguration(
-      kind: "OverviewWidget",
+      kind: "OverviewSmallWidget",
       intent: OverviewVariantIntent.self,
       provider: OverviewSmallProvider()
     ) { entry in
