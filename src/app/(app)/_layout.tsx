@@ -222,12 +222,6 @@ export default function AppLayout() {
             },
           }}
         />
-        <Tabs.Screen
-          name='transactions/new'
-          options={{
-            href: null,
-          }}
-        />
       </Tabs>
 
       {insets.bottom > 0 && (

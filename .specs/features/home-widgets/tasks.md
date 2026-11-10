@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19
+T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19 -> T20
 ```
 
 Cross-phase dependencies (backward only):
@@ -82,6 +82,7 @@ T15 -> T16
 T16 -> T17
 T17 -> T18
 T18 -> T19
+T19 -> T20
 ```
 
 ---
@@ -569,6 +570,32 @@ T18 -> T19
 
 **Tests**: none (matrix: native UI - build gate + device QA)
 **Gate**: build
+
+---
+
+### T20: Widget + button opens Home register sheet via link param — ✅ Complete
+
+**What**: Home auto-opens `RegisterTransaction` on `?addTransaction=true`; retarget all + links; remove the dead `transactions/new` route.
+**Where**: `SmartFinances/src/screens/Home/index.tsx`
+**Depends on**: T19
+**Reuses**: `handleOpenRegisterTransactionModal` + existing `ModalView`/`RegisterTransaction` wiring
+**Requirement**: WDG-15, WDG-27
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Home reads `addTransaction` search param; on `'true'` opens the register sheet once and clears the param (repeat taps re-fire)
+- [ ] Builder + Swift + Kotlin `addTransaction` URLs all equal `com.vap.smartfinances://?addTransaction=true`
+- [ ] `transactions/new` route file + hidden `Tabs.Screen` registration removed (no dead routes)
+- [ ] Builder contract tests updated to the new URL (superseded contract, flagged in commit)
+- [ ] Full suite green (Home touched)
+
+**Tests**: unit (builder contract) + none (Home wiring per matrix)
+**Gate**: full
 
 ---
 

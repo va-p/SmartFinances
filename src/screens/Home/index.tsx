@@ -57,6 +57,7 @@ import { useTheme } from 'styled-components';
 import { isFirstDayOfMonth } from 'date-fns';
 import { FlashList } from '@shopify/flash-list';
 import { BarChart } from 'react-native-gifted-charts';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
@@ -156,6 +157,9 @@ export function Home() {
     (state) => state.selectedAccountsFilter
   );
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
+
+  const router = useRouter();
+  const widgetParams = useLocalSearchParams<{ addTransaction?: string }>();
 
   // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
@@ -372,6 +376,15 @@ export function Home() {
     clearSelection();
     registerTransactionBottomSheetRef.current?.dismiss();
   }
+
+  // Widget "+" deep link: land on Home and auto-open the register sheet
+  // (WDG-15/WDG-27). Clearing the param lets repeat taps re-fire.
+  useEffect(() => {
+    if (widgetParams.addTransaction === 'true') {
+      handleOpenRegisterTransactionModal();
+      router.setParams({ addTransaction: undefined });
+    }
+  }, [widgetParams.addTransaction, router]);
 
   async function handleHideData() {
     try {

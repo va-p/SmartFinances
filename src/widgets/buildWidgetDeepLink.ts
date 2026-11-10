@@ -19,7 +19,7 @@ export function buildWidgetDeepLink(target: WidgetLinkTarget): string {
     case 'budget':
       return `${WIDGET_LINK_SCHEME}://budgets/${(target as { id: string }).id}`;
     case 'addTransaction':
-      return `${WIDGET_LINK_SCHEME}://transactions/new`;
+      return `${WIDGET_LINK_SCHEME}://?addTransaction=true`;
     case 'overview':
       return `${WIDGET_LINK_SCHEME}://overview`;
     case 'accounts':

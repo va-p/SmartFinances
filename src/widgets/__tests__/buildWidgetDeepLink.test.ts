@@ -1,10 +1,11 @@
 import { buildWidgetDeepLink } from '../buildWidgetDeepLink';
 
 describe('buildWidgetDeepLink', () => {
-  // WDG-15 — + opens the add-transaction flow
+  // WDG-15 — + opens the add-transaction flow via Home auto-open param
+  // (contract changed in T20: the dedicated route redirected to Home).
   it('builds the add-transaction URL', () => {
     expect(buildWidgetDeepLink({ type: 'addTransaction' })).toBe(
-      'com.vap.smartfinances://transactions/new'
+      'com.vap.smartfinances://?addTransaction=true'
     );
   });
 

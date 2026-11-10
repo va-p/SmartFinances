@@ -20,7 +20,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     const val UPDATE_ACTION = "com.vap.smartfinances.WIDGET_SNAPSHOT_UPDATED"
 
     const val URL_BUDGETS = "com.vap.smartfinances://budgets"
-    const val URL_ADD_TRANSACTION = "com.vap.smartfinances://transactions/new"
+    const val URL_ADD_TRANSACTION = "com.vap.smartfinances://?addTransaction=true"
     const val URL_OVERVIEW = "com.vap.smartfinances://overview"
     const val URL_ACCOUNTS = "com.vap.smartfinances://accounts"
 

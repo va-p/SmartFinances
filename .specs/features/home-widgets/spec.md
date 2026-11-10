@@ -51,6 +51,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Android Medium cash-flow orientation | Horizontal bars per the Android mock; iOS Medium uses vertical diverging bars | Layouts deliberately differ per platform for the Medium cash-flow chart | n |
 | Currency formatting | Snapshot carries pre-formatted pt-BR strings from `formatCurrency` plus raw numbers; widgets display the strings as-is | Guarantees identical "R$ 27.540,00" / "102,48%" rendering without duplicating formatting natively | n |
 | Tap targets | Tapping a widget section deep-links into the matching app screen (budget row to budget detail, + to add transaction, Relatórios to Overview/Reports, header to section home) | User decision 2026-11-10: tap matrix accepted as proposed | y |
+| Add-transaction entry (T20 amendment 2026-11-10) | The dedicated `transactions/new` route is removed (it redirected to Home instead of opening the form); + buttons link to Home with `?addTransaction=true`, and Home auto-opens the `RegisterTransaction` bottom sheet on that param, then clears it | The route fought the tab router on cold start; a param on the existing Home tab works warm and cold | y |
 | Minimum OS versions | iOS 17+ (WidgetKit, AppIntent configuration) and Android 8+ (AppWidgetProvider, Glance where available with RemoteViews fallback) | Covers the installed base while keeping one implementation path per platform | n |
 
 **Open questions:** none - all resolved or logged above (required before the spec is confirmed).
@@ -94,7 +95,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 2. WHEN the Small size renders THEN the system SHALL show a compact paired income/expense mini bar chart plus the orange circular + button.
 3. WHEN the iOS Medium size renders THEN the system SHALL show vertical diverging bars with income above and expenses below the axis plus the + button.
 4. WHERE the platform is Android Medium the system SHALL render horizontal income/expense bars instead of vertical bars.
-5. WHEN the user taps the + button THEN the system SHALL deep-link into the app's add-transaction flow.
+5. WHEN the user taps the + button THEN the system SHALL deep-link to Home with `?addTransaction=true`, and Home SHALL auto-open the add-transaction bottom sheet and clear the param.
 6. IF the month has no transactions THEN the system SHALL show R$ 0,00 totals with an empty-chart placeholder rather than an error.
 
 **Independent Test**: Seed November with R$ 6.450,00 income and -R$ 4.890,12 expenses; verify Small and Medium on both platforms match the layout values and chart orientations, and + opens add-transaction.
@@ -148,7 +149,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 2. WHEN the Medium size renders THEN the system SHALL show the bottom action row with the + button and the "Relatórios" button.
 3. WHEN the Large size renders THEN the system SHALL show the title "Painel de Controle", "Patrimônio Total" with total, the orange net-worth sparkline, the critical-budget card with percent bar, and the expenses-by-category donut.
 4. WHEN the Large size renders THEN the system SHALL show the bottom action row with "+ Adicionar Despesa" and "Relatórios".
-5. WHEN the user taps + or Adicionar Despesa THEN the system SHALL deep-link into add-transaction.
+5. WHEN the user taps + or Adicionar Despesa THEN the system SHALL deep-link to Home with `?addTransaction=true`, and Home SHALL auto-open the add-transaction bottom sheet.
 6. WHEN the user taps Relatórios THEN the system SHALL deep-link into the Overview/Reports screen.
 
 **Independent Test**: Seed critical budget Moradia e Contas at 102,48%; render Medium (card + two buttons) and Large (sparkline + donut + labeled actions) and tap each action to confirm deep links.
