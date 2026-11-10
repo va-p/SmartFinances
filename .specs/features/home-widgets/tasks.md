@@ -236,7 +236,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T8: iOS WidgetKit views
+### T8: iOS WidgetKit views — ✅ Complete (`swiftc -typecheck` clean; simulator render deferred to T12)
 
 **What**: SwiftUI views for all 5 families + sizes (incl. Overview Small AppIntent Variant A/B) reading the shared snapshot read-only.
 **Where**: `SmartFinances/targets/widgets/`

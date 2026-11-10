@@ -203,47 +203,47 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| WDG-01 | P1: Budgets header + target icon | Design | Pending |
+| WDG-01 | P1: Budgets header + target icon | Implementing | T8 ✅ typecheck |
 | WDG-02 | P1: Budgets in-limit green row | Implementing | T2 |
 | WDG-03 | P1: Budgets over-limit red row | Implementing | T2 |
-| WDG-04 | P1: Budgets iOS chevron | Design | Pending |
-| WDG-05 | P1: Budgets Medium 3 rows | Implementing | T2 |
-| WDG-06 | P1: Budgets Large 6 rows | Implementing | T2 |
+| WDG-04 | P1: Budgets iOS chevron | Implementing | T8 ✅ typecheck |
+| WDG-05 | P1: Budgets Medium 3 rows | Implementing | T2, T8 ✅ typecheck |
+| WDG-06 | P1: Budgets Large 6 rows | Implementing | T2, T8 ✅ typecheck |
 | WDG-07 | P1: Budgets short-list no fillers | Implementing | T2 |
 | WDG-08 | P1: Budgets empty state | Implementing | T2 |
-| WDG-09 | P1: Budgets stale-while-revalidate | Design | Pending |
-| WDG-10 | P1: Budgets iOS/Android parity | Implementing | T6 targets, T8/T9 chrome |
+| WDG-09 | P1: Budgets stale-while-revalidate | Implementing | T8 ✅ typecheck |
+| WDG-10 | P1: Budgets iOS/Android parity | Implementing | T6, T8 ✅, T9 pending |
 | WDG-11 | P1: Cash-flow header + totals | Implementing | T3 |
 | WDG-12 | P1: Cash-flow Small chart + button | Implementing | T3 data, T8/T9 chrome |
-| WDG-13 | P1: Cash-flow iOS Medium vertical bars | Design | Pending |
+| WDG-13 | P1: Cash-flow iOS Medium vertical bars | Implementing | T8 ✅ typecheck |
 | WDG-14 | P1: Cash-flow Android Medium horizontal bars | Design | Pending |
-| WDG-15 | P1: Cash-flow + deep link | Design | Pending |
+| WDG-15 | P1: Cash-flow + deep link | Implementing | T8 Link, T11 verify |
 | WDG-16 | P1: Cash-flow empty month | Implementing | T3 |
-| WDG-17 | P1: Overview Small header + total | Implementing | T3 data, T8/T9 chrome |
-| WDG-18 | P1: Overview Small Variant A card | Design | Pending |
-| WDG-19 | P1: Overview Small Variant B plain bar | Design | Pending |
-| WDG-20 | P1: Overview Small variant persistence | Design | Pending |
-| WDG-21 | P1: Overview Small hide-amounts | Design | Pending |
+| WDG-17 | P1: Overview Small header + total | Implementing | T3, T8 ✅, T9 pending |
+| WDG-18 | P1: Overview Small Variant A card | Implementing | T8 ✅ typecheck |
+| WDG-19 | P1: Overview Small Variant B plain bar | Implementing | T8 ✅ typecheck |
+| WDG-20 | P1: Overview Small variant persistence | Implementing | T8 ✅ (OS-persisted intent) |
+| WDG-21 | P1: Overview Small hide-amounts | Implementing | T3, T8 ✅ |
 | WDG-22 | P1: Overview Small no-alert state | Implementing | T3 |
-| WDG-23 | P1: Control Panel Medium card + actions | Design | Pending |
-| WDG-24 | P1: Control Panel Medium action row | Design | Pending |
-| WDG-25 | P1: Control Panel Large sparkline + donut | Design | Pending |
-| WDG-26 | P1: Control Panel Large labeled actions | Design | Pending |
-| WDG-27 | P1: Control Panel add-expense deep link | Design | Pending |
-| WDG-28 | P1: Control Panel reports deep link | Design | Pending |
-| WDG-29 | P1: Patrimony header + total | Implementing | T3 data, T8/T9 chrome |
+| WDG-23 | P1: Control Panel Medium card + actions | Implementing | T8 ✅ typecheck |
+| WDG-24 | P1: Control Panel Medium action row | Implementing | T8 ✅ typecheck |
+| WDG-25 | P1: Control Panel Large sparkline + donut | Implementing | T8 ✅ typecheck |
+| WDG-26 | P1: Control Panel Large labeled actions | Implementing | T8 ✅ typecheck |
+| WDG-27 | P1: Control Panel add-expense deep link | Implementing | T8 Link, T11 verify |
+| WDG-28 | P1: Control Panel reports deep link | Implementing | T8 Link, T11 verify |
+| WDG-29 | P1: Patrimony header + total | Implementing | T3, T8 ✅, T9 pending |
 | WDG-30 | P1: Patrimony institution rows | Implementing | T3 |
-| WDG-31 | P1: Patrimony Small 2 rows no chart | Implementing | T3 data, T8/T9 chrome |
+| WDG-31 | P1: Patrimony Small 2 rows no chart | Implementing | T3, T8 ✅, T9 pending |
 | WDG-32 | P1: Patrimony Medium sparkline | Design | Pending |
 | WDG-33 | P1: Patrimony hide-amounts | Implementing | T3 |
 | WDG-34 | P1: Patrimony empty state | Implementing | T3 |
 | WDG-35 | P2: Snapshot write on refresh | Implementing | T4, T5, T7 ✅ |
 | WDG-36 | P2: Offline last-snapshot | Implementing | T4, T7 ✅ |
-| WDG-37 | P2: Signed-out locked placeholder | Implementing | T4 hook, T8/T9 chrome |
+| WDG-37 | P1: Signed-out locked placeholder | Implementing | T4, T8 ✅, T9 pending |
 | WDG-38 | P2: Timeline refresh without network | Implementing | T5 bridge, T8/T9 timelines |
-| WDG-39 | P2: Missing/corrupt snapshot placeholder | Design | Pending |
-| WDG-40 | P3: Dark-theme fidelity | Design | Pending |
-| WDG-41 | P3: Long-name truncation | Design | Pending |
+| WDG-39 | P2: Missing/corrupt snapshot placeholder | Implementing | T8 ✅ (nil decode → Locked) |
+| WDG-40 | P3: Dark-theme fidelity | Implementing | T8 ✅, T9 pending |
+| WDG-41 | P3: Long-name truncation | Implementing | T8 ✅, T9 pending |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 
