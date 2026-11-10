@@ -331,7 +331,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T12: Device QA + docs
+### T12: Device QA + docs — ✅ Docs complete (device QA handed to user UAT; ROADMAP stays unchecked until QA passes)
 
 **What**: Full device matrix QA, ROADMAP check-off, release notes for the native binary bump.
 **Where**: `SmartFinances/.specs/project/ROADMAP.md`
@@ -346,9 +346,32 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 **Done when**:
 
+- [x] Release notes + device QA matrix recorded below (docs shippable)
 - [ ] Real iOS + Android devices: all sizes render spec'd values (budgets incl. `Estourado!`, R$ 6.450,00 / -R$ 4.890,12, R$ 27.540,00, Moradia 102,48%, Nubank/Itaú rows); Variant A/B both selectable and persistent; taps verified; offline / signed-out / corrupt states verified
-- [ ] ROADMAP `Widgets (iOS / Android home screen)` checked off; store-release note records that native UI needs a binary update (OTA covers JS only)
-- [ ] Full suite shows zero new failures
+- [ ] ROADMAP `Widgets (iOS / Android home screen)` checked off (only after the matrix above passes on device)
+- [x] Full suite shows zero new failures (447 pass; only pre-existing `profile.spec.tsx` env failure)
+
+**Device QA matrix (manual — run on real iOS 17+ and Android devices):**
+
+| # | Check | Spec | Pass |
+| - | ----- | ---- | ---- |
+| 1 | Budgets Medium shows 3 rows, Large shows 6, ordered by % desc | WDG-05/06 | ☐ |
+| 2 | Over-limit row reads `Estourado! -R$ …` on coral-red; in-limit `R$ … restantes` on green | WDG-02/03 | ☐ |
+| 3 | Cash-flow shows Novembro, R$ 6.450,00 / -R$ 4.890,12; iOS Medium vertical bars, Android Medium horizontal bars | WDG-11/13/14 | ☐ |
+| 4 | Overview Small offers Variant A (card) and B (plain bar); choice persists | WDG-18/19/20 | ☐ |
+| 5 | Control Medium (card + Relatórios) and Large (sparkline + donut + labeled actions) | WDG-23/24/25/26 | ☐ |
+| 6 | Patrimony Small 2 rows, Medium adds sparkline; Nubank 5 contas / Itaú 3 contas | WDG-30/31/32 | ☐ |
+| 7 | Every + opens add-transaction; Relatórios opens Overview; rows open details | WDG-15/27/28 | ☐ |
+| 8 | Airplane mode keeps last snapshot; sign-out shows locked placeholder | WDG-36/37 | ☐ |
+| 9 | Eye toggle masks to `R$ ••••` in all widgets | WDG-21/33 | ☐ |
+
+**Release notes (store binary required — Revopush OTA cannot ship native widget UI):**
+
+- First online `yarn install` (new `widget-bridge` file: dep + `@expo/config-plugins` entry), then `expo prebuild` regenerates `android/` + `ios/` from `targets/` + `plugins/withHomeWidgets` (committed outputs included for review).
+- Apple Developer portal: enable App Group `group.com.vap.smartfinances.widgets` on the App ID and the Widgets extension; extension requires iOS 17+ (AppIntent configuration).
+- Android `targetCellWidth/Height` pins exact 2x2/4x2/4x4 cells on API 31+; older versions approximate by dp.
+- Local-build caveat: `./gradlew` is blocked in this sandbox by a pre-existing `expo-constants:createExpoConfig` babel failure under Node 24 (unrelated to widget code — `expo config` evaluates cleanly); use EAS build or Node 20.
+- Known behavior: after an app kill without re-auth (in-memory session), widgets keep the last snapshot until the next foreground refresh; sign-out always clears to the locked placeholder.
 
 **Tests**: none (matrix: QA/docs - full gate only)
 **Gate**: full
