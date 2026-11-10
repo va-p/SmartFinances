@@ -4,10 +4,27 @@ import { AccountProps } from '@interfaces/accounts';
 import { TransactionProps } from '@interfaces/transactions';
 import { Quotes } from '@utils/baseCurrency';
 
-import { WIDGET_MASKED_VALUE, buildWidgetSnapshot } from '../buildWidgetSnapshot';
+import { buildWidgetSnapshot } from '../buildWidgetSnapshot';
 
 const QUOTES = {} as Quotes;
 const NOW = new Date(2026, 10, 15, 12, 0, 0);
+
+// F2 — non-BRL base currency passes through pre-formatted strings (quotes
+// mirror the calculateTotalAssets fixture: 1 BRL = 0.2 USD).
+const USD_QUOTES = {
+  brlQuoteBtc: { price: 0.000003 },
+  brlQuoteEur: { price: 0.16 },
+  brlQuoteUsd: { price: 0.2 },
+  btcQuoteBrl: { price: 300000 },
+  btcQuoteEur: { price: 48000 },
+  btcQuoteUsd: { price: 60000 },
+  eurQuoteBrl: { price: 6.25 },
+  eurQuoteBtc: { price: 0.00002 },
+  eurQuoteUsd: { price: 1.25 },
+  usdQuoteBrl: { price: 5 },
+  usdQuoteBtc: { price: 0.000016 },
+  usdQuoteEur: { price: 0.8 },
+} as unknown as Quotes;
 
 function makeBudget(overrides: Partial<FormattedBudgetProps> = {}) {
   return {
@@ -182,9 +199,26 @@ describe('buildWidgetSnapshot', () => {
     );
 
     expect(snapshot.hidden).toBe(true);
-    expect(snapshot.netWorth.total).toBe(WIDGET_MASKED_VALUE);
-    expect(snapshot.overview.total).toBe(WIDGET_MASKED_VALUE);
-    expect(snapshot.institutions[0].balance).toBe(WIDGET_MASKED_VALUE);
+    expect(snapshot.netWorth.total).toBe('R$\u00A0••••');
+    expect(snapshot.overview.total).toBe('R$\u00A0••••');
+    expect(snapshot.institutions[0].balance).toBe('R$\u00A0••••');
+  });
+
+  // Edge — non-BRL base currency converts before formatting (spec: snapshot
+  // carries pre-formatted strings; native widgets display them unchanged).
+  it('converts and formats totals in a non-BRL base currency', () => {
+    const snapshot = buildWidgetSnapshot(
+      baseInput({
+        baseCurrencyCode: 'USD' as CurrencyCodes,
+        quotes: USD_QUOTES,
+        transactions: [makeTransaction({ type: 'CREDIT', amount: 100 })],
+        accounts: [makeAccount({ balance: 1000 })],
+      })
+    );
+
+    expect(snapshot.cashFlow.income).toBe('US$\u00A020,00');
+    expect(snapshot.netWorth.total).toBe('US$\u00A0200,00');
+    expect(snapshot.institutions[0].balance).toBe('US$\u00A0200,00');
   });
 
   // WDG-37 — signed-out state is flagged for the native placeholder

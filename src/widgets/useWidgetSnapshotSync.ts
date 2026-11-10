@@ -100,8 +100,14 @@ export function useWidgetSnapshotSync(now?: Date) {
       return undefined;
     }
     const timer = setTimeout(() => {
-      bridge?.setSnapshot(JSON.stringify(payload));
-      bridge?.reloadTimelines();
+      try {
+        bridge?.setSnapshot(JSON.stringify(payload));
+        bridge?.reloadTimelines();
+      } catch {
+        // A failing container write must never break the timer chain; the
+        // next refresh recomposes the payload and retries (edge case: the
+        // shared container is temporarily unavailable).
+      }
     }, SYNC_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [payload, isSignedIn]);

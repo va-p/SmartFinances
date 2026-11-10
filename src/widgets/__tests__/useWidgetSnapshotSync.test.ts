@@ -164,6 +164,52 @@ describe('useWidgetSnapshotSync', () => {
     expect(payload.netWorth.total).toBe('R$\u00A0••••');
   });
 
+  // Edge — a failing container write never breaks the sync chain; the next
+  // refresh retries.
+  it('survives a throwing bridge and retries on the next change', () => {
+    const setSnapshot = jest.fn();
+    setSnapshot.mockImplementationOnce(() => {
+      throw new Error('no container');
+    });
+    const bridge = {
+      setSnapshot,
+      clearSnapshot: jest.fn(),
+      reloadTimelines: jest.fn(),
+    };
+    setWidgetBridge(bridge);
+
+    renderHook(() => useWidgetSnapshotSync());
+    expect(() => {
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+    }).not.toThrow();
+    expect(bridge.reloadTimelines).not.toHaveBeenCalled();
+
+    mockedUseTransactionsQuery.mockReturnValue({
+      data: [
+        {
+          id: 9,
+          created_at: '2026-11-10T12:00:00.000Z',
+          description: 'retry',
+          amount: 10,
+          currency: { code: 'BRL' },
+          type: 'CREDIT',
+          account: { currency: { code: 'BRL' } },
+          category: { id: 'c1' },
+          tags: [],
+          user_id: 'u1',
+        },
+      ],
+      isLoading: false,
+    });
+    renderHook(() => useWidgetSnapshotSync());
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(bridge.reloadTimelines).toHaveBeenCalledTimes(1);
+  });
+
   it('does nothing when no bridge is registered', () => {
     renderHook(() => useWidgetSnapshotSync());
     act(() => {
