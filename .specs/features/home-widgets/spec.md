@@ -279,6 +279,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-48 | P1: Institution name capped at 40% width, balance never truncates | Implementing | T18 ✅ (QA T12) |
 | WDG-49 | P1: Cash-flow Small fits like Overview Small (scaled header, no edge clipping) | Implementing | T18 ✅ (QA T12) |
 | WDG-50 | P1: Cash-flow Small 12pt inner padding matching Overview margins | Implementing | T19 ✅ (QA T12) |
+| WDG-51 | P1: Overview Large lists the two worst budgets | Implementing | T22 ✅ (QA T12) |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 

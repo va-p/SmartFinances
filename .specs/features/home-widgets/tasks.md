@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19 -> T20 -> T21
+T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19 -> T20 -> T21 -> T22
 ```
 
 Cross-phase dependencies (backward only):
@@ -84,6 +84,7 @@ T17 -> T18
 T18 -> T19
 T19 -> T20
 T20 -> T21
+T21 -> T22
 ```
 
 ---
@@ -623,6 +624,32 @@ T20 -> T21
 
 **Tests**: unit (builder contract) + none (Home wiring per matrix)
 **Gate**: full
+
+---
+
+### T22: Overview Large top-2 critical budgets — ✅ Complete
+
+**What**: Snapshot carries the top-2 worst budgets; Large renders two critical cards (iOS + Android).
+**Where**: `SmartFinances/src/widgets/`
+**Depends on**: T21
+**Reuses**: Existing critical-budget derivation + card views
+**Requirement**: WDG-51
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Composer emits `topCritical` (max 2, % desc) with masked percents when hidden; existing single fields unchanged (Medium uses first)
+- [ ] iOS Large stacks two critical cards; one budget falls back to single card
+- [ ] Android Large binds the second card; both layout copies updated
+- [ ] New unit tests (ordering, masking, single-budget fallback); full suite green
+- [ ] `swiftc -typecheck` clean
+
+**Tests**: unit + none (native per matrix)
+**Gate**: quick
 
 ---
 

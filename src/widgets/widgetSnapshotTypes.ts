@@ -26,6 +26,7 @@ export interface WidgetOverview {
   alertOver: boolean;
   criticalName: string | null;
   criticalPercent: string | null;
+  topCritical: Array<{ name: string; percent: string }>;
 }
 
 export interface WidgetNetWorth {

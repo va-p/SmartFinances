@@ -221,6 +221,38 @@ describe('buildWidgetSnapshot', () => {
     expect(snapshot.institutions[0].balance).toBe('US$\u00A0200,00');
   });
 
+  // WDG-51 — Large lists the two worst budgets in descending order.
+  it('emits the top two critical budgets', () => {
+    const snapshot = buildWidgetSnapshot(
+      baseInput({
+        budgets: [
+          makeBudget({ name: 'Lazer', percentage: 30.8 }),
+          makeBudget({ name: 'Moradia e Contas', percentage: 102.48 }),
+          makeBudget({ name: 'Alimentação', percentage: 95.5 }),
+        ],
+      })
+    );
+
+    expect(snapshot.overview.topCritical.map((b) => b.name)).toEqual([
+      'Moradia e Contas',
+      'Alimentação',
+    ]);
+    expect(snapshot.overview.topCritical[0].percent).toBe('102,48%');
+    expect(snapshot.overview.criticalName).toBe('Moradia e Contas');
+  });
+
+  it('leaves top-critical percents visible when hidden (only balances mask)', () => {
+    const snapshot = buildWidgetSnapshot(
+      baseInput({
+        hidden: true,
+        budgets: [makeBudget({ name: 'Moradia e Contas', percentage: 102.48 })],
+      })
+    );
+
+    expect(snapshot.overview.topCritical).toHaveLength(1);
+    expect(snapshot.overview.topCritical[0].percent).toBe('102,48%');
+  });
+
   // WDG-37 — signed-out state is flagged for the native placeholder
   it('flags signed-out state without leaking values', () => {
     const snapshot = buildWidgetSnapshot(baseInput({ signedIn: false }));

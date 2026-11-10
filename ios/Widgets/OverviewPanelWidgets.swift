@@ -157,10 +157,18 @@ struct ControlPanelLargeView: View {
           .frame(width: 120, height: 56)
       }
       HStack(spacing: 12) {
-        if let name = overview?.criticalName, let percent = overview?.criticalPercent {
-          CriticalBudgetCard(name: name, percent: percent)
-            .frame(maxWidth: .infinity)
+        VStack(spacing: 8) {
+          let topTwo = Array((overview?.topCritical ?? []).prefix(2))
+          if topTwo.isEmpty, let name = overview?.criticalName, let percent = overview?.criticalPercent {
+            CriticalBudgetCard(name: name, percent: percent)
+          } else {
+            ForEach(topTwo, id: \.name) { budget in
+              CriticalBudgetCard(name: budget.name, percent: budget.percent)
+            }
+          }
+          Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity)
         DonutChartView(slices: netWorth?.donut ?? [])
           .frame(width: 110, height: 110)
       }

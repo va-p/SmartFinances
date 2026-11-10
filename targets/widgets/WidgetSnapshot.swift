@@ -23,6 +23,11 @@ struct WidgetCashFlowBar: Decodable {
   var expense: Double
 }
 
+struct WidgetCriticalBudget: Decodable {
+  var name: String
+  var percent: String
+}
+
 struct WidgetOverview: Decodable {
   var total: String
   var alertName: String?
@@ -30,6 +35,7 @@ struct WidgetOverview: Decodable {
   var alertOver: Bool
   var criticalName: String?
   var criticalPercent: String?
+  var topCritical: [WidgetCriticalBudget]
 }
 
 struct WidgetDonutSlice: Decodable {

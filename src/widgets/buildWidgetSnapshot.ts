@@ -139,8 +139,19 @@ function buildOverview(
       ? null
       : [...budgets].sort((a, b) => b.percentage - a.percentage)[0];
 
+  // Percents stay visible even when hidden: only absolute balances mask
+  // (income/expenses/total/institutions). Matches the cashflow masking rule.
   const percentLabel = (p: number) =>
     `${p.toFixed(2).replace('.', ',')}%`;
+  // WDG-51: the two worst budgets for the Large widget (no alert threshold:
+  // worst-performing means highest spend, consistent with criticalName above).
+  const topCritical = [...budgets]
+    .sort((a, b) => b.percentage - a.percentage)
+    .slice(0, 2)
+    .map((budget) => ({
+      name: budget.name,
+      percent: percentLabel(budget.percentage),
+    }));
 
   if (!critical || critical.percentage <= ALERT_THRESHOLD_PERCENT) {
     return {
@@ -150,6 +161,7 @@ function buildOverview(
       alertOver: false,
       criticalName: critical?.name ?? null,
       criticalPercent: critical ? percentLabel(critical.percentage) : null,
+      topCritical,
     };
   }
 
@@ -160,6 +172,7 @@ function buildOverview(
     alertOver: critical.percentage > 100,
     criticalName: critical.name,
     criticalPercent: percentLabel(critical.percentage),
+    topCritical,
   };
 }
 

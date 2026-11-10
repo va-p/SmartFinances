@@ -6,20 +6,66 @@ import android.widget.RemoteViews
 
 import com.vap.smartfinances.R
 
+private fun bindCriticalCard(
+  views: RemoteViews,
+  cardId: Int,
+  nameId: Int,
+  barId: Int,
+  percentId: Int,
+  name: String?,
+  percent: String?
+) {
+  if (name == null || percent == null) {
+    views.setViewVisibility(cardId, View.GONE)
+  } else {
+    views.setViewVisibility(cardId, View.VISIBLE)
+    views.setTextViewText(nameId, name)
+    views.setTextViewText(percentId, "$percent utilizado")
+    val progress = percent.replace("%", "").replace(",", ".").toDoubleOrNull()?.toInt()?.coerceIn(0, 100) ?: 0
+    views.setProgressBar(barId, 100, progress, false)
+  }
+}
+
 private fun criticalCard(views: RemoteViews, snapshot: WidgetSnapshot, totalId: Int) {
   val overview = snapshot.overview
   views.setTextViewText(totalId, overview.total)
-  val name = overview.criticalName
-  val percent = overview.criticalPercent
-  if (name == null || percent == null) {
-    views.setViewVisibility(R.id.control_critical, View.GONE)
-  } else {
-    views.setViewVisibility(R.id.control_critical, View.VISIBLE)
-    views.setTextViewText(R.id.control_critical_name, name)
-    views.setTextViewText(R.id.control_critical_percent, "$percent utilizado")
-    val progress = percent.replace("%", "").replace(",", ".").toDoubleOrNull()?.toInt()?.coerceIn(0, 100) ?: 0
-    views.setProgressBar(R.id.control_critical_bar, 100, progress, false)
-  }
+  bindCriticalCard(
+    views,
+    R.id.control_critical,
+    R.id.control_critical_name,
+    R.id.control_critical_bar,
+    R.id.control_critical_percent,
+    overview.criticalName,
+    overview.criticalPercent
+  )
+}
+
+// WDG-51: Large lists the two worst budgets; falls back to the legacy single
+// critical fields when topCritical is empty (older snapshots).
+private fun criticalCardsLarge(views: RemoteViews, snapshot: WidgetSnapshot) {
+  val overview = snapshot.overview
+  views.setTextViewText(R.id.control_total, overview.total)
+  val top = overview.topCritical.take(2)
+  val first = top.getOrNull(0)
+  val second = top.getOrNull(1)
+  bindCriticalCard(
+    views,
+    R.id.control_critical,
+    R.id.control_critical_name,
+    R.id.control_critical_bar,
+    R.id.control_critical_percent,
+    first?.name ?: overview.criticalName,
+    first?.percent ?: overview.criticalPercent
+  )
+  bindCriticalCard(
+    views,
+    R.id.control_critical_second,
+    R.id.control_critical_name_second,
+    R.id.control_critical_bar_second,
+    R.id.control_critical_percent_second,
+    second?.name,
+    second?.percent
+  )
 }
 
 class OverviewMediumWidgetProvider : BaseWidgetProvider() {
@@ -42,7 +88,7 @@ class OverviewLargeWidgetProvider : BaseWidgetProvider() {
   override fun viewsFor(context: Context, widgetId: Int, snapshot: WidgetSnapshot): RemoteViews {
     val netWorth = snapshot.netWorth
     return RemoteViews(context.packageName, R.layout.widget_overview_large).apply {
-      criticalCard(this, snapshot, R.id.control_total)
+      criticalCardsLarge(this, snapshot)
       setImageViewBitmap(
         R.id.control_spark,
         WidgetCharts.drawSparkline(netWorth.spark, BaseWidgetProvider.dp(context, 140), BaseWidgetProvider.dp(context, 64))

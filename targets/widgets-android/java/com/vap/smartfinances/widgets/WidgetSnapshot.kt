@@ -22,13 +22,16 @@ data class WidgetCashFlow(
   val bars: List<WidgetCashFlowBar>
 )
 
+data class WidgetTopCritical(val name: String, val percent: String)
+
 data class WidgetOverview(
   val total: String,
   val alertName: String?,
   val alertPercent: String?,
   val alertOver: Boolean,
   val criticalName: String?,
-  val criticalPercent: String?
+  val criticalPercent: String?,
+  val topCritical: List<WidgetTopCritical>
 )
 
 data class WidgetDonutSlice(val categoryId: String, val value: Double, val label: String)
@@ -130,13 +133,22 @@ fun parseSnapshot(raw: String): WidgetSnapshot? {
         cashFlowJson.optString("expenses"),
         bars
       ),
+      val topCritical = mutableListOf<WidgetTopCritical>()
+      val topCriticalJson = overviewJson.optJSONArray("topCritical")
+      if (topCriticalJson != null) {
+        for (i in 0 until topCriticalJson.length()) {
+          val item = topCriticalJson.optJSONObject(i) ?: continue
+          topCritical.add(WidgetTopCritical(item.optString("name"), item.optString("percent")))
+        }
+      }
       overview = WidgetOverview(
         overviewJson.optString("total"),
         optNullableString(overviewJson, "alertName"),
         optNullableString(overviewJson, "alertPercent"),
         overviewJson.optBoolean("alertOver"),
         optNullableString(overviewJson, "criticalName"),
-        optNullableString(overviewJson, "criticalPercent")
+        optNullableString(overviewJson, "criticalPercent"),
+        topCritical
       ),
       netWorth = WidgetNetWorth(netWorthJson.optString("total"), spark, donut),
       institutions = institutions

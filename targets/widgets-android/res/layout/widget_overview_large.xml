@@ -56,13 +56,18 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:id="@+id/control_critical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/widget_inner_card"
-            android:orientation="vertical"
-            android:padding="8dp">
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/control_critical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_inner_card"
+                android:orientation="vertical"
+                android:padding="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -95,6 +100,50 @@
                 android:layout_height="wrap_content"
                 android:textColor="#A6A6A6"
                 android:textSize="11sp" />
+        </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/control_critical_second"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/widget_inner_card"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Orçamento Crítico:"
+                    android:textColor="#A6A6A6"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/control_critical_name_second"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp" />
+
+                <ProgressBar
+                    android:id="@+id/control_critical_bar_second"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressTint="#FF6B6B" />
+
+                <TextView
+                    android:id="@+id/control_critical_percent_second"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#A6A6A6"
+                    android:textSize="11sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
