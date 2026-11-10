@@ -165,7 +165,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T5: WidgetBridge native module
+### T5: WidgetBridge native module — ✅ Complete
 
 **What**: Local Expo module exposing `setSnapshot/clearSnapshot/reloadTimelines` over App Group UserDefaults (iOS) / SharedPreferences (Android).
 **Where**: `SmartFinances/modules/widget-bridge/`

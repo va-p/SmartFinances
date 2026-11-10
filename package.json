@@ -109,6 +109,7 @@
     "react-native-webview": "13.16.1",
     "react-native-worklets": "0.10.1",
     "styled-components": "6.1.19",
+    "widget-bridge": "file:./modules/widget-bridge",
     "yup": "^0.32.11",
     "zustand": "^4.4.7"
   },

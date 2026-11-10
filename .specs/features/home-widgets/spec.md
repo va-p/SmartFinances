@@ -240,7 +240,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-35 | P2: Snapshot write on refresh | Implementing | T4 hook, T5 bridge, T7 wiring |
 | WDG-36 | P2: Offline last-snapshot | Design | Pending |
 | WDG-37 | P2: Signed-out locked placeholder | Implementing | T4 hook, T8/T9 chrome |
-| WDG-38 | P2: Timeline refresh without network | Design | Pending |
+| WDG-38 | P2: Timeline refresh without network | Implementing | T5 bridge, T8/T9 timelines |
 | WDG-39 | P2: Missing/corrupt snapshot placeholder | Design | Pending |
 | WDG-40 | P3: Dark-theme fidelity | Design | Pending |
 | WDG-41 | P3: Long-name truncation | Design | Pending |

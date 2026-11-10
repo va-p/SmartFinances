@@ -8,17 +8,13 @@ import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useCategoriesQuery } from '@hooks/useCategoriesQuery';
 import { useFormattedBudgets } from '@hooks/useFormattedBudgets';
 import { useTransactionsQuery } from '@hooks/useTransactionsQuery';
+import type { WidgetBridgeApi } from 'widget-bridge';
 
 import { buildWidgetSnapshot } from './buildWidgetSnapshot';
 
-// Injectable bridge seam: the native module (T5) registers itself at startup
-// via `setWidgetBridge`; the hook never imports native code directly, which
+// Injectable bridge seam: the startup wiring registers the native module via
+// `setWidgetBridge`; the hook never touches native code directly, which
 // keeps it unit-testable and keeps business logic out of the bridge.
-export interface WidgetBridgeApi {
-  setSnapshot: (json: string) => void;
-  clearSnapshot: () => void;
-  reloadTimelines: () => void;
-}
 
 let bridge: WidgetBridgeApi | null = null;
 
