@@ -308,7 +308,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T11: Native tap wiring
+### T11: Native tap wiring — ✅ Complete (cold-tap verification deferred to T12 device QA)
 
 **What**: Attach T10 URLs as `widgetURL` (iOS) / PendingIntents (Android) on every tappable widget region.
 **Where**: `SmartFinances/targets/widget-taps/`

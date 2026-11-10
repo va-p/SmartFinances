@@ -217,7 +217,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-12 | P1: Cash-flow Small chart + button | Implementing | T3, T8 ✅, T9 ✅ (QA T12) |
 | WDG-13 | P1: Cash-flow iOS Medium vertical bars | Implementing | T8 ✅ typecheck |
 | WDG-14 | P1: Cash-flow Android Medium horizontal bars | Implementing | T9 ✅ code (QA T12) |
-| WDG-15 | P1: Cash-flow + deep link | Implementing | T8 Link, T11 verify |
+| WDG-15 | P1: Cash-flow + deep link | Implementing | T8, T10, T11 ✅ (cold-tap QA T12) |
 | WDG-16 | P1: Cash-flow empty month | Implementing | T3 |
 | WDG-17 | P1: Overview Small header + total | Implementing | T3, T8 ✅, T9 pending |
 | WDG-18 | P1: Overview Small Variant A card | Implementing | T8 ✅, T9 ✅ (QA T12) |
@@ -229,8 +229,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-24 | P1: Control Panel Medium action row | Implementing | T8 ✅ typecheck |
 | WDG-25 | P1: Control Panel Large sparkline + donut | Implementing | T8 ✅ typecheck |
 | WDG-26 | P1: Control Panel Large labeled actions | Implementing | T8 ✅ typecheck |
-| WDG-27 | P1: Control Panel add-expense deep link | Implementing | T8 Link, T11 verify |
-| WDG-28 | P1: Control Panel reports deep link | Implementing | T8 Link, T11 verify |
+| WDG-27 | P1: Control Panel add-expense deep link | Implementing | T8, T10, T11 ✅ (cold-tap QA T12) |
+| WDG-28 | P1: Control Panel reports deep link | Implementing | T8, T10, T11 ✅ (cold-tap QA T12) |
 | WDG-29 | P1: Patrimony header + total | Implementing | T3, T8 ✅, T9 pending |
 | WDG-30 | P1: Patrimony institution rows | Implementing | T3 |
 | WDG-31 | P1: Patrimony Small 2 rows no chart | Implementing | T3, T8 ✅, T9 pending |
