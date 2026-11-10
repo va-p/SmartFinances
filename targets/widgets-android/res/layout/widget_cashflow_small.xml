@@ -15,9 +15,10 @@
             android:id="@+id/cashflow_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:text="—"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
@@ -25,8 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:text="Fluxo de Caixa"
+            android:singleLine="true"
             android:textColor="#A6A6A6"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <TextView
@@ -38,11 +40,12 @@
 
     <TextView
         android:id="@+id/cashflow_income"
+            android:singleLine="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="—"
         android:textColor="#2ECC71"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -54,11 +57,12 @@
 
     <TextView
         android:id="@+id/cashflow_expenses"
+            android:singleLine="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="—"
         android:textColor="#FF6B6B"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -71,14 +75,14 @@
         <ImageView
             android:id="@+id/cashflow_mini_chart"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:contentDescription="Mini gráfico" />
 
         <TextView
             android:id="@+id/cashflow_add"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/widget_fab"
             android:gravity="center"
             android:text="+"

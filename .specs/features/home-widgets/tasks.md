@@ -444,7 +444,7 @@ T14 -> T15
 
 ---
 
-### T15: Cash-flow Small + Medium layout fixes
+### T15: Cash-flow Small + Medium layout fixes — ✅ Complete
 
 **What**: Fix Small clipping and Medium alignment per the to-be mock (iOS + Android).
 **Where**: `SmartFinances/targets/widgets/`

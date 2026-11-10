@@ -10,15 +10,15 @@ struct MiniCashFlowChart: View {
   }
 
   var body: some View {
-    HStack(alignment: .bottom, spacing: 4) {
+    HStack(alignment: .bottom, spacing: 2) {
       ForEach(Array(bars.prefix(8).enumerated()), id: \.offset) { _, bar in
         HStack(alignment: .bottom, spacing: 2) {
           RoundedRectangle(cornerRadius: 2)
             .fill(WidgetTheme.incomeGreen)
-            .frame(width: 5, height: max(2, 40 * bar.income / maxValue))
+            .frame(width: 4, height: max(2, 30 * bar.income / maxValue))
           RoundedRectangle(cornerRadius: 2)
             .fill(WidgetTheme.overrunRed)
-            .frame(width: 5, height: max(2, 40 * bar.expense / maxValue))
+            .frame(width: 4, height: max(2, 30 * bar.expense / maxValue))
         }
       }
     }
@@ -40,7 +40,7 @@ struct DivergingCashFlowChart: View {
         ForEach(Array(bars.prefix(16).enumerated()), id: \.offset) { _, bar in
           RoundedRectangle(cornerRadius: 2)
             .fill(WidgetTheme.incomeGreen)
-            .frame(width: 6, height: max(2, 44 * bar.income / maxValue))
+            .frame(width: 6, height: max(2, 40 * bar.income / maxValue))
         }
       }
       Rectangle()
@@ -50,9 +50,121 @@ struct DivergingCashFlowChart: View {
         ForEach(Array(bars.prefix(16).enumerated()), id: \.offset) { _, bar in
           RoundedRectangle(cornerRadius: 2)
             .fill(WidgetTheme.overrunRed)
-            .frame(width: 6, height: max(2, 30 * bar.expense / maxValue))
+            .frame(width: 6, height: max(2, 26 * bar.expense / maxValue))
         }
       }
+    }
+  }
+}
+
+@available(iOS 17.0, *)
+struct CashFlowHeaderView: View {
+  var monthLabel: String
+
+  var body: some View {
+    HStack(alignment: .firstTextBaseline, spacing: 6) {
+      Text(monthLabel)
+        .font(.headline)
+        .foregroundStyle(WidgetTheme.primaryText)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+      Text("Fluxo de Caixa")
+        .font(.caption)
+        .foregroundStyle(WidgetTheme.secondaryText)
+        .lineLimit(1)
+    }
+  }
+}
+
+@available(iOS 17.0, *)
+struct CashFlowSmallView: View {
+  var cashFlow: WidgetCashFlow?
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 2) {
+      CashFlowHeaderView(monthLabel: cashFlow?.monthLabel ?? "—")
+      Text("Receitas")
+        .font(.caption)
+        .foregroundStyle(WidgetTheme.secondaryText)
+      Text(cashFlow?.income ?? "—")
+        .font(.title3)
+        .fontWeight(.bold)
+        .foregroundStyle(WidgetTheme.incomeGreen)
+        .lineLimit(1)
+        .minimumScaleFactor(0.85)
+      Text("Despesas")
+        .font(.caption)
+        .foregroundStyle(WidgetTheme.secondaryText)
+      Text(cashFlow?.expenses ?? "—")
+        .font(.title3)
+        .fontWeight(.bold)
+        .foregroundStyle(WidgetTheme.overrunRed)
+        .lineLimit(1)
+        .minimumScaleFactor(0.85)
+      Spacer(minLength: 0)
+      HStack(alignment: .bottom, spacing: 8) {
+        MiniCashFlowChart(bars: cashFlow?.bars ?? [])
+          .frame(maxHeight: 34)
+        Spacer(minLength: 0)
+        WidgetViews.addButton(
+          destination: URL(string: WidgetLinks.addTransaction)!,
+          diameter: 40
+        )
+      }
+      .frame(height: 40)
+    }
+    .containerBackground(for: .widget) {
+      WidgetTheme.cardBackground
+    }
+  }
+}
+
+@available(iOS 17.0, *)
+struct CashFlowMediumView: View {
+  var cashFlow: WidgetCashFlow?
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      CashFlowHeaderView(monthLabel: cashFlow?.monthLabel ?? "—")
+      Rectangle()
+        .fill(Color(white: 0.25))
+        .frame(height: 1)
+      HStack(alignment: .center, spacing: 12) {
+        VStack(alignment: .leading, spacing: 2) {
+          Spacer(minLength: 0)
+          Text("Receitas")
+            .font(.caption)
+            .foregroundStyle(WidgetTheme.secondaryText)
+          Text(cashFlow?.income ?? "—")
+            .font(.title2)
+            .fontWeight(.bold)
+            .foregroundStyle(WidgetTheme.incomeGreen)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+          Text("Despesas")
+            .font(.caption)
+            .foregroundStyle(WidgetTheme.secondaryText)
+            .padding(.top, 4)
+          Text(cashFlow?.expenses ?? "—")
+            .font(.title2)
+            .fontWeight(.bold)
+            .foregroundStyle(WidgetTheme.overrunRed)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+          Spacer(minLength: 0)
+        }
+        ZStack(alignment: .bottomTrailing) {
+          DivergingCashFlowChart(bars: cashFlow?.bars ?? [])
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          WidgetViews.addButton(
+            destination: URL(string: WidgetLinks.addTransaction)!,
+            diameter: 56
+          )
+        }
+      }
+    }
+    .containerBackground(for: .widget) {
+      WidgetTheme.cardBackground
     }
   }
 }
@@ -63,50 +175,10 @@ struct CashFlowWidgetView: View {
   var entry: SnapshotEntry
 
   var body: some View {
-    let cashFlow = entry.snapshot?.cashFlow
-    HStack(alignment: .bottom) {
-      VStack(alignment: .leading, spacing: 2) {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
-          Text(cashFlow?.monthLabel ?? "—")
-            .font(.headline)
-            .foregroundStyle(WidgetTheme.primaryText)
-          Text("Fluxo de Caixa")
-            .font(.caption)
-            .foregroundStyle(WidgetTheme.secondaryText)
-        }
-        Text("Receitas")
-          .font(.caption)
-          .foregroundStyle(WidgetTheme.secondaryText)
-        Text(cashFlow?.income ?? "—")
-          .font(.title3)
-          .fontWeight(.bold)
-          .foregroundStyle(WidgetTheme.incomeGreen)
-        Text("Despesas")
-          .font(.caption)
-          .foregroundStyle(WidgetTheme.secondaryText)
-        Text(cashFlow?.expenses ?? "—")
-          .font(.title3)
-          .fontWeight(.bold)
-          .foregroundStyle(WidgetTheme.overrunRed)
-        Spacer(minLength: 0)
-        if family == .systemSmall {
-          MiniCashFlowChart(bars: cashFlow?.bars ?? [])
-        }
-      }
-      Spacer()
-      VStack {
-        Spacer()
-        if family == .systemMedium {
-          DivergingCashFlowChart(bars: cashFlow?.bars ?? [])
-        }
-        WidgetViews.addButton(
-          destination: URL(string: WidgetLinks.addTransaction)!,
-          diameter: family == .systemSmall ? 44 : 56
-        )
-      }
-    }
-    .containerBackground(for: .widget) {
-      WidgetTheme.cardBackground
+    if family == .systemSmall {
+      CashFlowSmallView(cashFlow: entry.snapshot?.cashFlow)
+    } else {
+      CashFlowMediumView(cashFlow: entry.snapshot?.cashFlow)
     }
   }
 }
