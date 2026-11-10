@@ -11,4 +11,8 @@
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
 
+# Home-screen widgets: providers are instantiated by the system (never
+# referenced from code), so minify must not strip or rename them.
+-keep class com.vap.smartfinances.widgets.** { *; }
+
 # Add any project specific keep options here:

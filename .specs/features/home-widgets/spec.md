@@ -212,18 +212,18 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-07 | P1: Budgets short-list no fillers | Implementing | T2 |
 | WDG-08 | P1: Budgets empty state | Implementing | T2 |
 | WDG-09 | P1: Budgets stale-while-revalidate | Implementing | T8 ✅ typecheck |
-| WDG-10 | P1: Budgets iOS/Android parity | Implementing | T6, T8 ✅, T9 pending |
+| WDG-10 | P1: Budgets iOS/Android parity | Implementing | T6, T8 ✅, T9 ✅ code (QA T12) |
 | WDG-11 | P1: Cash-flow header + totals | Implementing | T3 |
-| WDG-12 | P1: Cash-flow Small chart + button | Implementing | T3 data, T8/T9 chrome |
+| WDG-12 | P1: Cash-flow Small chart + button | Implementing | T3, T8 ✅, T9 ✅ (QA T12) |
 | WDG-13 | P1: Cash-flow iOS Medium vertical bars | Implementing | T8 ✅ typecheck |
-| WDG-14 | P1: Cash-flow Android Medium horizontal bars | Design | Pending |
+| WDG-14 | P1: Cash-flow Android Medium horizontal bars | Implementing | T9 ✅ code (QA T12) |
 | WDG-15 | P1: Cash-flow + deep link | Implementing | T8 Link, T11 verify |
 | WDG-16 | P1: Cash-flow empty month | Implementing | T3 |
 | WDG-17 | P1: Overview Small header + total | Implementing | T3, T8 ✅, T9 pending |
-| WDG-18 | P1: Overview Small Variant A card | Implementing | T8 ✅ typecheck |
-| WDG-19 | P1: Overview Small Variant B plain bar | Implementing | T8 ✅ typecheck |
-| WDG-20 | P1: Overview Small variant persistence | Implementing | T8 ✅ (OS-persisted intent) |
-| WDG-21 | P1: Overview Small hide-amounts | Implementing | T3, T8 ✅ |
+| WDG-18 | P1: Overview Small Variant A card | Implementing | T8 ✅, T9 ✅ (QA T12) |
+| WDG-19 | P1: Overview Small Variant B plain bar | Implementing | T8 ✅, T9 ✅ (QA T12) |
+| WDG-20 | P1: Overview Small variant persistence | Implementing | T8 ✅, T9 ✅ (config activity) |
+| WDG-21 | P1: Overview Small hide-amounts | Implementing | T3, T8 ✅, T9 ✅ |
 | WDG-22 | P1: Overview Small no-alert state | Implementing | T3 |
 | WDG-23 | P1: Control Panel Medium card + actions | Implementing | T8 ✅ typecheck |
 | WDG-24 | P1: Control Panel Medium action row | Implementing | T8 ✅ typecheck |
@@ -234,8 +234,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-29 | P1: Patrimony header + total | Implementing | T3, T8 ✅, T9 pending |
 | WDG-30 | P1: Patrimony institution rows | Implementing | T3 |
 | WDG-31 | P1: Patrimony Small 2 rows no chart | Implementing | T3, T8 ✅, T9 pending |
-| WDG-32 | P1: Patrimony Medium sparkline | Design | Pending |
-| WDG-33 | P1: Patrimony hide-amounts | Implementing | T3 |
+| WDG-32 | P1: Patrimony Medium sparkline | Implementing | T9 ✅ code (QA T12) |
+| WDG-33 | P1: Patrimony hide-amounts | Implementing | T3, T9 ✅ |
 | WDG-34 | P1: Patrimony empty state | Implementing | T3 |
 | WDG-35 | P2: Snapshot write on refresh | Implementing | T4, T5, T7 ✅ |
 | WDG-36 | P2: Offline last-snapshot | Implementing | T4, T7 ✅ |

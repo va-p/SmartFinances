@@ -260,7 +260,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T9: Android widget providers
+### T9: Android widget providers — ✅ Complete (emulator render + release verification deferred to T12: local Gradle blocked by pre-existing expo-constants/babel env failure)
 
 **What**: 9 Glance/RemoteViews providers with pinned `targetCell` sizes, pt-BR descriptions, and Android-Medium horizontal cash-flow bars.
 **Where**: `SmartFinances/targets/widgets-android/`

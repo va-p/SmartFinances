@@ -15,6 +15,16 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BF60AD93ADFDEE08AB73DF55 /* Pods_SmartFinances.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ABC45A9EF070AE339335B15 /* Pods_SmartFinances.framework */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		B8EAD4FDA7914B2B98141AA4 /* Widgets.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 1386DF80789F4F808D7EADD2 /* Widgets.appex */; };
+		34D41AB913494B8298FCF637 /* BudgetsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 797670BF4EB94D6081418DBC /* BudgetsWidget.swift */; };
+		A620B6A8F85D4CCEB8E53910 /* CashFlowWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9279A870FED482E8C8F819F /* CashFlowWidget.swift */; };
+		DB676DE8B78B43F993BF5DD5 /* ControlPanelWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3E7595C9344989B9A522FA /* ControlPanelWidget.swift */; };
+		8F7C66E1D134484DBBC317CA /* OverviewWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F779BA4A9D83430C89FF14A1 /* OverviewWidget.swift */; };
+		35FB0495515042038941A886 /* PatrimonyWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E7BD8302B284022B0FEA8B9 /* PatrimonyWidget.swift */; };
+		50E58A9B276549DABABBE313 /* SnapshotTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B160981EA24BA0A83641FA /* SnapshotTimelineProvider.swift */; };
+		C19AAB8448CB48BFAEFE708A /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F205C4FEA26D4400BB69878F /* WidgetSnapshot.swift */; };
+		4CEBDD0721B14EF8B408FF53 /* WidgetTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19625C1DD59F49C585CDDCEC /* WidgetTheme.swift */; };
+		7D45BC7D23D94A0FB00C8550 /* WidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D8D7CB4B364721A10832E3 /* WidgetsBundle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +42,16 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SmartFinances/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* SmartFinances-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SmartFinances-Bridging-Header.h"; path = "SmartFinances/SmartFinances-Bridging-Header.h"; sourceTree = "<group>"; };
+		1386DF80789F4F808D7EADD2 /* Widgets.appex */ = {isa = PBXFileReference; name = "Widgets.appex"; path = "Widgets.appex"; sourceTree = BUILT_PRODUCTS_DIR; fileEncoding = undefined; lastKnownFileType = undefined; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; };
+		797670BF4EB94D6081418DBC /* BudgetsWidget.swift */ = {isa = PBXFileReference; name = "BudgetsWidget.swift"; path = "Widgets/BudgetsWidget.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		E9279A870FED482E8C8F819F /* CashFlowWidget.swift */ = {isa = PBXFileReference; name = "CashFlowWidget.swift"; path = "Widgets/CashFlowWidget.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		6E3E7595C9344989B9A522FA /* ControlPanelWidget.swift */ = {isa = PBXFileReference; name = "ControlPanelWidget.swift"; path = "Widgets/ControlPanelWidget.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		F779BA4A9D83430C89FF14A1 /* OverviewWidget.swift */ = {isa = PBXFileReference; name = "OverviewWidget.swift"; path = "Widgets/OverviewWidget.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		1E7BD8302B284022B0FEA8B9 /* PatrimonyWidget.swift */ = {isa = PBXFileReference; name = "PatrimonyWidget.swift"; path = "Widgets/PatrimonyWidget.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		37B160981EA24BA0A83641FA /* SnapshotTimelineProvider.swift */ = {isa = PBXFileReference; name = "SnapshotTimelineProvider.swift"; path = "Widgets/SnapshotTimelineProvider.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		F205C4FEA26D4400BB69878F /* WidgetSnapshot.swift */ = {isa = PBXFileReference; name = "WidgetSnapshot.swift"; path = "Widgets/WidgetSnapshot.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		19625C1DD59F49C585CDDCEC /* WidgetTheme.swift */ = {isa = PBXFileReference; name = "WidgetTheme.swift"; path = "Widgets/WidgetTheme.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		60D8D7CB4B364721A10832E3 /* WidgetsBundle.swift */ = {isa = PBXFileReference; name = "WidgetsBundle.swift"; path = "Widgets/WidgetsBundle.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +77,15 @@
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				5F7FE121DE4698964AC6A523 /* PrivacyInfo.xcprivacy */,
 				29CCA265303E38CE005302A7 /* GoogleService-Info.plist */,
+				797670BF4EB94D6081418DBC /* BudgetsWidget.swift */,
+				E9279A870FED482E8C8F819F /* CashFlowWidget.swift */,
+				6E3E7595C9344989B9A522FA /* ControlPanelWidget.swift */,
+				F779BA4A9D83430C89FF14A1 /* OverviewWidget.swift */,
+				1E7BD8302B284022B0FEA8B9 /* PatrimonyWidget.swift */,
+				37B160981EA24BA0A83641FA /* SnapshotTimelineProvider.swift */,
+				F205C4FEA26D4400BB69878F /* WidgetSnapshot.swift */,
+				19625C1DD59F49C585CDDCEC /* WidgetTheme.swift */,
+				60D8D7CB4B364721A10832E3 /* WidgetsBundle.swift */,
 			);
 			name = SmartFinances;
 			sourceTree = "<group>";
@@ -105,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* SmartFinances.app */,
+				1386DF80789F4F808D7EADD2 /* Widgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,6 +182,7 @@
 				5E941C72E4CF5C95A528424F /* [CP] Embed Pods Frameworks */,
 				73A43E51C7AC6DAA2CD29DF4 /* [CP-User] [RNFB] Core Configuration */,
 				E8880B3CCD54A0FFE4C41DD3 /* [CP-User] [RNFB] Crashlytics Configuration */,
+				9071492307EC4947A0B4F13F /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -161,6 +192,20 @@
 			productName = SmartFinances;
 			productReference = 13B07F961A680F5B00A75B9A /* SmartFinances.app */;
 			productType = "com.apple.product-type.application";
+		};
+		4D275B6027CE47F690B82137 /* "Widgets" */ = {
+			isa = PBXNativeTarget;
+			name = "Widgets";
+			productName = "Widgets";
+			productReference = 1386DF80789F4F808D7EADD2;
+			productType = "com.apple.product-type.app-extension";
+			buildConfigurationList = E89E52B8FC27439FA75E963D;
+			buildPhases = (
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
 		};
 /* End PBXNativeTarget section */
 
@@ -189,6 +234,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* SmartFinances */,
+				4D275B6027CE47F690B82137 /* "Widgets" */,
 			);
 		};
 /* End PBXProject section */
@@ -448,6 +494,15 @@
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				B367125AF001E830EC0AAFC6 /* ExpoModulesProvider.swift in Sources */,
+				34D41AB913494B8298FCF637 /* BudgetsWidget.swift in Sources */,
+				A620B6A8F85D4CCEB8E53910 /* CashFlowWidget.swift in Sources */,
+				DB676DE8B78B43F993BF5DD5 /* ControlPanelWidget.swift in Sources */,
+				8F7C66E1D134484DBBC317CA /* OverviewWidget.swift in Sources */,
+				35FB0495515042038941A886 /* PatrimonyWidget.swift in Sources */,
+				50E58A9B276549DABABBE313 /* SnapshotTimelineProvider.swift in Sources */,
+				C19AAB8448CB48BFAEFE708A /* WidgetSnapshot.swift in Sources */,
+				4CEBDD0721B14EF8B408FF53 /* WidgetTheme.swift in Sources */,
+				7D45BC7D23D94A0FB00C8550 /* WidgetsBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -702,6 +757,32 @@
 			};
 			name = Release;
 		};
+		0F4018E86CBD432EB5C4E927 /* Debug */ = {
+			name = Debug;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Widgets/Widgets-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_NAME = "Widgets";
+				SKIP_INSTALL = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vap.smartfinances.Widgets";
+			};
+		};
+		CBB2AF30360C44199020E97C /* Release */ = {
+			name = Release;
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Widgets/Widgets-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_NAME = "Widgets";
+				SKIP_INSTALL = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.vap.smartfinances.Widgets";
+			};
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -723,7 +804,30 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E89E52B8FC27439FA75E963D /* Build configuration list for PBXNativeTarget "Widgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0F4018E86CBD432EB5C4E927 /* Debug */,
+				CBB2AF30360C44199020E97C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9071492307EC4947A0B4F13F /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B8EAD4FDA7914B2B98141AA4 /* Widgets.appex in Copy Files */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			name = "Copy Files";
+			dstPath = "";
+			dstSubfolderSpec = 13;
+		};
+/* End PBXCopyFilesBuildPhase section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }
