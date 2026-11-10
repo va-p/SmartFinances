@@ -212,7 +212,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T7: Root-layout snapshot wiring
+### T7: Root-layout snapshot wiring — ✅ Complete
 
 **What**: Mount the sync hook at app root so foreground + data changes flow to the bridge.
 **Where**: `SmartFinances/src/app/_layout.tsx`
