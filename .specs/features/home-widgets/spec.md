@@ -237,9 +237,9 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-32 | P1: Patrimony Medium sparkline | Design | Pending |
 | WDG-33 | P1: Patrimony hide-amounts | Implementing | T3 |
 | WDG-34 | P1: Patrimony empty state | Implementing | T3 |
-| WDG-35 | P2: Snapshot write on refresh | Design | Pending |
+| WDG-35 | P2: Snapshot write on refresh | Implementing | T4 hook, T5 bridge, T7 wiring |
 | WDG-36 | P2: Offline last-snapshot | Design | Pending |
-| WDG-37 | P2: Signed-out locked placeholder | Design | Pending |
+| WDG-37 | P2: Signed-out locked placeholder | Implementing | T4 hook, T8/T9 chrome |
 | WDG-38 | P2: Timeline refresh without network | Design | Pending |
 | WDG-39 | P2: Missing/corrupt snapshot placeholder | Design | Pending |
 | WDG-40 | P3: Dark-theme fidelity | Design | Pending |

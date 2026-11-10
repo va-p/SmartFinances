@@ -141,7 +141,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T4: Snapshot sync hook
+### T4: Snapshot sync hook — ✅ Complete
 
 **What**: Hook that rewrites the snapshot on query/store change (debounced ~1s) and foreground, clears on sign-out.
 **Where**: `SmartFinances/src/widgets/useWidgetSnapshotSync.ts`
