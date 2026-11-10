@@ -190,13 +190,13 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
+				9071492307EC4947A0B4F13F /* Copy Files */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				B814BB843AF8402C8A5B87D0 /* [Expo Dev Launcher] Strip Local Network Keys for Release */,
 				5E941C72E4CF5C95A528424F /* [CP] Embed Pods Frameworks */,
 				73A43E51C7AC6DAA2CD29DF4 /* [CP-User] [RNFB] Core Configuration */,
 				E8880B3CCD54A0FFE4C41DD3 /* [CP-User] [RNFB] Crashlytics Configuration */,
-				9071492307EC4947A0B4F13F /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -211,6 +211,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E89E52B8FC27439FA75E963D /* Build configuration list for PBXNativeTarget "Widgets" */;
 			buildPhases = (
+				CCE7F3E7B5373E18C6D396D5 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -508,6 +509,13 @@
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				B367125AF001E830EC0AAFC6 /* ExpoModulesProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCE7F3E7B5373E18C6D396D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 				34D41AB913494B8298FCF637 /* BudgetsWidget.swift in Sources */,
 				A620B6A8F85D4CCEB8E53910 /* CashFlowWidget.swift in Sources */,
 				DB676DE8B78B43F993BF5DD5 /* ControlPanelWidget.swift in Sources */,
@@ -526,20 +534,29 @@
 		0F4018E86CBD432EB5C4E927 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widgets/Widgets.entitlements;
+				DEVELOPMENT_TEAM = 4F6254H3QS;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Widgets/Widgets-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vap.smartfinances.Widgets;
 				PRODUCT_NAME = Widgets;
 				SKIP_INSTALL = YES;
-				CODE_SIGN_ENTITLEMENTS = Widgets/Widgets.entitlements;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -794,16 +811,25 @@
 		CBB2AF30360C44199020E97C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widgets/Widgets.entitlements;
+				DEVELOPMENT_TEAM = 4F6254H3QS;
 				INFOPLIST_FILE = "Widgets/Widgets-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.vap.smartfinances.Widgets;
 				PRODUCT_NAME = Widgets;
 				SKIP_INSTALL = YES;
-				CODE_SIGN_ENTITLEMENTS = Widgets/Widgets.entitlements;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -70,21 +70,108 @@ function extensionEntitlements() {
 `;
 }
 
-// updateBuildProperty by target *name* silently no-ops (quoted names never
-// match); write the setting through the target's own configuration list.
-function setExtensionBuildSetting(project, targetUuid, prop, value) {
-  const target = project.hash.project.objects.PBXNativeTarget[targetUuid];
+// Direct-hash pbxproj helpers. The xcode lib's comment-based lookups
+// (updateBuildProperty by name, addSourceFile target scoping) silently fall
+// back to the wrong target when phases lack comments — verified against a
+// real Release build (missing membership caused a cycle + wrong-target
+// compile). These operate on uuids only.
+function newUuid() {
+  return require('crypto').randomUUID().replace(/-/g, '').toUpperCase().slice(0, 24);
+}
+
+function targetConfigs(project, targetUuid) {
+  const { objects } = project.hash.project;
+  const target = objects.PBXNativeTarget[targetUuid];
   const listRef = target && target.buildConfigurationList;
   const listId = listRef && listRef.value ? listRef.value : listRef;
-  const list = project.hash.project.objects.XCConfigurationList[listId];
-  if (!list) return;
-  const configs = project.pbxXCBuildConfigurationSection();
-  list.buildConfigurations.forEach((entry) => {
-    if (configs[entry.value]) {
-      configs[entry.value].buildSettings[prop] = value;
-    }
+  const list = listId && objects.XCConfigurationList[listId];
+  if (!list) return [];
+  const section = project.pbxXCBuildConfigurationSection();
+  return list.buildConfigurations
+    .map((entry) => section[entry.value])
+    .filter(Boolean);
+}
+
+function setExtensionBuildSetting(project, targetUuid, prop, value) {
+  targetConfigs(project, targetUuid).forEach((config) => {
+    config.buildSettings[prop] = value;
   });
 }
+
+// FileRef key for a project-root-relative path, or null.
+function fileRefForPath(project, filePath) {
+  const section = project.hash.project.objects.PBXFileReference || {};
+  const hit = Object.keys(section).find((key) => {
+    if (/_comment$/.test(key)) return false;
+    const ref = section[key];
+    return ref && typeof ref.path === 'string' && ref.path.replace(/"/g, '') === filePath;
+  });
+  return hit || null;
+}
+
+// Embed App Extensions phase on the app target, positioned right after
+// Resources (Xcode template order). A trailing position fuses with the
+// RNFB Crashlytics script (dSYM + Info.plist inputs, no outputs) into a
+// build cycle under Xcode 16+ (verified Release build failure).
+function ensureEmbedPhase(project) {
+  const { objects } = project.hash.project;
+  const appUuid = Object.keys(objects.PBXNativeTarget || {}).find((key) => {
+    if (/_comment$/.test(key)) return false;
+    const t = objects.PBXNativeTarget[key];
+    return t && typeof t.name === 'string' && t.name.replace(/"/g, '') === 'SmartFinances';
+  });
+  if (!appUuid) return;
+  const appTarget = objects.PBXNativeTarget[appUuid];
+  const appexRef = (() => {
+    const target = objects.PBXNativeTarget[extensionTargetUuid(project)];
+    const ref = target && target.productReference;
+    return (ref && (ref.value || ref)) || fileRefForPath(project, 'Widgets.appex');
+  })();
+  if (!appexRef) return;
+  let phaseUuid = (appTarget.buildPhases || [])
+    .map((entry) => entry.value || entry)
+    .find((id) => objects.PBXCopyFilesBuildPhase && objects.PBXCopyFilesBuildPhase[id]);
+  if (!phaseUuid) {
+    phaseUuid = newUuid();
+    objects.PBXCopyFilesBuildPhase = objects.PBXCopyFilesBuildPhase || {};
+    objects.PBXCopyFilesBuildPhase[phaseUuid] = {
+      isa: 'PBXCopyFilesBuildPhase',
+      buildActionMask: 2147483647,
+      dstPath: '""',
+      dstSubfolderSpec: '13',
+      files: [],
+      name: '"Copy Files"',
+      runOnlyForDeploymentPostprocessing: 0,
+    };
+    objects.PBXCopyFilesBuildPhase[`${phaseUuid}_comment`] = 'Copy Files';
+  }
+  const phase = objects.PBXCopyFilesBuildPhase[phaseUuid];
+  phase.files = phase.files || [];
+  const buildUuid = newUuid();
+  if (!phase.files.some((entry) => (entry.value || entry) && objects.PBXBuildFile[(entry.value || entry)] && objects.PBXBuildFile[(entry.value || entry)].fileRef === appexRef)) {
+    objects.PBXBuildFile = objects.PBXBuildFile || {};
+    objects.PBXBuildFile[buildUuid] = { isa: 'PBXBuildFile', fileRef: appexRef };
+    objects.PBXBuildFile[`${buildUuid}_comment`] = 'Widgets.appex in Copy Files';
+    phase.files.push({ value: buildUuid, comment: 'Widgets.appex in Copy Files' });
+  }
+  const phases = appTarget.buildPhases.map((entry) => entry.value || entry);
+  const without = phases.filter((id) => id !== phaseUuid);
+  const resIdx = without.findIndex((id) => {
+    const s = objects.PBXResourcesBuildPhase && objects.PBXResourcesBuildPhase[id];
+    return !!s;
+  });
+  const at = resIdx === -1 ? without.length : resIdx + 1;
+  without.splice(at, 0, phaseUuid);
+  // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+  appTarget.buildPhases = without.map((id) => {
+    const section = [objects.PBXSourcesBuildPhase, objects.PBXFrameworksBuildPhase, objects.PBXResourcesBuildPhase, objects.PBXCopyFilesBuildPhase, objects.PBXShellScriptBuildPhase]
+      .map((sec) => sec && sec[`${id}_comment`]).find(Boolean);
+    return { value: id, comment: section || '' };
+  });
+}
+
+// Copies the WidgetKit sources into ios/Widgets, writes the extension
+// entitlements, and adds the sources to the extension target.
 
 function withWidgetExtensionTarget(config) {
   return withXcodeProject(config, (mod) => {
@@ -95,6 +182,10 @@ function withWidgetExtensionTarget(config) {
       targetUuid = project.addTarget(EXTENSION_TARGET_NAME, 'app_extension', EXTENSION_TARGET_NAME, bundleId).uuid;
     }
     setExtensionBuildSetting(project, targetUuid, 'CODE_SIGN_ENTITLEMENTS', `"${EXTENSION_TARGET_NAME}/${EXTENSION_TARGET_NAME}.entitlements"`);
+    setExtensionBuildSetting(project, targetUuid, 'SWIFT_VERSION', '5.0');
+    setExtensionBuildSetting(project, targetUuid, 'IPHONEOS_DEPLOYMENT_TARGET', '17.0');
+    setExtensionBuildSetting(project, targetUuid, 'TARGETED_DEVICE_FAMILY', '"1,2"');
+    ensureEmbedPhase(project);
     return mod;
   });
 }
@@ -115,22 +206,89 @@ function appGroupKey(project) {
   return hit || null;
 }
 
-function addSwiftSourcesToExtension(project, targetUuid, sourcesDir) {
+function ensureFileRef(project, filePath, name) {
+  const existing = fileRefForPath(project, filePath);
+  if (existing) return existing;
+  const uuid = newUuid();
+  // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+  project.hash.project.objects.PBXFileReference[uuid] = {
+    isa: 'PBXFileReference',
+    lastKnownFileType: 'sourcecode.swift',
+    name,
+    path: filePath,
+    sourceTree: '"<group>"',
+  };
+  // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+  project.hash.project.objects.PBXFileReference[`${uuid}_comment`] = name;
   const groupKey = appGroupKey(project);
-  if (!groupKey) return 0;
+  if (groupKey) {
+    project.hash.project.objects.PBXGroup[groupKey].children.push({
+      value: uuid,
+      comment: name,
+    });
+  }
+  return uuid;
+}
+
+function targetSourcesPhase(project, targetUuid) {
+  const { objects } = project.hash.project;
+  const target = objects.PBXNativeTarget[targetUuid];
+  if (!target) return null;
+  const ids = (target.buildPhases || []).map((entry) => entry.value || entry);
+  const found = ids.find((id) => objects.PBXSourcesBuildPhase && objects.PBXSourcesBuildPhase[id]);
+  if (found) return { uuid: found, phase: objects.PBXSourcesBuildPhase[found] };
+  // addTarget (this lib version) creates phaseless targets: create + register.
+  const uuid = newUuid();
+  const phase = {
+    isa: 'PBXSourcesBuildPhase',
+    buildActionMask: 2147483647,
+    files: [],
+    runOnlyForDeploymentPostprocessing: 0,
+  };
+  objects.PBXSourcesBuildPhase[uuid] = phase;
+  objects.PBXSourcesBuildPhase[`${uuid}_comment`] = 'Sources';
+  target.buildPhases.push({ value: uuid, comment: 'Sources' });
+  return { uuid, phase };
+}
+
+function buildFileForRef(project, phase, fileRefUuid) {
+  const { objects } = project.hash.project;
+  return (phase.files || []).find((entry) => {
+    const buildFile = objects.PBXBuildFile[entry.value || entry];
+    if (!buildFile) return false;
+    const ref = buildFile.fileRef;
+    return ref === fileRefUuid || (ref && (ref.value || ref) === fileRefUuid);
+  });
+}
+
+function ensureBuildFileInPhase(project, phase, fileRefUuid, comment) {
+  if (buildFileForRef(project, phase, fileRefUuid)) return;
+  const uuid = newUuid();
+  // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+  project.hash.project.objects.PBXBuildFile[uuid] = {
+    isa: 'PBXBuildFile',
+    fileRef: fileRefUuid,
+  };
+  // eslint-disable-next-line no-param-reassign -- pbxproj mutation is this helper's entire job
+  project.hash.project.objects.PBXBuildFile[`${uuid}_comment`] = comment;
+  phase.files.push({ value: uuid, comment });
+}
+
+function addSwiftSourcesToExtension(project, targetUuid, sourcesDir) {
+  const holder = targetSourcesPhase(project, targetUuid);
+  if (!holder) return 0;
   let added = 0;
   fs.readdirSync(sourcesDir)
     .filter((file) => file.endsWith('.swift'))
     .forEach((file) => {
-      if (project.hasFile(`Widgets/${file}`)) return;
-      project.addSourceFile(`Widgets/${file}`, { target: targetUuid }, groupKey);
-      added += 1;
+      const refUuid = ensureFileRef(project, `Widgets/${file}`, file);
+      const before = (holder.phase.files || []).length;
+      ensureBuildFileInPhase(project, holder.phase, refUuid, `${file} in Sources`);
+      if ((holder.phase.files || []).length > before) added += 1;
     });
   return added;
 }
 
-// Copies the WidgetKit sources into ios/Widgets, writes the extension
-// entitlements, and adds the sources to the extension target.
 function withWidgetExtensionSources(config) {
   const withFiles = withDangerousMod(config, [
     'ios',
@@ -273,3 +431,18 @@ function withHomeWidgets(config) {
 }
 
 module.exports = withHomeWidgets;
+
+// Test seam: deterministic verification without running a full prebuild
+// (the xcode lib fails silently on comment-less phases — see F6).
+module.exports.internals = {
+  extensionTargetUuid,
+  targetConfigs,
+  setExtensionBuildSetting,
+  fileRefForPath,
+  appGroupKey,
+  ensureFileRef,
+  targetSourcesPhase,
+  ensureBuildFileInPhase,
+  addSwiftSourcesToExtension,
+  ensureEmbedPhase,
+};
