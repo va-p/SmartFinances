@@ -214,6 +214,12 @@ Per spec table statuses (`Implementing` → proposed `Verified` / `UAT-pending`)
 - **Lessons**: none recorded this iteration — the only candidate lessons (mask-literal L-016, chart-contract pin L-017) are already in `.specs/lessons.json`; no new grounded failures were found, so no duplicates were added.
 - **Verifier: independent sub-agent (author ≠ verifier)**. Worktree holds only this report as a modification (`git status --porcelain` empty before the write; scratch sensor dirs deleted afterwards).
 
+## Addendum — Phase 4 layout polish + Overview merge (orchestrator, user QA round 2026-11-10)
+
+- **WDG-42 Overview merge**: Control Panel group removed; Medium/Large render identical content under the title "Overview" with consistent IDs (`OverviewSmallWidget` / `OverviewMediumWidget` / `OverviewLargeWidget` kinds, matching Android providers). One gallery group with 3 size variations. User confirmed content unchanged and allowed ID updates (test widgets may orphan).
+- **WDG-43 Budgets Medium**: compacted rows (caption names, 20pt bars, 4pt spacing ≈149pt total) to fit 169pt; same tightening on Android. Large untouched per user (correctly shows up to 6; short lists leave empty space).
+- **WDG-44/45 Cash Flow**: Small gets scaled header/values, flexible 34pt chart, 40pt button (iOS) + single-line texts and smaller chart/button (Android). Medium rebuilt per the to-be mock: divider under header, vertically centered totals, full-height diverging chart with overlaid 56pt + button. Verified by `swiftc -typecheck` + 26/26 unit tests; device QA pending (UAT-1..UAT-11 extended).
+
 ## Addendum — F10 (orchestrator, user-reported empty widgets on device)
 
 - **F10 — Main app had no App Group entitlement, so no snapshot ever reached the extension.** The bridge module was linked and the extension side entitled, but `ios/SmartFinances/SmartFinances.entitlements` was an empty dict (the `withWidgetAppGroup` plugin output only lands on prebuild, which never re-ran). `UserDefaults(suiteName:)` without the entitlement returns nil, so every write silently vanished and widgets correctly showed the Locked placeholder forever. Fixed by writing the group into the app entitlements; added a dev-only `console.warn` when the native bridge is absent so this class of failure is never silent again. Remaining user-side prerequisites: App Group enabled for both App IDs with refreshed profiles (automatic signing usually handles it), then rebuild + reinstall + open the app once so the first snapshot writes.
