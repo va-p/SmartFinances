@@ -220,6 +220,10 @@ Per spec table statuses (`Implementing` → proposed `Verified` / `UAT-pending`)
 - **WDG-43 Budgets Medium**: compacted rows (caption names, 20pt bars, 4pt spacing ≈149pt total) to fit 169pt; same tightening on Android. Large untouched per user (correctly shows up to 6; short lists leave empty space).
 - **WDG-44/45 Cash Flow**: Small gets scaled header/values, flexible 34pt chart, 40pt button (iOS) + single-line texts and smaller chart/button (Android). Medium rebuilt per the to-be mock: divider under header, vertically centered totals, full-height diverging chart with overlaid 56pt + button. Verified by `swiftc -typecheck` + 26/26 unit tests; device QA pending (UAT-1..UAT-11 extended).
 
+## Addendum — T22 Large top-2 critical budgets (orchestrator, user request 2026-11-10)
+
+- **WDG-51**: snapshot carries `topCritical` (max 2, % desc, no alert threshold — consistent with the existing critical definition); iOS Large stacks two critical cards with single-card fallback; Android Large binds a second card block (both layout copies restructured into a two-card column). Side fix in passing: the user's parallel edit had removed the `hidden` param from `buildOverview` while leaving its reference, breaking 4 tests — aligned to their evident intent (only absolute balances mask; percents stay visible) and re-greened. Verified: 29/29 unit, workspace Release `BUILD SUCCEEDED`; device QA pending.
+
 ## Addendum — T21 eye toggle via Home param (orchestrator, user request 2026-11-10)
 
 - **Eye buttons deep-link Home with `?hideData=true`** (new `hideData` scheme completed to the param form on Swift/Kotlin/builder); Home calls the existing `handleHideData` toggle (API + persist) and clears the param, mirroring the T20 add-transaction flow. iOS eye destinations (Overview Small, Patrimony Small) repointed; Android eye affordances gained IDs + hide intents. Builder contract tests cover the new URL. Verified: 27 unit + full 450 green, lint/tsc clean; cold-tap behavior needs device QA.
