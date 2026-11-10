@@ -70,6 +70,22 @@ function extensionEntitlements() {
 `;
 }
 
+// updateBuildProperty by target *name* silently no-ops (quoted names never
+// match); write the setting through the target's own configuration list.
+function setExtensionBuildSetting(project, targetUuid, prop, value) {
+  const target = project.hash.project.objects.PBXNativeTarget[targetUuid];
+  const listRef = target && target.buildConfigurationList;
+  const listId = listRef && listRef.value ? listRef.value : listRef;
+  const list = project.hash.project.objects.XCConfigurationList[listId];
+  if (!list) return;
+  const configs = project.pbxXCBuildConfigurationSection();
+  list.buildConfigurations.forEach((entry) => {
+    if (configs[entry.value]) {
+      configs[entry.value].buildSettings[prop] = value;
+    }
+  });
+}
+
 function withWidgetExtensionTarget(config) {
   return withXcodeProject(config, (mod) => {
     const project = mod.modResults;
@@ -78,9 +94,7 @@ function withWidgetExtensionTarget(config) {
     if (!targetUuid) {
       targetUuid = project.addTarget(EXTENSION_TARGET_NAME, 'app_extension', EXTENSION_TARGET_NAME, bundleId).uuid;
     }
-    if (targetUuid) {
-      project.updateBuildProperty('CODE_SIGN_ENTITLEMENTS', `"${EXTENSION_TARGET_NAME}/${EXTENSION_TARGET_NAME}.entitlements"`, null, EXTENSION_TARGET_NAME);
-    }
+    setExtensionBuildSetting(project, targetUuid, 'CODE_SIGN_ENTITLEMENTS', `"${EXTENSION_TARGET_NAME}/${EXTENSION_TARGET_NAME}.entitlements"`);
     return mod;
   });
 }

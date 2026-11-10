@@ -213,3 +213,7 @@ Per spec table statuses (`Implementing` → proposed `Verified` / `UAT-pending`)
 - **Scope**: fix commits touch only the 9 listed files (§5); no scope creep.
 - **Lessons**: none recorded this iteration — the only candidate lessons (mask-literal L-016, chart-contract pin L-017) are already in `.specs/lessons.json`; no new grounded failures were found, so no duplicates were added.
 - **Verifier: independent sub-agent (author ≠ verifier)**. Worktree holds only this report as a modification (`git status --porcelain` empty before the write; scratch sensor dirs deleted afterwards).
+
+## Addendum — F5 (orchestrator, post-verification)
+
+- **F5 — Extension signing + Info.plist were missing.** The xcode lib's name-based `updateBuildProperty` silently no-ops on quoted target names, so the committed extension had no `CODE_SIGN_ENTITLEMENTS` (App Group access would fail closed → permanent Locked view) and referenced a nonexistent `Widgets/Widgets-Info.plist`. Fixed: `targets/widgets/Widgets-Info.plist` source + direct per-config `CODE_SIGN_ENTITLEMENTS = Widgets/Widgets.entitlements` write (verified via `xcodebuild -showBuildSettings -target Widgets`); plugin's `withWidgetExtensionTarget` rewritten to the same direct path. Xcode's canonical reordering + the Embed App Extensions copy phase it added were adopted as-is. This was invisible to the sensor (native, uncompilable here) and is covered by UAT-1/UAT-10 on device.
