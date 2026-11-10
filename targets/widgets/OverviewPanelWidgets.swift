@@ -108,7 +108,7 @@ struct ControlPanelMediumView: View {
             .font(.caption)
             .foregroundStyle(WidgetTheme.secondaryText)
           Text(overview?.total ?? "—")
-            .font(.title3)
+            .font(.headline)
             .fontWeight(.bold)
             .foregroundStyle(WidgetTheme.primaryText)
         }
@@ -148,7 +148,7 @@ struct ControlPanelLargeView: View {
             .font(.caption)
             .foregroundStyle(WidgetTheme.secondaryText)
           Text(overview?.total ?? "—")
-            .font(.title2)
+            .font(.title3)
             .fontWeight(.bold)
             .foregroundStyle(WidgetTheme.primaryText)
         }
@@ -170,7 +170,7 @@ struct ControlPanelLargeView: View {
           HStack(spacing: 6) {
             Image(systemName: "plus.circle.fill")
               .foregroundStyle(WidgetTheme.accentOrange)
-            Text("Adicionar Despesa")
+            Text("Adicionar Transação")
               .font(.subheadline)
               .foregroundStyle(WidgetTheme.primaryText)
           }

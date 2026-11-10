@@ -34,7 +34,7 @@ struct OverviewAlertCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      Text("Alerta: \(name)")
+      Text("\(name)")
         .font(.subheadline)
         .foregroundStyle(.white)
         .lineLimit(1)
@@ -68,7 +68,7 @@ struct OverviewAlertPlainBar: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text("Alerta: \(name)")
+      Text("\(name)")
         .font(.subheadline)
         .foregroundStyle(WidgetTheme.primaryText)
         .lineLimit(1)
@@ -96,13 +96,13 @@ struct OverviewSmallView: View {
       WidgetViews.header(
         title: "Overview",
         systemImage: "eye",
-        destination: URL(string: WidgetLinks.overview)!
+        destination: URL(string: WidgetLinks.addTransaction)!
       )
       Text("Patrimônio Total")
         .font(.caption)
         .foregroundStyle(WidgetTheme.secondaryText)
       Text(overview.total)
-        .font(.title2)
+        .font(.headline)
         .fontWeight(.bold)
         .foregroundStyle(WidgetTheme.primaryText)
       Spacer(minLength: 0)
@@ -159,7 +159,7 @@ struct OverviewSmallWidget: Widget {
       }
     }
     .configurationDisplayName("Overview")
-    .description("Patrimônio total com alerta de orçamento crítico.")
+    .description("Patrimônio total e orçamento crítico.")
     .supportedFamilies([.systemSmall])
   }
 }

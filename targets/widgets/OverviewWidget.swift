@@ -96,13 +96,13 @@ struct OverviewSmallView: View {
       WidgetViews.header(
         title: "Overview",
         systemImage: "eye",
-        destination: URL(string: WidgetLinks.overview)!
+        destination: URL(string: WidgetLinks.addTransaction)!
       )
       Text("Patrimônio Total")
         .font(.caption)
         .foregroundStyle(WidgetTheme.secondaryText)
       Text(overview.total)
-        .font(.title3)
+        .font(.headline)
         .fontWeight(.bold)
         .foregroundStyle(WidgetTheme.primaryText)
       Spacer(minLength: 0)

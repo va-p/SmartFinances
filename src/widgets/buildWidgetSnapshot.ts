@@ -5,10 +5,7 @@ import { ptBR } from 'date-fns/locale';
 import formatCurrency from '@utils/formatCurrency';
 import { calculateTotalAssets } from '@utils/calculateTotalAssets';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
-import {
-  Quotes,
-  convertToBaseCurrency,
-} from '@utils/baseCurrency';
+import { Quotes, convertToBaseCurrency } from '@utils/baseCurrency';
 
 import { CurrencyCodes } from '@interfaces/currencies';
 import { AccountProps } from '@interfaces/accounts';
@@ -83,7 +80,8 @@ function buildCashFlow(
   transactions: TransactionProps[],
   baseCurrencyCode: CurrencyCodes,
   quotes: Quotes,
-  now: Date
+  now: Date,
+  hidden: boolean
 ): WidgetCashFlow {
   let income = new Decimal(0);
   let expenses = new Decimal(0);
@@ -123,8 +121,8 @@ function buildCashFlow(
 
   return {
     monthLabel: monthLabel(now),
-    income: formatCurrency(baseCurrencyCode, income.toNumber()),
-    expenses: formatCurrency(
+    income: hidden ? WIDGET_MASKED_VALUE : formatCurrency(baseCurrencyCode, income.toNumber()),
+    expenses: hidden ? WIDGET_MASKED_VALUE : formatCurrency(
       baseCurrencyCode,
       expenseTotal === 0 ? 0 : -expenseTotal
     ),
@@ -135,7 +133,6 @@ function buildCashFlow(
 function buildOverview(
   budgets: FormattedBudgetProps[],
   total: string,
-  hidden: boolean
 ): WidgetOverview {
   const critical =
     budgets.length === 0
@@ -143,7 +140,7 @@ function buildOverview(
       : [...budgets].sort((a, b) => b.percentage - a.percentage)[0];
 
   const percentLabel = (p: number) =>
-    hidden ? WIDGET_MASKED_VALUE : `${p.toFixed(2).replace('.', ',')}%`;
+    `${p.toFixed(2).replace('.', ',')}%`;
 
   if (!critical || critical.percentage <= ALERT_THRESHOLD_PERCENT) {
     return {
@@ -276,7 +273,8 @@ export function buildWidgetSnapshot(input: ComposerInput): WidgetSnapshot {
     input.transactions,
     input.baseCurrencyCode,
     input.quotes,
-    now
+    now,
+    input.hidden
   );
   const { total, netWorth } = buildNetWorth(
     input.transactions,
@@ -296,7 +294,7 @@ export function buildWidgetSnapshot(input: ComposerInput): WidgetSnapshot {
     baseCurrencyCode: input.baseCurrencyCode,
     budgets,
     cashFlow,
-    overview: buildOverview(input.budgets, total, input.hidden),
+    overview: buildOverview(input.budgets, total),
     netWorth,
     institutions: buildInstitutions(
       input.accounts,

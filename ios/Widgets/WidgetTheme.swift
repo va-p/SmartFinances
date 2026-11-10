@@ -22,7 +22,7 @@ enum WidgetTheme {
 enum WidgetLinks {
   static let scheme = "com.vap.smartfinances"
   static let budgets = "\(scheme)://budgets"
-  static let addTransaction = "\(scheme)://transactions/new"
+  static let addTransaction = "\(scheme)://"
   static let overview = "\(scheme)://overview"
   static let accounts = "\(scheme)://accounts"
 
@@ -64,7 +64,7 @@ enum WidgetViews {
       HStack(spacing: 6) {
         Image(systemName: "chart.pie.fill")
           .foregroundStyle(WidgetTheme.accentOrange)
-        Text("Relatórios")
+        Text("Resumo")
           .font(.subheadline)
           .foregroundStyle(WidgetTheme.primaryText)
       }
