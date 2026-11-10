@@ -394,7 +394,7 @@ T14 -> T15
 
 ---
 
-### T13: Overview merge + consistent IDs
+### T13: Overview merge + consistent IDs — ✅ Complete
 
 **What**: Rename Control Panel widgets into the Overview group with consistent IDs on both platforms.
 **Where**: `SmartFinances/targets/widgets/`
