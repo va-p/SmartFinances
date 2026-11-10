@@ -220,6 +220,11 @@ Per spec table statuses (`Implementing` → proposed `Verified` / `UAT-pending`)
 - **WDG-43 Budgets Medium**: compacted rows (caption names, 20pt bars, 4pt spacing ≈149pt total) to fit 169pt; same tightening on Android. Large untouched per user (correctly shows up to 6; short lists leave empty space).
 - **WDG-44/45 Cash Flow**: Small gets scaled header/values, flexible 34pt chart, 40pt button (iOS) + single-line texts and smaller chart/button (Android). Medium rebuilt per the to-be mock: divider under header, vertically centered totals, full-height diverging chart with overlaid 56pt + button. Verified by `swiftc -typecheck` + 26/26 unit tests; device QA pending (UAT-1..UAT-11 extended).
 
+## Addendum — T17 patrimony polish (orchestrator, user QA round 2026-11-10)
+
+- **WDG-46 Small**: name/balance columns share the narrow width via minimum scale (caption fonts, tighter padding/spacing) instead of collapsing to stubs; total scales to one line. Same tightening on Android rows.
+- **WDG-47 Medium**: sparkline moved into a centered, clipped 140×64 area instead of overflowing the header corner; Android spark bitmap enlarged to match. Verified: `swiftc -typecheck` clean + workspace Release `BUILD SUCCEEDED`; device QA pending.
+
 ## Addendum — T16 single-Overview merge (orchestrator, user request 2026-11-10)
 
 - **Merged the three Overview widgets into one `OverviewWidget` kind** (`AppIntentConfiguration`, families Small/Medium/Large, single gallery entry). The Variant A/B intent now applies to all sizes but only affects Small rendering; Medium/Large reuse the ex-Control Panel views unchanged. Android intentionally keeps three same-labeled `Overview*` providers (one listing per size — the closest the platform offers). Verified: `swiftc -typecheck` clean, workspace Release `BUILD SUCCEEDED`. Previously placed test widgets from the three-kind era will orphan (accepted: nothing deployed).
