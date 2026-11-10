@@ -220,6 +220,10 @@ Per spec table statuses (`Implementing` → proposed `Verified` / `UAT-pending`)
 - **WDG-43 Budgets Medium**: compacted rows (caption names, 20pt bars, 4pt spacing ≈149pt total) to fit 169pt; same tightening on Android. Large untouched per user (correctly shows up to 6; short lists leave empty space).
 - **WDG-44/45 Cash Flow**: Small gets scaled header/values, flexible 34pt chart, 40pt button (iOS) + single-line texts and smaller chart/button (Android). Medium rebuilt per the to-be mock: divider under header, vertically centered totals, full-height diverging chart with overlaid 56pt + button. Verified by `swiftc -typecheck` + 26/26 unit tests; device QA pending (UAT-1..UAT-11 extended).
 
+## Addendum — T20 add-transaction via Home param (orchestrator, user report 2026-11-10)
+
+- **Replaced the dead `transactions/new` route** (redirected to Home instead of opening the form) with a `?addTransaction=true` param on the Home tab: Home auto-opens the existing `RegisterTransaction` bottom sheet once per tap and clears the param so repeat taps re-fire. Cold start works (param present at mount); warm taps work (param change re-runs the effect). Builder/Swift/Kotlin contracts realigned to `com.vap.smartfinances://?addTransaction=true`; builder tests updated to the superseded contract (flagged, not silent). Route file + hidden tab registration removed. Verified: 26/26 + full 449 green, lint/tsc clean; cold-tap behavior needs device QA (UAT-2).
+
 ## Addendum — T19 cash-flow Small padding (orchestrator, user QA round 2026-11-10)
 
 - **WDG-50**: explicit 12pt inner padding (16dp Android) on Cash-flow Small with tightened vertical rhythm (spacing 2, 40pt chart row) to keep the 169pt budget; verified by `swiftc -typecheck` + 26/26 tests; device QA pending.
