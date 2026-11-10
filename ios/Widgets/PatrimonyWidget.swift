@@ -5,25 +5,32 @@ import WidgetKit
 struct InstitutionRowView: View {
   var row: WidgetInstitutionRow
 
+  // Compact columns: name and balance share the narrow Small width via
+  // minimum scale instead of one side collapsing to stubs (WDG-46).
   var body: some View {
-    HStack(spacing: 10) {
+    HStack(spacing: 6) {
       Image(systemName: "building.columns")
+        .font(.caption)
         .foregroundStyle(WidgetTheme.accentOrange)
       VStack(alignment: .leading, spacing: 0) {
         Text(row.name)
-          .font(.subheadline)
+          .font(.caption)
           .foregroundStyle(WidgetTheme.primaryText)
           .lineLimit(1)
+          .minimumScaleFactor(0.8)
         Text("\(row.accountCount) contas")
-          .font(.caption)
+          .font(.caption2)
           .foregroundStyle(WidgetTheme.secondaryText)
+          .lineLimit(1)
       }
-      Spacer()
+      Spacer(minLength: 2)
       Text(row.balance)
-        .font(.subheadline)
+        .font(.caption)
         .foregroundStyle(WidgetTheme.primaryText)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
     }
-    .padding(8)
+    .padding(6)
     .background(WidgetTheme.innerCardBackground)
     .clipShape(RoundedRectangle(cornerRadius: 10))
   }
@@ -35,21 +42,26 @@ struct PatrimonyWidgetView: View {
   var entry: SnapshotEntry
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      HStack(alignment: .top) {
+    VStack(alignment: .leading, spacing: 3) {
+      HStack(alignment: .center) {
         VStack(alignment: .leading, spacing: 2) {
           Text("Patrimônio Total")
             .font(.caption)
             .foregroundStyle(WidgetTheme.secondaryText)
+            .lineLimit(1)
           Text(entry.snapshot?.netWorth.total ?? "—")
             .font(.title2)
             .fontWeight(.bold)
             .foregroundStyle(WidgetTheme.primaryText)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
         }
-        Spacer()
+        Spacer(minLength: 4)
         if family == .systemMedium {
           SparklineView(points: entry.snapshot?.netWorth.spark ?? [])
-            .frame(width: 110, height: 52)
+            .frame(width: 140, height: 64)
+            .clipped()
+            .padding(.vertical, 4)
         } else {
           Link(destination: URL(string: WidgetLinks.accounts)!) {
             Image(systemName: "eye")

@@ -23,8 +23,8 @@ private fun patrimonyViews(
         R.id.patrimony_spark,
         WidgetCharts.drawSparkline(
           snapshot.netWorth.spark,
-          BaseWidgetProvider.dp(context, 120),
-          BaseWidgetProvider.dp(context, 56)
+          BaseWidgetProvider.dp(context, 140),
+          BaseWidgetProvider.dp(context, 64)
         )
       )
     }

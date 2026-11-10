@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15 -> T16
+T13 -> T14 -> T15 -> T16 -> T17
 ```
 
 Cross-phase dependencies (backward only):
@@ -79,6 +79,7 @@ T12 -> T13
 T13 -> T14
 T14 -> T15
 T15 -> T16
+T16 -> T17
 ```
 
 ---
@@ -489,6 +490,31 @@ T15 -> T16
 - [ ] `OverviewSmallWidget`/`OverviewMediumWidget`/`OverviewLargeWidget` structs removed; `OverviewWidget` kind with all three families
 - [ ] `swiftc -typecheck` clean + workspace Release build green
 - [ ] Android untouched (3 `Overview*` providers already group by label)
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
+
+---
+
+### T17: Patrimony Small fit + Medium chart presentation — ✅ Complete
+
+**What**: Fix Small column clipping (scaled texts, tighter cards) and Medium sparkline positioning (iOS + Android).
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T16
+**Reuses**: Existing row/sparkline views with adjusted metrics
+**Requirement**: WDG-46, WDG-47
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS Small: total scales to one line; name/balance columns share width with minimum scale (no `N…`/`R…` stubs); tighter card padding/spacing
+- [ ] iOS Medium: sparkline centered in a dedicated right area, clipped to bounds, not touching edges
+- [ ] Android Small rows tightened; Android Medium sparkline enlarged
+- [ ] `swiftc -typecheck` clean + workspace Release build green
 
 **Tests**: none (matrix: native UI - build gate + device QA)
 **Gate**: build
