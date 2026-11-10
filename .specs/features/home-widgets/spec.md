@@ -213,30 +213,30 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-08 | P1: Budgets empty state | Implementing | T2 |
 | WDG-09 | P1: Budgets stale-while-revalidate | Design | Pending |
 | WDG-10 | P1: Budgets iOS/Android parity | Design | Pending |
-| WDG-11 | P1: Cash-flow header + totals | Design | Pending |
-| WDG-12 | P1: Cash-flow Small chart + button | Design | Pending |
+| WDG-11 | P1: Cash-flow header + totals | Implementing | T3 |
+| WDG-12 | P1: Cash-flow Small chart + button | Implementing | T3 data, T8/T9 chrome |
 | WDG-13 | P1: Cash-flow iOS Medium vertical bars | Design | Pending |
 | WDG-14 | P1: Cash-flow Android Medium horizontal bars | Design | Pending |
 | WDG-15 | P1: Cash-flow + deep link | Design | Pending |
-| WDG-16 | P1: Cash-flow empty month | Design | Pending |
-| WDG-17 | P1: Overview Small header + total | Design | Pending |
+| WDG-16 | P1: Cash-flow empty month | Implementing | T3 |
+| WDG-17 | P1: Overview Small header + total | Implementing | T3 data, T8/T9 chrome |
 | WDG-18 | P1: Overview Small Variant A card | Design | Pending |
 | WDG-19 | P1: Overview Small Variant B plain bar | Design | Pending |
 | WDG-20 | P1: Overview Small variant persistence | Design | Pending |
 | WDG-21 | P1: Overview Small hide-amounts | Design | Pending |
-| WDG-22 | P1: Overview Small no-alert state | Design | Pending |
+| WDG-22 | P1: Overview Small no-alert state | Implementing | T3 |
 | WDG-23 | P1: Control Panel Medium card + actions | Design | Pending |
 | WDG-24 | P1: Control Panel Medium action row | Design | Pending |
 | WDG-25 | P1: Control Panel Large sparkline + donut | Design | Pending |
 | WDG-26 | P1: Control Panel Large labeled actions | Design | Pending |
 | WDG-27 | P1: Control Panel add-expense deep link | Design | Pending |
 | WDG-28 | P1: Control Panel reports deep link | Design | Pending |
-| WDG-29 | P1: Patrimony header + total | Design | Pending |
-| WDG-30 | P1: Patrimony institution rows | Design | Pending |
-| WDG-31 | P1: Patrimony Small 2 rows no chart | Design | Pending |
+| WDG-29 | P1: Patrimony header + total | Implementing | T3 data, T8/T9 chrome |
+| WDG-30 | P1: Patrimony institution rows | Implementing | T3 |
+| WDG-31 | P1: Patrimony Small 2 rows no chart | Implementing | T3 data, T8/T9 chrome |
 | WDG-32 | P1: Patrimony Medium sparkline | Design | Pending |
-| WDG-33 | P1: Patrimony hide-amounts | Design | Pending |
-| WDG-34 | P1: Patrimony empty state | Design | Pending |
+| WDG-33 | P1: Patrimony hide-amounts | Implementing | T3 |
+| WDG-34 | P1: Patrimony empty state | Implementing | T3 |
 | WDG-35 | P2: Snapshot write on refresh | Design | Pending |
 | WDG-36 | P2: Offline last-snapshot | Design | Pending |
 | WDG-37 | P2: Signed-out locked placeholder | Design | Pending |

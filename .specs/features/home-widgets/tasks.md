@@ -116,7 +116,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T3: Full snapshot composer
+### T3: Full snapshot composer — ✅ Complete
 
 **What**: Compose cash-flow month totals + bars, overview/critical budget, net worth + sparkline + donut, top-2 institutions, hidden/signedIn flags, pre-formatted strings.
 **Where**: `SmartFinances/src/widgets/buildWidgetSnapshot.ts`
