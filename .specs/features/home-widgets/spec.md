@@ -212,7 +212,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-07 | P1: Budgets short-list no fillers | Implementing | T2 |
 | WDG-08 | P1: Budgets empty state | Implementing | T2 |
 | WDG-09 | P1: Budgets stale-while-revalidate | Design | Pending |
-| WDG-10 | P1: Budgets iOS/Android parity | Design | Pending |
+| WDG-10 | P1: Budgets iOS/Android parity | Implementing | T6 targets, T8/T9 chrome |
 | WDG-11 | P1: Cash-flow header + totals | Implementing | T3 |
 | WDG-12 | P1: Cash-flow Small chart + button | Implementing | T3 data, T8/T9 chrome |
 | WDG-13 | P1: Cash-flow iOS Medium vertical bars | Design | Pending |

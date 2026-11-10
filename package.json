@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.6.9",
+    "@expo/config-plugins": "~57.0.9",
     "@expo-google-fonts/poppins": "^0.1.0",
     "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "5.2.14",

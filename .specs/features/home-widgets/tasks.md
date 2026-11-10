@@ -189,7 +189,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T6: Config plugin withHomeWidgets
+### T6: Config plugin withHomeWidgets — ✅ Complete
 
 **What**: Prebuild plugin injecting the iOS Widget extension target + App Group entitlement and the Android providers/receivers so committed `android/`+`ios/` stay reproducible.
 **Where**: `SmartFinances/plugins/withHomeWidgets/`
