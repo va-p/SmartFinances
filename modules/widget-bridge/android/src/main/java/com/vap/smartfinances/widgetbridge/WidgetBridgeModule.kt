@@ -32,7 +32,9 @@ class WidgetBridgeModule : Module() {
     }
 
     Function("reloadTimelines") {
-      val context = appContext.reactContext ?: return@Function
+      // Bare `return@Function` would return Unit against the () -> Any?
+      // contract; return null explicitly instead.
+      val context = appContext.reactContext ?: return@Function null
       context.sendBroadcast(
         Intent("com.vap.smartfinances.WIDGET_SNAPSHOT_UPDATED").setPackage(
           context.packageName
