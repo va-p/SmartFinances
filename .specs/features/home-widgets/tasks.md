@@ -419,7 +419,7 @@ T14 -> T15
 
 ---
 
-### T14: Budgets Medium compaction
+### T14: Budgets Medium compaction — ✅ Complete
 
 **What**: Compact Budgets Medium rows so header + 3 rows fit 169pt on iOS (+ tighten Android).
 **Where**: `SmartFinances/targets/widgets/`

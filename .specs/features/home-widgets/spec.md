@@ -267,7 +267,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-40 | P3: Dark-theme fidelity | Implementing | T8 ✅, T9 pending |
 | WDG-41 | P3: Long-name truncation | Implementing | T8 ✅, T9 pending |
 | WDG-42 | P1: Overview single group, 3 variations, consistent IDs | Implementing | T13 ✅ (QA T12) |
-| WDG-43 | P1: Budgets Medium fits 169pt (compact rows, smaller fonts) | Implementing | T14 |
+| WDG-43 | P1: Budgets Medium fits 169pt (compact rows, smaller fonts) | Implementing | T14 ✅ (QA T12) |
 | WDG-44 | P1: Cash-flow Small fits 2x2 (scaled text, flexible chart, 40pt button) | Implementing | T15 |
 | WDG-45 | P1: Cash-flow Medium alignment per to-be mock | Implementing | T15 |
 

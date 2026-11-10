@@ -5,10 +5,12 @@ import WidgetKit
 struct BudgetRowView: View {
   var row: WidgetBudgetRow
 
+  // Compact metrics: header (~22) + 3 rows (~41 each incl. spacing) fits
+  // the 169pt Medium height with margin (WDG-43).
   var body: some View {
-    VStack(alignment: .leading, spacing: 2) {
+    VStack(alignment: .leading, spacing: 1) {
       Text(row.name)
-        .font(.subheadline)
+        .font(.caption)
         .foregroundStyle(WidgetTheme.primaryText)
         .lineLimit(1)
         .truncationMode(.tail)
@@ -35,7 +37,7 @@ struct BudgetRowView: View {
           .padding(.trailing, 8)
         }
       }
-      .frame(height: 24)
+      .frame(height: 20)
     }
   }
 }
@@ -51,7 +53,7 @@ struct BudgetsWidgetView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: 4) {
       WidgetViews.header(
         title: "Orçamentos",
         systemImage: "target",
