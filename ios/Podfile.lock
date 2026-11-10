@@ -2811,6 +2811,8 @@ PODS:
     - ReactNativeDependencies
     - Yoga
   - SSZipArchive (2.5.5)
+  - WidgetBridge (1.0.0):
+    - ExpoModulesCore
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2945,6 +2947,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
+  - WidgetBridge (from `../modules/widget-bridge/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -3233,6 +3236,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNWorklets:
     :path: "../node_modules/react-native-worklets"
+  WidgetBridge:
+    :path: "../modules/widget-bridge/ios"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -3390,6 +3395,7 @@ SPEC CHECKSUMS:
   RNSVG: 68c366b996064ea99cee1e55da62b8feafb33a78
   RNWorklets: 43af89f696342f91118a2f1f3a879056e2f47331
   SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
+  WidgetBridge: 1d9df25da6e7b6358b2402c66b36bd39d053e0f7
   Yoga: 542a30dafe5b0f5f1d9f185ea7b2a3811ac54801
 
 PODFILE CHECKSUM: 2198294e7bec209a0ccc273b14673dda7836d3c8
