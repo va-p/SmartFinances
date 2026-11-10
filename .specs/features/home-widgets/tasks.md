@@ -311,7 +311,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 ### T11: Native tap wiring — ✅ Complete (cold-tap verification deferred to T12 device QA)
 
 **What**: Attach T10 URLs as `widgetURL` (iOS) / PendingIntents (Android) on every tappable widget region.
-**Where**: `SmartFinances/targets/widget-taps/`
+**Where**: `SmartFinances/src/app/(app)/transactions/new.tsx` (+ `src/app/(app)/_layout.tsx` registration; native attach points already in `targets/widgets/WidgetTheme.swift` + `targets/widgets-android/.../BaseWidgetProvider.kt` from T8/T9)
 **Depends on**: T10
 **Reuses**: T8 views, T9 providers, T10 builder output
 **Requirement**: WDG-15, WDG-27, WDG-28

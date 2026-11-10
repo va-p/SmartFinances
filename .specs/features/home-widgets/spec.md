@@ -40,7 +40,13 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Hide-amounts (eye icon) | Tapping the eye in-app toggles the snapshot's `hidden` flag; widgets render masked values (`R$ ••••`) when hidden | User decision 2026-11-10: masked values accepted | y |
 | Overview Small default variant | Variant A (red alert card) is the default; Variant B (plain bar) is selectable via widget-system config (iOS AppIntent / Android widget options) | User decision 2026-11-10: widget-system config, default A | y |
 | Critical budget definition | The non-archived budget with the highest spend percentage in the current period | User decision 2026-11-10: biggest amount used of the total | y |
-| Institution ordering in widget | Top 2 institutions by total balance descending (sum of their non-hidden accounts) | User decision 2026-11-10: accepted as proposed | y |
+| Institution ordering in widgets | Top 2 institutions by total balance descending (sum of their non-hidden accounts) | User decision 2026-11-10: accepted as proposed | y |
+| Donut time window (P1 precision pin) | Current device-local month, same as cash-flow | Mirrors the Overview screen's selected-month (`Meses`) category totals | n |
+| Chart bar bucketing (P2 precision pin) | Daily buckets (≤31); Small mini chart first 8 pairs, Medium first 16 | Bounded snapshot size for widget timelines; matches the compact mocks | n |
+| Percent decimals (P3 precision pin) | Budget rows 1dp comma (`30,8%`); alert/critical 2dp comma (`102,48%`) | Matches the per-surface layout mocks | n |
+| Budget order wording (P4 precision pin) | Highest spend % of the current period, descending | User decision 2026-11-10 ("biggest amount used of the total"); supersedes list-order reading | y |
+| Unknown deep-link target (P5 precision pin) | Falls back to app home (`scheme://`) | Widgets never produce a dead tap | n |
+| Non-BRL rendering (P6 precision pin) | Snapshot carries strings pre-formatted in the base currency; native displays verbatim | Single formatting source (`formatCurrency`) avoids Swift/Kotlin duplication | n |
 | Chart rendering in widgets | Native-drawn simple bars/lines from snapshot arrays, not WebView or screenshot of RN charts | Widget extensions cannot host the app's Gifted-Charts views | n |
 | Android Medium cash-flow orientation | Horizontal bars per the Android mock; iOS Medium uses vertical diverging bars | Layouts deliberately differ per platform for the Medium cash-flow chart | n |
 | Currency formatting | Snapshot carries pre-formatted pt-BR strings from `formatCurrency` plus raw numbers; widgets display the strings as-is | Guarantees identical "R$ 27.540,00" / "102,48%" rendering without duplicating formatting natively | n |

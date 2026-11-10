@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 16,
+  "next_id": 18,
   "lessons": [
     {
       "id": "L-005",
@@ -202,6 +202,42 @@
       ],
       "created": "2026-11-02T21:52:39Z",
       "last_seen": "2026-11-02T21:52:39Z"
+    },
+    {
+      "id": "L-016",
+      "key": "surviving_mutant::never assert masked redacted output against the module s own exported constant assert the literal so mask mutants die in the closest suite",
+      "text": "Never assert masked/redacted output against the module's own exported constant; assert the literal so mask mutants die in the closest suite.",
+      "signal": "surviving_mutant",
+      "scope": "src/widgets",
+      "status": "candidate",
+      "features": [
+        "home-widgets"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/widgets/__tests__/buildWidgetSnapshot.test.ts:184-187 (src/widgets)"
+      ],
+      "created": "2026-11-10T01:35:01Z",
+      "last_seen": "2026-11-10T01:35:01Z"
+    },
+    {
+      "id": "L-017",
+      "key": "spec_precision_gap::pin widget chart contract in spec donut time window bar bucketing caps per size or native caps drift silently",
+      "text": "Pin widget chart contract in spec (donut time-window, bar bucketing/caps per size) or native caps drift silently.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "home-widgets"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "WDG-25/donut + WDG-12/bars (spec)"
+      ],
+      "created": "2026-11-10T01:35:01Z",
+      "last_seen": "2026-11-10T01:35:01Z"
     }
   ]
 }
