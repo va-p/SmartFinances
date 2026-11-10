@@ -284,7 +284,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 
 ---
 
-### T10: Deep-link builder
+### T10: Deep-link builder — ✅ Complete
 
 **What**: Pure URL builder mapping every widget tap target to `com.vap.smartfinances://` routes.
 **Where**: `SmartFinances/src/widgets/buildWidgetDeepLink.ts`
