@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_card"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -77,14 +77,14 @@
         <ImageView
             android:id="@+id/cashflow_mini_chart"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:contentDescription="Mini gráfico" />
 
         <TextView
             android:id="@+id/cashflow_add"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/widget_fab"
             android:gravity="center"
             android:text="+"

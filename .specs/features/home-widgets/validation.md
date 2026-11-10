@@ -220,6 +220,10 @@ Per spec table statuses (`Implementing` → proposed `Verified` / `UAT-pending`)
 - **WDG-43 Budgets Medium**: compacted rows (caption names, 20pt bars, 4pt spacing ≈149pt total) to fit 169pt; same tightening on Android. Large untouched per user (correctly shows up to 6; short lists leave empty space).
 - **WDG-44/45 Cash Flow**: Small gets scaled header/values, flexible 34pt chart, 40pt button (iOS) + single-line texts and smaller chart/button (Android). Medium rebuilt per the to-be mock: divider under header, vertically centered totals, full-height diverging chart with overlaid 56pt + button. Verified by `swiftc -typecheck` + 26/26 unit tests; device QA pending (UAT-1..UAT-11 extended).
 
+## Addendum — T19 cash-flow Small padding (orchestrator, user QA round 2026-11-10)
+
+- **WDG-50**: explicit 12pt inner padding (16dp Android) on Cash-flow Small with tightened vertical rhythm (spacing 2, 40pt chart row) to keep the 169pt budget; verified by `swiftc -typecheck` + 26/26 tests; device QA pending.
+
 ## Addendum — T18 name cap + cash-flow fit (orchestrator, user QA round 2026-11-10)
 
 - **WDG-48**: iOS name column hard-capped at 40% via `GeometryReader` (tail truncation), balance keeps full priority with minimum scale; Small total drops to headline base. Android achieves the same outcome structurally (name `0dp` weight vs balance `wrap_content` — balance can never starve; no ConstraintLayout percent available).

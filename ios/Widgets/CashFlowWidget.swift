@@ -81,6 +81,8 @@ struct CashFlowHeaderView: View {
 struct CashFlowSmallView: View {
   var cashFlow: WidgetCashFlow?
 
+  // Explicit inner padding matching Overview's margins; the vertical
+  // rhythm is tightened so everything still fits the 2x2 (WDG-50).
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
       CashFlowHeaderView(monthLabel: cashFlow?.monthLabel ?? "—")
@@ -114,6 +116,7 @@ struct CashFlowSmallView: View {
       }
       .frame(height: 40)
     }
+    .padding(12)
     .containerBackground(for: .widget) {
       WidgetTheme.cardBackground
     }

@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15 -> T16 -> T17 -> T18
+T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19
 ```
 
 Cross-phase dependencies (backward only):
@@ -81,6 +81,7 @@ T14 -> T15
 T15 -> T16
 T16 -> T17
 T17 -> T18
+T18 -> T19
 ```
 
 ---
@@ -541,6 +542,30 @@ T17 -> T18
 - [ ] iOS Cash-flow Small: label also scales; content fits without edge clipping
 - [ ] Android: name truncates via weight (balance `wrap_content` priority) + header ellipsize
 - [ ] `swiftc -typecheck` clean + workspace Release build green
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
+
+---
+
+### T19: Cash-flow Small inner padding — ✅ Complete
+
+**What**: Add explicit 12pt/16dp inner padding to Cash-flow Small (iOS + Android) with content rebalanced to fit.
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T18
+**Reuses**: Existing Small views; padding + tighter vertical rhythm only
+**Requirement**: WDG-50
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS Small content carries 12pt padding on all sides; VStack spacing tightened so header + values + 40pt chart row fit 169pt
+- [ ] Android Small root padding 16dp with smaller chart/button
+- [ ] `swiftc -typecheck` clean; no content clipped at edges
 
 **Tests**: none (matrix: native UI - build gate + device QA)
 **Gate**: build
