@@ -18,13 +18,19 @@ private fun patrimonyViews(
       R.id.patrimony_header,
       BaseWidgetProvider.deepLinkIntent(context, BaseWidgetProvider.URL_ACCOUNTS)
     )
+    if (!withSpark) {
+      setOnClickPendingIntent(
+        R.id.patrimony_eye,
+        BaseWidgetProvider.deepLinkIntent(context, BaseWidgetProvider.URL_HIDE_DATA)
+      )
+    }
     if (withSpark) {
       setImageViewBitmap(
         R.id.patrimony_spark,
         WidgetCharts.drawSparkline(
           snapshot.netWorth.spark,
-          BaseWidgetProvider.dp(context, 120),
-          BaseWidgetProvider.dp(context, 56)
+          BaseWidgetProvider.dp(context, 140),
+          BaseWidgetProvider.dp(context, 64)
         )
       )
     }

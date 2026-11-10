@@ -33,7 +33,7 @@ struct InstitutionRowView: View {
           .minimumScaleFactor(0.7)
       }
     }
-    .frame(height: 42)
+    .frame(height: 30)
     .padding(4)
     .background(WidgetTheme.innerCardBackground)
     .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -67,7 +67,7 @@ struct PatrimonyWidgetView: View {
             .clipped()
             .padding(.vertical, 4)
         } else {
-          Link(destination: URL(string: WidgetLinks.accounts)!) {
+          Link(destination: URL(string: WidgetLinks.hideData)!) {
             Image(systemName: "eye")
               .foregroundStyle(WidgetTheme.accentOrange)
           }

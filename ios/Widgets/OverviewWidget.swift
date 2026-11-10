@@ -96,7 +96,7 @@ struct OverviewSmallView: View {
       WidgetViews.header(
         title: "Overview",
         systemImage: "eye",
-        destination: URL(string: WidgetLinks.addTransaction)!
+        destination: URL(string: WidgetLinks.hideData)!
       )
       Text("Patrimônio Total")
         .font(.caption)

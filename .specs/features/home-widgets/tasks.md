@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19 -> T20
+T13 -> T14 -> T15 -> T16 -> T17 -> T18 -> T19 -> T20 -> T21
 ```
 
 Cross-phase dependencies (backward only):
@@ -83,6 +83,7 @@ T16 -> T17
 T17 -> T18
 T18 -> T19
 T19 -> T20
+T20 -> T21
 ```
 
 ---
@@ -593,6 +594,32 @@ T19 -> T20
 - [ ] `transactions/new` route file + hidden `Tabs.Screen` registration removed (no dead routes)
 - [ ] Builder contract tests updated to the new URL (superseded contract, flagged in commit)
 - [ ] Full suite green (Home touched)
+
+**Tests**: unit (builder contract) + none (Home wiring per matrix)
+**Gate**: full
+
+---
+
+### T21: Widget eye toggles hide-amounts via link param — ✅ Complete
+
+**What**: Eye buttons deep-link Home with `?hideData=true`; Home calls the existing `handleHideData` toggle and clears the param.
+**Where**: `SmartFinances/src/screens/Home/index.tsx`
+**Depends on**: T20
+**Reuses**: `handleHideData` (API + MMKV + store) unchanged
+**Requirement**: WDG-21, WDG-33 (eye-tap flow)
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Home handles `hideData=true` exactly like the T20 param (call toggle, clear param, repeat taps re-fire)
+- [ ] Builder + Swift + Kotlin `hideData` URLs all equal `com.vap.smartfinances://?hideData=true`
+- [ ] iOS eye destinations (Overview Small, Patrimony Small) point at the hide URL
+- [ ] Android eye affordances (Overview Small A/B, Patrimony) point at the hide URL
+- [ ] Builder contract tests cover the new URL; full suite green
 
 **Tests**: unit (builder contract) + none (Home wiring per matrix)
 **Gate**: full

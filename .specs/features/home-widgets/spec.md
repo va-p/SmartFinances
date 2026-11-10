@@ -51,6 +51,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Android Medium cash-flow orientation | Horizontal bars per the Android mock; iOS Medium uses vertical diverging bars | Layouts deliberately differ per platform for the Medium cash-flow chart | n |
 | Currency formatting | Snapshot carries pre-formatted pt-BR strings from `formatCurrency` plus raw numbers; widgets display the strings as-is | Guarantees identical "R$ 27.540,00" / "102,48%" rendering without duplicating formatting natively | n |
 | Tap targets | Tapping a widget section deep-links into the matching app screen (budget row to budget detail, + to add transaction, Relatórios to Overview/Reports, header to section home) | User decision 2026-11-10: tap matrix accepted as proposed | y |
+| Eye toggle (T21 amendment 2026-11-10) | The eye opens Home with `?hideData=true`; Home calls the existing `handleHideData` toggle (API + store persist) and clears the param | Same param pattern as the T20 add-transaction flow; reuses the in-app toggle including its persistence | y |
 | Add-transaction entry (T20 amendment 2026-11-10) | The dedicated `transactions/new` route is removed (it redirected to Home instead of opening the form); + buttons link to Home with `?addTransaction=true`, and Home auto-opens the `RegisterTransaction` bottom sheet on that param, then clears it | The route fought the tab router on cold start; a param on the existing Home tab works warm and cold | y |
 | Minimum OS versions | iOS 17+ (WidgetKit, AppIntent configuration) and Android 8+ (AppWidgetProvider, Glance where available with RemoteViews fallback) | Covers the installed base while keeping one implementation path per platform | n |
 
@@ -188,6 +189,8 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 3. WHILE the user is signed out the system SHALL render the locked placeholder instead of any financial values.
 4. WHEN the OS requests a widget timeline refresh THEN the system SHALL return the latest snapshot in under 2 seconds without a network call.
 5. IF the snapshot is missing or corrupt THEN the system SHALL render the setup placeholder prompting to open the app.
+6. WHEN the user taps the eye button THEN the system SHALL deep-link to Home with `?hideData=true`.
+7. WHEN Home opens with `?hideData=true` THEN the system SHALL toggle hideAmount and clear the param.
 
 **Independent Test**: Go offline (stale data stays), sign out (locked placeholder), corrupt snapshot file (setup placeholder), then sign in and refresh (fresh values within 5s).
 

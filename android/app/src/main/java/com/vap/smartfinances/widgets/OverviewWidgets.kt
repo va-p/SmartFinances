@@ -34,6 +34,10 @@ private fun overviewViews(
       R.id.overview_header,
       BaseWidgetProvider.deepLinkIntent(context, BaseWidgetProvider.URL_OVERVIEW)
     )
+    setOnClickPendingIntent(
+      R.id.overview_eye,
+      BaseWidgetProvider.deepLinkIntent(context, BaseWidgetProvider.URL_HIDE_DATA)
+    )
     val name = overview.alertName
     val percent = overview.alertPercent
     if (name == null || percent == null) {

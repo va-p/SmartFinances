@@ -21,6 +21,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     const val URL_BUDGETS = "com.vap.smartfinances://budgets"
     const val URL_ADD_TRANSACTION = "com.vap.smartfinances://?addTransaction=true"
+    const val URL_HIDE_DATA = "com.vap.smartfinances://?hideData=true"
     const val URL_OVERVIEW = "com.vap.smartfinances://overview"
     const val URL_ACCOUNTS = "com.vap.smartfinances://accounts"
 

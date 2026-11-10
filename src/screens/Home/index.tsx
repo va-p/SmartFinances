@@ -159,7 +159,10 @@ export function Home() {
   const firstDayOfMonth: boolean = isFirstDayOfMonth(new Date());
 
   const router = useRouter();
-  const widgetParams = useLocalSearchParams<{ addTransaction?: string }>();
+  const widgetParams = useLocalSearchParams<{
+    addTransaction?: string;
+    hideData?: string;
+  }>();
 
   // Animated header, chart and insights container
   const scrollY = useSharedValue(0);
@@ -386,6 +389,8 @@ export function Home() {
     }
   }, [widgetParams.addTransaction, router]);
 
+
+
   async function handleHideData() {
     try {
       const { status } = await api.patch(`user/${userID}/configs`, {
@@ -406,6 +411,15 @@ export function Home() {
   function handleHideCashFlowInsights() {
     setShowInsights(false);
   }
+
+  // Widget eye deep link: toggle hide-amounts via the existing handler
+  // (WDG-21/WDG-33). Same param lifecycle as the add-transaction flow.
+  useEffect(() => {
+    if (widgetParams.hideData === 'true') {
+      handleHideData();
+      router.setParams({ hideData: undefined });
+    }
+  }, [widgetParams.hideData, router]);
 
   function renderEmpty() {
     return <ListEmptyComponent />;

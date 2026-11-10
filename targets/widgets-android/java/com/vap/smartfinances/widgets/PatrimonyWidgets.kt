@@ -18,6 +18,12 @@ private fun patrimonyViews(
       R.id.patrimony_header,
       BaseWidgetProvider.deepLinkIntent(context, BaseWidgetProvider.URL_ACCOUNTS)
     )
+    if (!withSpark) {
+      setOnClickPendingIntent(
+        R.id.patrimony_eye,
+        BaseWidgetProvider.deepLinkIntent(context, BaseWidgetProvider.URL_HIDE_DATA)
+      )
+    }
     if (withSpark) {
       setImageViewBitmap(
         R.id.patrimony_spark,

@@ -33,6 +33,13 @@ describe('buildWidgetDeepLink', () => {
     );
   });
 
+  // WDG-21 — eye toggles hide-amounts via the Home param flow.
+  it('builds the hide-data URL', () => {
+    expect(buildWidgetDeepLink({ type: 'hideData' })).toBe(
+      'com.vap.smartfinances://?hideData=true'
+    );
+  });
+
   // Unknown targets fall back to app home (never a dead tap)
   it('falls back to app home for unknown targets', () => {
     expect(buildWidgetDeepLink({ type: 'unknown-target' })).toBe(

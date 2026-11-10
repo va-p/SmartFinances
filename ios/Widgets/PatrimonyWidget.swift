@@ -9,7 +9,7 @@ struct InstitutionRowView: View {
   // truncates, while the balance keeps every point it needs (WDG-48).
   var body: some View {
     GeometryReader { geometry in
-      HStack(spacing: 6) {
+      HStack(spacing: 2) {
         Image(systemName: "building.columns")
           .font(.caption)
           .foregroundStyle(WidgetTheme.accentOrange)
@@ -33,7 +33,7 @@ struct InstitutionRowView: View {
           .minimumScaleFactor(0.7)
       }
     }
-    .frame(height: 42)
+    .frame(height: 30)
     .padding(4)
     .background(WidgetTheme.innerCardBackground)
     .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -67,7 +67,7 @@ struct PatrimonyWidgetView: View {
             .clipped()
             .padding(.vertical, 4)
         } else {
-          Link(destination: URL(string: WidgetLinks.accounts)!) {
+          Link(destination: URL(string: WidgetLinks.hideData)!) {
             Image(systemName: "eye")
               .foregroundStyle(WidgetTheme.accentOrange)
           }

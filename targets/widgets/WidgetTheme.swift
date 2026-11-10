@@ -23,6 +23,7 @@ enum WidgetLinks {
   static let scheme = "com.vap.smartfinances"
   static let budgets = "\(scheme)://budgets"
   static let addTransaction = "\(scheme)://?addTransaction=true"
+  static let hideData = "\(scheme)://?hideData=true"
   static let overview = "\(scheme)://overview"
   static let accounts = "\(scheme)://accounts"
 
