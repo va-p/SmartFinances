@@ -128,7 +128,7 @@ struct OverviewEntry: TimelineEntry {
 }
 
 @available(iOS 17.0, *)
-struct OverviewSmallProvider: AppIntentTimelineProvider {
+struct OverviewProvider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> OverviewEntry {
     OverviewEntry(date: Date(), snapshot: nil, variant: .card)
   }
@@ -145,21 +145,45 @@ struct OverviewSmallProvider: AppIntentTimelineProvider {
 }
 
 @available(iOS 17.0, *)
-struct OverviewSmallWidget: Widget {
+struct OverviewGroupView: View {
+  @Environment(\.widgetFamily) private var family
+  var entry: OverviewEntry
+
+  var body: some View {
+    // The Variant A/B intent only affects Small; Medium/Large ignore it.
+    switch family {
+    case .systemLarge:
+      if let snapshot = entry.snapshot {
+        ControlPanelLargeView(entry: SnapshotEntry(date: entry.date, snapshot: snapshot))
+      }
+    case .systemMedium:
+      if let snapshot = entry.snapshot {
+        ControlPanelMediumView(entry: SnapshotEntry(date: entry.date, snapshot: snapshot))
+      }
+    default:
+      if let snapshot = entry.snapshot {
+        OverviewSmallView(snapshot: snapshot, variant: entry.variant)
+      }
+    }
+  }
+}
+
+@available(iOS 17.0, *)
+struct OverviewWidget: Widget {
   var body: some WidgetConfiguration {
     AppIntentConfiguration(
-      kind: "OverviewSmallWidget",
+      kind: "OverviewWidget",
       intent: OverviewVariantIntent.self,
-      provider: OverviewSmallProvider()
+      provider: OverviewProvider()
     ) { entry in
       if let snapshot = entry.snapshot, snapshot.signedIn {
-        OverviewSmallView(snapshot: snapshot, variant: entry.variant)
+        OverviewGroupView(entry: entry)
       } else {
         LockedWidgetView()
       }
     }
     .configurationDisplayName("Overview")
-    .description("Patrimônio total e orçamento crítico.")
-    .supportedFamilies([.systemSmall])
+    .description("Patrimônio, orçamento crítico e atalhos em três tamanhos.")
+    .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
   }
 }

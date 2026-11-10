@@ -69,7 +69,7 @@ T8 -> T9 -> T10 -> T11 -> T12
 iOS + Android in each task; device QA by user after.
 
 ```
-T13 -> T14 -> T15
+T13 -> T14 -> T15 -> T16
 ```
 
 Cross-phase dependencies (backward only):
@@ -78,6 +78,7 @@ Cross-phase dependencies (backward only):
 T12 -> T13
 T13 -> T14
 T14 -> T15
+T15 -> T16
 ```
 
 ---
@@ -463,6 +464,31 @@ T14 -> T15
 - [ ] iOS Medium: chart fills right-side full height, + overlaid bottom-right, left totals vertically centered
 - [ ] Android Small/Medium match the same fixes
 - [ ] `swiftc -typecheck` clean
+
+**Tests**: none (matrix: native UI - build gate + device QA)
+**Gate**: build
+
+---
+
+### T16: Overview single widget (3 families, one kind) — ✅ Complete
+
+**What**: Merge the three Overview widgets into one `OverviewWidget` kind with Small/Medium/Large families (iOS); Android keeps three same-labeled providers.
+**Where**: `SmartFinances/targets/widgets/`
+**Depends on**: T15
+**Reuses**: Existing Small/Medium/Large views unchanged; provider already carries the variant
+**Requirement**: WDG-42
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] iOS gallery shows one "Overview" entry with 3 size variations; Small honors the Variant A/B intent, Medium/Large ignore it
+- [ ] `OverviewSmallWidget`/`OverviewMediumWidget`/`OverviewLargeWidget` structs removed; `OverviewWidget` kind with all three families
+- [ ] `swiftc -typecheck` clean + workspace Release build green
+- [ ] Android untouched (3 `Overview*` providers already group by label)
 
 **Tests**: none (matrix: native UI - build gate + device QA)
 **Gate**: build

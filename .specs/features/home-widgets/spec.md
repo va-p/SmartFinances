@@ -110,7 +110,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 **Acceptance Criteria**:
 
 1. WHEN the Overview group renders THEN the system SHALL show exactly three variations titled "Overview": Small (2x2, Variant A/B), Medium (4x2), Large (4x4).
-2. The system SHALL use consistent internal IDs `OverviewSmallWidget`, `OverviewMediumWidget`, `OverviewLargeWidget` (iOS kinds) and matching Android providers.
+2. The system SHALL implement the group as a single widget: iOS kind `OverviewWidget` with supported families Small/Medium/Large (one gallery entry, variant intent applying to Small); Android keeps three same-labeled `Overview*` providers (one listing per size, the closest the platform offers).
 3. WHEN the Medium or Large variation renders THEN the system SHALL show the former Control Panel content unchanged (critical card, sparkline, donut, labeled actions).
 
 **Independent Test**: Gallery shows one "Overview" entry with 3 sizes; Medium/Large render the ex-Control Panel content under the Overview title.
@@ -266,7 +266,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | WDG-39 | P2: Missing/corrupt snapshot placeholder | Implementing | T8 ✅ (nil decode → Locked) |
 | WDG-40 | P3: Dark-theme fidelity | Implementing | T8 ✅, T9 pending |
 | WDG-41 | P3: Long-name truncation | Implementing | T8 ✅, T9 pending |
-| WDG-42 | P1: Overview single group, 3 variations, consistent IDs | Implementing | T13 ✅ (QA T12) |
+| WDG-42 | P1: Overview single group, 3 variations, consistent IDs | Implementing | T13, T16 ✅ (QA T12) |
 | WDG-43 | P1: Budgets Medium fits 169pt (compact rows, smaller fonts) | Implementing | T14 ✅ (QA T12) |
 | WDG-44 | P1: Cash-flow Small fits 2x2 (scaled text, flexible chart, 40pt button) | Implementing | T15 ✅ (QA T12) |
 | WDG-45 | P1: Cash-flow Medium alignment per to-be mock | Implementing | T15 ✅ (QA T12) |

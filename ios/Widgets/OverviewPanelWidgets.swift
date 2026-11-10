@@ -185,34 +185,4 @@ struct ControlPanelLargeView: View {
   }
 }
 
-@available(iOS 17.0, *)
-struct OverviewMediumWidget: Widget {
-  var body: some WidgetConfiguration {
-    StaticConfiguration(kind: "OverviewMediumWidget", provider: SnapshotTimelineProvider()) { entry in
-      if let snapshot = entry.snapshot, snapshot.signedIn {
-        ControlPanelMediumView(entry: entry)
-      } else {
-        LockedWidgetView()
-      }
-    }
-    .configurationDisplayName("Overview")
-    .description("Patrimônio total com orçamento crítico e atalhos.")
-    .supportedFamilies([.systemMedium])
-  }
-}
 
-@available(iOS 17.0, *)
-struct OverviewLargeWidget: Widget {
-  var body: some WidgetConfiguration {
-    StaticConfiguration(kind: "OverviewLargeWidget", provider: SnapshotTimelineProvider()) { entry in
-      if let snapshot = entry.snapshot, snapshot.signedIn {
-        ControlPanelLargeView(entry: entry)
-      } else {
-        LockedWidgetView()
-      }
-    }
-    .configurationDisplayName("Overview")
-    .description("Patrimônio, evolução e despesas por categoria.")
-    .supportedFamilies([.systemLarge])
-  }
-}

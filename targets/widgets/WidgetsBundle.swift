@@ -7,9 +7,7 @@ struct WidgetsBundle: WidgetBundle {
   var body: some Widget {
     BudgetsWidget()
     CashFlowWidget()
-    OverviewSmallWidget()
-    OverviewMediumWidget()
-    OverviewLargeWidget()
+    OverviewWidget()
     PatrimonyWidget()
   }
 }
