@@ -122,6 +122,15 @@ fun parseSnapshot(raw: String): WidgetSnapshot? {
       }
     }
 
+    val topCritical = mutableListOf<WidgetTopCritical>()
+    val topCriticalJson = overviewJson.optJSONArray("topCritical")
+    if (topCriticalJson != null) {
+      for (i in 0 until topCriticalJson.length()) {
+        val item = topCriticalJson.optJSONObject(i) ?: continue
+        topCritical.add(WidgetTopCritical(item.optString("name"), item.optString("percent")))
+      }
+    }
+
     WidgetSnapshot(
       version = json.optInt("version", 1),
       signedIn = json.optBoolean("signedIn"),
@@ -133,14 +142,6 @@ fun parseSnapshot(raw: String): WidgetSnapshot? {
         cashFlowJson.optString("expenses"),
         bars
       ),
-      val topCritical = mutableListOf<WidgetTopCritical>()
-      val topCriticalJson = overviewJson.optJSONArray("topCritical")
-      if (topCriticalJson != null) {
-        for (i in 0 until topCriticalJson.length()) {
-          val item = topCriticalJson.optJSONObject(i) ?: continue
-          topCritical.add(WidgetTopCritical(item.optString("name"), item.optString("percent")))
-        }
-      }
       overview = WidgetOverview(
         overviewJson.optString("total"),
         optNullableString(overviewJson, "alertName"),
