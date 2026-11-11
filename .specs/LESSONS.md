@@ -92,6 +92,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: WDG-25/donut + WDG-12/bars (spec)
 - last seen: 2026-11-10T01:35:01Z
 
+### L-018 - Native edits that cannot compile locally must be verified through the user's working build invocation before committing, never by inspection alone.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `native-kotlin` · harmful: 0
+- features: home-widgets
+- evidence: targets/widgets-android/java/com/vap/smartfinances/widgets/WidgetSnapshot.kt (native-kotlin)
+- last seen: 2026-11-11T19:13:20Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

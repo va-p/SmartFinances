@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 18,
+  "next_id": 19,
   "lessons": [
     {
       "id": "L-005",
@@ -238,6 +238,24 @@
       ],
       "created": "2026-11-10T01:35:01Z",
       "last_seen": "2026-11-10T01:35:01Z"
+    },
+    {
+      "id": "L-018",
+      "key": "gate_fail::native edits that cannot compile locally must be verified through the user s working build invocation before committing never by inspection alone",
+      "text": "Native edits that cannot compile locally must be verified through the user's working build invocation before committing, never by inspection alone.",
+      "signal": "gate_fail",
+      "scope": "native-kotlin",
+      "status": "candidate",
+      "features": [
+        "home-widgets"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "targets/widgets-android/java/com/vap/smartfinances/widgets/WidgetSnapshot.kt (native-kotlin)"
+      ],
+      "created": "2026-11-11T19:13:20Z",
+      "last_seen": "2026-11-11T19:13:20Z"
     }
   ]
 }
