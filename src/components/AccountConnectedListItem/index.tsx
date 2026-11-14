@@ -9,10 +9,8 @@ import {
   MainContent,
 } from './styles';
 
-import { ptBR } from 'date-fns/locale';
-import { format, parseISO } from 'date-fns';
-
 import { BankingIntegration } from '@interfaces/bankingIntegration';
+import { formatLastSyncDate } from '@utils/formatLastSyncDate';
 
 type Props = {
   data: BankingIntegration;
@@ -20,13 +18,7 @@ type Props = {
 };
 
 export function AccountConnectedListItem({ data, onPress = undefined }: Props) {
-  const formattedLastSyncDate = format(
-    parseISO(data.lastSyncDate),
-    'dd/MM/yyyy',
-    {
-      locale: ptBR,
-    }
-  );
+  const formattedLastSyncDate = formatLastSyncDate(data.lastSyncDate);
 
   return (
     <Container onPress={onPress}>

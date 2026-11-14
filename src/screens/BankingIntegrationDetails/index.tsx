@@ -14,9 +14,8 @@ import {
   openConnectSession,
 } from '@hooks/useOpeniConnect';
 
-import { ptBR } from 'date-fns/locale';
-import { format, parseISO } from 'date-fns';
 import { router, useLocalSearchParams } from 'expo-router';
+import { formatLastSyncDate } from '@utils/formatLastSyncDate';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
@@ -37,17 +36,10 @@ export function BankingIntegrationDetails() {
   const [updating, setUpdating] = useState(false);
   const { mutateAsync: createConnectSession } = useOpeniConnect();
 
-  const formattedLastSyncDate = useCallback(() => {
-    if (!bankingIntegration?.lastSyncDate) return '';
-
-    return format(
-      parseISO(bankingIntegration.lastSyncDate || ''),
-      'dd/MM/yyyy',
-      {
-        locale: ptBR,
-      }
-    );
-  }, [bankingIntegration]);
+  const formattedLastSyncDate = useCallback(
+    () => formatLastSyncDate(bankingIntegration?.lastSyncDate),
+    [bankingIntegration]
+  );
 
   async function handlePressUpdateAccount() {
     try {
