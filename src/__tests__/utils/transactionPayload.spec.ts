@@ -1,6 +1,7 @@
 import {
   buildTransferCreatePayload,
   buildTransferEditPayload,
+  canSelectTransferTab,
   convertToAccountCurrency,
   convertWithRate,
   getExchangeRate,
@@ -466,5 +467,40 @@ describe('normalizeTags', () => {
     expect(
       normalizeTags([{ tag_id: 'a' }, { id: 'b' }, 'c', 42, null] as any)
     ).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('canSelectTransferTab', () => {
+  it('allows the Transfer tab on create', () => {
+    expect(
+      canSelectTransferTab({ isEditing: false, storedType: undefined, relatedTransactionId: null })
+    ).toBe(true);
+  });
+
+  it('allows linked transfer legs to stay on the Transfer tab', () => {
+    expect(
+      canSelectTransferTab({ isEditing: true, storedType: 'TRANSFER_DEBIT', relatedTransactionId: 9 })
+    ).toBe(true);
+    expect(
+      canSelectTransferTab({ isEditing: true, storedType: 'TRANSFER_CREDIT', relatedTransactionId: 9 })
+    ).toBe(true);
+  });
+
+  it('allows converting an unlinked plain leg (imported or manual)', () => {
+    expect(
+      canSelectTransferTab({ isEditing: true, storedType: 'DEBIT', relatedTransactionId: null })
+    ).toBe(true);
+    expect(
+      canSelectTransferTab({ isEditing: true, storedType: 'CREDIT', relatedTransactionId: undefined })
+    ).toBe(true);
+  });
+
+  it('blocks plain legs that already carry a link and unknown types', () => {
+    expect(
+      canSelectTransferTab({ isEditing: true, storedType: 'DEBIT', relatedTransactionId: 9 })
+    ).toBe(false);
+    expect(
+      canSelectTransferTab({ isEditing: true, storedType: 'FUTURE_TYPE', relatedTransactionId: null })
+    ).toBe(false);
   });
 });

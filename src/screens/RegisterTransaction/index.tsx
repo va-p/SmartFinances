@@ -50,6 +50,7 @@ import {
 import {
   buildTransferCreatePayload,
   buildTransferEditPayload,
+  canSelectTransferTab,
   convertWithRate,
   getExchangeRate,
   normalizeTags,
@@ -642,15 +643,16 @@ export function RegisterTransaction({
         break;
     }
 
-    // Converting a plain transaction into a transfer on edit is not
-    // supported (the backend only creates counterparts at transfer creation
-    // time — see spec.md TR-4). Keep the edit tab on the stored type.
+    // Converting a plain leg into a transfer on edit is supported for
+    // unlinked legs (the backend creates and links the counterpart — openi
+    // T11). Linked-but-plain rows are inconsistent data and stay blocked.
     if (
       tabIdx === 1 &&
-      id !== '' &&
-      transactionData &&
-      transactionData.type !== 'TRANSFER_CREDIT' &&
-      transactionData.type !== 'TRANSFER_DEBIT'
+      !canSelectTransferTab({
+        isEditing: id !== '',
+        storedType: transactionData?.type,
+        relatedTransactionId: relatedTransactionID,
+      })
     ) {
       Alert.alert(
         'Edição de Transação',

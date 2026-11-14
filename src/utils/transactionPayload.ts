@@ -320,6 +320,29 @@ export function resolveTransactionTab(
 }
 
 /**
+ * Whether the Transfer tab can be selected while editing (openi T16).
+ * Linked transfer legs stay convertible (they remain transfers), and an
+ * unlinked plain CREDIT/DEBIT leg — including imported bank legs — may be
+ * converted: the edit then sends the transfer payload and the backend
+ * creates and links the missing counterpart (T11). A plain leg that
+ * already carries a link is inconsistent data and stays blocked.
+ */
+export function canSelectTransferTab(input: {
+  isEditing: boolean;
+  storedType: string | undefined;
+  relatedTransactionId: number | string | null | undefined;
+}): boolean {
+  if (!input.isEditing) return true;
+  if (input.storedType === 'TRANSFER_CREDIT' || input.storedType === 'TRANSFER_DEBIT') {
+    return true;
+  }
+  const isPlain = input.storedType === 'CREDIT' || input.storedType === 'DEBIT';
+  const isUnlinked =
+    input.relatedTransactionId === null || input.relatedTransactionId === undefined;
+  return isPlain && isUnlinked;
+}
+
+/**
  * TR-4/TR-6 edit contract: `updateRelated: true` plus the counterpart fields.
  * The primary leg keeps its stored type; the counterpart is always the
  * opposite and lives in the destination account. Per-leg `exchange_rate`
