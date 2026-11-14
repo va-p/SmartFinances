@@ -1435,7 +1435,9 @@ export function RegisterTransaction({
       setAccountName(transactionData.account.name);
       setAccountCurrency(transactionData.account.currency);
       setAccountType(transactionData.account.type);
-      const parsedDate = new Date(transactionData.created_at);
+      const parsedDate = new Date(
+        transactionData.transaction_date ?? transactionData.created_at
+      );
       setDate(parsedDate);
       setValue('description', transactionData.description);
       setTagsSelected(transactionData.tags);

@@ -393,3 +393,54 @@ describe('processTransactions', () => {
     expect(groupedTransactions[0].data).toHaveLength(2);
   });
 });
+
+describe('processTransactions with transaction_date (imported transactions)', () => {
+  // Imported rows carry created_at = import time; the real date wins.
+  it('groups by transaction_date when present, ignoring a newer created_at', () => {
+    const { groupedTransactions } = processTransactions(
+      [
+        makeTransaction({
+          created_at: new Date().toISOString(),
+          transaction_date: '2026-08-10T12:00:00.000Z',
+        }),
+      ],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(groupedTransactions[0].title).toBe('10/08/2026');
+  });
+
+  // A transaction whose real date falls outside the selected period is
+  // filtered out even when created_at (import time) is inside it.
+  it('filters by transaction_date for the selected period', () => {
+    const { groupedTransactions } = processTransactions(
+      [
+        makeTransaction({
+          created_at: new Date().toISOString(),
+          transaction_date: '2026-07-10T12:00:00.000Z',
+        }),
+      ],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(groupedTransactions).toHaveLength(0);
+  });
+
+  // Old payloads without transaction_date keep the previous behavior.
+  it('falls back to created_at when transaction_date is absent', () => {
+    const { groupedTransactions } = processTransactions(
+      [makeTransaction()],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(groupedTransactions[0].title).toBe('18/08/2026');
+  });
+});

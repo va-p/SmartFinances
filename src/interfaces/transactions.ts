@@ -15,6 +15,8 @@ export type TransactionTypeProps =
 export interface TransactionProps {
   id: number;
   created_at: any;
+  /** Real (bank/actual) date; absent on old payloads — fall back to created_at. */
+  transaction_date?: any;
   description: string;
   amount: number;
   amount_formatted: string | number;

@@ -88,7 +88,7 @@ export const processTransactions = (
     // Ignore transfers
     if (!item.type || item.type.includes('TRANSFER')) return;
 
-    const transactionDate = toTransactionDate(item.created_at);
+    const transactionDate = toTransactionDate(item.transaction_date ?? item.created_at);
     if (!isValid(transactionDate)) return;
     if (transactionDate > now) return;
 
@@ -212,7 +212,7 @@ export const processTransactions = (
   const realizedForCashFlow: TransactionProps[] = [];
   const filteredTransactions = transactions.reduce(
     (acc: TransactionProps[], item) => {
-      const transactionDate = toTransactionDate(item.created_at);
+      const transactionDate = toTransactionDate(item.transaction_date ?? item.created_at);
       if (
         !isValid(transactionDate) ||
         !isDateInSelectedPeriod(transactionDate, selectedDate, period)

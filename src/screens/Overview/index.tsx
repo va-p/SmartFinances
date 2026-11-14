@@ -178,7 +178,7 @@ export function Overview() {
     // period revenue/expense totals; future rows never count.
     const now = new Date();
     const transactionsBySelectedPeriod = transactions.filter((t) => {
-      const transactionDate = new Date(t.created_at);
+      const transactionDate = new Date(t.transaction_date ?? t.created_at);
       if (Number.isNaN(transactionDate.getTime())) return false;
       if (transactionDate > now) return false;
       return isDateInSelectedPeriod(
@@ -342,7 +342,7 @@ export function Overview() {
     const years = new Set<number>();
     if (selectedPeriod.period === 'years') {
       (transactions || []).forEach((transaction) => {
-        const transactionDate = new Date(transaction.created_at);
+        const transactionDate = new Date(transaction.transaction_date ?? transaction.created_at);
         if (isValid(transactionDate)) {
           years.add(getYear(transactionDate));
         }
