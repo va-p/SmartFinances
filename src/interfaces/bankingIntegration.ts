@@ -59,16 +59,15 @@ export type ExecutionStatusTypes =
   | 'WAITING_USER_INPUT'
   | 'USER_AUTHORIZATION_PENDING';
 
-// BankingIntegration is the integration on database (pluggy data + some internal data)
+// BankingIntegration is the integration on database (provider data + some internal data)
 export interface BankingIntegration {
   id: number;
   createdAt: number;
   userId: number;
-  pluggyIntegrationId: string; // uuid
+  provider: string;
+  providerIntegrationId: string; // uuid
   lastSyncDate: string;
-  health: HealthTypes;
   status: StatusTypes;
-  executionStatus: ExecutionStatusTypes;
   connectorId: string;
   bankName: string;
   access_status: AccessStatus;
