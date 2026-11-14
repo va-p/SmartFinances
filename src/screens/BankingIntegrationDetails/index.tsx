@@ -16,7 +16,7 @@ import {
 
 import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
@@ -53,7 +53,15 @@ export function BankingIntegrationDetails() {
     try {
       setUpdating(true);
       const session = await createConnectSession(BANKING_CALLBACK_URL);
-      await openConnectSession(session.connectUrl);
+      const params = await openConnectSession(session.connectUrl);
+      if (!params) {
+        setUpdating(false);
+        return; // user dismissed the session
+      }
+      router.navigate({
+        pathname: '/banking-callback',
+        params: { itemId: params.itemId, status: params.status },
+      });
     } catch (error) {
       Alert.alert(
         'Erro',

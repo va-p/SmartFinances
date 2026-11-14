@@ -116,7 +116,12 @@ export function BankingIntegrations() {
     try {
       setLoading(true);
       const session = await createConnectSession(BANKING_CALLBACK_URL);
-      await openConnectSession(session.connectUrl);
+      const params = await openConnectSession(session.connectUrl);
+      if (!params) return; // user dismissed the session
+      router.navigate({
+        pathname: '/banking-callback',
+        params: { itemId: params.itemId, status: params.status },
+      });
     } catch (error) {
       Alert.alert(
         'Erro',
