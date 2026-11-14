@@ -43,11 +43,6 @@ export const LastSyncDate = styled.Text<Props>`
     `};
 `;
 
-export const PluggyConnectContainer = styled.View`
-  flex: 1;
-  padding-bottom: 56px;
-`;
-
 export const Footer = styled.View`
   width: 100%;
   position: absolute;

@@ -5,17 +5,18 @@ import {
   Container,
   Footer,
   LastSyncDate,
-  PluggyConnectContainer,
 } from './styles';
 
 // Hooks
 import { useBankingIntegrationDetailQuery } from '@hooks/useBankingIntegrationDetailQuery';
+import {
+  useOpeniConnect,
+  openConnectSession,
+} from '@hooks/useOpeniConnect';
 
 import { ptBR } from 'date-fns/locale';
 import { format, parseISO } from 'date-fns';
-// import { OneSignal } from 'react-native-onesignal';
-import { router, useLocalSearchParams } from 'expo-router';
-import { PluggyConnect } from 'react-native-pluggy-connect';
+import { useLocalSearchParams } from 'expo-router';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
@@ -24,20 +25,20 @@ import { Gradient } from '@components/Gradient';
 
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
+import { BANKING_CALLBACK_URL } from '@utils/openiConnect';
+
 export function BankingIntegrationDetails() {
-  const {
-    bankingIntegrationID,
-    connectToken: token,
-  }: { bankingIntegrationID: string; connectToken: string } =
+  const { bankingIntegrationID }: { bankingIntegrationID: string } =
     useLocalSearchParams();
 
   const { data: bankingIntegration, isLoading } =
     useBankingIntegrationDetailQuery(bankingIntegrationID);
 
-  const [showModal, setShowModal] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const { mutateAsync: createConnectSession } = useOpeniConnect();
 
   const formattedLastSyncDate = useCallback(() => {
-    if (!bankingIntegration) return '';
+    if (!bankingIntegration?.lastSyncDate) return '';
 
     return format(
       parseISO(bankingIntegration.lastSyncDate || ''),
@@ -50,38 +51,18 @@ export function BankingIntegrationDetails() {
 
   async function handlePressUpdateAccount() {
     try {
-      setShowModal(true);
+      setUpdating(true);
+      const session = await createConnectSession(BANKING_CALLBACK_URL);
+      await openConnectSession(session.connectUrl);
     } catch (error) {
       Alert.alert(
         'Erro',
-        'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
+        'Não foi possível abrir a atualização da conexão. Por favor, tente novamente.'
       );
+    } finally {
+      setUpdating(false);
     }
   }
-
-  function handleOnSuccess() {
-    Alert.alert(
-      'Suas integrações bancárias estão sendo atualizadas...',
-      'Em alguns minutos o processo será finalizado!',
-      [
-        {
-          text: 'OK',
-          onPress: () => router.back(),
-        },
-      ]
-    );
-  }
-
-  function handleOnError() {
-    Alert.alert(
-      'Erro',
-      'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
-    );
-  }
-
-  const handleOnClose = useCallback(() => {
-    setShowModal(false);
-  }, []);
 
   if (isLoading) {
     return <SkeletonAccountsScreen />;
@@ -99,60 +80,28 @@ export function BankingIntegrationDetails() {
           />
         </Header.Root>
 
-        {token && showModal && (
-          <PluggyConnectContainer>
-            <PluggyConnect
-              connectToken={token}
-              updateItem={bankingIntegration?.pluggyIntegrationId}
-              includeSandbox={false}
-              connectorTypes={[]}
-              onClose={handleOnClose}
-              onSuccess={() => handleOnSuccess()}
-              onError={() => handleOnError()}
-              allowFullscreen
-              theme='dark'
-            />
-          </PluggyConnectContainer>
-        )}
+        <AccountName isTitle={false}>
+          Instituição Financeira:{' '}
+          <AccountName isTitle>{bankingIntegration?.bankName}</AccountName>
+        </AccountName>
+        <LastSyncDate isTitle={false}>
+          Data da últ. sincronização bem sucedida:{' '}
+          <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
+        </LastSyncDate>
 
-        {!showModal && (
-          <>
-            <AccountName isTitle={false}>
-              Instituição Financeira:{' '}
-              <AccountName isTitle>{bankingIntegration?.bankName}</AccountName>
-            </AccountName>
-            <LastSyncDate isTitle={false}>
-              Data da últ. sincronização bem sucedida:{' '}
-              <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
-            </LastSyncDate>
+        <AccountName isTitle={false}>
+          Status da integração:{' '}
+          <AccountName isTitle>{bankingIntegration?.status}</AccountName>{' '}
+        </AccountName>
 
-            <AccountName isTitle={false}>
-              Saúde da conexão com a Inst. Financeira:{' '}
-              <AccountName isTitle>{bankingIntegration?.health}</AccountName>{' '}
-              {/** TODO: Adc func. para tratar textos */}
-            </AccountName>
-
-            <AccountName isTitle={false}>
-              Status da integração:{' '}
-              <AccountName isTitle>{bankingIntegration?.status}</AccountName>{' '}
-              {/** TODO: Adc func. para tratar textos */}
-            </AccountName>
-
-            <AccountName isTitle={false}>
-              Status da última sincronização:{' '}
-              <AccountName isTitle>
-                {bankingIntegration?.executionStatus}
-              </AccountName>{' '}
-              {/** TODO: Adc func. para tratar textos */}
-            </AccountName>
-
-            <Footer>
-              <Button.Root onPress={() => handlePressUpdateAccount()}>
-                <Button.Text text="Atualizar conexão" />
-              </Button.Root>
-            </Footer>
-          </>
-        )}
+        <Footer>
+          <Button.Root
+            onPress={() => handlePressUpdateAccount()}
+            disabled={updating}
+          >
+            <Button.Text text={updating ? 'Abrindo...' : 'Atualizar conexão'} />
+          </Button.Root>
+        </Footer>
       </Container>
     </Screen>
   );

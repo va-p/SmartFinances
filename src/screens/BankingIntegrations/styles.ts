@@ -7,9 +7,4 @@ export const Container = styled.View`
   background-color: ${({ theme }) => theme.colors.background};
 `;
 
-export const PluggyConnectContainer = styled.View`
-  flex: 1;
-  padding-bottom: 56px;
-`;
-
 export const ConnectedAccountsList = styled.FlatList``;

@@ -43,10 +43,7 @@ export function AccountConnectedListItem({ data, onPress = undefined }: Props) {
       </MainContent>
 
       <StatusContainer>
-        <ConnectionStatus
-          status={data.status}
-          executionStatus={data.executionStatus}
-        />
+        <ConnectionStatus status={data.status} />
       </StatusContainer>
     </Container>
   );
