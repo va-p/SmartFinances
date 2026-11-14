@@ -15,6 +15,19 @@ export type StatusTypes =
   | 'OUTDATED'
   | 'UPDATED';
 
+export interface BankingIntegrationAccount {
+  id: number;
+  name: string;
+  type: string;
+  subtype?: string | null;
+  balance: number;
+  currency: {
+    code: string;
+    symbol: string;
+  };
+  providerAccountId?: string | null;
+}
+
 // BankingIntegration is the integration on database (provider data + some internal data)
 export interface BankingIntegration {
   id: number;
@@ -26,5 +39,7 @@ export interface BankingIntegration {
   status: StatusTypes;
   connectorId: string;
   bankName: string;
+  bankImageUrl?: string | null;
+  accounts?: BankingIntegrationAccount[];
   access_status: AccessStatus;
 }
