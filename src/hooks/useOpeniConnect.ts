@@ -8,8 +8,10 @@ export interface OpeniConnectSession {
   expiresAt: string;
 }
 
-async function fetchConnectSession(): Promise<OpeniConnectSession> {
-  const { data } = await api.get('/banking-integration/connect');
+async function fetchConnectSession(redirectUrl?: string): Promise<OpeniConnectSession> {
+  const { data } = await api.get('/banking-integration/connect', {
+    params: redirectUrl ? { redirectUrl } : undefined,
+  });
   return data;
 }
 

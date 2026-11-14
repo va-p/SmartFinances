@@ -10,6 +10,7 @@ import { useTheme } from 'styled-components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { useOpeniConnect, openConnectSession } from '@hooks/useOpeniConnect';
+import { BANKING_CALLBACK_URL } from '@utils/openiConnect';
 
 import { canCreateConnection } from '@utils/benefitsLimits';
 import { useBenefits } from '@stores/benefitsStorage';
@@ -114,7 +115,7 @@ export function BankingIntegrations() {
 
     try {
       setLoading(true);
-      const session = await createConnectSession();
+      const session = await createConnectSession(BANKING_CALLBACK_URL);
       await openConnectSession(session.connectUrl);
     } catch (error) {
       Alert.alert(

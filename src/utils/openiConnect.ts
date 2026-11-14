@@ -12,6 +12,22 @@ export interface BankingCallbackParams {
   status: 'success' | 'error';
 }
 
+/** Deep-link target the backend uses as the widget `redirectUrl`. */
+export const BANKING_CALLBACK_URL = 'com.vap.smartfinances://banking-callback';
+
+/**
+ * Validate raw `itemId`/`status` query params (expo-router delivers them
+ * decoded already). Same acceptance rules as `parseBankingCallback`.
+ */
+export function validateCallbackParams(
+  itemId: unknown,
+  status: unknown
+): BankingCallbackParams | null {
+  if (typeof itemId !== 'string' || !itemId) return null;
+  if (status !== 'success' && status !== 'error') return null;
+  return { itemId, status };
+}
+
 /**
  * Extract `itemId` and `status` from a banking-callback URL. Accepts the
  * custom-scheme deep link and https universal links alike; returns null
