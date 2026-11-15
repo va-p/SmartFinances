@@ -96,9 +96,9 @@ Three defects ship on `feat/openi-integration`: the iOS app crashes right after 
 | CRASH-01 | P1: crash | Execute | Verified |
 | CRASH-02 | P1: crash | Execute | Verified |
 | CRASH-03 | P1: crash | Execute | Verified |
-| DATE-01 | P1: dates | Execute | Pending |
-| DATE-02 | P1: dates | Execute | Pending |
-| DATE-03 | P1: dates | Execute | Pending |
+| DATE-01 | P1: dates | Execute | Verified |
+| DATE-02 | P1: dates | Execute | Verified |
+| DATE-03 | P1: dates | Execute | Verified |
 | CARD-01 | P2: labels | Execute | Verified |
 | CARD-02 | P2: labels | Execute | Verified |
 | CARD-03 | P2: labels | Execute | Verified |
@@ -107,7 +107,7 @@ Three defects ship on `feat/openi-integration`: the iOS app crashes right after 
 
 **Status values:** Pending → In Tasks → Implementing → Verified
 
-**Coverage:** 9 total, 0 mapped to tasks, 9 unmapped ⚠️
+**Coverage:** 9 total, 9 verified via gates below ✅
 
 ---
 
