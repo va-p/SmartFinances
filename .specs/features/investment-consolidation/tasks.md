@@ -128,7 +128,7 @@ T6 -> T7
 
 ### Phase 2: Group UI
 
-#### T3: Build InvestmentGroupListItem in Layout 2
+#### T3: Build InvestmentGroupListItem in Layout 2 ✅ Done
 
 **What**: Collapsible group row in the approved Financial-highlight layout.
 **Where**: `SmartFinances/src/components/InvestmentGroupListItem/index.tsx`
