@@ -4,7 +4,7 @@ import { ConnectedAccountsList, Container } from './styles';
 
 import axios from 'axios';
 import { useTheme } from 'styled-components';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { useOpeniConnect, openConnectSession } from '@hooks/useOpeniConnect';
 import { BANKING_CALLBACK_URL } from '@utils/openiConnect';
@@ -100,9 +100,14 @@ export function BankingIntegrations() {
     }
   }
 
-  useEffect(() => {
-    fetchBankingIntegrations();
-  }, []);
+  // Refetch on every focus (not only on mount): after deleting an
+  // integration in the details screen, back navigation would otherwise
+  // show the deleted row until a manual refresh.
+  useFocusEffect(
+    useCallback(() => {
+      fetchBankingIntegrations();
+    }, [])
+  );
 
   async function handlePressConnectNewAccount() {
     if (!canConnect) {
