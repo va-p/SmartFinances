@@ -315,9 +315,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] No new util logic; single pre-filter line plus passing the filtered array to `calculateRealizedTotalAssets`, the period filter, and `buildNetWorthEvolution`
-- [ ] Behavior asserted at the util layer (T4/T5/T7); no new screen test file (per matrix screen-wiring layer)
-- [ ] Gate check passes: Build gate (frontend full jest + scoped eslint on the touched file)
+- [x] No new util logic; single pre-filter line plus passing the filtered array to `calculateRealizedTotalAssets`, the period filter, and `buildNetWorthEvolution`
+- [x] Behavior asserted at the util layer (T4/T5/T7); no new screen test file (per matrix screen-wiring layer)
+- [x] Gate check passes: Build gate (frontend full jest + scoped eslint on the touched file)
 
 **Tests**: none
 **Gate**: build
