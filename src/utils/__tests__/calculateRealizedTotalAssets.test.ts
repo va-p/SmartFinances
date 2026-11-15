@@ -153,4 +153,23 @@ describe('calculateRealizedTotalAssets', () => {
     // 100 USD x 5 = 500 BRL backed out of the 1000 balance sum
     expect(total).toBe(500);
   });
+
+  // HIDE-03 — a future flow on a hidden account no longer moves the realized total
+  it('ignores a future flow on a hidden account', () => {
+    const total = calculateRealizedTotalAssets({
+      accounts: [makeAccount({ balance: 1000 })],
+      transactions: [
+        makeTransaction({
+          created_at: futureIso,
+          amount: 500,
+          account: { currency: { code: 'BRL' }, hide: true },
+        }),
+      ],
+      baseCurrencyCode: 'BRL',
+      quotes,
+      now,
+    });
+
+    expect(total).toBe(1000);
+  });
 });

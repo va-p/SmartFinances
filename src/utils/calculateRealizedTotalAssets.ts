@@ -4,6 +4,7 @@ import { CurrencyCodes } from '@interfaces/currencies';
 import { AccountProps } from '@interfaces/accounts';
 import { TransactionProps } from '@interfaces/transactions';
 import { calculateTotalAssets } from '@utils/calculateTotalAssets';
+import { isHiddenAccountTransaction } from '@utils/hiddenAccounts';
 import { convertToBaseCurrency, Quotes } from '@utils/baseCurrency';
 
 type Props = {
@@ -49,6 +50,9 @@ export function calculateRealizedTotalAssets({
 
     const accountCurrency = transaction.account?.currency?.code;
     if (!accountCurrency) return;
+
+    // HIDE-03 — hidden-account future flows never move the realized total.
+    if (isHiddenAccountTransaction(transaction)) return;
 
     const converted = convertToBaseCurrency(
       Math.abs(

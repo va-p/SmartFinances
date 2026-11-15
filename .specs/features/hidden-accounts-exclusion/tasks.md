@@ -210,9 +210,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] A future transaction on a hidden account no longer moves the realized total
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/calculateRealizedTotalAssets.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥1 new hidden future-flow case, 0 failures
+- [x] A future transaction on a hidden account no longer moves the realized total
+- [x] Gate check passes: `yarn jest src/utils/__tests__/calculateRealizedTotalAssets.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥1 new hidden future-flow case, 0 failures
 
 **Tests**: unit
 **Gate**: quick
