@@ -39,8 +39,10 @@ export function GoalAccountSelect() {
     (state) => state.setGoalAccountsSelected
   );
 
+  // Hidden accounts are excluded too (HIDE-02): linking a hidden account to
+  // a goal would re-surface it in totals and lists.
   const selectableAccounts = (accounts ?? []).filter(
-    (account) => !account.isVirtual
+    (account) => !account.isVirtual && !account.hide
   );
 
   function handleToggleAccount(account: AccountProps) {

@@ -393,9 +393,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden accounts are not offered in GoalAccountSelect, RegisterGoalMovement, or GoalDetails destinations
-- [ ] Goal reserve (`isVirtual`) handling unchanged
-- [ ] Gate check passes: Build gate (frontend full jest proves no regressions; per matrix screen-wiring layer carries no unit tests)
+- [x] Hidden accounts are not offered in GoalAccountSelect, RegisterGoalMovement, or GoalDetails destinations
+- [x] Goal reserve (`isVirtual`) handling unchanged
+- [x] Gate check passes: Build gate (frontend full jest proves no regressions; per matrix screen-wiring layer carries no unit tests)
 
 **Tests**: none
 **Gate**: build

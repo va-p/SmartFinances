@@ -94,8 +94,12 @@ export function RegisterGoalMovement({
     useGoalWithdrawMutation();
 
   // Movements only run between the reserve and REAL accounts (GOAL-26).
+  // Hidden accounts are excluded too (HIDE-02).
   const selectableAccounts = useMemo(
-    () => (accountsData ?? []).filter((account) => !account.isVirtual),
+    () =>
+      (accountsData ?? []).filter(
+        (account) => !account.isVirtual && !account.hide
+      ),
     [accountsData]
   );
 
