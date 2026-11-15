@@ -6,60 +6,6 @@
   "next_id": 19,
   "lessons": [
     {
-      "id": "L-005",
-      "key": "surviving_mutant::boundary date tests alone do not discriminate period equality predicates pair an equal period key e g iso week 33 from a different period year 2025 vs 2026 and assert exclusion or dropping the year comparison survives the full suite",
-      "text": "Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.",
-      "signal": "surviving_mutant",
-      "scope": "src/utils",
-      "status": "candidate",
-      "features": [
-        "weekly-period-filter"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "src/utils/isDateInSelectedPeriod.ts:17 (src/utils)"
-      ],
-      "created": "2026-09-28T00:39:06Z",
-      "last_seen": "2026-09-28T00:39:06Z"
-    },
-    {
-      "id": "L-006",
-      "key": "ac_gap::when a task extracts a module to a shared path delete the old copy and re point every importer in the same commit then grep the tree to confirm only the shared path remains",
-      "text": "When a task extracts a module to a shared path, delete the old copy and re-point every importer in the same commit, then grep the tree to confirm only the shared path remains.",
-      "signal": "ac_gap",
-      "scope": "src/hooks",
-      "status": "candidate",
-      "features": [
-        "list-search"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)"
-      ],
-      "created": "2026-09-28T16:31:10Z",
-      "last_seen": "2026-09-28T16:31:10Z"
-    },
-    {
-      "id": "L-007",
-      "key": "surviving_mutant::screen wiring value faults mode guards optional prop values pass every automated gate because no gate renders screens verify screen wiring value by value against the precedent screen only missing required props are caught tsc",
-      "text": "Screen-wiring value faults (mode guards, optional prop values) pass every automated gate because no gate renders screens - verify screen wiring value-by-value against the precedent screen; only missing required props are caught (tsc)",
-      "signal": "surviving_mutant",
-      "scope": "frontend-screens",
-      "status": "candidate",
-      "features": [
-        "overview-period-ruler"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)"
-      ],
-      "created": "2026-09-29T02:01:35Z",
-      "last_seen": "2026-09-29T02:01:35Z"
-    },
-    {
       "id": "L-008",
       "key": "surviving_mutant::jest mocks of animation libraries must be behaviorally faithful stateful usesharedvalue via useref not per render re initialization or wiring tests silently pass without the wiring under test",
       "text": "Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.",

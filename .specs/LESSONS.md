@@ -14,24 +14,6 @@ _none_
 
 Seen once or not yet corroborated. Tracked, not trusted.
 
-### L-005 - Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `src/utils` · harmful: 0
-- features: weekly-period-filter
-- evidence: src/utils/isDateInSelectedPeriod.ts:17 (src/utils)
-- last seen: 2026-09-28T00:39:06Z
-
-### L-006 - When a task extracts a module to a shared path, delete the old copy and re-point every importer in the same commit, then grep the tree to confirm only the shared path remains.
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `src/hooks` · harmful: 0
-- features: list-search
-- evidence: SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)
-- last seen: 2026-09-28T16:31:10Z
-
-### L-007 - Screen-wiring value faults (mode guards, optional prop values) pass every automated gate because no gate renders screens - verify screen wiring value-by-value against the precedent screen; only missing required props are caught (tsc)
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-screens` · harmful: 0
-- features: overview-period-ruler
-- evidence: mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)
-- last seen: 2026-09-29T02:01:35Z
-
 ### L-008 - Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `jest-infra/react-native-reanimated` · harmful: 0
 - features: base-currency
