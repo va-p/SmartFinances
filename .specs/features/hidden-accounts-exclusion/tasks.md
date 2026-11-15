@@ -184,9 +184,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden rows contribute nothing to any period point; series still ends exactly at `totalAssets`
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/buildNetWorthEvolution.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
+- [x] Hidden rows contribute nothing to any period point; series still ends exactly at `totalAssets`
+- [x] Gate check passes: `yarn jest src/utils/__tests__/buildNetWorthEvolution.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
 
 **Tests**: unit
 **Gate**: quick

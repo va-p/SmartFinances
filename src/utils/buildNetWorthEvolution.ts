@@ -4,6 +4,7 @@ import { format, parse } from 'date-fns';
 
 import { CurrencyCodes } from '@interfaces/currencies';
 import { convertToBaseCurrency, Quotes } from '@utils/baseCurrency';
+import { isHiddenAccountTransaction } from '@utils/hiddenAccounts';
 
 type PeriodType = 'weeks' | 'months' | 'years' | 'all';
 
@@ -106,6 +107,9 @@ export function buildNetWorthEvolution({
     // (e.g., optimistic updates missing nested objects).
     const accountCurrency = transaction.account?.currency?.code;
     if (!accountCurrency) return;
+
+    // HIDE-03 — hidden-account flows leave the net-worth chart.
+    if (isHiddenAccountTransaction(transaction)) return;
 
     const rawAmount =
       transaction.amount_in_account_currency ?? transaction.amount;
