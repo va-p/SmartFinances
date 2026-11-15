@@ -341,9 +341,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden rows contribute nothing to widget cash-flow, net-worth spark, or category donut; visible rows byte-identical
-- [ ] Gate check passes: `yarn jest src/widgets/__tests__/buildWidgetSnapshot.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
+- [x] Hidden rows contribute nothing to widget cash-flow, net-worth spark, or category donut; visible rows byte-identical
+- [x] Gate check passes: `yarn jest src/widgets/__tests__/buildWidgetSnapshot.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
 
 **Tests**: unit
 **Gate**: quick
