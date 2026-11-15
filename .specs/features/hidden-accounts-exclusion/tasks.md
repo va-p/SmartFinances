@@ -367,9 +367,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden accounts are not selectable in AccountSelect, AccountFilterSelect, or AccountDestinationSelect
-- [ ] No other picker behavior changes (virtual filter, toggle logic untouched)
-- [ ] Gate check passes: Build gate (frontend full jest proves no regressions; per matrix screen-wiring layer carries no unit tests)
+- [x] Hidden accounts are not selectable in AccountSelect, AccountFilterSelect, or AccountDestinationSelect
+- [x] No other picker behavior changes (virtual filter, toggle logic untouched)
+- [x] Gate check passes: Build gate (frontend full jest proves no regressions; per matrix screen-wiring layer carries no unit tests)
 
 **Tests**: none
 **Gate**: build

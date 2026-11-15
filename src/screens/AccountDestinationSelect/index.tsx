@@ -49,8 +49,10 @@ export function AccountDestinationSelect({
   }
 
   // Virtual goal reserves are never offered as selectable accounts (GOAL-26).
+  // Hidden accounts are excluded too (HIDE-02): posting into a hidden
+  // account would re-surface it in totals and lists.
   const selectableAccounts = (accounts ?? []).filter(
-    (account) => !account.isVirtual
+    (account) => !account.isVirtual && !account.hide
   );
 
   return (
