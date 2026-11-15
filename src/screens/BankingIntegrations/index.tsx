@@ -10,6 +10,7 @@ import { useOpeniConnect, openConnectSession } from '@hooks/useOpeniConnect';
 import { BANKING_CALLBACK_URL } from '@utils/openiConnect';
 
 import { canCreateConnection } from '@utils/benefitsLimits';
+import { waitForNewIntegration } from '@utils/waitForNewIntegration';
 import { useBenefits } from '@stores/benefitsStorage';
 
 import { Screen } from '@components/Screen';
@@ -45,16 +46,15 @@ export function BankingIntegrations() {
 
   const { mutateAsync: createConnectSession } = useOpeniConnect();
 
+  async function loadIntegrations(): Promise<BankingIntegration[]> {
+    const response = await api.get('/banking-integration/');
+    return response.data ?? [];
+  }
+
   async function fetchBankingIntegrations() {
     try {
       setLoading(true);
-
-      const response = await api.get('/banking-integration/');
-
-      if (!!response.data && response.data.length > 0) {
-        const { data } = response;
-        setIntegrations(data);
-      }
+      setIntegrations(await loadIntegrations());
     } catch (error) {
       Alert.alert(
         'Erro',
@@ -115,11 +115,36 @@ export function BankingIntegrations() {
       return;
     }
 
+    // Ids known before opening the session, to detect a row bound while
+    // the Connect view was open (the backend binds via webhook).
+    const knownIds = new Set(integrations.map((item) => item.id));
+
     try {
       setLoading(true);
       const session = await createConnectSession(BANKING_CALLBACK_URL);
       const params = await openConnectSession(session.connectUrl);
-      if (!params) return; // user dismissed the session
+      if (!params) {
+        // No deep-link return (provider shows success/blank without
+        // redirecting, or the user closed the view): give a verdict based
+        // on reality instead of staying silent on a stale empty list.
+        const fresh = await waitForNewIntegration(
+          loadIntegrations,
+          knownIds
+        );
+        if (fresh) {
+          setIntegrations(fresh);
+          Alert.alert(
+            'Contas conectadas com sucesso!',
+            'A instituição financeira foi conectada e suas contas serão importadas!'
+          );
+        } else {
+          Alert.alert(
+            'Conexão bancária',
+            'Nenhuma nova conexão foi encontrada. Se você concluiu a autorização, aguarde a sincronização — as contas aparecem aqui automaticamente.'
+          );
+        }
+        return;
+      }
       router.navigate({
         pathname: '/banking-callback',
         params: { itemId: params.itemId, status: params.status },
@@ -218,6 +243,7 @@ export function BankingIntegrations() {
           ListFooterComponent={
             <Button.Root
               type='secondary'
+              testID='connect-new-account-button'
               onPress={() => handlePressConnectNewAccount()}
             >
               <Button.Text
