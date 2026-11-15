@@ -211,7 +211,7 @@ T6 -> T7
 
 ### Phase 3: Group destination and search
 
-#### T6: Add Account screen group mode
+#### T6: Add Account screen group mode ✅ Done
 
 **What**: Group-member list reusing the Account chrome; single mode untouched.
 **Where**: `SmartFinances/src/screens/Account/index.tsx`
