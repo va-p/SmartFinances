@@ -21,7 +21,19 @@ export const Container = styled(RectButtonAnimated)`
 export const AmountContainer = styled.View`
   flex-direction: row;
   align-items: flex-end;
+  justify-content: space-between;
   gap: 8px;
+`;
+
+export const AmountGroup = styled.View`
+  flex-direction: column;
+  gap: 4px;
+`;
+
+export const AmountLabel = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textPlaceholder};
 `;
 
 export const Amount = styled.Text`

@@ -2,6 +2,8 @@ import React from 'react';
 import {
   Amount,
   AmountContainer,
+  AmountGroup,
+  AmountLabel,
   Container,
   InstitutionName,
   Name,
@@ -28,12 +30,24 @@ export function CreditCardListItem({
   return (
     <Container entering={FadeInLeft.delay(index * 100)} {...rest}>
       <AmountContainer>
-        <Amount>{!hideAmount ? data.balance : '•••••'}</Amount>
-        {data.totalAccountAmountConverted && (
-          <Amount style={{ fontSize: 12 }}>
-            ({!hideAmount ? data.totalAccountAmountConverted : '•••••'})
+        <AmountGroup>
+          <AmountLabel>Fatura atual</AmountLabel>
+          <Amount>{!hideAmount ? data.balance : '•••••'}</Amount>
+          {data.totalAccountAmountConverted && (
+            <Amount style={{ fontSize: 12 }}>
+              ({!hideAmount ? data.totalAccountAmountConverted : '•••••'})
+            </Amount>
+          )}
+        </AmountGroup>
+
+        <AmountGroup>
+          <AmountLabel>Limite disponível</AmountLabel>
+          <Amount>
+            {!hideAmount
+              ? (data.creditData?.availableCreditLimit ?? '—')
+              : '•••••'}
           </Amount>
-        )}
+        </AmountGroup>
       </AmountContainer>
 
       <NameContainer>
