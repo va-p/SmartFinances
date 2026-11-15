@@ -157,10 +157,10 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden-account rows appear in neither `groupedTransactions` nor cash-flow/chart aggregates
-- [ ] Visible rows produce byte-identical output vs before the change
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/processTransactions.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥2 new hidden-row cases, 0 failures
+- [x] Hidden-account rows appear in neither `groupedTransactions` nor cash-flow/chart aggregates
+- [x] Visible rows produce byte-identical output vs before the change
+- [x] Gate check passes: `yarn jest src/utils/__tests__/processTransactions.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥2 new hidden-row cases, 0 failures
 
 **Tests**: unit
 **Gate**: quick
