@@ -236,9 +236,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden rows appear in no group and contribute 0 to every `rawTotal`
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/groupTransactionsByDate.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
+- [x] Hidden rows appear in no group and contribute 0 to every `rawTotal`
+- [x] Gate check passes: `yarn jest src/utils/__tests__/groupTransactionsByDate.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
 
 **Tests**: unit
 **Gate**: quick

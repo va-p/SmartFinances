@@ -2,6 +2,7 @@ import { TransactionProps } from '@interfaces/transactions';
 import { CurrencyCodes } from '@interfaces/currencies';
 import formatCurrency from '@utils/formatCurrency';
 import { convertToBaseCurrency, Quotes } from '@utils/baseCurrency';
+import { isHiddenAccountTransaction } from '@utils/hiddenAccounts';
 
 export interface GroupedTransactionProps {
   title: string;
@@ -29,6 +30,9 @@ const calculateGroupTotal = (
 
     if (isTransfer) return acc;
 
+    // HIDE-01/HIDE-03 — hidden-account rows leave day totals.
+    if (isHiddenAccountTransaction(transaction)) return acc;
+
     // BC-22 — the account-currency-denominated value, converted to the
     // base currency BEFORE summing (BC-21).
     const amountInAccountCurrency =
@@ -55,6 +59,9 @@ function groupTransactionsByDate(
   baseCurrencyCode: CurrencyCodes = 'BRL'
 ): GroupedTransactionProps[] {
   const groupsMap = transactions.reduce((acc, transaction) => {
+    // HIDE-01 — hidden-account rows appear in no group.
+    if (isHiddenAccountTransaction(transaction)) return acc;
+
     const dateKey = transaction.created_at;
 
     if (!acc.has(dateKey)) {
