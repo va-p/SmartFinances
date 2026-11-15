@@ -7,6 +7,8 @@ import {
   TotalBalanceDescription,
   AccountsList,
   SectionTitle,
+  SeeAllButton,
+  SeeAllText,
 } from './styles';
 
 // Hooks
@@ -17,6 +19,11 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
 import { filterSectionsByQuery } from '@utils/filterSectionsByQuery';
+import {
+  InvestmentAccount,
+  InvestmentGroup,
+  groupInvestments,
+} from '@utils/groupInvestments';
 
 // Dependencies
 import Decimal from 'decimal.js';
@@ -49,6 +56,7 @@ import { useCurrentInstitutionSelected } from '@stores/currentInstitutionSelecte
 import { AccountProps, AccountTypes } from '@interfaces/accounts';
 import { ThemeProps } from '@interfaces/theme';
 import { CreditCardListItem } from '@components/CreditCardListItem';
+import { InvestmentGroupListItem } from '@components/InvestmentGroupListItem';
 
 type SectionKey =
   | 'CHECKING'
@@ -102,6 +110,27 @@ function getSectionKey(account: AccountProps): SectionKey {
   return 'WALLET';
 }
 
+/**
+ * Stable short id for a group key (INV-03). The raw key carries `|` and
+ * mixed case, unsafe for the `[accountId]` route param; the djb2 hash
+ * keeps the URL compact. The full key travels in the store payload, so
+ * the hash is never reversed.
+ */
+function groupRouteHash(key: string): string {
+  let hash = 5381;
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) + hash + key.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(16);
+}
+
+function isInvestmentGroup(item: unknown): item is InvestmentGroup {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    (item as InvestmentGroup).members !== undefined
+  );
+}
 
 function EmptyList() {
   return <ListEmptyComponent text='Nenhuma conta encontrada nesta instituição' />;
@@ -116,6 +145,20 @@ export function InstitutionDetails() {
 
   // Search form (Home-screen pattern: query via react-hook-form)
   const [showSearchInput, setShowSearchInput] = useState(false);
+  // Expanded (collapsible) investment group keys (INV-01, Q1).
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  function toggleGroup(key: string) {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
   const { control, watch, reset } = useForm();
   const searchQuery = watch('search', '');
   const {
@@ -142,7 +185,11 @@ export function InstitutionDetails() {
 
   const processedData = useMemo(() => {
     if (!rawAccounts) {
-      return { totalBalanceFormatted: formatCurrency(baseCurrency.code, 0, false), sections: [] };
+      return {
+        totalBalanceFormatted: formatCurrency(baseCurrency.code, 0, false),
+        sections: [],
+        baseById: new Map<number, number>(),
+      };
     }
 
     // Filters the already-fetched accounts cache client-side by institution
@@ -179,6 +226,10 @@ export function InstitutionDetails() {
       SectionKey,
       ReturnType<typeof buildProcessedAccount>[]
     >();
+    // Numeric base-currency balance per account id for group headers.
+    // Processed balances are formatted strings, so the grouping sum
+    // reads from this lookup instead (same conversion path as totals).
+    const baseById = new Map<number, number>();
 
     institutionAccounts.forEach((account) => {
       const accountBalanceConvertedToBase = convertCurrency({
@@ -206,6 +257,8 @@ export function InstitutionDetails() {
         account,
         accountBalanceConvertedToBase
       );
+
+      baseById.set(Number(account.id), accountBalanceConvertedToBase);
 
       // Non-credit-card total, matching T20's institution card aggregation
       // (AC13.3) — recomputed here from the filtered list to avoid staleness
@@ -237,6 +290,7 @@ export function InstitutionDetails() {
         false
       ),
       sections,
+      baseById,
     };
   }, [
     rawAccounts,
@@ -256,12 +310,50 @@ export function InstitutionDetails() {
     usdQuoteBtc,
   ]);
 
-  const { totalBalanceFormatted, sections } = processedData;
+  const { totalBalanceFormatted, sections, baseById } = processedData;
 
   // Account filtering with search
   const filteredSections = useMemo(
     () => filterSectionsByQuery(sections, searchQuery, (account) => account.name),
     [sections, searchQuery]
+  );
+
+  // Same-product investment groups for the visible (filtered) list.
+  // The API payload carries investmentData at runtime (T1); the cast
+  // keeps AccountProps untouched until the type is widened.
+  const visibleInvestmentGroups = useMemo(() => {
+    const investments = filteredSections.find(
+      (section) => section.title === SECTION_TITLES.INVESTMENTS
+    );
+    if (!investments) {
+      return [];
+    }
+    const members = investments.data as unknown as InvestmentAccount[];
+    return groupInvestments(
+      members,
+      (account) => baseById.get(Number(account.id)) ?? 0
+    );
+  }, [filteredSections, baseById]);
+
+  // INVESTMENTS data becomes group headers for true repeats; singletons
+  // keep rendering exactly as today (user constraint: single rows and
+  // other sections are byte-identical).
+  const displaySections = useMemo(
+    () =>
+      filteredSections.map((section) => {
+        if (section.title !== SECTION_TITLES.INVESTMENTS) {
+          return section;
+        }
+        return {
+          ...section,
+          data: visibleInvestmentGroups.flatMap<
+            InvestmentGroup | InvestmentAccount
+          >((group) =>
+            group.count > 1 ? [group] : group.members
+          ) as unknown as AccountProps[],
+        };
+      }),
+    [filteredSections, visibleInvestmentGroups]
   );
 
   // Credit card carousel: sorted alphabetically by name,
@@ -318,6 +410,9 @@ export function InstitutionDetails() {
       accountCurrency: account.currency,
       accountBalance: String(account.balance),
       accountCreditData: account.creditData || null,
+      // Opening a single account always exits group mode (INV-03).
+      accountGroupKey: null,
+      accountGroupMemberIds: null,
     }));
     router.navigate({
       pathname: '/accounts/[accountId]',
@@ -325,11 +420,81 @@ export function InstitutionDetails() {
     });
   }
 
+  // Opens a group like any normal account (INV-03): the Account screen
+  // renders the member list in group mode (T6).
+  function handleOpenGroup(group: InvestmentGroup) {
+    const routeId = `group:${groupRouteHash(group.key)}`;
+    useCurrentAccountSelected.setState(() => ({
+      accountId: routeId,
+      accountName: group.label,
+      accountType: 'INVESTMENTS',
+      accountSubType: null,
+      accountCurrency: baseCurrency,
+      accountBalance: String(group.totalBalanceBase),
+      accountCreditData: null,
+      accountGroupKey: group.key,
+      accountGroupMemberIds: group.members.map((member) =>
+        String(member.id)
+      ),
+    }));
+    router.navigate({
+      pathname: '/accounts/[accountId]',
+      params: { id: routeId },
+    });
+  }
+
   type _renderItemProps = {
     item: AccountProps;
     index: number;
   };
+  function renderInvestmentGroup({
+    group,
+    index,
+  }: {
+    group: InvestmentGroup;
+    index: number;
+  }) {
+    const expanded = expandedGroups.has(group.key);
+    const preview = expanded ? group.members.slice(0, 3) : [];
+    return (
+      <>
+        <InvestmentGroupListItem
+          data={group}
+          index={index}
+          currencyCode={baseCurrency.code}
+          hideAmount={hideAmount}
+          expanded={expanded}
+          testID={`investment-group-${group.key}`}
+          onPress={() => toggleGroup(group.key)}
+        />
+        {preview.map((member, memberIndex) => (
+          <AccountListItem
+            key={String(member.id)}
+            data={member}
+            index={memberIndex}
+            icon={getAccountIcon(member.type)}
+            hideAmount={hideAmount}
+            testID={`investment-group-member-${member.id}`}
+            onPress={() => handleOpenAccount(member)}
+          />
+        ))}
+        {expanded && (
+          <SeeAllButton
+            testID="investment-group-see-all"
+            onPress={() => handleOpenGroup(group)}
+          >
+            <SeeAllText>
+              Ver todas as {group.count} contas
+            </SeeAllText>
+          </SeeAllButton>
+        )}
+      </>
+    );
+  }
   function renderItem({ item, index }: _renderItemProps) {
+    if (isInvestmentGroup(item)) {
+      return renderInvestmentGroup({ group: item, index });
+    }
     if (item.type !== 'CREDIT' && item.subtype !== 'CREDIT_CARD') {
       return (
         <AccountListItem
@@ -337,6 +502,7 @@ export function InstitutionDetails() {
           index={index}
           icon={getAccountIcon(item.type)}
           hideAmount={hideAmount}
+          testID={`account-row-${item.id}`}
           onPress={() => handleOpenAccount(item)}
         />
       );
@@ -396,8 +562,12 @@ export function InstitutionDetails() {
 
         <AccountsList>
           <SectionList
-            sections={filteredSections}
-            keyExtractor={(item) => String(item.id)}
+            sections={displaySections}
+            keyExtractor={(item) =>
+              String(
+                (item as unknown as InvestmentGroup).key ?? item.id
+              )
+            }
             renderItem={({ item, index }: _renderItemProps) =>
               renderItem({ item, index })}
             renderSectionHeader={({ section }) => (

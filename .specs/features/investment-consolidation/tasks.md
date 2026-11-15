@@ -181,7 +181,7 @@ T6 -> T7
 
 ---
 
-#### T5: Wire grouping into InstitutionDetails
+#### T5: Wire grouping into InstitutionDetails ✅ Done
 
 **What**: Grouped INVESTMENTS section with expand state and group navigation payload.
 **Where**: `SmartFinances/src/screens/InstitutionDetails/index.tsx`

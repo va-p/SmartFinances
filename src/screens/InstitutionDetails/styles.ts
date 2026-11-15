@@ -1,6 +1,8 @@
 import { ThemeProps } from '@interfaces/theme';
 import styled from 'styled-components/native';
 
+import { RectButton } from 'react-native-gesture-handler';
+
 export const Container = styled.View`
   flex: 1;
   padding: 16px 16px 0;
@@ -36,4 +38,18 @@ export const SectionTitle = styled.Text`
   font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeTitle};
   margin: 8px 0;
   color: ${({ theme }) => (theme as ThemeProps).colors.title};
+`;
+
+export const SeeAllButton = styled(RectButton)`
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  margin-bottom: 8px;
+  background-color: transparent;
+`;
+
+export const SeeAllText = styled.Text`
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.primary};
 `;
