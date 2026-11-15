@@ -262,10 +262,10 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] Hidden rows contribute 0 to `amount_spent`/`percentage` and never appear in `budget_transactions`
-- [ ] New regression assertion proves `formatTransactions` preserves `account.hide`
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/budgetCalculations.test.ts src/utils/__tests__/formatTransactions.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥2 new cases, 0 failures
+- [x] Hidden rows contribute 0 to `amount_spent`/`percentage` and never appear in `budget_transactions`
+- [x] New regression assertion proves `formatTransactions` preserves `account.hide`
+- [x] Gate check passes: `yarn jest src/utils/__tests__/budgetCalculations.test.ts src/utils/__tests__/formatTransactions.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥2 new cases, 0 failures
 
 **Tests**: unit
 **Gate**: quick

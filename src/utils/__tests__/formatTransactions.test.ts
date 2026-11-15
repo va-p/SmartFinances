@@ -107,4 +107,23 @@ describe('formatTransactions', () => {
     expect(mapped.amount).toBe(original.amount);
     expect(mapped.tags).toEqual(original.tags);
   });
+
+  // HIDE-06 — account.hide survives formatting so downstream guards keep working
+  it('preserves account.hide on the mapped transaction', () => {
+    const [mapped] = formatTransactions([
+      makeTransaction({
+        account: {
+          id: 13,
+          name: 'Nubank CC',
+          type: 'BANK',
+          currency: usd,
+          balance: 0,
+          initialAmount: null,
+          hide: true,
+        },
+      }),
+    ]);
+
+    expect(mapped.account.hide).toBe(true);
+  });
 });

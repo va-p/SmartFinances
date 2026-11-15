@@ -8,6 +8,7 @@ import {
 } from 'date-fns';
 import formatCurrency from '@utils/formatCurrency';
 import formatDatePtBr from '@utils/formatDatePtBr';
+import { excludeHiddenAccountTransactions } from '@utils/hiddenAccounts';
 import { BudgetProps, FormattedBudgetProps } from '@interfaces/budget';
 import { TransactionProps } from '@interfaces/transactions';
 
@@ -129,7 +130,9 @@ export function formatBudgetInfo(
 
   const { startDate, endDate } = periods[periods.length - 1];
 
-  const filteredTransactions = transactions.filter(
+  const filteredTransactions = excludeHiddenAccountTransactions(
+    transactions
+  ).filter(
     (transaction) =>
       budget.categories.find(
         (cat: any) => cat.category_id === transaction.category.id
