@@ -30,6 +30,13 @@ type CurrentAccountSelected = {
   setAccountTotalAmount: (accountTotalAmount: string | null) => void;
   accountCreditData: CreditDataProps | null;
   setAccountCreditData: (creditData: CreditDataProps) => void;
+  // Investment group navigation (INV-03): synthetic `group:<hash>` payload.
+  // Null in single-account mode; member screens use the real account id.
+  accountGroupKey: string | null;
+  setAccountGroupKey: (accountGroupKey: string | null) => void;
+  accountGroupMemberIds: string[] | null;
+  setAccountGroupMemberIds: (accountGroupMemberIds: string[] | null) => void;
+  clearAccountGroup: () => void;
 };
 
 export const useCurrentAccountSelected = create<CurrentAccountSelected>(
@@ -64,5 +71,13 @@ export const useCurrentAccountSelected = create<CurrentAccountSelected>(
     accountCreditData: null,
     setAccountCreditData: (creditData) =>
       set(() => ({ accountCreditData: creditData })),
+    accountGroupKey: null,
+    setAccountGroupKey: (accountGroupKey) =>
+      set(() => ({ accountGroupKey })),
+    accountGroupMemberIds: null,
+    setAccountGroupMemberIds: (accountGroupMemberIds) =>
+      set(() => ({ accountGroupMemberIds })),
+    clearAccountGroup: () =>
+      set(() => ({ accountGroupKey: null, accountGroupMemberIds: null })),
   })
 );

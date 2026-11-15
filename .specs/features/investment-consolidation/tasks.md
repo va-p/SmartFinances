@@ -155,11 +155,37 @@ T6 -> T7
 
 ---
 
-#### T4: Wire grouping into InstitutionDetails
+#### T4: Extend selected-account store with group payload ✅ Done
+
+**What**: Optional group fields on the navigation store.
+**Where**: `SmartFinances/src/stores/currentAccountSelectedStorage.ts`
+**Depends on**: T3
+**Reuses**: Existing zustand store shape
+**Requirement**: INV-03
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Store gains `accountGroupKey` and `accountGroupMemberIds` with set/clear actions; defaults null so single mode is unaffected
+- [ ] Gate check passes: `yarn jest src/__tests__/stores/currentAccountSelected.spec.ts`
+- [ ] Test count: 4+ assertions pass, no deletions
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `feat(investments): extend selected-account store with group payload`
+
+---
+
+#### T5: Wire grouping into InstitutionDetails
 
 **What**: Grouped INVESTMENTS section with expand state and group navigation payload.
 **Where**: `SmartFinances/src/screens/InstitutionDetails/index.tsx`
-**Depends on**: T3
+**Depends on**: T4
 **Reuses**: `getSectionKey`, `SECTION_ORDER`, existing `handleOpenAccount` navigate pattern
 **Requirement**: INV-03
 
@@ -180,32 +206,6 @@ T6 -> T7
 **Gate**: quick
 
 **Commit**: `feat(investments): wire grouping into institution details`
-
----
-
-#### T5: Extend selected-account store with group payload
-
-**What**: Optional group fields on the navigation store.
-**Where**: `SmartFinances/src/stores/currentAccountSelectedStorage.ts`
-**Depends on**: T4
-**Reuses**: Existing zustand store shape
-**Requirement**: INV-03
-
-**Tools**:
-
-- MCP: NONE
-- Skill: NONE
-
-**Done when**:
-
-- [ ] Store gains `accountGroupKey` and `accountGroupMemberIds` with set/clear actions; defaults null so single mode is unaffected
-- [ ] Gate check passes: `yarn jest src/__tests__/stores/currentAccountSelected.spec.ts`
-- [ ] Test count: 4+ assertions pass, no deletions
-
-**Tests**: unit
-**Gate**: quick
-
-**Commit**: `feat(investments): extend selected-account store with group payload`
 
 ---
 
@@ -290,8 +290,8 @@ Before approving tasks, verify they are granular enough:
 | T1: expose investmentData | 1 controller file | ✅ Granular |
 | T2: grouping util | 1 util file | ✅ Granular |
 | T3: group row component | 1 component file | ✅ Granular |
-| T4: InstitutionDetails wiring | 1 screen file | ✅ Granular |
-| T5: store extension | 1 store file | ✅ Granular |
+| T4: store extension | 1 store file | ✅ Granular |
+| T5: InstitutionDetails wiring | 1 screen file | ✅ Granular |
 | T6: Account group mode | 1 screen file | ✅ Granular |
 | T7: group-aware search | 1 util file | ✅ Granular |
 
@@ -330,8 +330,8 @@ Before approving tasks, verify EVERY task's `Tests` field is consistent with the
 | T1 | Backend controller | unit | unit | ✅ OK |
 | T2 | Frontend util | unit | unit | ✅ OK |
 | T3 | Frontend component | unit | unit | ✅ OK |
-| T4 | Frontend screen | unit | unit | ✅ OK |
-| T5 | Store | unit | unit | ✅ OK |
+| T4 | Store | unit | unit | ✅ OK |
+| T5 | Frontend screen | unit | unit | ✅ OK |
 | T6 | Frontend screen | unit | unit | ✅ OK |
 | T7 | Frontend util | unit | unit | ✅ OK |
 
