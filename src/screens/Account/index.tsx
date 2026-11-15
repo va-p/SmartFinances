@@ -91,10 +91,12 @@ import { useAccountDetailQuery } from '@hooks/useAcccountDetailQuery';
 const isAndroid = Platform.OS === 'android';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
-const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid
+  ? 64
+  : 96;
 
 export function Account() {
-  const theme  = useTheme() as ThemeProps;
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
@@ -154,11 +156,7 @@ export function Account() {
     isError,
   } = useAccountDetailQuery(accountID);
 
-  const {
-    data: allTransactions,
-    isLoading,
-    refetch,
-  } = useTransactionsQuery();
+  const { data: allTransactions, isLoading, refetch } = useTransactionsQuery();
 
   const { mutate: deleteAccount } = useDeleteAccountMutation();
 
@@ -460,12 +458,20 @@ export function Account() {
             <AccountBalanceGroup>
               <AccountBalance balanceIsPositive={balanceIsPositive}>
                 {!hideAmount
-                  ? formatCurrency(accountCurrencyCode, Number(accountBalance))
+                  ? formatCurrency(
+                    accountCurrencyCode,
+                    Number(
+                      !isCreditCard
+                        ? accountBalance
+                        : Number(account.creditData?.creditLimit) -
+                              Number(account.creditData?.availableCreditLimit)
+                    )
+                  )
                   : '•••••'}
               </AccountBalance>
               <AccountBalanceDescription>
                 {!isCreditCard && 'Saldo da conta'}
-                {isCreditCard && 'Saldo do cartão'}
+                {isCreditCard && 'Próxima fatura'}
               </AccountBalanceDescription>
             </AccountBalanceGroup>
 
@@ -499,7 +505,9 @@ export function Account() {
             sections={filteredTransactions}
             keyExtractor={(item: any) => item.id}
             renderItem={({ item, index }: any) => renderItem({ item, index })}
-            renderSectionHeader={({ section }: any) => renderSectionHeader({ section })}
+            renderSectionHeader={({ section }: any) =>
+              renderSectionHeader({ section })
+            }
             ListEmptyComponent={() => renderEmpty()}
             initialNumToRender={2000}
             refreshControl={
@@ -551,7 +559,7 @@ export function Account() {
         </ModalViewSelection>
 
         <ModalView
-          type="secondary"
+          type='secondary'
           title={`Editar Conta ${accountName}`}
           bottomSheetRef={editAccountBottomSheetRef}
           snapPoints={['75%']}
