@@ -35,12 +35,12 @@ const renderWithTheme = (ui: React.ReactElement) =>
 describe('CreditCardListItem', () => {
   // CARD-01 / CARD-02 — both money figures carry their labels.
   // Invoice = creditLimit - availableCreditLimit (500), formatted.
-  it('shows "Fatura atual" and "Limite disponível" labels with values', () => {
+  it('shows "Próxima fatura" and "Limite disponível" labels with values', () => {
     const screen = renderWithTheme(
       <CreditCardListItem data={baseData} index={0} />
     );
 
-    expect(screen.getByText('Fatura atual')).toBeTruthy();
+    expect(screen.getByText('Próxima fatura')).toBeTruthy();
     expect(screen.getByText('Limite disponível')).toBeTruthy();
     expect(screen.getByText('R$ 500,00')).toBeTruthy();
     expect(screen.getByText('R$ 51.300,00')).toBeTruthy();
@@ -52,7 +52,7 @@ describe('CreditCardListItem', () => {
       <CreditCardListItem data={baseData} index={0} hideAmount />
     );
 
-    expect(screen.getByText('Fatura atual')).toBeTruthy();
+    expect(screen.getByText('Próxima fatura')).toBeTruthy();
     expect(screen.getByText('Limite disponível')).toBeTruthy();
     expect(screen.queryByText('R$ 500,00')).toBeNull();
     expect(screen.queryByText('R$ 51.300,00')).toBeNull();
@@ -69,7 +69,7 @@ describe('CreditCardListItem', () => {
       <CreditCardListItem data={withoutLimit} index={0} />
     );
 
-    expect(screen.getByText('Fatura atual')).toBeTruthy();
+    expect(screen.getByText('Próxima fatura')).toBeTruthy();
     expect(screen.getByText('Limite disponível')).toBeTruthy();
     expect(screen.queryByText(/NaN/)).toBeNull();
     expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2);
