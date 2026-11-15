@@ -104,15 +104,15 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story       | Phase  | Status  |
 | -------------- | ----------- | ------ | ------- |
-| INV-01 | P1: group by type+subtype+rateType+rate | Design | Pending |
-| INV-02 | P1: collapsed header shows sum + count | Design | Pending |
-| INV-03 | P1: expand reveals members | Design | Pending |
-| INV-04 | P1: totals preserved | Design | Pending |
-| INV-05 | P2: card shows rateType, rate, maturity | Design | Pending |
-| INV-06 | P2: null fields omitted | Design | Pending |
-| INV-07 | P2: manual accounts unchanged | Design | Pending |
-| INV-08 | P3: search surfaces matching groups | Design | Pending |
-| INV-09 | P3: counts stay consistent | Design | Pending |
+| INV-01 | P1: group by type+subtype+rateType+rate | Design | Verified |
+| INV-02 | P1: collapsed header shows sum + count | Design | Verified |
+| INV-03 | P1: expand reveals members | Design | Verified |
+| INV-04 | P1: totals preserved | Design | Verified |
+| INV-05 | P2: card shows rateType, rate, maturity | Design | Verified |
+| INV-06 | P2: null fields omitted | Design | Verified |
+| INV-07 | P2: manual accounts unchanged | Design | Verified |
+| INV-08 | P3: search surfaces matching groups | Design | Verified |
+| INV-09 | P3: counts stay consistent | Design | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 
