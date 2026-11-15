@@ -149,7 +149,7 @@ export function BankingIntegrationDetails() {
 
         <LastSyncDate isTitle={false}>
           Data da últ. sincronização bem sucedida:{' '}
-          <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
+          <LastSyncDate isTitle>{formattedLastSyncDate()}</LastSyncDate>
         </LastSyncDate>
 
         <SectionTitle>
