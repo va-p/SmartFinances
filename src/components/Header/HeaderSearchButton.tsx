@@ -8,13 +8,17 @@ import { ThemeProps } from '@interfaces/theme';
 
 type HeaderSearchButtonProps = {
   onPress: () => void;
+  testID?: string;
 };
 
-export function HeaderSearchButton({ onPress }: HeaderSearchButtonProps) {
+export function HeaderSearchButton({
+  onPress,
+  testID = '',
+}: HeaderSearchButtonProps) {
   const theme = useTheme() as ThemeProps;
 
   return (
-    <Button onPress={onPress}>
+    <Button onPress={onPress} testID={testID}>
       <ButtonShape>
         <MagnifyingGlassIcon size={20} color={theme.colors.primary} />
       </ButtonShape>

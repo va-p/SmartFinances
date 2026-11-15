@@ -40,6 +40,21 @@ type Props = RectButtonProps & {
 };
 
 /**
+ * Signed profit teaser (Layout 2, Q2): `+R$ X` for gains, plain
+ * `R$ X` (already signed by pt-BR) for losses, null with no basis.
+ */
+function formatProfitText(
+  profit: number | null,
+  currencyCode: CurrencyCodes
+): string | null {
+  if (profit === null) {
+    return null;
+  }
+  const formatted = formatCurrency(currencyCode, profit);
+  return profit >= 0 ? `+${formatted}` : formatted;
+}
+
+/**
  * Aggregate profit teaser for a collapsed group header (Layout 2).
  * Sums each member's preferred profit (net, else gross); null when no
  * member has a computable basis.
@@ -97,13 +112,11 @@ export function InvestmentGroupListItem({
   const title = data.count > 1 ? `${data.label} (${data.count})` : data.label;
   const totalText = formatCurrency(currencyCode, data.totalBalanceBase);
   const profit = groupProfit(data.members);
-  const profitText =
-    profit === null
-      ? null
-      : `${profit >= 0 ? '+' : ''}${formatCurrency(
-        currencyCode,
-        profit
-      )}`;
+  const profitText = formatProfitText(profit, currencyCode);
+  const profitIsPositive = profit !== null && profit >= 0;
+  const profitColor = profitIsPositive
+    ? theme.colors.success
+    : theme.colors.attention;
   const maturity = groupMaturityLabel(data.members);
   const issuer =
     data.members.map((member) => member.investmentData?.issuer?.trim())
@@ -126,27 +139,20 @@ export function InvestmentGroupListItem({
       <RightColumn>
         <Amount>{!hideAmount ? totalText : '•••••'}</Amount>
         {profitText && (
-          <Profit
-            style={{
-              color:
-                profit! >= 0
-                  ? theme.colors.success
-                  : theme.colors.attention,
-            }}
-          >
+          <Profit style={{ color: profitColor }}>
             {!hideAmount ? profitText : '•••••'}
           </Profit>
         )}
       </RightColumn>
 
       <ChevronContainer>
-        {data.count > 1 ? (
-          expanded ? (
-            <CaretUpIcon size={16} color={theme.colors.text} />
-          ) : (
-            <CaretDownIcon size={16} color={theme.colors.text} />
-          )
-        ) : (
+        {data.count > 1 && expanded && (
+          <CaretUpIcon size={16} color={theme.colors.text} />
+        )}
+        {data.count > 1 && !expanded && (
+          <CaretDownIcon size={16} color={theme.colors.text} />
+        )}
+        {data.count <= 1 && (
           <CaretRightIcon size={16} color={theme.colors.text} />
         )}
       </ChevronContainer>

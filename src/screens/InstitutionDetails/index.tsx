@@ -18,7 +18,10 @@ import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { convertCurrency } from '@utils/convertCurrency';
-import { filterSectionsByQuery } from '@utils/filterSectionsByQuery';
+import {
+  filterInvestmentGroups,
+  filterSectionsByQuery,
+} from '@utils/filterSectionsByQuery';
 import {
   InvestmentAccount,
   InvestmentGroup,
@@ -111,17 +114,13 @@ function getSectionKey(account: AccountProps): SectionKey {
 }
 
 /**
- * Stable short id for a group key (INV-03). The raw key carries `|` and
- * mixed case, unsafe for the `[accountId]` route param; the djb2 hash
- * keeps the URL compact. The full key travels in the store payload, so
- * the hash is never reversed.
+ * URL-safe id for a group key (INV-03). Keys only ever contain
+ * uppercase alphanumerics and `|` (see buildInvestmentGroupKey), so
+ * swapping the separator keeps the id injective and readable. The
+ * full key travels in the store payload; the id is never reversed.
  */
-function groupRouteHash(key: string): string {
-  let hash = 5381;
-  for (let i = 0; i < key.length; i++) {
-    hash = ((hash << 5) + hash + key.charCodeAt(i)) | 0;
-  }
-  return (hash >>> 0).toString(16);
+function groupRouteId(key: string): string {
+  return `group:${key.replace(/\|/g, '-')}`;
 }
 
 function isInvestmentGroup(item: unknown): item is InvestmentGroup {
@@ -318,43 +317,55 @@ export function InstitutionDetails() {
     [sections, searchQuery]
   );
 
-  // Same-product investment groups for the visible (filtered) list.
-  // The API payload carries investmentData at runtime (T1); the cast
-  // keeps AccountProps untouched until the type is widened.
+  // Same-product investment groups, always derived from the unfiltered
+  // list so header sums and counts stay stable; the query narrows by
+  // whole group (INV-08). The API payload carries investmentData at
+  // runtime (T1); the cast keeps AccountProps untouched until widened.
   const visibleInvestmentGroups = useMemo(() => {
-    const investments = filteredSections.find(
+    const investments = sections.find(
       (section) => section.title === SECTION_TITLES.INVESTMENTS
     );
     if (!investments) {
       return [];
     }
     const members = investments.data as unknown as InvestmentAccount[];
-    return groupInvestments(
+    const allGroups = groupInvestments(
       members,
       (account) => baseById.get(Number(account.id)) ?? 0
     );
-  }, [filteredSections, baseById]);
+    return filterInvestmentGroups(allGroups, searchQuery);
+  }, [sections, searchQuery, baseById]);
 
-  // INVESTMENTS data becomes group headers for true repeats; singletons
-  // keep rendering exactly as today (user constraint: single rows and
-  // other sections are byte-identical).
-  const displaySections = useMemo(
-    () =>
-      filteredSections.map((section) => {
-        if (section.title !== SECTION_TITLES.INVESTMENTS) {
-          return section;
+  // INVESTMENTS renders from the whole-group match (INV-08), never from
+  // the name-filtered leftovers: singletons keep rendering exactly as
+  // today, other sections are byte-identical, order follows SECTION_ORDER.
+  const displaySections = useMemo(() => {
+    const byTitle = new Map(
+      filteredSections.map((section) => [section.title, section])
+    );
+    const ordered: { title: string; data: AccountProps[] }[] = [];
+    SECTION_ORDER.forEach((key) => {
+      const title = SECTION_TITLES[key];
+      if (title === SECTION_TITLES.INVESTMENTS) {
+        if (visibleInvestmentGroups.length > 0) {
+          ordered.push({
+            title,
+            data: visibleInvestmentGroups.flatMap<
+              InvestmentGroup | InvestmentAccount
+            >((group) =>
+              group.count > 1 ? [group] : group.members
+            ) as unknown as AccountProps[],
+          });
         }
-        return {
-          ...section,
-          data: visibleInvestmentGroups.flatMap<
-            InvestmentGroup | InvestmentAccount
-          >((group) =>
-            group.count > 1 ? [group] : group.members
-          ) as unknown as AccountProps[],
-        };
-      }),
-    [filteredSections, visibleInvestmentGroups]
-  );
+        return;
+      }
+      const section = byTitle.get(title);
+      if (section) {
+        ordered.push(section);
+      }
+    });
+    return ordered;
+  }, [filteredSections, visibleInvestmentGroups]);
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers.
@@ -423,7 +434,7 @@ export function InstitutionDetails() {
   // Opens a group like any normal account (INV-03): the Account screen
   // renders the member list in group mode (T6).
   function handleOpenGroup(group: InvestmentGroup) {
-    const routeId = `group:${groupRouteHash(group.key)}`;
+    const routeId = groupRouteId(group.key);
     useCurrentAccountSelected.setState(() => ({
       accountId: routeId,
       accountName: group.label,
@@ -447,13 +458,14 @@ export function InstitutionDetails() {
     item: AccountProps;
     index: number;
   };
+  type _renderInvestmentGroupProps = {
+    group: InvestmentGroup;
+    index: number;
+  };
   function renderInvestmentGroup({
     group,
     index,
-  }: {
-    group: InvestmentGroup;
-    index: number;
-  }) {
+  }: _renderInvestmentGroupProps) {
     const expanded = expandedGroups.has(group.key);
     const preview = expanded ? group.members.slice(0, 3) : [];
     return (
@@ -539,6 +551,7 @@ export function InstitutionDetails() {
           <Header.BackButton />
           <Header.Title title={institutionName || 'Instituição'} />
           <Header.SearchButton
+            testID="institution-search-button"
             onPress={() => setShowSearchInput((prevState) => !prevState)}
           />
         </Header.Root>

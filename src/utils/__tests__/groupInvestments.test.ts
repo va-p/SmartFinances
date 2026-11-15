@@ -1,3 +1,4 @@
+import { CurrencyProps } from '@interfaces/currencies';
 import {
   buildInvestmentGroupKey,
   buildInvestmentGroupLabel,
@@ -5,29 +6,34 @@ import {
   grossProfitOf,
   netProfitOf,
   InvestmentAccount,
+  InvestmentDetails,
 } from '../groupInvestments';
 
-const cdb = (overrides: Record<string, any> = {}): InvestmentAccount => ({
+const brl: CurrencyProps = { id: 1, name: 'Real', code: 'BRL', symbol: 'R$' };
+
+const cdbData: InvestmentDetails = {
+  investmentType: 'FIXED_INCOME',
+  investmentSubtype: 'CDB',
+  investmentStatus: 'ACTIVE',
+  rate: '100',
+  rateType: 'CDI',
+  issuer: 'NU FINANCEIRA S.A.',
+  currentGrossAmount: '750.10',
+  amountOriginal: '700.00',
+  amountProfit: '50.06',
+  currentDate: '2026-11-14T00:00:00.000Z',
+  issuedAt: null,
+  expiresAt: '2028-12-01T00:00:00.000Z',
+};
+
+const cdb = (overrides: Partial<InvestmentAccount> = {}): InvestmentAccount => ({
   id: 1,
   name: 'CDB - NU FINANCEIRA S.A.',
-  currency: { id: 1, name: 'Real', code: 'BRL', symbol: 'R$' },
+  currency: brl,
   type: 'INVESTMENTS',
   balance: '700.06',
   initialAmount: null,
-  investmentData: {
-    investmentType: 'FIXED_INCOME',
-    investmentSubtype: 'CDB',
-    investmentStatus: 'ACTIVE',
-    rate: '100',
-    rateType: 'CDI',
-    issuer: 'NU FINANCEIRA S.A.',
-    currentGrossAmount: '750.10',
-    amountOriginal: '700.00',
-    amountProfit: '50.06',
-    currentDate: '2026-11-14T00:00:00.000Z',
-    issuedAt: null,
-    expiresAt: '2028-12-01T00:00:00.000Z',
-  },
+  investmentData: { ...cdbData },
   ...overrides,
 });
 
@@ -42,7 +48,7 @@ describe('buildInvestmentGroupKey (INV-01)', () => {
     const a = cdb({ id: 1 });
     const b = cdb({
       id: 2,
-      investmentData: { ...a.investmentData, rate: '102' },
+      investmentData: { ...cdbData, rate: '102' },
     });
     expect(buildInvestmentGroupKey(a)).not.toBe(buildInvestmentGroupKey(b));
   });
@@ -51,7 +57,7 @@ describe('buildInvestmentGroupKey (INV-01)', () => {
     const a = cdb({ id: 1 });
     const b = cdb({
       id: 2,
-      investmentData: { ...a.investmentData, investmentSubtype: ' cdb ' },
+      investmentData: { ...cdbData, investmentSubtype: ' cdb ' },
     });
     expect(buildInvestmentGroupKey(a)).toBe(buildInvestmentGroupKey(b));
   });
@@ -98,10 +104,10 @@ describe('profit helpers (Q2)', () => {
 
   it('returns null gross profit when either leg is missing', () => {
     expect(
-      grossProfitOf({ ...cdb().investmentData, amountOriginal: null })
+      grossProfitOf({ ...cdbData, amountOriginal: null })
     ).toBeNull();
     expect(
-      grossProfitOf({ ...cdb().investmentData, currentGrossAmount: null })
+      grossProfitOf({ ...cdbData, currentGrossAmount: null })
     ).toBeNull();
   });
 
@@ -110,18 +116,18 @@ describe('profit helpers (Q2)', () => {
   });
 
   it('falls back to balance - amountOriginal for net profit', () => {
-    const details = { ...cdb().investmentData, amountProfit: null };
+    const details = { ...cdbData, amountProfit: null };
     expect(netProfitOf(details, '10234.56')).toBeCloseTo(9534.56, 8);
   });
 
   it('returns null net profit with no computable basis', () => {
     const details = {
-      ...cdb().investmentData,
+      ...cdbData,
       amountProfit: null,
       amountOriginal: null,
     };
     expect(netProfitOf(details, '10234.56')).toBeNull();
-    const noBasis = { ...cdb().investmentData, amountProfit: null };
+    const noBasis = { ...cdbData, amountProfit: null };
     expect(netProfitOf(noBasis, null)).toBeNull();
   });
 });
@@ -129,7 +135,7 @@ describe('profit helpers (Q2)', () => {
 describe('buildInvestmentGroupLabel', () => {
   it('falls back gracefully when rate fields are missing', () => {
     expect(
-      buildInvestmentGroupLabel({ ...cdb().investmentData, rate: null, rateType: null })
+      buildInvestmentGroupLabel({ ...cdbData, rate: null, rateType: null })
     ).toBe('CDB');
     expect(buildInvestmentGroupLabel(null)).toBe('Investimento');
   });

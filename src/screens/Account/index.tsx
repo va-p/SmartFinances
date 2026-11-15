@@ -310,6 +310,10 @@ export function Account() {
     }
   }
 
+  function renderGroupEmpty() {
+    return <ListEmptyComponent />;
+  }
+
   const renderPeriodRuler = useCallback(() => {
     // Years source for the 'years' ruler: the user's transaction years.
     // Other period modes ignore the years param.
@@ -406,7 +410,7 @@ export function Account() {
                   onPress={() => handleOpenMember(member)}
                 />
               )}
-              ListEmptyComponent={() => renderEmpty()}
+              ListEmptyComponent={() => renderGroupEmpty()}
               refreshControl={
                 <RefreshControl
                   refreshing={isManualRefreshing}

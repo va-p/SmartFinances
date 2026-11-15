@@ -176,6 +176,25 @@ describe('InstitutionDetails investment grouping', () => {
     ).toEqual(['88', '89']);
   });
 
+  // INV-08 — a rate-label query surfaces the entire matching group.
+  it('surfaces the whole group on a rate-label search', () => {
+    const screen = renderWithTheme(<InstitutionDetails />);
+    fireEvent.press(screen.getByTestId('institution-search-button'));
+    fireEvent.changeText(screen.getByPlaceholderText('Pesquisar...'), 'cdi');
+
+    expect(screen.getByText('CDB · 100% CDI (2)')).toBeTruthy();
+  });
+
+  // INV-08 — a name query with no group match hides grouped rows.
+  it('hides groups with no match on an unrelated search', () => {
+    const screen = renderWithTheme(<InstitutionDetails />);
+    fireEvent.press(screen.getByTestId('institution-search-button'));
+    fireEvent.changeText(screen.getByPlaceholderText('Pesquisar...'), 'tesouro');
+
+    expect(screen.queryByText('CDB · 100% CDI (2)')).toBeNull();
+    expect(screen.getByText('Tesouro Direto')).toBeTruthy();
+  });
+
   // INV-03 — opening a single member exits group mode.
   it('clears the group payload when opening a single member', () => {
     const screen = renderWithTheme(<InstitutionDetails />);

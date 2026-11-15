@@ -238,7 +238,7 @@ T6 -> T7
 
 ---
 
-#### T7: Make search group-aware and reconcile totals
+#### T7: Make search group-aware and reconcile totals ✅ Done
 
 **What**: Whole-group search match plus totals parity guard.
 **Where**: `SmartFinances/src/utils/filterSectionsByQuery.ts`
