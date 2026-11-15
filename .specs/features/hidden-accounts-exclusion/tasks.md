@@ -101,12 +101,12 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] `GET /transaction` rows carry `account.hide` (boolean) matching the account's stored flag
-- [ ] `GET /transaction/by-category` rows carry `account.hide` (boolean)
-- [ ] `GET /transaction/:id` row (and its related leg) carries `account.hide`
-- [ ] Missing-account row returns without `hide` instead of failing
-- [ ] Gate check passes: `node --import tsx --test src/__tests__/transaction.controller.test.ts` (from `smart-finances-backend/`)
-- [ ] Test count: controller suite grows by ≥3 cases (hide-true row, hide-false row, missing-account row), 0 failures
+- [x] `GET /transaction` rows carry `account.hide` (boolean) matching the account's stored flag
+- [x] `GET /transaction/by-category` rows carry `account.hide` (boolean)
+- [x] `GET /transaction/:id` row (and its related leg) carries `account.hide`
+- [x] Missing-account row returns without `hide` instead of failing
+- [x] Gate check passes: `node --import tsx --test src/__tests__/transaction.controller.test.ts` (from `smart-finances-backend/`)
+- [x] Test count: controller suite grows by ≥3 cases (hide-true row, hide-false row, missing-account row), 0 failures
 
 **Tests**: integration
 **Gate**: full
@@ -130,10 +130,10 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] `isHiddenAccountTransaction` returns true only for `account.hide === true`; false for `hide: false`, missing flag, missing/null account
-- [ ] `excludeHiddenAccountTransactions` returns a new array with hidden rows removed, order preserved, input unmutated
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/hiddenAccounts.test.ts --watchman=false`
-- [ ] Test count: ≥6 cases pass, 0 failures
+- [x] `isHiddenAccountTransaction` returns true only for `account.hide === true`; false for `hide: false`, missing flag, missing/null account
+- [x] `excludeHiddenAccountTransactions` returns a new array with hidden rows removed, order preserved, input unmutated
+- [x] Gate check passes: `yarn jest src/utils/__tests__/hiddenAccounts.test.ts --watchman=false`
+- [x] Test count: ≥6 cases pass, 0 failures
 
 **Tests**: unit
 **Gate**: quick
