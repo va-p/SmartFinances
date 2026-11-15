@@ -132,6 +132,25 @@ describe('profit helpers (Q2)', () => {
   });
 });
 
+describe('mixed currencies (INV-04)', () => {
+  // INV-04 — per-leg conversion feeds the header total.
+  it('sums converted per-leg values for mixed-currency groups', () => {
+    const usd = cdb({
+      id: 1,
+      balance: '100',
+      currency: { ...brl, code: 'USD', name: 'US Dollar', symbol: '$' },
+    });
+    const groups = groupInvestments([usd, cdb({ id: 2, balance: '200' })],
+      (account) =>
+        account.currency.code === 'USD'
+          ? Number(account.balance) * 5
+          : Number(account.balance)
+    );
+    expect(groups).toHaveLength(1);
+    expect(groups[0].totalBalanceBase).toBeCloseTo(700, 8);
+  });
+});
+
 describe('buildInvestmentGroupLabel', () => {
   it('falls back gracefully when rate fields are missing', () => {
     expect(
