@@ -127,6 +127,35 @@ describe('InvestmentGroupListItem (Layout 2)', () => {
     expect(screen.getAllByText('•••••').length).toBeGreaterThanOrEqual(1);
   });
 
+  // Edge — unparseable maturity dates omit the chip, never garbage text.
+  it('omits the maturity chip when expiresAt is unparseable', () => {
+    const bad = cdb({ id: 1 });
+    const details = bad.investmentData;
+    if (details) {
+      details.expiresAt = 'not-a-date';
+    }
+    const uniformBad = groupOf([bad]);
+    const uniformScreen = renderWithTheme(
+      <InvestmentGroupListItem
+        data={uniformBad}
+        index={0}
+        currencyCode="BRL"
+      />
+    );
+    expect(uniformScreen.queryByText(/Venc/)).toBeNull();
+    expect(uniformScreen.queryByText(/NaN/)).toBeNull();
+
+    const mixed = groupOf([cdb({ id: 1 }), bad]);
+    const mixedScreen = renderWithTheme(
+      <InvestmentGroupListItem
+        data={mixed}
+        index={0}
+        currencyCode="BRL"
+      />
+    );
+    expect(mixedScreen.queryByText(/Venc/)).toBeNull();
+  });
+
   // Edge — single-member groups render without a count suffix.
   it('renders single-member groups without a count suffix', () => {
     const group = groupOf([cdb({ id: 1 })]);
