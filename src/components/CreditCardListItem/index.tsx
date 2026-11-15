@@ -45,7 +45,7 @@ export function CreditCardListItem({
     <Container entering={FadeInLeft.delay(index * 100)} {...rest}>
       <AmountContainer>
         <AmountGroup>
-          <AmountLabel>Fatura atual</AmountLabel>
+          <AmountLabel>Próxima fatura</AmountLabel>
           <Amount>{!hideAmount ? invoiceText : '•••••'}</Amount>
           {data.totalAccountAmountConverted && (
             <Amount style={{ fontSize: 12 }}>
