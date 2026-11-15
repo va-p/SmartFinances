@@ -435,7 +435,7 @@ export function Account() {
           <HeaderContainer>
             <Header.Root>
               <Header.BackButton />
-              <Header.Title title={accountName || ''} />
+              <Header.Title title={accountName || ''} numberOfLines={3} />
               <HeaderButtonGroup>
                 <Header.SearchButton
                   onPress={() => setShowSearchInput((prevState) => !prevState)}
