@@ -140,8 +140,8 @@ export function BankingIntegrationDetails() {
             deleteBankingIntegration(String(bankingIntegrationID), {
               onSuccess: () => {
                 Alert.alert(
-                  'Exclusão de conexão',
-                  'Conexão excluída com sucesso!',
+                  'Exclusão de integração bancária',
+                  'Integração bancária excluída com sucesso!',
                   [{ text: 'OK', onPress: () => router.back() }]
                 );
               },
