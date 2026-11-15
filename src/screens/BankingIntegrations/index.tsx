@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, Text, BackHandler } from 'react-native';
-import {
-  ConnectedAccountsList,
-  Container,
-} from './styles';
+import { ConnectedAccountsList, Container } from './styles';
 
 import axios from 'axios';
 import { useTheme } from 'styled-components';
@@ -140,7 +137,7 @@ export function BankingIntegrations() {
         router.navigate({
           pathname: '/accounts/bankingIntegrationDetails',
           params: {
-            bankingIntegrationID: bankingIntegration.id,
+            bankingIntegrationID: String(bankingIntegration.id),
           },
         });
       } finally {
@@ -196,12 +193,10 @@ export function BankingIntegrations() {
       <Container>
         <Gradient />
 
-        {showHeader && (
-          <Header.Root>
-            <Header.BackButton />
-            <Header.Title title='Integrações Bancárias' />
-          </Header.Root>
-        )}
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Integrações Bancárias' />
+        </Header.Root>
 
         <ConnectedAccountsList
           data={integrations}

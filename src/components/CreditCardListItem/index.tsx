@@ -14,6 +14,7 @@ import { RectButtonProps } from 'react-native-gesture-handler';
 
 import { AccountProps } from '@interfaces/accounts';
 import { FadeInLeft } from 'react-native-reanimated';
+import formatCurrency from '@utils/formatCurrency';
 
 type Props = RectButtonProps & {
   data: AccountProps;
@@ -27,12 +28,25 @@ export function CreditCardListItem({
   hideAmount = false,
   ...rest
 }: Props) {
+  const { creditLimit, availableCreditLimit } = data.creditData ?? {};
+  const hasInvoice =
+    creditLimit != null && availableCreditLimit != null;
+  const invoiceText = hasInvoice
+    ? formatCurrency(
+      data.currency.code,
+      Number(creditLimit) - Number(availableCreditLimit)
+    )
+    : '—';
+  const limitText =
+    availableCreditLimit != null
+      ? formatCurrency(data.currency.code, Number(availableCreditLimit))
+      : '—';
   return (
     <Container entering={FadeInLeft.delay(index * 100)} {...rest}>
       <AmountContainer>
         <AmountGroup>
           <AmountLabel>Fatura atual</AmountLabel>
-          <Amount>{!hideAmount ? data.balance : '•••••'}</Amount>
+          <Amount>{!hideAmount ? invoiceText : '•••••'}</Amount>
           {data.totalAccountAmountConverted && (
             <Amount style={{ fontSize: 12 }}>
               ({!hideAmount ? data.totalAccountAmountConverted : '•••••'})
@@ -42,11 +56,7 @@ export function CreditCardListItem({
 
         <AmountGroup>
           <AmountLabel>Limite disponível</AmountLabel>
-          <Amount>
-            {!hideAmount
-              ? (data.creditData?.availableCreditLimit ?? '—')
-              : '•••••'}
-          </Amount>
+          <Amount>{!hideAmount ? limitText : '•••••'}</Amount>
         </AmountGroup>
       </AmountContainer>
 

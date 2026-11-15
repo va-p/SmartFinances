@@ -16,9 +16,10 @@ import {
 
 // Hooks
 import { useBankingIntegrationDetailQuery } from '@hooks/useBankingIntegrationDetailQuery';
+import { useDeleteBankingIntegrationMutation } from '@hooks/useBankingIntegrationMutations';
 import { openConnectSession } from '@hooks/useOpeniConnect';
 
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatLastSyncDate } from '@utils/formatLastSyncDate';
 import formatCurrency from '@utils/formatCurrency';
@@ -27,6 +28,7 @@ import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
@@ -60,11 +62,18 @@ export function BankingIntegrationDetails() {
     bankingIntegrationID: string;
   } = useLocalSearchParams();
 
-  const { data: bankingIntegration, isLoading } =
-    useBankingIntegrationDetailQuery(bankingIntegrationID);
+  const router = useRouter();
+  const {
+    data: bankingIntegration,
+    isLoading,
+    error,
+  } = useBankingIntegrationDetailQuery(bankingIntegrationID);
 
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const queryClient = useQueryClient();
+  const { mutate: deleteBankingIntegration } =
+    useDeleteBankingIntegrationMutation();
 
   const formattedLastSyncDate = useCallback(
     () => formatLastSyncDate(bankingIntegration?.lastSyncDate),
@@ -107,7 +116,7 @@ export function BankingIntegrationDetails() {
         'Conexão atualizada',
         'Sua instituição foi reconectada. Os dados serão sincronizados em instantes.'
       );
-    } catch (error) {
+    } catch {
       Alert.alert(
         'Erro',
         'Não foi possível atualizar a conexão. Por favor, tente novamente.'
@@ -117,8 +126,49 @@ export function BankingIntegrationDetails() {
     }
   }
 
-  if (isLoading) {
+  function handleClickDeleteIntegration() {
+    Alert.alert(
+      'Exclusão de conexão',
+      'ATENÇÃO! Todas as contas e transações desta conexão também serão excluídas. Tem certeza que deseja excluir a conexão?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sim, excluir',
+          style: 'destructive',
+          onPress: () => {
+            setDeleting(true);
+            deleteBankingIntegration(String(bankingIntegrationID), {
+              onSuccess: () => {
+                Alert.alert(
+                  'Exclusão de conexão',
+                  'Conexão excluída com sucesso!',
+                  [{ text: 'OK', onPress: () => router.back() }]
+                );
+              },
+              onSettled: () => {
+                setDeleting(false);
+              },
+            });
+          },
+        },
+      ]
+    );
+  }
+
+  if (isLoading || deleting) {
     return <SkeletonAccountsScreen />;
+  }
+
+  if (error || !bankingIntegrationID) {
+    return (
+      <Screen>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Erro' />
+        </Header.Root>
+        <ListEmptyComponent text='Não foi possível carregar os detalhes da conexão. Tente novamente.' />
+      </Screen>
+    );
   }
 
   const accounts = bankingIntegration?.accounts ?? [];
@@ -132,6 +182,9 @@ export function BankingIntegrationDetails() {
           <Header.BackButton />
           <Header.Title
             title={`Conexão bancária ${bankingIntegration?.bankName ?? ''}`}
+          />
+          <Header.DeleteButton
+            handleClickDeleteButton={() => handleClickDeleteIntegration()}
           />
         </Header.Root>
 

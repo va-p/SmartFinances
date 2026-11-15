@@ -33,7 +33,8 @@ const renderWithTheme = (ui: React.ReactElement) =>
   render(<ThemeProvider theme={lightTheme}>{ui}</ThemeProvider>);
 
 describe('CreditCardListItem', () => {
-  // CARD-01 / CARD-02 — both money figures carry their labels
+  // CARD-01 / CARD-02 — both money figures carry their labels.
+  // Invoice = creditLimit - availableCreditLimit (500), formatted.
   it('shows "Fatura atual" and "Limite disponível" labels with values', () => {
     const screen = renderWithTheme(
       <CreditCardListItem data={baseData} index={0} />
@@ -41,8 +42,8 @@ describe('CreditCardListItem', () => {
 
     expect(screen.getByText('Fatura atual')).toBeTruthy();
     expect(screen.getByText('Limite disponível')).toBeTruthy();
-    expect(screen.getByText('R$ 1.234,56')).toBeTruthy();
-    expect(screen.getByText('51300')).toBeTruthy();
+    expect(screen.getByText('R$ 500,00')).toBeTruthy();
+    expect(screen.getByText('R$ 51.300,00')).toBeTruthy();
   });
 
   // CARD-03 — hidden mode masks values but keeps labels
@@ -53,12 +54,13 @@ describe('CreditCardListItem', () => {
 
     expect(screen.getByText('Fatura atual')).toBeTruthy();
     expect(screen.getByText('Limite disponível')).toBeTruthy();
-    expect(screen.queryByText('R$ 1.234,56')).toBeNull();
+    expect(screen.queryByText('R$ 500,00')).toBeNull();
+    expect(screen.queryByText('R$ 51.300,00')).toBeNull();
     expect(screen.getAllByText('•••••').length).toBeGreaterThanOrEqual(2);
   });
 
-  // Edge — missing limit renders a placeholder instead of crashing
-  it('shows a placeholder when the available limit is missing', () => {
+  // Edge — missing credit data renders placeholders instead of NaN
+  it('shows placeholders when the credit data is missing', () => {
     const withoutLimit: AccountProps = {
       ...baseData,
       creditData: undefined,
@@ -67,7 +69,9 @@ describe('CreditCardListItem', () => {
       <CreditCardListItem data={withoutLimit} index={0} />
     );
 
+    expect(screen.getByText('Fatura atual')).toBeTruthy();
     expect(screen.getByText('Limite disponível')).toBeTruthy();
-    expect(screen.getByText('—')).toBeTruthy();
+    expect(screen.queryByText(/NaN/)).toBeNull();
+    expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2);
   });
 });
