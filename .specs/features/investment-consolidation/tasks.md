@@ -98,7 +98,7 @@ T6 -> T7
 
 ---
 
-#### T2: Add grouping and profit util (in progress)
+#### T2: Add grouping and profit util ✅ Done
 
 **What**: Pure `groupInvestments` plus profit helpers implementing the locked group key and Layout 2 data.
 **Where**: `SmartFinances/src/utils/groupInvestments.ts`
