@@ -30,13 +30,16 @@ export async function waitForNewIntegration(
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     if (attempt > 0) {
+      // eslint-disable-next-line no-await-in-loop -- polling interval must be sequential
       await sleep(intervalMs);
     }
 
     let fresh: BankingIntegration[];
     try {
+      // eslint-disable-next-line no-await-in-loop -- polls must run in order
       fresh = await fetchIntegrations();
     } catch {
+      // eslint-disable-next-line no-continue -- a failed poll consumes an attempt and retries
       continue;
     }
 
