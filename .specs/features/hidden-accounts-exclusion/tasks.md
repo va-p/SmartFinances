@@ -289,9 +289,9 @@ T5 -> T9
 
 **Done when**:
 
-- [ ] A credit/debit unclassified transaction on a hidden account is not offered as a candidate
-- [ ] Gate check passes: `yarn jest src/utils/__tests__/subscriptionDesignation.test.ts --watchman=false`
-- [ ] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
+- [x] A credit/debit unclassified transaction on a hidden account is not offered as a candidate
+- [x] Gate check passes: `yarn jest src/utils/__tests__/subscriptionDesignation.test.ts --watchman=false`
+- [x] Test count: existing cases pass plus ≥1 new hidden-row case, 0 failures
 
 **Tests**: unit
 **Gate**: quick
