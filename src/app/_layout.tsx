@@ -10,7 +10,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { SkeletonHomeScreen } from '@components/SkeletonOverviewScreen';
+import { SkeletonOverviewScreen } from '@components/SkeletonOverviewScreen';
 
 import { AuthProvider, useAuth } from '@providers/AuthProvider';
 import { RevenueCatProvider } from '@providers/RevenueCatProvider';
@@ -134,7 +134,7 @@ function RootNavigationLayout() {
   }, [isSignedIn, loading, segments, router, skipWelcomeScreen]);
 
   if (loading) {
-    return <SkeletonHomeScreen />;
+    return <SkeletonOverviewScreen />;
   }
 
   const inAuthGroup = segments[0] === '(auth)';

@@ -6,7 +6,7 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import { ThemeProps } from '@interfaces/theme';
 
-export function SkeletonHomeScreen() {
+export function SkeletonOverviewScreen() {
   const theme: ThemeProps = useTheme();
 
   return (
