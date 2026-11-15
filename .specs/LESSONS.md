@@ -14,12 +14,6 @@ _none_
 
 Seen once or not yet corroborated. Tracked, not trusted.
 
-### L-004 - When a spec pins which API must produce a call argument, assert that exact value instead of expect.anything()
-- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
-- features: screen-traces
-- evidence: src/hooks/__tests__/useScreenTrace.test.ts:70 (AC10) (tests)
-- last seen: 2026-09-21T17:20:57Z
-
 ### L-005 - Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `src/utils` · harmful: 0
 - features: weekly-period-filter

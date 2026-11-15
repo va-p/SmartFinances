@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   FlatList,
   Keyboard,
   Platform,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import {
   Container,
@@ -29,18 +31,22 @@ import {
 } from './styles';
 
 // Hooks
-import { useScreenTrace } from '@hooks/useScreenTrace';
 import {
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
   useDeleteTransactionMutation,
 } from '@hooks/useTransactionMutations';
 import { useTagsQuery } from '@hooks/useTagsQuery';
+import { useScreenTrace } from '@hooks/useScreenTrace';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
 
 // Utils
+import {
+  resolveTransferLinkTitle,
+  shouldShowTransferLink,
+} from '@utils/transferLink';
 import {
   buildTransferCreatePayload,
   buildTransferEditPayload,
@@ -58,12 +64,9 @@ import {
   resolveSubscriptionSwitch,
 } from '@utils/subscriptionDesignation';
 import { convertCurrency } from '@utils/convertCurrency';
+import { computeKeyboardOverlap } from '@utils/keyboardScroll';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { formatQuotaMessage } from '@utils/quotaMessage';
-import {
-  resolveTransferLinkTitle,
-  shouldShowTransferLink,
-} from '@utils/transferLink';
 
 // Dependencies
 import {
@@ -86,7 +89,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Icons
 import { XIcon } from 'phosphor-react-native/src/icons/X';
-import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
 import { TagIcon } from 'phosphor-react-native/src/icons/Tag';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { ImageIcon } from 'phosphor-react-native/src/icons/Image';
@@ -95,6 +97,7 @@ import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
 import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
 import { CalendarIcon } from 'phosphor-react-native/src/icons/Calendar';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
+import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -295,8 +298,59 @@ export function RegisterTransaction({
   // Subscription designation state (advanced selectors, hidden behind the
   // accordion right below the recurrence toggle)
   const [isSubscription, setIsSubscription] = useState(false);
-  const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] =
-    useState(initiallyOpenAdvancedSelectors);
+  const [advancedSelectorsExpanded, setAdvancedSelectorsExpanded] = useState(
+    initiallyOpenAdvancedSelectors
+  );
+
+  // Keyboard-aware scroll: when the keyboard covers the description input,
+  // shift the content up so it stays visible. The sheet itself holds its
+  // size (keyboardBehavior extend), so only the scroll offset moves.
+  const contentScrollRef = useRef<any>(null);
+  const scrollOffsetY = useRef(0);
+  const keyboardHeight = useRef(0);
+  const descriptionFocused = useRef(false);
+  const descriptionWrapperRef = useRef<View>(null);
+
+  const scrollDescriptionIntoView = useCallback(() => {
+    const wrapper = descriptionWrapperRef.current;
+    const scrollable = contentScrollRef.current;
+    if (!wrapper || !scrollable || keyboardHeight.current <= 0) {
+      return;
+    }
+
+    wrapper.measureInWindow((x, y, width, height) => {
+      const overlap = computeKeyboardOverlap({
+        inputBottomY: y + height,
+        windowHeight: Dimensions.get('window').height,
+        keyboardHeight: keyboardHeight.current,
+      });
+      if (overlap > 0) {
+        scrollable.scrollTo({
+          y: scrollOffsetY.current + overlap,
+          animated: true,
+        });
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      'keyboardDidShow',
+      (event) => {
+        keyboardHeight.current = event.endCoordinates.height;
+        if (descriptionFocused.current) {
+          scrollDescriptionIntoView();
+        }
+      }
+    );
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardHeight.current = 0;
+    });
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [scrollDescriptionIntoView]);
 
   // Each selector mirrors its own flag so the toggles accurately represent
   // the transaction: a recurring non-subscription enables only Recorrente;
@@ -393,11 +447,10 @@ export function RegisterTransaction({
     },
   });
   const amountValue = getValues('amount');
-  const hasAmount = amountValue !== undefined && amountValue !== null && amountValue !== 0;
+  const hasAmount =
+    amountValue !== undefined && amountValue !== null && amountValue !== 0;
   const defaultAmountValue =
-    categorySelected.id !== '' && hasAmount
-      ? String(amountValue)
-      : undefined;
+    categorySelected.id !== '' && hasAmount ? String(amountValue) : undefined;
 
   // Currency Quotes
   const {
@@ -1490,7 +1543,7 @@ export function RegisterTransaction({
 
   return (
     <Screen edges={Platform.OS === 'ios' ? ['left', 'right'] : undefined}>
-      <Container behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Container>
         <Gradient roundCorners />
 
         <MainContent>
@@ -1603,7 +1656,13 @@ export function RegisterTransaction({
             </Header>
           </TouchableWithoutFeedback>
 
-          <ContentScroll keyboardDismissMode='on-drag'>
+          <ContentScroll
+            ref={contentScrollRef}
+            keyboardDismissMode='on-drag'
+            onScroll={(event) => {
+              scrollOffsetY.current = event.nativeEvent.contentOffset.y;
+            }}
+          >
             <SelectButton
               title={accountName || 'Selecione a conta'}
               icon={<WalletIcon color={categorySelected.color.color_code} />}
@@ -1700,21 +1759,32 @@ export function RegisterTransaction({
               />
             )}
 
-            <ControlledInputWithIcon
-              icon={
-                <PencilSimpleIcon color={categorySelected.color.color_code} />
-              }
-              placeholder='Descrição'
-              numberOfLines={2}
-              autoCapitalize='sentences'
-              autoCorrect={false}
-              returnKeyType='go'
-              defaultValue={String(getValues('description'))}
-              name='description'
-              control={control}
-              error={errors.description}
-              onSubmitEditing={handleSubmit(onSubmit)}
-            />
+            <View ref={descriptionWrapperRef} collapsable={false}>
+              <ControlledInputWithIcon
+                icon={
+                  <PencilSimpleIcon color={categorySelected.color.color_code} />
+                }
+                placeholder='Descrição'
+                numberOfLines={2}
+                autoCapitalize='sentences'
+                autoCorrect={false}
+                returnKeyType='go'
+                defaultValue={String(getValues('description'))}
+                name='description'
+                control={control}
+                error={errors.description}
+                onSubmitEditing={handleSubmit(onSubmit)}
+                onFocus={() => {
+                  descriptionFocused.current = true;
+                  if (keyboardHeight.current > 0) {
+                    scrollDescriptionIntoView();
+                  }
+                }}
+                onBlur={() => {
+                  descriptionFocused.current = false;
+                }}
+              />
+            </View>
 
             {/* ── Recurrence Toggle ─────────────────────────────── */}
             <ButtonToggle
@@ -1755,6 +1825,7 @@ export function RegisterTransaction({
               )}
               horizontal
               showsHorizontalScrollIndicator={false}
+              style={{ flexGrow: 0 }}
               contentContainerStyle={{
                 paddingHorizontal: 12,
                 paddingBottom: 12,
@@ -1772,7 +1843,7 @@ export function RegisterTransaction({
                 title={resolveTransferLinkTitle(
                   transactionData?.related_transaction?.account?.name
                 )}
-                subTitle='Toque para ver a outra ponta'
+                subTitle='Toque para ver a contraparte desta transferência'
                 icon={
                   <ArrowsLeftRightIcon
                     color={categorySelected.color.color_code}
@@ -1787,7 +1858,7 @@ export function RegisterTransaction({
             )}
 
             {/* ── Advanced selectors (under accordion) ──── */}
-            {!isBulkEdit && transactionType !== 'TRANSFER' && (
+            {!isBulkEdit && (
               <Accordion
                 expanded={advancedSelectorsExpanded}
                 onToggle={() =>
@@ -1804,18 +1875,18 @@ export function RegisterTransaction({
                   value={isSubscription}
                   isEnabled={isSubscription}
                 />
-              </Accordion>
-            )}
 
-            <SelectButton
-              title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
-              icon={<ImageIcon color={categorySelected.color.color_code} />}
-              onPress={() => handleClickSelectImage()}
-            />
-            {imageUrl && (
-              <TransactionImageContainer onPress={() => handleOpenImage()}>
-                <TransactionImage source={{ uri: imageUrl }} />
-              </TransactionImageContainer>
+                <SelectButton
+                  title={imageUrl ? 'Alterar imagem' : 'Selecionar imagem'}
+                  icon={<ImageIcon color={categorySelected.color.color_code} />}
+                  onPress={() => handleClickSelectImage()}
+                />
+                {imageUrl && (
+                  <TransactionImageContainer onPress={() => handleOpenImage()}>
+                    <TransactionImage source={{ uri: imageUrl }} />
+                  </TransactionImageContainer>
+                )}
+              </Accordion>
             )}
 
             <TransactionsTypes>
@@ -1827,17 +1898,19 @@ export function RegisterTransaction({
                 }
               />
             </TransactionsTypes>
+
+            <Footer>
+              <Button.Root
+                isLoading={isCreating || isUpdating || isDeleting}
+                onPress={() => handleSubmit(onSubmit)()}
+              >
+                <Button.Text text={getSubmitButtonText()} />
+              </Button.Root>
+            </Footer>
           </ContentScroll>
         </MainContent>
 
-        <Footer>
-          <Button.Root
-            isLoading={isCreating || isUpdating || isDeleting}
-            onPress={() => handleSubmit(onSubmit)()}
-          >
-            <Button.Text text={getSubmitButtonText()} />
-          </Button.Root>
-        </Footer>
+
 
         <ModalViewSelection
           $modal

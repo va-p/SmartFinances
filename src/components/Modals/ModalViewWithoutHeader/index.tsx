@@ -5,7 +5,6 @@ import { Overlay } from './styles';
 import {
   BottomSheetProps,
   BottomSheetModal,
-  BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'styled-components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,7 +42,13 @@ export function ModalViewWithoutHeader({
       backgroundStyle={{ backgroundColor: 'transparent' }}
       {...rest}
     >
-      <BottomSheetView
+      {/* Plain View (not BottomSheetView): BottomSheetView registers the
+          sheet content as non-scrollable (VIEW) in a parent effect that
+          runs after — and clobbers — the nested BottomSheetScrollView's
+          registration, so content drags pan the sheet and snap back.
+          A plain View registers nothing, letting the scroll view own
+          scrolling. */}
+      <View
         style={{
           flex: 1,
           backgroundColor: 'transparent',
@@ -74,7 +79,7 @@ export function ModalViewWithoutHeader({
         </View>
 
         {children}
-      </BottomSheetView>
+      </View>
     </BottomSheetModal>
   );
 }

@@ -1,11 +1,13 @@
 import styled from 'styled-components/native';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+
 import { ThemeProps } from '@interfaces/theme';
 
 type ColorProps = {
   color: string;
 };
 
-export const Container = styled.KeyboardAvoidingView`
+export const Container = styled.View`
   flex: 1;
 `;
 
@@ -55,10 +57,12 @@ export const InputTransactionValueGroup = styled.View`
   justify-content: flex-end;
 `;
 
-export const ContentScroll = styled.ScrollView.attrs({
-  shownsVerticalScrollIndicator: false,
-  contentContainerStyle: { marginBottom: 64 },
-})``;
+export const ContentScroll = styled(BottomSheetScrollView).attrs({
+  showsVerticalScrollIndicator: false,
+  contentContainerStyle: { paddingBottom: 16, flexGrow: 1 },
+})`
+  flex: 1;
+`;
 
 export const TransactionImageContainer = styled.Pressable`
   padding: 0 16px 16px;
@@ -76,11 +80,7 @@ export const TransactionsTypes = styled.View`
 `;
 
 export const Footer = styled.View`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 8px 16px 16px;
+  padding: 8px 16px;
 `;
 
 // ── Date Quick-Select Pills ───────────────────────────
