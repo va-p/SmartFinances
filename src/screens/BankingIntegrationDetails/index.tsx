@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, FlatList, View } from 'react-native';
 import {
   AccountName,
   Container,
@@ -33,6 +33,7 @@ import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
 import api from '@api/api';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 const ACCOUNT_TYPE_LABELS: Record<string, string> = {
   BANK: 'Conta bancária',
@@ -56,6 +57,7 @@ function accountTypeLabel(type?: string | null, subtype?: string | null) {
 }
 
 export function BankingIntegrationDetails() {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const {
     bankingIntegrationID,
   }: {
@@ -205,9 +207,7 @@ export function BankingIntegrationDetails() {
           <LastSyncDate isTitle>{formattedLastSyncDate()}</LastSyncDate>
         </LastSyncDate>
 
-        <SectionTitle>
-          Contas conectadas ({accounts.length})
-        </SectionTitle>
+        <SectionTitle>Contas conectadas ({accounts.length})</SectionTitle>
 
         {accounts.length === 0 ? (
           <EmptyAccountsText>
@@ -216,29 +216,35 @@ export function BankingIntegrationDetails() {
           </EmptyAccountsText>
         ) : (
           <View>
-            {accounts.map((account) => (
-              <AccountRow key={account.id}>
-                <AccountRowMain>
-                  <AccountRowName>{account.name}</AccountRowName>
-                  <AccountRowMeta>
-                    {accountTypeLabel(account.type, account.subtype)}
-                  </AccountRowMeta>
-                </AccountRowMain>
-                <AccountRowBalance>
-                  {formatCurrency(
-                    account.currency?.code ?? 'BRL',
-                    Number(account.balance ?? 0)
-                  )}
-                </AccountRowBalance>
-              </AccountRow>
-            ))}
+            <FlatList
+              data={accounts}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }: any) => (
+                <AccountRow key={item.id}>
+                  <AccountRowMain>
+                    <AccountRowName>{item.name}</AccountRowName>
+                    <AccountRowMeta>
+                      {accountTypeLabel(item.type, item.subtype)}
+                    </AccountRowMeta>
+                  </AccountRowMain>
+                  <AccountRowBalance>
+                    {formatCurrency(
+                      item.currency?.code ?? 'BRL',
+                      Number(item.balance ?? 0)
+                    )}
+                  </AccountRowBalance>
+                </AccountRow>
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: bottomTabBarHeight + 16}}
+            />
           </View>
         )}
 
         <Footer>
           <Button.Root
             onPress={() => handlePressUpdateAccount()}
-            disabled={updating}
+            isLoading={updating}
           >
             <Button.Text text={updating ? 'Abrindo...' : 'Atualizar conexão'} />
           </Button.Root>
