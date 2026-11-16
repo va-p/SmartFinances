@@ -5,13 +5,13 @@ import { ConnectedAccountsList, Container } from './styles';
 import axios from 'axios';
 import { useTheme } from 'styled-components';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
-import { useOpeniConnect, openConnectSession } from '@hooks/useOpeniConnect';
-import { BANKING_CALLBACK_URL } from '@utils/openiConnect';
 
-import { canCreateConnection } from '@utils/benefitsLimits';
-import { waitForNewIntegration } from '@utils/waitForNewIntegration';
 import { useBenefits } from '@stores/benefitsStorage';
+import { BANKING_CALLBACK_URL } from '@utils/openiConnect';
+import { canCreateConnection } from '@utils/benefitsLimits';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { waitForNewIntegration } from '@utils/waitForNewIntegration';
+import { useOpeniConnect, openConnectSession } from '@hooks/useOpeniConnect';
 
 import { Screen } from '@components/Screen';
 import { Button } from '@components/Button';

@@ -1,9 +1,5 @@
 import React, { memo } from 'react';
-import {
-  FlatList,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { FlatList, TouchableWithoutFeedback, View } from 'react-native';
 import {
   Container,
   DescriptionAndAmountContainer,
@@ -18,6 +14,8 @@ import {
   Icon,
   DetailsContainer,
   Category,
+  BankNameAndAccountGroup,
+  BankName,
   Account,
   AmountNotConvertedContainer,
   AmountNotConverted,
@@ -26,15 +24,15 @@ import {
 } from './styles';
 
 import { FadeInUp } from 'react-native-reanimated';
-
-import { TagTransaction } from '@components/TransactionListItem/components/TagTransaction';
-import { TransactionProps } from '@interfaces/transactions';
-import {
-  useIsTransactionSelected,
-} from '@stores/useTransactionsStore';
 import { useTheme } from 'styled-components/native';
-import { ThemeProps } from '@interfaces/theme';
 import { RepeatIcon } from 'phosphor-react-native/src/icons/Repeat';
+
+
+import { useIsTransactionSelected } from '@stores/useTransactionsStore';
+import { TagTransaction } from '@components/TransactionListItem/components/TagTransaction';
+
+import { ThemeProps } from '@interfaces/theme';
+import { TransactionProps } from '@interfaces/transactions';
 
 type Props = {
   data: TransactionProps;
@@ -105,11 +103,29 @@ function TransactionListItem({
                 <CategoryAndAccountSeparator>
                   {' | '}
                 </CategoryAndAccountSeparator>
-                <Account>{data.account.name}</Account>
+
+                <BankNameAndAccountGroup>
+                  {data.account?.banking_integration?.bankName && (
+                    <>
+                      <BankName>
+                        {data.account.banking_integration.bankName}
+                      </BankName>
+
+                      <CategoryAndAccountSeparator>
+                        {' • '}
+                      </CategoryAndAccountSeparator>
+                    </>
+                  )}
+                  <Account>{data.account.name}</Account>
+                </BankNameAndAccountGroup>
               </CategoryAndAccountContainer>
               {data.is_recurring && (
                 <RecurrenceBadge>
-                  <RepeatIcon size={10} color={theme.colors.primary} weight="bold" />
+                  <RepeatIcon
+                    size={10}
+                    color={theme.colors.primary}
+                    weight='bold'
+                  />
                 </RecurrenceBadge>
               )}
               <AmountNotConvertedContainer>

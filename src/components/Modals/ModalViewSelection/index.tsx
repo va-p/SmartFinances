@@ -5,6 +5,7 @@ import {
   BottomSheetProps,
   BottomSheetModal,
   BottomSheetView,
+  BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'styled-components';
 
@@ -46,11 +47,11 @@ export function ModalViewSelection({
       handleIndicatorStyle={{ backgroundColor: theme.colors.primary }}
       {...rest}
     >
-      <BottomSheetView>
+      <BottomSheetScrollView>
         <Title>{title}</Title>
 
         <Container>{children}</Container>
-      </BottomSheetView>
+      </BottomSheetScrollView>
     </BottomSheetModal>
   );
 }

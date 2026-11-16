@@ -8,11 +8,13 @@ import { StarIcon } from 'phosphor-react-native/src/icons/Star';
 import { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';
 
 import { ThemeProps } from '@interfaces/theme';
+import { BankingIntegration } from '@interfaces/bankingIntegration';
 
 type ListItemProps = {
   id: number;
   name: string;
   isDefault?: boolean;
+  bankingIntegration?: BankingIntegration;
 };
 
 type Props = RectButtonProps & {
@@ -25,7 +27,11 @@ export function ListItem({ data, isActive, ...rest }: Props) {
 
   return (
     <Item {...rest}>
-      <Name isActive={isActive}>{data.name}</Name>
+      <Name isActive={isActive}>
+        {data.bankingIntegration?.bankName
+          ? `${data.bankingIntegration?.bankName} • ${data.name}`
+          : data.name}
+      </Name>
 
       <IconsContainer>
         {data.isDefault ? (

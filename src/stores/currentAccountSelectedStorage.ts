@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 
-import { CurrencyProps } from '@interfaces/currencies';
 import {
   AccountSubTypes,
   AccountTypes,
   CreditDataProps,
 } from '@interfaces/accounts';
+import { CurrencyProps } from '@interfaces/currencies';
+import { BankingIntegration } from '@interfaces/bankingIntegration';
 
 type CurrentAccountSelected = {
   accountId: string | null;
@@ -30,6 +31,8 @@ type CurrentAccountSelected = {
   setAccountTotalAmount: (accountTotalAmount: string | null) => void;
   accountCreditData: CreditDataProps | null;
   setAccountCreditData: (creditData: CreditDataProps) => void;
+  accountBankingIntegration?: BankingIntegration;
+  setAccountBankingIntegration: (bankingIntegration: BankingIntegration) => void;
   // Investment group navigation (INV-03): synthetic `group:<hash>` payload.
   // Null in single-account mode; member screens use the real account id.
   accountGroupKey: string | null;
@@ -65,12 +68,15 @@ export const useCurrentAccountSelected = create<CurrentAccountSelected>(
     accountTotalExpenses: null,
     setAccountTotalExpenses: (accountTotalExpenses) =>
       set(() => ({ accountTotalExpenses })),
-    accountTotalAmount: 'R$0',
+    accountTotalAmount: 'R$ 0,00',
     setAccountTotalAmount: (accountTotalAmount) =>
       set(() => ({ accountTotalAmount })),
     accountCreditData: null,
     setAccountCreditData: (creditData) =>
       set(() => ({ accountCreditData: creditData })),
+    accountBankingIntegration: undefined,
+    setAccountBankingIntegration: (bankingIntegration) =>
+      set(() => ({ accountBankingIntegration: bankingIntegration })),
     accountGroupKey: null,
     setAccountGroupKey: (accountGroupKey) =>
       set(() => ({ accountGroupKey })),

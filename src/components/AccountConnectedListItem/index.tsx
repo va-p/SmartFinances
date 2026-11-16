@@ -29,7 +29,7 @@ export function AccountConnectedListItem({ data, onPress = undefined }: Props) {
           </AccountName>
         </AccountNameContainer>
         <LastSyncDate isTitle={false}>
-          Data Últ. Sinc.:{' '}
+          Última Atual.:{' '}
           <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
         </LastSyncDate>
       </MainContent>
