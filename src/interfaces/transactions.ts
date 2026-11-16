@@ -29,6 +29,8 @@ export interface TransactionProps {
   category: CategoryProps;
   tags: [];
   user_id: string;
+  /** Link id for paired transfers; null when unlinked (single-leg). Added for transfer-correction TRC-19; the list DTO now carries it. */
+  related_transaction_id?: number | null;
   image_url?: string | null;
   is_recurring?: boolean;
   recurrence_interval?: number | null;

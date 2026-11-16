@@ -132,6 +132,54 @@ describe('TransactionSelect', () => {
     expect(closeSelectTransaction).toHaveBeenCalledTimes(1);
   });
 
+  // TRC-19 — a custom filter overrides the default subscription candidates
+  it('applies a custom candidates filter when provided', () => {
+    const debit = makeTransaction({ id: 1, type: 'DEBIT' });
+    const credit = makeTransaction({ id: 3, type: 'CREDIT' });
+
+    mockUseTransactionsQuery.mockReturnValue({
+      data: [debit, credit],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+
+    const screen = render(
+      <ThemeProvider theme={lightTheme}>
+        <TransactionSelect
+          setTransaction={jest.fn()}
+          closeSelectTransaction={jest.fn()}
+          candidatesFilter={(transactions) =>
+            transactions.filter((t) => t.type === 'CREDIT')
+          }
+        />
+      </ThemeProvider>
+    );
+
+    expect(screen.queryByTestId('transaction-row-1')).toBeNull();
+    expect(screen.getByTestId('transaction-row-3')).toBeTruthy();
+  });
+
+  // TRC-19 — omitted filter preserves the default subscription candidates
+  it('defaults to subscription candidates without a filter prop', () => {
+    const transferOut = makeTransaction({ id: 2, type: 'TRANSFER_DEBIT' });
+    const credit = makeTransaction({ id: 3, type: 'CREDIT' });
+
+    mockUseTransactionsQuery.mockReturnValue({
+      data: [transferOut, credit],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+
+    const screen = renderScreen();
+
+    expect(screen.queryByTestId('transaction-row-2')).toBeNull();
+    expect(screen.getByTestId('transaction-row-3')).toBeTruthy();
+  });
+
   // SD-08 — empty state copy
   it('shows the empty state when no transaction qualifies', () => {
     mockUseTransactionsQuery.mockReturnValue({
