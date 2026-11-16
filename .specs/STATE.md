@@ -42,6 +42,14 @@
 - **Date**: 2026-10-18
 - **Status**: active
 
+### AD-006
+- **Decision**: Creating the missing counterpart leg during plain→transfer conversion never adjusts a bank-synced account's balance: when the selected counterpart account has a `bankingIntegrationId`, the row is created for history/pairing only with no `balance.increment`; manual counterparts keep the standard increment. Direction travels as the leg `type` (`TRANSFER_CREDIT` = own account is the destination, `TRANSFER_DEBIT` = own account is the origin) with no new API field, and single-leg transfers reuse `TRANSFER_*` with a null link instead of a new enum.
+- **Reason**: The provider overwrites synced balances on every sync, so incrementing them double-counts until the next sync; the update controller already falls through to a type-flip when no counterpart fields are sent, and report/link/tab code already keys off the `TRANSFER_*` type.
+- **Trade-off**: `destinationAccount` builder/controller params may hold the source-side account in source mode (origin arg is always the own account; leg types carry direction) — documented at the call site. Single-leg rows cannot be linked later (backend `isPlain` guard) until a follow-up widens it.
+- **Scope**: `src/utils/transactionPayload.ts` (direction + single-leg helpers), `src/screens/RegisterTransaction/index.tsx` (swap control, save branching), `src/controllers/transaction.controller.ts` (`doCreateCounterpart` guard + same-account 400), any future transfer-conversion code.
+- **Date**: 2026-11-16
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: home-widgets (`.specs/features/home-widgets/`) — code-complete, Verifier CODE-PASS + UAT-PENDING (`validation.md` verdict FAIL by design: UAT-1..UAT-11 need real hardware; `validate_state.py` stays red until device QA passes)

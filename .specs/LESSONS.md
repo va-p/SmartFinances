@@ -80,6 +80,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: targets/widgets-android/java/com/vap/smartfinances/widgets/WidgetSnapshot.kt (native-kotlin)
 - last seen: 2026-11-11T19:13:20Z
 
+### L-019 - Negative requirements (bulk SHALL NOT offer X) need absence-asserting unit tests, not inspection-only evidence.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend/utils` · harmful: 0
+- features: transfer-correction
+- evidence: TRC-13 (frontend/utils)
+- last seen: 2026-11-16T21:50:39Z
+
+### L-020 - Verbatim code moves carry their typos: diff moved blocks token-by-token against the source, since babel-jest and eslint no-undef are blind to undeclared identifiers.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `frontend/screens` · harmful: 0
+- features: transfer-correction
+- evidence: SmartFinances/src/screens/RegisterTransaction/index.tsx:916 (frontend/screens)
+- last seen: 2026-11-16T21:50:39Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

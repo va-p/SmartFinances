@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 19,
+  "next_id": 21,
   "lessons": [
     {
       "id": "L-008",
@@ -202,6 +202,42 @@
       ],
       "created": "2026-11-11T19:13:20Z",
       "last_seen": "2026-11-11T19:13:20Z"
+    },
+    {
+      "id": "L-019",
+      "key": "ac_gap::negative requirements bulk shall not offer x need absence asserting unit tests not inspection only evidence",
+      "text": "Negative requirements (bulk SHALL NOT offer X) need absence-asserting unit tests, not inspection-only evidence.",
+      "signal": "ac_gap",
+      "scope": "frontend/utils",
+      "status": "candidate",
+      "features": [
+        "transfer-correction"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "TRC-13 (frontend/utils)"
+      ],
+      "created": "2026-11-16T21:50:39Z",
+      "last_seen": "2026-11-16T21:50:39Z"
+    },
+    {
+      "id": "L-020",
+      "key": "gate_fail::verbatim code moves carry their typos diff moved blocks token by token against the source since babel jest and eslint no undef are blind to undeclared identifiers",
+      "text": "Verbatim code moves carry their typos: diff moved blocks token-by-token against the source, since babel-jest and eslint no-undef are blind to undeclared identifiers.",
+      "signal": "gate_fail",
+      "scope": "frontend/screens",
+      "status": "candidate",
+      "features": [
+        "transfer-correction"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SmartFinances/src/screens/RegisterTransaction/index.tsx:916 (frontend/screens)"
+      ],
+      "created": "2026-11-16T21:50:39Z",
+      "last_seen": "2026-11-16T21:50:39Z"
     }
   ]
 }
