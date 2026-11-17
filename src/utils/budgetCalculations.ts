@@ -137,8 +137,8 @@ export function formatBudgetInfo(
       budget.categories.find(
         (cat: any) => cat.category_id === transaction.category.id
       ) &&
-      new Date(transaction.created_at) >= startDate &&
-      new Date(transaction.created_at) <= endDate
+      new Date(transaction.transaction_date ?? transaction.created_at) >= startDate &&
+      new Date(transaction.transaction_date ?? transaction.created_at) <= endDate
   );
 
   let amountSpent = 0;
