@@ -2,13 +2,13 @@
 
 ## Problem Statement
 
-The project documentation still describes the former hosting platform even though production now runs on a dedicated VPS with Docker containers. This can lead maintainers to follow obsolete deployment, migration, and cache troubleshooting instructions.
+The project documentation described the former hosting platform even though production now runs on a dedicated VPS with Docker containers. This can lead maintainers to follow obsolete deployment, migration, and cache troubleshooting instructions.
 
 ## Goals
 
-- [ ] Remove all references to the former hosting platform from both repositories.
-- [ ] Make VPS and Docker Compose the only documented production deployment model.
-- [ ] Preserve useful historical context and existing migration statuses.
+- [x] Remove all references to the former hosting platform from both repositories.
+- [x] Make VPS and Docker Compose the only documented production deployment model.
+- [x] Preserve useful historical context and existing migration statuses.
 
 ## Out of Scope
 
@@ -56,16 +56,16 @@ The project documentation still describes the former hosting platform even thoug
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| VPS-01 | P1: Current deployment documentation | Execute | Implementing |
-| VPS-02 | P1: Current deployment documentation | Execute | Implementing |
-| VPS-03 | P1: Current deployment documentation | Execute | Implementing |
-| VPS-04 | P1: Current deployment documentation | Execute | Implementing |
+| VPS-01 | P1: Current deployment documentation | Execute | Verified |
+| VPS-02 | P1: Current deployment documentation | Execute | Verified |
+| VPS-03 | P1: Current deployment documentation | Execute | Verified |
+| VPS-04 | P1: Current deployment documentation | Execute | Verified |
 
 **Coverage:** 4 total, 4 mapped to inline execution, 0 unmapped.
 
 ## Success Criteria
 
-- [ ] Both repositories pass the forbidden-reference scan with zero matches.
-- [ ] Production documentation consistently describes VPS and Docker Compose.
-- [ ] Pending migration statuses and historical validation verdicts remain unchanged.
-- [ ] Unrelated modified files are not included in the documentation commits.
+- [x] Both repositories pass the forbidden-reference scan with zero matches.
+- [x] Production documentation consistently describes VPS and Docker Compose.
+- [x] Pending migration statuses and historical validation verdicts remain unchanged.
+- [x] Unrelated modified files are not included in the documentation commits.
