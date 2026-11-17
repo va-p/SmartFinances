@@ -60,11 +60,20 @@ class DeploymentDocumentationTests(unittest.TestCase):
 
     def test_cache_diagnosis_is_historical_and_requires_no_store(self):
         frontend_state = read(FRONTEND / ".specs/project/STATE.md")
+        frontend_diagnosis = next(
+            line for line in frontend_state.splitlines() if line.startswith("| 28 |")
+        )
+        self.assertIn("former hosting environment", frontend_diagnosis)
+        self.assertIn("Cache-Control: no-store", frontend_diagnosis)
+
         backend_state = read(BACKEND / ".specs/project/STATE.md")
-        self.assertIn("former hosting", frontend_state)
-        self.assertIn("infraestrutura de hospedagem anterior", backend_state)
-        self.assertIn("no-store", frontend_state)
-        self.assertIn("no-store", backend_state)
+        backend_diagnosis = next(
+            line
+            for line in backend_state.splitlines()
+            if line.startswith("- **Decisão:** Diagnóstico histórico")
+        )
+        self.assertIn("infraestrutura de hospedagem anterior", backend_diagnosis)
+        self.assertIn("Cache-Control: no-store", backend_diagnosis)
 
     def test_historical_goals_verdict_is_preserved(self):
         report = read(FRONTEND / ".specs/features/financial-goals/validation.md")
