@@ -2,6 +2,8 @@ import styled from 'styled-components/native';
 
 import { RectButton } from 'react-native-gesture-handler';
 
+import { ThemeProps } from '@interfaces/theme';
+
 export const Container = styled(RectButton)`
   min-height: 56px;
   max-height: 56px;
@@ -26,9 +28,9 @@ export const TitleContainer = styled.View`
 `;
 
 export const Title = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const SubtitleContainer = styled.View`
@@ -36,8 +38,14 @@ export const SubtitleContainer = styled.View`
 `;
 
 export const SubTitle = styled.Text`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeText};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
   padding-right: 16px;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
+`;
+
+export const CaretAndAltButtonGroup = styled.View`
+  flex-direction: row;
+  align-items: center;
+  column-gap: 12px;
 `;

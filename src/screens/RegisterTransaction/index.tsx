@@ -1845,23 +1845,21 @@ export function RegisterTransaction({
             />
             {/* TRC-03: conversion offers the direction swap; linked legs keep the plain counterpart selector */}
             {transactionType === 'TRANSFER' && isConversionToTransfer && (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <SelectButton
-                  title={getCounterpartButtonTitle()}
-                  icon={<WalletIcon color={categorySelected.color.color_code} />}
-                  onPress={() => handleOpenCounterpartChoice()}
-                  style={{ flex: 1 }}
-                />
-                <BorderlessButton
-                  onPress={toggleTransferDirection}
-                  style={{ marginLeft: 8 }}
-                >
-                  <ArrowsLeftRightIcon
-                    size={24}
-                    color={categorySelected.color.color_code}
-                  />
-                </BorderlessButton>
-              </View>
+              <SelectButton
+                title={getCounterpartButtonTitle()}
+                icon={<WalletIcon color={categorySelected.color.color_code} />}
+                onPress={() => handleOpenCounterpartChoice()}
+                altButton={{
+                  onPress: toggleTransferDirection,
+                  icon: (
+                    <ArrowsLeftRightIcon
+                      size={24}
+                      color={categorySelected.color.color_code}
+                    />
+                  ),
+                }}
+                style={{ flex: 1 }}
+              />
             )}
             {transactionType === 'TRANSFER' && !isConversionToTransfer && (
               <SelectButton
