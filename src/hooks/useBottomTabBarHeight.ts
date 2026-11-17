@@ -6,5 +6,5 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  */
 export function useBottomTabBarHeight(): number {
   const { bottom } = useSafeAreaInsets();
-  return 16 + bottom;
+  return 40 + bottom;
 }
