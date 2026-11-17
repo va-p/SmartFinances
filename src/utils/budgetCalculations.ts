@@ -118,7 +118,8 @@ export function getTransactionSpentAmount(
       ? transaction.amount_in_account_currency
       : transaction.amount;
 
-  return transaction.account.type === 'CREDIT' ? amount : -amount;
+  const magnitude = Math.abs(amount);
+  return transaction.type === 'CREDIT' ? -magnitude : magnitude;
 }
 
 export function formatBudgetInfo(

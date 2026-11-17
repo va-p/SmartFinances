@@ -201,8 +201,8 @@ describe('buildBudgetHistory', () => {
       upTo
     );
 
-    // February: credit card (-30 as-is) + foreign currency (+55 negated) = 25
-    expect(history[1].amountSpent).toBe(25);
+    // February: credit card purchase (+30) + foreign currency purchase (+55) = 85
+    expect(history[1].amountSpent).toBe(85);
   });
 
   it('does not mutate its inputs', () => {
