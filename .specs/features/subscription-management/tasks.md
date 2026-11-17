@@ -284,7 +284,7 @@ list with status icons; empty state.
 - `SmartFinances/.specs/project/ROADMAP.md`
 
 **Description:** Add AD-033…AD-038 to Decisions; note the unapplied migration
-(Known Issues, cPanel deploy step); mark "Subscription management" implemented
+(Known Issues, VPS API container deploy step); mark "Subscription management" implemented
 in the roadmap.
 
 **Verification:** docs consistent with implementation.

@@ -13,7 +13,7 @@
 
 | Task | Status | Notes |
 | ---- | ------ | ----- |
-| T1 schema/migration | ✅ Done | `prisma/schema.prisma:356-398` + migrations on disk (gitignored by convention); `prisma migrate deploy` on cPanel still pending (STATE.md #16) |
+| T1 schema/migration | ✅ Done | `prisma/schema.prisma:356-398` + migrations on disk (gitignored by convention); application through the `api` container startup on the VPS still pending (STATE.md #16) |
 | T2 zod schemas | ✅ Done | `src/schemas/goal.schema.ts` + 30 schema tests |
 | T3 service create | ✅ Done | `createGoalWithReserve`, `resolveGoalTransferCategory` |
 | T4 deposit/withdraw | ✅ Done | `depositToGoal`/`withdrawFromGoal` via `createTransferPair` |
@@ -254,7 +254,7 @@ Proposed spec.md status updates (Verifier proposal — applied by the orchestrat
 
 **Issues found**: none open. Residual watch item (non-blocking): chart-layer regressions cannot be caught by the suite until the jest ESM transform blocker is fixed (STATE.md #13 class) — add the masking render test then.
 
-**Next steps**: ship. Separately: `prisma migrate deploy` for `20260825085131_add_financial_goals` + `20260827120000_goal_reserve_optional` remains pending on cPanel (STATE.md #16) — deployment blocker, not a code defect.
+**Next steps**: ship. Separately: `20260825085131_add_financial_goals` + `20260827120000_goal_reserve_optional` remain pending until the next `api` container deployment on the VPS applies them (STATE.md #16) — deployment blocker, not a code defect.
 
 ---
 

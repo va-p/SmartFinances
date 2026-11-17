@@ -41,7 +41,7 @@ Add two boolean columns to `Transaction`.
   true AND parent_transaction_id IS NULL AND recurrence_period IN ('MONTHLY',
   'YEARLY') AND type NOT IN ('TRANSFER_CREDIT','TRANSFER_DEBIT')`.
   (Migrations dir is gitignored by project convention; file is created for
-  manual `prisma migrate deploy` on cPanel — see STATE.md #12.)
+  application through the `api` container startup on the VPS — see STATE.md #15.)
 
 ### R2 — Backend: transaction schemas accept the flags
 
