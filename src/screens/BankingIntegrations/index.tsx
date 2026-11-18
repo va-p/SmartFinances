@@ -259,7 +259,7 @@ export function BankingIntegrations() {
           contentContainerStyle={{
             flexGrow: 1,
             paddingTop: 8,
-            paddingBottom: bottomTabBarHeight + 16,
+            paddingBottom: bottomTabBarHeight,
           }}
           showsVerticalScrollIndicator={false}
         />

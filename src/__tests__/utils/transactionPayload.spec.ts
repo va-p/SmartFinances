@@ -1,4 +1,6 @@
 import {
+  buildBulkEditPayload,
+  buildSingleLegTransferPayload,
   buildTransferCreatePayload,
   buildTransferEditPayload,
   canSelectTransferTab,
@@ -6,6 +8,9 @@ import {
   convertWithRate,
   getExchangeRate,
   normalizeTags,
+  resolveConversionDirection,
+  resolveConversionPrimaryType,
+  resolveCounterpartSlotTitle,
   resolveSingleLegRate,
   resolveTransactionTab,
   resolveTransferDestinationAccount,
@@ -459,6 +464,219 @@ describe('resolveTransactionTab (edit init / TR-6)', () => {
       type: 'CREDIT',
       tab: 0,
     });
+  });
+});
+
+describe('resolveConversionDirection (TRC-01/TRC-02)', () => {
+  it('defaults CREDIT imports to source mode (own account is the destination)', () => {
+    expect(resolveConversionDirection('CREDIT')).toBe('source');
+  });
+
+  it('defaults DEBIT imports to destination mode (own account is the origin)', () => {
+    expect(resolveConversionDirection('DEBIT')).toBe('destination');
+  });
+
+  it('defaults unknown/legacy types to destination mode (today behavior)', () => {
+    expect(resolveConversionDirection(undefined)).toBe('destination');
+    expect(resolveConversionDirection('TRANSFER_DEBIT')).toBe('destination');
+  });
+});
+
+describe('resolveConversionPrimaryType (TRC-03)', () => {
+  it('maps source mode to TRANSFER_CREDIT and destination mode to TRANSFER_DEBIT', () => {
+    expect(resolveConversionPrimaryType('source')).toBe('TRANSFER_CREDIT');
+    expect(resolveConversionPrimaryType('destination')).toBe('TRANSFER_DEBIT');
+  });
+});
+
+describe('buildSingleLegTransferPayload (TRC-09/TRC-10)', () => {
+  const singleLegInput = <T extends Record<string, any>>(overrides: T = {} as T) => ({
+    transactionId: '7',
+    description: 'Resgate RDB',
+    amount: 500,
+    selectedCurrency: { id: 2, code: 'USD' },
+    account: { id: 10, currency: { code: 'USD' } },
+    categoryId: 'cat-1',
+    tags: [],
+    date: new Date('2026-11-12T10:00:00.000Z'),
+    imageUrl: null,
+    isRecurring: false,
+    recurrenceInterval: null,
+    recurrencePeriod: null,
+    quotes,
+    primaryType: 'TRANSFER_CREDIT' as const,
+    ...overrides,
+  });
+
+  it('TRC-09: converts CREDIT to an unlinked TRANSFER_CREDIT with no counterpart fields', () => {
+    const payload = buildSingleLegTransferPayload(singleLegInput());
+
+    expect(payload.transaction_id).toBe('7');
+    expect(payload.type).toBe('TRANSFER_CREDIT');
+    expect(payload.amount).toBe(500);
+    expect(payload.amount_in_account_currency).toBeNull();
+    expect(payload.exchange_rate).toBeNull();
+    expect(payload.account_id).toBe(10);
+    expect(payload.updateRelated).toBe(true);
+    expect(payload).not.toHaveProperty('related_transaction_account_id');
+    expect(payload).not.toHaveProperty('counterpartTransactionId');
+  });
+
+  it('TRC-10: converts DEBIT with conversion into the account currency', () => {
+    const payload = buildSingleLegTransferPayload(
+      singleLegInput({
+        amount: -300,
+        primaryType: 'TRANSFER_DEBIT' as const,
+        selectedCurrency: { id: 2, code: 'USD' },
+        account: { id: 10, currency: { code: 'BRL' } },
+      })
+    );
+
+    expect(payload.type).toBe('TRANSFER_DEBIT');
+    expect(payload.amount).toBe(300);
+    expect(payload.amount_in_account_currency).toBe(1500);
+    expect(payload.exchange_rate).toBe(5);
+    expect(payload.updateRelated).toBe(true);
+    expect(payload).not.toHaveProperty('related_transaction_account_id');
+  });
+
+  it('applies the user-modified rate to the converting own leg', () => {
+    const payload = buildSingleLegTransferPayload(
+      singleLegInput({
+        selectedCurrency: { id: 2, code: 'USD' },
+        account: { id: 10, currency: { code: 'BRL' } },
+        exchangeRate: 6,
+      })
+    );
+
+    expect(payload.amount_in_account_currency).toBe(3000);
+    expect(payload.exchange_rate).toBe(6);
+  });
+
+  it('keeps the primary account and category on the row', () => {
+    const payload = buildSingleLegTransferPayload(singleLegInput());
+
+    expect(payload.account_id).toBe(10);
+    expect(payload.category_id).toBe('cat-1');
+  });
+});
+
+describe('resolveCounterpartSlotTitle (TRC-11)', () => {
+  it('shows the picked account name when one is selected', () => {
+    expect(
+      resolveCounterpartSlotTitle({
+        mode: 'destination',
+        pickedName: 'Conta corrente',
+        isUnlinkedTransfer: false,
+      })
+    ).toBe('Conta corrente');
+  });
+
+  it('shows the single-leg state for unlinked transfer legs', () => {
+    expect(
+      resolveCounterpartSlotTitle({
+        mode: 'destination',
+        pickedName: null,
+        isUnlinkedTransfer: true,
+      })
+    ).toBe('Sem conta vinculada');
+  });
+
+  it('labels the conversion side from the direction mode', () => {
+    expect(
+      resolveCounterpartSlotTitle({
+        mode: 'source',
+        pickedName: null,
+        isUnlinkedTransfer: false,
+      })
+    ).toBe('Selecione a conta de origem');
+    expect(
+      resolveCounterpartSlotTitle({
+        mode: 'destination',
+        pickedName: null,
+        isUnlinkedTransfer: false,
+      })
+    ).toBe('Selecione a conta de destino');
+  });
+});
+
+describe('buildBulkEditPayload (TRC-13)', () => {
+  const bulkInput = <T extends Record<string, any>>(overrides: T = {} as T) => ({
+    formDescription: undefined as string | undefined,
+    formAmount: undefined as number | undefined,
+    transaction: {
+      id: 9,
+      description: 'Lanche',
+      amount: -50,
+      type: 'DEBIT',
+      category: { id: 'cat-food' },
+      currency: { id: 4, code: 'BRL' },
+      account: { id: 13, currency: { code: 'BRL' } },
+      tags: [],
+    },
+    transactionType: '',
+    categorySelected: { id: '', name: 'várias categorias*' },
+    currencySelected: { id: 0, name: 'várias moedas*', code: 'BRL' },
+    accountID: null as string | null,
+    accountCurrency: null as { code: string } | null,
+    date: new Date('2026-08-18T12:00:00.000Z'),
+    tagsList: [],
+    isRecurring: false,
+    recurrenceInterval: null as number | null,
+    recurrencePeriod: null as string | null,
+    userID: 'user-1',
+    quotes,
+    ...overrides,
+  });
+
+  it('preserves the plain bulk payload shape (no linkage fields)', () => {
+    const payload = buildBulkEditPayload(bulkInput());
+
+    expect(payload.transaction_id).toBe('9');
+    expect(payload.type).toBe('DEBIT');
+    expect(payload.amount).toBe(-50);
+    expect(payload.account_id).toBe(13);
+    expect(payload).not.toHaveProperty('updateRelated');
+    expect(payload).not.toHaveProperty('counterpartTransactionId');
+    expect(payload).not.toHaveProperty('related_transaction_account_id');
+  });
+
+  it('TRC-13: never emits single-leg conversion fields even on the transfer tab', () => {
+    const payload = buildBulkEditPayload(
+      bulkInput({
+        transactionType: 'TRANSFER',
+        transaction: {
+          id: 7,
+          description: 'Resgate RDB',
+          amount: 500,
+          type: 'TRANSFER_CREDIT',
+          category: { id: 'cat-1' },
+          currency: { id: 4, code: 'BRL' },
+          account: { id: 10, currency: { code: 'BRL' } },
+          tags: [],
+        },
+      })
+    );
+
+    // Tab value passes through untouched (the backend rejects the TRANSFER
+    // tab value) — crucially, no single-leg conversion is produced.
+    expect(payload.type).toBe('TRANSFER');
+    expect(payload).not.toHaveProperty('updateRelated');
+    expect(payload).not.toHaveProperty('counterpartTransactionId');
+    expect(payload).not.toHaveProperty('related_transaction_account_id');
+  });
+
+  it('keeps DEBIT amounts negative and honors explicit form overrides', () => {
+    const payload = buildBulkEditPayload(
+      bulkInput({
+        formDescription: 'Jantar',
+        formAmount: 80,
+        transactionType: 'DEBIT',
+      })
+    );
+
+    expect(payload.description).toBe('Jantar');
+    expect(payload.amount).toBe(-80);
   });
 });
 

@@ -382,3 +382,221 @@ export function buildTransferEditPayload(input: TransferEditInput) {
     exchange_rate_related_transaction: legRates.destination.exchangeRate,
   };
 }
+
+/**
+ * TRC-01/TRC-02: default conversion direction from the stored plain type.
+ * A CREDIT arrived into the account (it is the destination side, so the
+ * user picks the source); anything else converts as the origin side and
+ * the user picks the destination — preserving today's behavior.
+ */
+export type TransferDirection = 'destination' | 'source';
+
+export function resolveConversionDirection(
+  storedType: string | undefined,
+): TransferDirection {
+  return storedType === 'CREDIT' ? 'source' : 'destination';
+}
+
+/**
+ * TRC-03: the pending primary leg type for a conversion direction.
+ * The origin arg stays the own account in both modes (AD-006); the leg
+ * types carry the direction instead of swapping builder args.
+ */
+export function resolveConversionPrimaryType(
+  mode: TransferDirection,
+): 'TRANSFER_CREDIT' | 'TRANSFER_DEBIT' {
+  return mode === 'source' ? 'TRANSFER_CREDIT' : 'TRANSFER_DEBIT';
+}
+
+/**
+ * TRC-11: the counterpart slot title for the register screen. A picked
+ * account always wins; an unlinked transfer leg shows the single-leg
+ * state; otherwise the conversion-mode label tells the user which side
+ * they are picking. Bank-name prefixing stays at the call site.
+ */
+export function resolveCounterpartSlotTitle(input: {
+  mode: TransferDirection;
+  pickedName: string | null | undefined;
+  isUnlinkedTransfer: boolean;
+}): string {
+  if (input.pickedName) return input.pickedName;
+  if (input.isUnlinkedTransfer) return 'Sem conta vinculada';
+  return input.mode === 'source'
+    ? 'Selecione a conta de origem'
+    : 'Selecione a conta de destino';
+}
+
+export type SingleLegTransferInput = {
+  transactionId: string;
+  description: string;
+  amount: number; // as typed (signed)
+  selectedCurrency: SelectedCurrency;
+  account: AccountRef; // own/primary account — never moves (TRC-07)
+  categoryId: string;
+  tags: unknown[];
+  date: Date;
+  imageUrl: string | null;
+  isRecurring: boolean;
+  recurrenceInterval: number | null;
+  recurrencePeriod: string | null;
+  quotes: Quotes;
+  /**
+   * User-modified rate for the converting own leg (null/undefined = quote).
+   */
+  exchangeRate?: number | null;
+  primaryType: 'TRANSFER_CREDIT' | 'TRANSFER_DEBIT';
+};
+
+/**
+ * TRC-13: bulk-edit payload builder (extracted verbatim from the bulk
+ * handler so the contract is pinned by tests). The bulk path is plain-only
+ * by construction: the payload carries no `updateRelated`, no counterpart
+ * linkage fields, and no single-leg type flip — type passes through as-is.
+ * Bulk mode therefore cannot offer single-leg conversion.
+ */
+export type BulkEditRow = {
+  id: number | string;
+  description: string;
+  amount: number;
+  type: string;
+  category: { id: string };
+  currency: { id: number; code: string };
+  account: { id: number | string; currency: { code: string } };
+  tags: unknown[];
+};
+
+export type BulkEditInput = {
+  formDescription: string | undefined;
+  formAmount: number | undefined;
+  transaction: BulkEditRow;
+  transactionType: string;
+  categorySelected: { id: string; name: string };
+  currencySelected: { id: number; name: string; code: string };
+  accountID: string | null;
+  accountCurrency: { code: string } | null | undefined;
+  date: Date;
+  tagsList: unknown[];
+  isRecurring: boolean;
+  recurrenceInterval: number | null;
+  recurrencePeriod: string | null;
+  userID: string;
+  quotes: Quotes;
+};
+
+const BULK_DESCRIPTION_PLACEHOLDER = 'várias descrições*';
+
+export function buildBulkEditPayload(input: BulkEditInput) {
+  const updatedDescription =
+    input.formDescription &&
+    input.formDescription !== BULK_DESCRIPTION_PLACEHOLDER
+      ? input.formDescription
+      : input.transaction.description;
+
+  const updatedAmount =
+    input.formAmount && input.formAmount > 0
+      ? input.formAmount
+      : input.transaction.amount;
+
+  // DEBIT transactions must be saved as negative numbers.
+  const resolvedType = input.transactionType || input.transaction.type;
+  const signedAmount =
+    resolvedType === 'DEBIT' ? -Math.abs(updatedAmount) : updatedAmount;
+
+  const updatedCategoryId =
+    input.categorySelected.id !== '' &&
+    input.categorySelected.name !== 'Selecione a categoria'
+      ? input.categorySelected.id
+      : input.transaction.category.id;
+
+  const updatedCurrencyId =
+    input.currencySelected.id !== 0 &&
+    input.currencySelected.name !== 'várias moedas*'
+      ? input.currencySelected.id
+      : input.transaction.currency.id;
+
+  const updatedAccountId =
+    input.accountID !== null ? input.accountID : input.transaction.account.id;
+
+  const updatedDate = input.date;
+
+  const fromCurrency =
+    input.currencySelected.code || input.transaction.currency.code;
+  const targetAccountCurrency =
+    input.accountCurrency?.code || input.transaction.account.currency.code;
+
+  let amountConverted = signedAmount;
+  if (fromCurrency !== targetAccountCurrency) {
+    amountConverted = convertCurrency({
+      amount: signedAmount,
+      fromCurrency,
+      toCurrency: targetAccountCurrency,
+      accountCurrency: fromCurrency,
+      quotes: input.quotes,
+    });
+  }
+
+  return {
+    transaction_id: String(input.transaction.id),
+    created_at: updatedDate,
+    bank_transaction_id: null,
+    transaction_date: updatedDate,
+    description: updatedDescription,
+    amount: signedAmount,
+    amount_in_account_currency:
+      fromCurrency !== targetAccountCurrency ? amountConverted : null,
+    // FX-11 / A-04: bulk edit stores the quote-derived rate for converted
+    // transactions (no rate input in bulk mode)
+    exchange_rate:
+      fromCurrency !== targetAccountCurrency
+        ? getExchangeRate(fromCurrency, targetAccountCurrency, input.quotes)
+        : null,
+    currency_id: updatedCurrencyId,
+    type: input.transactionType || input.transaction.type,
+    account_id: updatedAccountId,
+    category_id: updatedCategoryId,
+    tags: normalizeTags(
+      input.tagsList.length > 0 ? input.tagsList : input.transaction.tags
+    ),
+    image_url: null,
+    is_recurring: input.isRecurring,
+    recurrence_interval: input.isRecurring ? input.recurrenceInterval : null,
+    recurrence_period: input.isRecurring ? input.recurrencePeriod : null,
+    user_id: input.userID,
+  };
+}
+
+/**
+ * TRC-09/TRC-10 single-leg conversion contract: a plain-leg type flip to
+ * `TRANSFER_*` with `updateRelated: true` and NO counterpart fields. The
+ * backend falls through to a primary-only update (no counterpart created,
+ * primary balance net zero by construction). Amounts ride as positive
+ * magnitudes — the backend re-signs transfer legs at storage (D-02).
+ */
+export function buildSingleLegTransferPayload(input: SingleLegTransferInput) {
+  const magnitude = Math.abs(input.amount);
+  const selectedCode = input.selectedCurrency.code;
+  const accountCode = input.account.currency.code;
+  const quoteRate = getExchangeRate(selectedCode, accountCode, input.quotes);
+  const rate = quoteRate === null ? null : (input.exchangeRate ?? quoteRate);
+
+  return {
+    transaction_id: input.transactionId,
+    created_at: input.date,
+    transaction_date: input.date,
+    description: input.description,
+    amount: magnitude,
+    amount_in_account_currency:
+      rate === null
+        ? null
+        : convertWithRate(magnitude, rate, selectedCode, accountCode),
+    exchange_rate: rate,
+    currency_id: input.selectedCurrency.id,
+    type: input.primaryType,
+    account_id: input.account.id,
+    category_id: input.categoryId,
+    tags: normalizeTags(input.tags),
+    image_url: input.imageUrl,
+    ...recurrenceFields(input),
+    updateRelated: true,
+  };
+}

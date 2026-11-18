@@ -360,6 +360,43 @@ describe('processTransactions', () => {
     expect(currentCashFlowValue).toBe(0);
   });
 
+  // TRC-12 — single-leg (unlinked) transfers are excluded exactly like
+  // linked ones: every exclusion predicate keys off the TRANSFER_* type,
+  // never the link. `related_transaction_id` lands on TransactionProps in
+  // T4; Object.assign keeps the fixture type-clean until then.
+  it('excludes unlinked TRANSFER_DEBIT legs from the realized cash flow', () => {
+    const singleLeg = Object.assign(
+      makeTransaction({ type: 'TRANSFER_DEBIT' }),
+      { related_transaction_id: null }
+    );
+    const { currentCashFlowValue, groupedTransactions } = processTransactions(
+      [singleLeg],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(currentCashFlowValue).toBe(0);
+  });
+
+  // TRC-12 — same guarantee for the credit side (e.g. unlinked Resgate RDB).
+  it('excludes unlinked TRANSFER_CREDIT legs from the realized cash flow', () => {
+    const singleLeg = Object.assign(
+      makeTransaction({ type: 'TRANSFER_CREDIT', amount: 500 }),
+      { related_transaction_id: null }
+    );
+    const { currentCashFlowValue, cashFlowChartData } = processTransactions(
+      [singleLeg],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(currentCashFlowValue).toBe(0);
+    expect(cashFlowChartData).toHaveLength(0);
+  });
+
   // BC-23 — unsupported account currencies are skipped from every aggregate
   it('skips unsupported account currencies from the cash flow and day total', () => {
     const ethAccountTx = makeTransaction({

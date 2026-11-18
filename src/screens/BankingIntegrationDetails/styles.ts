@@ -92,7 +92,7 @@ export const EmptyAccountsText = styled.Text`
 export const Footer = styled.View`
   width: 100%;
   position: absolute;
-  bottom: 56px;
+  bottom: 72px;
   left: 16px;
   padding: 16px 0;
   align-items: center;
