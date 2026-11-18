@@ -382,4 +382,27 @@ describe('formatBudgetInfo', () => {
     expect(result.amount_spent).toBe(80);
     expect(result.percentage).toBe(8);
   });
+
+  // HIDE-02/HIDE-04 — hidden rows contribute 0 and never appear in budget_transactions
+  it('excludes hidden-account transactions from amount spent and budget transactions', () => {
+    const budget = makeBudget();
+
+    const visible = makeTransaction({
+      id: 1,
+      created_at: '2026-08-18T12:00:00',
+      amount: -100,
+    });
+    const hidden = makeTransaction({
+      id: 2,
+      created_at: '2026-08-19T12:00:00',
+      amount: -500,
+      account: { ...bankAccount, hide: true },
+    });
+
+    const result = formatBudgetInfo(budget, [visible, hidden], upTo);
+
+    expect(result.amount_spent).toBe(100);
+    expect(result.percentage).toBe(10);
+    expect(result.budget_transactions.map((t) => t.id)).toEqual([1]);
+  });
 });

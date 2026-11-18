@@ -444,3 +444,66 @@ describe('processTransactions with transaction_date (imported transactions)', ()
     expect(groupedTransactions[0].title).toBe('18/08/2026');
   });
 });
+
+describe('processTransactions with hidden accounts', () => {
+  const hiddenAccount = {
+    id: 14,
+    name: 'Hidden savings',
+    type: 'BANK',
+    currency: brl,
+    balance: 0,
+    initialAmount: null,
+    hide: true,
+  } as const;
+
+  // HIDE-01/HIDE-03 — hidden rows appear in neither the list nor the totals
+  it('excludes hidden-account transactions from groupedTransactions and current cash flow', () => {
+    const { groupedTransactions, currentCashFlowValue } = processTransactions(
+      [
+        makeTransaction({ id: 1, amount: -50 }),
+        makeTransaction({
+          id: 2,
+          description: 'Hidden expense',
+          amount: -100,
+          account: { ...hiddenAccount },
+        }),
+      ],
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(groupedTransactions).toHaveLength(1);
+    expect(groupedTransactions[0].data.map((t) => t.id)).toEqual([1]);
+    expect(currentCashFlowValue).toBe(-50);
+  });
+
+  // HIDE-03 — visible rows produce byte-identical output vs before the change
+  it('keeps visible-account output identical when a hidden row is present', () => {
+    const visible = [
+      makeTransaction({ id: 1, amount: -50 }),
+      makeTransaction({ id: 3, amount: 25, type: 'CREDIT' }),
+    ];
+    const withHidden = [
+      ...visible,
+      makeTransaction({
+        id: 2,
+        description: 'Hidden expense',
+        amount: -999,
+        account: { ...hiddenAccount },
+      }),
+    ];
+
+    const before = processTransactions(visible, 'months', selectedDate, quotes);
+    const after = processTransactions(
+      withHidden,
+      'months',
+      selectedDate,
+      quotes
+    );
+
+    expect(after.groupedTransactions).toEqual(before.groupedTransactions);
+    expect(after.currentCashFlowValue).toBe(before.currentCashFlowValue);
+    expect(after.cashFlowChartData).toEqual(before.cashFlowChartData);
+  });
+});

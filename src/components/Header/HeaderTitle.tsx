@@ -4,10 +4,13 @@ import { TitleContainer, Title, Description } from './styles';
 
 type Props = TextProps & {
   title: string;
-  description?: string | null;
+  description?: string;
 };
 
-export function HeaderTitle({ title, description = undefined }: Props) {
+export function HeaderTitle({
+  title,
+  description = undefined,
+}: Props) {
   return (
     <TitleContainer>
       <Title>{title}</Title>

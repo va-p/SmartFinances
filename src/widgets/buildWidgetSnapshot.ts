@@ -5,6 +5,7 @@ import { ptBR } from 'date-fns/locale';
 import formatCurrency from '@utils/formatCurrency';
 import { calculateTotalAssets } from '@utils/calculateTotalAssets';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { excludeHiddenAccountTransactions } from '@utils/hiddenAccounts';
 import { Quotes, convertToBaseCurrency } from '@utils/baseCurrency';
 
 import { CurrencyCodes } from '@interfaces/currencies';
@@ -281,16 +282,22 @@ function buildInstitutions(
 
 export function buildWidgetSnapshot(input: ComposerInput): WidgetSnapshot {
   const now = input.now ?? new Date();
+  // Hidden accounts (HIDE-04): one pre-filter so cash-flow, spark, and donut
+  // all inherit it; account balances are already hidden-free via
+  // calculateTotalAssets / buildInstitutions.
+  const visibleTransactions = excludeHiddenAccountTransactions(
+    input.transactions
+  );
   const budgets = buildBudgetsSnapshot(input.budgets);
   const cashFlow = buildCashFlow(
-    input.transactions,
+    visibleTransactions,
     input.baseCurrencyCode,
     input.quotes,
     now,
     input.hidden
   );
   const { total, netWorth } = buildNetWorth(
-    input.transactions,
+    visibleTransactions,
     input.accounts,
     input.categories,
     input.quotes,

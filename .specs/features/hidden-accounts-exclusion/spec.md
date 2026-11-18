@@ -114,12 +114,12 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| HIDE-01 | P1: transaction lists (Home) | Design | Pending |
-| HIDE-02 | P1: transaction lists (category/budget/selectors) | Design | Pending |
-| HIDE-03 | P1: balances and charts (Home/Accounts cash-flow + net worth) | Design | Pending |
-| HIDE-04 | P1: balances and charts (Overview/budgets/widgets) | Design | Pending |
-| HIDE-05 | P1: management surfaces unchanged | Design | Pending |
-| HIDE-06 | P1: backend hide flag on payloads | Design | Pending |
+| HIDE-01 | P1: transaction lists (Home) | Execute | Verified |
+| HIDE-02 | P1: transaction lists (category/budget/selectors) | Execute | Verified |
+| HIDE-03 | P1: balances and charts (Home/Accounts cash-flow + net worth) | Execute | Verified |
+| HIDE-04 | P1: balances and charts (Overview/budgets/widgets) | Execute | Verified |
+| HIDE-05 | P1: management surfaces unchanged | Execute | Verified |
+| HIDE-06 | P1: backend hide flag on payloads | Execute | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)
 

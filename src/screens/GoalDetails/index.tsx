@@ -130,9 +130,12 @@ export function GoalDetails() {
   const { mutate: deleteGoal } = useDeleteGoalMutation();
 
   // Destination accounts for the delete transfer-back: real accounts only
-  // (GOAL-26).
+  // (GOAL-26). Hidden accounts are excluded too (HIDE-02).
   const deleteDestinationAccounts = useMemo(
-    () => (accountsData ?? []).filter((account) => !account.isVirtual),
+    () =>
+      (accountsData ?? []).filter(
+        (account) => !account.isVirtual && !account.hide
+      ),
     [accountsData]
   );
 
