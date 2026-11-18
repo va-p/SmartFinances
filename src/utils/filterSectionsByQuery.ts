@@ -1,4 +1,5 @@
 import { filterItemsByQuery } from './filterItemsByQuery';
+import type { InvestmentGroup } from './groupInvestments';
 
 type GetSearchText<TItem> = (item: TItem) => string | null | undefined;
 
@@ -30,4 +31,36 @@ export function filterSectionsByQuery<TSection extends FilterableSection>(
       data: filterItemsByQuery(section.data, searchQuery, getSearchText),
     }))
     .filter((section) => section.data.length > 0);
+}
+
+/**
+ * Searchable text for one investment group (INV-08): the group label
+ * plus every member's name, issuer, and rate reference. A query
+ * matching any of them surfaces the entire group (Q4).
+ */
+export function investmentGroupSearchText(group: InvestmentGroup): string {
+  const memberText = group.members.flatMap((member) => [
+    member.name,
+    member.investmentData?.issuer ?? '',
+    member.investmentData?.rateType ?? '',
+  ]);
+  return [group.label, ...memberText].join(' ');
+}
+
+/**
+ * Whole-group search (INV-08, Q4): a query matching any member name,
+ * issuer, or rate label keeps the entire group with stable sums.
+ * An empty query returns the groups unchanged.
+ */
+export function filterInvestmentGroups(
+  groups: InvestmentGroup[],
+  searchQuery: string
+): InvestmentGroup[] {
+  if (!searchQuery || searchQuery.trim().length === 0) {
+    return groups;
+  }
+  const query = searchQuery.trim().toLowerCase();
+  return groups.filter((group) =>
+    investmentGroupSearchText(group).toLowerCase().includes(query)
+  );
 }

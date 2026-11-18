@@ -78,6 +78,7 @@ import {
   isTomorrow,
   isYesterday,
 } from 'date-fns';
+import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -209,6 +210,8 @@ export function RegisterTransaction({
     accountCurrency,
     accountType,
     accountInitialAmount,
+    accountBankingIntegration,
+    setAccountBankingIntegration,
     setAccountId: setAccountID,
     setAccountName,
     setAccountCurrency,
@@ -217,6 +220,8 @@ export function RegisterTransaction({
   } = useCurrentAccountSelected();
   const [accountDestinationSelected, setAccountDestinationSelected] =
     useState<AccountProps | null>(null);
+  const accountDestinationBankName =
+    accountDestinationSelected?.bankingIntegration?.bankName;
   const [date, setDate] = useState(new Date());
 
   const shortDatesMap: Record<string, string> = {
@@ -500,11 +505,11 @@ export function RegisterTransaction({
     accountDestinationSelected &&
     accountCurrency
       ? resolveSingleLegRate(
-          currencySelected.code,
-          accountCurrency.code,
-          accountDestinationSelected.currency?.code ?? '',
-          quotes
-        )
+        currencySelected.code,
+        accountCurrency.code,
+        accountDestinationSelected.currency?.code ?? '',
+        quotes
+      )
       : null;
   const rateFieldVisible = !isBulkEdit
     ? isPlainTab
@@ -970,7 +975,7 @@ export function RegisterTransaction({
     // value is recomputed from the applied rate (same formula as the derived
     // display), not from live quotes.
     const appliedRate = appliedExchangeRate();
-    let amountConverted =
+    const amountConverted =
       conversionApplies && appliedRate
         ? convertWithRate(
             amount,
@@ -1435,6 +1440,7 @@ export function RegisterTransaction({
       setAccountName(transactionData.account.name);
       setAccountCurrency(transactionData.account.currency);
       setAccountType(transactionData.account.type);
+      setAccountBankingIntegration(transactionData.account.banking_integration);
       const parsedDate = new Date(
         transactionData.transaction_date ?? transactionData.created_at
       );
@@ -1519,6 +1525,26 @@ export function RegisterTransaction({
 
   if (isLoadingTags || isLoadingDetails || isLoadingBulkTransactions) {
     return false;
+  }
+
+  const bankName = accountBankingIntegration?.bankName;
+
+  function getAccountButtonText():string {
+    if (bankName && accountName)  return `${bankName} • ${accountName}`;
+
+    if (accountName) return accountName;
+
+    return 'Selecione a conta';
+  }
+
+  function getSecondAccountButtonText(): string {
+    if (accountDestinationBankName && accountDestinationSelected?.name)
+      return `${accountDestinationBankName} • ${accountDestinationSelected?.name}`;
+
+    if (accountDestinationSelected?.name)
+      return accountDestinationSelected?.name;
+
+    return 'Selecione a conta de destino';
   }
 
   function getFormTitle() {
@@ -1668,16 +1694,13 @@ export function RegisterTransaction({
             }}
           >
             <SelectButton
-              title={accountName || 'Selecione a conta'}
+              title={getAccountButtonText()}
               icon={<WalletIcon color={categorySelected.color.color_code} />}
               onPress={() => handleOpenSelectAccountModal()}
             />
             {transactionType === 'TRANSFER' && (
               <SelectButton
-                title={
-                  accountDestinationSelected?.name ||
-                  'Selecione a conta de destino'
-                }
+                title={getSecondAccountButtonText()}
                 icon={<WalletIcon color={categorySelected.color.color_code} />}
                 onPress={() => handleOpenSelectAccountDestinationModal()}
               />
@@ -1968,6 +1991,7 @@ export function RegisterTransaction({
               type: accountType || 'BANK',
               balance: 0,
               initialAmount: accountInitialAmount,
+              banking_integration: accountBankingIntegration
             }}
             setAccount={(account: AccountProps) => {
               setAccountID(String(account.id));

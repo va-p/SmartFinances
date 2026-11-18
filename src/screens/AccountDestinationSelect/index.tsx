@@ -75,7 +75,7 @@ export function AccountDestinationSelect({
             onRefresh={() => handleRefresh()}
           />
         }
-        style={{ flex: 1, width: '100%' }}
+        style={{ flexGrow: 1, width: '100%' }}
       />
     </Container>
   );

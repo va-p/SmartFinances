@@ -114,11 +114,13 @@ jest.mock('react-native-reanimated', () => {
   // Unknown exports (entering/exiting animation classes, interpolators, ...)
   // resolve to chainable inert stubs so components referencing them still
   // render: entry animations are built as `FadeInUp.delay(ms).springify()`
-  // and passed to the `entering` prop, which plain Views ignore.
+  // and passed to the `entering` prop, which plain Views ignore. Calls
+  // return the chainable itself so built chains like
+  // `FadeInUp.easing(Easing.bounce).duration(500)` never throw.
   const inertAnimation = () => ({});
   const chainable = new Proxy(inertAnimation, {
     get: () => chainable,
-    apply: () => ({}),
+    apply: () => chainable,
   });
   return new Proxy(core, {
     get(target, prop) {
