@@ -21,6 +21,8 @@ import {
   Poppins_700Bold as Poppins700Bold,
 } from '@expo-google-fonts/poppins';
 
+import { WidgetBridge } from 'widget-bridge';
+
 import { useQuotes } from '@stores/quotesStorage';
 import { useQuotesQuery } from '@hooks/useQuotesQuery';
 import { useUserConfigs } from '@stores/userConfigsStorage';
@@ -31,6 +33,8 @@ import { parseStoredBaseCurrency } from '@utils/baseCurrency';
 import darkTheme from '@themes/darkTheme';
 import lightTheme from '@themes/lightTheme';
 import { useCurrenciesStore } from '@stores/currenciesStore';
+
+import { setWidgetBridge, useWidgetSnapshotSync } from '../widgets/useWidgetSnapshotSync';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,6 +55,15 @@ const tokenCache = {
 };
 
 function RootNavigationLayout() {
+  // Home-screen widgets: register the native bridge (no-op in Expo Go) and
+  // sync the shared snapshot on every data change.
+  useEffect(() => {
+    if (WidgetBridge) {
+      setWidgetBridge(WidgetBridge);
+    }
+  }, []);
+  useWidgetSnapshotSync();
+
   const { data: currenciesData } =
     useCurrenciesQuery();
   const setCurrencies = useCurrenciesStore((state) => state.setCurrencies);

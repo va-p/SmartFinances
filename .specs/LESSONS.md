@@ -80,6 +80,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: TLINK-03 (screens)
 - last seen: 2026-11-02T21:52:39Z
 
+### L-016 - Never assert masked/redacted output against the module's own exported constant; assert the literal so mask mutants die in the closest suite.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `src/widgets` · harmful: 0
+- features: home-widgets
+- evidence: src/widgets/__tests__/buildWidgetSnapshot.test.ts:184-187 (src/widgets)
+- last seen: 2026-11-10T01:35:01Z
+
+### L-017 - Pin widget chart contract in spec (donut time-window, bar bucketing/caps per size) or native caps drift silently.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: home-widgets
+- evidence: WDG-25/donut + WDG-12/bars (spec)
+- last seen: 2026-11-10T01:35:01Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
