@@ -96,6 +96,28 @@ describe('selectSubscriptionCandidates (SD-06)', () => {
       ])
     ).toEqual([]);
   });
+
+  // HIDE-02 — a credit/debit unclassified transaction on a hidden account is not offered
+  it('excludes transactions on hidden accounts', () => {
+    const visible = makeTransaction({ id: 7, type: 'CREDIT' });
+    const hiddenAccount = makeTransaction({
+      id: 8,
+      type: 'CREDIT',
+      account: {
+        id: 1,
+        name: 'Conta',
+        currency: { id: 1, name: 'Real', code: 'BRL', symbol: 'R$' },
+        type: 'BANK',
+        balance: 0,
+        initialAmount: 0,
+        hide: true,
+      },
+    });
+
+    expect(selectSubscriptionCandidates([visible, hiddenAccount])).toEqual([
+      visible,
+    ]);
+  });
 });
 
 describe('resolveSubscriptionSwitch (SD-16/SD-17)', () => {

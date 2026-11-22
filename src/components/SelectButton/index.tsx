@@ -6,29 +6,42 @@ import {
   TitleContainer,
   Title,
   SubTitle,
+  CaretAndAltButtonGroup,
 } from './styles';
 
+import {
+  BorderlessButton,
+  RectButtonProps,
+} from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components';
-import { RectButtonProps } from 'react-native-gesture-handler';
+
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 import { ThemeProps } from '@interfaces/theme';
-import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 
 type Props = RectButtonProps & {
   title: string;
   subTitle?: string;
   icon: any;
+  altButton?: {
+    onPress: () => void;
+    icon: any;
+  };
 };
 
-export function SelectButton({ title, subTitle = undefined, icon, ...rest }: Props) {
+export function SelectButton({
+  title,
+  subTitle = undefined,
+  icon,
+  altButton = undefined,
+  ...rest
+}: Props) {
   const theme = useTheme() as ThemeProps;
 
   return (
     <Container {...rest}>
       <IconAndTextsContainer>
-        <IconContainer>
-          {icon}
-        </IconContainer>
+        <IconContainer>{icon}</IconContainer>
 
         <TitleContainer>
           <Title>{title}</Title>
@@ -36,7 +49,18 @@ export function SelectButton({ title, subTitle = undefined, icon, ...rest }: Pro
         </TitleContainer>
       </IconAndTextsContainer>
 
-      <CaretRightIcon size={16} color={theme.colors.text} />
+      <CaretAndAltButtonGroup>
+        {altButton && (
+          <BorderlessButton
+            onPress={altButton.onPress}
+            style={{ marginLeft: 8 }}
+          >
+            {altButton.icon}
+          </BorderlessButton>
+        )}
+
+        <CaretRightIcon size={16} color={theme.colors.text} />
+      </CaretAndAltButtonGroup>
     </Container>
   );
 }

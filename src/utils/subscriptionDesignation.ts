@@ -1,4 +1,5 @@
 import { TransactionProps } from '@interfaces/transactions';
+import { isHiddenAccountTransaction } from '@utils/hiddenAccounts';
 
 export type RecurrencePeriodValue = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 
@@ -80,7 +81,8 @@ export function resolveRecurrenceSaved(
 /**
  * Transactions offered when designating a subscription from existing ones
  * (SD-06): credit/debit only (transfers are internal movements, never
- * subscriptions) and not already designated.
+ * subscriptions) and not already designated. Hidden-account rows are never
+ * offered (HIDE-02).
  */
 export function selectSubscriptionCandidates(
   transactions: TransactionProps[]
@@ -88,7 +90,8 @@ export function selectSubscriptionCandidates(
   return transactions.filter(
     (transaction) =>
       (transaction.type === 'CREDIT' || transaction.type === 'DEBIT') &&
-      !transaction.is_subscription
+      !transaction.is_subscription &&
+      !isHiddenAccountTransaction(transaction)
   );
 }
 

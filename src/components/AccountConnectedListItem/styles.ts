@@ -2,10 +2,7 @@ import styled, { css } from 'styled-components/native';
 
 import { RectButton } from 'react-native-gesture-handler';
 
-import {
-  ExecutionStatusTypes,
-  StatusTypes,
-} from '@interfaces/bankingIntegration';
+import { StatusTypes } from '@interfaces/bankingIntegration';
 
 type Props = {
   isTitle: boolean;
@@ -13,7 +10,6 @@ type Props = {
 
 type StatusProps = {
   status: StatusTypes;
-  executionStatus: ExecutionStatusTypes;
 };
 
 export const Container = styled(RectButton)`
@@ -85,23 +81,24 @@ export const ConnectionStatus = styled.View<StatusProps>`
   max-height: 12px;
   border-radius: 6px;
 
-  ${({ status, executionStatus }) =>
-    status === 'UPDATED' &&
-    executionStatus === 'SUCCESS' &&
+  ${({ status }) =>
+    (status === 'SYNCED' || status === 'UPDATED') &&
     css`
       background-color: ${({ theme }) => theme.colors.success};
       border: 1px solid ${({ theme }) => theme.colors.success};
     `};
-  ${({ executionStatus }) =>
-    executionStatus === 'ERROR' &&
+  ${({ status }) =>
+    (status === 'AUTH_ERROR' || status === 'LOGIN_ERROR') &&
     css`
       background-color: ${({ theme }) => theme.colors.attention};
       border: 1px solid ${({ theme }) => theme.colors.attention};
     `};
 
-  ${({ status, executionStatus }) =>
+  ${({ status }) =>
+    status !== 'SYNCED' &&
     status !== 'UPDATED' &&
-    (executionStatus !== 'SUCCESS' || 'ERROR') &&
+    status !== 'AUTH_ERROR' &&
+    status !== 'LOGIN_ERROR' &&
     css`
       background-color: ${({ theme }) => theme.colors.primary};
       border: 1px solid ${({ theme }) => theme.colors.primary};

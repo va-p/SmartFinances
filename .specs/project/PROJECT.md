@@ -1,7 +1,7 @@
 # SmartFinances — Project Overview
 
 ## Summary
-SmartFinances is a **React Native / Expo** mobile application (iOS + Android) that helps users manage their personal finances. It provides automatic bank account and credit card integration (via **Pluggy.ai**), AI-powered transaction categorization (via **Gemini AI**), and a full suite of manual finance management tools. User authentication is handled by **Clerk** (SSO/Google + email/password) bridged to a **custom Node.js + Express backend** deployed on a cPanel server with PostgreSQL. Monetization is powered by **RevenueCat** (in-app subscriptions).
+SmartFinances is a **React Native / Expo** mobile application (iOS + Android) that helps users manage their personal finances. It provides automatic bank account and credit card integration (via **Pluggy.ai**), AI-powered transaction categorization (via **Gemini AI**), and a full suite of manual finance management tools. User authentication is handled by **Clerk** (SSO/Google + email/password) bridged to a **custom Node.js + Express backend** deployed on a dedicated VPS with Docker Compose and PostgreSQL. Monetization is powered by **RevenueCat** (in-app subscriptions).
 
 ---
 
@@ -45,7 +45,7 @@ SmartFinances is a **React Native / Expo** mobile application (iOS + Android) th
 | Runtime | Node.js >= 18 |
 | Framework | Express v5 |
 | ORM | Prisma v7 |
-| Database | PostgreSQL (hosted on cPanel via `@prisma/adapter-pg`) |
+| Database | PostgreSQL in a Docker container on the VPS (accessed via `@prisma/adapter-pg`) |
 | Auth | Clerk (`@clerk/express`) + JWT (jsonwebtoken) |
 | Password hashing | Argon2 |
 | Validation | Zod + Joi |
@@ -53,7 +53,7 @@ SmartFinances is a **React Native / Expo** mobile application (iOS + Android) th
 | Logging | Winston + Morgan |
 | Rate limiting | express-rate-limit |
 | Security | Helmet, CORS |
-| Deployment | cPanel Node.js Selector + reverse proxy (.htaccess) |
+| Deployment | Dedicated VPS + Docker Compose (`api`, `postgres`, `pgadmin`), behind a reverse proxy |
 
 ---
 

@@ -8,6 +8,7 @@ import {
 } from 'date-fns';
 import formatCurrency from '@utils/formatCurrency';
 import formatDatePtBr from '@utils/formatDatePtBr';
+import { excludeHiddenAccountTransactions } from '@utils/hiddenAccounts';
 import { BudgetProps, FormattedBudgetProps } from '@interfaces/budget';
 import { TransactionProps } from '@interfaces/transactions';
 
@@ -117,7 +118,8 @@ export function getTransactionSpentAmount(
       ? transaction.amount_in_account_currency
       : transaction.amount;
 
-  return transaction.account.type === 'CREDIT' ? amount : -amount;
+  const magnitude = Math.abs(amount);
+  return transaction.type === 'CREDIT' ? -magnitude : magnitude;
 }
 
 export function formatBudgetInfo(
@@ -129,13 +131,15 @@ export function formatBudgetInfo(
 
   const { startDate, endDate } = periods[periods.length - 1];
 
-  const filteredTransactions = transactions.filter(
+  const filteredTransactions = excludeHiddenAccountTransactions(
+    transactions
+  ).filter(
     (transaction) =>
       budget.categories.find(
         (cat: any) => cat.category_id === transaction.category.id
       ) &&
-      new Date(transaction.created_at) >= startDate &&
-      new Date(transaction.created_at) <= endDate
+      new Date(transaction.transaction_date ?? transaction.created_at) >= startDate &&
+      new Date(transaction.transaction_date ?? transaction.created_at) <= endDate
   );
 
   let amountSpent = 0;

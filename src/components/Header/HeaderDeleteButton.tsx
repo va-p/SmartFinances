@@ -15,7 +15,7 @@ export function HeaderDeleteButton({ handleClickDeleteButton }: Props) {
   const theme = useTheme() as ThemeProps;
 
   return (
-    <Button onPress={handleClickDeleteButton}>
+    <Button onPress={handleClickDeleteButton} testID='header-delete-button'>
       <TrashIcon size={24} color={theme.colors.primary} />
     </Button>
   );

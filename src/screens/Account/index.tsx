@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  FlatList,
   RefreshControl,
   StyleSheet,
   SectionList,
@@ -52,11 +53,12 @@ import {
   RectButton,
 } from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { useForm } from 'react-hook-form';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
 
 // Components
 import { Screen } from '@components/Screen';
@@ -66,6 +68,7 @@ import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { ModalView } from '@components/Modals/ModalView';
 import TransactionListItem from '@components/TransactionListItem';
+import { AccountListItem } from '@components/AccountListItem';
 import { SectionListHeader } from '@components/SectionListHeader';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
@@ -85,16 +88,21 @@ import { useSelectedPeriod } from '@stores/selectedPeriodStorage';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
+import { AccountProps } from '@interfaces/accounts';
 import { TransactionProps } from '@interfaces/transactions';
 import { useAccountDetailQuery } from '@hooks/useAcccountDetailQuery';
+import { useAccountsQuery } from '@hooks/useAccountsQuery';
+import { useCurrentAccountSelected } from '@stores/currentAccountSelectedStorage';
 
 const isAndroid = Platform.OS === 'android';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const PERIOD_RULER_LIST_COLUMN_WIDTH = (SCREEN_WIDTH - 32) / 6;
-const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid ? 64 : 96;
+const REGISTER_TRANSACTION_TRANSACTION_BUTTON_BOTTOM_POSITION = isAndroid
+  ? 64
+  : 96;
 
 export function Account() {
-  const theme  = useTheme() as ThemeProps;
+  const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const { selectedPeriod, selectedDate, setSelectedDate } = useSelectedPeriod();
@@ -108,6 +116,20 @@ export function Account() {
   const quotes = useQuotes();
   const { id } = useLocalSearchParams();
   const accountID = Number(id);
+  const router = useRouter();
+  // Investment group mode (INV-03/INV-04): a collapsed group opens this
+  // screen with the member list instead of transactions.
+  const groupKey = useCurrentAccountSelected((state) => state.accountGroupKey);
+  const groupMemberIds = useCurrentAccountSelected(
+    (state) => state.accountGroupMemberIds
+  );
+  const groupName = useCurrentAccountSelected((state) => state.accountName);
+  const groupBalance = useCurrentAccountSelected(
+    (state) => state.accountBalance
+  );
+  const isGroupRoute = typeof id === 'string' && id.startsWith('group:');
+  const isGroupMode =
+    isGroupRoute && groupKey !== null && groupMemberIds !== null;
   // Animated header
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
@@ -154,11 +176,9 @@ export function Account() {
     isError,
   } = useAccountDetailQuery(accountID);
 
-  const {
-    data: allTransactions,
-    isLoading,
-    refetch,
-  } = useTransactionsQuery();
+  const { data: allTransactions, isLoading, refetch } = useTransactionsQuery();
+
+  const { data: allAccounts, refetch: refetchAccounts } = useAccountsQuery();
 
   const { mutate: deleteAccount } = useDeleteAccountMutation();
 
@@ -244,6 +264,56 @@ export function Account() {
     [processedData.transactionsFormattedBySelectedPeriod, searchQuery]
   );
 
+  // Investment group members, resolved from the accounts cache (INV-04).
+  const groupMembers = useMemo(() => {
+    if (!isGroupMode || !allAccounts || !groupMemberIds) {
+      return [];
+    }
+    const idSet = new Set(groupMemberIds);
+    return allAccounts.filter((member) => idSet.has(String(member.id)));
+  }, [isGroupMode, allAccounts, groupMemberIds]);
+
+  const filteredGroupMembers = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return groupMembers;
+    }
+    return groupMembers.filter((member) =>
+      member.name.toLowerCase().includes(query)
+    );
+  }, [groupMembers, searchQuery]);
+
+  function handleOpenMember(member: AccountProps) {
+    useCurrentAccountSelected.setState(() => ({
+      accountId: String(member.id),
+      accountName: member.name,
+      accountType: member.type,
+      accountSubType: member.subtype ?? null,
+      accountCurrency: member.currency,
+      accountBalance: String(member.balance),
+      accountCreditData: member.creditData || null,
+      accountGroupKey: null,
+      accountGroupMemberIds: null,
+    }));
+    router.navigate({
+      pathname: '/accounts/[accountId]',
+      params: { id: String(member.id) },
+    });
+  }
+
+  async function handleGroupRefresh() {
+    setIsManualRefreshing(true);
+    try {
+      await refetchAccounts();
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  }
+
+  function renderGroupEmpty() {
+    return <ListEmptyComponent />;
+  }
+
   const renderPeriodRuler = useCallback(() => {
     // Years source for the 'years' ruler: the user's transaction years.
     // Other period modes ignore the years param.
@@ -279,6 +349,85 @@ export function Account() {
     handleDateChange,
     handlePressDate,
   ]);
+
+  // Group mode renders the member list and skips every single-account
+  // concern (transactions, cash flow, edit, delete, register). It sits
+  // after every hook so toggling modes never reorders hooks. A group
+  // route without store payload falls through to the error state below.
+  if (isGroupMode) {
+    return (
+      <Screen>
+        <Container>
+          <Gradient />
+
+          <HeaderContainer>
+            <Header.Root>
+              <Header.BackButton />
+              <Header.Title title={groupName || ''} numberOfLines={3} />
+              <HeaderButtonGroup>
+                <Header.SearchButton
+                  onPress={() => setShowSearchInput((prevState) => !prevState)}
+                />
+              </HeaderButtonGroup>
+            </Header.Root>
+          </HeaderContainer>
+
+          <AccountBalanceContainer>
+            <AccountBalanceGroup>
+              <AccountBalance balanceIsPositive={Number(groupBalance) >= 0}>
+                {!hideAmount
+                  ? formatCurrency(baseCurrencyCode, Number(groupBalance))
+                  : '•••••'}
+              </AccountBalance>
+              <AccountBalanceDescription>
+                {`${groupMembers.length} contas`}
+              </AccountBalanceDescription>
+            </AccountBalanceGroup>
+          </AccountBalanceContainer>
+
+          {showSearchInput && (
+            <SearchBar control={control} onClear={() => reset()} />
+          )}
+
+          <Transactions>
+            <FlatList
+              data={filteredGroupMembers}
+              keyExtractor={(member) => String(member.id)}
+              renderItem={({ item: member, index: memberIndex }) => (
+                <AccountListItem
+                  data={{
+                    ...member,
+                    balance: formatCurrency(
+                      member.currency.code,
+                      Number(member.balance),
+                      false
+                    ),
+                  }}
+                  index={memberIndex}
+                  icon={<BankIcon color={theme.colors.primary} />}
+                  hideAmount={hideAmount}
+                  testID={`group-member-${member.id}`}
+                  onPress={() => handleOpenMember(member)}
+                />
+              )}
+              ListEmptyComponent={() => renderGroupEmpty()}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isManualRefreshing}
+                  onRefresh={() => handleGroupRefresh()}
+                />
+              }
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                rowGap: 8,
+                paddingBottom: bottomTabBarHeight + 16,
+              }}
+            />
+          </Transactions>
+        </Container>
+      </Screen>
+    );
+  }
 
   if (isLoadingAccountDetails) {
     return <SkeletonAccountsScreen />;
@@ -437,7 +586,7 @@ export function Account() {
           <HeaderContainer>
             <Header.Root>
               <Header.BackButton />
-              <Header.Title title={accountName || ''} />
+              <Header.Title title={accountName || ''} numberOfLines={3} />
               <HeaderButtonGroup>
                 <Header.SearchButton
                   onPress={() => setShowSearchInput((prevState) => !prevState)}
@@ -460,12 +609,20 @@ export function Account() {
             <AccountBalanceGroup>
               <AccountBalance balanceIsPositive={balanceIsPositive}>
                 {!hideAmount
-                  ? formatCurrency(accountCurrencyCode, Number(accountBalance))
+                  ? formatCurrency(
+                    accountCurrencyCode,
+                    Number(
+                      !isCreditCard
+                        ? accountBalance
+                        : Number(account.creditData?.creditLimit) -
+                              Number(account.creditData?.availableCreditLimit)
+                    )
+                  )
                   : '•••••'}
               </AccountBalance>
               <AccountBalanceDescription>
                 {!isCreditCard && 'Saldo da conta'}
-                {isCreditCard && 'Saldo do cartão'}
+                {isCreditCard && 'Próxima fatura'}
               </AccountBalanceDescription>
             </AccountBalanceGroup>
 
@@ -499,7 +656,9 @@ export function Account() {
             sections={filteredTransactions}
             keyExtractor={(item: any) => item.id}
             renderItem={({ item, index }: any) => renderItem({ item, index })}
-            renderSectionHeader={({ section }: any) => renderSectionHeader({ section })}
+            renderSectionHeader={({ section }: any) =>
+              renderSectionHeader({ section })
+            }
             ListEmptyComponent={() => renderEmpty()}
             initialNumToRender={2000}
             refreshControl={
@@ -551,7 +710,7 @@ export function Account() {
         </ModalViewSelection>
 
         <ModalView
-          type="secondary"
+          type='secondary'
           title={`Editar Conta ${accountName}`}
           bottomSheetRef={editAccountBottomSheetRef}
           snapPoints={['75%']}

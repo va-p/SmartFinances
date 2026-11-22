@@ -90,9 +90,9 @@
 - [x] Subscription management (Netflix, Spotify, etc.) with automatic identification based on transactions.
 - [x] Financial goals / savings targets
 - [x] Transaction reminders / notifications
-- [ ] Widgets (iOS / Android home screen)
+- [x] Widgets (iOS / Android home screen)
+- [ ] Automated insights via AI
 - [ ] Export data (CSV / PDF)
 - [ ] Multi-user / shared wallet support
-- [ ] Automated insights via AI
 - [ ] Investment portfolio tracking
 - [ ] Web companion app

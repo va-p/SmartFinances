@@ -24,6 +24,7 @@ import { convertToBaseCurrency } from '@utils/baseCurrency';
 import { calculateRealizedTotalAssets } from '@utils/calculateRealizedTotalAssets';
 import { buildPeriodRulerDates } from '@utils/buildPeriodRulerDates';
 import { buildNetWorthEvolution } from '@utils/buildNetWorthEvolution';
+import { excludeHiddenAccountTransactions } from '@utils/hiddenAccounts';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 
 // Dependencies
@@ -149,13 +150,18 @@ export function Overview() {
       };
     }
 
+    // Hidden accounts (HIDE-04): pre-filter once so category totals,
+    // the realized-total seed, and the evolution chart all inherit it.
+    const visibleTransactions =
+      excludeHiddenAccountTransactions(transactions);
+
     // --- calculateTotalAssets (NW-01): same shared helper as the Accounts
     // screen, so both charts seed from the identical net worth total.
     // FUT-05: future transactions already moved the balances, so the seed
     // backs those effects out and the displayed total is realized only.
     const totalAssets = calculateRealizedTotalAssets({
       accounts,
-      transactions,
+      transactions: visibleTransactions,
       baseCurrencyCode,
       quotes: {
         brlQuoteBtc,
@@ -177,8 +183,8 @@ export function Overview() {
     // FUT-08: only realized transactions (created_at <= now) feed the
     // period revenue/expense totals; future rows never count.
     const now = new Date();
-    const transactionsBySelectedPeriod = transactions.filter((t) => {
-      const transactionDate = new Date(t.created_at);
+    const transactionsBySelectedPeriod = visibleTransactions.filter((t) => {
+      const transactionDate = new Date(t.transaction_date ?? t.created_at);
       if (Number.isNaN(transactionDate.getTime())) return false;
       if (transactionDate > now) return false;
       return isDateInSelectedPeriod(
@@ -288,7 +294,7 @@ export function Overview() {
     // chart point equals the current net worth. Flows convert to the base
     // currency (BC-25) so intermediate points match the seed's unit.
     const patrimonialEvolution = buildNetWorthEvolution({
-      transactions,
+      transactions: visibleTransactions,
       totalAssets,
       period: selectedPeriod.period,
       quotes: {
@@ -342,7 +348,7 @@ export function Overview() {
     const years = new Set<number>();
     if (selectedPeriod.period === 'years') {
       (transactions || []).forEach((transaction) => {
-        const transactionDate = new Date(transaction.created_at);
+        const transactionDate = new Date(transaction.transaction_date ?? transaction.created_at);
         if (isValid(transactionDate)) {
           years.add(getYear(transactionDate));
         }

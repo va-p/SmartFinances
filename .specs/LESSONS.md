@@ -14,24 +14,6 @@ _none_
 
 Seen once or not yet corroborated. Tracked, not trusted.
 
-### L-005 - Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `src/utils` · harmful: 0
-- features: weekly-period-filter
-- evidence: src/utils/isDateInSelectedPeriod.ts:17 (src/utils)
-- last seen: 2026-09-28T00:39:06Z
-
-### L-006 - When a task extracts a module to a shared path, delete the old copy and re-point every importer in the same commit, then grep the tree to confirm only the shared path remains.
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `src/hooks` · harmful: 0
-- features: list-search
-- evidence: SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)
-- last seen: 2026-09-28T16:31:10Z
-
-### L-007 - Screen-wiring value faults (mode guards, optional prop values) pass every automated gate because no gate renders screens - verify screen wiring value-by-value against the precedent screen; only missing required props are caught (tsc)
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-screens` · harmful: 0
-- features: overview-period-ruler
-- evidence: mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)
-- last seen: 2026-09-29T02:01:35Z
-
 ### L-008 - Jest mocks of animation libraries must be behaviorally faithful (stateful useSharedValue via useRef, not per-render re-initialization) or wiring tests silently pass without the wiring under test.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `jest-infra/react-native-reanimated` · harmful: 0
 - features: base-currency
@@ -91,6 +73,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: home-widgets
 - evidence: WDG-25/donut + WDG-12/bars (spec)
 - last seen: 2026-11-10T01:35:01Z
+
+### L-018 - Native edits that cannot compile locally must be verified through the user's working build invocation before committing, never by inspection alone.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `native-kotlin` · harmful: 0
+- features: home-widgets
+- evidence: targets/widgets-android/java/com/vap/smartfinances/widgets/WidgetSnapshot.kt (native-kotlin)
+- last seen: 2026-11-11T19:13:20Z
+
+### L-019 - Negative requirements (bulk SHALL NOT offer X) need absence-asserting unit tests, not inspection-only evidence.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend/utils` · harmful: 0
+- features: transfer-correction
+- evidence: TRC-13 (frontend/utils)
+- last seen: 2026-11-16T21:50:39Z
+
+### L-020 - Verbatim code moves carry their typos: diff moved blocks token-by-token against the source, since babel-jest and eslint no-undef are blind to undeclared identifiers.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `frontend/screens` · harmful: 0
+- features: transfer-correction
+- evidence: SmartFinances/src/screens/RegisterTransaction/index.tsx:916 (frontend/screens)
+- last seen: 2026-11-16T21:50:39Z
 
 ## Quarantined (failed when applied - ignore)
 

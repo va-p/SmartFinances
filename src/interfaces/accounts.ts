@@ -1,3 +1,4 @@
+import { BankingIntegration } from './bankingIntegration';
 import { CurrencyProps } from './currencies';
 
 export type AccountTypes =
@@ -53,4 +54,5 @@ export interface AccountProps {
   creditData?: CreditDataProps;
   institution?: { id: string; name: string } | null;
   bankingIntegrationId?: string;
+  bankingIntegration?: BankingIntegration;
 }

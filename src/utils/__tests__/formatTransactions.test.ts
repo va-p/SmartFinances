@@ -67,6 +67,35 @@ describe('formatTransactions', () => {
     expect(mapped.amount_in_account_currency_formatted).toBeUndefined();
   });
 
+  // DISP-01 — display date comes from transaction_date when present
+  it('derives the display date from transaction_date when present', () => {
+    const [mapped] = formatTransactions([
+      makeTransaction({
+        created_at: '2026-11-15T10:00:00.000Z',
+        transaction_date: '2026-08-10T12:00:00.000Z',
+      }),
+    ]);
+
+    expect(mapped.created_at).toBe('10/08/2026');
+  });
+
+  // DISP-01 — raw transaction_date is carried through the formatted shape
+  it('carries transaction_date through the formatted shape', () => {
+    const [mapped] = formatTransactions([
+      makeTransaction({ transaction_date: '2026-08-10T12:00:00.000Z' }),
+    ]);
+
+    expect(mapped.transaction_date).toBe('2026-08-10T12:00:00.000Z');
+  });
+
+  // DISP-02 — old payloads without transaction_date keep created_at behavior
+  it('falls back to created_at when transaction_date is absent', () => {
+    const [mapped] = formatTransactions([makeTransaction()]);
+
+    expect(mapped.created_at).toBe('18/08/2026');
+    expect(mapped.transaction_date).toBeUndefined();
+  });
+
   // R4 — other fields pass through untouched
   it('preserves the remaining transaction fields', () => {
     const original = makeTransaction();
@@ -77,5 +106,24 @@ describe('formatTransactions', () => {
     expect(mapped.account).toEqual(original.account);
     expect(mapped.amount).toBe(original.amount);
     expect(mapped.tags).toEqual(original.tags);
+  });
+
+  // HIDE-06 — account.hide survives formatting so downstream guards keep working
+  it('preserves account.hide on the mapped transaction', () => {
+    const [mapped] = formatTransactions([
+      makeTransaction({
+        account: {
+          id: 13,
+          name: 'Nubank CC',
+          type: 'BANK',
+          currency: usd,
+          balance: 0,
+          initialAmount: null,
+          hide: true,
+        },
+      }),
+    ]);
+
+    expect(mapped.account.hide).toBe(true);
   });
 });

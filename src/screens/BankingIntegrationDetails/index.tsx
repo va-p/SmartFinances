@@ -1,91 +1,179 @@
 import React, { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, FlatList, View } from 'react-native';
 import {
   AccountName,
   Container,
   Footer,
   LastSyncDate,
-  PluggyConnectContainer,
+  SectionTitle,
+  AccountRow,
+  AccountRowMain,
+  AccountRowName,
+  AccountRowMeta,
+  AccountRowBalance,
+  EmptyAccountsText,
 } from './styles';
 
 // Hooks
 import { useBankingIntegrationDetailQuery } from '@hooks/useBankingIntegrationDetailQuery';
+import { useDeleteBankingIntegrationMutation } from '@hooks/useBankingIntegrationMutations';
+import { openConnectSession } from '@hooks/useOpeniConnect';
 
-import { ptBR } from 'date-fns/locale';
-import { format, parseISO } from 'date-fns';
-// import { OneSignal } from 'react-native-onesignal';
-import { router, useLocalSearchParams } from 'expo-router';
-import { PluggyConnect } from 'react-native-pluggy-connect';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { formatLastSyncDate } from '@utils/formatLastSyncDate';
+import formatCurrency from '@utils/formatCurrency';
 
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Button } from '@components/Button';
 import { Gradient } from '@components/Gradient';
+import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 
+import api from '@api/api';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+
+const ACCOUNT_TYPE_LABELS: Record<string, string> = {
+  BANK: 'Conta bancária',
+  CREDIT: 'Cartão de crédito',
+  INVESTMENTS: 'Investimento',
+  OTHER: 'Outra conta',
+};
+
+const ACCOUNT_SUBTYPE_LABELS: Record<string, string> = {
+  CHECKING_ACCOUNT: 'Conta corrente',
+  SAVINGS_ACCOUNT: 'Poupança',
+  CREDIT_CARD: 'Cartão de crédito',
+};
+
+function accountTypeLabel(type?: string | null, subtype?: string | null) {
+  if (subtype && ACCOUNT_SUBTYPE_LABELS[subtype]) {
+    return ACCOUNT_SUBTYPE_LABELS[subtype];
+  }
+  if (type && ACCOUNT_TYPE_LABELS[type]) return ACCOUNT_TYPE_LABELS[type];
+  return type ?? 'Conta';
+}
+
 export function BankingIntegrationDetails() {
+  const bottomTabBarHeight = useBottomTabBarHeight();
   const {
     bankingIntegrationID,
-    connectToken: token,
-  }: { bankingIntegrationID: string; connectToken: string } =
-    useLocalSearchParams();
+  }: {
+    bankingIntegrationID: string;
+  } = useLocalSearchParams();
 
-  const { data: bankingIntegration, isLoading } =
-    useBankingIntegrationDetailQuery(bankingIntegrationID);
+  const router = useRouter();
+  const {
+    data: bankingIntegration,
+    isLoading,
+    error,
+  } = useBankingIntegrationDetailQuery(bankingIntegrationID);
 
-  const [showModal, setShowModal] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const queryClient = useQueryClient();
+  const { mutate: deleteBankingIntegration } =
+    useDeleteBankingIntegrationMutation();
 
-  const formattedLastSyncDate = useCallback(() => {
-    if (!bankingIntegration) return '';
+  const formattedLastSyncDate = useCallback(
+    () => formatLastSyncDate(bankingIntegration?.lastSyncDate),
+    [bankingIntegration]
+  );
 
-    return format(
-      parseISO(bankingIntegration.lastSyncDate || ''),
-      'dd/MM/yyyy',
-      {
-        locale: ptBR,
-      }
-    );
-  }, [bankingIntegration]);
+  async function refreshDetails() {
+    await queryClient.invalidateQueries({
+      queryKey: ['bankingIntegration', bankingIntegrationID],
+    });
+  }
 
+  /**
+   * Re-authorizes this specific item at the provider without creating a
+   * new integration. Opens the provider's own authorization page; the
+   * background webhooks finish the sync afterwards.
+   */
   async function handlePressUpdateAccount() {
     try {
-      setShowModal(true);
-    } catch (error) {
+      setUpdating(true);
+      const { data } = await api.post(
+        `/banking-integration/${bankingIntegrationID}/reconnect`
+      );
+      const url: string | undefined = data?.authUrl ?? data?.consentUrl;
+      if (!url) {
+        Alert.alert(
+          'Atualização solicitada',
+          'A instituição foi notificada. Os dados serão atualizados em instantes — puxe para atualizar.'
+        );
+        await refreshDetails();
+        return;
+      }
+      const params = await openConnectSession(url);
+      if (!params) {
+        await refreshDetails();
+        return; // user dismissed the session
+      }
+      await refreshDetails();
+      Alert.alert(
+        'Conexão atualizada',
+        'Sua instituição foi reconectada. Os dados serão sincronizados em instantes.'
+      );
+    } catch {
       Alert.alert(
         'Erro',
-        'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
+        'Não foi possível atualizar a conexão. Por favor, tente novamente.'
       );
+    } finally {
+      setUpdating(false);
     }
   }
 
-  function handleOnSuccess() {
+  function handleClickDeleteIntegration() {
     Alert.alert(
-      'Suas integrações bancárias estão sendo atualizadas...',
-      'Em alguns minutos o processo será finalizado!',
+      'Exclusão de conexão',
+      'ATENÇÃO! Todas as contas e transações desta conexão também serão excluídas. Tem certeza que deseja excluir a conexão?',
       [
+        { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'OK',
-          onPress: () => router.back(),
+          text: 'Sim, excluir',
+          style: 'destructive',
+          onPress: () => {
+            setDeleting(true);
+            deleteBankingIntegration(String(bankingIntegrationID), {
+              onSuccess: () => {
+                Alert.alert(
+                  'Exclusão de integração bancária',
+                  'Integração bancária excluída com sucesso!',
+                  [{ text: 'OK', onPress: () => router.back() }]
+                );
+              },
+              onSettled: () => {
+                setDeleting(false);
+              },
+            });
+          },
         },
       ]
     );
   }
 
-  function handleOnError() {
-    Alert.alert(
-      'Erro',
-      'Não foi possível conectar ao Pluggy Connect. Por favor, tente novamente.'
+  if (isLoading || deleting) {
+    return <SkeletonAccountsScreen />;
+  }
+
+  if (error || !bankingIntegrationID) {
+    return (
+      <Screen>
+        <Header.Root>
+          <Header.BackButton />
+          <Header.Title title='Erro' />
+        </Header.Root>
+        <ListEmptyComponent text='Não foi possível carregar os detalhes da conexão. Tente novamente.' />
+      </Screen>
     );
   }
 
-  const handleOnClose = useCallback(() => {
-    setShowModal(false);
-  }, []);
-
-  if (isLoading) {
-    return <SkeletonAccountsScreen />;
-  }
+  const accounts = bankingIntegration?.accounts ?? [];
 
   return (
     <Screen>
@@ -95,64 +183,72 @@ export function BankingIntegrationDetails() {
         <Header.Root>
           <Header.BackButton />
           <Header.Title
-            title={`Conexão bancária ${bankingIntegration?.bankName}`}
+            title={`Conexão bancária ${bankingIntegration?.bankName ?? ''}`}
+          />
+          <Header.DeleteButton
+            handleClickDeleteButton={() => handleClickDeleteIntegration()}
           />
         </Header.Root>
 
-        {token && showModal && (
-          <PluggyConnectContainer>
-            <PluggyConnect
-              connectToken={token}
-              updateItem={bankingIntegration?.pluggyIntegrationId}
-              includeSandbox={false}
-              connectorTypes={[]}
-              onClose={handleOnClose}
-              onSuccess={() => handleOnSuccess()}
-              onError={() => handleOnError()}
-              allowFullscreen
-              theme='dark'
+        <AccountName isTitle={false}>
+          Instituição Financeira:{' '}
+          <AccountName isTitle>
+            {bankingIntegration?.bankName ?? '—'}
+          </AccountName>
+        </AccountName>
+
+        <AccountName isTitle={false}>
+          Status da integração:{' '}
+          <AccountName isTitle>{bankingIntegration?.status ?? '—'}</AccountName>
+        </AccountName>
+
+        <LastSyncDate isTitle={false}>
+          Data da últ. sincronização bem sucedida:{' '}
+          <LastSyncDate isTitle>{formattedLastSyncDate()}</LastSyncDate>
+        </LastSyncDate>
+
+        <SectionTitle>Contas conectadas ({accounts.length})</SectionTitle>
+
+        {accounts.length === 0 ? (
+          <EmptyAccountsText>
+            Nenhuma conta importada ainda. Conclua a autorização ou aguarde a
+            sincronização.
+          </EmptyAccountsText>
+        ) : (
+          <View>
+            <FlatList
+              data={accounts}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }: any) => (
+                <AccountRow key={item.id}>
+                  <AccountRowMain>
+                    <AccountRowName>{item.name}</AccountRowName>
+                    <AccountRowMeta>
+                      {accountTypeLabel(item.type, item.subtype)}
+                    </AccountRowMeta>
+                  </AccountRowMain>
+                  <AccountRowBalance>
+                    {formatCurrency(
+                      item.currency?.code ?? 'BRL',
+                      Number(item.balance ?? 0)
+                    )}
+                  </AccountRowBalance>
+                </AccountRow>
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: bottomTabBarHeight + 16}}
             />
-          </PluggyConnectContainer>
+          </View>
         )}
 
-        {!showModal && (
-          <>
-            <AccountName isTitle={false}>
-              Instituição Financeira:{' '}
-              <AccountName isTitle>{bankingIntegration?.bankName}</AccountName>
-            </AccountName>
-            <LastSyncDate isTitle={false}>
-              Data da últ. sincronização bem sucedida:{' '}
-              <LastSyncDate isTitle>{formattedLastSyncDate}</LastSyncDate>
-            </LastSyncDate>
-
-            <AccountName isTitle={false}>
-              Saúde da conexão com a Inst. Financeira:{' '}
-              <AccountName isTitle>{bankingIntegration?.health}</AccountName>{' '}
-              {/** TODO: Adc func. para tratar textos */}
-            </AccountName>
-
-            <AccountName isTitle={false}>
-              Status da integração:{' '}
-              <AccountName isTitle>{bankingIntegration?.status}</AccountName>{' '}
-              {/** TODO: Adc func. para tratar textos */}
-            </AccountName>
-
-            <AccountName isTitle={false}>
-              Status da última sincronização:{' '}
-              <AccountName isTitle>
-                {bankingIntegration?.executionStatus}
-              </AccountName>{' '}
-              {/** TODO: Adc func. para tratar textos */}
-            </AccountName>
-
-            <Footer>
-              <Button.Root onPress={() => handlePressUpdateAccount()}>
-                <Button.Text text="Atualizar conexão" />
-              </Button.Root>
-            </Footer>
-          </>
-        )}
+        <Footer>
+          <Button.Root
+            onPress={() => handlePressUpdateAccount()}
+            isLoading={updating}
+          >
+            <Button.Text text={updating ? 'Abrindo...' : 'Atualizar conexão'} />
+          </Button.Root>
+        </Footer>
       </Container>
     </Screen>
   );

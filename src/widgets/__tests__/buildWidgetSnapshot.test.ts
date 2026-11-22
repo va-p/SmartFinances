@@ -259,4 +259,46 @@ describe('buildWidgetSnapshot', () => {
 
     expect(snapshot.signedIn).toBe(false);
   });
+
+  // HIDE-04 — hidden-account transactions never reach widget cash-flow,
+  // spark, or donut (two months so the spark intermediate point is exact).
+  it('excludes hidden-account transactions from cash flow, spark, and donut', () => {
+    const snapshot = buildWidgetSnapshot(
+      baseInput({
+        transactions: [
+          makeTransaction({
+            type: 'CREDIT',
+            amount: 100,
+            created_at: '2026-10-05T12:00:00.000Z',
+          }),
+          makeTransaction({ id: 2, type: 'CREDIT', amount: 6450 }),
+          makeTransaction({
+            id: 3,
+            type: 'CREDIT',
+            amount: 9999,
+            account: makeAccount({ id: 9, hide: true }),
+          }),
+          makeTransaction({ id: 4, type: 'DEBIT', amount: 50 }),
+          makeTransaction({
+            id: 5,
+            type: 'DEBIT',
+            amount: 100,
+            account: makeAccount({ id: 9, hide: true }),
+          }),
+        ],
+        categories: [{ id: 'c1', name: 'Mercado' }] as unknown as never[],
+      })
+    );
+
+    // October credit feeds the spark only; November cash-flow counts just
+    // the visible November credit (hidden November credit excluded).
+    expect(snapshot.cashFlow.income).toBe('R$\u00A06.450,00');
+    expect(snapshot.cashFlow.expenses).toBe('-R$\u00A050,00');
+    // Spark nets both directions: Oct +100, Nov +6450 -50 (visible DEBIT
+    // lowers net worth too); hidden November legs excluded from both months.
+    expect(snapshot.netWorth.spark).toEqual([-6400, 0]);
+    expect(snapshot.netWorth.donut).toEqual([
+      { categoryId: 'c1', value: 50, label: 'Mercado' },
+    ]);
+  });
 });

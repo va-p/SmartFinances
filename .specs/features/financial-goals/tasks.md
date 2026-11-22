@@ -4,7 +4,7 @@
 
 ## Batch Completion Log
 
-- **Batch 1 (Phase 1: T1–T5)** — ✅ Complete. Backend branch `goals-target-savings`: `d0c8310` (T1), `beb9923` (T2), `7606dbb` (T3), `14a7908` (T4), `a792f99` (T5). Tests: 62 passed, 0 failed (goal.schema + goal.service). Build gate green. Deviation: T5 test file initially used a non-existent `@services/` import alias (project has no tsconfig paths) — fixed to relative import by orchestrator before commit. Migration `20260825085131_add_financial_goals` generated via `prisma migrate diff` (dev DB unreachable) — pending `migrate deploy` on cPanel (STATE.md issue #16).
+- **Batch 1 (Phase 1: T1–T5)** — ✅ Complete. Backend branch `goals-target-savings`: `d0c8310` (T1), `beb9923` (T2), `7606dbb` (T3), `14a7908` (T4), `a792f99` (T5). Tests: 62 passed, 0 failed (goal.schema + goal.service). Build gate green. Deviation: T5 test file initially used a non-existent `@services/` import alias (project has no tsconfig paths) — fixed to relative import by orchestrator before commit. Migration `20260825085131_add_financial_goals` generated via `prisma migrate diff` (dev DB unreachable) — pending application through the next `api` container deployment on the VPS (STATE.md issue #16).
 
 - **Batch 2 (Phase 2: T6–T10)** — ✅ Complete. Backend branch `goals-target-savings`: `5051016` (T6), `e6851c7` (T7), `0a2b331` (T8), `edcc33c` (T9), `ac5d789` (T10). Full gate: 174 passed, 0 failed, 12 files; build green. 8 endpoints under `/api/v1/goal` registered. Notes: `deleteAccount` isVirtual guard's AppError(400) surfaces as 401 due to that controller's pre-existing catch-all (out-of-scope tech debt, documented in commit); GET /goal/:id includes reserve `transactions` newest-first (GOAL-17).
 

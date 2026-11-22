@@ -4,14 +4,18 @@ import formatDatePtBr from '@utils/formatDatePtBr';
 import { TransactionProps } from '@interfaces/transactions';
 
 // Maps raw API transactions to the display shape consumed by
-// processTransactions and TransactionListItem: `created_at` as dd/MM/yyyy and
-// currency-formatted amount fields.
+// processTransactions and TransactionListItem: display date as dd/MM/yyyy
+// (from `transaction_date` when the backend provides it, so imports group
+// under their real date instead of the import day) and currency-formatted
+// amount fields. The raw `transaction_date` is carried through for the
+// downstream `?? created_at` readers.
 export function formatTransactions(
   transactions: TransactionProps[]
 ): TransactionProps[] {
   return transactions.map((item) => ({
     id: item.id,
-    created_at: formatDatePtBr(item.created_at).short(),
+    created_at: formatDatePtBr(item.transaction_date ?? item.created_at).short(),
+    transaction_date: item.transaction_date,
     description: item.description || '',
     amount: item.amount,
     amount_formatted: formatCurrency(item.currency.code, item.amount),

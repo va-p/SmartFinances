@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 import { RectButton } from 'react-native-gesture-handler';
 
+import { ThemeProps } from '@interfaces/theme';
 import { TransactionTypeProps } from '@interfaces/transactions';
 
 const RectButtonAnimated = Animated.createAnimatedComponent(RectButton);
@@ -19,8 +20,8 @@ export const Container = styled(RectButtonAnimated)`
   flex-direction: row;
   align-items: center;
   padding: 8px 16px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: ${({ theme }) => theme.borders.borderRadiusShape};
+  background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
+  border-radius: ${({ theme }) => (theme as ThemeProps).borders.borderRadiusShape};
 `;
 
 export const IconContainer = styled.View`
@@ -32,7 +33,7 @@ export const Icon = styled(Ionicons)<Props>`
   position: absolute;
   font-size: 24px;
   color: ${({ theme, type }) =>
-    type === 'CREDIT' ? theme.colors.success : theme.colors.primary};
+    type === 'CREDIT' ? (theme as ThemeProps).colors.success : (theme as ThemeProps).colors.primary};
 `;
 
 export const DetailsContainer = styled.View`
@@ -48,10 +49,10 @@ export const DescriptionAndAmountContainer = styled.View`
 
 export const Description = styled.Text.attrs({})<Props>`
   max-width: 70%;
-  font-family: ${({ theme }) => theme.fonts.medium};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.medium};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   color: ${({ type, theme }) =>
-    type === 'CREDIT' ? theme.colors.success : theme.colors.text};
+    type === 'CREDIT' ? (theme as ThemeProps).colors.success : (theme as ThemeProps).colors.text};
 `;
 
 export const AmountContainer = styled.View`
@@ -60,15 +61,15 @@ export const AmountContainer = styled.View`
 `;
 
 export const TransferDirectionIcon = styled(Ionicons)`
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const Amount = styled.Text<Props>`
-  font-family: ${({ theme }) => theme.fonts.regular};
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
+  font-family: ${({ theme }) => (theme as ThemeProps).fonts.regular};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
   color: ${({ type, theme }) =>
-    type === 'CREDIT' ? theme.colors.success : theme.colors.text};
+    type === 'CREDIT' ? (theme as ThemeProps).colors.success : (theme as ThemeProps).colors.text};
   margin-left: 4px;
 `;
 
@@ -89,15 +90,29 @@ export const Category = styled.Text.attrs({
   ellipsizeMode: 'tail',
 })`
   max-width: 60%;
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const CategoryAndAccountSeparator = styled.Text.attrs({
   numberOfLines: 1,
 })`
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
+`;
+
+export const BankNameAndAccountGroup = styled.View`
+  flex-direction: row;
+  column-gap: 2px;
+`;
+
+export const BankName = styled.Text.attrs({
+  numberOfLines: 1,
+  ellipsizeMode: 'tail',
+})`
+  max-width: 40%;
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const Account = styled.Text.attrs({
@@ -106,15 +121,15 @@ export const Account = styled.Text.attrs({
 })`
   min-width: 52%;
   max-width: 52%;
-  font-size: ${({ theme }) => theme.fonts.sizeSubtitle};
-  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeSubtitle};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const AmountNotConvertedContainer = styled.View``;
 
 export const AmountNotConverted = styled.Text`
-  font-size: ${({ theme }) => theme.fonts.sizeText};
-  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => (theme as ThemeProps).fonts.sizeText};
+  color: ${({ theme }) => (theme as ThemeProps).colors.text};
 `;
 
 export const TagsContainer = styled.View`
@@ -124,7 +139,7 @@ export const TagsContainer = styled.View`
 export const RecurrenceBadge = styled.View`
   padding: 2px 6px;
   border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.colors.primary};
+  border: 1px solid ${({ theme }) => (theme as ThemeProps).colors.primary};
   align-items: center;
   justify-content: center;
 `;

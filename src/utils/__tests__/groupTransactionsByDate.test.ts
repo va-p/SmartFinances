@@ -207,4 +207,40 @@ describe('groupTransactionsByDate', () => {
     expect(groups[0].rawTotal).toBe(69.5);
     expect(groups[1].rawTotal).toBe(10);
   });
+
+  // HIDE-01/HIDE-03 — hidden rows appear in no group and contribute 0 to rawTotal
+  it('drops hidden-account transactions from groups and day totals', () => {
+    const hiddenAccount = {
+      id: 14,
+      name: 'Hidden savings',
+      type: 'BANK',
+      currency: brl,
+      balance: 0,
+      initialAmount: null,
+      hide: true,
+    } as const;
+
+    const groups = groupTransactionsByDate(
+      [
+        makeTransaction({ id: 1, amount: 100 }),
+        makeTransaction({
+          id: 2,
+          description: 'Hidden expense',
+          amount: -999,
+          account: { ...hiddenAccount },
+        }),
+        makeTransaction({
+          id: 3,
+          created_at: '19/08/2026',
+          amount: 10,
+          account: { ...hiddenAccount },
+        }),
+      ],
+      quotes
+    );
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0].data.map((t) => t.id)).toEqual([1]);
+    expect(groups[0].rawTotal).toBe(100);
+  });
 });

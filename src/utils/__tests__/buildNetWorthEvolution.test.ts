@@ -36,7 +36,7 @@ const makeTransaction = (
     amount: number;
     amount_in_account_currency: number | null;
     type: string;
-    account: { currency: { code: string } } | null;
+    account: { currency: { code: string }; hide?: boolean } | null;
   }> = {}
 ) => ({
   created_at: '2026-08-10T12:00:00.000Z',
@@ -346,6 +346,26 @@ describe('buildNetWorthEvolution', () => {
     expect(result).toEqual([
       { date: 'ago \n 2026', total: 0.97654322 },
       { date: 'set \n 2026', total: 1 },
+    ]);
+  });
+
+  // HIDE-03 — hidden rows contribute nothing; the series still ends at totalAssets
+  it('skips hidden-account transactions from the series', () => {
+    const result = buildNetWorthEvolution({
+      transactions: [
+        makeTransaction({ created_at: '2026-08-10T12:00:00.000Z', amount: 50, type: 'DEBIT' }), // Aug: -50
+        makeTransaction({ created_at: '2026-09-10T12:00:00.000Z', amount: 100, type: 'CREDIT' }), // Sep: +100
+        makeTransaction({ created_at: '2026-08-15T12:00:00.000Z', amount: 500, type: 'CREDIT', account: { currency: { code: 'BRL' }, hide: true } }), // hidden: ignored
+      ],
+      totalAssets: 1000,
+      period: 'months',
+      quotes,
+    });
+
+    // Initial = 1000 - (-50 + 100) = 950; Aug: 900; Sep: 1000
+    expect(result).toEqual([
+      { date: 'ago \n 2026', total: 900 },
+      { date: 'set \n 2026', total: 1000 },
     ]);
   });
 });

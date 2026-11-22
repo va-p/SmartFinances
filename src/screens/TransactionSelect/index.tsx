@@ -25,6 +25,14 @@ import { TransactionProps } from '@interfaces/transactions';
 type Props = {
   setTransaction: (transaction: TransactionProps) => void;
   closeSelectTransaction: () => void;
+  /**
+   * Override the candidate list (transfer-correction TRC-19). Defaults to
+   * the subscription candidates so existing callers behave identically.
+   * Counterpart mode passes a `selectCounterpartCandidates`-based filter.
+   */
+  candidatesFilter?: (
+    transactions: TransactionProps[]
+  ) => TransactionProps[];
 };
 
 function EmptyList() {
@@ -41,6 +49,7 @@ function EmptyList() {
 export function TransactionSelect({
   setTransaction,
   closeSelectTransaction,
+  candidatesFilter = selectSubscriptionCandidates,
 }: Props) {
   const { hideAmount } = useUserConfigs();
   const {
@@ -71,7 +80,7 @@ export function TransactionSelect({
     );
   }
 
-  const candidates = selectSubscriptionCandidates(transactions ?? []);
+  const candidates = candidatesFilter(transactions ?? []);
 
   return (
     <Container>

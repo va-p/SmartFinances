@@ -4,6 +4,7 @@ import groupTransactionsByDate, {
 import formatCurrency from '@utils/formatCurrency';
 import { isDateInSelectedPeriod } from '@utils/isDateInSelectedPeriod';
 import { convertToBaseCurrency, Quotes } from '@utils/baseCurrency';
+import { excludeHiddenAccountTransactions } from '@utils/hiddenAccounts';
 
 import { CurrencyCodes } from '@interfaces/currencies';
 
@@ -83,12 +84,15 @@ export const processTransactions = (
 
   const config = periodConfig[period];
 
+  // HIDE-01/HIDE-03: hidden-account rows leave every list and total.
+  const visibleTransactions = excludeHiddenAccountTransactions(transactions);
+
   // Process transactions to chart
-  transactions.forEach((item) => {
+  visibleTransactions.forEach((item) => {
     // Ignore transfers
     if (!item.type || item.type.includes('TRANSFER')) return;
 
-    const transactionDate = toTransactionDate(item.created_at);
+    const transactionDate = toTransactionDate(item.transaction_date ?? item.created_at);
     if (!isValid(transactionDate)) return;
     if (transactionDate > now) return;
 
@@ -210,9 +214,9 @@ export const processTransactions = (
   // the current cash flow total with past-only rows (instant check on the
   // original timestamp, matching the chart aggregation above).
   const realizedForCashFlow: TransactionProps[] = [];
-  const filteredTransactions = transactions.reduce(
+  const filteredTransactions = visibleTransactions.reduce(
     (acc: TransactionProps[], item) => {
-      const transactionDate = toTransactionDate(item.created_at);
+      const transactionDate = toTransactionDate(item.transaction_date ?? item.created_at);
       if (
         !isValid(transactionDate) ||
         !isDateInSelectedPeriod(transactionDate, selectedDate, period)

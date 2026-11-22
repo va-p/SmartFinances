@@ -248,12 +248,29 @@ describe('getTransactionSpentAmount', () => {
     ).toBe(50);
   });
 
-  it('returns the amount as-is for credit-card accounts', () => {
+  it('returns the spending magnitude for credit-card purchases', () => {
     expect(
       getTransactionSpentAmount(
         makeTransaction({ account: creditCardAccount, amount: -50 })
       )
-    ).toBe(-50);
+    ).toBe(50);
+  });
+
+  it('subtracts credits from spending for bank and credit-card accounts', () => {
+    expect(
+      getTransactionSpentAmount(
+        makeTransaction({ type: 'CREDIT', amount: 200 })
+      )
+    ).toBe(-200);
+    expect(
+      getTransactionSpentAmount(
+        makeTransaction({
+          type: 'CREDIT',
+          amount: 200,
+          account: creditCardAccount,
+        })
+      )
+    ).toBe(-200);
   });
 
   it('returns 0 for transfers', () => {
@@ -381,5 +398,79 @@ describe('formatBudgetInfo', () => {
     expect(result.budget_transactions.map((t) => t.id)).toEqual([21]);
     expect(result.amount_spent).toBe(80);
     expect(result.percentage).toBe(8);
+  });
+
+  it('calculates Leisure spending from credit-card purchases net of its credit', () => {
+    const budget = makeBudget({ name: 'Leisure' });
+    const amounts = [-74.7, -81.52, 200, -65, -12];
+    const transactions = amounts.map((amount, index) =>
+      makeTransaction({
+        id: 100 + index,
+        account: creditCardAccount,
+        amount,
+        type: amount >= 0 ? 'CREDIT' : 'DEBIT',
+        created_at: '2026-11-17T12:00:00',
+        transaction_date: `2026-08-${18 + index}T12:00:00`,
+      })
+    );
+
+    const result = formatBudgetInfo(budget, transactions, upTo);
+
+    // Raw net: -74.70 - 81.52 + 200 - 65 - 12 = -33.22.
+    // Spending uses the existing positive-magnitude UI convention: 33.22.
+    expect(result.amount_spent).toBeCloseTo(33.22, 2);
+    expect(result.budget_transactions).toHaveLength(5);
+  });
+
+  it('calculates Food spending consistently across bank and credit-card purchases', () => {
+    const budget = makeBudget({ name: 'Food' });
+    const amounts = [
+      -100, -14, -39, -104.7, -28.09, -59.8, -139.24,
+      -40.16, -124.84, -19.86, -14, -52.34, -32, -12.65,
+    ];
+    const transactions = amounts.map((amount, index) =>
+      makeTransaction({
+        id: 200 + index,
+        category: foodCategory,
+        account: amount === -40.16 ? creditCardAccount : bankAccount,
+        amount,
+        created_at: '2026-11-17T12:00:00',
+        transaction_date: '2026-08-18T12:00:00',
+      })
+    );
+    const foodBudget = {
+      ...budget,
+      categories: [
+        { ...foodCategory, category_id: foodCategory.id },
+      ] as unknown as BudgetProps['categories'],
+    };
+
+    const result = formatBudgetInfo(foodBudget, transactions, upTo);
+
+    expect(result.amount_spent).toBeCloseTo(780.68, 2);
+    expect(result.budget_transactions).toHaveLength(14);
+  });
+
+  // HIDE-02/HIDE-04 — hidden rows contribute 0 and never appear in budget_transactions
+  it('excludes hidden-account transactions from amount spent and budget transactions', () => {
+    const budget = makeBudget();
+
+    const visible = makeTransaction({
+      id: 1,
+      created_at: '2026-08-18T12:00:00',
+      amount: -100,
+    });
+    const hidden = makeTransaction({
+      id: 2,
+      created_at: '2026-08-19T12:00:00',
+      amount: -500,
+      account: { ...bankAccount, hide: true },
+    });
+
+    const result = formatBudgetInfo(budget, [visible, hidden], upTo);
+
+    expect(result.amount_spent).toBe(100);
+    expect(result.percentage).toBe(10);
+    expect(result.budget_transactions.map((t) => t.id)).toEqual([1]);
   });
 });

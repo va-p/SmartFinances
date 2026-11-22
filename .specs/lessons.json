@@ -3,62 +3,8 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 18,
+  "next_id": 21,
   "lessons": [
-    {
-      "id": "L-005",
-      "key": "surviving_mutant::boundary date tests alone do not discriminate period equality predicates pair an equal period key e g iso week 33 from a different period year 2025 vs 2026 and assert exclusion or dropping the year comparison survives the full suite",
-      "text": "Boundary-date tests alone do not discriminate period-equality predicates: pair an equal period key (e.g., ISO week 33) from a DIFFERENT period-year (2025 vs 2026) and assert exclusion, or dropping the year comparison survives the full suite.",
-      "signal": "surviving_mutant",
-      "scope": "src/utils",
-      "status": "candidate",
-      "features": [
-        "weekly-period-filter"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "src/utils/isDateInSelectedPeriod.ts:17 (src/utils)"
-      ],
-      "created": "2026-09-28T00:39:06Z",
-      "last_seen": "2026-09-28T00:39:06Z"
-    },
-    {
-      "id": "L-006",
-      "key": "ac_gap::when a task extracts a module to a shared path delete the old copy and re point every importer in the same commit then grep the tree to confirm only the shared path remains",
-      "text": "When a task extracts a module to a shared path, delete the old copy and re-point every importer in the same commit, then grep the tree to confirm only the shared path remains.",
-      "signal": "ac_gap",
-      "scope": "src/hooks",
-      "status": "candidate",
-      "features": [
-        "list-search"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "SRCH-11 / src/screens/Home/index.tsx:33 (src/hooks)"
-      ],
-      "created": "2026-09-28T16:31:10Z",
-      "last_seen": "2026-09-28T16:31:10Z"
-    },
-    {
-      "id": "L-007",
-      "key": "surviving_mutant::screen wiring value faults mode guards optional prop values pass every automated gate because no gate renders screens verify screen wiring value by value against the precedent screen only missing required props are caught tsc",
-      "text": "Screen-wiring value faults (mode guards, optional prop values) pass every automated gate because no gate renders screens - verify screen wiring value-by-value against the precedent screen; only missing required props are caught (tsc)",
-      "signal": "surviving_mutant",
-      "scope": "frontend-screens",
-      "status": "candidate",
-      "features": [
-        "overview-period-ruler"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "mutations M1-M3 - src/screens/Overview/index.tsx:268,271,406 (frontend-screens)"
-      ],
-      "created": "2026-09-29T02:01:35Z",
-      "last_seen": "2026-09-29T02:01:35Z"
-    },
     {
       "id": "L-008",
       "key": "surviving_mutant::jest mocks of animation libraries must be behaviorally faithful stateful usesharedvalue via useref not per render re initialization or wiring tests silently pass without the wiring under test",
@@ -238,6 +184,60 @@
       ],
       "created": "2026-11-10T01:35:01Z",
       "last_seen": "2026-11-10T01:35:01Z"
+    },
+    {
+      "id": "L-018",
+      "key": "gate_fail::native edits that cannot compile locally must be verified through the user s working build invocation before committing never by inspection alone",
+      "text": "Native edits that cannot compile locally must be verified through the user's working build invocation before committing, never by inspection alone.",
+      "signal": "gate_fail",
+      "scope": "native-kotlin",
+      "status": "candidate",
+      "features": [
+        "home-widgets"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "targets/widgets-android/java/com/vap/smartfinances/widgets/WidgetSnapshot.kt (native-kotlin)"
+      ],
+      "created": "2026-11-11T19:13:20Z",
+      "last_seen": "2026-11-11T19:13:20Z"
+    },
+    {
+      "id": "L-019",
+      "key": "ac_gap::negative requirements bulk shall not offer x need absence asserting unit tests not inspection only evidence",
+      "text": "Negative requirements (bulk SHALL NOT offer X) need absence-asserting unit tests, not inspection-only evidence.",
+      "signal": "ac_gap",
+      "scope": "frontend/utils",
+      "status": "candidate",
+      "features": [
+        "transfer-correction"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "TRC-13 (frontend/utils)"
+      ],
+      "created": "2026-11-16T21:50:39Z",
+      "last_seen": "2026-11-16T21:50:39Z"
+    },
+    {
+      "id": "L-020",
+      "key": "gate_fail::verbatim code moves carry their typos diff moved blocks token by token against the source since babel jest and eslint no undef are blind to undeclared identifiers",
+      "text": "Verbatim code moves carry their typos: diff moved blocks token-by-token against the source, since babel-jest and eslint no-undef are blind to undeclared identifiers.",
+      "signal": "gate_fail",
+      "scope": "frontend/screens",
+      "status": "candidate",
+      "features": [
+        "transfer-correction"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SmartFinances/src/screens/RegisterTransaction/index.tsx:916 (frontend/screens)"
+      ],
+      "created": "2026-11-16T21:50:39Z",
+      "last_seen": "2026-11-16T21:50:39Z"
     }
   ]
 }

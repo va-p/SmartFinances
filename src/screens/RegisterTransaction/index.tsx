@@ -41,18 +41,25 @@ import { useScreenTrace } from '@hooks/useScreenTrace';
 import { useAccountsQuery } from '@hooks/useAccountsQuery';
 import { useBulkTransactionsQuery } from '@hooks/useBulkTransactionsQuery';
 import { useTransactionDetailQuery } from '@hooks/useTransactionDetailQuery';
+import { useTransferDirection } from '@hooks/useTransferDirection';
 
 // Utils
 import {
+  filterCounterpartTransactions,
   resolveTransferLinkTitle,
   shouldShowTransferLink,
 } from '@utils/transferLink';
 import {
+  buildBulkEditPayload,
+  buildSingleLegTransferPayload,
   buildTransferCreatePayload,
   buildTransferEditPayload,
+  canSelectTransferTab,
   convertWithRate,
   getExchangeRate,
   normalizeTags,
+  resolveConversionPrimaryType,
+  resolveCounterpartSlotTitle,
   resolveSingleLegRate,
   resolveTransactionTab,
   resolveTransferDestinationAccount,
@@ -63,7 +70,6 @@ import {
   resolveRecurrenceSaved,
   resolveSubscriptionSwitch,
 } from '@utils/subscriptionDesignation';
-import { convertCurrency } from '@utils/convertCurrency';
 import { computeKeyboardOverlap } from '@utils/keyboardScroll';
 import { pickDefaultAccount } from '@utils/pickDefaultAccount';
 import { formatQuotaMessage } from '@utils/quotaMessage';
@@ -77,6 +83,7 @@ import {
   isTomorrow,
   isYesterday,
 } from 'date-fns';
+import axios from 'axios';
 import { ptBR } from 'date-fns/locale';
 import { useForm } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -117,6 +124,7 @@ import { TagListItemRegisterTransaction } from '@screens/RegisterTransaction/com
 
 // Screens
 import { AccountSelect } from '@screens/AccountSelect';
+import { TransactionSelect } from '@screens/TransactionSelect';
 import { CategorySelect } from '@screens/CategorySelect';
 import { CurrencySelect } from '@screens/CurrencySelect';
 import { RecurrenceSelect } from '@screens/RecurrenceSelect';
@@ -136,6 +144,7 @@ import api from '@api/api';
 
 // Interfaces
 import { ThemeProps } from '@interfaces/theme';
+import { TransactionProps } from '@interfaces/transactions';
 import { AccountProps } from '@interfaces/accounts';
 import { CategoryProps } from '@interfaces/categories';
 import { CurrencyProps } from '@interfaces/currencies';
@@ -185,6 +194,12 @@ export function RegisterTransaction({
   const currencyBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const accountDestinationBottomSheetRef = useRef<BottomSheetModal>(null);
+  const transactionBottomSheetRef = useRef<BottomSheetModal>(null);
+  // TRC-14/TRC-15: an existing transaction picked as the counterpart for
+  // an unlinked leg. Mutually exclusive with the account-destination pick:
+  // picking one clears the other (the save arms read exactly one).
+  const [linkedTransactionSelected,
+    setLinkedTransactionSelected] = useState<TransactionProps | null>(null);
   const [categorySelected, setCategorySelected] = useState({
     id: '',
     name: 'Selecione a categoria',
@@ -208,6 +223,8 @@ export function RegisterTransaction({
     accountCurrency,
     accountType,
     accountInitialAmount,
+    accountBankingIntegration,
+    setAccountBankingIntegration,
     setAccountId: setAccountID,
     setAccountName,
     setAccountCurrency,
@@ -216,6 +233,16 @@ export function RegisterTransaction({
   } = useCurrentAccountSelected();
   const [accountDestinationSelected, setAccountDestinationSelected] =
     useState<AccountProps | null>(null);
+  // TRC-01/TRC-02/TRC-03: conversion direction for unlinked plain →
+  // transfer (source mode repairs an imported CREDIT as the credit side).
+  // Linked-transfer edit never consults it (swap scope is conversion only).
+  const {
+    transferDirection,
+    initConversionDirection,
+    toggleTransferDirection,
+  } = useTransferDirection();
+  const accountDestinationBankName =
+    accountDestinationSelected?.bankingIntegration?.bankName;
   const [date, setDate] = useState(new Date());
 
   const shortDatesMap: Record<string, string> = {
@@ -499,11 +526,11 @@ export function RegisterTransaction({
     accountDestinationSelected &&
     accountCurrency
       ? resolveSingleLegRate(
-          currencySelected.code,
-          accountCurrency.code,
-          accountDestinationSelected.currency?.code ?? '',
-          quotes
-        )
+        currencySelected.code,
+        accountCurrency.code,
+        accountDestinationSelected.currency?.code ?? '',
+        quotes
+      )
       : null;
   const rateFieldVisible = !isBulkEdit
     ? isPlainTab
@@ -642,15 +669,16 @@ export function RegisterTransaction({
         break;
     }
 
-    // Converting a plain transaction into a transfer on edit is not
-    // supported (the backend only creates counterparts at transfer creation
-    // time — see spec.md TR-4). Keep the edit tab on the stored type.
+    // Converting a plain leg into a transfer on edit is supported for
+    // unlinked legs (the backend creates and links the counterpart — openi
+    // T11). Linked-but-plain rows are inconsistent data and stay blocked.
     if (
       tabIdx === 1 &&
-      id !== '' &&
-      transactionData &&
-      transactionData.type !== 'TRANSFER_CREDIT' &&
-      transactionData.type !== 'TRANSFER_DEBIT'
+      !canSelectTransferTab({
+        isEditing: id !== '',
+        storedType: transactionData?.type,
+        relatedTransactionId: relatedTransactionID,
+      })
     ) {
       Alert.alert(
         'Edição de Transação',
@@ -661,6 +689,12 @@ export function RegisterTransaction({
 
     setSelectedTransactionTab(tabIdx);
     setTransactionType(transactionTypeAux);
+    // TRC-01/TRC-02: the conversion direction defaults from the stored
+    // type every time the transfer tab is picked (create mode has no
+    // stored type, so it keeps today's destination behavior).
+    if (tabIdx === 1) {
+      initConversionDirection(transactionData?.type);
+    }
   }
 
   function handleOpenSelectCategoryModal() {
@@ -693,6 +727,59 @@ export function RegisterTransaction({
 
   function handleCloseSelectAccountDestinationModal() {
     accountDestinationBottomSheetRef.current?.dismiss();
+  }
+
+  function handleOpenSelectLinkedTransactionModal() {
+    transactionBottomSheetRef.current?.present();
+  }
+
+  function handleCloseSelectLinkedTransactionModal() {
+    transactionBottomSheetRef.current?.dismiss();
+  }
+
+  // TRC-16: picking an account clears a previously picked transaction.
+  function handleSelectCounterpartAccount(account: AccountProps) {
+    setAccountDestinationSelected(account);
+    setLinkedTransactionSelected(null);
+    handleCloseSelectAccountDestinationModal();
+  }
+
+  // TRC-14/TRC-15: picking a transaction clears a previously picked account.
+  function handleSelectLinkedTransaction(transaction: TransactionProps) {
+    setLinkedTransactionSelected(transaction);
+    setAccountDestinationSelected(null);
+    handleCloseSelectLinkedTransactionModal();
+  }
+
+  // TRC-14/TRC-15/TRC-16 chooser: one tap target for both attach paths on
+  // an unlinked leg (existing alert-options pattern). Linked legs and
+  // create mode keep the direct account sheet.
+  function handleOpenCounterpartChoice() {
+    const buttons = [
+      {
+        text: 'Selecionar conta',
+        onPress: () => handleOpenSelectAccountDestinationModal(),
+      },
+      {
+        text: 'Vincular transação existente',
+        onPress: () => handleOpenSelectLinkedTransactionModal(),
+      },
+    ];
+    if (accountDestinationSelected || linkedTransactionSelected) {
+      buttons.push({
+        text: 'Remover seleção',
+        onPress: () => {
+          setAccountDestinationSelected(null);
+          setLinkedTransactionSelected(null);
+        },
+      });
+    }
+    buttons.push({ text: 'Cancelar', onPress: () => undefined });
+    Alert.alert(
+      'Vincular contraparte',
+      'Escolha a conta da contraparte ou vincule uma transação existente',
+      buttons
+    );
   }
 
   function handleSelectTag(tag: TagProps) {
@@ -806,89 +893,36 @@ export function RegisterTransaction({
     tagsList = Object.values(tagsList);
 
     const updatePromises = bulkTransactionsData.map(async (transaction) => {
-      const updatedDescription =
-        form.description && form.description !== 'várias descrições*'
-          ? form.description
-          : transaction.description;
-
-      const updatedAmount =
-        form.amount && form.amount > 0 ? form.amount : transaction.amount;
-
-      // DEBIT transactions must be saved as negative numbers.
-      const resolvedType = transactionType || transaction.type;
-      const signedAmount =
-        resolvedType === 'DEBIT' ? -Math.abs(updatedAmount) : updatedAmount;
-
-      const updatedCategoryId =
-        categorySelected.id !== '' &&
-        categorySelected.name !== 'Selecione a categoria'
-          ? categorySelected.id
-          : transaction.category.id;
-
-      const updatedCurrencyId =
-        currencySelected.id !== 0 && currencySelected.name !== 'várias moedas*'
-          ? currencySelected.id
-          : transaction.currency.id;
-
-      const updatedAccountId =
-        accountID !== null ? accountID : transaction.account.id;
-
-      const updatedDate = date || new Date(transaction.created_at);
-
-      let amountConverted = signedAmount;
-      const fromCurrency = currencySelected.code || transaction.currency.code;
-      const targetAccountCurrency =
-        accountCurrency?.code || transaction.account.currency.code;
-
-      if (fromCurrency !== targetAccountCurrency) {
-        amountConverted = convertCurrency({
-          amount: signedAmount,
-          fromCurrency,
-          toCurrency: targetAccountCurrency,
-          accountCurrency: fromCurrency,
-          quotes: {
-            brlQuoteBtc,
-            brlQuoteEur,
-            brlQuoteUsd,
-            btcQuoteBrl,
-            btcQuoteEur,
-            btcQuoteUsd,
-            eurQuoteBrl,
-            eurQuoteBtc,
-            eurQuoteUsd,
-            usdQuoteBrl,
-            usdQuoteBtc,
-            usdQuoteEur,
-          },
-        });
-      }
-
-      const transactionEditedPayload = {
-        transaction_id: String(transaction.id),
-        created_at: updatedDate,
-        bank_transaction_id: null,
-        transaction_date: updatedDate,
-        description: updatedDescription,
-        amount: signedAmount,
-        amount_in_account_currency:
-          fromCurrency !== targetAccountCurrency ? amountConverted : null,
-        // FX-11 / A-04: bulk edit stores the quote-derived rate for converted
-        // transactions (no rate input in bulk mode)
-        exchange_rate:
-          fromCurrency !== targetAccountCurrency
-            ? getExchangeRate(fromCurrency, targetAccountCurrency, quotes)
-            : null,
-        currency_id: updatedCurrencyId,
-        type: transactionType || transaction.type,
-        account_id: updatedAccountId,
-        category_id: updatedCategoryId,
-        tags: normalizeTags(tagsList.length > 0 ? tagsList : transaction.tags),
-        image_url: null,
-        is_recurring: isRecurring,
-        recurrence_interval: isRecurring ? recurrenceInterval : null,
-        recurrence_period: isRecurring ? recurrencePeriod : null,
-        user_id: userID,
-      };
+      const transactionEditedPayload = buildBulkEditPayload({
+        formDescription: form.description,
+        formAmount: form.amount,
+        transaction,
+        transactionType,
+        categorySelected,
+        currencySelected,
+        accountID,
+        accountCurrency,
+        date: date || new Date(transaction.created_at),
+        tagsList,
+        isRecurring,
+        recurrenceInterval,
+        recurrencePeriod,
+        userID,
+        quotes: {
+          brlQuoteBtc,
+          brlQuoteEur,
+          brlQuoteUsd,
+          btcQuoteBrl,
+          btcQuoteEur,
+          btcQuoteUsd,
+          eurQuoteBrl,
+          eurQuoteBtc,
+          eurQuoteUsd,
+          usdQuoteBrl,
+          usdQuoteBtc,
+          usdQuoteEur,
+        },
+      });
 
       return api.patch('transaction/edit', transactionEditedPayload);
     });
@@ -968,7 +1002,7 @@ export function RegisterTransaction({
     // value is recomputed from the applied rate (same formula as the derived
     // display), not from live quotes.
     const appliedRate = appliedExchangeRate();
-    let amountConverted =
+    const amountConverted =
       conversionApplies && appliedRate
         ? convertWithRate(
             amount,
@@ -980,10 +1014,77 @@ export function RegisterTransaction({
 
     // --- Transfer Transaction ---
     if (transactionType === 'TRANSFER') {
+      // TRC-14/TRC-15: link to a picked existing transaction. Only the
+      // link flips (the pick becomes the opposite side and both ids
+      // cross-link); the backend moves no balances for this arm.
+      if (linkedTransactionSelected) {
+        updateTransaction(
+          {
+            transaction_id: id,
+            created_at: date,
+            transaction_date: date,
+            description: form.description,
+            type: pendingTransferSide,
+            account_id: accountID,
+            category_id: categorySelected.id,
+            updateRelated: true,
+            counterpartTransactionId: linkedTransactionSelected.id,
+          },
+          {
+            onSuccess: () => {
+              Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+                {
+                  text: 'Voltar para a tela anterior',
+                  onPress: closeRegisterTransaction,
+                },
+              ]);
+            },
+          }
+        );
+        return;
+      }
+
+      // TRC-09/TRC-10: nothing picked on an unlinked base saves a
+      // single-leg transfer (type flip only, net-zero primary balance).
+      // A linked leg always carries its counterpart pick, so reaching
+      // here linked means something is off — keep the original block.
       if (!accountDestinationSelected || accountDestinationSelected.id === 0) {
+        if (relatedTransactionID === null) {
+          const singleLegPayload = buildSingleLegTransferPayload({
+            transactionId: id,
+            description: form.description,
+            amount: form.amount,
+            selectedCurrency: currencySelected,
+            account: { id: Number(accountID), currency: accountCurrency },
+            categoryId: categorySelected.id,
+            tags: tagsList,
+            date,
+            imageUrl: transactionImageUrl,
+            isRecurring,
+            recurrenceInterval,
+            recurrencePeriod,
+            quotes,
+            exchangeRate: appliedRate,
+            primaryType: pendingTransferSide,
+          });
+
+          updateTransaction(singleLegPayload, {
+            onSuccess: () => {
+              Alert.alert('Edição de Transação', 'Transação editada com sucesso!', [
+                {
+                  text: 'Voltar para a tela anterior',
+                  onPress: closeRegisterTransaction,
+                },
+              ]);
+            },
+          });
+          return;
+        }
         Alert.alert(
           'Edição de Transação',
-          'Selecione a conta de destino para transferências'
+          transferDirection === 'source'
+            ? 'Selecione a conta de origem para transferências'
+            : 'Selecione a conta de destino para transferências'
         );
         return;
       }
@@ -1006,12 +1107,11 @@ export function RegisterTransaction({
         // FX-11 / D-01: the user-modified rate applies to the single
         // converting leg (null → each leg keeps its own quote)
         exchangeRate: appliedRate,
-        // The primary leg keeps its stored type; direction is fixed by the
-        // account selectors (D-02), never derived from the sign.
-        primaryType:
-          transactionData?.type === 'TRANSFER_CREDIT'
-            ? 'TRANSFER_CREDIT'
-            : 'TRANSFER_DEBIT',
+        // TRC-03/TRC-04: linked legs keep the stored side; conversions and
+        // unlinked bases take the pending side (direction toggle or stored
+        // single-leg side) — the counterpart becomes the opposite in the
+        // picked account.
+        primaryType: pendingTransferSide,
       });
 
       updateTransaction(transferEditedPayload, {
@@ -1433,7 +1533,10 @@ export function RegisterTransaction({
       setAccountName(transactionData.account.name);
       setAccountCurrency(transactionData.account.currency);
       setAccountType(transactionData.account.type);
-      const parsedDate = new Date(transactionData.created_at);
+      setAccountBankingIntegration(transactionData.account.banking_integration);
+      const parsedDate = new Date(
+        transactionData.transaction_date ?? transactionData.created_at
+      );
       setDate(parsedDate);
       setValue('description', transactionData.description);
       setTagsSelected(transactionData.tags);
@@ -1515,6 +1618,78 @@ export function RegisterTransaction({
 
   if (isLoadingTags || isLoadingDetails || isLoadingBulkTransactions) {
     return false;
+  }
+
+  const bankName = accountBankingIntegration?.bankName;
+
+  // TRC-03: editing an unlinked plain leg as a transfer is a conversion:
+  // the only place the direction swap appears (linked legs keep the
+  // plain counterpart selector, create mode keeps destination behavior).
+  const isConversionToTransfer =
+    id !== '' &&
+    !isBulkEdit &&
+    (transactionData?.type === 'CREDIT' ||
+      transactionData?.type === 'DEBIT') &&
+    relatedTransactionID === null;
+
+  // TRC-14/TRC-15/TRC-16: the pending transfer side, shared by the save
+  // arms and the link picker. Linked legs keep the stored side; anything
+  // else takes the direction toggle (conversion) or the stored side of an
+  // unlinked leg (single-leg edit).
+  const storedTransferSide =
+    transactionData?.type === 'TRANSFER_CREDIT' ||
+    transactionData?.type === 'TRANSFER_DEBIT'
+      ? transactionData.type
+      : null;
+  const pendingTransferSide =
+    storedTransferSide ?? resolveConversionPrimaryType(transferDirection);
+
+  // An unlinked transfer leg being edited can grow a counterpart later
+  // (account pick creates it, transaction pick links it).
+  const isUnlinkedTransferEdit =
+    id !== '' &&
+    !isBulkEdit &&
+    storedTransferSide !== null &&
+    relatedTransactionID === null;
+  const showCounterpartChooser =
+    isConversionToTransfer || isUnlinkedTransferEdit;
+
+  function getAccountButtonText():string {
+    if (bankName && accountName)  return `${bankName} • ${accountName}`;
+
+    if (accountName) return accountName;
+
+    return 'Selecione a conta';
+  }
+
+  function getSecondAccountButtonText(): string {
+    if (accountDestinationBankName && accountDestinationSelected?.name)
+      return `${accountDestinationBankName} • ${accountDestinationSelected?.name}`;
+
+    if (accountDestinationSelected?.name)
+      return accountDestinationSelected?.name;
+
+    // TRC-11: conversion shows the mode label; an unlinked transfer leg
+    // shows the single-leg state. Linked legs always have a pick above.
+    const storedType = transactionData?.type;
+    const isUnlinkedTransfer =
+      (storedType === 'TRANSFER_CREDIT' || storedType === 'TRANSFER_DEBIT') &&
+      relatedTransactionID === null;
+    return resolveCounterpartSlotTitle({
+      mode: transferDirection,
+      pickedName: null,
+      isUnlinkedTransfer,
+    });
+  }
+
+  function getCounterpartButtonTitle(): string {
+    if (linkedTransactionSelected) {
+      const linkedAccountName = linkedTransactionSelected.account?.name;
+      return linkedAccountName
+        ? `Vincular: ${linkedTransactionSelected.description} (${linkedAccountName})`
+        : `Vincular: ${linkedTransactionSelected.description}`;
+    }
+    return getSecondAccountButtonText();
   }
 
   function getFormTitle() {
@@ -1664,18 +1839,37 @@ export function RegisterTransaction({
             }}
           >
             <SelectButton
-              title={accountName || 'Selecione a conta'}
+              title={getAccountButtonText()}
               icon={<WalletIcon color={categorySelected.color.color_code} />}
               onPress={() => handleOpenSelectAccountModal()}
             />
-            {transactionType === 'TRANSFER' && (
+            {/* TRC-03: conversion offers the direction swap; linked legs keep the plain counterpart selector */}
+            {transactionType === 'TRANSFER' && isConversionToTransfer && (
               <SelectButton
-                title={
-                  accountDestinationSelected?.name ||
-                  'Selecione a conta de destino'
-                }
+                title={getCounterpartButtonTitle()}
                 icon={<WalletIcon color={categorySelected.color.color_code} />}
-                onPress={() => handleOpenSelectAccountDestinationModal()}
+                onPress={() => handleOpenCounterpartChoice()}
+                altButton={{
+                  onPress: toggleTransferDirection,
+                  icon: (
+                    <ArrowsLeftRightIcon
+                      size={24}
+                      color={categorySelected.color.color_code}
+                    />
+                  ),
+                }}
+                style={{ flex: 1 }}
+              />
+            )}
+            {transactionType === 'TRANSFER' && !isConversionToTransfer && (
+              <SelectButton
+                title={getCounterpartButtonTitle()}
+                icon={<WalletIcon color={categorySelected.color.color_code} />}
+                onPress={() =>
+                  showCounterpartChooser
+                    ? handleOpenCounterpartChoice()
+                    : handleOpenSelectAccountDestinationModal()
+                }
               />
             )}
 
@@ -1964,6 +2158,7 @@ export function RegisterTransaction({
               type: accountType || 'BANK',
               balance: 0,
               initialAmount: accountInitialAmount,
+              banking_integration: accountBankingIntegration
             }}
             setAccount={(account: AccountProps) => {
               setAccountID(String(account.id));
@@ -2007,7 +2202,7 @@ export function RegisterTransaction({
               }
             }
             setAccountDestination={(account: AccountProps) => {
-              setAccountDestinationSelected(account);
+              handleSelectCounterpartAccount(account);
               // A-03: a new destination re-resolves the single converting leg
               setValue(
                 'exchangeRate',
@@ -2020,6 +2215,32 @@ export function RegisterTransaction({
             }}
             closeSelectAccountDestination={() =>
               handleCloseSelectAccountDestinationModal()
+            }
+          />
+        </ModalViewSelection>
+
+        {/* ── Link existing counterpart (TRC-14/TRC-15/TRC-19) ──── */}
+        <ModalViewSelection
+          $modal
+          title='Vincular transação existente'
+          bottomSheetRef={transactionBottomSheetRef}
+          snapPoints={['75%']}
+          onClose={() => handleCloseSelectLinkedTransactionModal()}
+        >
+          <TransactionSelect
+            setTransaction={(transaction: TransactionProps) =>
+              handleSelectLinkedTransaction(transaction)
+            }
+            closeSelectTransaction={() =>
+              handleCloseSelectLinkedTransactionModal()
+            }
+            candidatesFilter={(transactions) =>
+              filterCounterpartTransactions({
+                existingSide: pendingTransferSide,
+                ownTransactionId: id,
+                ownAccountId: accountID,
+                transactions,
+              })
             }
           />
         </ModalViewSelection>
