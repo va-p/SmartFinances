@@ -68,7 +68,7 @@ export function buildInvestmentGroupKey(
 }
 
 /**
- * Short group label, e.g. "CDB · 100% CDI" (Layout 2 header).
+ * Short group label, e.g. "CDB · 100.00% CDI" (Layout 2 header).
  * Falls back to subtype, then type, then a generic label when the
  * rate side is missing.
  */
@@ -80,8 +80,13 @@ export function buildInvestmentGroupLabel(
     details?.investmentType?.trim() ||
     'Investimento';
   const rate = details?.rate?.trim() ?? '';
+  const numericRate = Number(rate);
+  const formattedRate =
+    rate && Number.isFinite(numericRate) ? numericRate.toFixed(2) : rate;
   const rateType = details?.rateType?.trim() ?? '';
-  const rateLabel = [rate && `${rate}%`, rateType].filter(Boolean).join(' ');
+  const rateLabel = [formattedRate && `${formattedRate}%`, rateType]
+    .filter(Boolean)
+    .join(' ');
   return rateLabel ? `${product} · ${rateLabel}` : product;
 }
 

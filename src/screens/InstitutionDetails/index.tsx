@@ -604,14 +604,6 @@ export function InstitutionDetails() {
                     ].map(
                       (x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32
                     )}
-                    // refreshControl={
-                    //   <RefreshControl
-                    //     refreshing={
-                    //       isRefetchingTransactions || isRefetchingAccounts
-                    //     }
-                    //     onRefresh={handleRefresh}
-                    //   />
-                    // }
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{

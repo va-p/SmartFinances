@@ -80,7 +80,7 @@ describe('groupInvestments (INV-01..INV-04)', () => {
     );
     expect(groups).toHaveLength(1);
     expect(groups[0].count).toBe(2);
-    expect(groups[0].label).toBe('CDB · 100% CDI');
+    expect(groups[0].label).toBe('CDB · 100.00% CDI');
     expect(groups[0].totalBalanceBase).toBeCloseTo(950.08, 8);
   });
 
@@ -152,6 +152,16 @@ describe('mixed currencies (INV-04)', () => {
 });
 
 describe('buildInvestmentGroupLabel', () => {
+  it.each([
+    ['100.0000', '100.00'],
+    ['115.0000', '115.00'],
+    ['102.5000', '102.50'],
+  ])('formats rate %s with two decimal places', (rate, expectedRate) => {
+    expect(buildInvestmentGroupLabel({ ...cdbData, rate })).toBe(
+      `CDB · ${expectedRate}% CDI`
+    );
+  });
+
   it('falls back gracefully when rate fields are missing', () => {
     expect(
       buildInvestmentGroupLabel({ ...cdbData, rate: null, rateType: null })
