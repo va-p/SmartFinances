@@ -571,10 +571,10 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] Synced dismissal/hide use series IDs; manual actions still use transaction IDs.
-- [ ] Synced legacy edit controls are absent and no-forecast copy is visible.
-- [ ] Quick gate passes: `yarn jest src/__tests__/screens/subscriptionDetails.spec.tsx --runInBand --watchman=false --forceExit`.
-- [ ] Test count: at least 6 new tests pass.
+- [x] Synced dismissal/hide use series IDs; manual actions still use transaction IDs.
+- [x] Synced legacy edit controls are absent and no-forecast copy is visible.
+- [x] Quick gate passes: `yarn jest src/__tests__/screens/subscriptionDetails.spec.tsx --runInBand --watchman=false --forceExit`.
+- [x] Test count: at least 6 new tests pass.
 
 **Tests**: unit
 **Gate**: quick, then build

@@ -64,13 +64,19 @@ import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 
 // Hooks
 import { useSubscriptionDetailQuery } from '@hooks/useSubscriptionDetailQuery';
-import { useUpdateSubscriptionMutation } from '@hooks/useSubscriptionMutations';
+import {
+  useUpdateSubscriptionMutation,
+  useUpdateSyncedSubscriptionMutation,
+} from '@hooks/useSubscriptionMutations';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
 import { parseDecimalInput } from '@utils/parseDecimalInput';
 import { formatSubscriptionDate } from '@utils/formatSubscriptionDate';
-import { subscriptionRecurrenceLabel } from '@utils/subscriptionDisplay';
+import {
+  subscriptionFrequencyText,
+  subscriptionRecurrenceLabel,
+} from '@utils/subscriptionDisplay';
 
 import { ThemeProps } from '@interfaces/theme';
 import { SubscriptionRecurrencePeriod } from '@interfaces/subscriptions';
@@ -124,6 +130,7 @@ export function SubscriptionDetails() {
     refetch,
   } = useSubscriptionDetailQuery(id);
   const updateMutation = useUpdateSubscriptionMutation();
+  const updateSyncedMutation = useUpdateSyncedSubscriptionMutation();
 
   const editSheetRef = useRef<BottomSheetModal>(null);
   const [paymentsExpanded, setPaymentsExpanded] = useState(true);
@@ -162,7 +169,9 @@ export function SubscriptionDetails() {
   }
 
   function handleSaveEdit() {
-    if (!subscription) return;
+    if (!subscription || subscription.source !== 'MANUAL') return;
+    const transactionId = subscription.transaction_id;
+    if (transactionId === null) return;
 
     const parsedAmount = Number(parseDecimalInput(amountInput));
     if (!Number.isFinite(parsedAmount)) {
@@ -192,7 +201,7 @@ export function SubscriptionDetails() {
 
     updateMutation.mutate(
       {
-        transaction_id: subscription.id,
+        transaction_id: transactionId,
         amount: parsedAmount,
         transaction_date: newDate.toISOString(),
         recurrence_period: period,
@@ -217,11 +226,24 @@ export function SubscriptionDetails() {
         {
           text: 'Continuar',
           style: 'destructive',
-          onPress: () =>
+          onPress: () => {
+            if (subscription.source === 'SYNCED') {
+              updateSyncedMutation.mutate(
+                { id: subscription.id, is_subscription: false },
+                { onSuccess: () => router.back() }
+              );
+              return;
+            }
+            const transactionId = subscription.transaction_id;
+            if (transactionId === null) return;
             updateMutation.mutate(
-              { transaction_id: subscription.id, is_subscription: false },
+              {
+                transaction_id: transactionId,
+                is_subscription: false,
+              },
               { onSuccess: () => router.back() }
-            ),
+            );
+          },
         },
       ]
     );
@@ -229,9 +251,21 @@ export function SubscriptionDetails() {
 
   function handleToggleHide() {
     if (!subscription) return;
+    if (subscription.source === 'SYNCED') {
+      updateSyncedMutation.mutate(
+        {
+          id: subscription.id,
+          hide_from_subscription_list: !hideFromList,
+        },
+        { onSuccess: () => refetch() }
+      );
+      return;
+    }
+    const transactionId = subscription.transaction_id;
+    if (transactionId === null) return;
     updateMutation.mutate(
       {
-        transaction_id: subscription.id,
+        transaction_id: transactionId,
         hide_from_subscription_list: !hideFromList,
       },
       { onSuccess: () => refetch() }
@@ -285,10 +319,12 @@ export function SubscriptionDetails() {
             {/* Detalhes sobre pagamento (collapsible, AC15.3) */}
             <SectionHeaderRow>
               <SectionHeaderTitle>Detalhes sobre pagamento</SectionHeaderTitle>
-              <EditButton onPress={() => handleOpenEdit()}>
-                <PencilSimpleIcon size={16} color={theme.colors.primary} />
-                <EditButtonText>Editar</EditButtonText>
-              </EditButton>
+              {subscription.source === 'MANUAL' && (
+                <EditButton onPress={() => handleOpenEdit()}>
+                  <PencilSimpleIcon size={16} color={theme.colors.primary} />
+                  <EditButtonText>Editar</EditButtonText>
+                </EditButton>
+              )}
               <EditButton onPress={() => setPaymentsExpanded((v) => !v)}>
                 <RotatingCaret
                   expanded={paymentsExpanded}
@@ -314,9 +350,11 @@ export function SubscriptionDetails() {
                 <DetailLine>
                   <DetailLabel>Recorrência</DetailLabel>
                   <DetailValue>
-                    {subscriptionRecurrenceLabel(
-                      subscription.recurrence_period
-                    )}
+                    {subscription.recurrence_period
+                      ? subscriptionRecurrenceLabel(
+                        subscription.recurrence_period
+                      )
+                      : subscriptionFrequencyText(subscription)}
                   </DetailValue>
                 </DetailLine>
                 <DetailLine>
@@ -371,73 +409,75 @@ export function SubscriptionDetails() {
           </ContentScroll>
         )}
 
-        <ModalViewSelection
-          title='Editar assinatura'
-          bottomSheetRef={editSheetRef}
-          snapPoints={['80%']}
-          keyboardBehavior='extend'
-        >
-          <TouchableWithoutFeedback
-            onPress={Keyboard.dismiss}
-            accessible={false}
+        {subscription?.source === 'MANUAL' && (
+          <ModalViewSelection
+            title='Editar assinatura'
+            bottomSheetRef={editSheetRef}
+            snapPoints={['80%']}
+            keyboardBehavior='extend'
           >
-            <EditSheetContent
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            <TouchableWithoutFeedback
+              onPress={Keyboard.dismiss}
+              accessible={false}
             >
-              <InputLabel>Valor</InputLabel>
-              <EditInput
-                value={amountInput}
-                onChangeText={setAmountInput}
-                keyboardType='decimal-pad'
-                placeholder='0,00'
-                placeholderTextColor={theme.colors.textPlaceholder}
-              />
-              {editAmountPreview && (
-                <DetailLabel style={{ marginTop: 6 }}>
-                  {editAmountPreview}
-                </DetailLabel>
-              )}
+              <EditSheetContent
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              >
+                <InputLabel>Valor</InputLabel>
+                <EditInput
+                  value={amountInput}
+                  onChangeText={setAmountInput}
+                  keyboardType='decimal-pad'
+                  placeholder='0,00'
+                  placeholderTextColor={theme.colors.textPlaceholder}
+                />
+                {editAmountPreview && (
+                  <DetailLabel style={{ marginTop: 6 }}>
+                    {editAmountPreview}
+                  </DetailLabel>
+                )}
 
-              <InputLabel>Dia de cobrança (1–31)</InputLabel>
-              <EditInput
-                value={dayInput}
-                onChangeText={setDayInput}
-                keyboardType='number-pad'
-                placeholder='6'
-                placeholderTextColor={theme.colors.textPlaceholder}
-              />
+                <InputLabel>Dia de cobrança (1–31)</InputLabel>
+                <EditInput
+                  value={dayInput}
+                  onChangeText={setDayInput}
+                  keyboardType='number-pad'
+                  placeholder='6'
+                  placeholderTextColor={theme.colors.textPlaceholder}
+                />
 
-              <InputLabel>Recorrência</InputLabel>
-              <PeriodPills>
-                <PeriodPill
-                  isActive={period === 'MONTHLY'}
-                  onPress={() => setPeriod('MONTHLY')}
-                >
-                  <PeriodPillText isActive={period === 'MONTHLY'}>
+                <InputLabel>Recorrência</InputLabel>
+                <PeriodPills>
+                  <PeriodPill
+                    isActive={period === 'MONTHLY'}
+                    onPress={() => setPeriod('MONTHLY')}
+                  >
+                    <PeriodPillText isActive={period === 'MONTHLY'}>
                     Mensal
-                  </PeriodPillText>
-                </PeriodPill>
-                <PeriodPill
-                  isActive={period === 'YEARLY'}
-                  onPress={() => setPeriod('YEARLY')}
-                >
-                  <PeriodPillText isActive={period === 'YEARLY'}>
+                    </PeriodPillText>
+                  </PeriodPill>
+                  <PeriodPill
+                    isActive={period === 'YEARLY'}
+                    onPress={() => setPeriod('YEARLY')}
+                  >
+                    <PeriodPillText isActive={period === 'YEARLY'}>
                     Anual
-                  </PeriodPillText>
-                </PeriodPill>
-              </PeriodPills>
+                    </PeriodPillText>
+                  </PeriodPill>
+                </PeriodPills>
 
-              <SaveButtonContainer>
-                <Button.Root
-                  onPress={() => handleSaveEdit()}
-                  isLoading={updateMutation.isPending}
-                >
-                  <Button.Text text='Salvar' />
-                </Button.Root>
-              </SaveButtonContainer>
-            </EditSheetContent>
-          </TouchableWithoutFeedback>
-        </ModalViewSelection>
+                <SaveButtonContainer>
+                  <Button.Root
+                    onPress={() => handleSaveEdit()}
+                    isLoading={updateMutation.isPending}
+                  >
+                    <Button.Text text='Salvar' />
+                  </Button.Root>
+                </SaveButtonContainer>
+              </EditSheetContent>
+            </TouchableWithoutFeedback>
+          </ModalViewSelection>
+        )}
       </Container>
     </Screen>
   );
