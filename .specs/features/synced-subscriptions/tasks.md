@@ -547,10 +547,10 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] Synced toggles do not open RecurrenceSelect or alter recurrence; manual toggles retain legacy behavior.
-- [ ] Synced hydration does not infer recurrence from `is_subscription`.
-- [ ] Quick gate passes: `yarn jest src/__tests__/screens/registerTransactionSubscriptions.spec.tsx src/utils/__tests__/subscriptionDesignation.test.ts --runInBand --watchman=false --forceExit`.
-- [ ] Test count: at least 5 new editor tests pass with all T14 tests.
+- [x] Synced toggles do not open RecurrenceSelect or alter recurrence; manual toggles retain legacy behavior.
+- [x] Synced hydration does not infer recurrence from `is_subscription`.
+- [x] Quick gate passes: `yarn jest src/__tests__/screens/registerTransactionSubscriptions.spec.tsx src/utils/__tests__/subscriptionDesignation.test.ts --runInBand --watchman=false --forceExit`.
+- [x] Test count: at least 5 new editor tests pass with all T14 tests.
 
 **Tests**: unit
 **Gate**: quick, then build

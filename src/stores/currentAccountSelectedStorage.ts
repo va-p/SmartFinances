@@ -31,8 +31,10 @@ type CurrentAccountSelected = {
   setAccountTotalAmount: (accountTotalAmount: string | null) => void;
   accountCreditData: CreditDataProps | null;
   setAccountCreditData: (creditData: CreditDataProps) => void;
-  accountBankingIntegration?: BankingIntegration;
-  setAccountBankingIntegration: (bankingIntegration: BankingIntegration) => void;
+  accountBankingIntegration?: BankingIntegration | null;
+  setAccountBankingIntegration: (
+    bankingIntegration: BankingIntegration | null | undefined
+  ) => void;
   // Investment group navigation (INV-03): synthetic `group:<hash>` payload.
   // Null in single-account mode; member screens use the real account id.
   accountGroupKey: string | null;

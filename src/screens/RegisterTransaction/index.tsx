@@ -67,6 +67,7 @@ import {
 import {
   buildSubscriptionDesignationPayload,
   resolveRecurringSwitch,
+  resolveRecurrenceHydration,
   resolveRecurrenceSaved,
   resolveSubscriptionSwitch,
 } from '@utils/subscriptionDesignation';
@@ -398,11 +399,10 @@ export function RegisterTransaction({
     period: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   }) {
     setRecurrenceInterval(data.interval);
-    // A subscription only exists with MONTHLY/YEARLY recurrence: saving a
-    // DAILY/WEEKLY recurrence un-designates together (SD-19).
     const next = resolveRecurrenceSaved(
       { isSubscription, isRecurring, recurrencePeriod },
-      { period: data.period }
+      { period: data.period },
+      Boolean(accountBankingIntegration)
     );
     setRecurrencePeriod(next.recurrencePeriod);
     setIsSubscription(next.isSubscription);
@@ -410,12 +410,10 @@ export function RegisterTransaction({
   }
 
   function handleSubscriptionToggle() {
-    // SD-16/SD-17: designating forces a qualifying recurrence (a DAILY/WEEKLY
-    // period normalizes to MONTHLY), confirming in the recurrence modal
-    // when the prior state did not qualify; un-designating changes nothing else.
     const next = resolveSubscriptionSwitch(
       { isSubscription, isRecurring, recurrencePeriod },
-      !isSubscription
+      !isSubscription,
+      Boolean(accountBankingIntegration)
     );
     setIsSubscription(next.isSubscription);
     setIsRecurring(next.isRecurring);
@@ -1560,11 +1558,19 @@ export function RegisterTransaction({
         )
       );
 
-      // Pre-fill recurrence fields when editing. A designated subscription
-      // implies recurrence, so it hydrates recurring even when the stored
-      // row is inconsistent — selectors stay active for both cases.
+      // Manual designation retains legacy recurrence inference. Synced series
+      // hydration trusts only the transaction's independent recurrence flag.
       const designated = Boolean(transactionData.is_subscription);
-      const recurring = Boolean(transactionData.is_recurring) || designated;
+      const isSyncedTransaction = Boolean(
+        transactionData.account.banking_integration
+      );
+      const recurring = resolveRecurrenceHydration(
+        {
+          isRecurring: Boolean(transactionData.is_recurring),
+          isSubscription: designated,
+        },
+        isSyncedTransaction
+      );
       if (recurring) {
         setIsRecurring(true);
         if (transactionData.recurrence_interval) {
@@ -1583,7 +1589,7 @@ export function RegisterTransaction({
               | 'MONTHLY'
               | 'YEARLY'
           );
-        } else if (designated) {
+        } else if (designated && !isSyncedTransaction) {
           setRecurrencePeriod('MONTHLY');
         }
       } else {
@@ -1986,11 +1992,10 @@ export function RegisterTransaction({
               title='Recorrente'
               subTitle={getRecurrenceSubtitle()}
               onValueChange={() => {
-                // Un-designate together: a subscription cannot stay without
-                // recurrence (SD-18).
                 const next = resolveRecurringSwitch(
                   { isSubscription, isRecurring, recurrencePeriod },
-                  !isRecurring
+                  !isRecurring,
+                  Boolean(accountBankingIntegration)
                 );
                 setIsRecurring(next.isRecurring);
                 setIsSubscription(next.isSubscription);
@@ -2167,6 +2172,7 @@ export function RegisterTransaction({
               setAccountType(account.type);
               setCurrencySelected(account.currency);
               setAccountInitialAmount(account.initialAmount ?? 0);
+              setAccountBankingIntegration(account.banking_integration);
               // A-03: the account selector also sets the selected currency to
               // the account's — the pair collapses to same-currency
               setValue(
