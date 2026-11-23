@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Platform } from 'react-native';
 import {
   Container,
   SectionHeader,
@@ -45,6 +45,7 @@ import { TransactionSelect } from '@screens/TransactionSelect';
 
 // Hooks
 import { useSubscriptionsQuery } from '@hooks/useSubscriptionsQuery';
+import { useDesignateSyncedSubscriptionMutation } from '@hooks/useSubscriptionMutations';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 
 // Utils
@@ -77,6 +78,10 @@ export function Subscriptions() {
   const [openAdvancedSelectors, setOpenAdvancedSelectors] = useState(false);
 
   const { data: subscriptions, isLoading, refetch } = useSubscriptionsQuery();
+  const {
+    mutate: designateSyncedSubscription,
+    isPending: isDesignatingSynced,
+  } = useDesignateSyncedSubscriptionMutation();
   const baseCurrencyCode = useUserConfigs((state) => state.baseCurrency.code);
 
   const upcomingSummary = useMemo(
@@ -130,6 +135,25 @@ export function Subscriptions() {
   }
 
   function handleSelectTransaction(transaction: TransactionProps) {
+    if (isDesignatingSynced) return;
+
+    if (transaction.account.banking_integration) {
+      designateSyncedSubscription(transaction.id, {
+        onSuccess: () => {
+          transactionSelectSheetRef.current?.dismiss();
+          addSubscriptionSheetRef.current?.dismiss();
+          refetch();
+        },
+        onError: () => {
+          Alert.alert(
+            'Assinatura',
+            'Não foi possível adicionar a assinatura. Verifique sua conexão e tente novamente.'
+          );
+        },
+      });
+      return;
+    }
+
     setTransactionId(String(transaction.id));
     setOpenAdvancedSelectors(true);
     transactionSelectSheetRef.current?.dismiss();
@@ -300,6 +324,8 @@ export function Subscriptions() {
             closeSelectTransaction={() =>
               transactionSelectSheetRef.current?.dismiss()
             }
+            closeOnSelect={false}
+            disabled={isDesignatingSynced}
           />
         </ModalViewSelection>
       </Container>

@@ -25,6 +25,8 @@ import { TransactionProps } from '@interfaces/transactions';
 type Props = {
   setTransaction: (transaction: TransactionProps) => void;
   closeSelectTransaction: () => void;
+  disabled?: boolean;
+  closeOnSelect?: boolean;
   /**
    * Override the candidate list (transfer-correction TRC-19). Defaults to
    * the subscription candidates so existing callers behave identically.
@@ -49,6 +51,8 @@ function EmptyList() {
 export function TransactionSelect({
   setTransaction,
   closeSelectTransaction,
+  disabled = false,
+  closeOnSelect = true,
   candidatesFilter = selectSubscriptionCandidates,
 }: Props) {
   const { hideAmount } = useUserConfigs();
@@ -65,8 +69,9 @@ export function TransactionSelect({
   }
 
   function handleTransactionSelect(transaction: TransactionProps) {
+    if (disabled) return;
     setTransaction(transaction);
-    closeSelectTransaction();
+    if (closeOnSelect) closeSelectTransaction();
   }
 
   if (isLoading) {
@@ -92,6 +97,7 @@ export function TransactionSelect({
             data={item}
             index={index}
             hideAmount={hideAmount}
+            disabled={disabled}
             onPress={() => handleTransactionSelect(item)}
           />
         )}

@@ -523,10 +523,10 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] Screen tests prove synced success/error/retry behavior and unchanged manual editor presentation.
-- [ ] No synced selection opens RegisterTransaction or RecurrenceSelect.
-- [ ] Quick gate passes: `yarn jest src/__tests__/screens/subscriptions.spec.tsx --runInBand --watchman=false --forceExit`.
-- [ ] Test count: at least 6 new tests pass.
+- [x] Screen tests prove synced success/error/retry behavior and unchanged manual editor presentation.
+- [x] No synced selection opens RegisterTransaction or RecurrenceSelect.
+- [x] Quick gate passes: `yarn jest src/__tests__/screens/subscriptions.spec.tsx --runInBand --watchman=false --forceExit`.
+- [x] Test count: at least 6 new tests pass.
 
 **Tests**: unit
 **Gate**: quick, then build

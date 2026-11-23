@@ -132,6 +132,62 @@ describe('TransactionSelect', () => {
     expect(closeSelectTransaction).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the picker open when the parent defers closing (SSI-07)', () => {
+    const debit = makeTransaction({ id: 1, type: 'DEBIT' });
+    const setTransaction = jest.fn();
+    const closeSelectTransaction = jest.fn();
+    mockUseTransactionsQuery.mockReturnValue({
+      data: [debit],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+
+    const screen = render(
+      <ThemeProvider theme={lightTheme}>
+        <TransactionSelect
+          setTransaction={setTransaction}
+          closeSelectTransaction={closeSelectTransaction}
+          closeOnSelect={false}
+        />
+      </ThemeProvider>
+    );
+
+    fireEvent.press(screen.getByTestId('transaction-row-1'));
+
+    expect(setTransaction).toHaveBeenCalledWith(debit);
+    expect(closeSelectTransaction).not.toHaveBeenCalled();
+  });
+
+  it('does not select or close while designation is pending (SSI-08)', () => {
+    const debit = makeTransaction({ id: 1, type: 'DEBIT' });
+    const setTransaction = jest.fn();
+    const closeSelectTransaction = jest.fn();
+    mockUseTransactionsQuery.mockReturnValue({
+      data: [debit],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    });
+
+    const screen = render(
+      <ThemeProvider theme={lightTheme}>
+        <TransactionSelect
+          setTransaction={setTransaction}
+          closeSelectTransaction={closeSelectTransaction}
+          disabled
+        />
+      </ThemeProvider>
+    );
+
+    fireEvent.press(screen.getByTestId('transaction-row-1'));
+
+    expect(setTransaction).not.toHaveBeenCalled();
+    expect(closeSelectTransaction).not.toHaveBeenCalled();
+  });
+
   // TRC-19 — a custom filter overrides the default subscription candidates
   it('applies a custom candidates filter when provided', () => {
     const debit = makeTransaction({ id: 1, type: 'DEBIT' });
