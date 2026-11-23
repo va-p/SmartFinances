@@ -500,9 +500,9 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] Tests verify endpoints, payload, cache invalidations, no account invalidation on designation, and failure propagation.
-- [ ] Quick gate passes: `yarn jest src/__tests__/hooks/subscriptionMutations.spec.tsx --runInBand --watchman=false --forceExit`.
-- [ ] Test count: at least 6 new tests pass.
+- [x] Tests verify endpoints, payload, cache invalidations, no account invalidation on designation, and failure propagation.
+- [x] Quick gate passes: `yarn jest src/__tests__/hooks/subscriptionMutations.spec.tsx --runInBand --watchman=false --forceExit`.
+- [x] Test count: at least 6 new tests pass.
 
 **Tests**: unit
 **Gate**: quick, then build

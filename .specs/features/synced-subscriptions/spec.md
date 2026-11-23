@@ -188,8 +188,8 @@ Each acceptance criterion maps to one requirement ID in story order.
 | SSI-03 | P1: Designate a synced charge | Tasks | Implementing |
 | SSI-04 | P1: Designate a synced charge | Tasks | Implementing |
 | SSI-05 | P1: Designate a synced charge | Tasks | Implementing |
-| SSI-06 | P1: Designate a synced charge | Tasks | In Tasks |
-| SSI-07 | P1: Designate a synced charge | Tasks | In Tasks |
+| SSI-06 | P1: Designate a synced charge | Tasks | Implementing |
+| SSI-07 | P1: Designate a synced charge | Tasks | Implementing |
 | SSI-08 | P1: Designate a synced charge | Tasks | Implementing |
 | SSI-09 | P1: Designate a synced charge | Tasks | Implementing |
 | SSI-10 | P1: Designate a synced charge | Tasks | Verified |
