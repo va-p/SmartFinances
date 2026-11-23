@@ -5,6 +5,7 @@ import {
   buildSubscriptionDesignationPayload,
   isSubscriptionRecurrencePeriod,
   resolveRecurringSwitch,
+  resolveRecurrenceHydration,
   resolveRecurrenceSaved,
   resolveSubscriptionSwitch,
   selectSubscriptionCandidates,
@@ -179,6 +180,35 @@ describe('resolveSubscriptionSwitch (SD-16/SD-17)', () => {
   });
 });
 
+describe('resolveSubscriptionSwitch with a synced account (SSI-02/SSI-09)', () => {
+  it('turning on only designates and never changes recurrence or opens the modal', () => {
+    const previous = state({
+      isRecurring: false,
+      recurrencePeriod: 'WEEKLY',
+    });
+
+    expect(resolveSubscriptionSwitch(previous, true, true)).toEqual({
+      ...previous,
+      isSubscription: true,
+      needsRecurrenceModal: false,
+    });
+  });
+
+  it('turning off only removes the synced series designation', () => {
+    const previous = state({
+      isSubscription: true,
+      isRecurring: true,
+      recurrencePeriod: 'DAILY',
+    });
+
+    expect(resolveSubscriptionSwitch(previous, false, true)).toEqual({
+      ...previous,
+      isSubscription: false,
+      needsRecurrenceModal: false,
+    });
+  });
+});
+
 describe('resolveRecurringSwitch (SD-18)', () => {
   it('turning recurrence off also un-designates', () => {
     const next = resolveRecurringSwitch(
@@ -196,6 +226,21 @@ describe('resolveRecurringSwitch (SD-18)', () => {
     expect(next.isRecurring).toBe(true);
     expect(next.isSubscription).toBe(false);
     expect(next.recurrencePeriod).toBe('DAILY');
+  });
+});
+
+describe('resolveRecurringSwitch with a synced account (SSI-02/SSI-09)', () => {
+  it('turning recurrence off preserves the synced subscription intent', () => {
+    const previous = state({
+      isSubscription: true,
+      isRecurring: true,
+      recurrencePeriod: 'MONTHLY',
+    });
+
+    expect(resolveRecurringSwitch(previous, false, true)).toEqual({
+      ...previous,
+      isRecurring: false,
+    });
   });
 });
 
@@ -234,6 +279,50 @@ describe('resolveRecurrenceSaved (SD-19)', () => {
     });
 
     expect(next.isSubscription).toBe(false);
+  });
+});
+
+describe('resolveRecurrenceSaved with a synced account (SSI-02/SSI-09)', () => {
+  it.each(['DAILY', 'WEEKLY'] as const)(
+    'a %s save preserves the synced subscription intent',
+    (period) => {
+      const previous = state({
+        isSubscription: true,
+        isRecurring: true,
+        recurrencePeriod: 'MONTHLY',
+      });
+
+      expect(resolveRecurrenceSaved(previous, { period }, true)).toEqual({
+        ...previous,
+        recurrencePeriod: period,
+      });
+    }
+  );
+});
+
+describe('resolveRecurrenceHydration (SSI-02/SSI-09)', () => {
+  it('does not infer synced recurrence from subscription designation', () => {
+    expect(
+      resolveRecurrenceHydration(
+        { isRecurring: false, isSubscription: true },
+        true
+      )
+    ).toBe(false);
+  });
+
+  it('hydrates synced recurrence when is_recurring is true', () => {
+    expect(
+      resolveRecurrenceHydration(
+        { isRecurring: true, isSubscription: false },
+        true
+      )
+    ).toBe(true);
+  });
+
+  it('preserves manual hydration from either recurrence or designation', () => {
+    expect(
+      resolveRecurrenceHydration({ isRecurring: false, isSubscription: true })
+    ).toBe(true);
   });
 });
 

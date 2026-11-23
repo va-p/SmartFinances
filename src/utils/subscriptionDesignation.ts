@@ -24,18 +24,21 @@ export type SubscriptionSwitchResolution = SubscriptionDesignationState & {
 };
 
 /**
- * State after the "Assinatura" switch flips (SD-16/SD-17). Turning it on
- * forces the designation's requirements: recurring, with a MONTHLY/YEARLY
- * period (a non-qualifying period normalizes to MONTHLY), opening the
- * recurrence modal for confirmation whenever the prior state did not
- * already qualify.
+ * State after the "Assinatura" switch flips (SD-16/SD-17, SSI-09). Manual
+ * accounts retain the recurrence requirements. Synced series only change
+ * their designation intent and never request recurrence confirmation.
  */
 export function resolveSubscriptionSwitch(
   state: SubscriptionDesignationState,
-  switchedOn: boolean
+  switchedOn: boolean,
+  isSyncedAccount = false
 ): SubscriptionSwitchResolution {
-  if (!switchedOn) {
-    return { ...state, isSubscription: false, needsRecurrenceModal: false };
+  if (!switchedOn || isSyncedAccount) {
+    return {
+      ...state,
+      isSubscription: switchedOn,
+      needsRecurrenceModal: false,
+    };
   }
 
   const periodQualifies = isSubscriptionRecurrencePeriod(state.recurrencePeriod);
@@ -49,33 +52,48 @@ export function resolveSubscriptionSwitch(
 }
 
 /**
- * State after the "Recorrente" switch flips (SD-18). Turning it off also
- * un-designates: a subscription cannot stay without recurrence.
+ * State after the "Recorrente" switch flips (SD-18, SSI-09). Only manual
+ * subscriptions lose their designation when recurrence is turned off.
  */
 export function resolveRecurringSwitch(
   state: SubscriptionDesignationState,
-  switchedOn: boolean
+  switchedOn: boolean,
+  isSyncedAccount = false
 ): SubscriptionDesignationState {
   if (switchedOn) {
     return { ...state, isRecurring: true };
   }
-  return { ...state, isRecurring: false, isSubscription: false };
+  return {
+    ...state,
+    isRecurring: false,
+    isSubscription: isSyncedAccount && state.isSubscription,
+  };
 }
 
 /**
- * State after RecurrenceSelect saves (SD-19). A DAILY/WEEKLY recurrence
- * un-designates; MONTHLY/YEARLY keeps the designation.
+ * State after RecurrenceSelect saves (SD-19, SSI-09). DAILY/WEEKLY only
+ * un-designates manual subscriptions; synced series remain independent.
  */
 export function resolveRecurrenceSaved(
   state: SubscriptionDesignationState,
-  saved: { period: RecurrencePeriodValue }
+  saved: { period: RecurrencePeriodValue },
+  isSyncedAccount = false
 ): SubscriptionDesignationState {
   return {
     ...state,
     recurrencePeriod: saved.period,
     isSubscription:
-      state.isSubscription && isSubscriptionRecurrencePeriod(saved.period),
+      state.isSubscription &&
+      (isSyncedAccount || isSubscriptionRecurrencePeriod(saved.period)),
   };
+}
+
+/** Synced rows trust is_recurring; manual rows retain legacy designation inference. */
+export function resolveRecurrenceHydration(
+  state: Pick<SubscriptionDesignationState, 'isRecurring' | 'isSubscription'>,
+  isSyncedAccount = false
+): boolean {
+  return state.isRecurring || (!isSyncedAccount && state.isSubscription);
 }
 
 /**

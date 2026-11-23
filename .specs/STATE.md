@@ -50,6 +50,14 @@
 - **Date**: 2026-11-16
 - **Status**: active
 
+### AD-007
+- **Decision**: The frontend treats manual recurring subscriptions and synced subscription series as two sources of one read model. Synced selection, editing, dismissal, and forecasts never enable transaction recurrence or open RecurrenceSelect; manual behavior remains unchanged.
+- **Reason**: Openi owns future synced charges, while manual accounts still rely on app-generated recurring children.
+- **Trade-off**: Subscription DTO IDs become strings and mutations branch by source; this preserves the backend's non-migrating dual-source model.
+- **Scope**: `src/screens/Subscriptions`, `RegisterTransaction`, `SubscriptionDetails`, `SubscriptionPayments`, subscription hooks/interfaces/utils.
+- **Date**: 2026-11-23
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: home-widgets (`.specs/features/home-widgets/`) — code-complete, Verifier CODE-PASS + UAT-PENDING (`validation.md` verdict FAIL by design: UAT-1..UAT-11 need real hardware; `validate_state.py` stays red until device QA passes)
