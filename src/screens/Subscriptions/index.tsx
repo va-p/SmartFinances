@@ -45,8 +45,8 @@ import { TransactionSelect } from '@screens/TransactionSelect';
 
 // Hooks
 import { useSubscriptionsQuery } from '@hooks/useSubscriptionsQuery';
-import { useDesignateSyncedSubscriptionMutation } from '@hooks/useSubscriptionMutations';
 import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+import { useDesignateSyncedSubscriptionMutation } from '@hooks/useSubscriptionMutations';
 
 // Utils
 import formatCurrency from '@utils/formatCurrency';
@@ -57,13 +57,16 @@ import { useQuotes } from '@stores/quotesStorage';
 import { useUserConfigs } from '@stores/userConfigsStorage';
 
 import { ThemeProps } from '@interfaces/theme';
-import { SubscriptionProps } from '@interfaces/subscriptions';
 import { TransactionProps } from '@interfaces/transactions';
+import { SubscriptionProps } from '@interfaces/subscriptions';
 
 
 function EmptyList() {
-  return <ListEmptyComponent text='Nenhuma assinatura identificada. Crie transações recorrentes (mensais ou anuais) para identificá-las automaticamente aqui.' />;
+  return (
+    <ListEmptyComponent text='Nenhuma assinatura identificada. Crie transações recorrentes (mensais ou anuais) para identificá-las automaticamente aqui.' />
+  );
 }
+
 export function Subscriptions() {
   const theme = useTheme() as ThemeProps;
   const router = useRouter();
@@ -313,7 +316,7 @@ export function Subscriptions() {
         {/* ── Add subscription: transaction picker ───────────── */}
         <ModalViewSelection
           $modal
-          title='Selecione a transação'
+          title=''
           bottomSheetRef={transactionSelectSheetRef}
           snapPoints={['85%']}
         >

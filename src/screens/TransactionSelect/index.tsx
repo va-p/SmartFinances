@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, RefreshControl } from 'react-native';
 import { Container } from './styles';
 
+import { useForm } from 'react-hook-form';
 import { FlatList } from 'react-native-gesture-handler';
 
 // Components
-import TransactionListItem from '@components/TransactionListItem';
+import { Header } from '@components/Header';
+import { SearchBar } from '@components/SearchBar';
 import { ListSeparator } from '@components/ListSeparator';
 import { Load } from '@components/Button/components/Load';
+import TransactionListItem from '@components/TransactionListItem';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 
 // Hooks
@@ -20,7 +23,14 @@ import { useUserConfigs } from '@stores/userConfigsStorage';
 import { selectSubscriptionCandidates } from '@utils/subscriptionDesignation';
 
 // Interfaces
+import { TagProps } from '@components/TagListItem';
 import { TransactionProps } from '@interfaces/transactions';
+
+function EmptyList() {
+  return (
+    <ListEmptyComponent text='Nenhuma transação elegível. Apenas transações de crédito ou débito ainda não classificadas como assinatura podem ser selecionadas.' />
+  );
+}
 
 type Props = {
   setTransaction: (transaction: TransactionProps) => void;
@@ -32,16 +42,8 @@ type Props = {
    * the subscription candidates so existing callers behave identically.
    * Counterpart mode passes a `selectCounterpartCandidates`-based filter.
    */
-  candidatesFilter?: (
-    transactions: TransactionProps[]
-  ) => TransactionProps[];
+  candidatesFilter?: (transactions: TransactionProps[]) => TransactionProps[];
 };
-
-function EmptyList() {
-  return (
-    <ListEmptyComponent text='Nenhuma transação elegível. Apenas transações de crédito ou débito ainda não classificadas como assinatura podem ser selecionadas.' />
-  );
-}
 
 /**
  * Picker for designating a subscription from existing transactions:
@@ -63,6 +65,44 @@ export function TransactionSelect({
     refetch,
     isRefetching,
   } = useTransactionsQuery();
+  const [showSearchInput, setShowSearchInput] = useState(false);
+
+  const { control, watch, reset } = useForm();
+  const searchQuery = watch('search', '');
+
+  const candidates = useMemo(
+    () => candidatesFilter(transactions ?? []),
+    [candidatesFilter, transactions]
+  );
+
+  // Transaction filtering with search
+  const filteredCandidates = useMemo(() => {
+    const normalizedQuery = searchQuery
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    if (!normalizedQuery) {
+      return candidates;
+    }
+
+    return candidates.filter((transaction) => {
+      const searchableText = [
+        transaction.description,
+        transaction.category?.name,
+        transaction.tags?.map((tag: TagProps) => tag.name).join(' '),
+        String(transaction.amount),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+      return searchableText.includes(normalizedQuery);
+    });
+  }, [candidates, searchQuery]);
 
   function handleRefresh() {
     refetch();
@@ -85,23 +125,42 @@ export function TransactionSelect({
     );
   }
 
-  const candidates = candidatesFilter(transactions ?? []);
-
   return (
     <Container>
+      <Header.Root justifyContent='space-between'>
+        <Header.Title title='Selecione a transação' numberOfLines={1} />
+        <Header.SearchButton
+          onPress={() => {
+            setShowSearchInput((prevState) => {
+              if (prevState) reset();
+              return !prevState;
+            });
+          }}
+        />
+      </Header.Root>
+
+      {showSearchInput && (
+        <SearchBar control={control} onClear={() => reset()} />
+      )}
+
       <FlatList
-        data={candidates}
+        data={filteredCandidates}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item, index }) => (
           <TransactionListItem
             data={item}
             index={index}
             hideAmount={hideAmount}
-            disabled={disabled}
             onPress={() => handleTransactionSelect(item)}
           />
         )}
-        ListEmptyComponent={EmptyList}
+        ListEmptyComponent={
+          searchQuery.trim() ? (
+            <ListEmptyComponent text={`Nenhuma transação encontrada para "${searchQuery}".`} />
+          ) : (
+            <EmptyList />
+          )
+        }
         ItemSeparatorComponent={ListSeparator}
         refreshControl={
           <RefreshControl

@@ -389,8 +389,6 @@ export function Home() {
     }
   }, [widgetParams.addTransaction, router]);
 
-
-
   async function handleHideData() {
     try {
       const { status } = await api.patch(`user/${userID}/configs`, {
@@ -459,7 +457,12 @@ export function Home() {
             </CashFlowContainer>
 
             <SearchButton
-              onPress={() => setShowSearchInput((prevState) => !prevState)}
+              onPress={() => {
+                setShowSearchInput((prevState) => {
+                  if (prevState) reset();
+                  return !prevState;
+                });
+              }}
             >
               <MagnifyingGlassIcon size={20} color={theme.colors.primary} />
             </SearchButton>
@@ -582,7 +585,13 @@ export function Home() {
                 ? 'sectionHeader'
                 : 'row'
             }
-            ListEmptyComponent={() => renderEmpty()}
+            ListEmptyComponent={
+              searchQuery.trim() ? (
+                <ListEmptyComponent text={`Nenhuma transação encontrada para "${searchQuery}".`} />
+              ) : (
+                () => renderEmpty()
+              )
+            }
             refreshControl={
               <RefreshControl
                 refreshing={isSyncing}

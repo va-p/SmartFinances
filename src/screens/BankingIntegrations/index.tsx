@@ -34,7 +34,6 @@ export function BankingIntegrations() {
   const theme = useTheme() as ThemeProps;
   const bottomTabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
-  const { showHeader } = useLocalSearchParams();
   const usage = useBenefits((state) => state.usage);
   const limits = useBenefits((state) => state.limits);
   // BEN-44: connection gating is plan-limit based (not the legacy premium flag)

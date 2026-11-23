@@ -54,8 +54,9 @@ export function PremiumBenefits() {
     useCallback(() => {
       function getSubscriptionEndDate() {
         const subscriptionEndDateAux = addDays(new Date(), 14);
-        const subscriptionEndDateFormatted =
-          formatDatePtBr(subscriptionEndDateAux).extensive;
+        const subscriptionEndDateFormatted = formatDatePtBr(
+          subscriptionEndDateAux
+        ).extensive;
         setSubscriptionEndDate(subscriptionEndDateFormatted);
       }
 
@@ -70,7 +71,7 @@ export function PremiumBenefits() {
 
         <Header.Root>
           <Header.BackButton />
-          <Header.Title title="Escolha seu plano" />
+          <Header.Title title='Escolha seu plano' />
         </Header.Root>
 
         <ScrollContent>
@@ -82,23 +83,15 @@ export function PremiumBenefits() {
           </Description>
 
           <PremiumBenefitsContainer>
-            <Benefit description="Dicas Personalizadas" />
+            <Benefit description='Sincronize suas Contas, Investimentos e Cartões com o Open Finance' />
 
-            <Benefit description="Armazenamento Ilimitado de Imagens" />
+            <Benefit description='Categorização Automática das Transações com Inteligência Artificial' />
 
-            <Benefit
-              description="Insights Inteligentes Gerados com Inteligência Artificial"
-            />
+            <Benefit description='Dicas Personalizadas pela nossa Inteligência Artificial' />
 
-            {/* <Benefit description={'Sincronização de Contas Bancárias'} /> */}
+            <Benefit description='Armazenamento Ilimitado de Imagens' />
 
-            {/* <Benefit description={'Sincronização de Cartões de Crédito'} /> */}
-
-            {/* <Benefit
-              description={
-                'Categorização das Transações com Inteligência Artificial'
-              }
-            /> */}
+            <Benefit description='Insights Inteligentes Gerados pela nossa Inteligência Artificial' />
           </PremiumBenefitsContainer>
 
           <PackagesContainer>

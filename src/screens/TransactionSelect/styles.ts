@@ -3,4 +3,5 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export const Container = styled(GestureHandlerRootView)`
   flex: 1;
+  padding: 0 16px 16px;
 `;

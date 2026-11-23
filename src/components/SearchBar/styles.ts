@@ -9,7 +9,7 @@ export const SearchInputContainer = styled.View`
   min-height: 40px;
   max-height: 40px;
   align-items: center;
-  margin: 8px 16px;
+  margin: 8px;
   background-color: ${({ theme }) => (theme as ThemeProps).colors.shape};
   border-radius: ${({ theme }) =>
     (theme as ThemeProps).borders.borderRadiusButtonAndInput};

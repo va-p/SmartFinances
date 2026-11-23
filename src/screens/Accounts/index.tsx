@@ -118,8 +118,13 @@ export function Accounts() {
     usdQuoteEur,
     usdQuoteBtc,
   } = useQuotes();
-  const { hideAmount, setHideAmount, sortingOption, setSortingOption, baseCurrency } =
-    useUserConfigs();
+  const {
+    hideAmount,
+    setHideAmount,
+    sortingOption,
+    setSortingOption,
+    baseCurrency,
+  } = useUserConfigs();
   const { selectedPeriod } = useSelectedPeriod();
   const registerAccountBottomSheetRef = useRef<BottomSheetModal>(null);
   const chartPeriodSelectedBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -216,10 +221,10 @@ export function Accounts() {
         totalAccountAmountConverted:
           account.currency.code !== baseCurrency.code
             ? formatCurrency(
-              baseCurrency.code,
-              accountBalanceConvertedToBase,
-              false
-            )
+                baseCurrency.code,
+                accountBalanceConvertedToBase,
+                false
+              )
             : undefined,
         // Raw numeric balance preserved for sorting by balance value.
         rawBalance: Number(account.balance),
@@ -284,8 +289,7 @@ export function Accounts() {
       }
 
       const totalConverted = accounts.reduce(
-        (sum, account) =>
-          sum.plus(account.accountBalanceConvertedToBase ?? 0),
+        (sum, account) => sum.plus(account.accountBalanceConvertedToBase ?? 0),
         new Decimal(0)
       );
 
@@ -410,14 +414,14 @@ export function Accounts() {
 
       if (sortingOption === 'balance-asc') {
         return (
-          a: typeof processedAccounts[number],
-          b: typeof processedAccounts[number]
+          a: (typeof processedAccounts)[number],
+          b: (typeof processedAccounts)[number]
         ) => a.accountBalanceConvertedToBase - b.accountBalanceConvertedToBase;
       }
 
       return (
-        a: typeof processedAccounts[number],
-        b: typeof processedAccounts[number]
+        a: (typeof processedAccounts)[number],
+        b: (typeof processedAccounts)[number]
       ) => b.accountBalanceConvertedToBase - a.accountBalanceConvertedToBase;
     };
     const accountCmp = pickAccountCmp();
@@ -439,29 +443,32 @@ export function Accounts() {
 
   // Credit card carousel: sorted alphabetically by name,
   // a flat sort, no sub-grouping or headers (AC15.3).
-  const creditCardAccounts: AccountProps[] = useMemo(() => processedAccounts
-    .filter(
-      (account) =>
-        !account.isVirtual &&
-          account.type === 'CREDIT' &&
-          account.subtype === 'CREDIT_CARD'
-    )
-    .sort((a, b) => {
-      const nameA = a.name;
-      const nameB = b.name;
+  const creditCardAccounts: AccountProps[] = useMemo(
+    () =>
+      processedAccounts
+        .filter(
+          (account) =>
+            !account.isVirtual &&
+            account.type === 'CREDIT' &&
+            account.subtype === 'CREDIT_CARD'
+        )
+        .sort((a, b) => {
+          const nameA = a.name;
+          const nameB = b.name;
 
-      if (nameA && nameB) {
-        const institutionComparison =
-            nameA.localeCompare(nameB);
-        if (institutionComparison !== 0) return institutionComparison;
-      } else if (nameA && !nameB) {
-        return -1;
-      } else if (!nameA && nameB) {
-        return 1;
-      }
+          if (nameA && nameB) {
+            const institutionComparison = nameA.localeCompare(nameB);
+            if (institutionComparison !== 0) return institutionComparison;
+          } else if (nameA && !nameB) {
+            return -1;
+          } else if (!nameA && nameB) {
+            return 1;
+          }
 
-      return a.name.localeCompare(b.name);
-    }), [processedAccounts]);
+          return a.name.localeCompare(b.name);
+        }),
+    [processedAccounts]
+  );
 
   // Account filtering with search — applies after the existing sorting, so
   // the sort choice is preserved while the query narrows the rendered list.
@@ -851,11 +858,9 @@ export function Accounts() {
                 ? `institution-${item.data.id}`
                 : String(item.data.id)
             }
-            renderItem={({
-              item,
-              index,
-            }: _renderAccountsListItemProps) =>
-              renderAccountsListItem({ item, index })}
+            renderItem={({ item, index }: _renderAccountsListItemProps) =>
+              renderAccountsListItem({ item, index })
+            }
             refreshControl={
               <RefreshControl
                 refreshing={isRefetchingTransactions || isRefetchingAccounts}
@@ -873,7 +878,8 @@ export function Accounts() {
                 <SortFilterButton
                   selectedOption={sortingOption}
                   onSelect={(option: typeof sortingOption) =>
-                    handleSelectSorting(option)}
+                    handleSelectSorting(option)
+                  }
                 />
               </SectionTitleAndFilterContainer>
             }
@@ -886,10 +892,9 @@ export function Accounts() {
                     data={filteredCreditCardAccounts}
                     keyExtractor={(item) => String(item.id)}
                     renderItem={({ item, index }: _renderItemProps) =>
-                      renderItem({ item, index })}
-                    snapToOffsets={[
-                      ...Array(creditCardAccounts.length),
-                    ].map(
+                      renderItem({ item, index })
+                    }
+                    snapToOffsets={[...Array(creditCardAccounts.length)].map(
                       (x, i) => i * (SCREEN_WIDTH * 0.8 - 32) + (i - 1) * 32
                     )}
                     refreshControl={
@@ -912,7 +917,15 @@ export function Accounts() {
                 </>
               ) : null
             }
-            ListEmptyComponent={() => renderEmpty()}
+            ListEmptyComponent={
+              searchQuery.trim() ? (
+                <ListEmptyComponent
+                  text={`Nenhuma conta encontrada para "${searchQuery}".`}
+                />
+              ) : (
+                () => renderEmpty()
+              )
+            }
           />
 
           {/** SCREEN FOOTER */}

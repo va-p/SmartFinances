@@ -46,17 +46,19 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { getYear, isValid } from 'date-fns';
 import {
   Gesture,
   GestureDetector,
   RectButton,
 } from 'react-native-gesture-handler';
-import { useTheme } from 'styled-components';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
 import { useForm } from 'react-hook-form';
+import { getYear, isValid } from 'date-fns';
+import { useTheme } from 'styled-components';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useBottomTabBarHeight } from '@hooks/useBottomTabBarHeight';
+
+// Icons
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
 
@@ -64,17 +66,17 @@ import { BankIcon } from 'phosphor-react-native/src/icons/Bank';
 import { Screen } from '@components/Screen';
 import { Header } from '@components/Header';
 import { Gradient } from '@components/Gradient';
+import { SearchBar } from '@components/SearchBar';
 import { PeriodRuler } from '@components/PeriodRuler';
 import { FilterButton } from '@components/FilterButton';
 import { ModalView } from '@components/Modals/ModalView';
-import TransactionListItem from '@components/TransactionListItem';
 import { AccountListItem } from '@components/AccountListItem';
+import TransactionListItem from '@components/TransactionListItem';
 import { SectionListHeader } from '@components/SectionListHeader';
 import { ListEmptyComponent } from '@components/ListEmptyComponent';
 import { ModalViewSelection } from '@components/Modals/ModalViewSelection';
 import { SkeletonAccountsScreen } from '@components/SkeletonAccountsScreen';
 import { ModalViewWithoutHeader } from '@components/Modals/ModalViewWithoutHeader';
-import { SearchBar } from '@components/SearchBar';
 
 // Screens
 import { RegisterAccount } from '@screens/RegisterAccount';
@@ -589,7 +591,12 @@ export function Account() {
               <Header.Title title={accountName || ''} numberOfLines={3} />
               <HeaderButtonGroup>
                 <Header.SearchButton
-                  onPress={() => setShowSearchInput((prevState) => !prevState)}
+                  onPress={() => {
+                    setShowSearchInput((prevState) => {
+                      if (prevState) reset();
+                      return !prevState;
+                    });
+                  }}
                 />
                 <Header.Icon onPress={() => handleOpenEditAccount()} />
               </HeaderButtonGroup>

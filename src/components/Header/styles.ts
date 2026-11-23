@@ -5,8 +5,8 @@ import { ThemeProps } from '@interfaces/theme';
 
 type ContainerProps = {
   childsCount: number;
+  justifyContent?: 'center' | 'flex-start' | 'space-between';
 };
-
 export const Container = styled.View<ContainerProps>`
   width: 100%;
   flex-direction: row;
@@ -29,6 +29,12 @@ export const Container = styled.View<ContainerProps>`
     childsCount >= 3 &&
     css`
       justify-content: space-between;
+    `};
+
+  ${({ justifyContent }) =>
+    justifyContent &&
+    css`
+      justify-content: ${justifyContent};
     `};
 `;
 
