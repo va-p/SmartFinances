@@ -595,10 +595,10 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] Actual rows remain paid and forecast rows pending; keys distinguish multiple actual charges; UUID navigation is preserved.
-- [ ] Empty/manual behavior remains unchanged.
-- [ ] Quick gate passes: `yarn jest src/__tests__/screens/subscriptionPayments.spec.tsx src/__tests__/components/subscriptionPaymentListItem.spec.tsx --runInBand --watchman=false --forceExit`.
-- [ ] Test count: at least 5 new tests pass.
+- [x] Actual rows remain paid and forecast rows pending; keys distinguish multiple actual charges; UUID navigation is preserved.
+- [x] Empty/manual behavior remains unchanged.
+- [x] Quick gate passes: `yarn jest src/__tests__/screens/subscriptionPayments.spec.tsx src/__tests__/components/subscriptionPaymentListItem.spec.tsx --runInBand --watchman=false --forceExit`.
+- [x] Test count: at least 5 new tests pass.
 
 **Tests**: unit
 **Gate**: quick, then build

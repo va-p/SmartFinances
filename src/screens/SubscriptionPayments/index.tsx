@@ -198,7 +198,7 @@ export function SubscriptionPayments() {
           <FlatList
             data={payments ?? []}
             keyExtractor={(item) =>
-              `${item.subscription_id}-${item.date}`
+              `${item.subscription_id}-${item.transaction_id ?? 'forecast'}-${item.date}`
             }
             renderItem={({ item, index }) => renderItem({ item, index })}
             ListEmptyComponent={() => EmptyList()}
