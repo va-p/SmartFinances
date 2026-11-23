@@ -453,10 +453,10 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] IDs and route params accept both sources without numeric coercion of UUIDs.
-- [ ] Existing summary/display tests are updated only for approved DTO types and pass.
-- [ ] Quick gate passes: `yarn jest src/utils/__tests__/subscriptionPaymentsSummary.test.ts src/utils/__tests__/subscriptionDisplay.test.ts --runInBand --watchman=false --forceExit`.
-- [ ] Test count: all pre-existing tests in both suites pass with no silent deletions.
+- [x] IDs and route params accept both sources without numeric coercion of UUIDs.
+- [x] Existing summary/display tests are updated only for approved DTO types and pass.
+- [x] Quick gate passes: `yarn jest src/utils/__tests__/subscriptionPaymentsSummary.test.ts src/utils/__tests__/subscriptionDisplay.test.ts --runInBand --watchman=false --forceExit`.
+- [x] Test count: all pre-existing tests in both suites pass with no silent deletions.
 
 **Tests**: unit
 **Gate**: quick, then build

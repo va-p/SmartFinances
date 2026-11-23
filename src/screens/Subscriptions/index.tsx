@@ -87,10 +87,10 @@ export function Subscriptions() {
     [subscriptions, quotes, baseCurrencyCode]
   );
 
-  function handleOpenDetails(id: number) {
+  function handleOpenDetails(id: string) {
     router.navigate({
       pathname: '/options/subscriptionDetails',
-      params: { id: String(id) },
+      params: { id },
     });
   }
 
@@ -199,7 +199,7 @@ export function Subscriptions() {
         ) : (
           <FlatList
             data={subscriptions ?? []}
-            keyExtractor={(item) => String(item.id)}
+            keyExtractor={(item) => item.id}
             renderItem={({
               item,
               index,

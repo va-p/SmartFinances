@@ -2,10 +2,13 @@ import { CategoryProps } from './categories';
 import { CurrencyProps } from './currencies';
 
 export type SubscriptionRecurrencePeriod = 'MONTHLY' | 'YEARLY';
+export type SubscriptionSource = 'MANUAL' | 'SYNCED';
 
 export interface SubscriptionProps {
-  /** Parent transaction id. */
-  id: number;
+  /** Manual parent id as a string, or synced series UUID. */
+  id: string;
+  source: SubscriptionSource;
+  transaction_id: number | null;
   description: string;
   amount: number;
   currency: CurrencyProps;
@@ -15,13 +18,15 @@ export interface SubscriptionProps {
   /** Billing day of month (1–31). */
   day: number;
   next_payment_at: string | null;
-  last_payment_at: string | null;
+  last_payment_at: string;
   is_subscription: boolean;
   hide_from_subscription_list: boolean;
 }
 
 export interface SubscriptionPaymentProps {
-  subscription_id: number;
+  subscription_id: string;
+  source: SubscriptionSource;
+  transaction_id: number | null;
   description: string;
   amount: number;
   currency: CurrencyProps;
@@ -31,4 +36,5 @@ export interface SubscriptionPaymentProps {
   date: string;
   recurrence_period: SubscriptionRecurrencePeriod | null;
   is_paid: boolean;
+  is_forecast: boolean;
 }

@@ -123,10 +123,10 @@ export function SubscriptionPayments() {
     helpSheetRef.current?.dismiss();
   }
 
-  function handleOpenSubscription(subscriptionId: number) {
+  function handleOpenSubscription(subscriptionId: string) {
     router.navigate({
       pathname: '/options/subscriptionDetails',
-      params: { id: String(subscriptionId) },
+      params: { id: subscriptionId },
     });
   }
 

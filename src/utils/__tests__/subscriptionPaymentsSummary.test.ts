@@ -32,7 +32,9 @@ const localISO = (y: number, m: number, day: number) =>
 const makeSubscription = (
   overrides: Partial<SubscriptionProps> = {},
 ): SubscriptionProps => ({
-  id: 1,
+  id: '1',
+  source: 'MANUAL',
+  transaction_id: 1,
   description: 'Amazon Prime',
   amount: 19.9,
   currency: { id: 1, name: 'Real', code: 'BRL', symbol: 'R$' },
@@ -55,7 +57,9 @@ const makeSubscription = (
 const makePayment = (
   overrides: Partial<SubscriptionPaymentProps> = {},
 ): SubscriptionPaymentProps => ({
-  subscription_id: 1,
+  subscription_id: '1',
+  source: 'MANUAL',
+  transaction_id: null,
   description: 'Amazon Prime',
   amount: 19.9,
   currency: { id: 1, name: 'Real', code: 'BRL', symbol: 'R$' },
@@ -69,6 +73,7 @@ const makePayment = (
   date: localISO(2026, 8, 6),
   recurrence_period: 'MONTHLY',
   is_paid: false,
+  is_forecast: false,
   ...overrides,
 });
 
@@ -100,9 +105,9 @@ describe('getUpcomingPaymentsSummary', () => {
   it('aggregates the next upcoming month total and count in BRL', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, description: 'Amazon Prime', amount: 19.9 }),
+        makeSubscription({ id: '1', description: 'Amazon Prime', amount: 19.9 }),
         makeSubscription({
-          id: 2,
+          id: '2',
           description: 'Apple',
           amount: 59.9,
           next_payment_at: localISO(2026, 8, 7),
@@ -115,11 +120,30 @@ describe('getUpcomingPaymentsSummary', () => {
     expect(summary).toEqual({ month: '2026-08', count: 2, total: 79.8 });
   });
 
+  it('aggregates manual and UUID-identified synced subscriptions together', () => {
+    const summary = getUpcomingPaymentsSummary(
+      [
+        makeSubscription({ id: '1', amount: 19.9 }),
+        makeSubscription({
+          id: '7b386a1c-91ef-43ed-a9f4-fcf8a74f02db',
+          source: 'SYNCED',
+          transaction_id: null,
+          amount: 59.9,
+          next_payment_at: localISO(2026, 8, 7),
+        }),
+      ],
+      quotes,
+      new Date(2026, 6, 30),
+    );
+
+    expect(summary).toEqual({ month: '2026-08', count: 2, total: 79.8 });
+  });
+
   it('ignores occurrences strictly in the past', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, next_payment_at: localISO(2026, 7, 6) }),
-        makeSubscription({ id: 2, next_payment_at: localISO(2026, 8, 6) }),
+        makeSubscription({ id: '1', next_payment_at: localISO(2026, 7, 6) }),
+        makeSubscription({ id: '2', next_payment_at: localISO(2026, 8, 6) }),
       ],
       quotes,
       new Date(2026, 6, 30),
@@ -131,8 +155,8 @@ describe('getUpcomingPaymentsSummary', () => {
   it('picks the earliest month with upcoming payments', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, next_payment_at: localISO(2026, 9, 6) }),
-        makeSubscription({ id: 2, next_payment_at: localISO(2026, 8, 6) }),
+        makeSubscription({ id: '1', next_payment_at: localISO(2026, 9, 6) }),
+        makeSubscription({ id: '2', next_payment_at: localISO(2026, 8, 6) }),
       ],
       quotes,
       new Date(2026, 6, 30),
@@ -144,7 +168,7 @@ describe('getUpcomingPaymentsSummary', () => {
   it('keeps occurrences of the current month that are still ahead', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, next_payment_at: localISO(2026, 8, 6) }),
+        makeSubscription({ id: '1', next_payment_at: localISO(2026, 8, 6) }),
       ],
       quotes,
       new Date(2026, 7, 3), // Aug 3, 2026
@@ -156,8 +180,8 @@ describe('getUpcomingPaymentsSummary', () => {
   it('returns null when there are no upcoming payments', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, next_payment_at: null }),
-        makeSubscription({ id: 2, next_payment_at: localISO(2026, 1, 6) }),
+        makeSubscription({ id: '1', next_payment_at: null }),
+        makeSubscription({ id: '2', next_payment_at: localISO(2026, 1, 6) }),
       ],
       quotes,
       new Date(2026, 6, 30),
@@ -169,9 +193,9 @@ describe('getUpcomingPaymentsSummary', () => {
   it('skips subscriptions with unsupported currencies instead of crashing', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, amount: 19.9 }),
+        makeSubscription({ id: '1', amount: 19.9 }),
         makeSubscription({
-          id: 2,
+          id: '2',
           amount: 10,
           currency: {
             id: 9,
@@ -192,9 +216,9 @@ describe('getUpcomingPaymentsSummary', () => {
   it('aggregates the upcoming month total in the base currency', () => {
     const summary = getUpcomingPaymentsSummary(
       [
-        makeSubscription({ id: 1, amount: 19.9, currency: brlCurrency }),
+        makeSubscription({ id: '1', amount: 19.9, currency: brlCurrency }),
         makeSubscription({
-          id: 2,
+          id: '2',
           amount: 59.9,
           next_payment_at: localISO(2026, 8, 7),
           currency: usdCurrency,
@@ -216,7 +240,7 @@ describe('computePaymentsTotal', () => {
     const total = computePaymentsTotal(
       [
         makePayment({ amount: 19.9 }),
-        makePayment({ subscription_id: 2, amount: 59.9 }),
+        makePayment({ subscription_id: '2', amount: 59.9 }),
       ],
       quotes,
     );
@@ -259,7 +283,7 @@ describe('computePaymentsTotal', () => {
       [
         makePayment({ amount: 19.9, currency: brlCurrency }),
         makePayment({
-          subscription_id: 2,
+          subscription_id: '2',
           amount: 10,
           currency: usdCurrency,
         }),

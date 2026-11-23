@@ -55,4 +55,5 @@ export interface AccountProps {
   institution?: { id: string; name: string } | null;
   bankingIntegrationId?: string;
   bankingIntegration?: BankingIntegration;
+  banking_integration?: BankingIntegration | null;
 }
