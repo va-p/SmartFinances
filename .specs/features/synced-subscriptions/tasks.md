@@ -477,9 +477,9 @@ T16 → T21
 - Skill: NONE
 
 **Done when**:
-- [ ] Null synced periodicity shows `Sem previsão da próxima cobrança`; MONTHLY/YEARLY output and manual empty behavior remain spec-compliant.
-- [ ] Quick gate passes: `yarn jest src/utils/__tests__/subscriptionDisplay.test.ts src/__tests__/components/subscriptionListItem.spec.tsx --runInBand --watchman=false --forceExit`.
-- [ ] Test count: at least 4 new tests pass.
+- [x] Null synced periodicity shows `Sem previsão da próxima cobrança`; MONTHLY/YEARLY output and manual empty behavior remain spec-compliant.
+- [x] Quick gate passes: `yarn jest src/utils/__tests__/subscriptionDisplay.test.ts src/__tests__/components/subscriptionListItem.spec.tsx --runInBand --watchman=false --forceExit`.
+- [x] Test count: at least 4 new tests pass.
 
 **Tests**: unit
 **Gate**: quick, then build

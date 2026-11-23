@@ -38,11 +38,15 @@ export function subscriptionRecurrenceLabel(
   }
 }
 
-/** "Mensal · Dia 6" (empty when the recurrence is not set). */
+/** Manual rows stay empty without recurrence; synced rows explain the missing forecast. */
 export function subscriptionFrequencyText(
-  subscription: Pick<SubscriptionProps, 'recurrence_period' | 'day'>
+  subscription: Pick<SubscriptionProps, 'source' | 'recurrence_period' | 'day'>
 ): string {
   const label = subscriptionRecurrenceLabel(subscription.recurrence_period);
-  if (!label) return '';
+  if (!label) {
+    return subscription.source === 'SYNCED'
+      ? 'Sem previsão da próxima cobrança'
+      : '';
+  }
   return `${label} · Dia ${subscription.day}`;
 }

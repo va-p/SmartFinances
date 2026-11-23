@@ -22,20 +22,62 @@ describe('subscriptionFrequencyText', () => {
   // AC9.2 — "Mensal · Dia 6"
   it('builds "Mensal · Dia 6" from period and day', () => {
     expect(
-      subscriptionFrequencyText({ recurrence_period: 'MONTHLY', day: 6 })
+      subscriptionFrequencyText({
+        source: 'MANUAL',
+        recurrence_period: 'MONTHLY',
+        day: 6,
+      })
     ).toBe('Mensal · Dia 6');
   });
 
   it('builds "Anual · Dia 15" for yearly subscriptions', () => {
     expect(
-      subscriptionFrequencyText({ recurrence_period: 'YEARLY', day: 15 })
+      subscriptionFrequencyText({
+        source: 'MANUAL',
+        recurrence_period: 'YEARLY',
+        day: 15,
+      })
     ).toBe('Anual · Dia 15');
   });
 
-  it('returns empty when the recurrence period is missing', () => {
+  it('returns empty when a manual recurrence period is missing', () => {
     expect(
-      subscriptionFrequencyText({ recurrence_period: null, day: 6 })
+      subscriptionFrequencyText({
+        source: 'MANUAL',
+        recurrence_period: null,
+        day: 6,
+      })
     ).toBe('');
+  });
+
+  it('shows the exact no-forecast copy for a synced series without periodicity', () => {
+    expect(
+      subscriptionFrequencyText({
+        source: 'SYNCED',
+        recurrence_period: null,
+        day: 6,
+      })
+    ).toBe('Sem previsão da próxima cobrança');
+  });
+
+  it('keeps the monthly label for a synced series with a forecast', () => {
+    expect(
+      subscriptionFrequencyText({
+        source: 'SYNCED',
+        recurrence_period: 'MONTHLY',
+        day: 6,
+      })
+    ).toBe('Mensal · Dia 6');
+  });
+
+  it('keeps the yearly label for a synced series with a forecast', () => {
+    expect(
+      subscriptionFrequencyText({
+        source: 'SYNCED',
+        recurrence_period: 'YEARLY',
+        day: 15,
+      })
+    ).toBe('Anual · Dia 15');
   });
 });
 
